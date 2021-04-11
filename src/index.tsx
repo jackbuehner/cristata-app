@@ -5,12 +5,15 @@ import { ModalProvider } from 'react-modal-hook';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from './utils/theme';
 import reportWebVitals from './reportWebVitals';
+import { DropdownProvider } from './hooks/useDropdown';
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <ModalProvider>
-        <App />
+        <DropdownProvider>
+          <App />
+        </DropdownProvider>
       </ModalProvider>
     </ThemeProvider>
   </React.StrictMode>,

@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
@@ -6,6 +8,17 @@ import { useDrag } from 'react-dnd';
 import { Card as ICard } from '../../../interfaces/github/plans';
 import useDimensions from 'react-use-dimensions';
 import { useMemo } from 'react';
+import { IconButton } from '../../../components/Button';
+import {
+  Archive16Regular,
+  ChevronCircleDown24Regular,
+  Delete16Regular,
+  Info16Regular,
+  MoreHorizontal16Regular,
+  Rename16Regular,
+} from '@fluentui/react-icons';
+import { useDropdown } from '../../../hooks/useDropdown';
+import { Menu } from '../../../components/Menu';
 
 /**
  * Styled component for the card.
@@ -13,8 +26,7 @@ import { useMemo } from 'react';
  * This componenet is only the container for the card contents
  */
 const CardContainer = styled.div<{ theme: themeType; isDragging: boolean }>`
-  display: inline-flex;
-  flex-direction: column;
+  display: block;
   border: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
   background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
   border-radius: ${({ theme }) => theme.radius};
@@ -30,7 +42,7 @@ const CardContainer = styled.div<{ theme: themeType; isDragging: boolean }>`
  * If the card is linked to an issue, this componenet will style the note
  * like a hyperlink.
  */
-const Note = styled.span<{ theme: themeType; href?: string }>`
+const Note = styled.p<{ theme: themeType; href?: string }>`
   font-family: ${({ theme, href }) => (href ? theme.font.headline : theme.font.body)};
   font-size: ${({ href }) => (href ? 14.25 : 15)}px;
   color: ${({ href, theme }) => (href ? theme.color.primary[800] : theme.color.neutral[theme.mode][1500])};
@@ -39,12 +51,13 @@ const Note = styled.span<{ theme: themeType; href?: string }>`
     ${({ href }) => (href ? `text-decoration: underline; cursor: pointer` : '')}
   }
   white-space: pre-line;
+  margin: 0;
 `;
 
 /**
  * Styled component for the byline for the card.
  */
-const By = styled.span<{ theme: themeType }>`
+const By = styled.div<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.font.detail};
   font-size: 13px;
   font-weight: 400;
@@ -145,9 +158,70 @@ function Card(props: ICard) {
     };
   }, [props.issue]);
 
+  // dropdown/three-dot menu
+  const { showDropdown, triggerRect, getDropdownRect } = useDropdown(
+    () => {
+      const dropdownRect = getDropdownRect();
+      return (
+        <Menu
+          pos={{
+            top: triggerRect.bottom,
+            left: triggerRect.left + triggerRect.width - (dropdownRect ? dropdownRect.width : 0),
+          }}
+          items={
+            props.issue
+              ? [
+                  {
+                    label: 'Archive',
+                    icon: <Archive16Regular />,
+                  },
+                  {
+                    label: 'Remove from project',
+                    icon: <ChevronCircleDown24Regular />,
+                  },
+                ]
+              : [
+                  {
+                    label: 'Rename',
+                    icon: <Rename16Regular />,
+                  },
+                  {
+                    label: 'Archive',
+                    icon: <Archive16Regular />,
+                  },
+                  {
+                    label: 'Convert to issue',
+                    icon: <Info16Regular />,
+                  },
+                  {
+                    label: 'Delete',
+                    icon: <Delete16Regular />,
+                    color: 'red',
+                  },
+                ]
+          }
+        />
+      );
+    },
+    [],
+    true,
+    true
+  );
+
   return (
     <div ref={drag}>
       <CardContainer ref={cardRef} theme={theme} isDragging={isDragging}>
+        <IconButton
+          icon={<MoreHorizontal16Regular />}
+          cssExtra={css`
+            border-color: transparent;
+            background-color: transparent;
+            float: right;
+            right: -7px;
+            top: -6px;
+          `}
+          onClick={showDropdown}
+        />
         <Note href={note.href} onClick={note.onClick} theme={theme}>
           {note.content()}
         </Note>

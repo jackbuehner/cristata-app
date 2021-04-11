@@ -10,12 +10,14 @@ import { css } from '@emotion/react';
 import { Card as CardType, FullAPIProject } from '../../../interfaces/github/plans';
 import { Card } from './_Card';
 import { IconButton } from '../../../components/Button';
-import { Add16Regular, MoreHorizontal16Regular } from '@fluentui/react-icons';
+import { Add16Regular, MoreHorizontal16Regular, Rename16Regular } from '@fluentui/react-icons';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../components/Modal';
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig } from 'axios';
 import { RefetchOptions } from 'axios-hooks';
 import { toast } from 'react-toastify';
+import { useDropdown } from '../../../hooks/useDropdown';
+import { Menu } from '../../../components/Menu';
 
 /**
  * Styled component for the column.
@@ -301,6 +303,37 @@ function Column(props: IColumn) {
     );
   });
 
+  const { showDropdown: showColumnDropdown, triggerRect, getDropdownRect } = useDropdown(
+    () => {
+      const dropdownRect = getDropdownRect();
+      return (
+        <Menu
+          pos={{
+            top: triggerRect.bottom,
+            left: triggerRect.left + triggerRect.width - (dropdownRect ? dropdownRect.width : 0),
+          }}
+          items={[
+            {
+              label: 'Rename column',
+              onClick: () => console.log('hi'),
+              icon: <Rename16Regular />,
+            },
+            {
+              label: 'Archive all cards',
+            },
+            {
+              label: 'Delete column',
+              color: 'red',
+            },
+          ]}
+        />
+      );
+    },
+    [],
+    true,
+    true
+  );
+
   return (
     <ColumnWrapper theme={theme} ref={colRef}>
       <TopBar theme={theme}>
@@ -323,6 +356,7 @@ function Column(props: IColumn) {
             position: absolute;
             right: 4px;
           `}
+          onClick={showColumnDropdown}
         />
       </TopBar>
       <ContentArea>
