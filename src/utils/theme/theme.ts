@@ -36,7 +36,7 @@ export type colorShade =
   | 1500;
 
 const themeColors = {
-  red: getColorShades('red', 15) as color,
+  red: getColorShades('#900000', 15) as color,
   orange: getColorShades('orange', 15) as color,
   yellow: getColorShades('yellow', 15) as color,
   pink: getColorShades('pink', 15) as color,
