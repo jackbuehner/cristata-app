@@ -159,14 +159,15 @@ function Card(props: ICard) {
   }, [props.issue]);
 
   // dropdown/three-dot menu
-  const { showDropdown, triggerRect, getDropdownRect } = useDropdown(
-    () => {
-      const dropdownRect = getDropdownRect();
+  const [showDropdown] = useDropdown(
+    (triggerRect, dropdownRef) => {
       return (
         <Menu
+          ref={dropdownRef}
           pos={{
             top: triggerRect.bottom,
-            left: triggerRect.left + triggerRect.width - (dropdownRect ? dropdownRect.width : 0),
+            left: triggerRect.left + triggerRect.width - 240,
+            width: 240,
           }}
           items={
             props.issue
@@ -216,6 +217,7 @@ function Card(props: ICard) {
           cssExtra={css`
             border-color: transparent;
             background-color: transparent;
+            position: relative;
             float: right;
             right: -7px;
             top: -6px;

@@ -303,14 +303,15 @@ function Column(props: IColumn) {
     );
   });
 
-  const { showDropdown: showColumnDropdown, triggerRect, getDropdownRect } = useDropdown(
-    () => {
-      const dropdownRect = getDropdownRect();
+  const [showColumnDropdown] = useDropdown(
+    (triggerRect, dropdownRef) => {
       return (
         <Menu
+          ref={dropdownRef}
           pos={{
             top: triggerRect.bottom,
-            left: triggerRect.left + triggerRect.width - (dropdownRect ? dropdownRect.width : 0),
+            left: triggerRect.left + triggerRect.width - 240,
+            width: 240,
           }}
           items={[
             {
