@@ -10,7 +10,7 @@ import { css } from '@emotion/react';
 import { Card as CardType, FullAPIProject } from '../../../interfaces/github/plans';
 import { Card } from './_Card';
 import { IconButton } from '../../../components/Button';
-import { Add16Regular, MoreHorizontal16Regular, Rename16Regular } from '@fluentui/react-icons';
+import { Add16Regular, Delete16Regular, MoreHorizontal16Regular, Rename16Regular } from '@fluentui/react-icons';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../components/Modal';
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig } from 'axios';
@@ -19,6 +19,7 @@ import { toast } from 'react-toastify';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { Menu } from '../../../components/Menu';
 import { TextArea } from '../../../components/TextArea';
+import { TextInput } from '../../../components/TextInput';
 
 /**
  * Styled component for the column.
@@ -283,6 +284,136 @@ function Column(props: IColumn) {
     );
   });
 
+  const [showRenameColumnModal, hideRenameColumnModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [nameInputValue, setNameInputValue] = useState<HTMLTextAreaElement['value']>(props.title);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    /**
+     * When the user types in the field, update `nameInputValue` in state
+     */
+    const handleNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setNameInputValue(e.target.value);
+    };
+
+    /**
+     * Rename the column by patching it to the API.
+     *
+     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     */
+    const renameColumn = async (name: HTMLInputElement['value']): Promise<true | AxiosError<any>> => {
+      return await axios
+        .patch(
+          `/gh/projects/columns/${props.id}`,
+          {
+            name: name,
+          },
+          {
+            baseURL: `http://localhost:3001/api/v2`,
+            withCredentials: true,
+          }
+        )
+        .then(
+          async (): Promise<true> => {
+            if (props.refetch) await props.refetch(); // refetch the project so that it includes the renamed column
+            setIsLoading(false);
+            return true;
+          }
+        )
+        .catch(
+          (err: AxiosError): AxiosError => {
+            console.error(err);
+            toast.error(`Failed to rename column. \n ${err.message}`);
+            setIsLoading(false);
+            return err;
+          }
+        );
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideRenameColumnModal}
+        title={`Rename column`}
+        continueButton={{
+          text: 'Rename',
+          onClick: async () => {
+            setIsLoading(true);
+            const status = await renameColumn(nameInputValue);
+            // return whether the action was successful
+            if (status === true) return true;
+            return false;
+          },
+          disabled: nameInputValue.length < 1,
+        }}
+        isLoading={isLoading}
+      >
+        <TextInput
+          name={'rename-column'}
+          title={'rename-column'}
+          placeholder={'Column name'}
+          id={'rename-column'}
+          font={'detail'}
+          value={nameInputValue}
+          onChange={handleNameInputChange}
+        />
+      </PlainModal>
+    );
+  }, [props.title]);
+
+  const [showDeleteColumnModal, hideDeleteColumnModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    /**
+     * Delete the column via the API.
+     *
+     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     */
+    const deleteColumn = async () => {
+      return await axios
+        .delete(`/gh/projects/columns/${props.id}`, {
+          baseURL: `http://localhost:3001/api/v2`,
+          withCredentials: true,
+        })
+        .then(
+          async (): Promise<true> => {
+            if (props.refetch) await props.refetch(); // refetch the project so that it does not include the deleted column
+            setIsLoading(false);
+            return true;
+          }
+        )
+        .catch(
+          (err: AxiosError): AxiosError => {
+            console.error(err);
+            toast.error(`Failed to delete column. \n ${err.message}`);
+            setIsLoading(false);
+            return err;
+          }
+        );
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideDeleteColumnModal}
+        title={`Delete column?`}
+        text={`All cards in this column will be lost. This cannot be undone.`}
+        continueButton={{
+          text: 'Yes, delete column',
+          color: 'red',
+          onClick: async () => {
+            setIsLoading(true);
+            const status = await deleteColumn();
+            // return whether the action was successful
+            if (status === true) return true;
+            return false;
+          },
+        }}
+        isLoading={isLoading}
+      />
+    );
+  });
+
   const [showColumnDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
       return (
@@ -296,14 +427,13 @@ function Column(props: IColumn) {
           items={[
             {
               label: 'Rename column',
-              onClick: () => console.log('hi'),
+              onClick: showRenameColumnModal,
               icon: <Rename16Regular />,
             },
             {
-              label: 'Archive all cards',
-            },
-            {
               label: 'Delete column',
+              onClick: showDeleteColumnModal,
+              icon: <Delete16Regular />,
               color: 'red',
             },
           ]}
