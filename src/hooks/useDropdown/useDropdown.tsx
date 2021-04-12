@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { DropdownContext } from './_DropdownContext';
 
 /**
@@ -8,36 +8,15 @@ import { DropdownContext } from './_DropdownContext';
  * @returns [showDropdown, hideDropdown, triggerRect]
  */
 function useDropdown(
-  component: React.FunctionComponent<any>,
+  component: (triggerRect: DOMRect, dropdownRef: (el: HTMLOListElement) => void) => React.ReactElement,
   deps?: any[],
   hideOnClick?: boolean,
   hideOnScroll?: boolean
 ) {
-  const { setDropdown, setIsOpen, dropdownChildren } = useContext(DropdownContext)!; // end with `!` to tell typescipt that the context is not undefined
+  const { setDropdown, setIsOpen } = useContext(DropdownContext)!; // end with `!` to tell typescipt that the context is not undefined
 
   // store the position and size information of the last element that executed `showDropdown()`
   const [triggerRect, setTriggerRect] = useState<DOMRect>(new DOMRect());
-
-  // memoize the dropdown component so that it does not trigger `setDropdown` on every render
-  // (only trigger `setDropdown` when `deps` has changed)
-  const dropdownComponent = useMemo(
-    () => {
-      return component;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    deps ? [triggerRect, ...deps] : [triggerRect]
-  );
-
-  // when provided `dropdownComponent` changes, update the dropdown in the dropdown portal
-  useEffect(() => {
-    setDropdown(dropdownComponent);
-  }, [dropdownComponent, setDropdown]);
-
-  const getDropdownRect = useCallback(() => {
-    if (dropdownChildren && dropdownChildren.length > 0) {
-      return dropdownChildren[0].getBoundingClientRect();
-    }
-  }, [dropdownChildren]);
 
   /**
    * Shows the dropdown.
@@ -82,7 +61,32 @@ function useDropdown(
     }
   });
 
-  return { showDropdown, hideDropdown, triggerRect, getDropdownRect };
+  /**
+   * Callback ref for the dropdown, which is used to focus the dropdown once
+   * it appears.
+   */
+  const dropdownRef = (el: HTMLOListElement) => {
+    if (el) {
+      el.focus();
+    }
+  };
+
+  // memoize the dropdown component so that it does not trigger `setDropdown` on every render
+  // (only trigger `setDropdown` when `deps` has changed)
+  const DropdownComponent = useMemo(
+    () => {
+      return component(triggerRect, dropdownRef);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    deps ? [triggerRect, ...deps] : [triggerRect]
+  );
+
+  // when provided `DropdownComponent` changes, update the dropdown in the dropdown portal
+  useEffect(() => {
+    setDropdown(DropdownComponent);
+  }, [DropdownComponent, setDropdown]);
+
+  return { showDropdown, hideDropdown };
 }
 
 export { useDropdown };
