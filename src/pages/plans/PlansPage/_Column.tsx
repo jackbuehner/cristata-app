@@ -18,6 +18,7 @@ import { RefetchOptions } from 'axios-hooks';
 import { toast } from 'react-toastify';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { Menu } from '../../../components/Menu';
+import { TextArea } from '../../../components/TextArea';
 
 /**
  * Styled component for the column.
@@ -203,27 +204,6 @@ function Column(props: IColumn) {
       </ColumnSpace>
     );
   };
-
-  const TextArea = styled.textarea<{ theme: themeType; font?: 'headline' | 'body' | 'detail' }>`
-    padding: 8px;
-    line-height: 1.2;
-    width: 100%;
-    box-sizing: border-box;
-    border-radius: ${({ theme }) => theme.radius};
-    border: none;
-    box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
-    transition: box-shadow 240ms;
-    font-family: ${({ theme, font }) => theme.font[font ? font : 'detail']};
-    font-size: 16px;
-    font-variant-numeric: lining-nums;
-    &:hover {
-      box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
-    }
-    &:focus {
-      outline: none;
-      box-shadow: ${({ theme }) => theme.color.primary[800]} 0px 0px 0px 2px inset;
-    }
-  `;
 
   const [showAddCardModal, hideAddCardModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
