@@ -5,9 +5,9 @@ import { useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
 import { Chip } from '../../../components/Chip';
 import { useDrag } from 'react-dnd';
-import { Card as ICard } from '../../../interfaces/github/plans';
+import { Card as ICard, FullAPIProject } from '../../../interfaces/github/plans';
 import useDimensions from 'react-use-dimensions';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { IconButton } from '../../../components/Button';
 import {
   Archive16Regular,
@@ -19,6 +19,12 @@ import {
 } from '@fluentui/react-icons';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { Menu } from '../../../components/Menu';
+import { useModal } from 'react-modal-hook';
+import axios, { AxiosError, AxiosPromise, AxiosRequestConfig } from 'axios';
+import { RefetchOptions } from 'axios-hooks';
+import { toast } from 'react-toastify';
+import { PlainModal } from '../../../components/Modal';
+import { TextArea } from '../../../components/TextArea';
 
 /**
  * Styled component for the card.
@@ -64,12 +70,19 @@ const By = styled.div<{ theme: themeType }>`
   margin-top: 10px;
 `;
 
+interface ICardE extends ICard {
+  refetchProject?: (
+    config?: AxiosRequestConfig | undefined,
+    options?: RefetchOptions | undefined
+  ) => AxiosPromise<FullAPIProject>;
+}
+
 /**
  * Creates a card for the projects interface.
  *
  * Notes: requires all props for the card (retrieve it from the GitHub API).
  */
-function Card(props: ICard) {
+function Card(props: ICardE) {
   // access the theme variables
   const theme = useTheme() as themeType;
 
@@ -158,6 +171,218 @@ function Card(props: ICard) {
     };
   }, [props.issue]);
 
+  // edit card note modal
+  const [showEditCardNoteModal, hideEditCardNoteModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [noteValue, setNoteValue] = useState<HTMLTextAreaElement['value']>(props.note ? props.note : '');
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    /**
+     * When the user types in the field, update `noteValue` in state
+     */
+    const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setNoteValue(e.target.value);
+    };
+
+    /**
+     * Edit the note.
+     *
+     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     */
+    const editNote = async (note: HTMLTextAreaElement['value']): Promise<true | AxiosError<any>> => {
+      return await axios
+        .patch(
+          `/gh/projects/columns/cards/${props.id}`,
+          {
+            note: note,
+          },
+          {
+            baseURL: `http://localhost:3001/api/v2`,
+            withCredentials: true,
+          }
+        )
+        .then(
+          async (): Promise<true> => {
+            if (props.refetchProject) await props.refetchProject(); // refetch the project so that it incljdes the new card
+            setIsLoading(false);
+            return true;
+          }
+        )
+        .catch(
+          (err: AxiosError): AxiosError => {
+            console.error(err);
+            toast.error(`Failed to edit note. \n ${err.message}`);
+            setIsLoading(false);
+            return err;
+          }
+        );
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideEditCardNoteModal}
+        title={`Edit note`}
+        continueButton={{
+          text: 'Save',
+          onClick: async () => {
+            setIsLoading(true);
+            const addStatus = await editNote(noteValue);
+            // return whether the action was successful
+            if (addStatus === true) return true;
+            return false;
+          },
+          disabled: noteValue.length < 1,
+        }}
+        isLoading={isLoading}
+      >
+        <TextArea
+          name={'edit-note'}
+          id={'edit-note'}
+          theme={theme}
+          font={'body'}
+          rows={5}
+          value={noteValue}
+          onChange={handleNoteChange}
+          placeholder={`Type note...`}
+        ></TextArea>
+      </PlainModal>
+    );
+  });
+
+  /**
+   * Archives the card.
+   */
+  const archiveCard = async () => {
+    return await axios
+      .patch(
+        `/gh/projects/columns/cards/${props.id}`,
+        {
+          archived: true,
+        },
+        {
+          baseURL: `http://localhost:3001/api/v2`,
+          withCredentials: true,
+        }
+      )
+      .then(async () => {
+        if (props.refetchProject) await props.refetchProject(); // refetch the project so that it incljdes the new card
+        toast.success(`Card archived`);
+      })
+      .catch((err: AxiosError) => {
+        console.error(err);
+        toast.error(`Failed to archive card. \n ${err.message}`);
+      });
+  };
+
+  // delete card modal
+  const [showDeleteCardModal, hideDeleteCardModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    /**
+     * Edit the note.
+     *
+     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     */
+    const deleteCard = async (): Promise<true | AxiosError<any>> => {
+      return await axios
+        .delete(`/gh/projects/columns/cards/${props.id}`, {
+          baseURL: `http://localhost:3001/api/v2`,
+          withCredentials: true,
+        })
+        .then(
+          async (): Promise<true> => {
+            if (props.refetchProject) await props.refetchProject(); // refetch the project so that it does not include the deleted card
+            setIsLoading(false);
+            return true;
+          }
+        )
+        .catch(
+          (err: AxiosError): AxiosError => {
+            console.error(err);
+            toast.error(`Failed to delete card. \n ${err.message}`);
+            setIsLoading(false);
+            return err;
+          }
+        );
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideDeleteCardModal}
+        title={`Delete card?`}
+        text={`This cannot be undone.`}
+        continueButton={{
+          text: 'Yes, delete',
+          onClick: async () => {
+            setIsLoading(true);
+            const addStatus = await deleteCard();
+            // return whether the action was successful
+            if (addStatus === true) return true;
+            return false;
+          },
+          color: 'red',
+        }}
+        isLoading={isLoading}
+      ></PlainModal>
+    );
+  });
+
+  // remove card from project modal
+  const [showRemoveCardModal, hideRemoveCardModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    /**
+     * Edit the note.
+     *
+     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     */
+    const removeCard = async (): Promise<true | AxiosError<any>> => {
+      return await axios
+        .delete(`/gh/projects/columns/cards/${props.id}`, {
+          baseURL: `http://localhost:3001/api/v2`,
+          withCredentials: true,
+        })
+        .then(
+          async (): Promise<true> => {
+            if (props.refetchProject) await props.refetchProject(); // refetch the project so that it does not include the deleted card
+            setIsLoading(false);
+            return true;
+          }
+        )
+        .catch(
+          (err: AxiosError): AxiosError => {
+            console.error(err);
+            toast.error(`Failed to remove card. \n ${err.message}`);
+            setIsLoading(false);
+            return err;
+          }
+        );
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideRemoveCardModal}
+        title={`Remove card from project?`}
+        text={`You will be able to restore it from the **Add card** panel.`}
+        continueButton={{
+          text: 'Yes, remove from project',
+          onClick: async () => {
+            setIsLoading(true);
+            const addStatus = await removeCard();
+            // return whether the action was successful
+            if (addStatus === true) return true;
+            return false;
+          },
+          color: 'red',
+        }}
+        isLoading={isLoading}
+      ></PlainModal>
+    );
+  });
+
   // dropdown/three-dot menu
   const [showDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
@@ -175,28 +400,33 @@ function Card(props: ICard) {
                   {
                     label: 'Archive',
                     icon: <Archive16Regular />,
+                    onClick: archiveCard,
                   },
                   {
                     label: 'Remove from project',
                     icon: <ChevronCircleDown24Regular />,
+                    onClick: showRemoveCardModal,
                   },
                 ]
               : [
                   {
-                    label: 'Rename',
+                    label: 'Edit',
                     icon: <Rename16Regular />,
+                    onClick: showEditCardNoteModal,
                   },
                   {
                     label: 'Archive',
                     icon: <Archive16Regular />,
+                    onClick: archiveCard,
                   },
-                  {
+                  /*{
                     label: 'Convert to issue',
                     icon: <Info16Regular />,
-                  },
+                  },*/
                   {
                     label: 'Delete',
                     icon: <Delete16Regular />,
+                    onClick: showDeleteCardModal,
                     color: 'red',
                   },
                 ]

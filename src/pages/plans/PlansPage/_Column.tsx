@@ -200,7 +200,7 @@ function Column(props: IColumn) {
         last={index + 1 === props.cards?.length}
         spaceCardId={card?.id}
       >
-        {card ? <Card key={card.id} {...card}></Card> : null}
+        {card ? <Card key={card.id} refetchProject={props.refetch} {...card}></Card> : null}
       </ColumnSpace>
     );
   };
