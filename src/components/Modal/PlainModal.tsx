@@ -84,13 +84,16 @@ const ActionRow = styled.div<{ modalHasChildren: boolean; theme: themeType }>`
 `;
 
 /**
- * The indeterminate progressbar that appears underneath the modal title when `isLoading` is `true`
+ * The indeterminate progressbar that appears by the modal title when `isLoading` is `true`.
+ *
+ * It appears underneath the title when there are children, and it appears at the top of the modal
+ * when there are no children
  */
-const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType }>`
+const IndeterminateProgress = styled(LinearProgress)<{ modalHasChildren: boolean; theme: themeType }>`
   --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
   position: absolute !important;
   left: 0;
-  bottom: 0;
+  ${({ modalHasChildren }) => (modalHasChildren ? `bottom: 0;` : `top: 0;`)};
 `;
 
 interface IPlainModal {
@@ -172,6 +175,15 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
     }
   }, [ActionRowElem]);
 
+  /**
+   * Wraps text surrounded by two asterisks in `<strong>` and returns the html string.
+   */
+  const bold = (text: string) => {
+    const bold = /\*\*(.*?)\*\*/gm;
+    const html = text.replace(bold, '<strong>$1</strong>');
+    return html;
+  };
+
   return (
     <ClassNames>
       {({ css }) => {
@@ -208,7 +220,9 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
           >
             <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>
               {props.title}
-              {props.isLoading ? <IndeterminateProgress theme={theme} /> : null}
+              {props.isLoading ? (
+                <IndeterminateProgress modalHasChildren={!!props.children} theme={theme} />
+              ) : null}
             </PlainModalTitle>
             <PlainModalContent
               modalHasChildren={!!props.children}
@@ -216,9 +230,11 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               titleHeight={PlainModalTitleHeight ? PlainModalTitleHeight : 0}
               actionRowHeight={ActionRowHeight ? ActionRowHeight : 0}
             >
-              <PlainModalText theme={theme}>
-                {props.text ? props.text : props.children ? props.children : null}
-              </PlainModalText>
+              {props.text ? (
+                <PlainModalText theme={theme} dangerouslySetInnerHTML={{ __html: bold(props.text) }} />
+              ) : props.children ? (
+                <PlainModalText theme={theme}>{props.children}</PlainModalText>
+              ) : null}
             </PlainModalContent>
             <ActionRow modalHasChildren={!!props.children} theme={theme} ref={ActionRowElem}>
               <Button
