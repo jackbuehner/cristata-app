@@ -197,8 +197,9 @@ function PlansPage() {
     <>
       <DndProvider backend={HTML5Backend}>
         <PageHead
-          title={loading ? 'Loading plan...' : project ? project.name : 'Failed to load plan'}
+          title={project ? project.name : ''}
           description={project?.body}
+          isLoading={loading}
           buttons={
             <>
               <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>

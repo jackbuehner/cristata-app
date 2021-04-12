@@ -1,11 +1,13 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { LinearProgress } from '@rmwc/linear-progress';
 import { themeType } from '../../utils/theme/theme';
 
 const Wrapper = styled.div<{ theme?: themeType }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  position: relative;
   padding: 0 20px;
   height: ${({ theme }) => theme.dimensions.PageHead.height};
   width: ${({ theme }) => theme.dimensions.PageHead.width};
@@ -45,10 +47,24 @@ const Description = styled.span<{ theme?: themeType }>`
     theme.mode === 'light' ? theme.color.neutral.light[1000] : theme.color.neutral.dark[1000]};
 `;
 
+/**
+ * The indeterminate progressbar that appears at the bottom of the page header when `isLoading` is `true`.
+ *
+ * It appears underneath the title when there are children, and it appears at the top of the modal
+ * when there are no children
+ */
+const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType }>`
+  --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
+  position: absolute !important;
+  left: 0;
+  bottom: 0;
+`;
+
 interface IPageHead {
   title: string;
   description?: string;
   buttons?: React.ReactChild;
+  isLoading?: boolean;
 }
 
 function PageHead(props: IPageHead) {
@@ -61,6 +77,7 @@ function PageHead(props: IPageHead) {
         <Description>{props.description}</Description>
       </TextWrapper>
       <ButtonWrapper>{props.buttons}</ButtonWrapper>
+      {props.isLoading ? <IndeterminateProgress theme={theme} /> : null}
     </Wrapper>
   );
 }
