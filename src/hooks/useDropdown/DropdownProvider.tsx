@@ -7,7 +7,7 @@ interface IDropdownProvider {
 }
 
 function DropdownProvider({ children }: IDropdownProvider) {
-  const [Dropdown, setDropdown] = useState<React.FunctionComponent>();
+  const [Dropdown, setDropdown] = useState<React.ReactElement>(<div></div>);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [dropdownChildren, setDropdownChildren] = useState<HTMLCollection>();

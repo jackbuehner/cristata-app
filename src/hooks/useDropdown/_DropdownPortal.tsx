@@ -2,7 +2,7 @@ import { useMemo, useEffect, useCallback, forwardRef, ForwardedRef } from 'react
 import ReactDOM from 'react-dom';
 
 interface IDropdownPortal {
-  Dropdown?: React.FunctionComponent<{}>;
+  Dropdown?: React.ReactElement;
   isOpen: boolean;
 }
 
