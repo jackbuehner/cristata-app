@@ -1,11 +1,15 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
+import Color from 'color';
 import { ReactText } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '.';
+import { themeType } from '../../utils/theme/theme';
 
 function SideNavSubButton(props: { children: ReactText; Icon: JSX.Element; to?: string }) {
   const history = useHistory();
+  const location = useLocation();
+  const theme = useTheme() as themeType;
 
   return (
     <Button
@@ -16,6 +20,9 @@ function SideNavSubButton(props: { children: ReactText; Icon: JSX.Element; to?: 
         font-weight: bold;
         margin: 0 6px 2px 6px;
         justify-content: flex-start;
+        background: ${props.to && location.pathname.indexOf(props.to) !== -1
+          ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
+          : 'unset'};
       `}
       backgroundColor={{ base: 'white' }}
       border={{ base: '1px solid transparent' }}

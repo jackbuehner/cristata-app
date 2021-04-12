@@ -3,12 +3,14 @@ import { css, useTheme } from '@emotion/react';
 import Color from 'color';
 import { ReactText } from 'react';
 import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { Button } from '.';
 import { themeType } from '../../utils/theme/theme';
 
 function SideNavMainButton(props: { children: ReactText; Icon: JSX.Element; to?: string }) {
   const theme = useTheme() as themeType;
   const history = useHistory();
+  const location = useLocation();
 
   return (
     <Button
@@ -19,6 +21,9 @@ function SideNavMainButton(props: { children: ReactText; Icon: JSX.Element; to?:
         font-weight: bold;
         border-bottom: 1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()};
         max-width: 79px;
+        background: ${props.to && location.pathname.indexOf(props.to) !== -1 && props.to !== '/'
+          ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
+          : 'unset'};
       `}
       backgroundColor={{ base: 'white' }}
       borderRadius={{ base: 0 }}
