@@ -5,13 +5,17 @@ import { useParams } from 'react-router-dom';
 import { FullAPIProject } from '../../../interfaces/github/plans';
 import { PageHead } from '../../../components/PageHead';
 import { Button, IconButton } from '../../../components/Button';
-import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import { Add16Regular, ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { themeType } from '../../../utils/theme/theme';
 import { Column } from './_Column';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
+import { TextInput } from '../../../components/TextInput';
+import { useModal } from 'react-modal-hook';
+import { PlainModal } from '../../../components/Modal';
 
 /**
  * Styled component wrapper for the projects page
@@ -25,13 +29,12 @@ const PageWrapper = styled.div<{ theme?: themeType }>`
 /**
  * Styled component wrapper for the portion of the page with the columns
  */
-const PlanWrapper = styled.div<{ theme?: themeType }>`
+const PlanWrapper = styled.div<{ columnCount: number }>`
   padding: 20px;
   height: 100%;
   box-sizing: border-box;
   display: grid;
-  //TODO: auto genertate the columns (adapt to different numbers of columns)
-  grid-template-columns: 300px 300px 300px 300px;
+  grid-template-columns: ${({ columnCount }) => `repeat(${columnCount + 1}, 300px)`};
   gap: 10px;
   overflow: auto;
 `;
@@ -193,6 +196,82 @@ function PlansPage() {
     }
   };
 
+  // modal to add a column
+  const [showAddColumnModal, hideAddColumnModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [columnNameValue, setColumnNameValue] = useState<HTMLInputElement['value']>('');
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    /**
+     * When the user types in the field, update `columnNameValue` in state
+     */
+    const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setColumnNameValue(e.target.value);
+    };
+
+    /**
+     * Add the note to the column by posting it to the API.
+     *
+     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     */
+    const addNote = async (name: HTMLInputElement['value']): Promise<true | AxiosError<any>> => {
+      return await axios
+        .post(
+          `/gh/projects/${project ? project.id : 0}/columns`,
+          {
+            name: name,
+          },
+          {
+            baseURL: `http://localhost:3001/api/v2`,
+            withCredentials: true,
+          }
+        )
+        .then(
+          async (): Promise<true> => {
+            if (refetch) await refetch(); // refetch the project so that it includes the new column
+            setIsLoading(false);
+            return true;
+          }
+        )
+        .catch(
+          (err: AxiosError): AxiosError => {
+            console.error(err);
+            toast.error(`Failed to add column. \n ${err.message}`);
+            setIsLoading(false);
+            return err;
+          }
+        );
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideAddColumnModal}
+        title={`Add new column`}
+        continueButton={{
+          text: 'Add',
+          onClick: async () => {
+            setIsLoading(true);
+            const addStatus = await addNote(columnNameValue);
+            // return whether the action was successful
+            if (addStatus === true) return true;
+            return false;
+          },
+        }}
+        isLoading={isLoading}
+      >
+        <TextInput
+          name={'column-name'}
+          id={'column-name'}
+          title={'column-name'}
+          value={columnNameValue}
+          onChange={handleNoteChange}
+          placeholder={`Column name`}
+        />
+      </PlainModal>
+    );
+  }, [project]);
+
   return (
     <>
       <DndProvider backend={HTML5Backend}>
@@ -212,9 +291,10 @@ function PlansPage() {
           }
         />
         <PageWrapper theme={theme}>
-          <PlanWrapper>
-            {project
-              ? project.columns?.map((column) => {
+          <PlanWrapper columnCount={project?.columns ? project.columns.length : 0}>
+            {project ? (
+              <>
+                {project.columns?.map((column) => {
                   return (
                     <Column
                       key={column.id}
@@ -225,8 +305,21 @@ function PlansPage() {
                       refetch={refetch}
                     />
                   );
-                })
-              : null}
+                })}
+                <div style={{ paddingRight: 20 }}>
+                  <Button
+                    icon={<Add16Regular />}
+                    width={`100%`}
+                    height={`100px`}
+                    border={{ base: `1px dashed ${theme.color.neutral[theme.mode][600]}` }}
+                    backgroundColor={{ base: 'transparent' }}
+                    onClick={showAddColumnModal}
+                  >
+                    Add column
+                  </Button>
+                </div>
+              </>
+            ) : null}
           </PlanWrapper>
         </PageWrapper>
       </DndProvider>
