@@ -5,7 +5,7 @@ import { DropdownContext } from './_DropdownContext';
  * React hook for showing dropdowns.
  * @param component a React fucntional component
  * @param deps (optional) dependencies for the functional component
- * @returns [showDropdown, hideDropdown, triggerRect]
+ * @returns [showDropdown, hideDropdown]
  */
 function useDropdown(
   component: (triggerRect: DOMRect, dropdownRef: (el: HTMLOListElement) => void) => React.ReactElement,
@@ -86,7 +86,7 @@ function useDropdown(
     setDropdown(DropdownComponent);
   }, [DropdownComponent, setDropdown]);
 
-  return { showDropdown, hideDropdown };
+  return [showDropdown, hideDropdown];
 }
 
 export { useDropdown };
