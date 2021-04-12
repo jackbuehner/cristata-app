@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { DropdownContext } from './_DropdownContext';
 import { DropdownPortal } from './_DropdownPortal';
 
