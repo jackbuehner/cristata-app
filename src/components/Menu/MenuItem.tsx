@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { useTheme } from '@emotion/react';
 import { colorShade, colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
+import { forwardRef } from 'react';
 
 interface IMenuItemBase {
   color?: colorType;
@@ -45,17 +46,26 @@ interface IMenuItem extends IMenuItemBase {
   children: React.ReactNode;
   icon?: React.ReactElement;
   onClick?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
   disableLabelAlignmentFix?: boolean;
 }
 
-function MenuItem(props: IMenuItem) {
+const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIElement>) => {
   const theme = useTheme() as themeType;
   return (
-    <MenuItemComponent onClick={props.onClick} theme={theme} color={props.color} colorShade={props.colorShade}>
+    <MenuItemComponent
+      onClick={props.onClick}
+      onKeyDown={props.onKeyDown}
+      theme={theme}
+      color={props.color}
+      colorShade={props.colorShade}
+      tabIndex={-1}
+      ref={ref}
+    >
       <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>
       <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
     </MenuItemComponent>
   );
-}
+});
 
 export { MenuItem };

@@ -1,3 +1,4 @@
+import React, { forwardRef } from 'react';
 import { MenuItem, MenuList } from '.';
 import { colorShade, colorType } from '../../utils/theme/theme';
 
@@ -5,6 +6,7 @@ interface IMenu {
   pos: {
     top: number;
     left: number;
+    width: number;
   };
   items: Array<{
     label: string;
@@ -15,9 +17,9 @@ interface IMenu {
   }>;
 }
 
-function Menu(props: IMenu) {
+const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>) => {
   return (
-    <MenuList top={props.pos.top} left={props.pos.left}>
+    <MenuList top={props.pos.top} left={props.pos.left} width={props.pos.width} ref={ref}>
       {props.items.map((item, index: number) => {
         return (
           <MenuItem
@@ -33,6 +35,6 @@ function Menu(props: IMenu) {
       })}
     </MenuList>
   );
-}
+});
 
 export { Menu };
