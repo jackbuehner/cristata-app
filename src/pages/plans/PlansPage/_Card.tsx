@@ -198,7 +198,7 @@ function Card(props: ICardE) {
             note: note,
           },
           {
-            baseURL: `http://localhost:3001/api/v2`,
+            baseURL: `https://api.thepaladin.cristata.app/api/v2`,
             withCredentials: true,
           }
         )
@@ -261,7 +261,7 @@ function Card(props: ICardE) {
           archived: true,
         },
         {
-          baseURL: `http://localhost:3001/api/v2`,
+          baseURL: `https://api.thepaladin.cristata.app/api/v2`,
           withCredentials: true,
         }
       )
@@ -288,7 +288,7 @@ function Card(props: ICardE) {
     const deleteCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL: `http://localhost:3001/api/v2`,
+          baseURL: `https://api.thepaladin.cristata.app/api/v2`,
           withCredentials: true,
         })
         .then(
@@ -342,7 +342,7 @@ function Card(props: ICardE) {
     const removeCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL: `http://localhost:3001/api/v2`,
+          baseURL: `https://api.thepaladin.cristata.app/api/v2`,
           withCredentials: true,
         })
         .then(

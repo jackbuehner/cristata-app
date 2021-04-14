@@ -185,7 +185,7 @@ function PlansPage() {
               position: 'top',
             },
             {
-              baseURL: `http://localhost:3001/api/v2`,
+              baseURL: `https://api.thepaladin.cristata.app/api/v2`,
               withCredentials: true,
             }
           )
@@ -223,7 +223,7 @@ function PlansPage() {
             name: name,
           },
           {
-            baseURL: `http://localhost:3001/api/v2`,
+            baseURL: `https://api.thepaladin.cristata.app/api/v2`,
             withCredentials: true,
           }
         )
