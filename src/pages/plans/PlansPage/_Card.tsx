@@ -13,7 +13,6 @@ import {
   Archive16Regular,
   ChevronCircleDown24Regular,
   Delete16Regular,
-  Info16Regular,
   MoreHorizontal16Regular,
   Rename16Regular,
 } from '@fluentui/react-icons';
