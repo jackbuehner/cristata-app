@@ -250,7 +250,7 @@ function Card(props: ICardE) {
         ></TextArea>
       </PlainModal>
     );
-  });
+  }, [props.note]);
 
   /**
    * Archives the card.
