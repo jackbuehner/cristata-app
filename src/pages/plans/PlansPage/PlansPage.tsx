@@ -10,12 +10,13 @@ import { themeType } from '../../../utils/theme/theme';
 import { Column } from './_Column';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import { TextInput } from '../../../components/TextInput';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../components/Modal';
+import { GitHubDataFreshnessContext, IGitHubDataFreshnessContext } from '../../../components/CristataWebSocket';
 
 /**
  * Styled component wrapper for the projects page
@@ -48,6 +49,11 @@ function PlansPage() {
   // get the url parameters from the route
   let { id } = useParams<{ id: string }>();
 
+  // keep track of data freshness
+  const { data: dataFreshness, set: setDataFreshness } = useContext<IGitHubDataFreshnessContext>(
+    GitHubDataFreshnessContext
+  );
+
   // get the data
   const [{ data, loading }, refetch] = useAxios<FullAPIProject>(`/gh/projects/full/${id}`);
 
@@ -56,6 +62,29 @@ function PlansPage() {
   useEffect(() => {
     setProject(data);
   }, [data]);
+
+  // if the data freshness changes, check if this project's data is stale (and update it if necessary)
+  // but do not do anything if currently loading the project data
+  useEffect(() => {
+    if (
+      loading !== true && // don't do anything if the data is currently being fetched
+      dataFreshness &&
+      setDataFreshness &&
+      dataFreshness.project &&
+      project &&
+      dataFreshness.project[project.id]
+    ) {
+      // if the project was updated more recently than it was fetched, refetch the project
+      if (dataFreshness!.project![project!.id].last_updated > dataFreshness!.project![project!.id].last_fetch) {
+        if (setDataFreshness) {
+          let dataFreshnessCopy = { ...dataFreshness };
+          dataFreshnessCopy!.project![project!.id].last_fetch = Date.now();
+          setDataFreshness(dataFreshnessCopy);
+          refetch();
+        }
+      }
+    }
+  }, [dataFreshness, loading, project, refetch, setDataFreshness]);
 
   /**
    * Handles moving a card within and between columns.
