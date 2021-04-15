@@ -185,7 +185,10 @@ function PlansPage() {
               position: 'top',
             },
             {
-              baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+              baseURL:
+                process.env.NODE_ENV === 'production'
+                  ? `https://api.thepaladin.cristata.app/api/v2`
+                  : `http://localhost:3001/api/v2`,
               withCredentials: true,
             }
           )
@@ -223,7 +226,10 @@ function PlansPage() {
             name: name,
           },
           {
-            baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+            baseURL:
+              process.env.NODE_ENV === 'production'
+                ? `https://api.thepaladin.cristata.app/api/v2`
+                : `http://localhost:3001/api/v2`,
             withCredentials: true,
           }
         )

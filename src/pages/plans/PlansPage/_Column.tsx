@@ -232,7 +232,10 @@ function Column(props: IColumn) {
             note: note,
           },
           {
-            baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+            baseURL:
+              process.env.NODE_ENV === 'production'
+                ? `https://api.thepaladin.cristata.app/api/v2`
+                : `http://localhost:3001/api/v2`,
             withCredentials: true,
           }
         )
@@ -310,7 +313,10 @@ function Column(props: IColumn) {
             name: name,
           },
           {
-            baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+            baseURL:
+              process.env.NODE_ENV === 'production'
+                ? `https://api.thepaladin.cristata.app/api/v2`
+                : `http://localhost:3001/api/v2`,
             withCredentials: true,
           }
         )
@@ -373,7 +379,10 @@ function Column(props: IColumn) {
     const deleteColumn = async () => {
       return await axios
         .delete(`/gh/projects/columns/${props.id}`, {
-          baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+          baseURL:
+            process.env.NODE_ENV === 'production'
+              ? `https://api.thepaladin.cristata.app/api/v2`
+              : `http://localhost:3001/api/v2`,
           withCredentials: true,
         })
         .then(

@@ -24,7 +24,10 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // configure axios global settings
 const axiosSettings = axios.create({
-  baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+  baseURL:
+    process.env.NODE_ENV === 'production'
+      ? `https://api.thepaladin.cristata.app/api/v2`
+      : `http://localhost:3001/api/v2`,
   withCredentials: true,
 });
 configure({ axios: axiosSettings });

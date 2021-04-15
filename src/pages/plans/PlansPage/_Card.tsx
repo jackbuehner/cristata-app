@@ -197,7 +197,10 @@ function Card(props: ICardE) {
             note: note,
           },
           {
-            baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+            baseURL:
+              process.env.NODE_ENV === 'production'
+                ? `https://api.thepaladin.cristata.app/api/v2`
+                : `http://localhost:3001/api/v2`,
             withCredentials: true,
           }
         )
@@ -260,7 +263,10 @@ function Card(props: ICardE) {
           archived: true,
         },
         {
-          baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+          baseURL:
+            process.env.NODE_ENV === 'production'
+              ? `https://api.thepaladin.cristata.app/api/v2`
+              : `http://localhost:3001/api/v2`,
           withCredentials: true,
         }
       )
@@ -287,7 +293,10 @@ function Card(props: ICardE) {
     const deleteCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+          baseURL:
+            process.env.NODE_ENV === 'production'
+              ? `https://api.thepaladin.cristata.app/api/v2`
+              : `http://localhost:3001/api/v2`,
           withCredentials: true,
         })
         .then(
@@ -341,7 +350,10 @@ function Card(props: ICardE) {
     const removeCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL: `https://api.thepaladin.cristata.app/api/v2`,
+          baseURL:
+            process.env.NODE_ENV === 'production'
+              ? `https://api.thepaladin.cristata.app/api/v2`
+              : `http://localhost:3001/api/v2`,
           withCredentials: true,
         })
         .then(
