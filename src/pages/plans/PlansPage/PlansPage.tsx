@@ -17,6 +17,8 @@ import { TextInput } from '../../../components/TextInput';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../components/Modal';
 import { GitHubDataFreshnessContext, IGitHubDataFreshnessContext } from '../../../components/CristataWebSocket';
+import { Label } from '../../../components/Label';
+import { InputGroup } from '../../../components/InputGroup';
 
 /**
  * Styled component wrapper for the projects page
@@ -307,6 +309,129 @@ function PlansPage() {
     );
   }, [project]);
 
+  // modal to edit project details
+  const [showEditProjectDetailsModal, hideEditProjectDetailsModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [values, setValues] = useState<{
+      name: HTMLInputElement['value'];
+      desc: HTMLInputElement['value'];
+    }>({ name: project ? project.name : '', desc: project ? project.body : '' });
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    /**
+     * When the user types in the field, update `values` in state
+     */
+    const handleTextFieldChange = (e: React.ChangeEvent<HTMLInputElement>, key: 'name' | 'desc') => {
+      setValues({
+        ...values,
+        [key]: e.target.value,
+      });
+    };
+
+    /**
+     * Save the changes to project settings.
+     *
+     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     */
+    const saveChanges = async (): Promise<true | AxiosError<any>> => {
+      return await axios
+        .patch(
+          `/gh/projects/${project ? project.id : 0}`,
+          {
+            name: values.name,
+            body: values.desc,
+          },
+          {
+            baseURL:
+              process.env.NODE_ENV === 'production'
+                ? `https://api.thepaladin.cristata.app/api/v2`
+                : `http://localhost:3001/api/v2`,
+            withCredentials: true,
+          }
+        )
+        .then(
+          async (): Promise<true> => {
+            if (refetch) await refetch(); // refetch the project so that it includes the new name and description
+            setIsLoading(false);
+            return true;
+          }
+        )
+        .catch(
+          (err: AxiosError): AxiosError => {
+            console.error(err);
+            toast.error(`Failed to update project settings. \n ${err.message}`);
+            setIsLoading(false);
+            return err;
+          }
+        );
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideEditProjectDetailsModal}
+        title={`Edit project details`}
+        isLoading={isLoading}
+        continueButton={{
+          text: 'Save',
+          onClick: async () => {
+            setIsLoading(true);
+            const status = await saveChanges();
+            // return whether the action was successful
+            if (status === true) return true;
+            return false;
+          },
+        }}
+      >
+        <InputGroup type={'text'}>
+          <Label htmlFor={'project-name'}>Name</Label>
+          <TextInput
+            name={'project-name'}
+            id={'project-name'}
+            title={'project-name'}
+            placeholder={`Project name`}
+            value={values.name}
+            onChange={(e) => handleTextFieldChange(e, 'name')}
+          />
+        </InputGroup>
+        <InputGroup type={'text'}>
+          <Label htmlFor={'project-desc'}>Description</Label>
+          <TextInput
+            name={'project-desc'}
+            id={'project-desc'}
+            title={'project-desc'}
+            placeholder={`Project description`}
+            value={values.desc}
+            onChange={(e) => handleTextFieldChange(e, 'desc')}
+          />
+        </InputGroup>
+        <InputGroup type={'checkbox'}>
+          <Label
+            htmlFor={'project-track-progress'}
+            description={`A progress bar will be displayed to help you visualize the overall progress of your project based
+              on your automated To Do, In Progress, and Done columns.`}
+            disabled
+          >
+            Track project progress
+          </Label>
+          <input
+            name={'project-track-progress'}
+            id={'project-track-progress'}
+            title={'project-track-progress'}
+            type={`checkbox`}
+            disabled
+          />
+        </InputGroup>
+        <InputGroup type={'text'} noGrid>
+          <Label>More settings</Label>
+          {project ? (
+            <Button onClick={() => window.open(`${project.html_url}/settings`)}>Configure on GitHub</Button>
+          ) : null}
+        </InputGroup>
+      </PlainModal>
+    );
+  }, [project]);
+
   return (
     <>
       <DndProvider backend={HTML5Backend}>
@@ -316,11 +441,13 @@ function PlansPage() {
           isLoading={loading}
           buttons={
             <>
-              <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
-                Refresh
-              </IconButton>
               {project ? (
-                <Button onClick={() => window.open(`${project.html_url}?fullscreen=1`)}>View on GitHub</Button>
+                <>
+                  <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
+                    Refresh
+                  </IconButton>
+                  <Button onClick={showEditProjectDetailsModal}>Edit project details</Button>
+                </>
               ) : null}
             </>
           }
