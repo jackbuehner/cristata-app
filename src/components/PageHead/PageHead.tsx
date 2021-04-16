@@ -15,6 +15,7 @@ const Wrapper = styled.div<{ theme?: themeType }>`
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
     theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
 `;
 
 const TextWrapper = styled.div`

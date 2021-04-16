@@ -9,12 +9,12 @@ interface ITableGroup {
 const TableGroup = styled.div<ITableGroup>`
   min-width: 100%;
   width: fit-content;
-  ${({ isHeader }) =>
+  ${({ isHeader, theme }) =>
     isHeader
       ? `
           position: sticky;
           top: 0;
-          background-color: white;
+          background-color: ${theme.mode === 'light' ? 'white' : 'black'};
           z-index: 1;
         `
       : ``}

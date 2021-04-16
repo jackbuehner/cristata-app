@@ -72,6 +72,7 @@ const Title = styled.span<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.font.headline};
   font-size: 14px;
   font-weight: 600;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
 `;
 
 interface IDraggedCardMetadata {

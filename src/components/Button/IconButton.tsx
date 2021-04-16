@@ -37,6 +37,7 @@ const BUTTON = styled.button<StyledButtonProps>`
   > svg {
     width: 20px;
     height: 20px;
+    fill: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   }
 `;
 

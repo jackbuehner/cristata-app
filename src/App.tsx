@@ -54,11 +54,11 @@ function App() {
         <Router>
           <Grid>
             <div style={{ gridArea: 'header', background: theme.color.primary[800] }}></div>
-            <div style={{ gridArea: 'sidenav-header', background: 'purple' }}></div>
+            <div style={{ gridArea: 'sidenav-header', background: theme.color.primary[800] }}></div>
             <div
               style={{
                 gridArea: 'sidenav-main',
-                background: 'white',
+                background: theme.mode === 'light' ? 'white' : 'black',
                 borderRight: `1px solid ${
                   theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
                 }`,
@@ -83,7 +83,7 @@ function App() {
             <div
               style={{
                 gridArea: 'sidenav-sub',
-                background: 'white',
+                background: theme.mode === 'light' ? 'white' : 'black',
                 borderRight: `1px solid ${
                   theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
                 }`,
@@ -109,7 +109,13 @@ function App() {
                 </Route>
               </Switch>
             </div>
-            <div style={{ gridArea: 'content', overflow: 'auto' }}>
+            <div
+              style={{
+                gridArea: 'content',
+                overflow: 'auto',
+                background: theme.mode === 'light' ? 'white' : 'black',
+              }}
+            >
               <Switch>
                 <Route path={`/cms/articles/:progress`}>
                   <ArticlesPage />

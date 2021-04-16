@@ -25,6 +25,7 @@ function SideNavMainButton(props: { children: ReactText; Icon: JSX.Element; to?:
           ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
           : 'unset'};
       `}
+      colorShade={600}
       backgroundColor={{ base: 'white' }}
       borderRadius={{ base: 0 }}
       border={{ base: '1px solid transparent' }}
@@ -35,6 +36,7 @@ function SideNavMainButton(props: { children: ReactText; Icon: JSX.Element; to?:
             svg {
               width: 24px;
               height: 24px;
+              fill: ${theme.color.neutral[theme.mode][1400]};
             }
           `}
         >

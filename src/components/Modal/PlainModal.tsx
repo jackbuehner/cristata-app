@@ -26,6 +26,7 @@ const PlainModalTitle = styled.h1<{ modalHasChildren: boolean; theme: themeType 
     modalHasChildren ? `1px solid ${theme.color.neutral[theme.mode][200]}` : `1px solid transparent`};
   margin: 0;
   position: relative;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   // ensure there is 40px betweeen the top of the modal and the baseline of the header text
   &::before {
     content: '';

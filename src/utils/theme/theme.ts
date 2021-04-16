@@ -44,7 +44,7 @@ const themeColors = {
   blue: getColorShades('blue', 15) as color,
   turquoise: getColorShades('turquoise', 15) as color,
   indigo: getColorShades('purple', 15) as color,
-  violet: getColorShades('indigo', 15) as color,
+  violet: getColorShades('#5438b9', 15) as color,
 };
 
 const themeFonts = {

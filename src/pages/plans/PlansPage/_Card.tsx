@@ -67,6 +67,7 @@ const By = styled.div<{ theme: themeType }>`
   font-size: 13px;
   font-weight: 400;
   margin-top: 10px;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
 `;
 
 interface ICardE extends ICard {

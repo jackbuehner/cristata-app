@@ -38,13 +38,13 @@ function buttonEffect(
             &:active {
               background-color: ${
                 color === 'neutral'
-                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.15).string()
-                  : Color(theme.color[color][colorShade]).alpha(0.15).string()
+                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.2).string()
+                  : Color(theme.color[color][colorShade]).alpha(0.2).string()
               };
               border: 1px solid ${
                 color === 'neutral'
-                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.15).string()
-                  : Color(theme.color[color][colorShade]).alpha(0.15).string()
+                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.2).string()
+                  : Color(theme.color[color][colorShade]).alpha(0.2).string()
               };
               box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 13%),
                 0 0.3px 0.9px 0 rgb(0 0 0 / 11%);
@@ -55,13 +55,13 @@ function buttonEffect(
             &:hover:active {
               background-color: ${
                 color === 'neutral'
-                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.2).string()
-                  : Color(theme.color[color][colorShade]).alpha(0.2).string()
+                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.25).string()
+                  : Color(theme.color[color][colorShade]).alpha(0.25).string()
               };
               border: 1px solid ${
                 color === 'neutral'
-                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.2).string()
-                  : Color(theme.color[color][colorShade]).alpha(0.2).string()
+                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.25).string()
+                  : Color(theme.color[color][colorShade]).alpha(0.25).string()
               };
             }
             &:active {

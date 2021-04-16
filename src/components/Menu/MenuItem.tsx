@@ -21,6 +21,7 @@ const MenuItemComponent = styled.li<IMenuItemComponent>`
   align-items: center;
   font-family: ${({ theme }) => theme.font.detail};
   font-size: 14px;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   ${({ theme, color, colorShade }) =>
     buttonEffect(
       color || 'primary',

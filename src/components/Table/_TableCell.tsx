@@ -30,6 +30,9 @@ const TableCell = styled.div<ITableCell>`
     padding-right: 10px;
   }
   ${({ styleString }) => (styleString ? styleString : null)}
+  svg {
+    fill: ${({ theme }) => theme.color.neutral[theme.mode][1000]};
+  }
 `;
 
 export { TableCell };
