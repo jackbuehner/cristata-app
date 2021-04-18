@@ -22,6 +22,8 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
+import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
+import { ChatPage } from './pages/Chat/ChatPage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -107,6 +109,9 @@ function App() {
                 <Route path={`/plans`}>
                   <PlansSideNavSub />
                 </Route>
+                <Route path={`/chat`}>
+                  <ChatSideNavSub />
+                </Route>
               </Switch>
             </div>
             <div
@@ -121,7 +126,9 @@ function App() {
                   <ArticlesPage />
                 </Route>
                 <Route path={`/cms`}>CMS</Route>
-                <Route path={`/chat`}>chat</Route>
+                <Route path={`/chat/:team_slug/:thread_discussion_number?`}>
+                  <ChatPage />
+                </Route>
                 <Route path={`/plans/org/:id`}>
                   <PlansPage />
                 </Route>
