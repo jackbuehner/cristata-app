@@ -1,15 +1,20 @@
-import { useTheme } from '@emotion/react';
+import { SerializedStyles, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import Color from 'color';
 import { colorType, themeType } from '../../utils/theme/theme';
+import { buttonEffect } from '../Button/buttonEffect';
 
 interface IStyledChip {
   color: colorType;
   //colorShade: colorShade;
   theme: themeType;
+  isClickable: boolean;
+  cssExtra?: SerializedStyles;
 }
 
 const StyledChip = styled.span<IStyledChip>`
+  ${({ color, theme, isClickable }) => (isClickable ? buttonEffect(color, 800, theme) : null)};
+  border: none !important;
   background: ${({ theme, color }) =>
     color === 'neutral' ? 'transparent' : Color(theme.color[color][800]).alpha(0.05).string()};
   display: inline-flex;
@@ -27,24 +32,33 @@ const StyledChip = styled.span<IStyledChip>`
       color === 'neutral'
         ? Color(theme.color[color][theme.mode][1200]).alpha(0.25).string()
         : Color(theme.color[color][800]).alpha(0.1).string()}
-    0px 0px 0px 1.25px inset;
+    0px 0px 0px 1.25px inset !important;
   border-radius: ${({ theme }) => theme.radius};
   color: ${({ theme, color }) =>
     color === 'neutral'
       ? Color(theme.color[color][theme.mode][1200]).string()
       : Color(theme.color[color][800]).string()};
+  ${({ cssExtra }) => (cssExtra ? cssExtra : null)};
 `;
 
 interface IChip {
   label: string;
   color?: colorType;
+  onClick?: () => void;
+  cssExtra?: SerializedStyles;
 }
 
 function Chip(props: IChip) {
   const theme = useTheme() as themeType;
 
   return (
-    <StyledChip theme={theme} color={props.color ? props.color : 'neutral'}>
+    <StyledChip
+      onClick={props.onClick}
+      theme={theme}
+      color={props.color ? props.color : 'neutral'}
+      isClickable={props.onClick ? true : false}
+      cssExtra={props.cssExtra}
+    >
       {props.label}
     </StyledChip>
   );
