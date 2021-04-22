@@ -2,6 +2,7 @@ export interface IGetDiscussion {
   organization: {
     team: {
       discussions: {
+        totalCount: number;
         edges: Array<{
           node: {
             id: string;
