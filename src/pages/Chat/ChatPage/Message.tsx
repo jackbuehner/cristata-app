@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { css, useTheme } from '@emotion/react';
+import { css, SerializedStyles, useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
 import Color from 'color';
 import { Chip } from '../../../components/Chip';
@@ -13,7 +13,7 @@ import { IconButton } from '../../../components/Button';
 import { Pin16Regular, Comment16Regular, Alert16Regular, Emoji16Regular } from '@fluentui/react-icons';
 import { useHistory } from 'react-router-dom';
 
-const MessageComponent = styled.div<{ theme: themeType; isPinned: boolean }>`
+const MessageComponent = styled.div<{ theme: themeType; isPinned: boolean; cssExtra?: SerializedStyles }>`
   display: grid;
   grid-template-columns: 36px 1fr;
   padding: 4px 20px;
@@ -30,6 +30,7 @@ const MessageComponent = styled.div<{ theme: themeType; isPinned: boolean }>`
         ? Color(theme.color.orange[800]).alpha(0.35).string()
         : Color(theme.color.neutral[theme.mode][100]).alpha(0.5).string()};
   }
+  ${({ cssExtra }) => (cssExtra ? cssExtra : null)};
 `;
 
 const AuthorName = styled.div<{ theme: themeType }>`
@@ -92,6 +93,7 @@ const MessageBody = styled.div<{ theme: themeType }>`
 `;
 
 interface IMessage {
+  id?: string;
   author: string;
   bodyHTML: string;
   time: string;
@@ -106,6 +108,7 @@ interface IMessage {
   canReply: boolean;
   discussionNumber?: number;
   isThreadView?: boolean;
+  cssExtra?: SerializedStyles;
 }
 
 function Message(props: IMessage) {
@@ -125,6 +128,8 @@ function Message(props: IMessage) {
       onMouseOver={() => setIsMouseOverMessage(true)}
       onMouseOut={() => setIsMouseOverMessage(false)}
       isPinned={props.isPinned}
+      id={props.id}
+      cssExtra={props.cssExtra}
     >
       <img
         alt={``}
@@ -157,6 +162,7 @@ function Message(props: IMessage) {
                   };
                   return (
                     <Chip
+                      key={index}
                       label={`${emoji[reactionGroup.content]} ${reactionGroup.users.totalCount}`}
                       color={'neutral'}
                       onClick={() => console.log('hi')}

@@ -1,15 +1,16 @@
-import { useTheme } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import { useParams } from 'react-router-dom';
 import { themeType } from '../../../utils/theme/theme';
 import { PageHead } from '../../../components/PageHead';
 import useAxios from 'axios-hooks';
 import { IGetDiscussion } from '../../../interfaces/github/discussions';
 import { Message } from './Message';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { TextArea } from '../../../components/TextArea';
 import { Button } from '../../../components/Button';
 import { Thread } from './Thread';
+import axios from 'axios';
 
 const WholePageContentWrapper = styled.div<{ theme?: themeType }>`
   padding: 0;
@@ -44,7 +45,73 @@ function ChatPage() {
   }>();
 
   // get the data
-  const [{ data, loading }, refetch] = useAxios<IGetDiscussion>(`/gh/teams/discussions/${team_slug}`);
+  const [{ data, loading }, refetch] = useAxios<IGetDiscussion>(`/gh/teams/discussions/${team_slug}?last=10`);
+
+  // store the data in state so that it can be mutated
+  const [messages, setMessages] = useState(data);
+  useEffect(() => {
+    setMessages(data);
+  }, [data]);
+
+  // store loading as state so that we can also set loading
+  const [isLoading, setIsLoading] = useState<boolean>(loading);
+  useEffect(() => {
+    setIsLoading(loading);
+  }, [loading]);
+
+  /**
+   * Load new messages from the API
+   */
+  const test = () => {
+    setIsLoading(true);
+    let messagesCopy = JSON.parse(JSON.stringify(messages)) as IGetDiscussion | undefined;
+
+    if (messagesCopy) {
+      const cursorNext = messagesCopy.organization.team.discussions.edges[0].cursor;
+
+      axios
+        .get(`/gh/teams/discussions/${team_slug}?before=${cursorNext}?last=10`, {
+          baseURL:
+            process.env.NODE_ENV === 'production'
+              ? `https://api.thepaladin.cristata.app/api/v2`
+              : `http://localhost:3001/api/v2`,
+          withCredentials: true,
+        })
+        .then(({ data }) => {
+          if (messagesCopy) {
+            messagesCopy.organization.team.discussions.edges = [
+              ...data.organization.team.discussions.edges,
+              ...messagesCopy.organization.team.discussions.edges,
+            ];
+
+            console.log(messagesCopy.organization.team.discussions.edges);
+            console.log(data.organization.team.discussions.edges);
+            setMessages(messagesCopy);
+            setIsLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setIsLoading(false);
+        });
+    }
+  };
+
+  // scroll to the correct message when the disccusions state is updated
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // if there are more than the starting amount of discussions (10), scroll to the last discussion that was previously loaded before new discussions were added
+    const elemID = messages?.organization.team.discussions.edges[10]?.node.id; // scroll to the 11th element since 10 are added on each fetch in front of the previous elements
+    if (elemID) {
+      const elem = document.getElementById(elemID);
+      elem?.scrollIntoView();
+    } else {
+      // otherwise, it is the first load, so scroll messages container to bottom
+      messagesContainerRef.current?.scrollTo({ top: messagesContainerRef.current.scrollHeight });
+    }
+  }, [messages]);
+
+  useEffect(() => {}, [messages]);
 
   return (
     <WholePageContentWrapper>
@@ -52,7 +119,7 @@ function ChatPage() {
         <PageHead
           title={`#paladin-news/${team_slug}`}
           description={`discussion`}
-          isLoading={loading}
+          isLoading={isLoading}
           buttons={
             <>
               <Button onClick={() => refetch()}>Refetch</Button>
@@ -61,8 +128,17 @@ function ChatPage() {
         />
         <DiscussionsListWrapper theme={theme}>
           <ChatAreaWrapper theme={theme}>
-            <div style={{ overflow: 'auto', flexGrow: 1 }}>
-              {data?.organization.team.discussions.edges.map(({ node: discussion }, index: number) => {
+            <div style={{ overflow: 'auto', flexGrow: 1 }} ref={messagesContainerRef}>
+              {
+                // if there are more messages to load, show the load more button
+                messages?.organization.team.discussions.edges.length !==
+                messages?.organization.team.discussions.totalCount ? (
+                  <div style={{ margin: 10, display: 'flex', justifyContent: 'center' }}>
+                    <Button onClick={() => test()}>Load more</Button>
+                  </div>
+                ) : null
+              }
+              {messages?.organization.team.discussions.edges.map(({ node: discussion }, index: number) => {
                 return (
                   <React.Fragment key={index}>
                     {
@@ -71,7 +147,10 @@ function ChatPage() {
                       // show a divider and date
                       index === 0 ||
                       discussion.publishedAt.substr(0, 10) !==
-                        data?.organization.team.discussions.edges[index - 1].node.publishedAt.substr(0, 10) ? (
+                        messages?.organization.team.discussions.edges[index - 1].node.publishedAt.substr(
+                          0,
+                          10
+                        ) ? (
                         <div style={{ position: 'relative' }}>
                           <div
                             style={{
@@ -108,6 +187,10 @@ function ChatPage() {
                       ) : null
                     }
                     <Message
+                      id={discussion.id}
+                      cssExtra={css`
+                        scroll-margin-top: 91px;
+                      `}
                       author={discussion.author.login}
                       bodyHTML={discussion.bodyHTML}
                       time={new Date(discussion.publishedAt).toLocaleTimeString('en-US', {
