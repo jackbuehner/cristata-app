@@ -49,6 +49,7 @@ interface IMenuItem extends IMenuItemBase {
   onClick?: () => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   disableLabelAlignmentFix?: boolean;
+  noIcons?: boolean;
 }
 
 const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIElement>) => {
@@ -63,7 +64,7 @@ const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIEle
       tabIndex={-1}
       ref={ref}
     >
-      <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>
+      {props.noIcons ? null : <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>}
       <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
     </MenuItemComponent>
   );

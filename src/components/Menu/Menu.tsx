@@ -15,6 +15,7 @@ interface IMenu {
     color?: colorType;
     colorShade?: colorShade;
   }>;
+  noIcons?: boolean;
 }
 
 const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>) => {
@@ -28,6 +29,7 @@ const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>
             icon={item.icon}
             color={item.color}
             colorShade={item.colorShade}
+            noIcons={props.noIcons}
           >
             {item.label}
           </MenuItem>
