@@ -24,6 +24,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
 import { ChatPage } from './pages/Chat/ChatPage';
+import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -124,6 +125,9 @@ function App() {
               <Switch>
                 <Route path={`/cms/articles/:progress`}>
                   <ArticlesPage />
+                </Route>
+                <Route path={`/cms/item/:collection/:item_id`}>
+                  <ItemDetailsPage />
                 </Route>
                 <Route path={`/cms`}>CMS</Route>
                 <Route path={`/chat/:team_slug/:thread_discussion_number?`}>
