@@ -11,6 +11,7 @@ import { buttonEffect } from '../Button';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { excludes as excludesFilter } from './custom-filters/excludes';
+import { useHistory } from 'react-router';
 
 interface ITable {
   data: {
@@ -26,9 +27,15 @@ interface ITable {
     id: string;
     value: any; // value type depends on the filter defined in the columns
   }[];
+  row?: {
+    href: string; // clicking a row will toke user to this location + the value of the hrefSuffixKey
+    hrefSuffixKey: string; // key from the row's data object to append to href (most common usage would be _id)
+  };
 }
 
 function Table(props: ITable) {
+  const history = useHistory();
+
   // get the current theme
   const theme = useTheme() as themeType;
 
@@ -147,12 +154,21 @@ function Table(props: ITable) {
         <TableGroup role={`rowgroup`} {...getTableBodyProps()}>
           {
             // create table rows for each row of data
-            rows.map((row) => {
+            rows.map((row, rowIndex) => {
               // prepare the row for display
               prepareRow(row);
               return (
                 // apply the row props
-                <TableRow role={`row`} {...row.getRowProps()}>
+                <TableRow
+                  role={`row`}
+                  {...row.getRowProps()}
+                  // if props for onClick action is defined (via `props.row`), push history
+                  onClick={() =>
+                    props.row
+                      ? history.push(`${props.row.href}/${row.original[props.row.hrefSuffixKey]}`)
+                      : null
+                  }
+                >
                   {
                     // loop over the row cells to render each cell
                     row.cells.map((cell) => {

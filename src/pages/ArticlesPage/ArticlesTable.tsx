@@ -153,7 +153,14 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>((prop
       </>
     );
 
-  return <Table data={{ data, loading, error }} columns={columns} filters={props.filters} />;
+  return (
+    <Table
+      data={{ data, loading, error }}
+      columns={columns}
+      filters={props.filters}
+      row={{ href: '/cms/item/articles', hrefSuffixKey: '_id' }}
+    />
+  );
 });
 
 export { ArticlesTable };
