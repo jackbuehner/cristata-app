@@ -61,6 +61,7 @@ export interface ButtonProps {
   color?: colorType;
   colorShade?: colorShade;
   icon: React.ReactElement;
+  className?: string;
 }
 
 const IconButton: React.FC<ButtonProps> = (props) => {
@@ -80,6 +81,7 @@ const IconButton: React.FC<ButtonProps> = (props) => {
       colorShade={props.colorShade ? props.colorShade : 700}
       theme={theme}
       icon={props.icon}
+      className={props.className}
     >
       {props.icon}
     </BUTTON>

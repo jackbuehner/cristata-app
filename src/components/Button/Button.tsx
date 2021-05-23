@@ -76,6 +76,7 @@ export interface ButtonProps {
   icon?: React.ReactElement;
   customIcon?: React.ReactElement;
   disableLabelAlignmentFix?: boolean;
+  className?: string;
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
@@ -94,6 +95,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       color={props.color ? props.color : 'primary'}
       colorShade={props.colorShade ? props.colorShade : 700}
       theme={theme}
+      className={props.className}
     >
       {props.customIcon ? (
         props.customIcon
