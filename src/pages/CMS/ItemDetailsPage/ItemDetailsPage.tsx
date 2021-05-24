@@ -13,7 +13,6 @@ import { flattenObject } from '../../../utils/flattenObject';
 import { InputGroup } from '../../../components/InputGroup';
 import { collections as collectionsConfig } from '../../../config';
 import styled from '@emotion/styled';
-import axios from 'axios';
 import { db } from '../../../utils/axios/db';
 import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';
@@ -39,7 +38,7 @@ function ItemDetailsPage() {
     }>();
 
   // get the item
-  const [{ data, loading, error }, refetch] = useAxios(`/${collection}/${item_id}`);
+  const [{ data }, refetch] = useAxios(`/${collection}/${item_id}`);
 
   // save a flattened version of the data in state for modification
   const [flatData, setFlatData] = useState<{ [key: string]: string | string[] }>({});
@@ -79,7 +78,7 @@ function ItemDetailsPage() {
         description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection.slice(1)} collection`}
         buttons={
           <>
-            <IconButton onClick={() => null} icon={<ArrowClockwise24Regular />}>
+            <IconButton onClick={() => refetch} icon={<ArrowClockwise24Regular />}>
               Refresh
             </IconButton>
             <Button onClick={saveChanges}>Save</Button>
