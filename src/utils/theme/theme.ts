@@ -41,7 +41,7 @@ const themeColors = {
   yellow: getColorShades('yellow', 15) as color,
   pink: getColorShades('pink', 15) as color,
   green: getColorShades('green', 15) as color,
-  blue: getColorShades('blue', 15) as color,
+  blue: getColorShades('#1c499b', 15) as color,
   turquoise: getColorShades('turquoise', 15) as color,
   indigo: getColorShades('purple', 15) as color,
   violet: getColorShades('#5438b9', 15) as color,
