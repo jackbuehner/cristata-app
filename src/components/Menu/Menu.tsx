@@ -9,7 +9,7 @@ interface IMenu {
     width: number;
   };
   items: Array<{
-    label: string;
+    label: string | React.ReactNode;
     icon?: React.ReactElement;
     onClick?: () => void;
     color?: colorType;
