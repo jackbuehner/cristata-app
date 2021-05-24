@@ -6,9 +6,20 @@ interface Icollections {
           label?: string; // fall back to name if not provided
           type: string;
           description?: string;
+          tiptap?: tiptapOptions;
         }>;
       }
     | undefined;
+}
+
+interface tiptapOptions {
+  type: string;
+  keys_article?: {
+    headline: string;
+    description: string;
+    categories: string;
+    caption: string;
+  };
 }
 
 const collections: Icollections = {
@@ -34,6 +45,20 @@ const collections: Icollections = {
         label: 'Tags',
         type: 'multiselect',
         description: 'Keywords and tags that apply to this article. Allows custom entries.',
+      },
+      {
+        key: 'body',
+        label: 'Body',
+        type: 'tiptap',
+        tiptap: {
+          type: 'article',
+          keys_article: {
+            headline: 'name',
+            description: 'description',
+            categories: 'categories',
+            caption: 'caption',
+          },
+        },
       },
       {
         key: 'locked',
@@ -62,3 +87,4 @@ const collections: Icollections = {
 };
 
 export { collections };
+export type { tiptapOptions };

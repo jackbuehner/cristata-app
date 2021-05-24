@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -16,6 +17,7 @@ import axios from 'axios';
 import { db } from '../../../utils/axios/db';
 import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';
+import { Tiptap } from '../../../components/Tiptap';
 
 const PageWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -40,7 +42,7 @@ function ItemDetailsPage() {
   const [{ data, loading, error }, refetch] = useAxios(`/${collection}/${item_id}`);
 
   // save a flattened version of the data in state for modification
-  const [flatData, setFlatData] = useState<{ [key: string]: string }>({});
+  const [flatData, setFlatData] = useState<{ [key: string]: string | string[] }>({});
   useEffect(() => {
     if (data) setFlatData(flattenObject(data));
   }, [data]);
@@ -97,7 +99,7 @@ function ItemDetailsPage() {
                 <TextInput
                   name={field.label}
                   id={field.key}
-                  value={flatData[field.key]}
+                  value={flatData[field.key] as string}
                   onChange={(e) => handleTextChange(e, field.key)}
                 />
               </InputGroup>
@@ -111,6 +113,44 @@ function ItemDetailsPage() {
                   {field.label}
                 </Label>
                 <input type={'checkbox'} name={field.label} id={field.key} />
+              </InputGroup>
+            );
+          }
+
+          if (field.type === 'tiptap') {
+            return (
+              <InputGroup type={`text`}>
+                <Label htmlFor={field.key} description={field.description}>
+                  {field.label}
+                </Label>
+                <div
+                  id={field.key}
+                  css={css`
+                    width: 100%;
+                    box-sizing: border-box;
+                    border-radius: ${theme.radius};
+                    border: none;
+                    box-shadow: ${theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
+                    transition: box-shadow 240ms;
+                    padding: 2px;
+                    height: 400px;
+                    overflow: auto;
+                    &:hover {
+                      box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+                    }
+                    &:focus-within {
+                      outline: none;
+                      box-shadow: ${theme.color.primary[800]} 0px 0px 0px 2px inset;
+                    }
+                    .ProseMirror {
+                      &:focus {
+                        outline: none;
+                      }
+                    }
+                  `}
+                >
+                  <Tiptap options={field.tiptap} flatData={flatData} setFlatData={setFlatData} />
+                </div>
               </InputGroup>
             );
           }
