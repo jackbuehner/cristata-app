@@ -214,6 +214,7 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
                 0 9px 46px 8px rgb(0 0 0 / 12%);
             `}
             overlayClassName={css`
+              z-index: 100;
               position: fixed;
               inset: 0;
               background-color: ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.6).string()};
