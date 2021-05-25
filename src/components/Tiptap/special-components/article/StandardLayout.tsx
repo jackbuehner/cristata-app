@@ -53,6 +53,15 @@ function StandardLayout(props: IStandardLayout) {
     }
   };
 
+  /**
+   * Attributes for contenteditable elements
+   */
+  const contentEditableAttrs = {
+    contentEditable: true, // enable
+    onKeyPress: preventNewLines, // prevent new lines
+    suppressContentEditableWarning: true, // suppress warning from react about managed contenteditable element
+  };
+
   return (
     <Container>
       <Categories>
@@ -60,10 +69,10 @@ function StandardLayout(props: IStandardLayout) {
           <Category key={index}>{cat.replace('-', ' ')}</Category>
         ))}
       </Categories>
-      <Headline contentEditable onKeyPress={preventNewLines} onBlur={(e) => handleCEBlur(e, 'headline')}>
+      <Headline {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'headline')}>
         {props.headline}
       </Headline>
-      <Description contentEditable onKeyPress={preventNewLines} onBlur={(e) => handleCEBlur(e, 'description')}>
+      <Description {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'description')}>
         {props.description}
       </Description>
       <PhotoContainer>
@@ -72,7 +81,7 @@ function StandardLayout(props: IStandardLayout) {
           src='https://uploads-ssl.webflow.com/5f37fcdc1b6edd6760ad912f/60817ebfaf5a0475f56c5461_pres.jpeg'
         />
       </PhotoContainer>
-      <Caption contentEditable onKeyPress={preventNewLines} onBlur={(e) => handleCEBlur(e, 'caption')}>
+      <Caption {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'caption')}>
         Davis noted that campus efforts prove that “we rose to the occasion,” to make the most out of what we
         had.
       </Caption>
