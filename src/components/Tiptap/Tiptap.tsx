@@ -9,7 +9,7 @@ import { Button, IconButton } from '../Button';
 import styled from '@emotion/styled';
 import { css, SerializedStyles, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BackIcon, RedoIcon, BoldIcon, ItalicsIcon, UnderlineIcon, StrikeIcon } from './Icons';
 import {
   Code20Regular,
@@ -34,6 +34,10 @@ import { Label } from '../Label';
 import { tiptapOptions } from '../../config';
 import { StandardLayout } from './special-components/article/StandardLayout';
 import { Comment } from './extension-comment';
+import Collaboration from '@tiptap/extension-collaboration';
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
 
 const Toolbar = styled.div`
   position: relative;
@@ -628,6 +632,11 @@ function MenuBar({ editor, isMax, setIsMax }: IMenuBar) {
 }
 
 interface ITiptap {
+  docName: string;
+  user: {
+    name: string;
+    color: string;
+  };
   options?: tiptapOptions;
   flatData?: { [key: string]: string | string[] };
   setFlatData?: React.Dispatch<
@@ -640,9 +649,17 @@ interface ITiptap {
 const Tiptap = (props: ITiptap) => {
   const theme = useTheme() as themeType;
 
+  // A new Y document
+  const ydoc = useMemo(() => new Y.Doc(), []);
+  // register with a WebSocket provider
+  const providerWebsocket = useMemo(
+    () => new WebsocketProvider('ws://127.0.0.1:1234', props.docName, ydoc),
+    [props.docName, ydoc]
+  );
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({ history: false }),
       Underline,
       TextStyle,
       FontFamily,
@@ -655,8 +672,17 @@ const Tiptap = (props: ITiptap) => {
         openOnClick: false,
         linkOnPaste: true,
       }),
+      Collaboration.configure({
+        document: ydoc,
+      }),
+      CollaborationCursor.configure({
+        provider: providerWebsocket,
+        user: {
+          name: props.user.name,
+          color: props.user.color,
+        },
+      }),
     ],
-    content: `<p>On Apr. 21, members of <em>The Paladin’s </em>Editorial Board met with President Elizabeth Davis to reflect on the school year, and to learn more about what the administration has in store for the 2021-2022 academic year. Here is what we learned:</p><p><strong>The administration acted in “good faith”. </strong>When making decisions about COVID-19 protocols, Davis shared the administration relied heavily on information made available by organizations such as the CDC and DHEC. For this reason, <comment data-commenter='{ "name": "Jack Buehner", "photo": "" }'>Davis shared she had “no regrets” when it came to the decisions made</comment> throughout this past year. Over 200 faculty, staff, or students were involved in the process as the administration frequently requested feedback and insight from members of the Furman community. If there was one thing she could change, Davis noted that she “wished she had gotten students involved in the process earlier.” After expressing her thanks to the students who were involved with the COVID-19 taskforce, Davis acknowledged that as the administration began receiving more requests from students, they were able to say “yes” more often as the spring semester progressed. Noting that over 200 events have taken place this year, Davis said none of it would not have been possible had it not been for the efforts of the student body to keep us on campus.</p><p><strong>Communication can be difficult. </strong>In following through with its promise to listen to feedback, the administration addressed issues with its communication practices. Noting that most people read updates on their own timeline, Davis mentioned that communication, especially under extreme circumstances, is a great challenge. But after meeting with students or student groups, Davis said the administration’s communication improved after listening to suggestions and feedback members of the community offered. An important part of communication comes thanks to students who serve as advocates, “message carriers” as Davis called them. In fact, it was thanks to the students that “we never shutdown” like other schools had to, said Davis. Although we started this semester even more restrictive than the Fall, the Furman community worked together to keep campus safe and open.</p><p><strong>The Furman Family is stronger than ever. </strong>When asked about the strength of the Furman community throughout the COVID-19pandemic, Davis first addressed the efforts of faculty and staff who have assisted in keeping campus safe. Whether it was those delivering meals or medicine to students in quarantine, or those answering questions via email, the significant amount of time and energy invested into campus operations “proves how much we care,” said Davis. But in addition to the students on campus, Davis also noted how much the administration cares about those who opted to learn virtually this year. “This place is dedicated to student success,” Davis said after acknowledging how campus resources such as the Internship Office or various departmental research programs still worked diligently to ensure students got the most out of the school year. &nbsp;</p><p>These efforts prove that “we rose to the occasion,” to make the most out of what we had. Although no one was perfect during COVID-19, “we are kind of a huggy place,” after all noted Davis, the fact that we never shutdown is “a testament of the students.” Davis does worry about first year students who started college during the oddest of times but moving forward she remains excited for the opportunities they have yet to discover. </p><p><strong>Technology in the classrooms may be a long-term resource. &nbsp;</strong>Once the administration realized COVID-19 was not going away any time soon, it purchased camera equipment for every single classroom to accommodate virtual learning needs. When questioned about what will be done with this technology equipment once the pandemic ends, Davis did not intend to get rid of it anytime soon. While hybrid learning posed some early challenges, it also offered opportunities we had not previously considered. When athletes need to travel, or when students find themselves with an interview or shadowing opportunity, Zoom may be the solution to missing class. While no decisions have been made yet, the Academic Affairs Team will begin considering the future of Zoom in our curriculum in the near future. &nbsp;</p><p><strong>In-person Commencement will honor the Class of 2021. </strong>When considering the plans for a Commencement ceremony, Davis noted that she encouraged the planning committee to “find a way to have graduation.” After careful contemplation, the administration settled on an outside ceremony at the football field, with a setup slightly different from year’s past. As of now, graduation will be held in the football stadium, with the stage rotated so that both sides of the stadium can be used for attendees. Typical COVID-19 protocols will be in place in order to maximize the health and safety of those in attendance. Davis urged seniors to remain diligent and responsible as they finish up the semester. “We don’t want to have something happen that jeopardizes someone’s shot at attending the ceremony,” she noted. </p><p><strong>Vaccine decisions are still underway. </strong>Although other universities such as Duke and Notre Dame have already announced their decisions to make COVID-19 vaccinations mandatory for students returning in the Fall, Furman has yet to reach its final decision. According to Davis, “There is no specific timeline about the vaccine decision,” but students are still encouraged to get the COVID-19 vaccine. In fact, at least half of the student body has already received at least the first dose of the vaccine according to the survey sent to students earlier this month. Still, the administration is unable to announce its final decision about a vaccine requirement as “the CDC has not provided perfect clarity about herd immunity” and the administration will base its decision on information available at the time, according to Davis. </p><p><strong>A message to the students.</strong> As graduation approaches, Davis had a few words of advice for graduating seniors and the remainder of the student body. “Don’t underestimate what you’ve learned this year,” said Davis, who added that “You’re going to have struggles, but making it through something like this (the pandemic) is a testament.” Davis remarked that one’s ability to manage disappointment and continue to thrive speaks to one’s strength. Specifically addressing the Class of 2021, Davis encouraged seniors to reflect on the challenges they faced throughout their entire time at Furman, and to “turn those challenges into valuable traits.” </p><p><em>The Paladin </em>extends its congratulations to all students graduating this year, and its thanks to every student who played a role in ensuring campus remained safe, open and healthy this year. </p>`,
   });
 
   // whether the editor is maximized
@@ -727,47 +753,28 @@ const Tiptap = (props: ITiptap) => {
                 margin-top: 0;
                 margin-bottom: 10px;
               }
-              comment-card {
+              .collaboration-cursor__caret {
+                position: relative;
+                margin-left: -1px;
+                margin-right: -1px;
+                border-left: 1px solid #0d0d0d;
+                border-right: 1px solid #0d0d0d;
+                word-break: normal;
+                pointer-events: none;
+              }
+              .collaboration-cursor__label {
                 position: absolute;
-                background: white;
-                padding: 10px 20px;
-                margin: 0;
-                width: 240px;
-                box-shadow: rgb(0 0 0 / 13%) 0px 1.6px 3.6px 0px, rgb(0 0 0 / 11%) 0px 0.3px 0.9px 0px;
-                border: 1px solid lightgray;
-                right: -410px;
-                border-radius: ${theme.radius};
-
-                comment-meta {
-                  display: flex;
-                  flex-direction: row;
-                  align-items: center;
-                  justify-content: left;
-                  gap: 10px;
-                  img {
-                    width: 28px;
-                    height: 28px;
-                    border-radius: ${theme.radius};
-                  }
-                  comment-author-date {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 3px;
-                    comment-author {
-                      font-size: 14px;
-                      line-height: 14px;
-                      font-family: ${theme.font.detail};
-                      font-weight: 600;
-                      color: ${theme.color.neutral[theme.mode][1200]};
-                    }
-                    comment-timestamp {
-                      font-size: 11px;
-                      line-height: 11px;
-                      font-family: ${theme.font.detail};
-                      color: ${theme.color.neutral[theme.mode][800]};
-                    }
-                  }
-                }
+                top: -1.4em;
+                left: -1px;
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+                user-select: none;
+                color: #e0e0e0;
+                padding: 0.1rem 0.3rem;
+                border-radius: 3px 3px 3px 0;
+                white-space: nowrap;
               }
             }
           `}

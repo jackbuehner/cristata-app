@@ -17,6 +17,9 @@ import { db } from '../../../utils/axios/db';
 import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';
 import { Tiptap } from '../../../components/Tiptap';
+import ColorHash from 'color-hash';
+
+const colorHash = new ColorHash({ saturation: 0.9, lightness: 0.4 });
 
 const PageWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -148,7 +151,16 @@ function ItemDetailsPage() {
                     }
                   `}
                 >
-                  <Tiptap options={field.tiptap} flatData={flatData} setFlatData={setFlatData} />
+                  <Tiptap
+                    docName={`${collection}.${item_id}`}
+                    user={{
+                      name: 'Jack Buehner',
+                      color: colorHash.hex('Jack Buehner'),
+                    }}
+                    options={field.tiptap}
+                    flatData={flatData}
+                    setFlatData={setFlatData}
+                  />
                 </div>
               </InputGroup>
             );
