@@ -91,7 +91,7 @@ function ItemDetailsPage() {
         {collectionsConfig[collection]?.fields.map((field, index) => {
           if (field.type === 'text') {
             return (
-              <InputGroup type={`text`}>
+              <InputGroup type={`text`} key={index}>
                 <Label htmlFor={field.key} description={field.description}>
                   {field.label}
                 </Label>
@@ -107,7 +107,7 @@ function ItemDetailsPage() {
 
           if (field.type === 'boolean') {
             return (
-              <InputGroup type={`checkbox`}>
+              <InputGroup type={`checkbox`} key={index}>
                 <Label htmlFor={field.key} description={field.description}>
                   {field.label}
                 </Label>
@@ -118,7 +118,7 @@ function ItemDetailsPage() {
 
           if (field.type === 'tiptap') {
             return (
-              <InputGroup type={`text`}>
+              <InputGroup type={`text`} key={index}>
                 <Label htmlFor={field.key} description={field.description}>
                   {field.label}
                 </Label>
@@ -155,7 +155,7 @@ function ItemDetailsPage() {
           }
 
           return (
-            <InputGroup type={`text`}>
+            <InputGroup type={`text`} key={index}>
               <Label htmlFor={field.key} description={field.description}>
                 {field.label}
               </Label>
