@@ -4,6 +4,7 @@ import { themeType } from '../../utils/theme/theme';
 import ReactSelect, { OptionTypeBase, GroupTypeBase } from 'react-select';
 import { buttonEffect } from '../Button';
 import Color from 'color';
+import Creatable from 'react-select/creatable';
 
 interface ISelect<
   OptionType extends OptionTypeBase = { label: string; value: string },
@@ -12,6 +13,7 @@ interface ISelect<
   options?: ReadonlyArray<OptionType | GroupType>;
   val?: string;
   onChange?: (valueObj: OptionTypeBase | null) => void;
+  isCreatable?: boolean;
 }
 
 interface ISelectComponent extends ISelect {
@@ -89,19 +91,37 @@ function Select(props: ISelect) {
     return undefined;
   };
 
+  const CreatableSelectComponent = SelectComponent.withComponent(Creatable);
+
   return (
-    <SelectComponent
-      options={props.options}
-      classNamePrefix={`react-select`}
-      appTheme={theme}
-      color={`primary`}
-      colorShade={600}
-      backgroundColor={{ base: 'white' }}
-      border={{ base: '1px solid transparent' }}
-      value={getValue(props.val)}
-      onChange={props.onChange}
-    />
+    <>
+      {props.isCreatable ? (
+        <CreatableSelectComponent
+          options={props.options}
+          classNamePrefix={`react-select`}
+          appTheme={theme}
+          color={`primary`}
+          colorShade={600}
+          backgroundColor={{ base: 'white' }}
+          border={{ base: '1px solid transparent' }}
+          value={getValue(props.val)}
+          onChange={props.onChange}
+        />
+      ) : (
+        <SelectComponent
+          options={props.options}
+          classNamePrefix={`react-select`}
+          appTheme={theme}
+          color={`primary`}
+          colorShade={600}
+          backgroundColor={{ base: 'white' }}
+          border={{ base: '1px solid transparent' }}
+          value={getValue(props.val)}
+          onChange={props.onChange}
+        />
+      )}
+    </>
   );
 }
 
-export { Select };
+export { Select, SelectComponent };
