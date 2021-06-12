@@ -6,7 +6,10 @@ import { ArticlesTable, IArticlesTableImperative } from './ArticlesTable';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { Button, IconButton } from '../../components/Button';
 import { useMemo, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
+import { db } from '../../utils/axios/db';
+import { toast } from 'react-toastify';
+import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -17,6 +20,7 @@ const TableWrapper = styled.div<{ theme?: themeType }>`
 
 function ArticlesPage() {
   const theme = useTheme() as themeType;
+  const history = useHistory();
 
   // get the url parameters from the route
   let { progress } = useParams<{ progress: string }>();
@@ -47,6 +51,18 @@ function ArticlesPage() {
     return [];
   }, [progress]);
 
+  // create new article
+  const createNew = () => {
+    db.post(`/articles`, {
+      name: uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals], separator: '-' }),
+    })
+      .then(({ data }) => history.push(`/cms/item/articles/${data._id}`))
+      .catch((err) => {
+        console.error(err);
+        toast.error(`Failed to save changes. \n ${err.message}`);
+      });
+  };
+
   const articlesTableRef = useRef<IArticlesTableImperative>(null);
   return (
     <>
@@ -61,7 +77,7 @@ function ArticlesPage() {
             >
               Refresh
             </IconButton>
-            <Button>Create new</Button>
+            <Button onClick={createNew}>Create new</Button>
           </>
         }
       />
