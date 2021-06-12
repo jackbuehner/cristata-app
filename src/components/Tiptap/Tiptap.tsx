@@ -111,7 +111,8 @@ const ToolbarMetaIconButton = styled(IconButton)`
 const ToolbarActionRowContainer = styled.div<{ theme: themeType }>`
   width: 100%;
   box-sizing: border-box;
-  height: 40px;
+  height: fit-content;
+  min-height: 40px;
   background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
   padding: 0px 8px;
   display: flex;
@@ -121,11 +122,13 @@ const ToolbarRow = styled.div<{ isActive: boolean }>`
   display: flex;
   visibility: ${({ isActive }) => (isActive ? 'visible' : 'hidden')};
   width: ${({ isActive }) => (isActive ? 'auto' : '0px')};
+  height: ${({ isActive }) => (isActive ? 'fit-content' : '0px')};
   transform: ${({ isActive }) => (isActive ? 'none' : 'translateX(-20px)')};
   opacity: ${({ isActive }) => (isActive ? 100 : 0)};
   transition: transform 0.15s ease 0s, opacity 0.15s ease 0s;
   white-space: nowrap;
   flex-wrap: wrap;
+  align-content: flex-start;
 `;
 
 const ToolbarRowIconButton = styled(IconButton)<{ theme: themeType; isActive: boolean }>`
