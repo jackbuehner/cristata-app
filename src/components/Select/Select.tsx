@@ -14,6 +14,7 @@ interface ISelect<
   val?: string;
   onChange?: (valueObj: OptionTypeBase | null) => void;
   isCreatable?: boolean;
+  isDisabled?: boolean;
 }
 
 interface ISelectComponent extends ISelect {
@@ -106,6 +107,7 @@ function Select(props: ISelect) {
           border={{ base: '1px solid transparent' }}
           value={getValue(props.val)}
           onChange={props.onChange}
+          isDisabled={props.isDisabled}
         />
       ) : (
         <SelectComponent
@@ -118,6 +120,7 @@ function Select(props: ISelect) {
           border={{ base: '1px solid transparent' }}
           value={getValue(props.val)}
           onChange={props.onChange}
+          isDisabled={props.isDisabled}
         />
       )}
     </>

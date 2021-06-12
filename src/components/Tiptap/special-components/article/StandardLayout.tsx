@@ -15,6 +15,7 @@ interface IStandardLayout {
   headline: string;
   categories: string[];
   description: string;
+  isDisabled?: boolean;
 }
 
 /**
@@ -57,9 +58,10 @@ function StandardLayout(props: IStandardLayout) {
    * Attributes for contenteditable elements
    */
   const contentEditableAttrs = {
-    contentEditable: true, // enable
+    contentEditable: props.isDisabled === true ? false : true, // enable
     onKeyPress: preventNewLines, // prevent new lines
     suppressContentEditableWarning: true, // suppress warning from react about managed contenteditable element
+    isDisabled: props.isDisabled,
   };
 
   return (
@@ -126,7 +128,7 @@ const Container = styled.div`
   }
 `;
 
-const Headline = styled.h1`
+const Headline = styled.h1<{ isDisabled?: boolean }>`
   margin-top: 0;
   margin-bottom: 0;
   align-self: flex-start;
@@ -136,9 +138,10 @@ const Headline = styled.h1`
   font-style: italic;
   font-weight: 700;
   letter-spacing: -0.8px;
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'text')};
 `;
 
-const Description = styled.div`
+const Description = styled.div<{ isDisabled?: boolean }>`
   margin-top: 10px;
   margin-bottom: 20px;
   direction: ltr;
@@ -148,6 +151,7 @@ const Description = styled.div`
   font-weight: 400;
   text-transform: none;
   white-space: normal;
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'text')};
 `;
 
 const Categories = styled.div`
@@ -194,7 +198,7 @@ const Photo = styled.img`
   object-fit: cover;
 `;
 
-const Caption = styled.div`
+const Caption = styled.div<{ isDisabled?: boolean }>`
   display: inline;
   margin-top: 4px;
   margin-right: 6px;
@@ -202,6 +206,7 @@ const Caption = styled.div`
   color: #777;
   font-size: 14px;
   line-height: 20px;
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'text')};
 `;
 
 const Credit = styled.div`

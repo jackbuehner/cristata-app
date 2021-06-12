@@ -4,6 +4,7 @@ import { themeType } from '../../utils/theme/theme';
 
 interface ITextInputBase {
   font?: 'headline' | 'body' | 'detail';
+  isDisabled?: boolean;
 }
 
 interface ITextInputComponent extends ITextInputBase {
@@ -54,6 +55,7 @@ function TextInput(props: ITextInput) {
       title={props.title}
       id={props.id}
       placeholder={props.placeholder}
+      disabled={props.isDisabled}
     />
   );
 }

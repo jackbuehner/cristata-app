@@ -242,9 +242,10 @@ interface IMenuBar {
   editor: Editor | null;
   isMax: boolean;
   setIsMax: React.Dispatch<React.SetStateAction<boolean>>;
+  isDisabled?: boolean;
 }
 
-function MenuBar({ editor, isMax, setIsMax }: IMenuBar) {
+function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
   const theme = useTheme() as themeType;
   const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'utils'>('home');
 
@@ -398,40 +399,42 @@ function MenuBar({ editor, isMax, setIsMax }: IMenuBar) {
     <>
       <Toolbar>
         <ToolbarTabRow theme={theme}>
-          <ToolbarTabList>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'home'}
-              onClick={() => setActiveTab('home')}
-            >
-              Home
-            </ToolbarTabButton>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'insert'}
-              onClick={() => setActiveTab('insert')}
-            >
-              Insert
-            </ToolbarTabButton>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'layout'}
-              onClick={() => setActiveTab('layout')}
-            >
-              Layout
-            </ToolbarTabButton>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'utils'}
-              onClick={() => setActiveTab('utils')}
-            >
-              Utilities
-            </ToolbarTabButton>
-          </ToolbarTabList>
+          {props.isDisabled ? null : (
+            <ToolbarTabList>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'home'}
+                onClick={() => setActiveTab('home')}
+              >
+                Home
+              </ToolbarTabButton>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'insert'}
+                onClick={() => setActiveTab('insert')}
+              >
+                Insert
+              </ToolbarTabButton>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'layout'}
+                onClick={() => setActiveTab('layout')}
+              >
+                Layout
+              </ToolbarTabButton>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'utils'}
+                onClick={() => setActiveTab('utils')}
+              >
+                Utilities
+              </ToolbarTabButton>
+            </ToolbarTabList>
+          )}
           <ToolbarMeta>
             <ToolbarMetaIconButton
               onClick={() => setIsMax(!isMax)}
@@ -440,194 +443,196 @@ function MenuBar({ editor, isMax, setIsMax }: IMenuBar) {
             ></ToolbarMetaIconButton>
           </ToolbarMeta>
         </ToolbarTabRow>
-        <ToolbarActionRowContainer theme={theme}>
-          <ToolbarRow isActive={activeTab === 'home'}>
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().undo().run()}
-              icon={<BackIcon />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().undo()}
-              isActive={false}
-            />
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().redo().run()}
-              icon={<RedoIcon />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().redo()}
-              isActive={false}
-            />
-            <ToolbarDivider />
-            <Combobox
-              onClick={showFontFamilyDropdown}
-              color={'neutral'}
-              disabled={true /*!editor.can().setFontFamily('Georgia')*/}
-              width={`128px`}
-              cssContainerExtra={css`
-                padding-right: 0;
-              `}
-              cssExtra={css`
-                border-top-right-radius: 0 !important;
-                border-bottom-right-radius: 0 !important;
-              `}
-            >
-              {editor.getAttributes('textStyle').fontFamily || 'Georgia'}
-            </Combobox>
-            <Combobox
-              onClick={showFontFamilyDropdown}
-              color={'neutral'}
-              disabled
-              width={`52px`}
-              cssContainerExtra={css`
-                padding-left: 0;
-              `}
-              cssExtra={css`
-                border-top-left-radius: 0 !important;
-                border-bottom-left-radius: 0 !important;
-                margin-left: -1px;
-              `}
-            >
-              {editor.getAttributes('textStyle').fontSize || '17px'}
-            </Combobox>
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().toggleBold().run()}
-              isActive={editor.isActive('bold')}
-              icon={<BoldIcon />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleBold()}
-            />
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              isActive={editor.isActive('italic')}
-              icon={<ItalicsIcon />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleItalic()}
-            />
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().toggleUnderline().run()}
-              isActive={editor.isActive('underline')}
-              icon={<UnderlineIcon />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleUnderline()}
-            />
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              isActive={editor.isActive('strike')}
-              icon={<StrikeIcon />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleStrike()}
-            />
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().toggleCode().run()}
-              isActive={editor.isActive('code')}
-              icon={<Code20Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleCode()}
-            ></ToolbarRowIconButton>
-            <ToolbarDivider />
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              isActive={editor.isActive('bulletList')}
-              icon={<TextBulletListLtr20Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleBulletList()}
-            ></ToolbarRowIconButton>
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              isActive={editor.isActive('orderedList')}
-              icon={<TextNumberListLtr20Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleOrderedList()}
-            ></ToolbarRowIconButton>
-            <ToolbarDivider />
-            <Combobox onClick={showTextStyleDropdown} color={'neutral'} width={`128px`}>
-              {
-                // show the correct style name
-                editor.isActive('heading', { level: 1 }) ? (
-                  <h1>Heading 1</h1>
-                ) : editor.isActive('heading', { level: 2 }) ? (
-                  <h2>Heading 2</h2>
-                ) : editor.isActive('heading', { level: 3 }) ? (
-                  <h3>Heading 3</h3>
-                ) : editor.isActive('blockquote') ? (
-                  <blockquote>
-                    <p>Blockquote</p>
-                  </blockquote>
-                ) : editor.isActive('codeBlock') ? (
-                  <pre>
-                    <code>Code Block</code>
-                  </pre>
-                ) : editor.isActive('paragraph') ? (
-                  <p>Paragraph</p>
-                ) : (
-                  ''
-                )
-              }
-            </Combobox>
-          </ToolbarRow>
-          <ToolbarRow isActive={activeTab === 'insert'}>
-            <ToolbarRowButton
-              onClick={() => editor.chain().focus().setHorizontalRule().run()}
-              isActive={false}
-              icon={<LineHorizontal120Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().setHorizontalRule()}
-            >
-              Horizontal Line
-            </ToolbarRowButton>
-            <ToolbarRowButton
-              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              isActive={editor.isActive('codeBlock')}
-              icon={<Code20Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().toggleCodeBlock()}
-            >
-              Code Block
-            </ToolbarRowButton>
-            <ToolbarRowButton
-              onClick={showLinkModal}
-              isActive={false}
-              icon={<Link20Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().setTextSelection({ from: 0, to: 1 })}
-            >
-              Insert Link
-            </ToolbarRowButton>
-            <ToolbarRowButton
-              onClick={() => editor.chain().focus().setComment().run()}
-              isActive={false}
-              icon={<CommentAdd20Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().setComment()}
-            >
-              Insert Comment
-            </ToolbarRowButton>
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().unsetComment().run()}
-              isActive={false}
-              icon={<CommentOff20Regular />}
-              theme={theme}
-              color={'neutral'}
-              disabled={!editor.can().unsetComment()}
-            />
-          </ToolbarRow>
-          <ToolbarRow isActive={activeTab === 'utils'}>
-            <Button onClick={() => editor.chain().focus().unsetAllMarks().run()}>clear marks</Button>
-            <Button onClick={() => editor.chain().focus().clearNodes().run()}>clear nodes</Button>
-          </ToolbarRow>
-        </ToolbarActionRowContainer>
+        {props.isDisabled ? null : (
+          <ToolbarActionRowContainer theme={theme}>
+            <ToolbarRow isActive={activeTab === 'home'}>
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().undo().run()}
+                icon={<BackIcon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().undo()}
+                isActive={false}
+              />
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().redo().run()}
+                icon={<RedoIcon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().redo()}
+                isActive={false}
+              />
+              <ToolbarDivider />
+              <Combobox
+                onClick={showFontFamilyDropdown}
+                color={'neutral'}
+                disabled={true /*!editor.can().setFontFamily('Georgia')*/}
+                width={`128px`}
+                cssContainerExtra={css`
+                  padding-right: 0;
+                `}
+                cssExtra={css`
+                  border-top-right-radius: 0 !important;
+                  border-bottom-right-radius: 0 !important;
+                `}
+              >
+                {editor.getAttributes('textStyle').fontFamily || 'Georgia'}
+              </Combobox>
+              <Combobox
+                onClick={showFontFamilyDropdown}
+                color={'neutral'}
+                disabled
+                width={`52px`}
+                cssContainerExtra={css`
+                  padding-left: 0;
+                `}
+                cssExtra={css`
+                  border-top-left-radius: 0 !important;
+                  border-bottom-left-radius: 0 !important;
+                  margin-left: -1px;
+                `}
+              >
+                {editor.getAttributes('textStyle').fontSize || '17px'}
+              </Combobox>
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().toggleBold().run()}
+                isActive={editor.isActive('bold')}
+                icon={<BoldIcon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleBold()}
+              />
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                isActive={editor.isActive('italic')}
+                icon={<ItalicsIcon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleItalic()}
+              />
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                isActive={editor.isActive('underline')}
+                icon={<UnderlineIcon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleUnderline()}
+              />
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().toggleStrike().run()}
+                isActive={editor.isActive('strike')}
+                icon={<StrikeIcon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleStrike()}
+              />
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().toggleCode().run()}
+                isActive={editor.isActive('code')}
+                icon={<Code20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleCode()}
+              ></ToolbarRowIconButton>
+              <ToolbarDivider />
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                isActive={editor.isActive('bulletList')}
+                icon={<TextBulletListLtr20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleBulletList()}
+              ></ToolbarRowIconButton>
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                isActive={editor.isActive('orderedList')}
+                icon={<TextNumberListLtr20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleOrderedList()}
+              ></ToolbarRowIconButton>
+              <ToolbarDivider />
+              <Combobox onClick={showTextStyleDropdown} color={'neutral'} width={`128px`}>
+                {
+                  // show the correct style name
+                  editor.isActive('heading', { level: 1 }) ? (
+                    <h1>Heading 1</h1>
+                  ) : editor.isActive('heading', { level: 2 }) ? (
+                    <h2>Heading 2</h2>
+                  ) : editor.isActive('heading', { level: 3 }) ? (
+                    <h3>Heading 3</h3>
+                  ) : editor.isActive('blockquote') ? (
+                    <blockquote>
+                      <p>Blockquote</p>
+                    </blockquote>
+                  ) : editor.isActive('codeBlock') ? (
+                    <pre>
+                      <code>Code Block</code>
+                    </pre>
+                  ) : editor.isActive('paragraph') ? (
+                    <p>Paragraph</p>
+                  ) : (
+                    ''
+                  )
+                }
+              </Combobox>
+            </ToolbarRow>
+            <ToolbarRow isActive={activeTab === 'insert'}>
+              <ToolbarRowButton
+                onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                isActive={false}
+                icon={<LineHorizontal120Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().setHorizontalRule()}
+              >
+                Horizontal Line
+              </ToolbarRowButton>
+              <ToolbarRowButton
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                isActive={editor.isActive('codeBlock')}
+                icon={<Code20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().toggleCodeBlock()}
+              >
+                Code Block
+              </ToolbarRowButton>
+              <ToolbarRowButton
+                onClick={showLinkModal}
+                isActive={false}
+                icon={<Link20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().setTextSelection({ from: 0, to: 1 })}
+              >
+                Insert Link
+              </ToolbarRowButton>
+              <ToolbarRowButton
+                onClick={() => editor.chain().focus().setComment().run()}
+                isActive={false}
+                icon={<CommentAdd20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().setComment()}
+              >
+                Insert Comment
+              </ToolbarRowButton>
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().unsetComment().run()}
+                isActive={false}
+                icon={<CommentOff20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().unsetComment()}
+              />
+            </ToolbarRow>
+            <ToolbarRow isActive={activeTab === 'utils'}>
+              <Button onClick={() => editor.chain().focus().unsetAllMarks().run()}>clear marks</Button>
+              <Button onClick={() => editor.chain().focus().clearNodes().run()}>clear nodes</Button>
+            </ToolbarRow>
+          </ToolbarActionRowContainer>
+        )}
       </Toolbar>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}></div>
     </>
@@ -647,6 +652,7 @@ interface ITiptap {
       [key: string]: string | string[] | number;
     }>
   >;
+  isDisabled?: boolean;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -661,6 +667,7 @@ const Tiptap = (props: ITiptap) => {
   );
 
   const editor = useEditor({
+    editable: props.isDisabled === true ? false : true,
     extensions: [
       StarterKit.configure({ history: false }),
       Underline,
@@ -703,7 +710,7 @@ const Tiptap = (props: ITiptap) => {
         ${isMax ? `position: fixed; inset: 0;` : ''}
       `}
     >
-      <MenuBar editor={editor} isMax={isMax} setIsMax={setIsMax} />
+      <MenuBar editor={editor} isMax={isMax} setIsMax={setIsMax} isDisabled={props.isDisabled} />
       <div
         css={css`
           overflow: auto;
@@ -731,6 +738,7 @@ const Tiptap = (props: ITiptap) => {
                 categories={
                   (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
                 }
+                isDisabled={props.isDisabled}
               />
             </>
           ) : null
