@@ -4,10 +4,10 @@ import { IconButton } from '../../../Button';
 
 interface IStandardLayout {
   flatDataState: [
-    { [key: string]: string | string[] },
+    { [key: string]: string | string[] | number },
     React.Dispatch<
       React.SetStateAction<{
-        [key: string]: string | string[];
+        [key: string]: string | string[] | number;
       }>
     >
   ];

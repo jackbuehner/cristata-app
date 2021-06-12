@@ -7,6 +7,10 @@ interface Icollections {
           type: string;
           description?: string;
           tiptap?: tiptapOptions;
+          options?: Array<{
+            value: string;
+            label: string;
+          }>;
         }>;
       }
     | undefined;
@@ -33,7 +37,22 @@ const collections: Icollections = {
         description:
           'A short summary or message related to the article that will draw in the reader. This appears on most article cards and on social media.',
       },
-      { key: 'stage', label: 'Stage', type: 'select', description: 'The current status of this article.' },
+      {
+        key: 'stage',
+        label: 'Stage',
+        type: 'select',
+        description: 'The current status of this article.',
+        options: [
+          { value: '1.1', label: 'Planning' },
+          { value: '2.1', label: 'Draft' },
+          { value: '3.1', label: 'Pending Editor Review' },
+          { value: '3.3', label: 'Pending Copy Edit' },
+          { value: '3.5', label: 'Pending Writer/Editor Check' },
+          { value: '4.1', label: 'Pending Upload Approval' },
+          { value: '5.1', label: 'Uploaded/Scheduled' },
+          { value: '5.2', label: 'Published' },
+        ],
+      },
       {
         key: 'categories',
         label: 'Sections',

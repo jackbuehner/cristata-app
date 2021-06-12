@@ -18,6 +18,7 @@ import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';
 import { Tiptap } from '../../../components/Tiptap';
 import ColorHash from 'color-hash';
+import { Select } from '../../../components/Select';
 
 const colorHash = new ColorHash({ saturation: 0.9, lightness: 0.4 });
 
@@ -44,7 +45,7 @@ function ItemDetailsPage() {
   const [{ data }, refetch] = useAxios(`/${collection}/${item_id}`);
 
   // save a flattened version of the data in state for modification
-  const [flatData, setFlatData] = useState<{ [key: string]: string | string[] }>({});
+  const [flatData, setFlatData] = useState<{ [key: string]: string | string[] | number }>({});
   useEffect(() => {
     if (data) setFlatData(flattenObject(data));
   }, [data]);
@@ -54,6 +55,19 @@ function ItemDetailsPage() {
     setFlatData({
       ...flatData,
       [key]: e.currentTarget.value,
+    });
+  };
+
+  /**
+   *
+   * @param value
+   * @param key
+   * @param type the type stored in the flat data
+   */
+  const handleSelectChange = (value: string | number, key: string, type: string) => {
+    setFlatData({
+      ...flatData,
+      [key]: type === 'number' ? parseFloat(value as string) : value,
     });
   };
 
@@ -162,6 +176,27 @@ function ItemDetailsPage() {
                     setFlatData={setFlatData}
                   />
                 </div>
+              </InputGroup>
+            );
+          }
+
+          if (field.type === 'select') {
+            return (
+              <InputGroup type={`text`} key={index}>
+                <Label htmlFor={field.key} description={field.description}>
+                  {field.label}
+                </Label>
+                <Select
+                  options={field.options}
+                  val={`${flatData[field.key] as string | number}`}
+                  onChange={(valueObj) =>
+                    handleSelectChange(
+                      valueObj ? valueObj.value : '',
+                      field.key,
+                      typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                    )
+                  }
+                />
               </InputGroup>
             );
           }

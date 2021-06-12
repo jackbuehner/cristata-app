@@ -638,10 +638,10 @@ interface ITiptap {
     color: string;
   };
   options?: tiptapOptions;
-  flatData?: { [key: string]: string | string[] };
+  flatData?: { [key: string]: string | string[] | number };
   setFlatData?: React.Dispatch<
     React.SetStateAction<{
-      [key: string]: string | string[];
+      [key: string]: string | string[] | number;
     }>
   >;
 }
