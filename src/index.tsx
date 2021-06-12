@@ -6,13 +6,17 @@ import { ThemeProvider } from '@emotion/react';
 import { theme } from './utils/theme';
 import reportWebVitals from './reportWebVitals';
 import { DropdownProvider } from './hooks/useDropdown';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import LuxonUtils from '@date-io/luxon';
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <ModalProvider>
         <DropdownProvider>
-          <App />
+          <MuiPickersUtilsProvider utils={LuxonUtils}>
+            <App />
+          </MuiPickersUtilsProvider>
         </DropdownProvider>
       </ModalProvider>
     </ThemeProvider>
