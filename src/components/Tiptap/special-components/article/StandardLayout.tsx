@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { tiptapOptions } from '../../../../config';
 import { IconButton } from '../../../Button';
+import { collections as collectionsConfig } from '../../../../config';
 
 interface IStandardLayout {
   flatDataState: [
@@ -68,11 +69,13 @@ function StandardLayout(props: IStandardLayout) {
     isDisabled: props.isDisabled,
   };
 
+  const categories = collectionsConfig['articles']?.fields.find((field) => field.key === 'categories')?.options;
+
   return (
     <Container tiptapWidth={props.tiptapSize.width}>
       <Categories>
         {props.categories.map((cat, index) => (
-          <Category key={index}>{cat.replace('-', ' ')}</Category>
+          <Category key={index}>{categories?.find((category) => category.value === cat)?.label}</Category>
         ))}
       </Categories>
       <Headline {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'headline')}>
@@ -156,8 +159,9 @@ const Description = styled.div<{ isDisabled?: boolean }>`
 
 const Categories = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 2px 10px;
   margin-bottom: 4px;
+  flex-wrap: wrap;
 `;
 
 const Category = styled.span`
