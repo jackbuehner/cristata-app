@@ -9,7 +9,7 @@ interface IMultiSelect<
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
 > {
   options?: ReadonlyArray<OptionType | GroupType>;
-  val?: string;
+  val?: string[];
   onChange?: (valueObjs: OptionTypeBase | OptionsType<OptionTypeBase> | null) => void;
   isCreatable?: boolean;
   isDisabled?: boolean;
@@ -21,8 +21,25 @@ interface IMultiSelect<
 function MultiSelect(props: IMultiSelect) {
   const theme = useTheme() as themeType;
 
-  const getValue = (val?: string) => {
-    if (val) return props.options?.find((opt) => opt.value === val);
+  const getValue = (isCreatable: boolean, values?: string[]) => {
+    if (values) {
+      let valueObjs: Array<OptionTypeBase | OptionsType<OptionTypeBase>> = [];
+      values.forEach((value) => {
+        const foundValue = props.options?.find((opt) => opt.value === value);
+        if (foundValue) {
+          // if the found value exists, add it to valueObjs
+          valueObjs.push(foundValue);
+        } else if (isCreatable) {
+          // if the found value does not exist, but the select is creatable,
+          // create a new value object that is not predefined
+          valueObjs.push({
+            value: value.toString().toLowerCase(),
+            label: value,
+          });
+        }
+      });
+      return valueObjs;
+    }
     return undefined;
   };
 
@@ -39,7 +56,7 @@ function MultiSelect(props: IMultiSelect) {
           colorShade={600}
           backgroundColor={{ base: 'white' }}
           border={{ base: '1px solid transparent' }}
-          value={getValue(props.val)}
+          value={getValue(true, props.val)}
           onChange={props.onChange}
           isMulti
           isDisabled={props.isDisabled}
@@ -53,7 +70,7 @@ function MultiSelect(props: IMultiSelect) {
           colorShade={600}
           backgroundColor={{ base: 'white' }}
           border={{ base: '1px solid transparent' }}
-          value={getValue(props.val)}
+          value={getValue(false, props.val)}
           onChange={props.onChange}
           isMulti
           isDisabled={props.isDisabled}
