@@ -131,7 +131,7 @@ function ItemDetailsPage() {
           if (field.type === 'text') {
             return (
               <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
                   {field.label}
                 </Label>
                 <TextInput
@@ -139,6 +139,7 @@ function ItemDetailsPage() {
                   id={field.key}
                   value={flatData[field.key] as string}
                   onChange={(e) => handleTextChange(e, field.key)}
+                  isDisabled={field.isDisabled}
                 />
               </InputGroup>
             );
@@ -147,10 +148,10 @@ function ItemDetailsPage() {
           if (field.type === 'boolean') {
             return (
               <InputGroup type={`checkbox`} key={index}>
-                <Label htmlFor={field.key} description={field.description}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
                   {field.label}
                 </Label>
-                <input type={'checkbox'} name={field.label} id={field.key} />
+                <input type={'checkbox'} name={field.label} id={field.key} disabled={field.isDisabled} />
               </InputGroup>
             );
           }
@@ -158,7 +159,7 @@ function ItemDetailsPage() {
           if (field.type === 'tiptap') {
             return (
               <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
                   {field.label}
                 </Label>
                 <div
@@ -196,6 +197,7 @@ function ItemDetailsPage() {
                     options={field.tiptap}
                     flatData={flatData}
                     setFlatData={setFlatData}
+                    isDisabled={field.isDisabled}
                   />
                 </div>
               </InputGroup>
@@ -205,7 +207,7 @@ function ItemDetailsPage() {
           if (field.type === 'select') {
             return (
               <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
                   {field.label}
                 </Label>
                 <Select
@@ -289,7 +291,7 @@ function ItemDetailsPage() {
 
           return (
             <InputGroup type={`text`} key={index}>
-              <Label htmlFor={field.key} description={field.description}>
+              <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
                 {field.label}
               </Label>
               <pre>{JSON.stringify(field)}</pre>
