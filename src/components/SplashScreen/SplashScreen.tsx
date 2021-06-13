@@ -49,7 +49,7 @@ function SplashScreen(props: ISplashScreen) {
             align-items: center;
             justify-content: center;
             animation: ${
-              (!props.error && !props.loading) || props.error?.message.indexOf('403') !== -1
+              (!props.error && !props.loading) || (props.error && props.error.message.indexOf('403') !== -1)
                 ? `splash-off 0.14s ease-in-out`
                 : 'none'
             };
