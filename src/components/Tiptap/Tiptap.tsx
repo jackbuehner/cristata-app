@@ -5,6 +5,7 @@ import Underline from '@tiptap/extension-underline';
 import TextStyle from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
 import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
 import { Button, IconButton } from '../Button';
 import styled from '@emotion/styled';
 import { css, SerializedStyles, useTheme } from '@emotion/react';
@@ -693,6 +694,9 @@ const Tiptap = (props: ITiptap) => {
           color: props.user.color,
         },
       }),
+      Placeholder.configure({
+        placeholder: 'Write something...',
+      }),
     ],
   });
 
@@ -769,9 +773,18 @@ const Tiptap = (props: ITiptap) => {
               *::selection {
                 background-color: #c4dffc;
               }
+              // only use bottom margin for paragraphs
               p {
                 margin-top: 0;
                 margin-bottom: 10px;
+              }
+              // show placeholder message when the editor is empty
+              p.is-editor-empty:first-child::before {
+                content: attr(data-placeholder);
+                float: left;
+                color: ${theme.color.neutral[theme.mode][600]};
+                pointer-events: none;
+                height: 0;
               }
               .collaboration-cursor__caret {
                 position: relative;
