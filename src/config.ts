@@ -11,6 +11,7 @@ interface Icollections {
             value: string;
             label: string;
           }>;
+          isDisabled?: boolean;
         }>;
       }
     | undefined;
@@ -58,11 +59,19 @@ const collections: Icollections = {
         label: 'Sections',
         type: 'multiselect',
         description: 'The sections in which this article belongs.',
+        options: [
+          { value: 'news', label: 'News' },
+          { value: 'opinion', label: 'Opinions' },
+          { value: 'sports', label: 'Sports' },
+          { value: 'diversity', label: 'Diversity Matters' },
+          { value: 'arts', label: 'Arts' },
+          { value: 'campus-culture', label: 'Campus & Culture' },
+        ],
       },
       {
         key: 'tags',
         label: 'Tags',
-        type: 'multiselect',
+        type: 'multiselect_creatable',
         description: 'Keywords and tags that apply to this article. Allows custom entries.',
       },
       {
@@ -84,23 +93,26 @@ const collections: Icollections = {
         label: 'Locked Status',
         type: 'boolean',
         description: 'Control whether this article is able to be modified.',
+        isDisabled: true,
       },
       {
         key: 'permissions.users',
         label: 'User Access Control',
         type: 'multiselect',
         description: 'Control which users can see this article.',
+        isDisabled: true,
       },
       {
         key: 'permissions.teams',
         label: 'Team Access Control',
         type: 'multiselect',
         description: 'Control which teams (user groups) can see this article.',
+        isDisabled: true,
       },
-      { key: 'timestamps.created_at', label: 'Created at', type: 'datetime' },
-      { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime' },
-      { key: 'timestamps.published_at', label: 'Published at', type: 'datetime' },
       { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
+      { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
+      { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
+      { key: 'timestamps.published_at', label: 'Published at', type: 'datetime', isDisabled: true },
     ],
   },
 };
