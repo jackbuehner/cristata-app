@@ -22,6 +22,7 @@ import {
   CommentAdd20Regular,
   CommentOff20Regular,
 } from '@fluentui/react-icons';
+import useDimensions from 'react-cool-dimensions';
 import { useDropdown } from '../../hooks/useDropdown';
 import { Menu } from '../Menu';
 import { ButtonProps } from '../Button/Button';
@@ -698,6 +699,9 @@ const Tiptap = (props: ITiptap) => {
   // whether the editor is maximized
   const [isMax, setIsMax] = useState<boolean>(false);
 
+  // monitor the dimensions of the editor
+  const { observe, width: tiptapWidth, height: tiptapHieght } = useDimensions();
+
   return (
     <div
       css={css`
@@ -707,8 +711,10 @@ const Tiptap = (props: ITiptap) => {
         align-items: center;
         overflow: hidden;
         height: 100%;
-        ${isMax ? `position: fixed; inset: 0;` : ''}
+        ${isMax ? `position: fixed; inset: 0;` : ''};
+        z-index: 1;
       `}
+      ref={observe}
     >
       <MenuBar editor={editor} isMax={isMax} setIsMax={setIsMax} isDisabled={props.isDisabled} />
       <div
@@ -739,17 +745,20 @@ const Tiptap = (props: ITiptap) => {
                   (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
                 }
                 isDisabled={props.isDisabled}
+                tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
               />
             </>
           ) : null
         }
         <div
           css={css`
-            max-width: 590px;
+            max-width: ${tiptapWidth <= 680 ? `unset` : `768px`};
+            width: ${tiptapWidth <= 680 ? `100%` : `calc(100% - 40px)`};
+            box-sizing: border-box;
             background-color: white;
-            border: 1px solid rgb(171, 171, 171);
-            padding: 68px 88px;
-            margin: 20px;
+            border: ${tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`};
+            padding: ${tiptapWidth <= 680 ? `24px 20px` : `68px 88px`};
+            margin: ${tiptapWidth <= 680 ? `0` : `20px`};
             .ProseMirror {
               font-family: Georgia, Times, 'Times New Roman', serif;
               color: #3a3a3a;
@@ -779,7 +788,7 @@ const Tiptap = (props: ITiptap) => {
                 left: -1px;
                 font-size: 12px;
                 font-style: normal;
-                font-weight: 600;
+                font-weight: 680;
                 line-height: normal;
                 user-select: none;
                 color: #e0e0e0;

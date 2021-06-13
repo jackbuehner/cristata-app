@@ -16,6 +16,10 @@ interface IStandardLayout {
   categories: string[];
   description: string;
   isDisabled?: boolean;
+  tiptapSize: {
+    width: number;
+    height: number;
+  };
 }
 
 /**
@@ -65,7 +69,7 @@ function StandardLayout(props: IStandardLayout) {
   };
 
   return (
-    <Container>
+    <Container tiptapWidth={props.tiptapSize.width}>
       <Categories>
         {props.categories.map((cat, index) => (
           <Category key={index}>{cat.replace('-', ' ')}</Category>
@@ -77,7 +81,7 @@ function StandardLayout(props: IStandardLayout) {
       <Description {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'description')}>
         {props.description}
       </Description>
-      <PhotoContainer>
+      <PhotoContainer tiptapWidth={props.tiptapSize.width}>
         <Photo
           draggable='false'
           src='https://uploads-ssl.webflow.com/5f37fcdc1b6edd6760ad912f/60817ebfaf5a0475f56c5461_pres.jpeg'
@@ -111,21 +115,17 @@ function StandardLayout(props: IStandardLayout) {
   );
 }
 
-const Container = styled.div`
-  max-width: 590px;
+const Container = styled.div<{ tiptapWidth: number }>`
+  max-width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `590px`)};
   background-color: white;
-  border: 1px solid rgb(171, 171, 171);
+  border: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`)};
   border-bottom: none;
-  padding: 68px 88px 0;
-  margin: 20px;
-  margin-bottom: -74px; // connect bottom to top of article body and leave 15px spacing
+  padding: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `24px 20px 0` : `68px 88px 0`)};
+  margin: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `0` : `20px`)};
+  margin-bottom: ${({ tiptapWidth }) =>
+    tiptapWidth <= 680 ? `0` : `-74px`}; // connect bottom to top of article body and leave 15px spacing
   z-index: 1;
   padding-bottom: 15px; // for 30px between prosemirror and container content
-  @media (max-width: 600px) {
-    padding: 24px 20px 0;
-    margin: 0;
-    border: none;
-  }
 `;
 
 const Headline = styled.h1<{ isDisabled?: boolean }>`
@@ -175,8 +175,8 @@ const Category = styled.span`
   }
 `;
 
-const PhotoContainer = styled.div`
-  width: 100%;
+const PhotoContainer = styled.div<{ tiptapWidth: number }>`
+  width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `calc(100% + 40px)` : `100%`)};
   padding-top: calc(66.6667%);
   height: 0px;
   position: relative;
@@ -184,10 +184,7 @@ const PhotoContainer = styled.div`
   margin-left: unset;
   margin-right: unset;
   margin-bottom: 4px;
-  @media (max-width: 600px) {
-    width: calc(100% + 40px);
-    left: -20px;
-  }
+  left: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `-20px` : `unset`)};
 `;
 
 const Photo = styled.img`

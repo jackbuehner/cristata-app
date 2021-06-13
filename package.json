@@ -32,6 +32,7 @@
     "color-hash": "^2.0.1",
     "luxon": "^1.26.0",
     "react": "^17.0.1",
+    "react-cool-dimensions": "^2.0.7",
     "react-dnd": "^14.0.2",
     "react-dnd-html5-backend": "^14.0.0",
     "react-dnd-touch-backend": "^14.0.0",
