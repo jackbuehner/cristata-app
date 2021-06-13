@@ -100,6 +100,7 @@ function ItemDetailsPage() {
       .then(() => {
         setIsLoading(false);
         toast.success(`Changes successfully saved.`);
+        refetch();
       })
       .catch((err) => {
         console.error(err);
@@ -117,7 +118,7 @@ function ItemDetailsPage() {
         description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection.slice(1)} collection`}
         buttons={
           <>
-            <IconButton onClick={() => refetch} icon={<ArrowClockwise24Regular />}>
+            <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
               Refresh
             </IconButton>
             <Button onClick={saveChanges}>Save</Button>
