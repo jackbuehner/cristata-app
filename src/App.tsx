@@ -4,7 +4,7 @@ import { theme } from './utils/theme';
 import './App.css';
 import styled from '@emotion/styled';
 import axios from 'axios';
-import { configure } from 'axios-hooks';
+import useAxios, { configure } from 'axios-hooks';
 import { SideNavMainButton, SideNavSubButton } from './components/Button';
 import { PlansSideNavSub } from './pages/plans/PlansSideNavSub';
 import {
@@ -25,6 +25,7 @@ import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSoc
 import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
 import { ChatPage } from './pages/Chat/ChatPage';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
+import { SplashScreen } from './components/SplashScreen';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -50,8 +51,19 @@ const Grid = styled.div`
 `;
 
 function App() {
+  const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
+    url: '/auth',
+    baseURL:
+      process.env.NODE_ENV === 'production' ? `https://api.thepaladin.cristata.app` : `http://localhost:3001`,
+    withCredentials: true,
+    method: 'GET',
+  });
+
+  console.log(user);
+
   return (
     <>
+      <SplashScreen loading={loadingUser} error={errorUser} />
       <CristataWebSocket>
         <ToastContainer />
         <Router>
