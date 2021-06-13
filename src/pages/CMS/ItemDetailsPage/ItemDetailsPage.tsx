@@ -18,7 +18,7 @@ import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';
 import { Tiptap } from '../../../components/Tiptap';
 import ColorHash from 'color-hash';
-import { Select } from '../../../components/Select';
+import { DateTime } from '../../../components/DateTime';
 
 const colorHash = new ColorHash({ saturation: 0.9, lightness: 0.4 });
 
@@ -68,6 +68,16 @@ function ItemDetailsPage() {
     setFlatData({
       ...flatData,
       [key]: type === 'number' ? parseFloat(value as string) : value,
+    });
+  };
+
+  /**
+   * Sets the updated ISO datetime string in the data
+   */
+  const handleDateTimeChange = (value: string, key: string) => {
+    setFlatData({
+      ...flatData,
+      [key]: value,
     });
   };
 
@@ -196,6 +206,26 @@ function ItemDetailsPage() {
                       typeof flatData[field.key] === 'number' ? 'number' : 'string'
                     )
                   }
+                />
+              </InputGroup>
+            );
+          }
+
+          if (field.type === 'datetime') {
+            console.log(flatData[field.key]);
+            return (
+              <InputGroup type={`text`} key={index}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                  {field.label}
+                </Label>
+                <DateTime
+                  value={
+                    flatData[field.key] === '0001-01-01T01:00:00.000Z' ? null : (flatData[field.key] as string)
+                  }
+                  onChange={(date) => {
+                    if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);
+                  }}
+                  isDisabled={field.isDisabled}
                 />
               </InputGroup>
             );
