@@ -51,6 +51,7 @@ const themeFonts = {
   headline: 'Adamant BG',
   body: 'Georgia',
   detail: 'Lato',
+  wordmark: 'Adobe Thai',
 };
 
 const mode = 'light' as 'light' | 'dark';

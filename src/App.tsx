@@ -26,6 +26,7 @@ import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
 import { ChatPage } from './pages/Chat/ChatPage';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { SplashScreen } from './components/SplashScreen';
+import { SignIn } from './pages/SignIn';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -59,102 +60,107 @@ function App() {
     method: 'GET',
   });
 
-  console.log(user);
-
   return (
     <>
-      <SplashScreen loading={loadingUser} error={errorUser} />
       <CristataWebSocket>
         <ToastContainer />
         <Router>
-          <Grid>
-            <div style={{ gridArea: 'header', background: theme.color.primary[800] }}></div>
-            <div style={{ gridArea: 'sidenav-header', background: theme.color.primary[800] }}></div>
-            <div
-              style={{
-                gridArea: 'sidenav-main',
-                background: theme.mode === 'light' ? 'white' : 'black',
-                borderRight: `1px solid ${
-                  theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
-                }`,
-              }}
-            >
-              <SideNavMainButton Icon={<Home32Regular />} to={`/`}>
-                Home
-              </SideNavMainButton>
-              <SideNavMainButton Icon={<ContentView32Regular />} to={`/cms/articles/in-progress`}>
-                CMS
-              </SideNavMainButton>
-              <SideNavMainButton Icon={<Send28Regular />} to={`/chat`}>
-                Messages
-              </SideNavMainButton>
-              <SideNavMainButton Icon={<Board28Regular />} to={`/plans`}>
-                Plans
-              </SideNavMainButton>
-              <SideNavMainButton Icon={<Person32Regular />} to={`/profile`}>
-                Profile
-              </SideNavMainButton>
-            </div>
-            <div
-              style={{
-                gridArea: 'sidenav-sub',
-                background: theme.mode === 'light' ? 'white' : 'black',
-                borderRight: `1px solid ${
-                  theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
-                }`,
-              }}
-            >
-              <Switch>
-                <Route path={`/cms`}>
-                  <SideNavSubButton Icon={<DocumentAdd24Regular />} to={`/cms/articles/in-progress`}>
-                    In-progress articles
-                  </SideNavSubButton>
-                  <SideNavSubButton Icon={<DocumentOnePage24Regular />} to={`/cms/articles/all`}>
-                    All articles
-                  </SideNavSubButton>
-                  <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests`}>
-                    Photo requests
-                  </SideNavSubButton>
-                  <SideNavSubButton Icon={<Image24Regular />} to={`/cms/photos/library`}>
-                    Photo library
-                  </SideNavSubButton>
-                </Route>
-                <Route path={`/plans`}>
-                  <PlansSideNavSub />
-                </Route>
-                <Route path={`/chat`}>
-                  <ChatSideNavSub />
-                </Route>
-              </Switch>
-            </div>
-            <div
-              style={{
-                gridArea: 'content',
-                overflow: 'auto',
-                background: theme.mode === 'light' ? 'white' : 'black',
-              }}
-            >
-              <Switch>
-                <Route path={`/cms/articles/:progress`}>
-                  <ArticlesPage />
-                </Route>
-                <Route path={`/cms/item/:collection/:item_id`}>
-                  <ItemDetailsPage />
-                </Route>
-                <Route path={`/cms`}>CMS</Route>
-                <Route path={`/chat/:team_slug/:thread_discussion_number?`}>
-                  <ChatPage />
-                </Route>
-                <Route path={`/plans/org/:id`}>
-                  <PlansPage />
-                </Route>
-                <Route path={`/profile`}>profile</Route>
-                <Route path={`/`}>
-                  <p>Home page</p>
-                </Route>
-              </Switch>
-            </div>
-          </Grid>
+          <SplashScreen loading={loadingUser} error={errorUser} user={user} />
+          <Switch>
+            <Route path={`/sign-in`} exact>
+              <SignIn />
+            </Route>
+            <Route>
+              <Grid>
+                <div style={{ gridArea: 'header', background: theme.color.primary[800] }}></div>
+                <div style={{ gridArea: 'sidenav-header', background: theme.color.primary[800] }}></div>
+                <div
+                  style={{
+                    gridArea: 'sidenav-main',
+                    background: theme.mode === 'light' ? 'white' : 'black',
+                    borderRight: `1px solid ${
+                      theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
+                    }`,
+                  }}
+                >
+                  <SideNavMainButton Icon={<Home32Regular />} to={`/`}>
+                    Home
+                  </SideNavMainButton>
+                  <SideNavMainButton Icon={<ContentView32Regular />} to={`/cms/articles/in-progress`}>
+                    CMS
+                  </SideNavMainButton>
+                  <SideNavMainButton Icon={<Send28Regular />} to={`/chat`}>
+                    Messages
+                  </SideNavMainButton>
+                  <SideNavMainButton Icon={<Board28Regular />} to={`/plans`}>
+                    Plans
+                  </SideNavMainButton>
+                  <SideNavMainButton Icon={<Person32Regular />} to={`/profile`}>
+                    Profile
+                  </SideNavMainButton>
+                </div>
+                <div
+                  style={{
+                    gridArea: 'sidenav-sub',
+                    background: theme.mode === 'light' ? 'white' : 'black',
+                    borderRight: `1px solid ${
+                      theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
+                    }`,
+                  }}
+                >
+                  <Switch>
+                    <Route path={`/cms`}>
+                      <SideNavSubButton Icon={<DocumentAdd24Regular />} to={`/cms/articles/in-progress`}>
+                        In-progress articles
+                      </SideNavSubButton>
+                      <SideNavSubButton Icon={<DocumentOnePage24Regular />} to={`/cms/articles/all`}>
+                        All articles
+                      </SideNavSubButton>
+                      <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests`}>
+                        Photo requests
+                      </SideNavSubButton>
+                      <SideNavSubButton Icon={<Image24Regular />} to={`/cms/photos/library`}>
+                        Photo library
+                      </SideNavSubButton>
+                    </Route>
+                    <Route path={`/plans`}>
+                      <PlansSideNavSub />
+                    </Route>
+                    <Route path={`/chat`}>
+                      <ChatSideNavSub />
+                    </Route>
+                  </Switch>
+                </div>
+                <div
+                  style={{
+                    gridArea: 'content',
+                    overflow: 'auto',
+                    background: theme.mode === 'light' ? 'white' : 'black',
+                  }}
+                >
+                  <Switch>
+                    <Route path={`/cms/articles/:progress`}>
+                      <ArticlesPage />
+                    </Route>
+                    <Route path={`/cms/item/:collection/:item_id`}>
+                      <ItemDetailsPage />
+                    </Route>
+                    <Route path={`/cms`}>CMS</Route>
+                    <Route path={`/chat/:team_slug/:thread_discussion_number?`}>
+                      <ChatPage />
+                    </Route>
+                    <Route path={`/plans/org/:id`}>
+                      <PlansPage />
+                    </Route>
+                    <Route path={`/profile`}>profile</Route>
+                    <Route path={`/`}>
+                      <p>Home page</p>
+                    </Route>
+                  </Switch>
+                </div>
+              </Grid>
+            </Route>
+          </Switch>
         </Router>
       </CristataWebSocket>
     </>

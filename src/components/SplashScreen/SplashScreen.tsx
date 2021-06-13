@@ -1,14 +1,40 @@
 import { useTheme } from '@emotion/react';
 import { AxiosError } from 'axios';
+import { useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { themeType } from '../../utils/theme/theme';
 
 interface ISplashScreen {
   loading: boolean;
   error: AxiosError<any> | undefined;
+  user: any;
 }
 
 function SplashScreen(props: ISplashScreen) {
   const theme = useTheme() as themeType;
+  const history = useHistory();
+
+  useEffect(() => {
+    if (props.error) {
+      const is403 = props.error.message.indexOf('403') !== -1;
+      if (is403) {
+        localStorage.setItem(
+          'auth.redirect_after',
+          `${window.location.pathname}${window.location.hash}${window.location.search}`
+        );
+        history.push(`/sign-in`);
+      }
+    }
+  }, [props.error, history]);
+
+  console.log(props.user);
+  useEffect(() => {
+    if (props.user) {
+      localStorage.setItem('auth.user', JSON.stringify(props.user));
+      history.push(localStorage.getItem('auth.redirect_after') || '/');
+      localStorage.removeItem('auth.redirect_after');
+    }
+  }, [props.user, history]);
 
   return (
     <div className={`splash-wrapper`}>
@@ -22,7 +48,11 @@ function SplashScreen(props: ISplashScreen) {
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: ${!props.error ? `splash-off 0.14s ease-in-out` : 'none'};
+            animation: ${
+              (!props.error && !props.loading) || props.error?.message.indexOf('403') !== -1
+                ? `splash-off 0.14s ease-in-out`
+                : 'none'
+            };
             animation-fill-mode: forwards;
             animation-delay: 0.14s;
           }
