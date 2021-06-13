@@ -18,6 +18,7 @@ import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';
 import { Tiptap } from '../../../components/Tiptap';
 import ColorHash from 'color-hash';
+import { MultiSelect, Select } from '../../../components/Select';
 import { DateTime } from '../../../components/DateTime';
 
 const colorHash = new ColorHash({ saturation: 0.9, lightness: 0.4 });
@@ -68,6 +69,17 @@ function ItemDetailsPage() {
     setFlatData({
       ...flatData,
       [key]: type === 'number' ? parseFloat(value as string) : value,
+    });
+  };
+
+  /**
+   * Sets the updated multiselect values in the data.
+   * Values may only be strings.
+   */
+  const handleMultiselectChange = (value: string[], key: string) => {
+    setFlatData({
+      ...flatData,
+      [key]: value,
     });
   };
 
@@ -211,8 +223,52 @@ function ItemDetailsPage() {
             );
           }
 
+          if (field.type === 'multiselect') {
+            const val = flatData[field.key] as string[];
+            return (
+              <InputGroup type={`text`} key={index}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                  {field.label}
+                </Label>
+                <MultiSelect
+                  options={field.options}
+                  val={val}
+                  onChange={(valueObjs) =>
+                    handleMultiselectChange(
+                      valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
+                      field.key
+                    )
+                  }
+                  isDisabled={field.isDisabled}
+                />
+              </InputGroup>
+            );
+          }
+
+          if (field.type === 'multiselect_creatable') {
+            const val = flatData[field.key] as string[];
+            return (
+              <InputGroup type={`text`} key={index}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                  {field.label}
+                </Label>
+                <MultiSelect
+                  options={field.options}
+                  val={val}
+                  onChange={(valueObjs) =>
+                    handleMultiselectChange(
+                      valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
+                      field.key
+                    )
+                  }
+                  isCreatable
+                  isDisabled={field.isDisabled}
+                />
+              </InputGroup>
+            );
+          }
+
           if (field.type === 'datetime') {
-            console.log(flatData[field.key]);
             return (
               <InputGroup type={`text`} key={index}>
                 <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
