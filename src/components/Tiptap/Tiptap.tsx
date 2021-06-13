@@ -664,7 +664,14 @@ const Tiptap = (props: ITiptap) => {
   const ydoc = useMemo(() => new Y.Doc(), []);
   // register with a WebSocket provider
   const providerWebsocket = useMemo(
-    () => new WebsocketProvider('ws://127.0.0.1:1234', props.docName, ydoc),
+    () =>
+      new WebsocketProvider(
+        process.env.NODE_ENV === 'production'
+          ? `wss://api.thepaladin.cristata.app:1234`
+          : 'ws://localhost:1234',
+        props.docName,
+        ydoc
+      ),
     [props.docName, ydoc]
   );
 
