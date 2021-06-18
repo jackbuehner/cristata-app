@@ -30,7 +30,8 @@ function SplashScreen(props: ISplashScreen) {
   useEffect(() => {
     if (props.user) {
       localStorage.setItem('auth.user', JSON.stringify(props.user));
-      history.push(localStorage.getItem('auth.redirect_after') || '/');
+      const redirect = localStorage.getItem('auth.redirect_after') || '/';
+      history.push(redirect !== '/sign-in' ? redirect : '/');
       localStorage.removeItem('auth.redirect_after');
     }
   }, [props.user, history]);
