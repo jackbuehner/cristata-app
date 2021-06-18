@@ -27,6 +27,8 @@ import { ChatPage } from './pages/Chat/ChatPage';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { SplashScreen } from './components/SplashScreen';
 import { SignIn } from './pages/SignIn';
+import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
+import { ProfilePage } from './pages/profile/ProfilePage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -129,6 +131,9 @@ function App() {
                     <Route path={`/chat`}>
                       <ChatSideNavSub />
                     </Route>
+                    <Route path={`/profile`}>
+                      <ProfileSideNavSub />
+                    </Route>
                   </Switch>
                 </div>
                 <div
@@ -152,7 +157,9 @@ function App() {
                     <Route path={`/plans/org/:id`}>
                       <PlansPage />
                     </Route>
-                    <Route path={`/profile`}>profile</Route>
+                    <Route path={`/profile/:profile_id`}>
+                      <ProfilePage />
+                    </Route>
                     <Route path={`/`}>
                       <p>Home page</p>
                     </Route>
