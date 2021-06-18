@@ -19,6 +19,7 @@ interface ITextInput extends ITextInputBase {
   title?: string;
   id?: string;
   placeholder?: string;
+  type?: 'text' | 'number';
 }
 
 const TextInputComponent = styled.input<ITextInputComponent>`
@@ -56,6 +57,7 @@ function TextInput(props: ITextInput) {
       id={props.id}
       placeholder={props.placeholder}
       disabled={props.isDisabled}
+      type={props.type || 'text'}
     />
   );
 }
