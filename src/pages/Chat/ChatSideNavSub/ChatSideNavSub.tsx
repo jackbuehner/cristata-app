@@ -13,7 +13,7 @@ function ChatSideNavSub() {
   const location = useLocation();
   const [{ data, loading, error }] = useAxios<IGetTeams>('/gh/teams');
 
-  if (loading) return <span>Loading...</span>;
+  if (loading) return <SideNavHeading isLoading>Chat</SideNavHeading>;
   if (error) {
     console.error(error);
     return <span>Error: {error.code}</span>;

@@ -3,12 +3,13 @@ import { SideNavSubButton } from '../../../components/Button';
 import { TaskListLtr20Regular } from '@fluentui/react-icons';
 import { APIProject } from '../../../interfaces/github/plans';
 import { useHistory } from 'react-router';
+import { SideNavHeading } from '../../../components/Heading';
 
 function PlansSideNavSub() {
   const history = useHistory();
   const [{ data, loading, error }] = useAxios<APIProject[]>('/gh/org/projects');
 
-  if (loading) return <span>Loading...</span>;
+  if (loading) return <SideNavHeading isLoading>Plans</SideNavHeading>;
   if (error) {
     console.error(error);
     return <span>Error: {error.code}</span>;
@@ -20,6 +21,7 @@ function PlansSideNavSub() {
     }
     return (
       <>
+        <SideNavHeading>Plans</SideNavHeading>
         {data.map((project, index: number) => {
           return (
             <SideNavSubButton key={index} Icon={<TaskListLtr20Regular />} to={`/plans/org/${project.id}`}>

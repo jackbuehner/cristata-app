@@ -29,6 +29,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { SignIn } from './pages/SignIn';
 import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { SideNavHeading } from './components/Heading';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -112,12 +113,14 @@ function App() {
                 >
                   <Switch>
                     <Route path={`/cms`}>
+                      <SideNavHeading>Articles</SideNavHeading>
                       <SideNavSubButton Icon={<DocumentAdd24Regular />} to={`/cms/articles/in-progress`}>
                         In-progress articles
                       </SideNavSubButton>
                       <SideNavSubButton Icon={<DocumentOnePage24Regular />} to={`/cms/articles/all`}>
                         All articles
                       </SideNavSubButton>
+                      <SideNavHeading>Photos</SideNavHeading>
                       <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests`}>
                         Photo requests
                       </SideNavSubButton>
