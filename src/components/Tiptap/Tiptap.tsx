@@ -667,8 +667,8 @@ const Tiptap = (props: ITiptap) => {
     () =>
       new WebsocketProvider(
         process.env.NODE_ENV === 'production'
-          ? `wss://api.thepaladin.cristata.app:1234`
-          : 'ws://localhost:1234',
+          ? `wss://api.thepaladin.cristata.app/hocuspocus/`
+          : 'ws://localhost:3001/hocuspocus/',
         props.docName,
         ydoc
       ),
