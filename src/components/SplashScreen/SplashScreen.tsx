@@ -15,19 +15,18 @@ function SplashScreen(props: ISplashScreen) {
   const history = useHistory();
 
   useEffect(() => {
+    localStorage.setItem(
+      'auth.redirect_after',
+      `${window.location.pathname}${window.location.hash}${window.location.search}`
+    );
     if (props.error) {
       const is403 = props.error.message.indexOf('403') !== -1;
       if (is403) {
-        localStorage.setItem(
-          'auth.redirect_after',
-          `${window.location.pathname}${window.location.hash}${window.location.search}`
-        );
         history.push(`/sign-in`);
       }
     }
   }, [props.error, history]);
 
-  console.log(props.user);
   useEffect(() => {
     if (props.user) {
       localStorage.setItem('auth.user', JSON.stringify(props.user));
