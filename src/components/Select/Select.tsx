@@ -1,20 +1,29 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
-import ReactSelect, { OptionTypeBase, GroupTypeBase } from 'react-select';
+import ReactSelect, { OptionTypeBase, GroupTypeBase, OptionsType } from 'react-select';
 import { buttonEffect } from '../Button';
 import Color from 'color';
 import Creatable from 'react-select/creatable';
+import AsyncSelect from 'react-select/async';
+import { useEffect, useState } from 'react';
 
 interface ISelect<
   OptionType extends OptionTypeBase = { label: string; value: string },
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
 > {
   options?: ReadonlyArray<OptionType | GroupType>;
+  loadOptions?: (inputValue: string) => Promise<
+    Array<{
+      value: string;
+      label: string;
+    }>
+  >;
   val?: string;
   onChange?: (valueObj: OptionTypeBase | null) => void;
   isCreatable?: boolean;
   isDisabled?: boolean;
+  async?: boolean;
 }
 
 interface ISelectComponent extends ISelect {
@@ -79,6 +88,13 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
     font-size: 14px;
     font-variant-numeric: lining-nums;
   }
+  // notice text (e.g. 'no options')
+  .react-select__menu-notice {
+    font-family: ${({ appTheme: theme }) => theme.font['detail']};
+    font-size: 14px;
+    font-variant-numeric: lining-nums;
+    color: ${({ appTheme: theme }) => theme.color.neutral[theme.mode][1000]};
+  }
 `;
 
 /**
@@ -87,43 +103,88 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
 function Select(props: ISelect) {
   const theme = useTheme() as themeType;
 
-  const getValue = (val?: string) => {
+  /**
+   * Converts the value to a value object
+   */
+  const getValueObject = (val?: string) => {
     if (val) return props.options?.find((opt) => opt.value === val);
     return undefined;
   };
 
+  // once `loadOptions` becomes available, store the options returned by the function
+  const [asyncOptions, setAsyncOptions] = useState<Array<OptionTypeBase>>();
+  useEffect(() => {
+    async function updateOptions() {
+      if (props.loadOptions) {
+        const options = await props.loadOptions!('');
+        setAsyncOptions(options);
+      }
+    }
+    updateOptions();
+  }, [props.loadOptions]);
+
+  /**
+   * Converts the value to a value object (for the async select)
+   */
+  const getValueObjectAsync = (val?: string) => {
+    if (val && props.loadOptions) return asyncOptions?.find((opt) => opt.value === val);
+    return undefined;
+  };
+
+  // use the styles of the normal select component for the creatable select component
   const CreatableSelectComponent = SelectComponent.withComponent(Creatable);
 
+  // use the styles of the normal select component for the async select component
+  const AsyncSelectComponent = SelectComponent.withComponent(AsyncSelect);
+
+  if (props.isCreatable && !props.async) {
+    return (
+      <CreatableSelectComponent
+        options={props.options}
+        classNamePrefix={`react-select`}
+        appTheme={theme}
+        color={`primary`}
+        colorShade={600}
+        backgroundColor={{ base: 'white' }}
+        border={{ base: '1px solid transparent' }}
+        value={getValueObject(props.val)}
+        onChange={props.onChange}
+        isDisabled={props.isDisabled}
+      />
+    );
+  }
+
+  if (!props.isCreatable && props.async) {
+    return (
+      <AsyncSelectComponent
+        loadOptions={props.loadOptions}
+        classNamePrefix={`react-select`}
+        appTheme={theme}
+        color={`primary`}
+        colorShade={600}
+        backgroundColor={{ base: 'white' }}
+        border={{ base: '1px solid transparent' }}
+        value={getValueObjectAsync(props.val)}
+        onChange={props.onChange}
+        isDisabled={props.isDisabled}
+        cacheOptions
+      />
+    );
+  }
+
   return (
-    <>
-      {props.isCreatable ? (
-        <CreatableSelectComponent
-          options={props.options}
-          classNamePrefix={`react-select`}
-          appTheme={theme}
-          color={`primary`}
-          colorShade={600}
-          backgroundColor={{ base: 'white' }}
-          border={{ base: '1px solid transparent' }}
-          value={getValue(props.val)}
-          onChange={props.onChange}
-          isDisabled={props.isDisabled}
-        />
-      ) : (
-        <SelectComponent
-          options={props.options}
-          classNamePrefix={`react-select`}
-          appTheme={theme}
-          color={`primary`}
-          colorShade={600}
-          backgroundColor={{ base: 'white' }}
-          border={{ base: '1px solid transparent' }}
-          value={getValue(props.val)}
-          onChange={props.onChange}
-          isDisabled={props.isDisabled}
-        />
-      )}
-    </>
+    <SelectComponent
+      options={props.options}
+      classNamePrefix={`react-select`}
+      appTheme={theme}
+      color={`primary`}
+      colorShade={600}
+      backgroundColor={{ base: 'white' }}
+      border={{ base: '1px solid transparent' }}
+      value={getValueObject(props.val)}
+      onChange={props.onChange}
+      isDisabled={props.isDisabled}
+    />
   );
 }
 

@@ -226,8 +226,30 @@ function ItemDetailsPage() {
             );
           }
 
+          if (field.type === 'select_async') {
+            return (
+              <InputGroup type={`text`} key={index}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                  {field.label}
+                </Label>
+                <Select
+                  loadOptions={field.async_options}
+                  async
+                  val={`${flatData[field.key] as string | number}`}
+                  onChange={(valueObj) =>
+                    handleSelectChange(
+                      valueObj ? valueObj.value : '',
+                      field.key,
+                      typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                    )
+                  }
+                />
+              </InputGroup>
+            );
+          }
+
           if (field.type === 'multiselect') {
-            const val = flatData[field.key] as string[];
+            const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
             return (
               <InputGroup type={`text`} key={index}>
                 <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
@@ -235,13 +257,36 @@ function ItemDetailsPage() {
                 </Label>
                 <MultiSelect
                   options={field.options}
-                  val={val}
+                  val={vals}
                   onChange={(valueObjs) =>
                     handleMultiselectChange(
                       valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
                       field.key
                     )
                   }
+                  isDisabled={field.isDisabled}
+                />
+              </InputGroup>
+            );
+          }
+
+          if (field.type === 'multiselect_async') {
+            const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
+            return (
+              <InputGroup type={`text`} key={index}>
+                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                  {field.label}
+                </Label>
+                <MultiSelect
+                  loadOptions={field.async_options}
+                  async
+                  val={vals}
+                  onChange={(valueObjs) => {
+                    handleMultiselectChange(
+                      valueObjs ? valueObjs.map((obj: { value: string; label: string }) => obj.value) : '',
+                      field.key
+                    );
+                  }}
                   isDisabled={field.isDisabled}
                 />
               </InputGroup>
