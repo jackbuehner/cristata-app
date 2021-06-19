@@ -80,6 +80,21 @@ const collections: Icollections = {
         description: 'Keywords and tags that apply to this article. Allows custom entries.',
       },
       {
+        key: 'photo_path',
+        label: 'Photo',
+        type: 'text',
+        description:
+          'The photo that appears at the top of every article and in most article cards. NOT IMPLIMENTED.',
+        isDisabled: true,
+      },
+      {
+        key: 'photo_caption',
+        label: 'Photo Caption',
+        type: 'text',
+        description:
+          'The caption for the photo. It should be relevant to the photo. Not every photo needs a caption.',
+      },
+      {
         key: 'body',
         label: 'Body',
         type: 'tiptap',
@@ -89,7 +104,7 @@ const collections: Icollections = {
             headline: 'name',
             description: 'description',
             categories: 'categories',
-            caption: 'caption',
+            caption: 'photo_caption',
           },
         },
       },
@@ -97,7 +112,7 @@ const collections: Icollections = {
         key: 'locked',
         label: 'Locked Status',
         type: 'boolean',
-        description: 'Control whether this article is able to be modified.',
+        description: 'Control whether this article is able to be modified. NOT IMPLIMENTED.',
         isDisabled: true,
       },
       {

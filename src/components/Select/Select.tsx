@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
-import ReactSelect, { OptionTypeBase, GroupTypeBase, OptionsType } from 'react-select';
+import ReactSelect, { OptionTypeBase, GroupTypeBase } from 'react-select';
 import { buttonEffect } from '../Button';
 import Color from 'color';
 import Creatable from 'react-select/creatable';

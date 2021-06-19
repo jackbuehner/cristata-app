@@ -755,6 +755,7 @@ const Tiptap = (props: ITiptap) => {
                 categories={
                   (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
                 }
+                caption={props.flatData[props.options.keys_article.caption] as string}
                 isDisabled={props.isDisabled}
                 tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
               />

@@ -16,6 +16,7 @@ interface IStandardLayout {
   headline: string;
   categories: string[];
   description: string;
+  caption?: string;
   isDisabled?: boolean;
   tiptapSize: {
     width: number;
@@ -91,8 +92,7 @@ function StandardLayout(props: IStandardLayout) {
         />
       </PhotoContainer>
       <Caption {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'caption')}>
-        Davis noted that campus efforts prove that “we rose to the occasion,” to make the most out of what we
-        had.
+        {props.caption}
       </Caption>
       <Credit>Furman News</Credit>
       <MetaGrid>
