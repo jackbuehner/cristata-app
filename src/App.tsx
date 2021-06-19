@@ -30,6 +30,7 @@ import { SignIn } from './pages/SignIn';
 import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { SideNavHeading } from './components/Heading';
+import { SidenavHeader } from './components/SidenavHeader';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -87,7 +88,19 @@ function App() {
             <Route>
               <Grid>
                 <div style={{ gridArea: 'header', background: theme.color.primary[800] }}></div>
-                <div style={{ gridArea: 'sidenav-header', background: theme.color.primary[800] }}></div>
+                <div
+                  style={{
+                    gridArea: 'sidenav-header',
+                    borderRight: `1px solid ${
+                      theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
+                    }`,
+                    borderBottom: `1px solid ${
+                      theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
+                    }`,
+                  }}
+                >
+                  <SidenavHeader />
+                </div>
                 <div
                   style={{
                     gridArea: 'sidenav-main',
