@@ -59,7 +59,7 @@ function ProfilePage() {
      */
     const updateProfileData = async (): Promise<true | AxiosError<any>> => {
       return await db
-        .patch(`/users/${profile_id}`, {
+        .patch(`/users/${profile_id}_${data?.github_id}`, {
           ...fieldData,
         })
         .then(async (): Promise<true> => {
