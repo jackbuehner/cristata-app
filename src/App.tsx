@@ -73,6 +73,17 @@ function App() {
             <Route path={`/sign-in`} exact>
               <SignIn />
             </Route>
+            <Route
+              path={`/sign-out`}
+              exact
+              component={() => {
+                window.location.href =
+                  process.env.NODE_ENV === 'production'
+                    ? `https://api.thepaladin.cristata.app/auth/clear`
+                    : `http://localhost:3001/auth/clear`;
+                return null;
+              }}
+            />
             <Route>
               <Grid>
                 <div style={{ gridArea: 'header', background: theme.color.primary[800] }}></div>
