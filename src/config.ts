@@ -1,3 +1,7 @@
+import { IProfile } from './interfaces/cristata/profiles';
+import { IGetTeams } from './interfaces/github/teams';
+import { db } from './utils/axios/db';
+
 interface Icollections {
   [key: string]:
     | {
@@ -12,6 +16,7 @@ interface Icollections {
             label: string;
           }>;
           isDisabled?: boolean;
+          async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
         }>;
       }
     | undefined;
@@ -98,16 +103,56 @@ const collections: Icollections = {
       {
         key: 'permissions.users',
         label: 'User Access Control',
-        type: 'multiselect',
+        type: 'multiselect_async',
         description: 'Control which users can see this article.',
-        isDisabled: true,
+        async_options: async (inputValue: string) => {
+          // get all users
+          const { data: users }: { data: IProfile[] } = await db.get(`/users`);
+
+          // with the user data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          users.forEach((user) => {
+            options.push({
+              value: `${user.github_id}`,
+              label: user.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
       },
       {
         key: 'permissions.teams',
         label: 'Team Access Control',
-        type: 'multiselect',
+        type: 'multiselect_async',
         description: 'Control which teams (user groups) can see this article.',
-        isDisabled: true,
+        async_options: async (inputValue: string) => {
+          // get all teams
+          const { data: teamsData }: { data: IGetTeams } = await db.get(`/gh/teams`);
+
+          // with the teams data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          teamsData.organization.teams.edges.forEach((team) => {
+            options.push({
+              value: `${team.node.id}`,
+              label: team.node.slug,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
       },
       { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
       { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
