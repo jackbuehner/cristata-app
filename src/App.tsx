@@ -17,6 +17,7 @@ import {
   Image24Regular,
   DocumentOnePage24Regular,
   DocumentAdd24Regular,
+  ChevronLeft24Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -31,6 +32,8 @@ import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { SideNavHeading } from './components/Heading';
 import { SidenavHeader } from './components/SidenavHeader';
+import { useState } from 'react';
+import { css } from '@emotion/react';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -42,19 +45,6 @@ const axiosSettings = axios.create({
 });
 configure({ axios: axiosSettings });
 
-// configure GitHub Axios
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 80px 300px 1fr;
-  grid-template-rows: 0px 40px 1fr;
-  grid-template-areas:
-    'header         header         header'
-    'sidenav-header sidenav-header content'
-    'sidenav-main   sidenav-sub    content';
-  height: 100%;
-`;
-
 function App() {
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
@@ -63,6 +53,32 @@ function App() {
     withCredentials: true,
     method: 'GET',
   });
+
+  const [gridCols, setGridCols] = useState({ side: 80, sideSub: 300 });
+  const Grid = styled.div`
+    display: grid;
+    grid-template-columns: ${gridCols.side}px ${gridCols.sideSub}px 1fr;
+    grid-template-rows: 0px 40px 1fr;
+    grid-template-areas:
+      'header         header         header'
+      'sidenav-header sidenav-header content'
+      'sidenav-main   sidenav-sub    content';
+    height: 100%;
+  `;
+
+  /**
+   * Toggles whether the sub side navigation pane is expanded or collapsed
+   * @param expandedWidth the width of the sub sidenavigation when expanded
+   */
+  const toggleSideNavSub = (expandedWidth = 300) => {
+    if (gridCols.sideSub > 0) {
+      // collapse
+      setGridCols({ ...gridCols, sideSub: 0 });
+    } else {
+      // expand
+      setGridCols({ ...gridCols, sideSub: expandedWidth });
+    }
+  };
 
   return (
     <>
@@ -125,6 +141,21 @@ function App() {
                   <SideNavMainButton Icon={<Person32Regular />} to={`/profile`}>
                     Profile
                   </SideNavMainButton>
+                  <SideNavMainButton
+                    Icon={<ChevronLeft24Regular />}
+                    onClick={() => toggleSideNavSub()}
+                    cssExtra={css`
+                      position: absolute;
+                      bottom: 0;
+                      height: 50px;
+                      svg {
+                        transform: ${gridCols.sideSub > 0 ? `rotate(0deg)` : `rotate(180deg)`};
+                        transition: transform 200ms;
+                      }
+                    `}
+                  >
+                    {' '}
+                  </SideNavMainButton>
                 </div>
                 <div
                   style={{
@@ -133,6 +164,7 @@ function App() {
                     borderRight: `1px solid ${
                       theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]
                     }`,
+                    overflowX: 'hidden',
                   }}
                 >
                   <Switch>
