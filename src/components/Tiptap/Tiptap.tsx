@@ -40,6 +40,7 @@ import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
+import { FullBleedLayout } from './special-components/article/FullBleedLayout';
 
 const Toolbar = styled.div`
   position: relative;
@@ -245,6 +246,8 @@ interface IMenuBar {
   isMax: boolean;
   setIsMax: React.Dispatch<React.SetStateAction<boolean>>;
   isDisabled?: boolean;
+  layout: 'standard' | 'full';
+  setLayout: React.Dispatch<React.SetStateAction<'standard' | 'full'>>;
 }
 
 function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
@@ -340,6 +343,36 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
             {
               onClick: () => editor?.chain().focus().setParagraph().run(),
               label: <p>Paragraph</p>,
+            },
+          ]}
+          noIcons
+        />
+      );
+    },
+    [],
+    true,
+    true
+  );
+
+  // layout
+  const [showLayoutDropdown] = useDropdown(
+    (triggerRect, dropdownRef) => {
+      return (
+        <Menu
+          ref={dropdownRef}
+          pos={{
+            top: triggerRect.bottom,
+            left: triggerRect.left,
+            width: 180,
+          }}
+          items={[
+            {
+              onClick: () => props.setLayout('standard'),
+              label: 'Standard',
+            },
+            {
+              onClick: () => props.setLayout('full'),
+              label: 'Full',
             },
           ]}
           noIcons
@@ -629,6 +662,11 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
                 disabled={!editor.can().unsetComment()}
               />
             </ToolbarRow>
+            <ToolbarRow isActive={activeTab === 'layout'}>
+              <Combobox onClick={showLayoutDropdown} color={'neutral'} width={`128px`}>
+                {props.layout}
+              </Combobox>
+            </ToolbarRow>
             <ToolbarRow isActive={activeTab === 'utils'}>
               <Button onClick={() => editor.chain().focus().unsetAllMarks().run()}>clear marks</Button>
               <Button onClick={() => editor.chain().focus().clearNodes().run()}>clear nodes</Button>
@@ -713,6 +751,9 @@ const Tiptap = (props: ITiptap) => {
   // monitor the dimensions of the editor
   const { observe, width: tiptapWidth, height: tiptapHieght } = useDimensions();
 
+  // layout picker
+  const [layout, setLayout] = useState<'standard' | 'full'>('standard');
+
   return (
     <div
       css={css`
@@ -727,7 +768,14 @@ const Tiptap = (props: ITiptap) => {
       `}
       ref={observe}
     >
-      <MenuBar editor={editor} isMax={isMax} setIsMax={setIsMax} isDisabled={props.isDisabled} />
+      <MenuBar
+        editor={editor}
+        isMax={isMax}
+        setIsMax={setIsMax}
+        isDisabled={props.isDisabled}
+        layout={layout}
+        setLayout={setLayout}
+      />
       <div
         css={css`
           overflow: auto;
@@ -744,21 +792,43 @@ const Tiptap = (props: ITiptap) => {
           props.flatData &&
           props.setFlatData ? (
             <>
-              <StandardLayout
-                flatDataState={[props.flatData, props.setFlatData]}
-                options={props.options}
-                headline={(props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'}
-                description={
-                  (props.flatData[props.options.keys_article.description] as string) ||
-                  'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
-                }
-                categories={
-                  (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
-                }
-                caption={props.flatData[props.options.keys_article.caption] as string}
-                isDisabled={props.isDisabled}
-                tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-              />
+              {layout === 'standard' ? (
+                <StandardLayout
+                  flatDataState={[props.flatData, props.setFlatData]}
+                  options={props.options}
+                  headline={
+                    (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
+                  }
+                  description={
+                    (props.flatData[props.options.keys_article.description] as string) ||
+                    'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
+                  }
+                  categories={
+                    (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
+                  }
+                  caption={props.flatData[props.options.keys_article.caption] as string}
+                  isDisabled={props.isDisabled}
+                  tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                />
+              ) : layout === 'full' ? (
+                <FullBleedLayout
+                  flatDataState={[props.flatData, props.setFlatData]}
+                  options={props.options}
+                  headline={
+                    (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
+                  }
+                  description={
+                    (props.flatData[props.options.keys_article.description] as string) ||
+                    'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
+                  }
+                  categories={
+                    (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
+                  }
+                  caption={props.flatData[props.options.keys_article.caption] as string}
+                  isDisabled={props.isDisabled}
+                  tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                />
+              ) : null}
             </>
           ) : null
         }
