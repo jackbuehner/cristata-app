@@ -95,6 +95,87 @@ const collections: Icollections = {
           'The caption for the photo. It should be relevant to the photo. Not every photo needs a caption.',
       },
       {
+        key: 'people.authors',
+        label: 'Byline',
+        type: 'multiselect_async',
+        description: 'The authors that appear on the byline.',
+        async_options: async (inputValue: string) => {
+          // get all users
+          const { data: users }: { data: IProfile[] } = await db.get(`/users`);
+
+          // with the user data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          users.forEach((user) => {
+            options.push({
+              value: `${user.github_id}`,
+              label: user.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+      },
+      {
+        key: 'people.editors.primary',
+        label: 'Section Editors',
+        type: 'multiselect_async',
+        description: 'The managing editors responsible for this article.',
+        async_options: async (inputValue: string) => {
+          // get all users
+          const { data: users }: { data: IProfile[] } = await db.get(`/users`);
+
+          // with the user data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          users.forEach((user) => {
+            options.push({
+              value: `${user.github_id}`,
+              label: user.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+      },
+      {
+        key: 'people.editors.copy',
+        label: 'Copy Editors',
+        type: 'multiselect_async',
+        description: 'The copy editors who have made edits to this article.',
+        async_options: async (inputValue: string) => {
+          // get all users
+          const { data: users }: { data: IProfile[] } = await db.get(`/users`);
+
+          // with the user data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          users.forEach((user) => {
+            options.push({
+              value: `${user.github_id}`,
+              label: user.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+      },
+      {
         key: 'body',
         label: 'Body',
         type: 'tiptap',
