@@ -33,7 +33,6 @@ const PageWrapper = styled.div<{ theme?: themeType }>`
 
 function ItemDetailsPage() {
   const theme = useTheme() as themeType;
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // get the url parameters from the route
   let { collection, item_id } =
@@ -43,7 +42,13 @@ function ItemDetailsPage() {
     }>();
 
   // get the item
-  const [{ data }, refetch] = useAxios(`/${collection}/${item_id}`);
+  const [{ data, loading, error }, refetch] = useAxios(`/${collection}/${item_id}`);
+
+  // store whether the page is loading/updating/saving
+  const [isLoading, setIsLoading] = useState<boolean>(loading);
+  useEffect(() => {
+    setIsLoading(loading);
+  }, [loading]);
 
   // save a flattened version of the data in state for modification
   const [flatData, setFlatData] = useState<{ [key: string]: string | string[] | number }>({});
@@ -128,222 +133,231 @@ function ItemDetailsPage() {
       />
 
       <PageWrapper theme={theme}>
-        {collectionsConfig[collection]?.fields.map((field, index) => {
-          if (field.type === 'text') {
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <TextInput
-                  name={field.label}
-                  id={field.key}
-                  value={flatData[field.key] as string}
-                  onChange={(e) => handleTextChange(e, field.key)}
-                  isDisabled={field.isDisabled}
-                />
-              </InputGroup>
-            );
-          }
+        {loading
+          ? // loading
+            'Loading...'
+          : //error
+          error
+          ? 'Error loading.'
+          : // data loaded
+            collectionsConfig[collection]?.fields.map((field, index) => {
+              if (field.type === 'text') {
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <TextInput
+                      name={field.label}
+                      id={field.key}
+                      value={flatData[field.key] as string}
+                      onChange={(e) => handleTextChange(e, field.key)}
+                      isDisabled={field.isDisabled}
+                    />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'boolean') {
-            return (
-              <InputGroup type={`checkbox`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <input type={'checkbox'} name={field.label} id={field.key} disabled={field.isDisabled} />
-              </InputGroup>
-            );
-          }
+              if (field.type === 'boolean') {
+                return (
+                  <InputGroup type={`checkbox`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <input type={'checkbox'} name={field.label} id={field.key} disabled={field.isDisabled} />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'tiptap') {
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <div
-                  id={field.key}
-                  css={css`
-                    width: 100%;
-                    box-sizing: border-box;
-                    border-radius: ${theme.radius};
-                    border: none;
-                    box-shadow: ${theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
-                    transition: box-shadow 240ms;
-                    padding: 2px;
-                    height: 400px;
-                    overflow: auto;
-                    &:hover {
-                      box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
-                    }
-                    &:focus-within {
-                      outline: none;
-                      box-shadow: ${theme.color.primary[800]} 0px 0px 0px 2px inset;
-                    }
-                    .ProseMirror {
-                      &:focus {
-                        outline: none;
+              if (field.type === 'tiptap') {
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <div
+                      id={field.key}
+                      css={css`
+                        width: 100%;
+                        box-sizing: border-box;
+                        border-radius: ${theme.radius};
+                        border: none;
+                        box-shadow: ${theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
+                        transition: box-shadow 240ms;
+                        padding: 2px;
+                        height: 400px;
+                        overflow: auto;
+                        &:hover {
+                          box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+                        }
+                        &:focus-within {
+                          outline: none;
+                          box-shadow: ${theme.color.primary[800]} 0px 0px 0px 2px inset;
+                        }
+                        .ProseMirror {
+                          &:focus {
+                            outline: none;
+                          }
+                        }
+                      `}
+                    >
+                      <Tiptap
+                        docName={`${collection}.${item_id}`}
+                        user={{
+                          name: 'Jack Buehner',
+                          color: colorHash.hex('Jack Buehner'),
+                        }}
+                        options={field.tiptap}
+                        flatData={flatData}
+                        setFlatData={setFlatData}
+                        isDisabled={field.isDisabled}
+                      />
+                    </div>
+                  </InputGroup>
+                );
+              }
+
+              if (field.type === 'select') {
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <Select
+                      options={field.options}
+                      val={`${flatData[field.key] as string | number}`}
+                      onChange={(valueObj) =>
+                        handleSelectChange(
+                          valueObj ? valueObj.value : '',
+                          field.key,
+                          typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                        )
                       }
-                    }
-                  `}
-                >
-                  <Tiptap
-                    docName={`${collection}.${item_id}`}
-                    user={{
-                      name: 'Jack Buehner',
-                      color: colorHash.hex('Jack Buehner'),
-                    }}
-                    options={field.tiptap}
-                    flatData={flatData}
-                    setFlatData={setFlatData}
-                    isDisabled={field.isDisabled}
-                  />
-                </div>
-              </InputGroup>
-            );
-          }
+                    />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'select') {
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <Select
-                  options={field.options}
-                  val={`${flatData[field.key] as string | number}`}
-                  onChange={(valueObj) =>
-                    handleSelectChange(
-                      valueObj ? valueObj.value : '',
-                      field.key,
-                      typeof flatData[field.key] === 'number' ? 'number' : 'string'
-                    )
-                  }
-                />
-              </InputGroup>
-            );
-          }
+              if (field.type === 'select_async') {
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <Select
+                      loadOptions={field.async_options}
+                      async
+                      val={`${flatData[field.key] as string | number}`}
+                      onChange={(valueObj) =>
+                        handleSelectChange(
+                          valueObj ? valueObj.value : '',
+                          field.key,
+                          typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                        )
+                      }
+                    />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'select_async') {
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <Select
-                  loadOptions={field.async_options}
-                  async
-                  val={`${flatData[field.key] as string | number}`}
-                  onChange={(valueObj) =>
-                    handleSelectChange(
-                      valueObj ? valueObj.value : '',
-                      field.key,
-                      typeof flatData[field.key] === 'number' ? 'number' : 'string'
-                    )
-                  }
-                />
-              </InputGroup>
-            );
-          }
+              if (field.type === 'multiselect') {
+                const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <MultiSelect
+                      options={field.options}
+                      val={vals}
+                      onChange={(valueObjs) =>
+                        handleMultiselectChange(
+                          valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
+                          field.key
+                        )
+                      }
+                      isDisabled={field.isDisabled}
+                    />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'multiselect') {
-            const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <MultiSelect
-                  options={field.options}
-                  val={vals}
-                  onChange={(valueObjs) =>
-                    handleMultiselectChange(
-                      valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                      field.key
-                    )
-                  }
-                  isDisabled={field.isDisabled}
-                />
-              </InputGroup>
-            );
-          }
+              if (field.type === 'multiselect_async') {
+                const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <MultiSelect
+                      loadOptions={field.async_options}
+                      async
+                      val={vals}
+                      onChange={(valueObjs) => {
+                        handleMultiselectChange(
+                          valueObjs ? valueObjs.map((obj: { value: string; label: string }) => obj.value) : '',
+                          field.key
+                        );
+                      }}
+                      isDisabled={field.isDisabled}
+                    />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'multiselect_async') {
-            const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <MultiSelect
-                  loadOptions={field.async_options}
-                  async
-                  val={vals}
-                  onChange={(valueObjs) => {
-                    handleMultiselectChange(
-                      valueObjs ? valueObjs.map((obj: { value: string; label: string }) => obj.value) : '',
-                      field.key
-                    );
-                  }}
-                  isDisabled={field.isDisabled}
-                />
-              </InputGroup>
-            );
-          }
+              if (field.type === 'multiselect_creatable') {
+                const val = flatData[field.key] as string[];
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <MultiSelect
+                      options={field.options}
+                      val={val}
+                      onChange={(valueObjs) =>
+                        handleMultiselectChange(
+                          valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
+                          field.key
+                        )
+                      }
+                      isCreatable
+                      isDisabled={field.isDisabled}
+                    />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'multiselect_creatable') {
-            const val = flatData[field.key] as string[];
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <MultiSelect
-                  options={field.options}
-                  val={val}
-                  onChange={(valueObjs) =>
-                    handleMultiselectChange(
-                      valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                      field.key
-                    )
-                  }
-                  isCreatable
-                  isDisabled={field.isDisabled}
-                />
-              </InputGroup>
-            );
-          }
+              if (field.type === 'datetime') {
+                return (
+                  <InputGroup type={`text`} key={index}>
+                    <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                      {field.label}
+                    </Label>
+                    <DateTime
+                      value={
+                        flatData[field.key] === '0001-01-01T01:00:00.000Z'
+                          ? null
+                          : (flatData[field.key] as string)
+                      }
+                      onChange={(date) => {
+                        if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);
+                      }}
+                      isDisabled={field.isDisabled}
+                    />
+                  </InputGroup>
+                );
+              }
 
-          if (field.type === 'datetime') {
-            return (
-              <InputGroup type={`text`} key={index}>
-                <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                  {field.label}
-                </Label>
-                <DateTime
-                  value={
-                    flatData[field.key] === '0001-01-01T01:00:00.000Z' ? null : (flatData[field.key] as string)
-                  }
-                  onChange={(date) => {
-                    if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);
-                  }}
-                  isDisabled={field.isDisabled}
-                />
-              </InputGroup>
-            );
-          }
-
-          return (
-            <InputGroup type={`text`} key={index}>
-              <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
-                {field.label}
-              </Label>
-              <pre>{JSON.stringify(field)}</pre>
-            </InputGroup>
-          );
-        })}
+              return (
+                <InputGroup type={`text`} key={index}>
+                  <Label htmlFor={field.key} description={field.description} disabled={field.isDisabled}>
+                    {field.label}
+                  </Label>
+                  <pre>{JSON.stringify(field)}</pre>
+                </InputGroup>
+              );
+            })}
       </PageWrapper>
     </>
   );
