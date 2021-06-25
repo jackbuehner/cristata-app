@@ -10,7 +10,7 @@ import { Button, IconButton } from '../Button';
 import styled from '@emotion/styled';
 import { css, SerializedStyles, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BackIcon, RedoIcon, BoldIcon, ItalicsIcon, UnderlineIcon, StrikeIcon } from './Icons';
 import {
   Code20Regular,
@@ -41,6 +41,7 @@ import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { FullBleedLayout } from './special-components/article/FullBleedLayout';
+import Color from 'color';
 
 const Toolbar = styled.div`
   position: relative;
@@ -248,6 +249,7 @@ interface IMenuBar {
   isDisabled?: boolean;
   layout: 'standard' | 'full';
   setLayout: React.Dispatch<React.SetStateAction<'standard' | 'full'>>;
+  awarenessProfiles?: { name: string; color: string; sessionId: string }[];
 }
 
 function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
@@ -471,6 +473,43 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
             </ToolbarTabList>
           )}
           <ToolbarMeta>
+            <div
+              css={css`
+                display: flex;
+                flex-direction: row;
+                gap: 6px;
+              `}
+            >
+              {props.awarenessProfiles?.map((profile, index) => {
+                return (
+                  <div
+                    key={index}
+                    css={css`
+                      width: 24px;
+                      height: 24px;
+                      border: 2px solid ${profile.color};
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      font-family: ${theme.font.headline};
+                      border-radius: 50%;
+                      font-size: 14px;
+                      background-color: ${Color(profile.color).alpha(0.4).string()};
+                      user-select: none;
+                      color: ${theme.color.neutral[theme.mode][1200]};
+                    `}
+                    title={profile.name}
+                  >
+                    {profile.name
+                      .match(/(^\S\S?|\b\S)?/g)
+                      ?.join('')
+                      .match(/(^\S|\S$)?/g)
+                      ?.join('')
+                      .toUpperCase()}
+                  </div>
+                );
+              })}
+            </div>
             <ToolbarMetaIconButton
               onClick={() => setIsMax(!isMax)}
               icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
@@ -693,6 +732,7 @@ interface ITiptap {
     }>
   >;
   isDisabled?: boolean;
+  sessionId: string;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -712,6 +752,47 @@ const Tiptap = (props: ITiptap) => {
       ),
     [props.docName, ydoc]
   );
+
+  // store awareness profiles info in state
+  // (these are the profiles of users with the editor open)
+  interface IAwarenessProfile {
+    name: string;
+    color: string;
+    sessionId: string;
+  }
+  const [awarenessProfiles, setAwarenessProfiles] = useState<IAwarenessProfile[]>();
+  useEffect(() => {
+    const { awareness } = providerWebsocket;
+
+    /**
+     * Whenever somebody updates their awareness information,
+     * process and store awareness information from each unique user.
+     */
+    function saveAwarenessProfiles() {
+      // get all current awareness information and filter it to only include
+      // sessions with defined users
+      const awarenessValues: IAwarenessProfile[] = Array.from(awareness.getStates().values())
+        .filter((value) => value.user)
+        .map((value) => value.user);
+
+      // remove duplicate awareness information by only adding objects with
+      // unique sessionIds to the array
+      let awarenessSessions: IAwarenessProfile[] = [];
+      awarenessValues.forEach((value: IAwarenessProfile) => {
+        const containsSessionId =
+          awarenessSessions.findIndex((session) => session.sessionId === value.sessionId) === -1 ? false : true;
+        if (!containsSessionId) {
+          awarenessSessions.push(value);
+        }
+      });
+
+      // save the array of unique and complete awareness objects to state
+      setAwarenessProfiles(awarenessSessions);
+    }
+
+    awareness.on('change', saveAwarenessProfiles); // add the listener
+    return () => awareness.off('change', saveAwarenessProfiles); // remove the listener when useEffect changes
+  }, [providerWebsocket]);
 
   const editor = useEditor({
     editable: props.isDisabled === true ? false : true,
@@ -737,6 +818,7 @@ const Tiptap = (props: ITiptap) => {
         user: {
           name: props.user.name,
           color: props.user.color,
+          sessionId: props.sessionId,
         },
       }),
       Placeholder.configure({
@@ -775,6 +857,7 @@ const Tiptap = (props: ITiptap) => {
         isDisabled={props.isDisabled}
         layout={layout}
         setLayout={setLayout}
+        awarenessProfiles={awarenessProfiles}
       />
       <div
         css={css`
@@ -866,10 +949,10 @@ const Tiptap = (props: ITiptap) => {
               }
               .collaboration-cursor__caret {
                 position: relative;
-                margin-left: -1px;
-                margin-right: -1px;
-                border-left: 1px solid #0d0d0d;
-                border-right: 1px solid #0d0d0d;
+                margin-left: -0.5px;
+                margin-right: -0.5px;
+                border-left: 0.5px solid #0d0d0d;
+                border-right: 0.5px solid #0d0d0d;
                 word-break: normal;
                 pointer-events: none;
               }
@@ -882,9 +965,10 @@ const Tiptap = (props: ITiptap) => {
                 font-weight: 680;
                 line-height: normal;
                 user-select: none;
-                color: #e0e0e0;
+                color: ${theme.color.neutral['light'][1500]};
+                font-family: ${theme.font.detail};
                 padding: 0.1rem 0.3rem;
-                border-radius: 3px 3px 3px 0;
+                border-radius: 0;
                 white-space: nowrap;
               }
             }

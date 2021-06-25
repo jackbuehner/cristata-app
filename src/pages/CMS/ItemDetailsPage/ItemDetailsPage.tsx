@@ -20,8 +20,9 @@ import { Tiptap } from '../../../components/Tiptap';
 import ColorHash from 'color-hash';
 import { MultiSelect, Select } from '../../../components/Select';
 import { DateTime } from '../../../components/DateTime';
+import { IAuthUser } from '../../../interfaces/cristata/authuser';
 
-const colorHash = new ColorHash({ saturation: 0.9, lightness: 0.4 });
+const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
 const PageWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -113,6 +114,18 @@ function ItemDetailsPage() {
       });
   };
 
+  // get the user data from localstorage
+  const [user, setUser] = useState<IAuthUser>();
+  useEffect(() => {
+    const userJson = localStorage.getItem('auth.user');
+    if (userJson) {
+      setUser(JSON.parse(userJson));
+    }
+  }, []);
+
+  // get the session id from sessionstorage
+  const sessionId = sessionStorage.getItem('sessionId');
+
   // TODO: add check for whether the user can publish the item
   // TODO: If the article is published, only allow user to make changes if they have publish permissons
 
@@ -139,6 +152,9 @@ function ItemDetailsPage() {
           : //error
           error
           ? 'Error loading.'
+          : // waiting for user info
+          user === undefined || sessionId === null
+          ? null
           : // data loaded
             collectionsConfig[collection]?.fields.map((field, index) => {
               if (field.type === 'text') {
@@ -204,13 +220,14 @@ function ItemDetailsPage() {
                       <Tiptap
                         docName={`${collection}.${item_id}`}
                         user={{
-                          name: 'Jack Buehner',
-                          color: colorHash.hex('Jack Buehner'),
+                          name: user.displayName,
+                          color: colorHash.hex(user._id),
                         }}
                         options={field.tiptap}
                         flatData={flatData}
                         setFlatData={setFlatData}
                         isDisabled={field.isDisabled}
+                        sessionId={sessionId}
                       />
                     </div>
                   </InputGroup>

@@ -36,6 +36,13 @@ function SplashScreen(props: ISplashScreen) {
     }
   }, [props.user, history]);
 
+  useEffect(() => {
+    const sessionIdIsSet = !!sessionStorage.getItem('sessionId');
+    if (!sessionIdIsSet) {
+      sessionStorage.setItem('sessionId', Math.random().toString());
+    }
+  });
+
   return (
     <div className={`splash-wrapper`}>
       <style>
