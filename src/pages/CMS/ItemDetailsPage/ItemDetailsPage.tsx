@@ -36,11 +36,10 @@ function ItemDetailsPage() {
   const theme = useTheme() as themeType;
 
   // get the url parameters from the route
-  let { collection, item_id } =
-    useParams<{
-      collection: string;
-      item_id: string;
-    }>();
+  let { collection, item_id } = useParams<{
+    collection: string;
+    item_id: string;
+  }>();
 
   // get the item
   const [{ data, loading, error }, refetch] = useAxios(`/${collection}/${item_id}`);
@@ -228,6 +227,12 @@ function ItemDetailsPage() {
                         setFlatData={setFlatData}
                         isDisabled={field.isDisabled}
                         sessionId={sessionId}
+                        onChange={(editorJson: string) => {
+                          setFlatData({
+                            ...flatData,
+                            [field.key]: editorJson,
+                          });
+                        }}
                       />
                     </div>
                   </InputGroup>

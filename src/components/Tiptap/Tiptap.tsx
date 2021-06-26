@@ -733,6 +733,7 @@ interface ITiptap {
   >;
   isDisabled?: boolean;
   sessionId: string;
+  onChange?: (editorJson: string) => void;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -825,6 +826,14 @@ const Tiptap = (props: ITiptap) => {
         placeholder: 'Write something...',
       }),
     ],
+    onUpdate() {
+      if (props.onChange) {
+        // get the json for the editor and send it to the parent component via `onChange()`
+        const editor = this as unknown as Editor;
+        const json = JSON.stringify(editor.getJSON().content);
+        props.onChange(json);
+      }
+    },
   });
 
   // whether the editor is maximized
