@@ -50,10 +50,16 @@ function ItemDetailsPage() {
     setIsLoading(loading);
   }, [loading]);
 
+  // keep track of whether changes have been made that have not been saved
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+
   // save a flattened version of the data in state for modification
   const [flatData, setFlatData] = useState<{ [key: string]: string | string[] | number }>({});
   useEffect(() => {
-    if (data) setFlatData(flattenObject(data));
+    if (data) {
+      setFlatData(flattenObject(data));
+      setHasUnsavedChanges(false);
+    }
   }, [data]);
 
   //
@@ -62,6 +68,7 @@ function ItemDetailsPage() {
       ...flatData,
       [key]: e.currentTarget.value,
     });
+    setHasUnsavedChanges(true);
   };
 
   /**
@@ -75,6 +82,7 @@ function ItemDetailsPage() {
       ...flatData,
       [key]: type === 'number' ? parseFloat(value as string) : value,
     });
+    setHasUnsavedChanges(true);
   };
 
   /**
@@ -86,6 +94,7 @@ function ItemDetailsPage() {
       ...flatData,
       [key]: value,
     });
+    setHasUnsavedChanges(true);
   };
 
   /**
@@ -96,6 +105,7 @@ function ItemDetailsPage() {
       ...flatData,
       [key]: value,
     });
+    setHasUnsavedChanges(true);
   };
 
   // save changes to the databse
@@ -106,6 +116,7 @@ function ItemDetailsPage() {
         setIsLoading(false);
         toast.success(`Changes successfully saved.`);
         refetch();
+        setHasUnsavedChanges(false);
       })
       .catch((err) => {
         console.error(err);
@@ -132,13 +143,17 @@ function ItemDetailsPage() {
     <>
       <PageHead
         title={data ? data.name : item_id}
-        description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection.slice(1)} collection`}
+        description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection.slice(1)} collection ${
+          hasUnsavedChanges ? ' | Unsaved changes' : ''
+        }`}
         buttons={
           <>
             <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
               Refresh
             </IconButton>
-            <Button onClick={saveChanges}>Save</Button>
+            <Button onClick={saveChanges} disabled={!hasUnsavedChanges}>
+              Save
+            </Button>
           </>
         }
         isLoading={isLoading}
@@ -228,10 +243,13 @@ function ItemDetailsPage() {
                         isDisabled={field.isDisabled}
                         sessionId={sessionId}
                         onChange={(editorJson: string) => {
-                          setFlatData({
-                            ...flatData,
-                            [field.key]: editorJson,
-                          });
+                          if (editorJson !== flatData[field.key]) {
+                            setFlatData({
+                              ...flatData,
+                              [field.key]: editorJson,
+                            });
+                            setHasUnsavedChanges(true);
+                          }
                         }}
                       />
                     </div>
