@@ -1,6 +1,8 @@
 import { IProfile } from './interfaces/cristata/profiles';
 import { IGetTeams } from './interfaces/github/teams';
 import { db } from './utils/axios/db';
+import { Chip } from './components/Chip';
+import { colorType } from './utils/theme/theme';
 
 interface Icollections {
   [key: string]:
@@ -17,6 +19,13 @@ interface Icollections {
           }>;
           isDisabled?: boolean;
           async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
+        }>;
+        columns: Array<{
+          key: string;
+          label?: string;
+          width?: number;
+          render?: (data: { [key: string]: any }) => React.ReactElement;
+          filter?: string;
         }>;
       }
     | undefined;
@@ -254,6 +263,105 @@ const collections: Icollections = {
       { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
       { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
       { key: 'timestamps.published_at', label: 'Published at', type: 'datetime', isDisabled: true },
+    ],
+    columns: [
+      { key: 'name', label: 'Headline', width: 350 },
+      {
+        key: 'stage',
+        label: 'Stage',
+        render: (data) => {
+          enum Stage {
+            'Planning' = 1.1,
+            'Draft' = 2.1,
+            'Editor Review' = 3.1,
+            'Copy Edit' = 3.3,
+            'Writer/Editor Check' = 3.5,
+            'Upload Approval' = 4.1,
+            'Uploaded/Scheduled' = 5.1,
+            'Published' = 5.2,
+          }
+          const Color: { [key: number]: colorType } = {
+            1.1: 'neutral',
+            2.1: 'neutral',
+            3.1: 'orange',
+            3.3: 'indigo',
+            3.5: 'orange',
+            4.1: 'red',
+            5.1: 'blue',
+            5.2: 'green',
+          };
+
+          return <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} />;
+        },
+        filter: 'excludes',
+      },
+      {
+        key: 'people.authors',
+        label: 'Authors',
+        render: (data) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
+            {data.people?.authors?.map((author: { name: string; photo?: string }, index: number) => {
+              const { name, photo } = author;
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <img
+                    src={photo}
+                    alt={``}
+                    style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                  />
+                  <span style={{ fontSize: 14 }}>{name}</span>
+                </div>
+              );
+            })}
+          </div>
+        ),
+      },
+      {
+        key: 'categories',
+        label: 'Sections',
+        render: (data) => {
+          const categories: { [key: string]: string } = {
+            news: 'News',
+            opinion: 'Opinion',
+            sports: 'Sports',
+            diversity: 'Diversity Matters',
+            arts: 'Arts',
+            'campus-culture': 'Campus & Culture',
+          };
+          return (
+            <div>
+              {data.categories?.map((category: string, index: number) => {
+                if (category === '') return '';
+                return <Chip key={index} label={categories[category] || category} />;
+              })}
+            </div>
+          );
+        },
+        width: 180,
+      },
+      {
+        key: 'tags',
+        label: 'Tags',
+        render: (data) => (
+          <div>
+            {data.tags?.map((tag: string, index: number) => {
+              if (tag === '') return '';
+              return <Chip key={index} label={tag} />;
+            })}
+          </div>
+        ),
+        width: 180,
+      },
+      {
+        key: 'people.created_by',
+        label: 'Created by',
+        render: (data) => data.people?.created_by?.toString(),
+      },
+      {
+        key: 'people.last_modified_by',
+        label: 'Last modified by',
+        render: (data) => data.people?.last_modified_by?.toString(),
+      },
     ],
   },
 };

@@ -1,8 +1,8 @@
 import useAxios from 'axios-hooks';
 import { forwardRef, useImperativeHandle, useMemo } from 'react';
 import { Column } from 'react-table';
-import { Chip } from '../../components/Chip';
 import { Table } from '../../components/Table';
+import { collections as collectionsConfig } from '../../config';
 
 // userID from GitHub is just a number
 type GitHubUserID = number;
@@ -82,65 +82,25 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>((prop
   }));
 
   const columns: Column<{ [key: string]: any } | IArticle>[] = useMemo(
-    () => [
-      {
-        Header: 'Headline', // string
-        accessor: 'name', // string
-        width: 350, // string or number
-      },
-      {
-        Header: 'Stage',
-        id: 'stage',
-        accessor: (data) => <Chip label={Stage[data.stage].toLowerCase()} />,
-        filter: 'excludes',
-      },
-      {
-        Header: 'Summary',
-        accessor: 'description',
-        width: 250,
-      },
-      {
-        Header: 'isLocked',
-        id: 'locked', // use id when accessor is a function
-        accessor: (data) => data.locked?.toString(), // convert the boolean data to string data
-      },
-      {
-        Header: 'Categories',
-        id: 'categories',
-        accessor: (data) => (
-          <div>
-            {data.categories?.map((category: string, index: number) => {
-              if (category === '') return '';
-              return <Chip key={index} label={category} />;
-            })}
-          </div>
-        ),
-        width: 180,
-      },
-      {
-        Header: 'Tags',
-        id: 'tags',
-        accessor: (data) => (
-          <div>
-            {data.tags?.map((tag: string, index: number) => {
-              if (tag === '') return '';
-              return <Chip key={index} label={tag} />;
-            })}
-          </div>
-        ),
-        width: 180,
-      },
-      {
-        Header: 'Created by',
-        id: 'people.created_by',
-        accessor: (data) => data.people?.created_by?.toString(),
-      },
-      {
-        Header: 'Last modified by',
-        id: 'people.last_modified_by',
-        accessor: (data) => data.people?.last_modified_by?.toString(),
-      },
-    ],
+    () =>
+      collectionsConfig.articles!.columns.map((column) => {
+        if (column.render) {
+          return {
+            Header: column.label || column.key,
+            id: column.key,
+            accessor: column.render,
+            width: column.width || 150,
+            filter: column.filter,
+          };
+        }
+        return {
+          Header: column.label || column.key,
+          id: column.key,
+          accessor: column.key,
+          width: column.width || 150,
+          filter: column.filter,
+        };
+      }),
     []
   );
 
