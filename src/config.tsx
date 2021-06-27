@@ -3,6 +3,7 @@ import { IGetTeams } from './interfaces/github/teams';
 import { db } from './utils/axios/db';
 import { Chip } from './components/Chip';
 import { colorType } from './utils/theme/theme';
+import { DateTime } from 'luxon';
 
 interface Icollections {
   [key: string]:
@@ -358,6 +359,38 @@ const collections: Icollections = {
         isSortable: false,
       },
       {
+        key: 'timestamps.target_publish_at',
+        label: 'Target date',
+        render: (data) => {
+          const date = DateTime.fromISO(data.timestamps?.target_publish_at).toFormat(`LLL. dd, yyyy`);
+          if (date === '31 December 0000') return <span></span>; // this is the default date
+
+          const isLate =
+            DateTime.fromISO(data.timestamps?.target_publish_at) < DateTime.now() && data.stage < 5;
+          const isIn24hrs =
+            DateTime.fromISO(data.timestamps?.target_publish_at) < DateTime.fromMillis(Date.now() + 86400000) &&
+            data.stage < 5; // one day in advance
+          const isSoon =
+            DateTime.fromISO(data.timestamps?.target_publish_at) <
+              DateTime.fromMillis(Date.now() + 259200000) && data.stage < 5; // three days in advance
+
+          return (
+            <div style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+              {date}
+              {isLate ? (
+                <Chip label={`Late`} color={`red`} />
+              ) : isIn24hrs ? (
+                <Chip label={`24 hours`} color={`orange`} />
+              ) : isSoon ? (
+                <Chip label={`Soon`} color={`neutral`} />
+              ) : null}
+            </div>
+          );
+        },
+        width: 174,
+        isSortable: false,
+      },
+      {
         key: 'people.created_by',
         label: 'Created by',
         render: (data) => data.people?.created_by?.toString(),
@@ -367,6 +400,18 @@ const collections: Icollections = {
         key: 'people.last_modified_by',
         label: 'Last modified by',
         render: (data) => data.people?.last_modified_by?.toString(),
+        isSortable: false,
+      },
+      {
+        key: 'timestamps.modified_at',
+        label: 'Last modified',
+        render: (data) => {
+          return (
+            <div style={{ fontSize: 14 }}>
+              {DateTime.fromISO(data.timestamps?.modified_at).toFormat(`LLL. dd, yyyy`)}
+            </div>
+          );
+        },
         isSortable: false,
       },
     ],
