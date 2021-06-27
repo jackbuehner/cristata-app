@@ -92,6 +92,10 @@ function Table(props: ITable) {
                   {
                     // loop over the headers in each row
                     headerGroup.headers.map((column) => {
+                      const sortableHeaders =
+                        // @ts-expect-error getSortByToggleProps is allowed when useSortBy hook is present and isSortable is a custom variable in the config
+                        column.isSortable !== false ? column.getHeaderProps(column.getSortByToggleProps()) : {};
+
                       return (
                         // apply header cell props
                         <TableCell
@@ -99,18 +103,20 @@ function Table(props: ITable) {
                           width={column.width}
                           isHeader
                           theme={theme}
-                          styleString={buttonEffect(
-                            'primary',
-                            600,
-                            theme,
-                            false,
-                            { base: 'transparent' },
-                            { base: '1px solid transparent' }
-                          )}
-                          {
-                            // @ts-expect-error getSortByToggleProps is allowed when useSortBy hook is present
-                            ...column.getHeaderProps(column.getSortByToggleProps())
+                          styleString={
+                            // @ts-expect-error isSortable is a custom variable in the config
+                            column.isSortable !== false
+                              ? buttonEffect(
+                                  'primary',
+                                  600,
+                                  theme,
+                                  false,
+                                  { base: 'transparent' },
+                                  { base: '1px solid transparent' }
+                                )
+                              : undefined
                           }
+                          {...sortableHeaders}
                         >
                           {
                             // render the header

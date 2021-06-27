@@ -26,6 +26,7 @@ interface Icollections {
           width?: number;
           render?: (data: { [key: string]: any }) => React.ReactElement;
           filter?: string;
+          isSortable?: false;
         }>;
       }
     | undefined;
@@ -294,6 +295,7 @@ const collections: Icollections = {
           return <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} />;
         },
         filter: 'excludes',
+        isSortable: false,
       },
       {
         key: 'people.authors',
@@ -315,6 +317,7 @@ const collections: Icollections = {
             })}
           </div>
         ),
+        isSortable: false,
       },
       {
         key: 'categories',
@@ -338,6 +341,7 @@ const collections: Icollections = {
           );
         },
         width: 180,
+        isSortable: false,
       },
       {
         key: 'tags',
@@ -351,16 +355,19 @@ const collections: Icollections = {
           </div>
         ),
         width: 180,
+        isSortable: false,
       },
       {
         key: 'people.created_by',
         label: 'Created by',
         render: (data) => data.people?.created_by?.toString(),
+        isSortable: false,
       },
       {
         key: 'people.last_modified_by',
         label: 'Last modified by',
         render: (data) => data.people?.last_modified_by?.toString(),
+        isSortable: false,
       },
     ],
   },

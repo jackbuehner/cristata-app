@@ -156,6 +156,7 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>((prop
             accessor: column.render,
             width: column.width || 150,
             filter: column.filter,
+            isSortable: column.isSortable,
           };
         }
         return {
@@ -164,6 +165,7 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>((prop
           accessor: column.key,
           width: column.width || 150,
           filter: column.filter,
+          isSortable: column.isSortable,
         };
       }),
     []
