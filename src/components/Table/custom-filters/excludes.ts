@@ -11,10 +11,21 @@ function excludes(rows: Row[], columnIds: string[], exclude: string | number | R
       let value = row.values[id];
 
       // if the value has a label prop, set the value to the label (useful for chips)
-      if (value.props.label) value = value.props.label;
+      if (value.props && value.props.label) value = value.props.label.toLowerCase();
+
+      // if the value has children with label props, set the value to an array of the labels
+      if (value.props && value.props.children) {
+        value = value.props.children.map((child: any) => {
+          if (child.props && child.props.label) return child.props.label.toLowerCase();
+          return null;
+        });
+      }
 
       // if value is a number, convert to a string so we can use `includes()`
-      if (typeof value !== 'number') value = value.toString();
+      if (typeof value === 'number') value = value.toString();
+
+      // if exclude is a string, make it lowercase
+      if (typeof exclude === 'string') exclude = exclude.toLowerCase();
 
       // if the value includes the content to be excluded, remove from rows array
       if (value.includes(exclude)) return false; // return false to remove
