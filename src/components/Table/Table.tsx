@@ -162,6 +162,7 @@ function Table(props: ITable) {
                 <TableRow
                   role={`row`}
                   {...row.getRowProps()}
+                  theme={theme}
                   // if props for onClick action is defined (via `props.row`), push history
                   onClick={() =>
                     props.row

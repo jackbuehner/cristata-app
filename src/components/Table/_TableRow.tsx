@@ -1,9 +1,11 @@
 import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
+import { buttonEffect } from '../Button';
 
 interface ITableRow {
   isHeader?: boolean;
   theme?: themeType;
+  onClick?: () => void;
 }
 
 const TableRow = styled.div<ITableRow>`
@@ -21,6 +23,10 @@ const TableRow = styled.div<ITableRow>`
           top: 0;
           background-color: white;
         `
+      : ``}
+  ${({ onClick, theme }) =>
+    onClick
+      ? buttonEffect('primary', 600, theme, false, { base: 'transparent' }, { base: '1px solid transparent' })
       : ``}
 `;
 
