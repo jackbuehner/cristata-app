@@ -1,5 +1,5 @@
 type GitHubUserID = number;
-type GitHubTeamID = number;
+type GitHubTeamID = string;
 
 // interface for each user profile
 interface IProfile {

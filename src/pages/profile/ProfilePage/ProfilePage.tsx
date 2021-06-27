@@ -19,17 +19,18 @@ import { useState } from 'react';
 import { AxiosError } from 'axios';
 import { db } from '../../../utils/axios/db';
 import { toast } from 'react-toastify';
+import { IGetTeams } from '../../../interfaces/github/teams';
 
 function ProfilePage() {
   const theme = useTheme() as themeType;
 
   // get the url parameters from the route
-  let { profile_id } =
-    useParams<{
-      profile_id: string;
-    }>();
+  let { profile_id } = useParams<{
+    profile_id: string;
+  }>();
 
   const [{ data, loading, error }, refetch] = useAxios<IProfile>(`/users/${profile_id}`);
+  const [{ data: teamsData }] = useAxios<IGetTeams>(`/gh/teams`);
 
   const [showEditModal, hideEditModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -203,8 +204,10 @@ function ProfilePage() {
             </Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Teams &amp; Groups</SectionTitle>
-          {data.teams.map((team, index) => {
-            return <Chip key={index} label={`${team}`} color={`neutral`} />;
+          {data.teams.map((teamId, index) => {
+            const teamSlug = teamsData?.organization.teams.edges.find((team) => team.node.id === teamId)?.node
+              .slug;
+            return <Chip key={index} label={teamSlug || teamId} color={`neutral`} />;
           })}
           <LastEdited theme={theme}>
             Last edited on {DateTime.fromISO(data.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
