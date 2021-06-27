@@ -99,7 +99,7 @@ const collections: Icollections = {
       },
       {
         key: 'photo_caption',
-        label: 'Photo Caption',
+        label: 'Photo caption',
         type: 'text',
         description:
           'The caption for the photo. It should be relevant to the photo. Not every photo needs a caption.',
@@ -133,7 +133,7 @@ const collections: Icollections = {
       },
       {
         key: 'people.editors.primary',
-        label: 'Section Editors',
+        label: 'Section editors',
         type: 'multiselect_async',
         description: 'The managing editors responsible for this article.',
         async_options: async (inputValue: string) => {
@@ -160,7 +160,7 @@ const collections: Icollections = {
       },
       {
         key: 'people.editors.copy',
-        label: 'Copy Editors',
+        label: 'Copy editors',
         type: 'multiselect_async',
         description: 'The copy editors who have made edits to this article.',
         async_options: async (inputValue: string) => {
@@ -201,14 +201,14 @@ const collections: Icollections = {
       },
       {
         key: 'locked',
-        label: 'Locked Status',
+        label: 'Locked status',
         type: 'boolean',
         description: 'Control whether this article is able to be modified. NOT IMPLIMENTED.',
         isDisabled: true,
       },
       {
         key: 'permissions.users',
-        label: 'User Access Control',
+        label: 'User access control',
         type: 'multiselect_async',
         description: 'Control which users can see this article.',
         async_options: async (inputValue: string) => {
@@ -235,7 +235,7 @@ const collections: Icollections = {
       },
       {
         key: 'permissions.teams',
-        label: 'Team Access Control',
+        label: 'Team access control',
         type: 'multiselect_async',
         description: 'Control which teams (user groups) can see this article.',
         async_options: async (inputValue: string) => {
