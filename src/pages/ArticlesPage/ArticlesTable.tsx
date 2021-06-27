@@ -40,9 +40,9 @@ interface IArticle {
   };
   people: {
     authors?: GitHubUserID[] | string[] | { name: string; photo: string }[];
-    created_by?: GitHubUserID | string;
+    created_by?: GitHubUserID | { name: string; photo: string };
     modified_by?: GitHubUserID[];
-    last_modified_by: GitHubUserID | string;
+    last_modified_by: GitHubUserID | { name: string; photo: string };
     published_by?: GitHubUserID[];
     editors?: {
       primary?: GitHubUserID;
@@ -93,13 +93,21 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>((prop
       const copy = [...articles];
 
       copy.forEach((article) => {
-        // format created by ids to names
+        // format created by ids to names and photos
         if (typeof article.people.created_by === 'number') {
-          article.people.created_by = findUserAndReturnName(article.people.created_by);
+          const user = findUserAndReturnObj(article.people.created_by);
+          if (user) {
+            const { name, photo } = user;
+            article.people.created_by = { name, photo };
+          }
         }
-        // format last modified by ids to names
+        // format last modified by ids to names and photos
         if (typeof article.people.last_modified_by === 'number') {
-          article.people.last_modified_by = findUserAndReturnName(article.people.last_modified_by) || '';
+          const user = findUserAndReturnObj(article.people.last_modified_by);
+          if (user) {
+            const { name, photo } = user;
+            article.people.last_modified_by = { name, photo };
+          }
         }
         // use author ids to get author name and image
         if (article.people.authors) {

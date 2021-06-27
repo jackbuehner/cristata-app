@@ -393,13 +393,37 @@ const collections: Icollections = {
       {
         key: 'people.created_by',
         label: 'Created by',
-        render: (data) => data.people?.created_by?.toString(),
+        render: (data) => {
+          const { name, photo } = data.people?.created_by;
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <img
+                src={photo}
+                alt={``}
+                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+              />
+              <span style={{ fontSize: 14 }}>{name}</span>
+            </div>
+          );
+        },
         isSortable: false,
       },
       {
         key: 'people.last_modified_by',
         label: 'Last modified by',
-        render: (data) => data.people?.last_modified_by?.toString(),
+        render: (data) => {
+          const { name, photo } = data.people?.last_modified_by;
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <img
+                src={photo}
+                alt={``}
+                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+              />
+              <span style={{ fontSize: 14 }}>{name}</span>
+            </div>
+          );
+        },
         isSortable: false,
       },
       {
