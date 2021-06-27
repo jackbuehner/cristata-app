@@ -46,7 +46,10 @@ function ArticlesPage() {
   // define the filters for the table
   const tableFilters = useMemo(() => {
     if (progress === 'in-progress') {
-      return [{ id: 'stage', value: 'published' }];
+      return [
+        { id: 'stage', value: 'Published' },
+        { id: 'stage', value: 'Uploaded/Scheduled' },
+      ];
     }
     return [];
   }, [progress]);
