@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Person24Regular, SignOut20Regular, SignOut24Regular } from '@fluentui/react-icons';
+import { Person24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
