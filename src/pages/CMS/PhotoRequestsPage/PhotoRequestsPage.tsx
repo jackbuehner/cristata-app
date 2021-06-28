@@ -1,11 +1,11 @@
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Button, IconButton } from '../../../components/Button';
 import { PageHead } from '../../../components/PageHead';
 import { db } from '../../../utils/axios/db';
 import { toast } from 'react-toastify';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
 import { IPhotoRequestsImperative, PhotoRequestsTable } from './PhotoRequestsTable';
@@ -15,6 +15,18 @@ function PhotoRequestsPage() {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(true);
+
+  // get the url parameters from the route
+  let { progress } = useParams<{ progress: string }>();
+
+  // define the filters for the table
+  const tableFilters = useMemo(() => {
+    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
+    if (progress === 'unfulfilled') {
+      filters.push({ id: 'stage', value: 'Fulfilled' });
+    }
+    return filters;
+  }, [progress]);
 
   // create new photo request
   const createNew = () => {
@@ -50,7 +62,12 @@ function PhotoRequestsPage() {
         }
       />
       <TableWrapper theme={theme}>
-        <PhotoRequestsTable ref={tableRef} setIsLoading={setIsLoading} />
+        <PhotoRequestsTable
+          progress={progress}
+          filters={tableFilters}
+          ref={tableRef}
+          setIsLoading={setIsLoading}
+        />
       </TableWrapper>
     </>
   );

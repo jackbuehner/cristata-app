@@ -8,6 +8,12 @@ import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 
 interface IPhotoRequestsTable {
+  progress: string;
+  filters?: {
+    // the filters to use for the table
+    id: string;
+    value: any; // value type depends on the filter defined in the columns
+  }[];
   ref?: React.RefObject<IPhotoRequestsImperative>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
@@ -130,6 +136,7 @@ const PhotoRequestsTable = forwardRef<IPhotoRequestsImperative, IPhotoRequestsTa
         <Table
           data={{ data: data as { [key: string]: any }[], loading, error }}
           columns={columns}
+          filters={props.filters}
           row={{ href: '/cms/item/photo-requests', hrefSuffixKey: '_id' }}
         />
       );

@@ -220,8 +220,11 @@ function App() {
                       </SideNavSubButton>
 
                       <SideNavHeading>Photos</SideNavHeading>
-                      <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests`}>
-                        Photo requests
+                      <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests/unfulfilled`}>
+                        Unfulfilled photo requests
+                      </SideNavSubButton>
+                      <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests/all`}>
+                        All photo requests
                       </SideNavSubButton>
                       <SideNavSubButton Icon={<Image24Regular />} to={`/cms/photos/library`}>
                         Photo library
@@ -249,7 +252,7 @@ function App() {
                     <Route path={`/cms/articles/:progress`}>
                       <ArticlesPage />
                     </Route>
-                    <Route path={`/cms/photos/requests`}>
+                    <Route path={`/cms/photos/requests/:progress`}>
                       <PhotoRequestsPage />
                     </Route>
                     <Route path={`/cms/item/:collection/:item_id`}>
