@@ -24,6 +24,9 @@ function includes(rows: Row[], columnIds: string[], include: string | number | R
       // if value is a number, convert to a string so we can use `includes()`
       if (typeof value === 'number') value = value.toString();
 
+      // if value is a boolean, convert to a string so we can use `includes()`
+      if (typeof value === 'boolean') value = value.toString();
+
       // if include is a string, make it lowercase
       if (typeof include === 'string') include = include.toLowerCase();
 

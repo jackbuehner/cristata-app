@@ -54,7 +54,7 @@ function ArticlesPage() {
 
   // define the filters for the table
   const tableFilters = useMemo(() => {
-    let filters: { id: string; value: string }[] = [];
+    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
     if (progress === 'in-progress') {
       filters.push({ id: 'stage', value: 'Published' });
       filters.push({ id: 'stage', value: 'Uploaded/Scheduled' });

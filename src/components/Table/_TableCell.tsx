@@ -11,7 +11,7 @@ interface ITableCell {
 const TableCell = styled.div<ITableCell>`
   padding: 0 0 0 10px;
   min-height: ${({ isHeader }) => (isHeader ? '42px;' : '38px')};
-  display: flex;
+  display: ${({ width }) => (width === 1 ? 'none' : 'flex')};
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;

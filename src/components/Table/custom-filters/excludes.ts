@@ -24,6 +24,9 @@ function excludes(rows: Row[], columnIds: string[], exclude: string | number | R
       // if value is a number, convert to a string so we can use `includes()`
       if (typeof value === 'number') value = value.toString();
 
+      // if value is a boolean, convert to a string so we can use `includes()`
+      if (typeof value === 'boolean') value = value.toString();
+
       // if exclude is a string, make it lowercase
       if (typeof exclude === 'string') exclude = exclude.toLowerCase();
 

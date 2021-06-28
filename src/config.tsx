@@ -439,6 +439,7 @@ const collections: Icollections = {
         },
         isSortable: false,
       },
+      { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
     ],
   },
 };

@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { themeType } from '../../../utils/theme/theme';
 import { PageHead } from '../../../components/PageHead';
 import { Button, IconButton } from '../../../components/Button';
@@ -34,6 +34,7 @@ const PageWrapper = styled.div<{ theme?: themeType }>`
 
 function ItemDetailsPage() {
   const theme = useTheme() as themeType;
+  const history = useHistory();
 
   // get the url parameters from the route
   let { collection, item_id } = useParams<{
@@ -124,6 +125,22 @@ function ItemDetailsPage() {
       });
   };
 
+  // set the item to hidden
+  const hideItem = () => {
+    setIsLoading(true);
+    db.patch(`/${collection}/${item_id}`, { ...data, hidden: true })
+      .then(() => {
+        setIsLoading(false);
+        toast.success(`Item successfully hidden.`);
+        history.push(`/cms/${collection}/all`);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.error(err);
+        toast.error(`Failed to hide item. \n ${err.message}`);
+      });
+  };
+
   // get the user data from localstorage
   const [user, setUser] = useState<IAuthUser>();
   useEffect(() => {
@@ -151,9 +168,13 @@ function ItemDetailsPage() {
             <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
               Refresh
             </IconButton>
+            <Button onClick={hideItem} color={'red'}>
+              Delete
+            </Button>
             <Button onClick={saveChanges} disabled={!hasUnsavedChanges}>
               Save
             </Button>
+            <Button disabled>Publish</Button>
           </>
         }
         isLoading={isLoading}
@@ -164,7 +185,7 @@ function ItemDetailsPage() {
           ? // loading
             'Loading...'
           : //error
-          error
+          error || flatData.hidden
           ? 'Error loading.'
           : // waiting for user info
           user === undefined || sessionId === null
