@@ -5,7 +5,7 @@ import { themeType } from '../../utils/theme/theme';
 import { ArticlesTable, IArticlesTableImperative } from './ArticlesTable';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { Button, IconButton } from '../../components/Button';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { db } from '../../utils/axios/db';
 import { toast } from 'react-toastify';
@@ -77,12 +77,15 @@ function ArticlesPage() {
       });
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const articlesTableRef = useRef<IArticlesTableImperative>(null);
   return (
     <>
       <PageHead
         title={pageTitle}
         description={pageDescription}
+        isLoading={isLoading}
         buttons={
           <>
             <IconButton
@@ -96,7 +99,12 @@ function ArticlesPage() {
         }
       />
       <TableWrapper theme={theme}>
-        <ArticlesTable progress={progress} filters={tableFilters} ref={articlesTableRef} />
+        <ArticlesTable
+          progress={progress}
+          filters={tableFilters}
+          ref={articlesTableRef}
+          setIsLoading={setIsLoading}
+        />
       </TableWrapper>
     </>
   );
