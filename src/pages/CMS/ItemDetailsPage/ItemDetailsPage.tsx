@@ -177,7 +177,9 @@ function ItemDetailsPage() {
             <Button onClick={saveChanges} disabled={!hasUnsavedChanges}>
               Save
             </Button>
-            <Button disabled>Publish</Button>
+            {collectionsConfig[dashToCamelCase(collection)]?.isPublishable ? (
+              <Button disabled>Publish</Button>
+            ) : null}
           </>
         }
         isLoading={isLoading}

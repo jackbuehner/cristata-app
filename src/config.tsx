@@ -30,6 +30,7 @@ interface Icollections {
           filter?: string;
           isSortable?: false;
         }>;
+        isPublishable?: boolean;
       }
     | undefined;
 }
@@ -442,6 +443,7 @@ const collections: Icollections = {
       },
       { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
     ],
+    isPublishable: true,
   },
 };
 
