@@ -21,6 +21,7 @@ import ColorHash from 'color-hash';
 import { MultiSelect, Select } from '../../../components/Select';
 import { DateTime } from '../../../components/DateTime';
 import { IAuthUser } from '../../../interfaces/cristata/authuser';
+import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -162,9 +163,9 @@ function ItemDetailsPage() {
     <>
       <PageHead
         title={data ? data.name : item_id}
-        description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection.slice(1)} collection ${
-          hasUnsavedChanges ? ' | Unsaved changes' : ''
-        }`}
+        description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection
+          .slice(1)
+          .replace('-', ' ')} collection ${hasUnsavedChanges ? ' | Unsaved changes' : ''}`}
         buttons={
           <>
             <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
@@ -193,7 +194,7 @@ function ItemDetailsPage() {
           user === undefined || sessionId === null
           ? null
           : // data loaded
-            collectionsConfig[collection]?.fields.map((field, index) => {
+            collectionsConfig[dashToCamelCase(collection)]?.fields.map((field, index) => {
               if (field.type === 'text') {
                 return (
                   <InputGroup type={`text`} key={index}>
