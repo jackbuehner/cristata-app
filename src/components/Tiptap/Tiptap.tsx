@@ -725,10 +725,10 @@ interface ITiptap {
     color: string;
   };
   options?: tiptapOptions;
-  flatData?: { [key: string]: string | string[] | number };
+  flatData?: { [key: string]: string | string[] | number | number[] };
   setFlatData?: React.Dispatch<
     React.SetStateAction<{
-      [key: string]: string | string[] | number;
+      [key: string]: string | string[] | number | number[];
     }>
   >;
   isDisabled?: boolean;
