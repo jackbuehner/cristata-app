@@ -11,6 +11,11 @@ function SideNavSubButton(props: { children: ReactText; Icon: JSX.Element; to?: 
   const location = useLocation();
   const theme = useTheme() as themeType;
 
+  const isSameLocation = props.to && location.pathname.indexOf(props.to.split('?')[0]) !== -1;
+  const isSameSearch =
+    (props.to && location.search === `?${props.to.split('?')[1]}`) ||
+    (props.to && location.search === `` && props.to.split('?')[1] === undefined);
+
   return (
     <Button
       height={`36px`}
@@ -20,7 +25,7 @@ function SideNavSubButton(props: { children: ReactText; Icon: JSX.Element; to?: 
         font-weight: bold;
         margin: 0 6px 2px 6px;
         justify-content: flex-start;
-        background: ${props.to && location.pathname.indexOf(props.to) !== -1
+        background: ${isSameLocation && isSameSearch
           ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
           : 'unset'};
       `}
