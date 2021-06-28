@@ -395,15 +395,14 @@ const collections: Icollections = {
         key: 'people.created_by',
         label: 'Created by',
         render: (data) => {
-          const { name, photo } = data.people?.created_by;
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <img
-                src={photo}
+                src={data.people?.created_by?.photo}
                 alt={``}
                 style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
               />
-              <span style={{ fontSize: 14 }}>{name}</span>
+              <span style={{ fontSize: 14 }}>{data.people?.created_by?.name}</span>
             </div>
           );
         },
@@ -413,15 +412,14 @@ const collections: Icollections = {
         key: 'people.last_modified_by',
         label: 'Last modified by',
         render: (data) => {
-          const { name, photo } = data.people?.last_modified_by;
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <img
-                src={photo}
+                src={data.people?.last_modified_by?.photo}
                 alt={``}
                 style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
               />
-              <span style={{ fontSize: 14 }}>{name}</span>
+              <span style={{ fontSize: 14 }}>{data.people?.last_modified_by?.name}</span>
             </div>
           );
         },
