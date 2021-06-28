@@ -34,7 +34,7 @@ interface ITable {
   };
 }
 
-function Table(props: ITable) {
+function Table({ filters, ...props }: ITable) {
   const history = useHistory();
 
   // get the current theme
@@ -70,14 +70,13 @@ function Table(props: ITable) {
   );
 
   // set the filters that have been passed to props
-  const filters = props.filters;
   useEffect(() => {
     if (filters) {
       setAllFilters(filters);
     } else {
       setAllFilters([]);
     }
-  }, [filters, setAllFilters]);
+  }, [filters, setAllFilters, props.data]);
 
   return (
     <>
