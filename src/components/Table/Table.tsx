@@ -11,6 +11,7 @@ import { buttonEffect } from '../Button';
 import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { excludes as excludesFilter } from './custom-filters/excludes';
+import { includes as includesFilter } from './custom-filters/includes';
 import { useHistory } from 'react-router';
 
 interface ITable {
@@ -43,6 +44,7 @@ function Table(props: ITable) {
   const customFilterTypes = useMemo(
     () => ({
       excludes: excludesFilter,
+      includes: includesFilter,
     }),
     []
   );
