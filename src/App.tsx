@@ -16,8 +16,13 @@ import {
   ImageSearch24Regular,
   Image24Regular,
   DocumentOnePage24Regular,
-  DocumentAdd24Regular,
   ChevronLeft24Regular,
+  Sport24Regular,
+  News24Regular,
+  PaintBrush24Regular,
+  Star24Regular,
+  Chat24Regular,
+  DocumentPageBottomRight24Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -170,12 +175,49 @@ function App() {
                   <Switch>
                     <Route path={`/cms`}>
                       <SideNavHeading>Articles</SideNavHeading>
-                      <SideNavSubButton Icon={<DocumentAdd24Regular />} to={`/cms/articles/in-progress`}>
+                      <SideNavSubButton
+                        Icon={<DocumentPageBottomRight24Regular />}
+                        to={`/cms/articles/in-progress`}
+                      >
                         In-progress articles
                       </SideNavSubButton>
                       <SideNavSubButton Icon={<DocumentOnePage24Regular />} to={`/cms/articles/all`}>
                         All articles
                       </SideNavSubButton>
+                      <SideNavSubButton Icon={<News24Regular />} to={`/cms/articles/in-progress?category=news`}>
+                        News articles (in-progress)
+                      </SideNavSubButton>
+                      <SideNavSubButton
+                        Icon={<Chat24Regular />}
+                        to={`/cms/articles/in-progress?category=opinion`}
+                      >
+                        Opinions (in-progress)
+                      </SideNavSubButton>
+                      <SideNavSubButton
+                        Icon={<Sport24Regular />}
+                        to={`/cms/articles/in-progress?category=sports`}
+                      >
+                        Sports articles (in-progress)
+                      </SideNavSubButton>
+                      <SideNavSubButton
+                        Icon={<Star24Regular />}
+                        to={`/cms/articles/in-progress?category=diversity%20matters`}
+                      >
+                        Diversity matters articles (in-progress)
+                      </SideNavSubButton>
+                      <SideNavSubButton
+                        Icon={<PaintBrush24Regular />}
+                        to={`/cms/articles/in-progress?category=arts`}
+                      >
+                        Arts articles (in-progress)
+                      </SideNavSubButton>
+                      <SideNavSubButton
+                        Icon={<Sport24Regular />}
+                        to={`/cms/articles/in-progress?category=campus%20%26%20culture`}
+                      >
+                        Campus &amp; culture articles (in-progress)
+                      </SideNavSubButton>
+
                       <SideNavHeading>Photos</SideNavHeading>
                       <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests`}>
                         Photo requests

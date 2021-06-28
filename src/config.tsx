@@ -342,6 +342,7 @@ const collections: Icollections = {
           );
         },
         width: 180,
+        filter: 'includes',
         isSortable: false,
       },
       {

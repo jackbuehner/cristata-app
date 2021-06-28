@@ -6,7 +6,7 @@ import { ArticlesTable, IArticlesTableImperative } from './ArticlesTable';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { Button, IconButton } from '../../components/Button';
 import { useMemo, useRef } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { db } from '../../utils/axios/db';
 import { toast } from 'react-toastify';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
@@ -21,9 +21,12 @@ const TableWrapper = styled.div<{ theme?: themeType }>`
 function ArticlesPage() {
   const theme = useTheme() as themeType;
   const history = useHistory();
+  const location = useLocation();
 
   // get the url parameters from the route
   let { progress } = useParams<{ progress: string }>();
+
+  const category = new URLSearchParams(location.search).get('category');
 
   // base page title on route
   const pageTitle = useMemo(() => {
@@ -45,14 +48,17 @@ function ArticlesPage() {
 
   // define the filters for the table
   const tableFilters = useMemo(() => {
+    let filters: { id: string; value: string }[] = [];
     if (progress === 'in-progress') {
-      return [
-        { id: 'stage', value: 'Published' },
-        { id: 'stage', value: 'Uploaded/Scheduled' },
-      ];
+      filters.push({ id: 'stage', value: 'Published' });
+      filters.push({ id: 'stage', value: 'Uploaded/Scheduled' });
     }
-    return [];
-  }, [progress]);
+    if (category) {
+      filters.push({ id: 'categories', value: category });
+    }
+    console.log(filters);
+    return filters;
+  }, [progress, category]);
 
   // create new article
   const createNew = () => {
