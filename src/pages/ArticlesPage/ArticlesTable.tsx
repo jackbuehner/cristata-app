@@ -133,6 +133,8 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>((prop
                   name: userObj.name,
                   photo: userObj.photo,
                 });
+            } else if (typeof author === 'object') {
+              authors.push(author);
             }
           });
 
