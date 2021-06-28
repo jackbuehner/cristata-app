@@ -97,11 +97,6 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
 
     // when articles and users first become available, change userIDs to user display names
     useEffect(() => {
-      function findUserAndReturnName(userID: number) {
-        const user = users?.find((user) => user.github_id === userID);
-        return user?.name;
-      }
-
       function findUserAndReturnObj(userID: number) {
         const user = users?.find((user) => user.github_id === userID);
         return user;
