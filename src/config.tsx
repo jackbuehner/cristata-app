@@ -445,6 +445,177 @@ const collections: Icollections = {
     ],
     isPublishable: true,
   },
+  photoRequests: {
+    fields: [
+      { key: 'name', label: 'Request', type: 'text', description: 'A description of the needed photo.' },
+      {
+        key: 'stage',
+        label: 'Stage',
+        type: 'select',
+        description: 'The current status of this request.',
+        options: [
+          { value: '1.1', label: 'New' },
+          { value: '2.1', label: 'In-progress' },
+          { value: '3.1', label: 'Fullfilled' },
+        ],
+      },
+      {
+        key: 'article_id',
+        label: 'Relevant article',
+        type: 'select_async',
+        description: 'The article in need of this photo.',
+        async_options: async (inputValue: string) => {
+          // get all articles
+          const { data: articles }: { data: IProfile[] } = await db.get(`/articles`);
+
+          // with the article data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          articles.forEach((article) => {
+            options.push({
+              value: `${article._id}`,
+              label: article.name,
+            });
+          });
+
+          console.log(options);
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+      },
+      {
+        key: 'people.requested_by',
+        label: 'Requester',
+        type: 'select_async',
+        description: 'This person will be contacted if the photo team has questions about the request.',
+        async_options: async (inputValue: string) => {
+          // get all users
+          const { data: users }: { data: IProfile[] } = await db.get(`/users`);
+
+          // with the user data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          users.forEach((user) => {
+            options.push({
+              value: `${user.github_id}`,
+              label: user.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+      },
+      {
+        key: 'permissions.users',
+        label: 'User access control',
+        type: 'multiselect_async',
+        description: 'Control which users can see this photo request.',
+        async_options: async (inputValue: string) => {
+          // get all users
+          const { data: users }: { data: IProfile[] } = await db.get(`/users`);
+
+          // with the user data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          users.forEach((user) => {
+            options.push({
+              value: `${user.github_id}`,
+              label: user.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+      },
+      {
+        key: 'permissions.teams',
+        label: 'Team access control',
+        type: 'multiselect_async',
+        description: 'Control which teams can see this photo request.',
+        async_options: async (inputValue: string) => {
+          // get all teams
+          const { data: teamsData }: { data: IGetTeams } = await db.get(`/gh/teams`);
+
+          // with the teams data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          teamsData.organization.teams.edges.forEach((team) => {
+            options.push({
+              value: `${team.node.id}`,
+              label: team.node.slug,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+        dataType: 'number',
+      },
+      { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
+      { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
+    ],
+    columns: [
+      { key: 'name', label: 'Request', width: 350 },
+      {
+        key: 'stage',
+        label: 'Stage',
+        render: (data) => {
+          enum Stage {
+            'New' = 1.1,
+            'In-progress' = 2.1,
+            'Fulfilled' = 3.1,
+          }
+          const Color: { [key: number]: colorType } = {
+            1.1: 'red',
+            2.1: 'orange',
+            3.1: 'green',
+          };
+
+          return <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} />;
+        },
+        width: 100,
+        filter: 'excludes',
+        isSortable: false,
+      },
+      {
+        key: 'people.requested_by',
+        label: 'Requested by',
+        render: (data) => {
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <img
+                src={data.people?.created_by?.photo}
+                alt={``}
+                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+              />
+              <span style={{ fontSize: 14 }}>{data.people?.created_by?.name}</span>
+            </div>
+          );
+        },
+        isSortable: false,
+      },
+    ],
+    isPublishable: false,
+  },
 };
 
 export { collections };

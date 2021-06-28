@@ -39,6 +39,7 @@ import { SideNavHeading } from './components/Heading';
 import { SidenavHeader } from './components/SidenavHeader';
 import { useState } from 'react';
 import { css } from '@emotion/react';
+import { PhotoRequestsPage } from './pages/CMS/PhotoRequestsPage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -247,6 +248,9 @@ function App() {
                   <Switch>
                     <Route path={`/cms/articles/:progress`}>
                       <ArticlesPage />
+                    </Route>
+                    <Route path={`/cms/photos/requests`}>
+                      <PhotoRequestsPage />
                     </Route>
                     <Route path={`/cms/item/:collection/:item_id`}>
                       <ItemDetailsPage />
