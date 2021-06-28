@@ -7,6 +7,8 @@ import { forwardRef } from 'react';
 interface IMenuItemBase {
   color?: colorType;
   colorShade?: colorShade;
+  noEffect?: boolean;
+  height?: number;
 }
 
 interface IMenuItemComponent extends IMenuItemBase {
@@ -15,7 +17,7 @@ interface IMenuItemComponent extends IMenuItemBase {
 
 const MenuItemComponent = styled.li<IMenuItemComponent>`
   list-style: none;
-  height: 30px;
+  height: ${({ height }) => (height ? height : 30)}px;
   padding: 0 36px 0 16px;
   display: flex;
   align-items: center;
@@ -24,15 +26,17 @@ const MenuItemComponent = styled.li<IMenuItemComponent>`
   overflow: hidden;
   white-space: nowrap;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
-  ${({ theme, color, colorShade }) =>
-    buttonEffect(
-      color || 'primary',
-      colorShade || 700,
-      theme,
-      false,
-      { base: 'transparent' },
-      { base: '1px solid transparent' }
-    )};
+  ${({ theme, color, colorShade, noEffect }) =>
+    noEffect
+      ? ''
+      : buttonEffect(
+          color || 'primary',
+          colorShade || 700,
+          theme,
+          false,
+          { base: 'transparent' },
+          { base: '1px solid transparent' }
+        )};
 `;
 
 const IconStyleWrapper = styled.span`
@@ -65,6 +69,8 @@ const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIEle
       colorShade={props.colorShade}
       tabIndex={-1}
       ref={ref}
+      noEffect={props.noEffect}
+      height={props.height}
     >
       {props.noIcons ? null : <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>}
       <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>

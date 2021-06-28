@@ -14,6 +14,8 @@ interface IMenu {
     onClick?: () => void;
     color?: colorType;
     colorShade?: colorShade;
+    noEffect?: boolean;
+    height?: number;
   }>;
   noIcons?: boolean;
 }
@@ -30,6 +32,8 @@ const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>
             color={item.color}
             colorShade={item.colorShade}
             noIcons={props.noIcons}
+            noEffect={item.noEffect}
+            height={item.height}
           >
             {item.label}
           </MenuItem>
