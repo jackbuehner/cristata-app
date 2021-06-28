@@ -19,6 +19,7 @@ interface Icollections {
             label: string;
           }>;
           isDisabled?: boolean;
+          dataType?: string;
           async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
         }>;
         columns: Array<{
@@ -131,6 +132,7 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
+        dataType: 'number',
       },
       {
         key: 'people.editors.primary',
@@ -158,6 +160,7 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
+        dataType: 'number',
       },
       {
         key: 'people.editors.copy',
@@ -185,6 +188,7 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
+        dataType: 'number',
       },
       {
         key: 'body',
@@ -260,6 +264,7 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
+        dataType: 'number',
       },
       { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
       { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },

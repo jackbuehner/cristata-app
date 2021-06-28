@@ -55,7 +55,7 @@ function ItemDetailsPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   // save a flattened version of the data in state for modification
-  const [flatData, setFlatData] = useState<{ [key: string]: string | string[] | number }>({});
+  const [flatData, setFlatData] = useState<{ [key: string]: string | string[] | number | number[] }>({});
   useEffect(() => {
     if (data) {
       setFlatData(flattenObject(data));
@@ -88,9 +88,11 @@ function ItemDetailsPage() {
 
   /**
    * Sets the updated multiselect values in the data.
-   * Values may only be strings.
+   * Values may be strings or numbers (integers).
    */
-  const handleMultiselectChange = (value: string[], key: string) => {
+  const handleMultiselectChange = (value: string[] | number[], key: string, type: string) => {
+    if (type === 'number') value = value.map((val) => parseInt(`${val}`));
+    if (type === 'string') value = value.map((val) => val.toString());
     setFlatData({
       ...flatData,
       [key]: value,
@@ -336,7 +338,8 @@ function ItemDetailsPage() {
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
                           valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                          field.key
+                          field.key,
+                          field.dataType || 'string'
                         )
                       }
                       isDisabled={field.isDisabled}
@@ -359,7 +362,8 @@ function ItemDetailsPage() {
                       onChange={(valueObjs) => {
                         handleMultiselectChange(
                           valueObjs ? valueObjs.map((obj: { value: string; label: string }) => obj.value) : '',
-                          field.key
+                          field.key,
+                          field.dataType || 'string'
                         );
                       }}
                       isDisabled={field.isDisabled}
@@ -381,7 +385,8 @@ function ItemDetailsPage() {
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
                           valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                          field.key
+                          field.key,
+                          field.dataType || 'string'
                         )
                       }
                       isCreatable

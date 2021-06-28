@@ -5,10 +5,10 @@ import { collections as collectionsConfig } from '../../../../config';
 
 interface IFullBleedLayout {
   flatDataState: [
-    { [key: string]: string | string[] | number },
+    { [key: string]: string | string[] | number | number[] },
     React.Dispatch<
       React.SetStateAction<{
-        [key: string]: string | string[] | number;
+        [key: string]: string | string[] | number | number[];
       }>
     >
   ];
