@@ -144,7 +144,7 @@ function App() {
                     Plans
                   </SideNavMainButton>
                   <SideNavMainButton Icon={<Person32Regular />} to={`/profile`}>
-                    Profile
+                    Profiles
                   </SideNavMainButton>
                   <SideNavMainButton
                     Icon={<ChevronLeft24Regular />}
