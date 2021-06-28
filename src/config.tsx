@@ -364,7 +364,7 @@ const collections: Icollections = {
         label: 'Target date',
         render: (data) => {
           const date = DateTime.fromISO(data.timestamps?.target_publish_at).toFormat(`LLL. dd, yyyy`);
-          if (date === '31 December 0000') return <span></span>; // this is the default date
+          if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
 
           const isLate =
             DateTime.fromISO(data.timestamps?.target_publish_at) < DateTime.now() && data.stage < 5;
@@ -429,11 +429,9 @@ const collections: Icollections = {
         key: 'timestamps.modified_at',
         label: 'Last modified',
         render: (data) => {
-          return (
-            <div style={{ fontSize: 14 }}>
-              {DateTime.fromISO(data.timestamps?.modified_at).toFormat(`LLL. dd, yyyy`)}
-            </div>
-          );
+          const date = DateTime.fromISO(data.timestamps?.modified_at).toFormat(`LLL. dd, yyyy`);
+          if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
+          return <div style={{ fontSize: 14 }}>{date}</div>;
         },
         isSortable: false,
       },
