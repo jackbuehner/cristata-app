@@ -31,6 +31,7 @@ interface Icollections {
           isSortable?: false;
         }>;
         isPublishable?: boolean;
+        home: string;
       }
     | undefined;
 }
@@ -47,6 +48,7 @@ interface tiptapOptions {
 
 const collections: Icollections = {
   articles: {
+    home: '/cms/articles/in-progress',
     fields: [
       { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
       {
@@ -446,6 +448,7 @@ const collections: Icollections = {
     isPublishable: true,
   },
   photoRequests: {
+    home: '/cms/photos/requests',
     fields: [
       { key: 'name', label: 'Request', type: 'text', description: 'A description of the needed photo.' },
       {

@@ -135,7 +135,7 @@ function ItemDetailsPage() {
       .then(() => {
         setIsLoading(false);
         toast.success(`Item successfully hidden.`);
-        history.push(`/cms/${collection}/all`);
+        history.push(collectionsConfig[dashToCamelCase(collection)]?.home || '/');
       })
       .catch((err) => {
         setIsLoading(false);
