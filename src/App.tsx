@@ -23,6 +23,8 @@ import {
   Star24Regular,
   Chat24Regular,
   DocumentPageBottomRight24Regular,
+  Megaphone24Regular,
+  Balloon16Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -213,7 +215,7 @@ function App() {
                         Arts articles (in-progress)
                       </SideNavSubButton>
                       <SideNavSubButton
-                        Icon={<Sport24Regular />}
+                        Icon={<Balloon16Regular />}
                         to={`/cms/articles/in-progress?category=campus%20%26%20culture`}
                       >
                         Campus &amp; culture articles (in-progress)
