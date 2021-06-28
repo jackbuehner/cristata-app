@@ -265,10 +265,12 @@ function ItemDetailsPage() {
                         sessionId={sessionId}
                         onChange={(editorJson: string) => {
                           if (editorJson !== flatData[field.key]) {
-                            setFlatData({
-                              ...flatData,
-                              [field.key]: editorJson,
-                            });
+                            if (flatData.name) {
+                              setFlatData({
+                                ...flatData,
+                                [field.key]: editorJson,
+                              });
+                            }
                             setHasUnsavedChanges(true);
                           }
                         }}
