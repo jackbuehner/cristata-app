@@ -30,21 +30,27 @@ function ArticlesPage() {
 
   // base page title on route
   const pageTitle = useMemo(() => {
-    if (progress === 'in-progress') {
+    if (progress === 'in-progress' && category) {
+      return `In-progress ${category}${category === 'opinion' ? `s` : ` articles`}`;
+    } else if (progress === 'in-progress') {
       return 'In-progress articles';
     } else {
       return 'All articles';
     }
-  }, [progress]);
+  }, [progress, category]);
 
   // base page description on route
   const pageDescription = useMemo(() => {
-    if (progress === 'in-progress') {
-      return `A space to view the articles we are planning, drafting, and editing before they are published`;
+    if (progress === 'in-progress' && category) {
+      return `The ${category}${
+        category === 'opinion' ? `s` : ` articles`
+      } we are planning, drafting, and editing.`;
+    } else if (progress === 'in-progress') {
+      return `The articles we are planning, drafting, and editing.`;
     } else {
-      return `Every article that is in-progress or published on the web`;
+      return `Every article that is in-progress or published on the web.`;
     }
-  }, [progress]);
+  }, [progress, category]);
 
   // define the filters for the table
   const tableFilters = useMemo(() => {
