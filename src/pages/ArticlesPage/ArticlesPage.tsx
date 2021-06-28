@@ -62,7 +62,6 @@ function ArticlesPage() {
     if (category) {
       filters.push({ id: 'categories', value: category });
     }
-    console.log(filters);
     return filters;
   }, [progress, category]);
 
