@@ -477,8 +477,6 @@ const collections: Icollections = {
             });
           });
 
-          console.log(options);
-
           // filter the options based on `inputValue`
           const filteredOptions = options.filter((option) =>
             option.label.toLowerCase().includes(inputValue.toLowerCase())
