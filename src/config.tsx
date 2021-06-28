@@ -598,16 +598,19 @@ const collections: Icollections = {
         key: 'people.requested_by',
         label: 'Requested by',
         render: (data) => {
-          return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <img
-                src={data.people?.created_by?.photo}
-                alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
-              />
-              <span style={{ fontSize: 14 }}>{data.people?.created_by?.name}</span>
-            </div>
-          );
+          if (data.people?.requested_by) {
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <img
+                  src={data.people.requested_by.photo}
+                  alt={``}
+                  style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                />
+                <span style={{ fontSize: 14 }}>{data.people.requested_by.name}</span>
+              </div>
+            );
+          }
+          return <span></span>;
         },
         isSortable: false,
       },
