@@ -54,7 +54,7 @@ const Description = styled.span<{ theme?: themeType }>`
  * It appears underneath the title when there are children, and it appears at the top of the modal
  * when there are no children
  */
-const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType }>`
+const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType; progress?: number }>`
   --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
   position: absolute !important;
   left: 0;
@@ -65,7 +65,7 @@ interface IPageHead {
   title: string;
   description?: string;
   buttons?: React.ReactChild;
-  isLoading?: boolean;
+  isLoading?: boolean | number;
 }
 
 function PageHead(props: IPageHead) {
@@ -78,7 +78,12 @@ function PageHead(props: IPageHead) {
         <Description>{props.description}</Description>
       </TextWrapper>
       <ButtonWrapper>{props.buttons}</ButtonWrapper>
-      {props.isLoading ? <IndeterminateProgress theme={theme} /> : null}
+      {props.isLoading ? (
+        <IndeterminateProgress
+          theme={theme}
+          progress={typeof props.isLoading === 'number' ? props.isLoading : undefined}
+        />
+      ) : null}
     </Wrapper>
   );
 }
