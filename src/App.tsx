@@ -42,6 +42,7 @@ import { SidenavHeader } from './components/SidenavHeader';
 import { useState } from 'react';
 import { css } from '@emotion/react';
 import { PhotoRequestsPage } from './pages/CMS/PhotoRequestsPage';
+import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -256,6 +257,9 @@ function App() {
                     </Route>
                     <Route path={`/cms/photos/requests/:progress`}>
                       <PhotoRequestsPage />
+                    </Route>
+                    <Route path={`/cms/photos/library`}>
+                      <PhotoLibraryPage />
                     </Route>
                     <Route path={`/cms/item/:collection/:item_id`}>
                       <ItemDetailsPage />
