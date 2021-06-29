@@ -14,7 +14,7 @@ import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 
 function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
-  const [{ data, loading, error }, refetch] = useAxios(`/photos`);
+  const [{ data, loading }, refetch] = useAxios(`/photos`);
 
   // keep track of whether something is loading
   const [isLoading, setIsLoading] = useState<boolean>(loading);

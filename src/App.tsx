@@ -23,7 +23,6 @@ import {
   Star24Regular,
   Chat24Regular,
   DocumentPageBottomRight24Regular,
-  Megaphone24Regular,
   Balloon16Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
