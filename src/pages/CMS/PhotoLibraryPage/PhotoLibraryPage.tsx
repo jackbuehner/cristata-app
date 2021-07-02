@@ -28,8 +28,8 @@ function PhotoLibraryPage() {
   // keep track of the upload status
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   useEffect(() => {
-    if (uploadProgress !== (0 || 1)) setUploadStatus(`Uploading (${(uploadProgress * 100).toFixed(0)}%)...`);
-    else setUploadStatus(null);
+    if (uploadProgress > 0 && uploadProgress < 1)
+      setUploadStatus(`Uploading (${(uploadProgress * 100).toFixed(0)}%)...`);
   }, [uploadProgress]);
 
   /**
