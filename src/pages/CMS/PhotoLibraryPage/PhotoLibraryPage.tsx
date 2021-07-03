@@ -11,11 +11,15 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Button, IconButton } from '../../../components/Button';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import Color from 'color';
+import { useHistory, useParams } from 'react-router-dom';
 import { IPhoto } from '../../../interfaces/cristata/photos';
+import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 
 function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
   const [{ data, loading }, refetch] = useAxios<IPhoto[]>(`/photos`);
+  const history = useHistory();
 
   // keep track of whether something is loading
   const [isLoading, setIsLoading] = useState<boolean>(loading);
@@ -32,6 +36,9 @@ function PhotoLibraryPage() {
     if (uploadProgress > 0 && uploadProgress < 1)
       setUploadStatus(`Uploading (${(uploadProgress * 100).toFixed(0)}%)...`);
   }, [uploadProgress]);
+
+  // get the url parameters from the route
+  let { photo_id } = useParams<{ photo_id?: string }>();
 
   /**
    * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
@@ -186,64 +193,106 @@ function PhotoLibraryPage() {
           </>
         }
       />
-      <Wrapper theme={theme}>
-        <input
-          ref={uploadInputRef}
-          type={`file`}
-          accept={`.png, .jpg, .jpeg, .jpe, .jfif, .webp, .svg, .gif`}
-          onChange={async (e) => {
-            if (e.target.files) {
-              addNewFile(e.target.files[0]);
+      <WrapperWrapper theme={theme}>
+        <Wrapper theme={theme}>
+          <input
+            ref={uploadInputRef}
+            type={`file`}
+            accept={`.png, .jpg, .jpeg, .jpe, .jfif, .webp, .svg, .gif`}
+            onChange={async (e) => {
+              if (e.target.files) {
+                addNewFile(e.target.files[0]);
+              }
+            }}
+            style={{ display: 'none' }}
+          />
+          <Grid>
+            {
+              // show a grid of the photos
+              data?.map((photo: any, index: number) => {
+                return (
+                  <Card
+                    key={index}
+                    theme={theme}
+                    isSelected={photo_id === photo._id}
+                    onClick={() => {
+                      if (photo_id !== photo._id) history.push(`/cms/photos/library/${photo._id}`);
+                    }}
+                  >
+                    <ImageBG src={photo.photo_url} theme={theme} />
+                    <ImageLabel theme={theme}>{photo.name}</ImageLabel>
+                  </Card>
+                );
+              })
             }
-          }}
-          style={{ display: 'none' }}
-        />
-        <Grid>
-          {
-            // show a grid of the photos
-            data?.map((photo: any, index: number) => {
-              return (
-                <Card key={index} theme={theme}>
-                  <ImageBG src={photo.photo_url} />
-                  <ImageLabel theme={theme}>{photo.name}</ImageLabel>
-                </Card>
-              );
-            })
-          }
-        </Grid>
-      </Wrapper>
+          </Grid>
+        </Wrapper>
+        {photo_id ? (
+          <PhotoLibraryFlyout photo={data?.find((photo) => photo._id === photo_id)}></PhotoLibraryFlyout>
+        ) : null}
+      </WrapperWrapper>
     </>
   );
 }
 
+const WrapperWrapper = styled.div<{ theme?: themeType }>`
+  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  display: flex;
+`;
+
 const Wrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
   height: 100%;
-  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
   box-sizing: border-box;
   overflow: auto;
+  flex-grow: 1;
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-auto-rows: min-content;
   gap: 10px;
+  width: 100%;
 `;
 
-const Card = styled.div<{ theme: themeType }>`
+const Card = styled.div<{ theme: themeType; isSelected: boolean }>`
   width: 100%;
   height: 144px;
-  border: 1px solid;
+  box-shadow: ${({ theme, isSelected }) =>
+    `0 0 0 1px ${
+      isSelected ? theme.color.primary[800] : Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()
+    }`};
   border-radius: ${({ theme }) => theme.radius};
+  ${({ theme, isSelected }) => `
+    &:hover, &:focus, &:active {
+      background-color: ${Color(theme.color.primary[800]).alpha(0.2).string()};
+      box-shadow: 0 0 0 1px ${
+        isSelected ? theme.color.primary[800] : Color(theme.color.primary[800]).alpha(0.2).string()
+      }, 0 3.6px 7.2px 0 ${Color(theme.color.neutral[theme.mode][1500])
+    .alpha(0.13)
+    .string()}, 0 0.6px 1.8px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
+    }
+    &:hover:active {
+      background-color: ${Color(theme.color.primary[800]).alpha(0.25).string()};
+      box-shadow: 0 0 0 1px ${
+        isSelected ? theme.color.primary[800] : Color(theme.color.primary[800]).alpha(0.25).string()
+      } 0 1.8px 3.6px 0 ${Color(theme.color.neutral[theme.mode][1500])
+    .alpha(0.13)
+    .string()}, 0 0.3px 0.9px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
+    }
+  `};
+  transition: border-color 160ms, border-radius 160ms, background-color 160ms, box-shadow 160ms;
 `;
 
-const ImageBG = styled.div<{ src: string }>`
+const ImageBG = styled.div<{ src: string; theme: themeType }>`
   width: 100%;
   height: calc(100% - 34px);
   background-image: ${({ src }) => `url(${src})`};
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  border-radius: ${({ theme }) => `${theme.radius} ${theme.radius} 0 0`};
 `;
 
 const ImageLabel = styled.div<{ theme: themeType }>`
@@ -255,6 +304,7 @@ const ImageLabel = styled.div<{ theme: themeType }>`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  border-top: ${({ theme }) => `1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
 `;
 
 export { PhotoLibraryPage };

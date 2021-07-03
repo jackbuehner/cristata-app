@@ -257,7 +257,7 @@ function App() {
                     <Route path={`/cms/photos/requests/:progress`}>
                       <PhotoRequestsPage />
                     </Route>
-                    <Route path={`/cms/photos/library`}>
+                    <Route path={`/cms/photos/library/:photo_id?`}>
                       <PhotoLibraryPage />
                     </Route>
                     <Route path={`/cms/item/:collection/:item_id`}>
