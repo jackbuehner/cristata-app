@@ -70,7 +70,7 @@ const Wrapper = styled.div<{ theme: themeType }>`
   border-left: 1px solid;
   border-color: ${({ theme }) =>
     theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
-  padding: 20px;
+  padding: 20px 20px 0 20px;
   flex-shrink: 0;
   box-sizing: border-box;
   background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
@@ -86,7 +86,6 @@ const Wrapper = styled.div<{ theme: themeType }>`
   font-weight: 400;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   font-family: ${({ theme }) => theme.font.detail};
-  padding-bottom: 84px;
 `;
 
 const Header = styled.div<{ theme: themeType }>`
@@ -159,19 +158,20 @@ const SectionTitle = styled.h2<{ theme: themeType }>`
 `;
 
 const Footer = styled.div<{ theme: themeType }>`
-  position: absolute;
+  position: sticky;
   bottom: 0;
   background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
   border-top: 1px solid;
   border-color: ${({ theme }) =>
     theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
   width: calc(100% + 40px);
-  margin-left: -20px;
+  margin: 20px 0 0 -20px;
   padding: 16px 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
   gap: 6px;
+  justify-content: flex-end;
 `;
 
 export { PhotoLibraryFlyout };
