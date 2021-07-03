@@ -189,7 +189,9 @@ function PhotoLibraryPage() {
             <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
               Refresh
             </IconButton>
-            <Button onClick={upload}>Upload</Button>
+            <Button onClick={upload} disabled={!!isLoading || !!uploadStatus}>
+              Upload
+            </Button>
           </>
         }
       />
