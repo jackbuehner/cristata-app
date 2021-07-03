@@ -18,6 +18,7 @@ const DescriptionComponent = styled.div<{ theme: themeType; disabled?: boolean }
   font-weight: 400;
   margin: 0 0 4px 0;
   display: block;
+  white-space: pre-line;
   color: ${({ disabled, theme }) =>
     disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1200]};
 `;
@@ -36,9 +37,11 @@ function Label(props: ILabel) {
       <LabelComponent theme={theme} hasDescription={!!props.description} disabled={props.disabled}>
         {props.children}
       </LabelComponent>
-      <DescriptionComponent theme={theme} disabled={props.disabled}>
-        {props.description}
-      </DescriptionComponent>
+      <DescriptionComponent
+        theme={theme}
+        disabled={props.disabled}
+        dangerouslySetInnerHTML={props.description ? { __html: props.description } : { __html: '' }}
+      ></DescriptionComponent>
     </label>
   );
 }
