@@ -3,15 +3,17 @@ import { Person24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import useAxios from 'axios-hooks';
 import { IProfile } from '../../interfaces/cristata/profiles';
 import { Menu } from '../Menu';
 import { useDropdown } from '../../hooks/useDropdown';
+import { IGridCols } from '../../App';
 
-function SidenavHeader() {
+function SidenavHeader({ gridCols, homeOnly }: { gridCols: IGridCols; homeOnly?: boolean }) {
   const theme = useTheme() as themeType;
   const history = useHistory();
+  const location = useLocation();
 
   const [{ data: profile }] = useAxios<IProfile>(`/users/me`);
 
@@ -98,7 +100,12 @@ function SidenavHeader() {
   );
 
   return (
-    <Wrapper>
+    <Wrapper
+      theme={theme}
+      gridCols={gridCols}
+      isHidden={homeOnly ? location.pathname !== '/' : location.pathname === '/'}
+      isHome={homeOnly}
+    >
       <div>
         <AppName theme={theme}>Cristata</AppName>
         <Wordmark theme={theme}>THE PALADIN</Wordmark>
@@ -131,13 +138,24 @@ function SidenavHeader() {
   );
 }
 
-const Wrapper = styled.div`
-  display: flex;
+const Wrapper = styled.div<{ theme: themeType; gridCols: IGridCols; isHidden?: boolean; isHome?: boolean }>`
+  display: ${({ isHidden }) => (isHidden ? 'none' : 'flex')};
   flex-direction: row;
-  height: 40px;
+  height: ${({ gridCols, isHidden, isHome }) =>
+    isHome && !isHidden ? 40 : isHidden ? 0 : gridCols.sideSub > 0 ? 40 : 0}px;
+  transition: height 160ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
+  width: ${({ gridCols, isHidden, isHome }) =>
+    isHome ? 'auto' : isHidden || gridCols.sideSub === 0 ? 0 : 'auto'};
+  box-sizing: border-box;
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
+  border-right: ${({ isHidden, isHome }) => (isHome ? 0 : isHidden ? 0 : 1)}px solid;
+  border-bottom: ${({ isHidden }) => (isHidden ? 0 : 1)}px solid;
+  border-color: ${({ theme }) =>
+    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const AppName = styled.span<{ theme: themeType }>`
