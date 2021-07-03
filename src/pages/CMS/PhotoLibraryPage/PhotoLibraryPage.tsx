@@ -11,10 +11,11 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Button, IconButton } from '../../../components/Button';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import { IPhoto } from '../../../interfaces/cristata/photos';
 
 function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
-  const [{ data, loading }, refetch] = useAxios(`/photos`);
+  const [{ data, loading }, refetch] = useAxios<IPhoto[]>(`/photos`);
 
   // keep track of whether something is loading
   const [isLoading, setIsLoading] = useState<boolean>(loading);
