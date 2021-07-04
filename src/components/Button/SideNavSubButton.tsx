@@ -27,11 +27,12 @@ function SideNavSubButton(props: {
       width={`calc(100% - 12px)`}
       cssExtra={css`
         flex-direction: row;
-        font-weight: bold;
+        font-weight: 500;
+        color: ${isSameLocation && isSameSearch ? theme.color.primary[900] : ''};
         margin: 0 6px 2px 6px;
         justify-content: flex-start;
         background: ${isSameLocation && isSameSearch
-          ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
+          ? Color(theme.color.neutral[theme.mode][800]).alpha(0.12).string()
           : 'unset'};
       `}
       colorShade={600}
@@ -50,7 +51,9 @@ function SideNavSubButton(props: {
             svg {
               width: 24px;
               height: 24px;
-              fill: ${theme.color.neutral[theme.mode][1400]};
+              fill: ${isSameLocation && isSameSearch
+                ? theme.color.primary[900]
+                : theme.color.neutral[theme.mode][1400]};
             }
           `}
         >

@@ -29,17 +29,16 @@ function SideNavMainButton(props: {
       width={`79px`}
       cssExtra={css`
         flex-direction: column;
-        font-weight: bold;
+        font-weight: 500;
         border-bottom: 1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()};
         max-width: 79px;
-        background: ${isActive ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string() : 'unset'};
+        color: ${isActive ? theme.color.primary[900] : ''};
+        background: ${isActive ? Color(theme.color.neutral[theme.mode][800]).alpha(0.12).string() : 'unset'};
         @media (max-width: 600px) {
           height: 55px;
           width: unset;
           min-width: 70px;
           max-width: 168px;
-          font-weight: 500;
-          color: ${isActive ? theme.color.primary[800] : ''};
           border-bottom-color: transparent;
           background: none;
           flex-grow: 1;
@@ -68,7 +67,7 @@ function SideNavMainButton(props: {
             svg {
               width: 24px;
               height: 24px;
-              fill: ${isActive ? theme.color.primary[800] : theme.color.neutral[theme.mode][1400]};
+              fill: ${isActive ? theme.color.primary[900] : theme.color.neutral[theme.mode][1400]};
             }
           `}
         >
