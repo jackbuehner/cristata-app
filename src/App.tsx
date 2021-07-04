@@ -291,7 +291,7 @@ function App() {
                         <ProfilePage />
                       </Route>
                       <Route path={`/`}>
-                        <p>Home page</p>
+                        <p>Home page under construction. Choose a page in the navigation to get started.</p>
                       </Route>
                     </Switch>
                   </Content>
