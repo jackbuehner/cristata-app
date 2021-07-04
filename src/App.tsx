@@ -18,9 +18,10 @@ import {
   Chat24Regular,
   DocumentPageBottomRight24Regular,
   Balloon16Regular,
+  Dismiss16Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
@@ -38,6 +39,7 @@ import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
 import { themeType } from './utils/theme/theme';
 import { SidenavSub } from './components/SidenavSub';
 import { Sidenav } from './components/Sidenav/Sidenav';
+import Color from 'color';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -82,10 +84,62 @@ function App() {
   // store whether the nav is shown
   const [isNavVisibleM, setIsNavVisibleM] = useState(false);
 
+  const StyledToastContainer = styled(ToastContainer)<{ theme: themeType }>`
+    top: ${({ theme }) => `calc(${theme.dimensions.PageHead.height} + 6px)`};
+    .Toastify__toast {
+      border-radius: ${({ theme }) => theme.radius};
+      padding: 0;
+      background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+      color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
+      font-family: ${({ theme }) => theme.font.detail};
+      font-size: 15px;
+      &::before {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+      }
+    }
+    .Toastify__toast--error {
+      &::before {
+        content: '❌';
+        border-left: ${({ theme }) => `3px solid ${theme.color.danger[800]}`};
+      }
+    }
+    .Toastify__toast--warning {
+      &::before {
+        content: '❗';
+        border-left: ${({ theme }) => `3px solid ${theme.color.orange[800]}`};
+      }
+    }
+    .Toastify__toast--success {
+      &::before {
+        content: '✅';
+        border-left: ${({ theme }) => `3px solid ${theme.color.success[800]}`};
+      }
+    }
+    .Toastify__toast-body {
+      width: 100%;
+      padding-left: 0;
+    }
+    .Toastify__progress-bar {
+      background-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][800]).alpha(0.25).string()};
+      height: 3px;
+    }
+  `;
+
   return (
     <>
       <CristataWebSocket>
-        <ToastContainer />
+        <StyledToastContainer
+          theme={theme}
+          closeButton={
+            <span style={{ margin: '8px 8px 0 0' }}>
+              <Dismiss16Regular />
+            </span>
+          }
+        />
         <Router>
           <SplashScreen loading={loadingUser} error={errorUser} user={user} />
           <Switch>
