@@ -13,6 +13,7 @@ import { useLocation } from 'react-router-dom';
 import { IGridCols } from '../../App';
 import { themeType } from '../../utils/theme/theme';
 import { SideNavMainButton } from '../Button';
+import { features as featuresConfig } from '../../config';
 
 interface ISidenav {
   gridCols: IGridCols;
@@ -30,22 +31,30 @@ function Sidenav(props: ISidenav) {
       <SideNavMainButton Icon={<Home32Regular />} to={`/`} setIsNavVisibleM={setIsNavVisibleM}>
         Home
       </SideNavMainButton>
-      <SideNavMainButton
-        Icon={<ContentView32Regular />}
-        to={`/cms/articles/in-progress`}
-        setIsNavVisibleM={setIsNavVisibleM}
-      >
-        CMS
-      </SideNavMainButton>
-      <SideNavMainButton Icon={<Send28Regular />} to={`/chat`} setIsNavVisibleM={setIsNavVisibleM}>
-        Messages
-      </SideNavMainButton>
-      <SideNavMainButton Icon={<Board28Regular />} to={`/plans`} setIsNavVisibleM={setIsNavVisibleM}>
-        Plans
-      </SideNavMainButton>
-      <SideNavMainButton Icon={<Person32Regular />} to={`/profile`} setIsNavVisibleM={setIsNavVisibleM}>
-        Profiles
-      </SideNavMainButton>
+      {featuresConfig['cms'] ? (
+        <SideNavMainButton
+          Icon={<ContentView32Regular />}
+          to={`/cms/articles/in-progress`}
+          setIsNavVisibleM={setIsNavVisibleM}
+        >
+          CMS
+        </SideNavMainButton>
+      ) : null}
+      {featuresConfig['messages'] ? (
+        <SideNavMainButton Icon={<Send28Regular />} to={`/chat`} setIsNavVisibleM={setIsNavVisibleM}>
+          Messages
+        </SideNavMainButton>
+      ) : null}
+      {featuresConfig['plans'] ? (
+        <SideNavMainButton Icon={<Board28Regular />} to={`/plans`} setIsNavVisibleM={setIsNavVisibleM}>
+          Plans
+        </SideNavMainButton>
+      ) : null}
+      {featuresConfig['profiles'] ? (
+        <SideNavMainButton Icon={<Person32Regular />} to={`/profile`} setIsNavVisibleM={setIsNavVisibleM}>
+          Profiles
+        </SideNavMainButton>
+      ) : null}
       <SideNavMainButton
         Icon={<ChevronLeft24Regular />}
         onClick={() => props.toggleSideNavSub()}

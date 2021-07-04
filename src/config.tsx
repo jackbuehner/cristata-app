@@ -643,5 +643,16 @@ const collections: Icollections = {
   },
 };
 
-export { collections };
+interface Ifeatures {
+  [key: string]: boolean;
+}
+
+const features: Ifeatures = {
+  cms: true,
+  messages: false,
+  plans: true,
+  profiles: true,
+};
+
+export { collections, features };
 export type { tiptapOptions };
