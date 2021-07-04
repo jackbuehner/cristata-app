@@ -79,6 +79,9 @@ function App() {
     }
   };
 
+  // store whether the nav is shown
+  const [isNavVisibleM, setIsNavVisibleM] = useState(false);
+
   return (
     <>
       <CristataWebSocket>
@@ -102,58 +105,73 @@ function App() {
             />
             <Route>
               <PageWrapper>
-                <SidenavHeader gridCols={gridCols} homeOnly />
+                <SidenavHeader gridCols={gridCols} homeOnly isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]} />
                 <Wrapper>
-                  <SideNavWrapper gridCols={gridCols}>
-                    <SidenavHeader gridCols={gridCols} />
+                  <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
+                    <SidenavHeader gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]} />
                     <SideNavs>
-                      <Sidenav gridCols={gridCols} toggleSideNavSub={toggleSideNavSub} />
-                      <SidenavSub gridCols={gridCols}>
+                      <Sidenav
+                        gridCols={gridCols}
+                        toggleSideNavSub={toggleSideNavSub}
+                        isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
+                      />
+                      <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
                         <Switch>
                           <Route path={`/cms`}>
                             <SideNavHeading>Articles</SideNavHeading>
                             <SideNavSubButton
                               Icon={<DocumentPageBottomRight24Regular />}
                               to={`/cms/articles/in-progress`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               In-progress articles
                             </SideNavSubButton>
-                            <SideNavSubButton Icon={<DocumentOnePage24Regular />} to={`/cms/articles/all`}>
+                            <SideNavSubButton
+                              Icon={<DocumentOnePage24Regular />}
+                              to={`/cms/articles/all`}
+                              setIsNavVisibleM={setIsNavVisibleM}
+                            >
                               All articles
                             </SideNavSubButton>
                             <SideNavSubButton
                               Icon={<News24Regular />}
                               to={`/cms/articles/in-progress?category=news`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               News articles (in-progress)
                             </SideNavSubButton>
                             <SideNavSubButton
                               Icon={<Chat24Regular />}
                               to={`/cms/articles/in-progress?category=opinion`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               Opinions (in-progress)
                             </SideNavSubButton>
                             <SideNavSubButton
                               Icon={<Sport24Regular />}
                               to={`/cms/articles/in-progress?category=sports`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               Sports articles (in-progress)
                             </SideNavSubButton>
                             <SideNavSubButton
                               Icon={<Star24Regular />}
                               to={`/cms/articles/in-progress?category=diversity%20matters`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               Diversity matters articles (in-progress)
                             </SideNavSubButton>
                             <SideNavSubButton
                               Icon={<PaintBrush24Regular />}
                               to={`/cms/articles/in-progress?category=arts`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               Arts articles (in-progress)
                             </SideNavSubButton>
                             <SideNavSubButton
                               Icon={<Balloon16Regular />}
                               to={`/cms/articles/in-progress?category=campus%20%26%20culture`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               Campus &amp; culture articles (in-progress)
                             </SideNavSubButton>
@@ -162,24 +180,33 @@ function App() {
                             <SideNavSubButton
                               Icon={<ImageSearch24Regular />}
                               to={`/cms/photos/requests/unfulfilled`}
+                              setIsNavVisibleM={setIsNavVisibleM}
                             >
                               Unfulfilled photo requests
                             </SideNavSubButton>
-                            <SideNavSubButton Icon={<ImageSearch24Regular />} to={`/cms/photos/requests/all`}>
+                            <SideNavSubButton
+                              Icon={<ImageSearch24Regular />}
+                              to={`/cms/photos/requests/all`}
+                              setIsNavVisibleM={setIsNavVisibleM}
+                            >
                               All photo requests
                             </SideNavSubButton>
-                            <SideNavSubButton Icon={<Image24Regular />} to={`/cms/photos/library`}>
+                            <SideNavSubButton
+                              Icon={<Image24Regular />}
+                              to={`/cms/photos/library`}
+                              setIsNavVisibleM={setIsNavVisibleM}
+                            >
                               Photo library
                             </SideNavSubButton>
                           </Route>
                           <Route path={`/plans`}>
-                            <PlansSideNavSub />
+                            <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
                           <Route path={`/chat`}>
-                            <ChatSideNavSub />
+                            <ChatSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
                           <Route path={`/profile`}>
-                            <ProfileSideNavSub />
+                            <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
                         </Switch>
                       </SidenavSub>
@@ -235,21 +262,33 @@ const PageWrapper = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+  @media (max-width: 600px) {
+    display: block;
+  }
   width: 100%;
   height: 100%;
 `;
 
-const SideNavWrapper = styled.div<{ gridCols: IGridCols }>`
+const SideNavWrapper = styled.div<{ gridCols: IGridCols; isNavVisibleM: boolean }>`
   display: flex;
   flex-direction: column;
   width: fit-content;
   transition: width 160ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
   height: 100%;
+  @media (max-width: 600px) {
+    width: 100%;
+    height: ${({ isNavVisibleM }) => (isNavVisibleM ? '100%' : 'fit-content')};
+    position: ${({ isNavVisibleM }) => (isNavVisibleM ? 'initial' : 'fixed')};
+    bottom: ${({ isNavVisibleM }) => (isNavVisibleM ? 'unset' : 0)};
+  }
 `;
 
 const SideNavs = styled.div`
   display: flex;
   flex-direction: row;
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+  }
   height: 100%;
 `;
 

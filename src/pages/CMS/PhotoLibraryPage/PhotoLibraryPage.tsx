@@ -239,6 +239,10 @@ function PhotoLibraryPage() {
 
 const WrapperWrapper = styled.div<{ theme?: themeType }>`
   height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  @media (max-width: 600px) {
+    height: ${({ theme }) =>
+      `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
+  }
   display: flex;
 `;
 

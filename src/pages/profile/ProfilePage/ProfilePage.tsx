@@ -150,7 +150,7 @@ function ProfilePage() {
         }
       />
       {loading ? null : data ? (
-        <ContentWrapper>
+        <ContentWrapper theme={theme}>
           <TopBox>
             <Photo
               src={data.photo || 'https://avatars.githubusercontent.com/u/69555023'}
@@ -220,9 +220,13 @@ function ProfilePage() {
   );
 }
 
-const ContentWrapper = styled.div`
+const ContentWrapper = styled.div<{ theme: themeType }>`
   padding: 20px;
-  height: calc(100% - 64px);
+  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  @media (max-width: 600px) {
+    height: ${({ theme }) =>
+      `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
+  }
   box-sizing: border-box;
   overflow: auto;
 `;

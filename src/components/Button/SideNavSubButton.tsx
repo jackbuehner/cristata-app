@@ -1,12 +1,17 @@
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import Color from 'color';
-import { ReactText } from 'react';
+import { Dispatch, ReactText, SetStateAction } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '.';
 import { themeType } from '../../utils/theme/theme';
 
-function SideNavSubButton(props: { children: ReactText; Icon: JSX.Element; to?: string }) {
+function SideNavSubButton(props: {
+  children: ReactText;
+  Icon: JSX.Element;
+  to?: string;
+  setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
+}) {
   const history = useHistory();
   const location = useLocation();
   const theme = useTheme() as themeType;
@@ -32,7 +37,10 @@ function SideNavSubButton(props: { children: ReactText; Icon: JSX.Element; to?: 
       colorShade={600}
       backgroundColor={{ base: 'white' }}
       border={{ base: '1px solid transparent' }}
-      onClick={() => (props.to ? history.push(props.to) : null)}
+      onClick={() => {
+        if (props.to) history.push(props.to);
+        if (props.setIsNavVisibleM) props.setIsNavVisibleM(false);
+      }}
       customIcon={
         <span
           css={css`

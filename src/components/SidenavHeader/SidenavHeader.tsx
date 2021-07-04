@@ -9,11 +9,21 @@ import { IProfile } from '../../interfaces/cristata/profiles';
 import { Menu } from '../Menu';
 import { useDropdown } from '../../hooks/useDropdown';
 import { IGridCols } from '../../App';
+import { Dispatch, SetStateAction } from 'react';
 
-function SidenavHeader({ gridCols, homeOnly }: { gridCols: IGridCols; homeOnly?: boolean }) {
+function SidenavHeader({
+  gridCols,
+  homeOnly,
+  ...props
+}: {
+  gridCols: IGridCols;
+  homeOnly?: boolean;
+  isNavVisibleM: [boolean, Dispatch<SetStateAction<boolean>>];
+}) {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const location = useLocation();
+  const [isNavVisible, setIsNavVisible] = props.isNavVisibleM;
 
   const [{ data: profile }] = useAxios<IProfile>(`/users/me`);
 
@@ -69,7 +79,10 @@ function SidenavHeader({ gridCols, homeOnly }: { gridCols: IGridCols; homeOnly?:
                         font-weight: 400;
                         background-color: transparent;
                       `}
-                      onClick={() => history.push(`/profile/${profile?._id}`)}
+                      onClick={() => {
+                        history.push(`/profile/${profile?._id}`);
+                        setIsNavVisible(false);
+                      }}
                     >
                       View profile
                     </Button>
@@ -105,6 +118,7 @@ function SidenavHeader({ gridCols, homeOnly }: { gridCols: IGridCols; homeOnly?:
       gridCols={gridCols}
       isHidden={homeOnly ? location.pathname !== '/' : location.pathname === '/'}
       isHome={homeOnly}
+      isNavVisible={isNavVisible}
     >
       <div>
         <AppName theme={theme}>Cristata</AppName>
@@ -138,7 +152,13 @@ function SidenavHeader({ gridCols, homeOnly }: { gridCols: IGridCols; homeOnly?:
   );
 }
 
-const Wrapper = styled.div<{ theme: themeType; gridCols: IGridCols; isHidden?: boolean; isHome?: boolean }>`
+const Wrapper = styled.div<{
+  theme: themeType;
+  gridCols: IGridCols;
+  isHidden?: boolean;
+  isHome?: boolean;
+  isNavVisible: boolean;
+}>`
   display: ${({ isHidden }) => (isHidden ? 'none' : 'flex')};
   flex-direction: row;
   height: ${({ gridCols, isHidden, isHome }) =>
@@ -156,6 +176,10 @@ const Wrapper = styled.div<{ theme: themeType; gridCols: IGridCols; isHidden?: b
     theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
   white-space: nowrap;
   overflow: hidden;
+  @media (max-width: 600px) {
+    display: ${({ isHidden, isHome, isNavVisible }) =>
+      isHome ? 'flex' : isHidden || !isNavVisible ? 'none' : 'flex'};
+  }
 `;
 
 const AppName = styled.span<{ theme: themeType }>`

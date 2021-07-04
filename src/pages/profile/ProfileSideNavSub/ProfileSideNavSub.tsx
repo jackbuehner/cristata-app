@@ -10,9 +10,13 @@ import { SideNavHeading } from '../../../components/Heading';
 import { Call24Regular, Chat24Regular, Mail24Regular, MoreHorizontal20Regular } from '@fluentui/react-icons';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { Menu } from '../../../components/Menu';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 
-function ProfileSideNavSub() {
+interface IProfileSideNavSub {
+  setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
+}
+
+function ProfileSideNavSub(props: IProfileSideNavSub) {
   const history = useHistory();
   const location = useLocation();
   const theme = useTheme() as themeType;
@@ -127,7 +131,10 @@ function ProfileSideNavSub() {
                 colorShade={600}
                 backgroundColor={{ base: 'white' }}
                 border={{ base: '1px solid transparent' }}
-                onClick={() => history.push(`/profile/${profile._id}`)}
+                onClick={() => {
+                  history.push(`/profile/${profile._id}`);
+                  if (props.setIsNavVisibleM) props.setIsNavVisibleM(false);
+                }}
                 customIcon={
                   <img
                     src={profile.photo || 'https://avatars.githubusercontent.com/u/69555023'}

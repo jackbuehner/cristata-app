@@ -7,8 +7,13 @@ import { IGetTeams } from '../../../interfaces/github/teams';
 import { useHistory } from 'react-router';
 import { SideNavHeading } from '../../../components/Heading';
 import { useLocation } from 'react-router-dom';
+import { Dispatch, SetStateAction } from 'react';
 
-function ChatSideNavSub() {
+interface IChatSideNavSub {
+  setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
+}
+
+function ChatSideNavSub(props: IChatSideNavSub) {
   const history = useHistory();
   const location = useLocation();
   const [{ data, loading, error }] = useAxios<IGetTeams>('/gh/teams');
@@ -43,6 +48,7 @@ function ChatSideNavSub() {
                   </span>
                 }
                 to={`/chat/${team.slug}`}
+                setIsNavVisibleM={props.setIsNavVisibleM}
               >
                 general
               </SideNavSubButton>
@@ -62,6 +68,7 @@ function ChatSideNavSub() {
                       </span>
                     }
                     to={`/chat/${childTeam.slug}`}
+                    setIsNavVisibleM={props.setIsNavVisibleM}
                   >
                     {childTeam.slug}
                   </SideNavSubButton>

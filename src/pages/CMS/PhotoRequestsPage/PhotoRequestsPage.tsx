@@ -75,8 +75,11 @@ function PhotoRequestsPage() {
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
-  height: 100%;
   height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  @media (max-width: 600px) {
+    height: ${({ theme }) =>
+      `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
+  }
   box-sizing: border-box;
 `;
 

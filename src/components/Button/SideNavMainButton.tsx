@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css, SerializedStyles, useTheme } from '@emotion/react';
 import Color from 'color';
-import { ReactText } from 'react';
+import { Dispatch, ReactText, SetStateAction } from 'react';
 import { useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { Button } from '.';
@@ -13,10 +13,15 @@ function SideNavMainButton(props: {
   to?: string;
   onClick?: () => void;
   cssExtra?: SerializedStyles;
+  setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
 }) {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const location = useLocation();
+
+  const isActive =
+    (props.to && location.pathname.indexOf(props.to) !== -1 && props.to !== '/') ||
+    (location.pathname === '/' && props.to === '/');
 
   return (
     <Button
@@ -27,9 +32,19 @@ function SideNavMainButton(props: {
         font-weight: bold;
         border-bottom: 1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()};
         max-width: 79px;
-        background: ${props.to && location.pathname.indexOf(props.to) !== -1 && props.to !== '/'
-          ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
-          : 'unset'};
+        background: ${isActive ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string() : 'unset'};
+        @media (max-width: 600px) {
+          height: 55px;
+          width: unset;
+          min-width: 70px;
+          max-width: 168px;
+          font-weight: 500;
+          color: ${isActive ? theme.color.primary[800] : ''};
+          border-bottom-color: transparent;
+          background: none;
+          flex-grow: 1;
+          flex-basis: 0;
+        }
         ${props.cssExtra}
       `}
       colorShade={600}
@@ -43,6 +58,9 @@ function SideNavMainButton(props: {
         if (props.to) {
           history.push(props.to);
         }
+        if (props.setIsNavVisibleM) {
+          props.setIsNavVisibleM(true);
+        }
       }}
       customIcon={
         <span
@@ -50,7 +68,7 @@ function SideNavMainButton(props: {
             svg {
               width: 24px;
               height: 24px;
-              fill: ${theme.color.neutral[theme.mode][1400]};
+              fill: ${isActive ? theme.color.primary[800] : theme.color.neutral[theme.mode][1400]};
             }
           `}
         >

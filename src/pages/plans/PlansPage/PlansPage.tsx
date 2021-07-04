@@ -26,6 +26,10 @@ import { InputGroup } from '../../../components/InputGroup';
 const PageWrapper = styled.div<{ theme?: themeType }>`
   padding: 0;
   height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  @media (max-width: 600px) {
+    height: ${({ theme }) =>
+      `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
+  }
   box-sizing: border-box;
 `;
 
@@ -52,9 +56,8 @@ function PlansPage() {
   let { id } = useParams<{ id: string }>();
 
   // keep track of data freshness
-  const { data: dataFreshness, set: setDataFreshness } = useContext<IGitHubDataFreshnessContext>(
-    GitHubDataFreshnessContext
-  );
+  const { data: dataFreshness, set: setDataFreshness } =
+    useContext<IGitHubDataFreshnessContext>(GitHubDataFreshnessContext);
 
   // get the data
   const [{ data, loading }, refetch] = useAxios<FullAPIProject>(`/gh/projects/full/${id}`);
@@ -264,21 +267,17 @@ function PlansPage() {
             withCredentials: true,
           }
         )
-        .then(
-          async (): Promise<true> => {
-            if (refetch) await refetch(); // refetch the project so that it includes the new column
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to add column. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (refetch) await refetch(); // refetch the project so that it includes the new column
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to add column. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (
@@ -350,21 +349,17 @@ function PlansPage() {
             withCredentials: true,
           }
         )
-        .then(
-          async (): Promise<true> => {
-            if (refetch) await refetch(); // refetch the project so that it includes the new name and description
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to update project settings. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (refetch) await refetch(); // refetch the project so that it includes the new name and description
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to update project settings. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (

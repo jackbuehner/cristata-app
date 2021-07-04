@@ -110,6 +110,10 @@ const theme = {
     titlebar: {
       height: '0px',
     },
+    bottomNav: {
+      height: '56px',
+      width: '100%',
+    },
   },
 };
 
