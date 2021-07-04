@@ -28,7 +28,7 @@ function Sidenav(props: ISidenav) {
 
   return (
     <SidenavComponent theme={theme} gridCols={props.gridCols}>
-      <SideNavMainButton Icon={<Home32Regular />} to={`/`} setIsNavVisibleM={setIsNavVisibleM}>
+      <SideNavMainButton Icon={<Home32Regular />} to={`/`} onClick={() => setIsNavVisibleM(false)}>
         Home
       </SideNavMainButton>
       {featuresConfig['cms'] ? (
