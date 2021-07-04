@@ -21,7 +21,7 @@ import {
   Dismiss16Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
