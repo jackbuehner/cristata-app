@@ -50,19 +50,21 @@ const Toolbar = styled.div`
   width: 100%;
 `;
 
-const ToolbarTabRow = styled.div<{ theme: themeType }>`
+const ToolbarTabRow = styled.div<{ theme: themeType; width: number }>`
   background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
   display: flex;
   justify-content: flex-start;
   white-space: nowrap;
-  height: 36px;
+  height: ${({ width }) => (width < 450 ? 72 : 36)}px;
+  flex-direction: ${({ width }) => (width < 450 ? 'column-reverse' : 'row')};
   position: relative;
 `;
 
-const ToolbarTabList = styled.div`
+const ToolbarTabList = styled.div<{ width: number }>`
   position: relative;
   display: flex;
   flex-wrap: nowrap;
+  overflow-x: ${({ width }) => (width < 350 ? 'auto' : 'hidden')};
 `;
 
 const ToolbarMeta = styled.div`
@@ -250,6 +252,7 @@ interface IMenuBar {
   layout: 'standard' | 'full';
   setLayout: React.Dispatch<React.SetStateAction<'standard' | 'full'>>;
   awarenessProfiles?: { name: string; color: string; sessionId: string }[];
+  tiptapWidth: number;
 }
 
 function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
@@ -435,9 +438,9 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
   return (
     <>
       <Toolbar>
-        <ToolbarTabRow theme={theme}>
+        <ToolbarTabRow theme={theme} width={props.tiptapWidth}>
           {props.isDisabled ? null : (
-            <ToolbarTabList>
+            <ToolbarTabList width={props.tiptapWidth}>
               <ToolbarTabButton
                 theme={theme}
                 color={'neutral'}
@@ -867,6 +870,7 @@ const Tiptap = (props: ITiptap) => {
         layout={layout}
         setLayout={setLayout}
         awarenessProfiles={awarenessProfiles}
+        tiptapWidth={tiptapWidth}
       />
       <div
         css={css`
