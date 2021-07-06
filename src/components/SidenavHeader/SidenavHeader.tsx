@@ -176,6 +176,7 @@ const Wrapper = styled.div<{
     theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
   white-space: nowrap;
   overflow: hidden;
+  flex-shrink: 0;
   @media (max-width: 600px) {
     display: ${({ isHidden, isHome, isNavVisible }) =>
       isHome ? 'flex' : isHidden || !isNavVisible ? 'none' : 'flex'};
