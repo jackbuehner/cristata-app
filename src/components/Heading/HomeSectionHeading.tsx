@@ -21,8 +21,9 @@ function HomeSectionHeading(props: IHomeSectionHeading) {
 export { HomeSectionHeading };
 
 const HomeSectionHeadingComponent = styled.h2<{ theme: themeType }>`
-  font-family: ${({ theme }) => theme.font.headline};
+  font-family: ${({ theme }) => theme.font.detail};
   font-size: 18px;
+  font-weight: 600;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   margin: 0;
   display: flex;
