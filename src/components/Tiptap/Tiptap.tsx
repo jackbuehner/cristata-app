@@ -923,6 +923,7 @@ const Tiptap = (props: ITiptap) => {
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
                   photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
                   authors={authors}
+                  target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
                 />
               ) : layout === 'full' ? (
                 <FullBleedLayout
@@ -943,6 +944,7 @@ const Tiptap = (props: ITiptap) => {
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
                   photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
                   authors={authors}
+                  target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
                 />
               ) : null}
             </>

@@ -3,6 +3,7 @@ import { tiptapOptions } from '../../../../config';
 import { IconButton } from '../../../Button';
 import { collections as collectionsConfig } from '../../../../config';
 import { IProfile } from '../../../../interfaces/cristata/profiles';
+import { DateTime } from 'luxon';
 
 interface IStandardLayout {
   flatDataState: [
@@ -25,6 +26,7 @@ interface IStandardLayout {
   };
   photoUrl: string;
   authors?: IProfile[];
+  target_publish_at: string;
 }
 
 /**
@@ -136,7 +138,7 @@ function StandardLayout(props: IStandardLayout) {
             </>
           ) : null}
         </Authors>
-        <PublishDate>April 22, 2021</PublishDate>
+        <PublishDate>{DateTime.fromISO(props.target_publish_at).toFormat(`LLLL dd, yyyy`)}</PublishDate>
         <SocialButtons>
           <SocialButton icon={<FacebookIcon />} />
           <SocialButton icon={<TwitterIcon />} />

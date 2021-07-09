@@ -46,6 +46,7 @@ interface tiptapOptions {
     caption: string;
     photo_url: string;
     authors: string;
+    target_publish_at: string;
   };
 }
 
@@ -228,6 +229,7 @@ const collections: Icollections = {
             caption: 'photo_caption',
             photo_url: 'photo_path',
             authors: 'people.authors',
+            target_publish_at: 'timestamps.target_publish_at',
           },
         },
       },
