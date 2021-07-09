@@ -331,7 +331,7 @@ const SideNavWrapper = styled.div<{ gridCols: IGridCols; isNavVisibleM: boolean 
   transition: width 160ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
   height: 100%;
   //box-shadow: rgb(0 0 0 / 5%) 1px 0px 2px 0px, rgb(0 0 0 / 5%) 4px 0px 8px -2px;
-  //z-index: 1;
+  z-index: 999;
   @media (max-width: 600px) {
     width: 100%;
     height: ${({ isNavVisibleM }) => (isNavVisibleM ? '100%' : 'fit-content')};
