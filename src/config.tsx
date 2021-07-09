@@ -1,5 +1,6 @@
 import { IProfile } from './interfaces/cristata/profiles';
 import { IGetTeams } from './interfaces/github/teams';
+import { IPhoto } from './interfaces/cristata/photos';
 import { db } from './utils/axios/db';
 import { Chip } from './components/Chip';
 import { colorType } from './utils/theme/theme';
@@ -43,6 +44,7 @@ interface tiptapOptions {
     description: string;
     categories: string;
     caption: string;
+    photo_url: string;
   };
 }
 
@@ -97,10 +99,29 @@ const collections: Icollections = {
       {
         key: 'photo_path',
         label: 'Photo',
-        type: 'text',
-        description:
-          'The photo that appears at the top of every article and in most article cards. NOT IMPLIMENTED.',
-        isDisabled: true,
+        type: 'select_async',
+        description: 'The photo that appears at the top of every article and in most article cards.',
+        async_options: async (inputValue: string) => {
+          // get all photos
+          const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
+
+          // with the data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          photos.forEach((photo) => {
+            options.push({
+              value: photo.photo_url,
+              label: photo.name || photo._id,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
       },
       {
         key: 'photo_caption',
@@ -204,6 +225,7 @@ const collections: Icollections = {
             description: 'description',
             categories: 'categories',
             caption: 'photo_caption',
+            photo_url: 'photo_path',
           },
         },
       },

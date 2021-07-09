@@ -22,6 +22,7 @@ interface IFullBleedLayout {
     width: number;
     height: number;
   };
+  photoUrl: string;
 }
 
 /**
@@ -74,7 +75,7 @@ function FullBleedLayout(props: IFullBleedLayout) {
 
   return (
     <Container tiptapWidth={props.tiptapSize.width}>
-      <PhotoContainer tiptapWidth={props.tiptapSize.width}>
+      <PhotoContainer tiptapWidth={props.tiptapSize.width} photoUrl={props.photoUrl}>
         <div>
           <Categories>
             {props.categories.map((cat, index) => (
@@ -185,7 +186,7 @@ const Category = styled.span`
   }
 `;
 
-const PhotoContainer = styled.div<{ tiptapWidth: number }>`
+const PhotoContainer = styled.div<{ tiptapWidth: number; photoUrl?: string }>`
   width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `calc(100% + 40px)` : `calc(100% + 176px)`)};
   height: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `80vh` : `500px`)};
   position: relative;
@@ -195,7 +196,12 @@ const PhotoContainer = styled.div<{ tiptapWidth: number }>`
   margin-bottom: 4px;
   left: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `-20px` : `-88px`)};
   background-color: #1b499b;
-  background-image: 'https://uploads-ssl.webflow.com/5f37fcdc1b6edd6760ad912f/60817ebfaf5a0475f56c5461_pres.jpeg';
+  background-image: ${({ photoUrl }) =>
+    photoUrl
+      ? `url('${photoUrl}')`
+      : `url('https://uploads-ssl.webflow.com/5f37fcdc1b6edd6760ad912f/60817ebfaf5a0475f56c5461_pres.jpeg')`};
+  background-size: cover;
+  background-position: center;
   padding: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `0 20px 0` : `0 88px 0`)};
   box-sizing: border-box;
   display: flex;

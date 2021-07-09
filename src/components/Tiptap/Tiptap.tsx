@@ -905,6 +905,7 @@ const Tiptap = (props: ITiptap) => {
                   caption={props.flatData[props.options.keys_article.caption] as string}
                   isDisabled={props.isDisabled}
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                  photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
                 />
               ) : layout === 'full' ? (
                 <FullBleedLayout
@@ -923,6 +924,7 @@ const Tiptap = (props: ITiptap) => {
                   caption={props.flatData[props.options.keys_article.caption] as string}
                   isDisabled={props.isDisabled}
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                  photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
                 />
               ) : null}
             </>

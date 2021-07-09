@@ -22,6 +22,7 @@ interface IStandardLayout {
     width: number;
     height: number;
   };
+  photoUrl: string;
 }
 
 /**
@@ -86,10 +87,7 @@ function StandardLayout(props: IStandardLayout) {
         {props.description}
       </Description>
       <PhotoContainer tiptapWidth={props.tiptapSize.width}>
-        <Photo
-          draggable='false'
-          src='https://uploads-ssl.webflow.com/5f37fcdc1b6edd6760ad912f/60817ebfaf5a0475f56c5461_pres.jpeg'
-        />
+        <Photo draggable={'false'} src={props.photoUrl} />
       </PhotoContainer>
       <Caption {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'caption')}>
         {props.caption}
