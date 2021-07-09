@@ -2,7 +2,7 @@
 import Color from 'color';
 import React from 'react';
 import { themeType } from '../../utils/theme/theme';
-import { Chart, CategoryScale, LinearScale, LineController, PointElement, LineElement } from 'chart.js';
+import { Chart, CategoryScale, LinearScale, LineController, PointElement, LineElement, Filler } from 'chart.js';
 import { css } from '@emotion/react';
 import { Button } from '../../components/Button';
 import { HomeSectionHeading } from '../../components/Heading';
@@ -22,7 +22,7 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
     //ctx.fillStyle = gradient;
     //ctx.fillRect(10, 10, 200, 100);
 
-    Chart.register(CategoryScale, LinearScale, LineController, PointElement, LineElement);
+    Chart.register(CategoryScale, LinearScale, LineController, PointElement, LineElement, Filler);
 
     new Chart(ctx, {
       // The type of chart we want to create
@@ -30,12 +30,10 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
 
       // The data for our dataset
       data: {
-        labels: ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', ''],
+        labels: ['', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', ''],
         datasets: [
           {
-            backgroundColor: Color(this.props.theme.color.primary[800]).alpha(0.1).string(),
-            borderColor: this.props.theme.color.primary[800],
-            data: [0, 10, 5, 2, 20, 26, 35, 30, 38, 20, 28, 23, 27, 26],
+            data: [0, 3841, 6763, 3705, 2976, 531, 1728, 2591, 2467, 1421, 826, 555, 127, 200],
           },
         ],
       },
@@ -45,6 +43,17 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
         maintainAspectRatio: false,
         layout: {
           padding: 0,
+        },
+        elements: {
+          line: {
+            borderColor: this.props.theme.color.primary[800],
+            tension: 0.4,
+            fill: 'origin',
+            backgroundColor: Color(this.props.theme.color.primary[800]).alpha(0.09).string(),
+          },
+          point: {
+            backgroundColor: this.props.theme.color.primary[800],
+          },
         },
         scales: {
           x: {
@@ -65,10 +74,11 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
           },
           y: {
             grid: {
-              display: true, // hide lines
+              display: false, // hide lines
               drawBorder: false, // no border between axis and axis labels
             },
             ticks: {
+              align: 'end',
               font: {
                 family: this.props.theme.font.detail,
                 size: 12,
@@ -76,7 +86,7 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
                 style: 'normal',
                 lineHeight: 0,
               },
-              padding: -32,
+              padding: -46,
             },
           },
         },
@@ -89,7 +99,7 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
       <>
         <div
           css={css`
-            height: 4.2rem;
+            height: 30px;
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -104,13 +114,15 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
               gap: 6px;
             `}
           >
-            <Button>Sort</Button>
-            <Button>Year</Button>
+            <Button disabled>Sort</Button>
+            <Button disabled>Year</Button>
           </div>
         </div>
         <div
           css={css`
-            height: calc(100% - 4.2rem);
+            height: calc(100% - 30px + 6px);
+            width: calc(100% + 74px);
+            margin-left: -37px;
           `}
         >
           <canvas id='analyticsChart'></canvas>

@@ -14,7 +14,7 @@ function HomePage() {
 
   return (
     <Grid theme={theme}>
-      <div style={{ gridArea: 'analytics' }}>
+      <div style={{ gridArea: 'analytics', paddingBottom: 0 }}>
         <AnalyticsChart theme={theme}></AnalyticsChart>
       </div>
       <div style={{ gridArea: 'activity' }}>
@@ -56,7 +56,7 @@ function HomePage() {
 const Grid = styled.div<{ theme: themeType }>`
   height: calc(100% - 40px);
   box-sizing: border-box;
-  overflow: auto;
+  overflow: hidden auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: 400px 1fr;
