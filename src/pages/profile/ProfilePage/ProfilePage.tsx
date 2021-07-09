@@ -214,7 +214,9 @@ function ProfilePage() {
           </LastEdited>
         </ContentWrapper>
       ) : (
-        <div>Something went wrong while trying retrieve this profile: {error}</div>
+        <div>
+          Something went wrong while trying retrieve this profile: <pre>{JSON.stringify(error, null, 2)}</pre>
+        </div>
       )}
     </>
   );
