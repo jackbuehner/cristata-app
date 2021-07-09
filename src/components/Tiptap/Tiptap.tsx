@@ -42,6 +42,8 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { FullBleedLayout } from './special-components/article/FullBleedLayout';
 import Color from 'color';
+import { IProfile } from '../../interfaces/cristata/profiles';
+import { db } from '../../utils/axios/db';
 
 const Toolbar = styled.div`
   position: relative;
@@ -848,6 +850,20 @@ const Tiptap = (props: ITiptap) => {
   // layout picker
   const [layout, setLayout] = useState<'standard' | 'full'>('standard');
 
+  // get the authors
+  const [authors, setAuthors] = useState<IProfile[]>();
+  useEffect(() => {
+    if (props.options && props.options.type === 'article' && props.options.keys_article && props.flatData) {
+      let full: IProfile[] = [];
+      (props.flatData[props.options.keys_article.authors] as number[])?.forEach((author_github_id) => {
+        db.get(`/users/${author_github_id}`).then(({ data }: { data: IProfile }) => {
+          full.push(data);
+        });
+      });
+      setAuthors(full);
+    }
+  }, [props.flatData, props.options]);
+
   return (
     <div
       css={css`
@@ -906,6 +922,7 @@ const Tiptap = (props: ITiptap) => {
                   isDisabled={props.isDisabled}
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
                   photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
+                  authors={authors}
                 />
               ) : layout === 'full' ? (
                 <FullBleedLayout
@@ -925,6 +942,7 @@ const Tiptap = (props: ITiptap) => {
                   isDisabled={props.isDisabled}
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
                   photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
+                  authors={authors}
                 />
               ) : null}
             </>

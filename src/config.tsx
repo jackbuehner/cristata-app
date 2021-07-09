@@ -45,6 +45,7 @@ interface tiptapOptions {
     categories: string;
     caption: string;
     photo_url: string;
+    authors: string;
   };
 }
 
@@ -226,6 +227,7 @@ const collections: Icollections = {
             categories: 'categories',
             caption: 'photo_caption',
             photo_url: 'photo_path',
+            authors: 'people.authors',
           },
         },
       },

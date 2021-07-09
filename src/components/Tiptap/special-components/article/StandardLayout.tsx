@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { tiptapOptions } from '../../../../config';
 import { IconButton } from '../../../Button';
 import { collections as collectionsConfig } from '../../../../config';
+import { IProfile } from '../../../../interfaces/cristata/profiles';
 
 interface IStandardLayout {
   flatDataState: [
@@ -23,6 +24,7 @@ interface IStandardLayout {
     height: number;
   };
   photoUrl: string;
+  authors?: IProfile[];
 }
 
 /**
@@ -96,13 +98,43 @@ function StandardLayout(props: IStandardLayout) {
       <MetaGrid>
         <Authors>
           <AuthorPhotos>
-            <AuthorPhoto
-              draggable='false'
-              src='https://uploads-ssl.webflow.com/5f37fcdc1b6edd6760ad912f/5f482817f6628c8b17dc3500_lkrotz_furman_edu_LThumb.jpg'
-            />
+            {props.authors?.map((author: IProfile, index: number) => {
+              return <AuthorPhoto key={index} draggable={'false'} src={author.photo} />;
+            })}
           </AuthorPhotos>
           <Author>By</Author>
-          <Author>Lauren Krotz</Author>
+          {props.authors && props.authors.length === 1 ? (
+            <AuthorLink>
+              <Author>{props.authors[0].name}</Author>
+            </AuthorLink>
+          ) : props.authors && props.authors.length === 2 ? (
+            <>
+              <AuthorLink>
+                <Author>{props.authors[0].name}</Author>
+              </AuthorLink>
+              <Author> and </Author>
+              <AuthorLink>
+                <Author>{props.authors[1].name}</Author>
+              </AuthorLink>
+            </>
+          ) : props.authors && props.authors.length >= 3 ? (
+            <>
+              {props.authors.slice(0, props.authors.length - 1).map((author: IProfile, index: number) => {
+                return (
+                  <>
+                    <AuthorLink>
+                      <Author key={index}>{author.name}</Author>
+                    </AuthorLink>
+                    <Author>, </Author>
+                  </>
+                );
+              })}
+              <Author>and </Author>
+              <AuthorLink>
+                <Author>{props.authors.pop()?.name}</Author>
+              </AuthorLink>
+            </>
+          ) : null}
         </Authors>
         <PublishDate>April 22, 2021</PublishDate>
         <SocialButtons>
@@ -254,7 +286,6 @@ const Authors = styled.div`
 
 const Author = styled.span`
   display: flex;
-  margin-right: 3px;
   flex-direction: column;
   justify-content: center;
   flex-wrap: nowrap;
@@ -266,6 +297,17 @@ const Author = styled.span`
   line-height: 36px;
   font-weight: 700;
   text-transform: none;
+  white-space: pre-wrap;
+  &:first-of-type {
+    margin-right: 3px;
+  }
+`;
+
+const AuthorLink = styled.span`
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
 `;
 
 const AuthorPhotos = styled.div`
