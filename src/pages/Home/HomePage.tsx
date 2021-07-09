@@ -46,6 +46,9 @@ function HomePage() {
 
 const Grid = styled.div<{ theme: themeType }>`
   height: calc(100% - 40px);
+  @media (max-width: 600px) {
+    height: ${({ theme }) => `calc(100% - 40px - ${theme.dimensions.bottomNav.height})`};
+  }
   box-sizing: border-box;
   overflow: hidden auto;
   display: grid;
