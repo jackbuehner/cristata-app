@@ -3,23 +3,12 @@ import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
 import { AnalyticsChart } from './AnalyticsChart';
 import { HomeSectionHeading } from '../../components/Heading';
-import {
-  Pulse24Regular,
-  DataUsage24Regular,
-  Megaphone24Regular,
-  News24Regular,
-  PersonBoard24Regular,
-  ImageSearch24Regular,
-} from '@fluentui/react-icons';
+import { Pulse24Regular, DataUsage24Regular, Megaphone24Regular } from '@fluentui/react-icons';
 import { ItemsRow } from './ItemsRow';
-import useAxios from 'axios-hooks';
+import { home as homeConfig } from '../../config';
 
 function HomePage() {
   const theme = useTheme() as themeType;
-
-  const [{ data: articles }] = useAxios(`/articles?historyType=patched&historyType=created`);
-  const [{ data: profiles }] = useAxios(`/users`);
-  const [{ data: photoRequests }] = useAxios(`/photo-requests?historyType=patched&historyType=created`);
 
   return (
     <Grid theme={theme}>
@@ -43,48 +32,14 @@ function HomePage() {
           already available. Access these tools by using the sidebar on the left.
         </p>
       </div>
-      <div style={{ gridArea: 'row-4', overflowX: 'auto', height: 'max-content' }}>
-        <HomeSectionHeading icon={<News24Regular />}>Articles</HomeSectionHeading>
-        <ItemsRow
-          data={articles}
-          keys={{
-            photo: 'photo_path',
-            name: 'name',
-            history: 'history',
-            lastModified: 'timestamps.modified_at',
-            description: 'description',
-            toSuffix: '_id',
-          }}
-          toPrefix={'/cms/item/articles/'}
-        />
-      </div>
-      <div style={{ gridArea: 'row-5', overflowX: 'auto', height: 'max-content' }}>
-        <HomeSectionHeading icon={<PersonBoard24Regular />}>Profiles</HomeSectionHeading>
-        <ItemsRow
-          data={profiles}
-          keys={{
-            name: 'name',
-            lastModified: 'timestamps.last_login_at',
-            lastModifiedBy: 'people.last_modified_by',
-            toSuffix: '_id',
-          }}
-          toPrefix={'/profile/'}
-          isProfile
-        />
-      </div>
-      <div style={{ gridArea: 'row-6', overflowX: 'auto', height: 'max-content' }}>
-        <HomeSectionHeading icon={<ImageSearch24Regular />}>Photo requests</HomeSectionHeading>
-        <ItemsRow
-          data={photoRequests}
-          keys={{
-            name: 'name',
-            history: 'history',
-            lastModified: 'timestamps.modified_at',
-            toSuffix: '_id',
-          }}
-          toPrefix={'/cms/item/photo-requests/'}
-        />
-      </div>
+      {homeConfig.recentItems.map((item, index: number) => {
+        return (
+          <div style={{ gridArea: `row-${index + 4}`, overflowX: 'auto', height: 'max-content' }} key={index}>
+            <HomeSectionHeading icon={item.icon}>{item.label}</HomeSectionHeading>
+            <ItemsRow data={item.data} keys={item.keys} toPrefix={item.toPrefix} isProfile={item.isProfile} />
+          </div>
+        );
+      })}
     </Grid>
   );
 }

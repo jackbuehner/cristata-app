@@ -5,6 +5,8 @@ import { db } from './utils/axios/db';
 import { Chip } from './components/Chip';
 import { colorType } from './utils/theme/theme';
 import { DateTime } from 'luxon';
+import { ImageSearch24Regular, News24Regular, PersonBoard24Regular } from '@fluentui/react-icons';
+import { AxiosResponse } from 'axios';
 
 interface Icollections {
   [key: string]:
@@ -670,7 +672,7 @@ const collections: Icollections = {
 };
 
 interface Ifeatures {
-  [key: string]: boolean;
+  [key: string]: boolean | { [key: string]: boolean };
 }
 
 const features: Ifeatures = {
@@ -680,5 +682,76 @@ const features: Ifeatures = {
   profiles: true,
 };
 
-export { collections, features };
+interface Ihome {
+  recentItems: Array<{
+    label: string;
+    icon: React.ReactElement;
+    data: () => Promise<AxiosResponse<Record<string, any>[]>>;
+    toPrefix: string;
+    isProfile?: boolean;
+    keys:
+      | {
+          name: string;
+          lastModified: string;
+          photo?: string;
+          description?: string;
+          toSuffix: string;
+          history: string;
+        }
+      | {
+          name: string;
+          lastModified: string;
+          photo?: string;
+          description?: string;
+          toSuffix: string;
+          lastModifiedBy: string;
+        };
+  }>;
+}
+
+const home: Ihome = {
+  recentItems: [
+    {
+      label: 'Articles',
+      icon: <News24Regular />,
+      data: async () => await db.get(`/articles?historyType=patched&historyType=created`),
+      toPrefix: '/cms/item/articles/',
+      keys: {
+        photo: 'photo_path',
+        name: 'name',
+        history: 'history',
+        lastModified: 'timestamps.modified_at',
+        description: 'description',
+        toSuffix: '_id',
+      },
+    },
+    {
+      label: 'Profiles',
+      icon: <PersonBoard24Regular />,
+      data: async () => await db.get(`/users`),
+      toPrefix: '/profile/',
+      keys: {
+        name: 'name',
+        lastModified: 'timestamps.last_login_at',
+        lastModifiedBy: 'people.last_modified_by',
+        toSuffix: '_id',
+      },
+      isProfile: true,
+    },
+    {
+      label: 'Photo requests',
+      icon: <ImageSearch24Regular />,
+      data: async () => await db.get(`/photo-requests?historyType=patched&historyType=created`),
+      toPrefix: '/cms/item/photo-requests/',
+      keys: {
+        name: 'name',
+        history: 'history',
+        lastModified: 'timestamps.modified_at',
+        toSuffix: '_id',
+      },
+    },
+  ],
+};
+
+export { collections, features, home };
 export type { tiptapOptions };

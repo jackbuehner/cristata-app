@@ -1,8 +1,11 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { AxiosResponse } from 'axios';
 import useAxios from 'axios-hooks';
 import Color from 'color';
 import { DateTime } from 'luxon';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IProfile } from '../../interfaces/cristata/profiles';
 import { flattenObject } from '../../utils/flattenObject';
@@ -25,22 +28,27 @@ interface IModifiedByKeys extends IBaseKeys {
 }
 
 interface IItemsRow {
-  data?: Record<string, any>[];
+  data: () => Promise<AxiosResponse<Record<string, any>[]>>;
   keys: IHistoryKeys | IModifiedByKeys;
   toPrefix: string;
   isProfile?: boolean;
 }
 
-function ItemsRow(props: IItemsRow) {
+function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
   const theme = useTheme() as themeType;
   const history = useHistory();
 
+  const [data, setData] = useState<Record<string, any>[]>();
+  useEffect(() => {
+    dataPromise().then(({ data }) => setData(data));
+  }, [dataPromise]);
+
   const [{ data: users }] = useAxios<IProfile[]>(`/users`);
 
-  if (props.data && props.keys && props.isProfile) {
+  if (props.isProfile) {
     return (
       <Row>
-        {props.data.map((item, index) => {
+        {data?.map((item: Record<string, any>, index: number) => {
           // flatten the object
           item = flattenObject(item);
 
@@ -62,47 +70,44 @@ function ItemsRow(props: IItemsRow) {
     );
   }
 
-  if (props.data && props.keys) {
-    return (
-      <Row>
-        {props.data.map((item, index) => {
-          // flatten the object
-          item = flattenObject(item);
+  return (
+    <Row>
+      {data?.map((item: Record<string, any>, index: number) => {
+        // flatten the object
+        item = flattenObject(item);
 
-          // get the user id of the last user who modified this item
-          let lastModifiedBy: number;
+        // get the user id of the last user who modified this item
+        let lastModifiedBy: number;
+        // @ts-expect-error props.keys.history might exist
+        if (props.keys.history) {
           // @ts-expect-error props.keys.history might exist
-          if (props.keys.history) {
-            // @ts-expect-error props.keys.history might exist
-            lastModifiedBy = item[props.keys.history][item[props.keys.history]?.length - 1].user;
-          }
-          // @ts-expect-error props.keys.lastModifiedBy might exist
-          else if (props.keys.lastModifiedBy) lastModifiedBy = item[props.keys.lastModifiedBy];
+          lastModifiedBy = item[props.keys.history][item[props.keys.history]?.length - 1].user;
+        }
+        // @ts-expect-error props.keys.lastModifiedBy might exist
+        else if (props.keys.lastModifiedBy) lastModifiedBy = item[props.keys.lastModifiedBy];
 
-          // format the date for which this item was last modified
-          const lastModifiedAt = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
+        // format the date for which this item was last modified
+        const lastModifiedAt = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
 
-          return (
-            <Card
-              theme={theme}
-              key={index}
-              onClick={() => history.push(props.toPrefix + item[props.keys.toSuffix])}
-            >
-              {props.keys.photo ? <Photo src={item[props.keys.photo]} theme={theme} /> : null}
-              <Name theme={theme}>{item[props.keys.name]}</Name>
-              {props.keys.description ? (
-                <Description theme={theme}>{item[props.keys.description]}</Description>
-              ) : null}
-              <History theme={theme}>
-                {users?.find((user) => user.github_id === lastModifiedBy)?.name} • {lastModifiedAt}
-              </History>
-            </Card>
-          );
-        })}
-      </Row>
-    );
-  }
-  return null;
+        return (
+          <Card
+            theme={theme}
+            key={index}
+            onClick={() => history.push(props.toPrefix + item[props.keys.toSuffix])}
+          >
+            {props.keys.photo ? <Photo src={item[props.keys.photo]} theme={theme} /> : null}
+            <Name theme={theme}>{item[props.keys.name]}</Name>
+            {props.keys.description ? (
+              <Description theme={theme}>{item[props.keys.description]}</Description>
+            ) : null}
+            <History theme={theme}>
+              {users?.find((user) => user.github_id === lastModifiedBy)?.name} • {lastModifiedAt}
+            </History>
+          </Card>
+        );
+      })}
+    </Row>
+  );
 }
 
 const Row = styled.div`
