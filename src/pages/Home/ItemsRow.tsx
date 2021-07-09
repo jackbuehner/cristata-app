@@ -8,17 +8,27 @@ import { IProfile } from '../../interfaces/cristata/profiles';
 import { flattenObject } from '../../utils/flattenObject';
 import { themeType } from '../../utils/theme/theme';
 
+interface IBaseKeys {
+  name: string;
+  lastModified: string;
+  photo?: string;
+  description?: string;
+  toSuffix: string;
+}
+
+interface IHistoryKeys extends IBaseKeys {
+  history: string;
+}
+
+interface IModifiedByKeys extends IBaseKeys {
+  lastModifiedBy: string;
+}
+
 interface IItemsRow {
   data?: Record<string, any>[];
-  keys: {
-    name: string;
-    history: string;
-    lastModified: string;
-    photo?: string;
-    description?: string;
-    toSuffix: string;
-  };
+  keys: IHistoryKeys | IModifiedByKeys;
   toPrefix: string;
+  isProfile?: boolean;
 }
 
 function ItemsRow(props: IItemsRow) {
@@ -27,13 +37,51 @@ function ItemsRow(props: IItemsRow) {
 
   const [{ data: users }] = useAxios<IProfile[]>(`/users`);
 
+  if (props.data && props.keys && props.isProfile) {
+    return (
+      <Row>
+        {props.data.map((item, index) => {
+          // flatten the object
+          item = flattenObject(item);
+
+          // format the date for which this user last signed in
+          const lastSignIn = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
+
+          return (
+            <Card
+              theme={theme}
+              key={index}
+              onClick={() => history.push(props.toPrefix + item[props.keys.toSuffix])}
+            >
+              <Name theme={theme}>{item[props.keys.name]}</Name>
+              <History theme={theme}>Last signed in at {lastSignIn}</History>
+            </Card>
+          );
+        })}
+      </Row>
+    );
+  }
+
   if (props.data && props.keys) {
     return (
       <Row>
         {props.data.map((item, index) => {
+          // flatten the object
           item = flattenObject(item);
-          console.log(item);
-          const lastHistory = item[props.keys.history][item[props.keys.history].length - 1];
+
+          // get the user id of the last user who modified this item
+          let lastModifiedBy: number;
+          // @ts-expect-error props.keys.history might exist
+          if (props.keys.history) {
+            // @ts-expect-error props.keys.history might exist
+            lastModifiedBy = item[props.keys.history][item[props.keys.history]?.length - 1].user;
+          }
+          // @ts-expect-error props.keys.lastModifiedBy might exist
+          else if (props.keys.lastModifiedBy) lastModifiedBy = item[props.keys.lastModifiedBy];
+
+          // format the date for which this item was last modified
+          const lastModifiedAt = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
+
           return (
             <Card
               theme={theme}
@@ -46,8 +94,7 @@ function ItemsRow(props: IItemsRow) {
                 <Description theme={theme}>{item[props.keys.description]}</Description>
               ) : null}
               <History theme={theme}>
-                {users?.find((user) => user.github_id === lastHistory.user)?.name} •{' '}
-                {DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`)}
+                {users?.find((user) => user.github_id === lastModifiedBy)?.name} • {lastModifiedAt}
               </History>
             </Card>
           );

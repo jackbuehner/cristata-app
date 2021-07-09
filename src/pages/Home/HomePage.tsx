@@ -3,7 +3,14 @@ import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
 import { AnalyticsChart } from './AnalyticsChart';
 import { HomeSectionHeading } from '../../components/Heading';
-import { Pulse24Regular, DataUsage24Regular, Megaphone24Regular, News24Regular } from '@fluentui/react-icons';
+import {
+  Pulse24Regular,
+  DataUsage24Regular,
+  Megaphone24Regular,
+  News24Regular,
+  PersonBoard24Regular,
+  ImageSearch24Regular,
+} from '@fluentui/react-icons';
 import { ItemsRow } from './ItemsRow';
 import useAxios from 'axios-hooks';
 
@@ -11,6 +18,8 @@ function HomePage() {
   const theme = useTheme() as themeType;
 
   const [{ data: articles }] = useAxios(`/articles?historyType=patched&historyType=created`);
+  const [{ data: profiles }] = useAxios(`/users`);
+  const [{ data: photoRequests }] = useAxios(`/photo-requests?historyType=patched&historyType=created`);
 
   return (
     <Grid theme={theme}>
@@ -34,7 +43,7 @@ function HomePage() {
           already available. Access these tools by using the sidebar on the left.
         </p>
       </div>
-      <div style={{ gridArea: 'row-4', overflowX: 'auto', height: 'fit-content' }}>
+      <div style={{ gridArea: 'row-4', overflowX: 'auto', height: 'max-content' }}>
         <HomeSectionHeading icon={<News24Regular />}>Articles</HomeSectionHeading>
         <ItemsRow
           data={articles}
@@ -47,6 +56,33 @@ function HomePage() {
             toSuffix: '_id',
           }}
           toPrefix={'/cms/item/articles/'}
+        />
+      </div>
+      <div style={{ gridArea: 'row-5', overflowX: 'auto', height: 'max-content' }}>
+        <HomeSectionHeading icon={<PersonBoard24Regular />}>Profiles</HomeSectionHeading>
+        <ItemsRow
+          data={profiles}
+          keys={{
+            name: 'name',
+            lastModified: 'timestamps.last_login_at',
+            lastModifiedBy: 'people.last_modified_by',
+            toSuffix: '_id',
+          }}
+          toPrefix={'/profile/'}
+          isProfile
+        />
+      </div>
+      <div style={{ gridArea: 'row-6', overflowX: 'auto', height: 'max-content' }}>
+        <HomeSectionHeading icon={<ImageSearch24Regular />}>Photo requests</HomeSectionHeading>
+        <ItemsRow
+          data={photoRequests}
+          keys={{
+            name: 'name',
+            history: 'history',
+            lastModified: 'timestamps.modified_at',
+            toSuffix: '_id',
+          }}
+          toPrefix={'/cms/item/photo-requests/'}
         />
       </div>
     </Grid>
@@ -65,7 +101,8 @@ const Grid = styled.div<{ theme: themeType }>`
     'activity workflow'
     'row-3 row-3'
     'row-4 row-4'
-    'row-5 row-5';
+    'row-5 row-5'
+    'row-6 row-6';
   > div {
     border-bottom: 1px solid;
     border-color: ${({ theme }) =>
