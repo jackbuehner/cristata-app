@@ -873,8 +873,7 @@ const Tiptap = (props: ITiptap) => {
         align-items: center;
         overflow: hidden;
         height: 100%;
-        ${isMax ? `position: fixed; inset: 0;` : ''};
-        z-index: 1;
+        ${isMax ? `position: fixed; inset: 0; z-index: 1000` : 'z-index: 1'};
       `}
       ref={observe}
     >
