@@ -46,15 +46,14 @@ function HomePage() {
               icon={<Document24Regular />}
               color={'neutral'}
               count={
-                stages[1.1] ||
-                0 + stages[2.1] ||
-                0 + stages[3.1] ||
-                0 + stages[3.3] ||
-                0 + stages[3.5] ||
-                0 + stages[4.1] ||
-                0 + stages[5.1] ||
-                0 + stages[5.2] ||
-                0
+                (stages[1.1] || 0) +
+                (stages[2.1] || 0) +
+                (stages[3.1] || 0) +
+                (stages[3.3] || 0) +
+                (stages[3.5] || 0) +
+                (stages[4.1] || 0) +
+                (stages[5.1] || 0) +
+                (stages[5.2] || 0)
               }
               to={`/cms/articles/in-progress`}
             >
@@ -63,7 +62,7 @@ function HomePage() {
             <WorkflowStatusCard
               icon={<Edit24Regular />}
               color={'indigo'}
-              count={stages[1.1] || 0 + stages[2.1] || 0}
+              count={(stages[1.1] || 0) + (stages[2.1] || 0)}
               to={`/cms/articles/in-progress`}
             >
               Drafts
@@ -71,7 +70,7 @@ function HomePage() {
             <WorkflowStatusCard
               icon={<MailInbox24Regular />}
               color={'red'}
-              count={stages[3.1] || 0 + stages[3.3] || 0 + stages[3.5] || 0}
+              count={(stages[3.1] || 0) + (stages[3.3] || 0) + (stages[3.5] || 0)}
               to={`/cms/articles/in-progress`}
             >
               In review
@@ -87,7 +86,7 @@ function HomePage() {
             <WorkflowStatusCard
               icon={<Checkmark24Regular />}
               color={'green'}
-              count={stages[5.1] || 0 + stages[5.2] || 0}
+              count={(stages[5.1] || 0) + (stages[5.2] || 0)}
               to={`/cms/articles/all`}
             >
               Published
