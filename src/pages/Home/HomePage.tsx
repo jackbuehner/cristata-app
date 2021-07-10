@@ -95,7 +95,7 @@ function HomePage() {
           </>
         ) : null}
       </div>
-      <div style={{ gridArea: 'row-3' }}>
+      <div style={{ gridArea: 'announcement' }}>
         <HomeSectionHeading icon={<Megaphone24Regular />}>Welcome to Cristata (Beta)</HomeSectionHeading>
         <p>
           The dashboard is still under construction, but the Content Manager (CMS), Plans, and Profiles are
@@ -123,22 +123,22 @@ const Grid = styled.div<{ theme: themeType }>`
   overflow: hidden auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: 400px 1fr;
+  grid-template-rows: 400px 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-template-areas:
     'analytics analytics'
     'activity workflow'
-    'row-3 row-3'
+    'announcement announcement'
     'row-4 row-4'
     'row-5 row-5'
     'row-6 row-6';
   @media (max-width: 600px) {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 300px 1fr;
+    grid-template-rows: 1fr 1fr 1fr 300px 1fr 1fr 1fr;
     grid-template-areas:
-      'analytics'
+      'announcement'
       'activity'
       'workflow'
-      'row-3'
+      'analytics'
       'row-4'
       'row-5'
       'row-6';
