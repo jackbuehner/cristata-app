@@ -61,6 +61,18 @@ const Grid = styled.div<{ theme: themeType }>`
     'row-4 row-4'
     'row-5 row-5'
     'row-6 row-6';
+  @media (max-width: 600px) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 300px 1fr;
+    grid-template-areas:
+      'analytics'
+      'activity'
+      'workflow'
+      'row-3'
+      'row-4'
+      'row-5'
+      'row-6';
+  }
   > div {
     border-bottom: 1px solid;
     border-color: ${({ theme }) =>
