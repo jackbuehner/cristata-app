@@ -1,4 +1,5 @@
-import { useTheme } from '@emotion/react';
+/** @jsxImportSource @emotion/react */
+import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
 import { AnalyticsChart } from './AnalyticsChart';
@@ -33,7 +34,16 @@ function HomePage() {
       <div style={{ gridArea: 'analytics', paddingBottom: 0 }}>
         <AnalyticsChart theme={theme}></AnalyticsChart>
       </div>
-      <div style={{ gridArea: 'activity' }}>
+      <div
+        css={css`
+          grid-area: activity;
+          border-right: 1px solid
+            ${theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+          @media (max-width: 600px) {
+            border-right: none;
+          }
+        `}
+      >
         <HomeSectionHeading icon={<Pulse24Regular />}>Recent CMS Activty</HomeSectionHeading>
         <RecentActivity />
       </div>
