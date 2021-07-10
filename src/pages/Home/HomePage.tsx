@@ -3,12 +3,31 @@ import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
 import { AnalyticsChart } from './AnalyticsChart';
 import { HomeSectionHeading } from '../../components/Heading';
-import { Pulse24Regular, DataUsage24Regular, Megaphone24Regular } from '@fluentui/react-icons';
+import {
+  Pulse24Regular,
+  DataUsage24Regular,
+  Megaphone24Regular,
+  Edit24Regular,
+  MailInbox24Regular,
+  Clock24Regular,
+  Checkmark24Regular,
+  Document24Regular,
+} from '@fluentui/react-icons';
 import { ItemsRow } from './ItemsRow';
 import { home as homeConfig } from '../../config';
+import useAxios from 'axios-hooks';
+import { WorkflowStatusCard } from './WorkflowStatusCard';
 
 function HomePage() {
   const theme = useTheme() as themeType;
+
+  const [{ data: workflowStages }] = useAxios<{ _id: number; count: number }[]>(`/articles/stage-counts`);
+  const stages = workflowStages?.reduce(
+    (obj: { [key: number]: number }, item) => Object.assign(obj, { [item._id]: item.count }),
+    {}
+  );
+
+  console.log(stages);
 
   return (
     <Grid theme={theme}>
@@ -17,13 +36,64 @@ function HomePage() {
       </div>
       <div style={{ gridArea: 'activity' }}>
         <HomeSectionHeading icon={<Pulse24Regular />}>Recent CMS Activty</HomeSectionHeading>
-        <code>Insert here the recent activty.</code>
+        <code>Insert here the recent activity.</code>
       </div>
       <div style={{ gridArea: 'workflow' }}>
         <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
-        <code>
-          Insert here the statuses of the items in the CMS. It should be stylized like giant, clickable chips.
-        </code>
+        {stages ? (
+          <>
+            <WorkflowStatusCard
+              icon={<Document24Regular />}
+              color={'neutral'}
+              count={
+                stages[1.1] ||
+                0 + stages[2.1] ||
+                0 + stages[3.1] ||
+                0 + stages[3.3] ||
+                0 + stages[3.5] ||
+                0 + stages[4.1] ||
+                0 + stages[5.1] ||
+                0 + stages[5.2] ||
+                0
+              }
+              to={`/cms/articles/in-progress`}
+            >
+              All entries
+            </WorkflowStatusCard>
+            <WorkflowStatusCard
+              icon={<Edit24Regular />}
+              color={'indigo'}
+              count={stages[1.1] || 0 + stages[2.1] || 0}
+              to={`/cms/articles/in-progress`}
+            >
+              Drafts
+            </WorkflowStatusCard>
+            <WorkflowStatusCard
+              icon={<MailInbox24Regular />}
+              color={'red'}
+              count={stages[3.1] || 0 + stages[3.3] || 0 + stages[3.5] || 0}
+              to={`/cms/articles/in-progress`}
+            >
+              In review
+            </WorkflowStatusCard>
+            <WorkflowStatusCard
+              icon={<Clock24Regular />}
+              color={'orange'}
+              count={stages[4.1] || 0}
+              to={`/cms/articles/in-progress`}
+            >
+              Ready
+            </WorkflowStatusCard>
+            <WorkflowStatusCard
+              icon={<Checkmark24Regular />}
+              color={'green'}
+              count={stages[5.1] || 0 + stages[5.2] || 0}
+              to={`/cms/articles/all`}
+            >
+              Published
+            </WorkflowStatusCard>
+          </>
+        ) : null}
       </div>
       <div style={{ gridArea: 'row-3' }}>
         <HomeSectionHeading icon={<Megaphone24Regular />}>Welcome to Cristata (Beta)</HomeSectionHeading>
