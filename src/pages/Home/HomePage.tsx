@@ -17,6 +17,7 @@ import { ItemsRow } from './ItemsRow';
 import { home as homeConfig } from '../../config';
 import useAxios from 'axios-hooks';
 import { WorkflowStatusCard } from './WorkflowStatusCard';
+import { RecentActivity } from './RecentActivity';
 
 function HomePage() {
   const theme = useTheme() as themeType;
@@ -27,8 +28,6 @@ function HomePage() {
     {}
   );
 
-  console.log(stages);
-
   return (
     <Grid theme={theme}>
       <div style={{ gridArea: 'analytics', paddingBottom: 0 }}>
@@ -36,7 +35,7 @@ function HomePage() {
       </div>
       <div style={{ gridArea: 'activity' }}>
         <HomeSectionHeading icon={<Pulse24Regular />}>Recent CMS Activty</HomeSectionHeading>
-        <code>Insert here the recent activity.</code>
+        <RecentActivity />
       </div>
       <div style={{ gridArea: 'workflow' }}>
         <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
