@@ -9,6 +9,8 @@ import { CircularProgress } from '@material-ui/core';
 import { Checkmark28Regular, ErrorCircle24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { db } from '../../utils/axios/db';
+import useAxios from 'axios-hooks';
+import { useCallback } from 'react';
 
 function SignIn() {
   const theme = useTheme() as themeType;
@@ -22,6 +24,14 @@ function SignIn() {
         : `http://localhost:3001/auth/github`;
   };
 
+  const [{ data: user }] = useAxios({
+    url: '/auth',
+    baseURL:
+      process.env.NODE_ENV === 'production' ? `https://api.thepaladin.cristata.app` : `http://localhost:3001`,
+    withCredentials: true,
+    method: 'GET',
+  });
+
   const [step, setStep] = useState<
     'notice' | '2fa_check' | '2fa_enable' | '2fa_yes' | 'join_attempt' | 'join_success' | 'join_fail' | 'done'
   >('notice');
@@ -29,14 +39,12 @@ function SignIn() {
   /**
    * Determine whether this user has two factor authentication enabled.
    */
-  const is2faEnabled = () => {
-    const userJson = localStorage.getItem('auth.user');
-    if (userJson) {
-      const user: { [key: string]: unknown; two_factor_authentication: boolean } = JSON.parse(userJson);
+  const is2faEnabled = useCallback(() => {
+    if (user) {
       return user.two_factor_authentication;
     }
     return false;
-  };
+  }, [user]);
 
   /**
    * Attempt to join the org, and redirect the user to the correct step after a response is received
@@ -58,7 +66,7 @@ function SignIn() {
         }
       }, 1000);
     }
-  }, [step, setStep]);
+  }, [step, setStep, is2faEnabled]);
 
   if (query.get('isMember') === 'false') {
     // step that notifies the user that they need to join the organization
