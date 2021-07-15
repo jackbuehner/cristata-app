@@ -45,6 +45,14 @@ function SplashScreen(props: ISplashScreen) {
     }
   }, [props.user, history]);
 
+  // if the user is not a member, set it to localstorage but redirect to page to help them become members
+  useEffect(() => {
+    if (props.user && !props.user.member_status) {
+      localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
+      history.push('/sign-in?isMember=false'); // redirect
+    }
+  }, [props.user, history]);
+
   // set the session id
   useEffect(() => {
     const sessionIdIsSet = !!sessionStorage.getItem('sessionId');

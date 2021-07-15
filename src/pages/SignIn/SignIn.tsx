@@ -3,9 +3,17 @@ import styled from '@emotion/styled';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { Button } from '../../components/Button';
+import { useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { CircularProgress } from '@material-ui/core';
+import { Checkmark28Regular, ErrorCircle24Regular } from '@fluentui/react-icons';
+import { useEffect } from 'react';
+import { db } from '../../utils/axios/db';
 
 function SignIn() {
   const theme = useTheme() as themeType;
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
 
   const signInAction = () => {
     document.location.href =
@@ -13,6 +21,280 @@ function SignIn() {
         ? `https://api.thepaladin.cristata.app/auth/github`
         : `http://localhost:3001/auth/github`;
   };
+
+  const [step, setStep] = useState<
+    'notice' | '2fa_check' | '2fa_enable' | '2fa_yes' | 'join_attempt' | 'join_success' | 'join_fail' | 'done'
+  >('notice');
+
+  /**
+   * Determine whether this user has two factor authentication enabled.
+   */
+  const is2faEnabled = () => {
+    const userJson = localStorage.getItem('auth.user');
+    if (userJson) {
+      const user: { [key: string]: unknown; two_factor_authentication: boolean } = JSON.parse(userJson);
+      return user.two_factor_authentication;
+    }
+    return false;
+  };
+
+  /**
+   * Attempt to join the org, and redirect the user to the correct step after a response is received
+   */
+  const attemptOrgJoin = () => {
+    db.post('/gh/org/invite')
+      .then(() => setStep('join_success'))
+      .catch(() => setStep('join_fail'));
+  };
+
+  // on the check step, determine whether 2fa is enabled and change to the next appropriate step
+  useEffect(() => {
+    if (step === '2fa_check') {
+      setTimeout(() => {
+        if (is2faEnabled()) {
+          setStep('2fa_yes');
+        } else {
+          setStep('2fa_enable');
+        }
+      }, 1000);
+    }
+  }, [step, setStep]);
+
+  if (query.get('isMember') === 'false') {
+    // step that notifies the user that they need to join the organization
+    if (step === 'notice') {
+      return (
+        <Wrapper theme={theme}>
+          <Box theme={theme}>
+            <div>
+              <Wordmark theme={theme}>The Paladin</Wordmark>
+            </div>
+            <div style={{ marginTop: 34 }}>
+              <p>
+                It looks like you aren't part of the <i>The Paladin</i> on GitHub. Let's try to fix that.
+              </p>
+              <p>There are a few steps we need to take:</p>
+              <ol>
+                <li>Ensure you have two-factor authentication enabled.</li>
+                <li>Send you an invite to the organization.</li>
+                <li>Accept the invite and ensure you have the correct permissions.</li>
+              </ol>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                position: 'absolute',
+                width: 'calc(100% - 90px)',
+                left: 45,
+                bottom: 35,
+              }}
+            >
+              <Button onClick={() => setStep('2fa_check')}>Continue</Button>
+            </div>
+          </Box>
+        </Wrapper>
+      );
+    }
+
+    // step that checks if the user has two factor authentication
+    if (step === '2fa_check') {
+      return (
+        <Wrapper theme={theme}>
+          <Box theme={theme}>
+            <div>
+              <Wordmark theme={theme}>The Paladin</Wordmark>
+            </div>
+            <div style={{ marginTop: 60, textAlign: 'center' }}>
+              <Spinner theme={theme} />
+              <p>Checking if your account has two-factor authentication enabled</p>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                position: 'absolute',
+                width: 'calc(100% - 90px)',
+                left: 45,
+                bottom: 35,
+              }}
+            >
+              <Button onClick={() => setStep('notice')}>Back</Button>
+              <Button disabled onClick={() => setStep('2fa_enable')}>
+                Continue
+              </Button>
+            </div>
+          </Box>
+        </Wrapper>
+      );
+    }
+
+    // step to tell user to enable 2fa
+    if (step === '2fa_enable') {
+      return (
+        <Wrapper theme={theme}>
+          <Box theme={theme}>
+            <div>
+              <Wordmark theme={theme}>The Paladin</Wordmark>
+            </div>
+            <div style={{ marginTop: 34 }}>
+              <p>You need to enable two factor authentication (2fa).</p>
+              <p>
+                Go to{' '}
+                <a href={`https://github.com/settings/security`} target={`_blank`}>
+                  Account Security
+                </a>{' '}
+                and click <b>Enable two-factor authentication.</b>
+              </p>
+              <p>You need to have Duo or another 2fa app installed to enable 2fa.</p>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                position: 'absolute',
+                width: 'calc(100% - 90px)',
+                left: 45,
+                bottom: 35,
+              }}
+            >
+              <Button onClick={() => setStep('notice')}>Back</Button>
+              <Button onClick={() => setStep('2fa_check')}>Check again</Button>
+            </div>
+          </Box>
+        </Wrapper>
+      );
+    }
+
+    // step that tells the user two factor authentication is enabled
+    if (step === '2fa_yes') {
+      return (
+        <Wrapper theme={theme}>
+          <Box theme={theme}>
+            <div>
+              <Wordmark theme={theme}>The Paladin</Wordmark>
+            </div>
+            <div style={{ marginTop: 60, textAlign: 'center' }}>
+              <Checkmark28Regular />
+              <p>Your account has two-factor authentication enabled!</p>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                position: 'absolute',
+                width: 'calc(100% - 90px)',
+                left: 45,
+                bottom: 35,
+              }}
+            >
+              <Button onClick={() => setStep('notice')}>Back</Button>
+              <Button onClick={() => setStep('join_attempt')}>Continue</Button>
+            </div>
+          </Box>
+        </Wrapper>
+      );
+    }
+
+    // atempt to join the organization
+    if (step === 'join_attempt') {
+      attemptOrgJoin();
+      return (
+        <Wrapper theme={theme}>
+          <Box theme={theme}>
+            <div>
+              <Wordmark theme={theme}>The Paladin</Wordmark>
+            </div>
+            <div style={{ marginTop: 60, textAlign: 'center' }}>
+              <Spinner theme={theme} />
+              <p>
+                Attempting to join <i>The Paladin</i> on GitHub
+              </p>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                position: 'absolute',
+                width: 'calc(100% - 90px)',
+                left: 45,
+                bottom: 35,
+              }}
+            >
+              <Button onClick={() => setStep('2fa_check')}>Back</Button>
+              <Button onClick={() => setStep('join_attempt')}>Continue</Button>
+            </div>
+          </Box>
+        </Wrapper>
+      );
+    }
+
+    // join attempt failed
+    if (step === 'join_fail') {
+      return (
+        <Wrapper theme={theme}>
+          <Box theme={theme}>
+            <div>
+              <Wordmark theme={theme}>The Paladin</Wordmark>
+            </div>
+            <div style={{ marginTop: 60, textAlign: 'center' }}>
+              <ErrorCircle24Regular />
+              <p>There was an error inviting you to the organization.</p>
+              <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
+                Contact Web Editor
+              </HelpLink>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                position: 'absolute',
+                width: 'calc(100% - 90px)',
+                left: 45,
+                bottom: 35,
+              }}
+            >
+              <Button onClick={() => setStep('2fa_yes')}>Back</Button>
+            </div>
+          </Box>
+        </Wrapper>
+      );
+    }
+
+    // join attempt was a success
+    if (step === 'join_success') {
+      return (
+        <Wrapper theme={theme}>
+          <Box theme={theme}>
+            <div>
+              <Wordmark theme={theme}>The Paladin</Wordmark>
+            </div>
+            <div style={{ marginTop: 44, textAlign: 'center' }}>
+              <Checkmark28Regular />
+              <p>
+                Your account has been invited to <i>The Paladin</i>! <br></br> Please check your email to accept
+                the invitation. <br></br> <br></br> Come back to the sign in page once you have accepted the
+                invitation.
+              </p>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                position: 'absolute',
+                width: 'calc(100% - 90px)',
+                left: 45,
+                bottom: 35,
+              }}
+            >
+              <Button onClick={() => setStep('2fa_yes')}>Back</Button>
+              <Button onClick={() => setStep('done')}>Finish</Button>
+            </div>
+          </Box>
+        </Wrapper>
+      );
+    }
+  }
 
   return (
     <Wrapper theme={theme}>
@@ -45,6 +327,12 @@ function SignIn() {
   );
 }
 
+const Spinner = styled(CircularProgress)<{ theme: themeType }>`
+  width: 28px !important;
+  height: 28px !important;
+  color: ${({ theme }) => theme.color.primary[900]} !important;
+`;
+
 const Wrapper = styled.div<{ theme: themeType }>`
   height: 100%;
   width: 100%;
@@ -52,6 +340,8 @@ const Wrapper = styled.div<{ theme: themeType }>`
   left: 0px;
   z-index: 999;
   background-color: ${({ theme }) => theme.color.primary[800]};
+  font-family: ${({ theme }) => theme.font.detail};
+  font-size: 14px;
 `;
 
 const Box = styled.div<{ theme: themeType }>`
@@ -73,6 +363,7 @@ const Box = styled.div<{ theme: themeType }>`
     transform: none;
     width: unset;
   }
+  min-height: 260px;
 `;
 
 const Wordmark = styled.div<{ theme: themeType }>`
