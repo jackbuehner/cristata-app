@@ -8,6 +8,7 @@ interface DateTimeI {
   value: string | null;
   onChange: (date: MaterialUiPickersDate) => void;
   isDisabled?: boolean;
+  placeholder?: string;
 }
 
 interface DateTimeComponentI extends DateTimeI {
@@ -41,6 +42,10 @@ const DateTimeComponent = styled(DateTimePicker)<DateTimeComponentI>`
     font-size: 14px;
     font-variant-numeric: lining-nums;
     padding: 0;
+    &::placeholder {
+      opacity: 0.6;
+      font-weight: 500;
+    }
   }
 `;
 
@@ -52,6 +57,7 @@ function DateTime(props: DateTimeI) {
       onChange={props.onChange}
       theme={theme}
       disabled={props.isDisabled}
+      placeholder={props.placeholder}
     />
   );
 }
