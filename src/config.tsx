@@ -35,6 +35,7 @@ interface Icollections {
           isSortable?: false;
         }>;
         isPublishable?: boolean;
+        publishStage?: number;
         home: string;
       }
     | undefined;
@@ -475,6 +476,7 @@ const collections: Icollections = {
       { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
     ],
     isPublishable: true,
+    publishStage: 5.2,
   },
   photoRequests: {
     home: '/cms/photos/requests',
