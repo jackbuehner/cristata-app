@@ -73,6 +73,8 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
   .react-select__option {
     font-family: ${({ appTheme: theme }) => theme.font['detail']};
     font-size: 14px;
+  }
+  .react-select__option:not(.react-select__option--is-disabled) {
     ${({ color, colorShade, appTheme: theme, isDisabled, backgroundColor, border }) =>
       buttonEffect(color, colorShade, theme, isDisabled, backgroundColor, border)}
   }

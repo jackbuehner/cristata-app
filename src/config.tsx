@@ -20,6 +20,7 @@ interface Icollections {
           options?: Array<{
             value: string;
             label: string;
+            isDisabled?: boolean;
           }>;
           isDisabled?: boolean;
           dataType?: string;
@@ -76,8 +77,8 @@ const collections: Icollections = {
           { value: '3.3', label: 'Pending Copy Edit' },
           { value: '3.5', label: 'Pending Writer/Editor Check' },
           { value: '4.1', label: 'Pending Upload Approval' },
-          { value: '5.1', label: 'Uploaded/Scheduled' },
-          { value: '5.2', label: 'Published' },
+          { value: '5.1', label: 'Uploaded/Scheduled', isDisabled: true },
+          { value: '5.2', label: 'Published', isDisabled: true },
         ],
       },
       {
