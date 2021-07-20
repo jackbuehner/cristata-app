@@ -121,7 +121,7 @@ function ItemDetailsPage() {
   };
 
   // save changes to the databse
-  const saveChanges = async (extraData: { [key: string]: any }) => {
+  const saveChanges = async (extraData: { [key: string]: any } = {}) => {
     setIsLoading(true);
     setFlatData({
       ...flatData,
@@ -265,7 +265,7 @@ function ItemDetailsPage() {
             <Button onClick={hideItem} color={'red'}>
               Delete
             </Button>
-            <Button onClick={saveChanges} disabled={!hasUnsavedChanges}>
+            <Button onClick={() => saveChanges()} disabled={!hasUnsavedChanges}>
               Save
             </Button>
             {collectionsConfig[dashToCamelCase(collection)]?.isPublishable ? (
