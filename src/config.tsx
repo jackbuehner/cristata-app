@@ -43,6 +43,7 @@ interface Icollections {
 
 interface tiptapOptions {
   type: string;
+  isHTMLkey?: string;
   keys_article?: {
     headline: string;
     description: string;
@@ -811,6 +812,7 @@ const collections: Icollections = {
         type: 'tiptap',
         tiptap: {
           type: 'satire',
+          isHTMLkey: 'legacy_html',
         },
       },
       {

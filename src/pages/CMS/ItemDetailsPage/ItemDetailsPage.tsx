@@ -339,6 +339,8 @@ function ItemDetailsPage() {
               }
 
               if (field.type === 'tiptap') {
+                const isHTML = field.tiptap && field.tiptap.isHTMLkey && flatData[field.tiptap.isHTMLkey];
+                const html = isHTML ? (flatData[field.key] as string) : undefined;
                 return (
                   <InputGroup type={`text`} key={index}>
                     <Label
@@ -383,8 +385,9 @@ function ItemDetailsPage() {
                         options={field.tiptap}
                         flatData={flatData}
                         setFlatData={setFlatData}
-                        isDisabled={publishLocked ? true : field.isDisabled}
+                        isDisabled={publishLocked ? true : isHTML ? true : field.isDisabled}
                         sessionId={sessionId}
+                        html={html}
                         onChange={(editorJson: string) => {
                           if (editorJson !== flatData[field.key]) {
                             if (flatData.name) {

@@ -739,6 +739,7 @@ interface ITiptap {
   isDisabled?: boolean;
   sessionId: string;
   onChange?: (editorJson: string) => void;
+  html?: string;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -802,6 +803,7 @@ const Tiptap = (props: ITiptap) => {
 
   const editor = useEditor({
     editable: props.isDisabled === true ? false : true,
+    content: props.html,
     extensions: [
       StarterKit.configure({ history: false }),
       Underline,
@@ -832,9 +834,10 @@ const Tiptap = (props: ITiptap) => {
       }),
     ],
     onUpdate() {
+      const editor = this as unknown as Editor;
+      if (props.html) editor.commands.setContent(props.html);
       if (props.onChange) {
         // get the json for the editor and send it to the parent component via `onChange()`
-        const editor = this as unknown as Editor;
         const json = JSON.stringify(editor.getJSON().content);
         props.onChange(json);
       }
