@@ -366,7 +366,7 @@ const SideNavs = styled.div`
   @media (max-width: 600px) {
     flex-direction: column-reverse;
   }
-  height: 100%;
+  height: calc(100% - 42px);
 `;
 
 const Content = styled.div<{ theme: themeType }>`
