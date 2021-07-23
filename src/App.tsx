@@ -19,6 +19,7 @@ import {
   DocumentPageBottomRight24Regular,
   Balloon16Regular,
   Dismiss16Regular,
+  Cookies24Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -41,6 +42,7 @@ import { SidenavSub } from './components/SidenavSub';
 import { Sidenav } from './components/Sidenav/Sidenav';
 import Color from 'color';
 import { HomePage } from './pages/Home';
+import { SatirePage } from './pages/CMS/SatirePage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -253,6 +255,21 @@ function App() {
                             >
                               Photo library
                             </SideNavSubButton>
+                            <SideNavHeading>Satire</SideNavHeading>
+                            <SideNavSubButton
+                              Icon={<DocumentPageBottomRight24Regular />}
+                              to={`/cms/satire/in-progress`}
+                              setIsNavVisibleM={setIsNavVisibleM}
+                            >
+                              In-progress satire
+                            </SideNavSubButton>
+                            <SideNavSubButton
+                              Icon={<Cookies24Regular />}
+                              to={`/cms/satire/all`}
+                              setIsNavVisibleM={setIsNavVisibleM}
+                            >
+                              All satire
+                            </SideNavSubButton>
                           </Route>
                           <Route path={`/plans`}>
                             <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
@@ -271,6 +288,9 @@ function App() {
                     <Switch>
                       <Route path={`/cms/articles/:progress`}>
                         <ArticlesPage />
+                      </Route>
+                      <Route path={`/cms/satire/:progress`}>
+                        <SatirePage />
                       </Route>
                       <Route path={`/cms/photos/requests/:progress`}>
                         <PhotoRequestsPage />
