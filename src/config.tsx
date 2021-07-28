@@ -227,6 +227,7 @@ const collections: Icollections = {
         type: 'tiptap',
         tiptap: {
           type: 'article',
+          isHTMLkey: 'legacy_html',
           keys_article: {
             headline: 'name',
             description: 'description',
