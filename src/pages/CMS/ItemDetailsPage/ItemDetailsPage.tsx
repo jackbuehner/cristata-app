@@ -51,8 +51,17 @@ function ItemDetailsPage() {
     item_id: string;
   }>();
 
+  // collection name in the database (fall back to collection from url)
+  let collectionName: string = `${collection}`;
+  if (collectionsConfig[dashToCamelCase(collection)]) {
+    const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
+    if (collectionConfig && collectionConfig.collectionName) {
+      collectionName = collectionConfig.collectionName;
+    }
+  }
+
   // get the item
-  const [{ data, loading, error }, refetch] = useAxios(`/${collection}/${item_id}`);
+  const [{ data, loading, error }, refetch] = useAxios(`/${collectionName}/${item_id}`);
 
   // store whether the page is loading/updating/saving
   const [isLoading, setIsLoading] = useState<boolean>(loading);
@@ -128,7 +137,7 @@ function ItemDetailsPage() {
       ...extraData,
     });
     return await db
-      .patch(`/${collection}/${item_id}`, unflattenObject({ ...flatData, ...extraData }))
+      .patch(`/${collectionName}/${item_id}`, unflattenObject({ ...flatData, ...extraData }))
       .then(() => {
         setIsLoading(false);
         toast.success(`Changes successfully saved.`);
@@ -146,7 +155,7 @@ function ItemDetailsPage() {
   // set the item to hidden
   const hideItem = () => {
     setIsLoading(true);
-    db.patch(`/${collection}/${item_id}`, { ...data, hidden: true })
+    db.patch(`/${collectionName}/${item_id}`, { ...data, hidden: true })
       .then(() => {
         setIsLoading(false);
         toast.success(`Item successfully hidden.`);

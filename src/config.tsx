@@ -11,21 +11,7 @@ import { AxiosResponse } from 'axios';
 interface Icollections {
   [key: string]:
     | {
-        fields: Array<{
-          key: string;
-          label?: string; // fall back to name if not provided
-          type: string;
-          description?: string;
-          tiptap?: tiptapOptions;
-          options?: Array<{
-            value: string;
-            label: string;
-            isDisabled?: boolean;
-          }>;
-          isDisabled?: boolean;
-          dataType?: string;
-          async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
-        }>;
+        fields: IField[];
         columns: Array<{
           key: string;
           label?: string;
@@ -37,6 +23,7 @@ interface Icollections {
         isPublishable?: boolean;
         publishStage?: number;
         home: string;
+        collectionName?: string;
       }
     | undefined;
 }
@@ -53,6 +40,22 @@ interface tiptapOptions {
     authors: string;
     target_publish_at: string;
   };
+}
+
+interface IField {
+  key: string;
+  label?: string; // fall back to name if not provided
+  type: string;
+  description?: string;
+  tiptap?: tiptapOptions;
+  options?: Array<{
+    value: string;
+    label: string;
+    isDisabled?: boolean;
+  }>;
+  isDisabled?: boolean;
+  dataType?: string;
+  async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
 }
 
 const collections: Icollections = {
@@ -1045,6 +1048,121 @@ const collections: Icollections = {
     ],
     isPublishable: true,
     publishStage: 5.2,
+  },
+  featuredSettings: {
+    home: '/cms/item/featured-settings/6101da4a5386ae9ea3147f17',
+    fields: [
+      {
+        key: 'setting.first',
+        label: 'First article',
+        type: 'select_async',
+        async_options: async (inputValue: string) => {
+          // get all articles
+          const { data: articles } = await db.get(`/articles`);
+
+          // with the article data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          articles.forEach((article: { _id: string; name: string }) => {
+            options.push({
+              value: article._id,
+              label: article.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+        dataType: 'string',
+      },
+      {
+        key: 'setting.second',
+        label: 'Second article',
+        type: 'select_async',
+        async_options: async (inputValue: string) => {
+          // get all articles
+          const { data: articles } = await db.get(`/articles`);
+
+          // with the article data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          articles.forEach((article: { _id: string; name: string }) => {
+            options.push({
+              value: article._id,
+              label: article.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+        dataType: 'string',
+      },
+      {
+        key: 'setting.third',
+        label: 'Third article',
+        type: 'select_async',
+        async_options: async (inputValue: string) => {
+          // get all articles
+          const { data: articles } = await db.get(`/articles`);
+
+          // with the article data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          articles.forEach((article: { _id: string; name: string }) => {
+            options.push({
+              value: article._id,
+              label: article.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+        dataType: 'string',
+      },
+      {
+        key: 'setting.fourth',
+        label: 'Fourth article',
+        type: 'select_async',
+        async_options: async (inputValue: string) => {
+          // get all articles
+          const { data: articles } = await db.get(`/articles`);
+
+          // with the article data, create the options array
+          let options: Array<{ value: string; label: string }> = [];
+          articles.forEach((article: { _id: string; name: string }) => {
+            options.push({
+              value: article._id,
+              label: article.name,
+            });
+          });
+
+          // filter the options based on `inputValue`
+          const filteredOptions = options.filter((option) =>
+            option.label.toLowerCase().includes(inputValue.toLowerCase())
+          );
+
+          // return the filtered options
+          return filteredOptions;
+        },
+        dataType: 'string',
+      },
+    ],
+    columns: [],
+    collectionName: 'settings',
   },
 };
 

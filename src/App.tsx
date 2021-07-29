@@ -20,6 +20,7 @@ import {
   Balloon16Regular,
   Dismiss16Regular,
   Cookies24Regular,
+  StarEmphasis24Regular,
 } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -270,6 +271,20 @@ function App() {
                             >
                               All satire
                             </SideNavSubButton>
+                            {JSON.parse(localStorage.getItem('auth.user') as string).teams.includes(
+                              'MDQ6VGVhbTQ2NDI0MTc='
+                            ) ? (
+                              <>
+                                <SideNavHeading>Configuration</SideNavHeading>
+                                <SideNavSubButton
+                                  Icon={<StarEmphasis24Regular />}
+                                  to={`/cms/item/featured-settings/6101da4a5386ae9ea3147f17`}
+                                  setIsNavVisibleM={setIsNavVisibleM}
+                                >
+                                  Featured articles
+                                </SideNavSubButton>
+                              </>
+                            ) : null}
                           </Route>
                           <Route path={`/plans`}>
                             <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
