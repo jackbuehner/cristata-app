@@ -271,7 +271,7 @@ function App() {
                             >
                               All satire
                             </SideNavSubButton>
-                            {JSON.parse(localStorage.getItem('auth.user') as string).teams.includes(
+                            {JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
                               'MDQ6VGVhbTQ2NDI0MTc='
                             ) ? (
                               <>
