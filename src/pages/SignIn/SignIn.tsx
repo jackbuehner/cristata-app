@@ -24,7 +24,7 @@ function SignIn() {
         : `http://localhost:3001/auth/github`;
   };
 
-  const [{ data: user }] = useAxios({
+  const [{ data: user }, refetchUser] = useAxios({
     url: '/auth',
     baseURL:
       process.env.NODE_ENV === 'production' ? `https://api.thepaladin.cristata.app` : `http://localhost:3001`,
@@ -39,12 +39,13 @@ function SignIn() {
   /**
    * Determine whether this user has two factor authentication enabled.
    */
-  const is2faEnabled = useCallback(() => {
+  const is2faEnabled = useCallback(async () => {
+    await refetchUser();
     if (user) {
       return user.two_factor_authentication;
     }
     return false;
-  }, [user]);
+  }, [user, refetchUser]);
 
   /**
    * Attempt to join the org, and redirect the user to the correct step after a response is received
