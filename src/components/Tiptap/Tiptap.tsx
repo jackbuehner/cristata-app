@@ -506,11 +506,13 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
                     title={profile.name}
                   >
                     {profile.name
-                      .match(/(^\S\S?|\b\S)?/g)
-                      ?.join('')
-                      .match(/(^\S|\S$)?/g)
-                      ?.join('')
-                      .toUpperCase()}
+                      ? profile.name
+                          .match(/(^\S\S?|\b\S)?/g)
+                          ?.join('')
+                          .match(/(^\S|\S$)?/g)
+                          ?.join('')
+                          .toUpperCase()
+                      : '??'}
                   </div>
                 );
               })}
