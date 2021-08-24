@@ -255,6 +255,10 @@ interface IMenuBar {
   setLayout: React.Dispatch<React.SetStateAction<'standard' | 'full'>>;
   awarenessProfiles?: { name: string; color: string; sessionId: string }[];
   tiptapWidth: number;
+  user: {
+    name: string;
+    color: string;
+  };
 }
 
 function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
@@ -690,12 +694,21 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
                 Insert Link
               </ToolbarRowButton>
               <ToolbarRowButton
-                onClick={() => editor.chain().focus().setComment().run()}
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setComment(props.user.color, {
+                      name: props.user.name,
+                      photo: 'https://avatars.githubusercontent.com/u/69555023',
+                    })
+                    .run()
+                }
                 isActive={false}
                 icon={<CommentAdd20Regular />}
                 theme={theme}
                 color={'neutral'}
-                disabled={!editor.can().setComment()}
+                disabled={!editor.can().setComment('', { name: '', photo: '' })}
               >
                 Insert Comment
               </ToolbarRowButton>
@@ -891,6 +904,7 @@ const Tiptap = (props: ITiptap) => {
         setLayout={setLayout}
         awarenessProfiles={awarenessProfiles}
         tiptapWidth={tiptapWidth}
+        user={props.user}
       />
       <div
         css={css`

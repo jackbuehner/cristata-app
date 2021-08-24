@@ -1,10 +1,11 @@
 import { Node } from '@tiptap/core';
-import { ReactNodeViewRenderer } from '@tiptap/react';
+import { JSONContent, ReactNodeViewRenderer } from '@tiptap/react';
 import { Command } from '@tiptap/react';
 import { Node as ProsemirrorNode, Slice } from 'prosemirror-model';
 import { TextSelection } from 'prosemirror-state';
 import { CommentContainer } from './CommentContainer';
 import { v4 as uuidv4 } from 'uuid';
+import Color from 'color';
 
 declare module '@tiptap/core' {
   interface Commands {
@@ -12,7 +13,7 @@ declare module '@tiptap/core' {
       /**
        * Wrap text nodes in a comment node.
        */
-      setComment: () => Command;
+      setComment: (color: string, commenter: { name: string; photo: string }) => Command;
       /**
        * Remove the comment node included in the selection.
        *
@@ -51,7 +52,7 @@ const Comment = Node.create<CommentOptions>({
         // apply these attributes to the rendered element in the editor
         renderHTML: (attributes) => {
           return {
-            style: `background-color: ${attributes.color}`,
+            style: `background-color: ${Color(attributes.color).alpha(0.4).string()}`,
           };
         },
         parseHTML: (element) => ({
@@ -68,7 +69,7 @@ const Comment = Node.create<CommentOptions>({
         }),
       },
       timestamp: {
-        default: new Date().toISOString,
+        default: new Date().toISOString(),
         renderHTML: (attributes) => ({
           'data-timestamp': attributes.timestamp,
         }),
@@ -78,7 +79,7 @@ const Comment = Node.create<CommentOptions>({
       },
       commenter: {
         default: {
-          name: '',
+          name: 'Unknown Commenter',
           photo: 'https://avatars.githubusercontent.com/u/69555023',
         },
         renderHTML: (attributes) => ({
@@ -87,7 +88,8 @@ const Comment = Node.create<CommentOptions>({
         parseHTML: (element) => {
           const attr = element.getAttribute('data-commenter');
           const commenter = JSON.parse(
-            attr || '{ "name": "hi", "photo": "https://avatars.githubusercontent.com/u/69555023" }'
+            attr ||
+              '{ "name": "Unknown Commenter", "photo": "https://avatars.githubusercontent.com/u/69555023" }'
           );
           return {
             commenter: commenter,
@@ -126,8 +128,8 @@ const Comment = Node.create<CommentOptions>({
   addCommands() {
     return {
       setComment:
-        () =>
-        ({ state, tr, dispatch }) => {
+        (color: string, commenter: { name: string; photo: string }) =>
+        ({ state, dispatch, chain }) => {
           try {
             // a slice containing the selected nodes
             const selectionSlice = state.selection.content();
@@ -155,18 +157,18 @@ const Comment = Node.create<CommentOptions>({
                 //   block nodes
                 // - continuing when the slice contains an existing comment would
                 //   result in overlapping comments
-                textNodesFromSliceFirstChild(selectionSlice).then((textNodes) => {
-                  if (textNodes) {
-                    // create a new comment node that contains all of the text nodes
-                    const newCommentNode = this.type.createAndFill({}, textNodes);
-                    if (newCommentNode) {
-                      // replace the current selection with the comment node that
-                      // contains the text nodes in the selection
-                      tr.replaceSelectionWith(newCommentNode, false);
-                      this.editor.view.dispatch(tr);
-                    }
-                  }
-                });
+                const selectionTextNodes = textNodesFromSliceFirstChild(selectionSlice);
+                if (selectionTextNodes) {
+                  // convert text nodes to JSON so they can be inserted into the editor
+                  const textNodeJSON = selectionTextNodes.map((node) =>
+                    node.toJSON()
+                  ) as unknown as JSONContent[];
+                  // delete the current selection and then insert the text nodes
+                  return chain()
+                    .deleteSelection()
+                    .insertContent([{ content: textNodeJSON, type: 'comment', attrs: { color, commenter } }])
+                    .run();
+                }
               }
             }
 
@@ -197,24 +199,24 @@ const Comment = Node.create<CommentOptions>({
             .command(({ tr, chain }) => {
               try {
                 // get the entire comment node
-                const parent = tr.selection.$anchor;
+                const parent = tr.selection.$anchor.parent;
 
                 // also store the start position of the parent
-                const start = parent.start();
+                const start = tr.selection.$anchor.start();
 
                 // get the text nodes in the comment node
                 const textNodes: ProsemirrorNode<any>[] = [];
-                parent.node().content.descendants((textNode) => {
+                parent.content.descendants((textNode) => {
                   textNodes.push(textNode);
                 });
 
                 // select the entire comment node and delete it
-                tr.setSelection(TextSelection.near(parent));
+                tr.setSelection(TextSelection.near(tr.selection.$anchor));
                 chain().selectParentNode().deleteSelection().run();
 
                 // get the type of the node that is the parent of the comment node
                 // (usually a paragraph)
-                const parentOfParentType = tr.doc.resolve(start).node().type;
+                const parentOfParentType = tr.doc.resolve(start).parent.type;
 
                 // create a new node that matches the new parent type
                 const newNode = parentOfParentType.createAndFill({}, textNodes);
@@ -246,30 +248,43 @@ const Comment = Node.create<CommentOptions>({
  * Get text nodes (recursively) from a slice.
  * @returns array of TextNodes; null if no nodes in slice
  */
-async function textNodesFromSliceFirstChild(slice: Slice<any>) {
-  // store any text noted that have been found
-  let TextNodes: ProsemirrorNode<any>[] = [];
-
+function textNodesFromSliceFirstChild(slice: Slice<any>) {
   /**
    * Find the text nodes in a slice.
    */
-  const findTextNodes = async (node: ProsemirrorNode<any>) => {
-    node.forEach(async (childNode) => {
-      // if it is a text node, add it to the array
-      if (childNode.isText) TextNodes.push(childNode);
-
-      if (childNode.childCount !== 0) {
-        childNode.forEach(async (child) => {
-          await findTextNodes(child);
-        });
-      }
+  const findTextNodes = (node: ProsemirrorNode<any>) => {
+    const descendants: ProsemirrorNode<any>[] = [];
+    node.descendants((childNode) => {
+      descendants.push(childNode);
     });
+
+    // store any text noted that have been found
+    const TextNodes = descendants.map((childNode) => {
+      // if it is a text node, return it to the TextNodes constant
+      if (childNode.isText) return childNode;
+
+      // if the child is not text and it has children, find the children's text nodes
+      if (childNode.childCount !== 0) {
+        const childDescendants: ProsemirrorNode<any>[] = [];
+        childNode.descendants((childNodeChildren) => {
+          descendants.push(childNodeChildren);
+        });
+        childDescendants.map((child) => findTextNodes(child));
+      }
+
+      // otherwise return undefined
+      return undefined;
+    });
+
+    return TextNodes.filter((x) => {
+      // filter out undefined values
+      return x !== undefined;
+    }) as unknown as ProsemirrorNode<any>[];
   };
 
   // start the function that recursively looks for text nodes
   if (slice.content.firstChild) {
-    await findTextNodes(slice.content.firstChild);
-    return TextNodes;
+    return findTextNodes(slice.content.firstChild);
   }
   return null;
 }

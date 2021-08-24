@@ -7,6 +7,8 @@ import { themeType } from '../../../utils/theme/theme';
 import { IconButton } from '../../Button';
 import { TextArea } from '../../TextArea';
 import { CommentOptions } from './comment';
+import { DateTime } from 'luxon';
+import Color from 'color';
 
 interface ICommentContainer extends NodeViewProps {
   extension: Node<CommentOptions>;
@@ -37,13 +39,20 @@ function CommentContainer(props: ICommentContainer) {
   // control whether the card is shown
   const [isShown, setIsShown] = useState<boolean>(false);
 
+  // set the textarea height to match the current message height once messageRef is defined and comment is shown
+  useEffect(() => {
+    if (isShown && messageRef.current) {
+      messageRef.current.style.height = `auto`;
+      messageRef.current.style.height = `${messageRef.current.scrollHeight}px`;
+    }
+  }, [isShown, messageRef]);
+
   /**
    * Toggle the card when a button is clicked
    */
   const toggleCard = (e: React.MouseEvent) => {
     setIsShown(!isShown);
     setTriggerRect(e.currentTarget.getBoundingClientRect());
-    console.log(e.currentTarget.getBoundingClientRect());
   };
 
   /**
@@ -60,7 +69,10 @@ function CommentContainer(props: ICommentContainer) {
 
   return (
     <NodeViewWrapper as={`span`}>
-      <NodeViewContent as={`span`} style={{ backgroundColor: props.node.attrs.color }}></NodeViewContent>
+      <NodeViewContent
+        as={`span`}
+        style={{ backgroundColor: Color(props.node.attrs.color).alpha(0.4) }}
+      ></NodeViewContent>
       <ToggleCardButton icon={<Comment20Regular />} onClick={toggleCard} />
       {isShown ? (
         <Card theme={theme} contentEditable={false} triggerRect={triggerRect}>
@@ -71,7 +83,7 @@ function CommentContainer(props: ICommentContainer) {
                 {props.node.attrs.commenter.name}
               </Commenter>
               <Timestamp theme={theme} contentEditable={false}>
-                {props.node.attrs.timestamp}
+                {DateTime.fromISO(props.node.attrs.timestamp).toFormat(`LLL. dd, yyyy 'at' t`)}
               </Timestamp>
             </div>
           </Meta>
