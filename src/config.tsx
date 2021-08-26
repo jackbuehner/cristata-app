@@ -432,7 +432,6 @@ const collections: Icollections = {
           );
         },
         width: 174,
-        isSortable: false,
       },
       {
         key: 'people.created_by',
