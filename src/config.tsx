@@ -7,6 +7,7 @@ import { colorType } from './utils/theme/theme';
 import { DateTime } from 'luxon';
 import { ImageSearch24Regular, News24Regular, PersonBoard24Regular } from '@fluentui/react-icons';
 import { AxiosResponse } from 'axios';
+import { Row } from 'react-table';
 
 interface Icollections {
   [key: string]:
@@ -19,6 +20,7 @@ interface Icollections {
           render?: (data: { [key: string]: any }) => React.ReactElement;
           filter?: string;
           isSortable?: false;
+          sortType?: string | ((rowA: Row, rowB: Row, columnId: string, desc: boolean) => -1 | 0 | 1);
         }>;
         isPublishable?: boolean;
         publishStage?: number;
@@ -432,6 +434,19 @@ const collections: Icollections = {
           );
         },
         width: 174,
+        sortType: (rowA, rowB, columnId) => {
+          /**
+           * Sort the column by date. This is a specialized function that retrieves the first child (the date)
+           * from the react div component.
+           *
+           * @returns 1 if rowA time is larger than rowB, -1 if rowB is larger than rowA, 0 is equal
+           */
+          const timeA = new Date(rowA.values[columnId].props.children[0]).getTime();
+          const timeB = new Date(rowB.values[columnId].props.children[0]).getTime();
+          if (timeA > timeB) return 1;
+          else if (timeB > timeA) return -1;
+          return 0;
+        },
       },
       {
         key: 'people.created_by',
@@ -475,7 +490,19 @@ const collections: Icollections = {
           if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
           return <div style={{ fontSize: 14 }}>{date}</div>;
         },
-        isSortable: false,
+        sortType: (rowA, rowB, columnId) => {
+          /**
+           * Sort the column by date. This is a specialized function that retrieves the first child (the date)
+           * from the react div component.
+           *
+           * @returns 1 if rowA time is larger than rowB, -1 if rowB is larger than rowA, 0 is equal
+           */
+          const timeA = new Date(rowA.values[columnId].props.children[0]).getTime();
+          const timeB = new Date(rowB.values[columnId].props.children[0]).getTime();
+          if (timeA > timeB) return 1;
+          else if (timeB > timeA) return -1;
+          return 0;
+        },
       },
       { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
     ],

@@ -180,6 +180,7 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
               width: column.width || 150,
               filter: column.filter,
               isSortable: column.isSortable,
+              sortType: column.sortType,
             };
           }
           return {
@@ -189,6 +190,7 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
             width: column.width || 150,
             filter: column.filter,
             isSortable: column.isSortable,
+            sortType: column.sortType,
           };
         }),
       []
