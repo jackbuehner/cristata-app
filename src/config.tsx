@@ -667,11 +667,25 @@ const collections: Icollections = {
             3.1: 'green',
           };
 
-          return <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} />;
+          return (
+            <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} data-number={data.stage} />
+          );
         },
         width: 100,
         filter: 'excludes',
-        isSortable: false,
+        sortType: (rowA, rowB, columnId) => {
+          /**
+           * Sort the column by stage. This is a specialized function that retrieves the stage number
+           * from the react div component.
+           *
+           * @returns 1 if rowA stage is ahead of rowB stage, -1 if rowB is ahead of rowA, 0 if equal
+           */
+          const stageA = rowA.values[columnId].props['data-number'];
+          const stageB = rowB.values[columnId].props['data-number'];
+          if (stageA > stageB) return 1;
+          else if (stageB > stageA) return -1;
+          return 0;
+        },
       },
       {
         key: 'people.requested_by',
