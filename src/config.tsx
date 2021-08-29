@@ -455,8 +455,8 @@ const collections: Icollections = {
            *
            * @returns 1 if rowA time is larger than rowB, -1 if rowB is larger than rowA, 0 is equal
            */
-          const timeA = new Date(rowA.values[columnId].props.children[0]).getTime();
-          const timeB = new Date(rowB.values[columnId].props.children[0]).getTime();
+          const timeA = new Date(rowA.values[columnId].props.children?.[0]).getTime();
+          const timeB = new Date(rowB.values[columnId].props.children?.[0]).getTime();
           if (timeA > timeB) return 1;
           else if (timeB > timeA) return -1;
           return 0;
@@ -511,8 +511,9 @@ const collections: Icollections = {
            *
            * @returns 1 if rowA time is larger than rowB, -1 if rowB is larger than rowA, 0 is equal
            */
-          const timeA = new Date(rowA.values[columnId].props.children[0]).getTime();
-          const timeB = new Date(rowB.values[columnId].props.children[0]).getTime();
+          const timeA = new Date(rowA.values[columnId].props.children).getTime();
+          const timeB = new Date(rowB.values[columnId].props.children).getTime();
+          console.log(timeA);
           if (timeA > timeB) return 1;
           else if (timeB > timeA) return -1;
           return 0;
