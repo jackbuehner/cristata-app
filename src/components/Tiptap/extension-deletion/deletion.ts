@@ -49,14 +49,12 @@ interface DeletionOptions {}
 const Deletion = Mark.create<DeletionOptions>({
   name: 'deletion',
 
-  // add to 'inline' group
-  group: 'inline trackChanges',
-
-  // only allow zero or more inline nodes
-  content: 'text*',
-
   // the cursor at the edges of the mark should not be considered within the mark
   inclusive: false,
+
+  excludes: 'addition deletion strike',
+
+  group: 'inline markSupportsExit',
 
   /**
    *
@@ -184,7 +182,8 @@ function setDeletionFunction(
   tr: Transaction,
   state: EditorState,
   dispatch?: DispatchFunction,
-  caret = 0
+  caret = 0,
+  callback?: (tr: Transaction) => void
 ) {
   if (!range) {
     range = { from: state.selection.from, to: state.selection.to };
@@ -234,6 +233,10 @@ function setDeletionFunction(
   // set the caret position (1: move to right; 0: move to left)
   const resolvedCaretPosition = caret === 1 ? tr.doc.resolve(newRangeTo) : tr.doc.resolve(range.from);
   tr.setSelection(new TextSelection(resolvedCaretPosition, resolvedCaretPosition));
+
+  if (callback) {
+    callback(tr);
+  }
 
   dispatch?.(tr);
 }

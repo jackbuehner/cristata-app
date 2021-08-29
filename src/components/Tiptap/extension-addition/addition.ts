@@ -26,14 +26,12 @@ interface AdditionOptions {}
 const Addition = Mark.create<AdditionOptions>({
   name: 'addition',
 
-  // add to 'inline' group
-  group: 'inline trackChanges',
-
-  // only allow zero or more inline nodes
-  content: 'text*',
-
   // the cursor at the edges of the mark should not be considered within the mark
   inclusive: false,
+
+  excludes: 'deletion addition',
+
+  group: 'inline markSupportsExits',
 
   /**
    *

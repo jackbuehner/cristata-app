@@ -9,7 +9,7 @@ const TrackChanges = Extension.create<TrackChangesOptions>({
   name: 'trackChanges',
 
   addExtensions() {
-    return [AdditionKit, DeletionKit, ManageChanges];
+    return [DeletionKit, AdditionKit, ManageChanges];
   },
 });
 

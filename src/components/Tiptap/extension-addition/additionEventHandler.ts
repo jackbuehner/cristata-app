@@ -2,6 +2,8 @@ import { Extension } from '@tiptap/core';
 import { getMarkType } from '@tiptap/react';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { Addition } from '.';
+import { Deletion } from '../extension-deletion';
+import { setDeletionFunction } from '../extension-deletion/deletion';
 
 const AdditionEventHandler = Extension.create({
   name: 'additionEventHandler',
@@ -23,13 +25,34 @@ const AdditionEventHandler = Extension.create({
                 return true;
               }
             } else {
-              // typing anywhere with tracked changes turned on should insert text with the addition mark
-              dispatch(
-                state.tr
-                  .insertText(text, from, to)
-                  .addMark(from, from + 1, getMarkType(Addition.name, state.schema).create())
-              );
-              return true;
+              // if track changes is enabled and the selection contains content, mark the content for deletion and move the caret to the end of the content
+              if (from !== to) {
+                setDeletionFunction(
+                  { from, to },
+                  getMarkType(Deletion.name, state.schema),
+                  state.tr,
+                  state,
+                  dispatch,
+                  1,
+                  (tr) => {
+                    // typing anywhere with tracked changes turned on should insert text with the addition mark
+                    tr.insertText(text, to, to).addMark(
+                      to,
+                      to + 1,
+                      getMarkType(Addition.name, state.schema).create()
+                    );
+                  }
+                );
+                return true;
+              } else {
+                // typing anywhere with tracked changes turned on should insert text with the addition mark
+                dispatch(
+                  state.tr
+                    .insertText(text, from, to)
+                    .addMark(from, from + 1, getMarkType(Addition.name, state.schema).create())
+                );
+                return true;
+              }
             }
 
             return false;

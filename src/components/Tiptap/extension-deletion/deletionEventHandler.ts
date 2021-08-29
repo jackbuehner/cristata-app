@@ -13,7 +13,6 @@ const DeletionEventHandler = Extension.create({
         key: new PluginKey('deletionEventHandler'),
         props: {
           handleTextInput({ state, dispatch }, from, to, text) {
-            console.log('hi');
             if (!state.doc.attrs?.trackChanges) {
               // typing inside a node with the deletion mark should insert text in a node without the deletion mark
               if (state.doc.rangeHasMark(from - 1, to, getMarkType(Deletion.name, state.schema))) {
@@ -28,22 +27,22 @@ const DeletionEventHandler = Extension.create({
 
             return false;
           },
-          handlePaste({ state, dispatch }, _event, slice) {
-            const tr = state.tr;
-
-            const range = {
-              from: state.selection.from,
-              to: state.selection.to,
-            };
-
-            // add deletion mark to range and move caret to end of range
-            if (state.doc.attrs?.trackChanges) {
-              setDeletionFunction(range, getMarkType(Deletion.name, state.schema), tr, state, dispatch, 1);
-            }
-
-            return false;
-          },
           handleDOMEvents: {
+            paste: ({ state, dispatch }, event) => {
+              const tr = state.tr;
+
+              const range = {
+                from: state.selection.from,
+                to: state.selection.to,
+              };
+
+              // add deletion mark to range and move caret to end of range
+              if (state.doc.attrs?.trackChanges) {
+                setDeletionFunction(range, getMarkType(Deletion.name, state.schema), tr, state, dispatch, 1);
+              }
+
+              return false;
+            },
             keydown: ({ state, dispatch }, event) => {
               const tr = state.tr;
               const doc = state.doc;
