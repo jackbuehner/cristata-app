@@ -43,7 +43,7 @@ const BUTTON = styled.button<StyledButtonProps>`
   ${({ cssExtra }) => cssExtra}
 `;
 
-const IconStyleWrapper = styled.span<{ theme: themeType }>`
+const IconStyleWrapper = styled.span<{ theme: themeType; disabled?: boolean }>`
   margin: 0 8px 0 -4px;
   width: 16px;
   height: 16px;
@@ -51,6 +51,7 @@ const IconStyleWrapper = styled.span<{ theme: themeType }>`
     width: 16px;
     height: 16px;
     fill: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
+    opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
   }
 `;
 
@@ -101,7 +102,9 @@ const Button: React.FC<ButtonProps> = (props) => {
       {props.customIcon ? (
         props.customIcon
       ) : props.icon ? (
-        <IconStyleWrapper theme={theme}>{props.icon}</IconStyleWrapper>
+        <IconStyleWrapper theme={theme} disabled={props.disabled}>
+          {props.icon}
+        </IconStyleWrapper>
       ) : null}
       <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
     </BUTTON>
