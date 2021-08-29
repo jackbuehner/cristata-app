@@ -463,6 +463,28 @@ const collections: Icollections = {
         },
       },
       {
+        key: 'people.editors.copy',
+        label: 'Copy edited by',
+        render: (data) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
+            {data.people?.authors?.map((author: { name: string; photo?: string }, index: number) => {
+              const { name, photo } = author;
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <img
+                    src={photo}
+                    alt={``}
+                    style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                  />
+                  <span style={{ fontSize: 14 }}>{name}</span>
+                </div>
+              );
+            })}
+          </div>
+        ),
+        isSortable: false,
+      },
+      {
         key: 'people.created_by',
         label: 'Created by',
         render: (data) => {
