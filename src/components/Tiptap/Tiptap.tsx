@@ -45,6 +45,18 @@ import Color from 'color';
 import { IProfile } from '../../interfaces/cristata/profiles';
 import { db } from '../../utils/axios/db';
 import applyDevTools from 'prosemirror-dev-tools';
+import {
+  AcceptRevision20Icon,
+  Editor20Icon,
+  NextRevision20Icon,
+  PreviousRevision20Icon,
+  RejectRevision20Icon,
+  TrackChanges20Icon,
+  WordCountList20Icon,
+} from './office-icon';
+import './office-icon/colors1.css';
+import { SetDocAttrStep } from './utilities/SetDocAttrStep';
+import { TrackChanges } from './extension-track-changes';
 
 const Toolbar = styled.div`
   position: relative;
@@ -152,6 +164,10 @@ const ToolbarRowButton = styled(Button)<{ theme: themeType; isActive: boolean }>
   min-width: 40px;
   border: 1px solid transparent;
   background-color: ${({ theme, isActive }) => (isActive ? '_' : 'transparent')};
+  > span[class*='IconStyleWrapper'] {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const Statusbar = styled.div`
@@ -260,11 +276,13 @@ interface IMenuBar {
     name: string;
     color: string;
   };
+  toggleTrackChanges: () => void;
+  trackChanges: boolean;
 }
 
 function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
   const theme = useTheme() as themeType;
-  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'utils'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'utils'>('home');
 
   // DROPDOWNS
   // font family
@@ -437,6 +455,30 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
       </PlainModal>
     );
   }, [editor]);
+  // get Microsoft Editor
+  const [showMSFTEditorModal, hideMSFTEditorModal] = useModal(() => {
+    return (
+      <PlainModal
+        hideModal={hideLinkModal}
+        title={`Microsoft Editor`}
+        text={`Add the Microsoft Editor extension to your browser to recieve spelling, grammar, and refinement suggestions on the content of this document. You will need to sign in with your Microsoft 365 Account.`}
+        continueButton={{
+          text: 'Get Microsoft Editor',
+          onClick: () => {
+            window.open(`https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`);
+            return true;
+          },
+        }}
+        cancelButton={{
+          text: 'Close',
+          onClick: () => {
+            hideMSFTEditorModal();
+            return true;
+          },
+        }}
+      ></PlainModal>
+    );
+  }, [editor]);
 
   if (!editor) {
     return null;
@@ -471,6 +513,14 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
                 onClick={() => setActiveTab('layout')}
               >
                 Layout
+              </ToolbarTabButton>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'review'}
+                onClick={() => setActiveTab('review')}
+              >
+                Review
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
@@ -727,6 +777,101 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
                 {props.layout}
               </Combobox>
             </ToolbarRow>
+            <ToolbarRow isActive={activeTab === 'review'}>
+              <ToolbarRowButton
+                onClick={() => showMSFTEditorModal()}
+                isActive={false}
+                icon={<Editor20Icon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor}
+              >
+                Editor (spell check)
+              </ToolbarRowButton>
+              <ToolbarRowIconButton
+                onClick={() => null}
+                isActive={false}
+                icon={<WordCountList20Icon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={true}
+              />
+              <ToolbarDivider />
+              <ToolbarRowButton
+                onClick={() => props.toggleTrackChanges()}
+                isActive={props.trackChanges}
+                icon={<TrackChanges20Icon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor}
+              >
+                Track changes (text only)
+              </ToolbarRowButton>
+              <ToolbarRowButton
+                onClick={() => editor.chain().focus().approveChange().run()}
+                isActive={false}
+                icon={<AcceptRevision20Icon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor}
+              >
+                Accept
+              </ToolbarRowButton>
+              <ToolbarRowButton
+                onClick={() => editor.chain().focus().rejectChange().run()}
+                isActive={false}
+                icon={<RejectRevision20Icon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor}
+              >
+                Reject
+              </ToolbarRowButton>
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().previousChange().run()}
+                isActive={false}
+                icon={<PreviousRevision20Icon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor}
+              />
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().nextChange().run()}
+                isActive={false}
+                icon={<NextRevision20Icon />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor}
+              />
+              <ToolbarDivider />
+              <ToolbarRowButton
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setComment(props.user.color, {
+                      name: props.user.name,
+                      photo: 'https://avatars.githubusercontent.com/u/69555023',
+                    })
+                    .run()
+                }
+                isActive={false}
+                icon={<CommentAdd20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().setComment('', { name: '', photo: '' })}
+              >
+                Insert Comment
+              </ToolbarRowButton>
+              <ToolbarRowIconButton
+                onClick={() => editor.chain().focus().unsetComment().run()}
+                isActive={false}
+                icon={<CommentOff20Regular />}
+                theme={theme}
+                color={'neutral'}
+                disabled={!editor.can().unsetComment()}
+              />
+            </ToolbarRow>
             <ToolbarRow isActive={activeTab === 'utils'}>
               <Button onClick={() => editor.chain().focus().unsetAllMarks().run()}>clear marks</Button>
               <Button onClick={() => editor.chain().focus().clearNodes().run()}>clear nodes</Button>
@@ -763,6 +908,8 @@ const Tiptap = (props: ITiptap) => {
 
   // A new Y document
   const ydoc = useMemo(() => new Y.Doc(), []);
+  // create a setting map for this document (used to sync settings accross all editors)
+  const ySettingsMap = useMemo(() => ydoc.getMap('settings'), [ydoc]);
   // register with a WebSocket provider
   const providerWebsocket = useMemo(
     () =>
@@ -822,6 +969,7 @@ const Tiptap = (props: ITiptap) => {
     content: props.html,
     extensions: [
       StarterKit.configure({ history: false }),
+      TrackChanges,
       Underline,
       TextStyle,
       FontFamily,
@@ -883,10 +1031,54 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [props.flatData, props.options]);
 
+  // manage whether track changes is on
+  const [trackChanges, setTrackChanges] = useState<boolean>(editor?.state.doc.attrs.trackChanges);
+
+  /**
+   * Toggle whether track changes is enabled. Sets the change to react state
+   *  and stores the change in the ydoc.
+   */
+  const toggleTrackChanges = () => {
+    // update track changes in react state
+    setTrackChanges(!trackChanges);
+    // update content of the ydoc
+    ydoc.transact(() => {
+      // set a trackChanges key-value pair inside the settings map
+      ySettingsMap.set('trackChanges', !trackChanges);
+    });
+  };
+
+  // when the editor finishes loading, update track changes to match
+  useEffect(() => {
+    if (editor) {
+      setTrackChanges(ySettingsMap.get('trackChanges'));
+    }
+  }, [setTrackChanges, ySettingsMap, editor]);
+
+  // if another editor changes the track changes setting, update the react state
+  ySettingsMap.observe(() => {
+    setTrackChanges(ySettingsMap.get('trackChanges'));
+  });
+
+  // when `trackChanges` is changed in state, also set it in the document attributes.
+  // the document attributes do not sync, but they are available to tiptap extensions.
+  useEffect(() => {
+    if (editor) {
+      editor.state.tr.step(new SetDocAttrStep('trackChanges', trackChanges));
+    }
+  }, [editor, trackChanges]);
+
   // show prosemirror developer tools when in development mode
   useEffect(() => {
     if (editor && process.env.NODE_ENV === 'development') applyDevTools(editor.view);
   }, [editor]);
+
+  // make user name and color available to tiptap extensions via document attributes
+  useEffect(() => {
+    if (editor) {
+      editor.state.tr.step(new SetDocAttrStep('user', props.user));
+    }
+  }, [editor, props.user]);
 
   return (
     <div
@@ -911,6 +1103,8 @@ const Tiptap = (props: ITiptap) => {
         awarenessProfiles={awarenessProfiles}
         tiptapWidth={tiptapWidth}
         user={props.user}
+        toggleTrackChanges={toggleTrackChanges}
+        trackChanges={trackChanges}
       />
       <div
         css={css`
@@ -1029,6 +1223,10 @@ const Tiptap = (props: ITiptap) => {
                 padding: 0.1rem 0.3rem;
                 border-radius: 0;
                 white-space: nowrap;
+              }
+              addition {
+                color: #d0021b;
+                border-bottom: 1px solid #d0021b;
               }
             }
           `}
