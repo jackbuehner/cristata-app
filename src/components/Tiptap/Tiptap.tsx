@@ -44,6 +44,7 @@ import { FullBleedLayout } from './special-components/article/FullBleedLayout';
 import Color from 'color';
 import { IProfile } from '../../interfaces/cristata/profiles';
 import { db } from '../../utils/axios/db';
+import applyDevTools from 'prosemirror-dev-tools';
 
 const Toolbar = styled.div`
   position: relative;
@@ -881,6 +882,11 @@ const Tiptap = (props: ITiptap) => {
       setAuthors(full);
     }
   }, [props.flatData, props.options]);
+
+  // show prosemirror developer tools when in development mode
+  useEffect(() => {
+    if (editor && process.env.NODE_ENV === 'development') applyDevTools(editor.view);
+  }, [editor]);
 
   return (
     <div

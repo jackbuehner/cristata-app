@@ -84,10 +84,12 @@
     "@types/color": "^3.0.1",
     "@types/color-hash": "^1.0.0",
     "@types/luxon": "^1.26.4",
+    "@types/prosemirror-dev-tools": "^3.0.2",
     "@types/react-modal": "^3.12.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/react-select": "^4.0.15",
     "@types/react-table": "^7.0.29",
-    "@types/uuid": "^8.3.0"
+    "@types/uuid": "^8.3.0",
+    "prosemirror-dev-tools": "^3.1.0"
   }
 }
