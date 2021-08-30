@@ -916,9 +916,14 @@ const Tiptap = (props: ITiptap) => {
       new WebsocketProvider(
         process.env.NODE_ENV === 'production'
           ? `wss://api.thepaladin.cristata.app/hocuspocus/`
-          : 'ws://localhost:3001/hocuspocus/',
+          : `ws://localhost:3001/hocuspocus/`,
         props.docName,
-        ydoc
+        ydoc,
+        {
+          params: {
+            version: packageJson.version,
+          },
+        }
       ),
     [props.docName, ydoc]
   );
@@ -1080,6 +1085,17 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [editor, props.user]);
 
+  const [connected, setConnected] = useState<boolean>(providerWebsocket.wsconnected);
+  useEffect(() => {
+    if (providerWebsocket.wsconnected === true) {
+      setTimeout(() => {
+        setConnected(providerWebsocket.wsconnected);
+      }, 1000);
+    } else {
+      setConnected(false);
+    }
+  }, [providerWebsocket.wsconnected, setConnected]);
+
   return (
     <div
       css={css`
@@ -1106,11 +1122,12 @@ const Tiptap = (props: ITiptap) => {
         toggleTrackChanges={toggleTrackChanges}
         trackChanges={trackChanges}
       />
+
       <div
         css={css`
           overflow: auto;
           width: 100%;
-          display: flex;
+          display: ${connected ? 'flex' : 'none'};
           flex-direction: column;
           align-items: center;
         `}
@@ -1238,6 +1255,13 @@ const Tiptap = (props: ITiptap) => {
         <StatusbarBlock>{editor?.getCharacterCount()} characters</StatusbarBlock>
         <StatusbarBlock>
           {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
+        </StatusbarBlock>
+        <StatusbarBlock>
+          {providerWebsocket.wsconnected
+            ? 'Connected'
+            : providerWebsocket.wsconnecting
+            ? 'Connecting...'
+            : 'Failed to connect'}
         </StatusbarBlock>
       </Statusbar>
     </div>
