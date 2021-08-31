@@ -277,6 +277,7 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
+        dataType: 'number',
       },
       {
         key: 'permissions.teams',
@@ -304,7 +305,6 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
-        dataType: 'number',
       },
       { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
       { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
@@ -641,6 +641,7 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
+        dataType: 'number',
       },
       {
         key: 'permissions.teams',
@@ -668,7 +669,6 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
-        dataType: 'number',
       },
       { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
       { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
@@ -929,6 +929,7 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
+        dataType: 'number',
       },
       {
         key: 'permissions.teams',
@@ -956,7 +957,6 @@ const collections: Icollections = {
           // return the filtered options
           return filteredOptions;
         },
-        dataType: 'number',
       },
       { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
       { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
