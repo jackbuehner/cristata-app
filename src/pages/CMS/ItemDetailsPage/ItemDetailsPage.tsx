@@ -27,6 +27,7 @@ import { PlainModal } from '../../../components/Modal';
 import LuxonUtils from '@date-io/luxon';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import Color from 'color';
+import { ErrorBoundary } from 'react-error-boundary';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -308,42 +309,46 @@ function ItemDetailsPage() {
             collectionsConfig[dashToCamelCase(collection)]?.fields.map((field, index) => {
               if (field.type === 'text') {
                 return (
-                  <InputGroup type={`text`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <TextInput
-                      name={field.label}
-                      id={field.key}
-                      value={flatData[field.key] as string}
-                      onChange={(e) => handleTextChange(e, field.key)}
-                      isDisabled={publishLocked ? true : field.isDisabled}
-                    />
-                  </InputGroup>
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <TextInput
+                        name={field.label}
+                        id={field.key}
+                        value={flatData[field.key] as string}
+                        onChange={(e) => handleTextChange(e, field.key)}
+                        isDisabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
               if (field.type === 'boolean') {
                 return (
-                  <InputGroup type={`checkbox`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <input
-                      type={'checkbox'}
-                      name={field.label}
-                      id={field.key}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    />
-                  </InputGroup>
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`checkbox`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <input
+                        type={'checkbox'}
+                        name={field.label}
+                        id={field.key}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
@@ -351,207 +356,252 @@ function ItemDetailsPage() {
                 const isHTML = field.tiptap && field.tiptap.isHTMLkey && flatData[field.tiptap.isHTMLkey];
                 const html = isHTML ? (flatData[field.key] as string) : undefined;
                 return (
-                  <InputGroup type={`text`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <div
-                      id={field.key}
-                      css={css`
-                        width: 100%;
-                        box-sizing: border-box;
-                        border-radius: ${theme.radius};
-                        border: none;
-                        box-shadow: ${theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
-                        transition: box-shadow 240ms;
-                        padding: 2px;
-                        height: 400px;
-                        overflow: auto;
-                        &:hover {
-                          box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
-                        }
-                        &:focus-within {
-                          outline: none;
-                          box-shadow: ${theme.color.primary[800]} 0px 0px 0px 2px inset;
-                        }
-                        .ProseMirror {
-                          &:focus {
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <div
+                        id={field.key}
+                        css={css`
+                          width: 100%;
+                          box-sizing: border-box;
+                          border-radius: ${theme.radius};
+                          border: none;
+                          box-shadow: ${theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
+                          transition: box-shadow 240ms;
+                          padding: 2px;
+                          height: 400px;
+                          overflow: auto;
+                          &:hover {
+                            box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+                          }
+                          &:focus-within {
                             outline: none;
+                            box-shadow: ${theme.color.primary[800]} 0px 0px 0px 2px inset;
                           }
-                        }
-                      `}
-                    >
-                      <Tiptap
-                        docName={`${collection}.${item_id}`}
-                        user={{
-                          name: user.displayName,
-                          color: colorHash.hex(user._id),
-                        }}
-                        options={field.tiptap}
-                        flatData={flatData}
-                        setFlatData={setFlatData}
-                        isDisabled={publishLocked ? true : isHTML ? true : field.isDisabled}
-                        sessionId={sessionId}
-                        html={html}
-                        onChange={(editorJson: string) => {
-                          if (editorJson !== flatData[field.key]) {
-                            if (flatData.name) {
-                              setFlatData({
-                                ...flatData,
-                                [field.key]: editorJson,
-                              });
+                          .ProseMirror {
+                            &:focus {
+                              outline: none;
                             }
-                            setHasUnsavedChanges(true);
                           }
-                        }}
-                      />
-                    </div>
-                  </InputGroup>
+                        `}
+                      >
+                        <Tiptap
+                          docName={`${collection}.${item_id}`}
+                          user={{
+                            name: user.displayName,
+                            color: colorHash.hex(user._id),
+                          }}
+                          options={field.tiptap}
+                          flatData={flatData}
+                          setFlatData={setFlatData}
+                          isDisabled={publishLocked ? true : isHTML ? true : field.isDisabled}
+                          sessionId={sessionId}
+                          html={html}
+                          onChange={(editorJson: string) => {
+                            if (editorJson !== flatData[field.key]) {
+                              if (flatData.name) {
+                                setFlatData({
+                                  ...flatData,
+                                  [field.key]: editorJson,
+                                });
+                              }
+                              setHasUnsavedChanges(true);
+                            }
+                          }}
+                        />
+                      </div>
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
               if (field.type === 'select') {
                 return (
-                  <InputGroup type={`text`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <Select
-                      options={field.options}
-                      val={`${flatData[field.key] as string | number}`}
-                      onChange={(valueObj) =>
-                        handleSelectChange(
-                          valueObj ? valueObj.value : '',
-                          field.key,
-                          typeof flatData[field.key] === 'number' ? 'number' : 'string'
-                        )
-                      }
-                      isDisabled={publishLocked ? true : field.isDisabled}
-                    />
-                  </InputGroup>
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <Select
+                        options={field.options}
+                        val={`${flatData[field.key] as string | number}`}
+                        onChange={(valueObj) =>
+                          handleSelectChange(
+                            valueObj ? valueObj.value : '',
+                            field.key,
+                            typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                          )
+                        }
+                        isDisabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
               if (field.type === 'select_async') {
                 return (
-                  <InputGroup type={`text`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <Select
-                      loadOptions={field.async_options}
-                      async
-                      val={`${flatData[field.key] as string | number}`}
-                      onChange={(valueObj) =>
-                        handleSelectChange(
-                          valueObj ? valueObj.value : '',
-                          field.key,
-                          typeof flatData[field.key] === 'number' ? 'number' : 'string'
-                        )
-                      }
-                      isDisabled={publishLocked ? true : field.isDisabled}
-                    />
-                  </InputGroup>
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <Select
+                        loadOptions={field.async_options}
+                        async
+                        val={`${flatData[field.key] as string | number}`}
+                        onChange={(valueObj) =>
+                          handleSelectChange(
+                            valueObj ? valueObj.value : '',
+                            field.key,
+                            typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                          )
+                        }
+                        isDisabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
               if (field.type === 'multiselect') {
                 const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
                 return (
-                  <InputGroup type={`text`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <MultiSelect
-                      options={field.options}
-                      val={vals}
-                      onChange={(valueObjs) =>
-                        handleMultiselectChange(
-                          valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                          field.key,
-                          field.dataType || 'string'
-                        )
-                      }
-                      isDisabled={publishLocked ? true : field.isDisabled}
-                    />
-                  </InputGroup>
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <MultiSelect
+                        options={field.options}
+                        val={vals}
+                        onChange={(valueObjs) =>
+                          handleMultiselectChange(
+                            valueObjs
+                              ? valueObjs.map((obj: { value: string; number: string }) => obj.value)
+                              : '',
+                            field.key,
+                            field.dataType || 'string'
+                          )
+                        }
+                        isDisabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
               if (field.type === 'multiselect_async') {
                 const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
                 return (
-                  <InputGroup type={`text`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <MultiSelect
-                      loadOptions={field.async_options}
-                      async
-                      val={vals}
-                      onChange={(valueObjs) => {
-                        handleMultiselectChange(
-                          valueObjs ? valueObjs.map((obj: { value: string; label: string }) => obj.value) : '',
-                          field.key,
-                          field.dataType || 'string'
-                        );
-                      }}
-                      isDisabled={publishLocked ? true : field.isDisabled}
-                    />
-                  </InputGroup>
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <MultiSelect
+                        loadOptions={field.async_options}
+                        async
+                        val={vals}
+                        onChange={(valueObjs) => {
+                          handleMultiselectChange(
+                            valueObjs
+                              ? valueObjs.map((obj: { value: string; label: string }) => obj.value)
+                              : '',
+                            field.key,
+                            field.dataType || 'string'
+                          );
+                        }}
+                        isDisabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
               if (field.type === 'multiselect_creatable') {
                 const val = flatData[field.key] as string[];
                 return (
-                  <InputGroup type={`text`} key={index}>
-                    <Label
-                      htmlFor={field.key}
-                      description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <MultiSelect
-                      options={field.options}
-                      val={val}
-                      onChange={(valueObjs) =>
-                        handleMultiselectChange(
-                          valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                          field.key,
-                          field.dataType || 'string'
-                        )
-                      }
-                      isCreatable
-                      isDisabled={publishLocked ? true : field.isDisabled}
-                    />
-                  </InputGroup>
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <MultiSelect
+                        options={field.options}
+                        val={val}
+                        onChange={(valueObjs) =>
+                          handleMultiselectChange(
+                            valueObjs
+                              ? valueObjs.map((obj: { value: string; number: string }) => obj.value)
+                              : '',
+                            field.key,
+                            field.dataType || 'string'
+                          )
+                        }
+                        isCreatable
+                        isDisabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
                 );
               }
 
               if (field.type === 'datetime') {
                 return (
+                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`} key={index}>
+                      <Label
+                        htmlFor={field.key}
+                        description={field.description}
+                        disabled={publishLocked ? true : field.isDisabled}
+                      >
+                        {field.label}
+                      </Label>
+                      <DateTime
+                        value={
+                          flatData[field.key] === '0001-01-01T01:00:00.000Z'
+                            ? null
+                            : (flatData[field.key] as string)
+                        }
+                        onChange={(date) => {
+                          if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);
+                        }}
+                        isDisabled={publishLocked ? true : field.isDisabled}
+                      />
+                    </InputGroup>
+                  </ErrorBoundary>
+                );
+              }
+
+              return (
+                <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
                   <InputGroup type={`text`} key={index}>
                     <Label
                       htmlFor={field.key}
@@ -560,32 +610,9 @@ function ItemDetailsPage() {
                     >
                       {field.label}
                     </Label>
-                    <DateTime
-                      value={
-                        flatData[field.key] === '0001-01-01T01:00:00.000Z'
-                          ? null
-                          : (flatData[field.key] as string)
-                      }
-                      onChange={(date) => {
-                        if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);
-                      }}
-                      isDisabled={publishLocked ? true : field.isDisabled}
-                    />
+                    <pre>{JSON.stringify(field)}</pre>
                   </InputGroup>
-                );
-              }
-
-              return (
-                <InputGroup type={`text`} key={index}>
-                  <Label
-                    htmlFor={field.key}
-                    description={field.description}
-                    disabled={publishLocked ? true : field.isDisabled}
-                  >
-                    {field.label}
-                  </Label>
-                  <pre>{JSON.stringify(field)}</pre>
-                </InputGroup>
+                </ErrorBoundary>
               );
             })}
       </PageWrapper>
