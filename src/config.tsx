@@ -1139,11 +1139,12 @@ const collections: Icollections = {
 
           // with the article data, create the options array
           let options: Array<{ value: string; label: string }> = [];
-          articles.forEach((article: { _id: string; name: string }) => {
-            options.push({
-              value: article._id,
-              label: article.name,
-            });
+          articles.forEach((article: { _id: string; name: string; stage: number }) => {
+            if (article.stage > 5)
+              options.push({
+                value: article._id,
+                label: `${article.name} (${article._id.slice(-7, article._id.length)})`,
+              });
           });
 
           // filter the options based on `inputValue`
@@ -1166,11 +1167,12 @@ const collections: Icollections = {
 
           // with the article data, create the options array
           let options: Array<{ value: string; label: string }> = [];
-          articles.forEach((article: { _id: string; name: string }) => {
-            options.push({
-              value: article._id,
-              label: article.name,
-            });
+          articles.forEach((article: { _id: string; name: string; stage: number }) => {
+            if (article.stage > 5)
+              options.push({
+                value: article._id,
+                label: `${article.name} (${article._id.slice(-7, article._id.length)})`,
+              });
           });
 
           // filter the options based on `inputValue`
@@ -1193,11 +1195,12 @@ const collections: Icollections = {
 
           // with the article data, create the options array
           let options: Array<{ value: string; label: string }> = [];
-          articles.forEach((article: { _id: string; name: string }) => {
-            options.push({
-              value: article._id,
-              label: article.name,
-            });
+          articles.forEach((article: { _id: string; name: string; stage: number }) => {
+            if (article.stage > 5)
+              options.push({
+                value: article._id,
+                label: `${article.name} (${article._id.slice(-7, article._id.length)})`,
+              });
           });
 
           // filter the options based on `inputValue`
@@ -1220,11 +1223,12 @@ const collections: Icollections = {
 
           // with the article data, create the options array
           let options: Array<{ value: string; label: string }> = [];
-          articles.forEach((article: { _id: string; name: string }) => {
-            options.push({
-              value: article._id,
-              label: article.name,
-            });
+          articles.forEach((article: { _id: string; name: string; stage: number }) => {
+            if (article.stage > 5)
+              options.push({
+                value: article._id,
+                label: `${article.name} (${article._id.slice(-7, article._id.length)})`,
+              });
           });
 
           // filter the options based on `inputValue`
