@@ -86,9 +86,11 @@ const ManageChanges = Extension.create({
           // remove marks
           nodes.forEach((node) => {
             for (let i = 0; i < node.marks.length; i++) {
-              if (node.marks[i].type.name === 'deletion' || node.marks[i].type.name === 'addition') {
+              if (node.marks[i].type.name === 'addition') {
                 // @ts-expect-error (ts doesn't like range.from for some reason)
                 tr.removeMark(range.from, newRangeTo, node.marks[i].type);
+              } else if (node.marks[i].type.name === 'deletion') {
+                tr.deleteRange(node.from, node.to);
               }
             }
           });
