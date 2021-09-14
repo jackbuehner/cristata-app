@@ -58,7 +58,8 @@
     "yjs": "^13.5.8"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "dev:react": "react-scripts start",
+    "dev:tunnel": "./bin/pktriot-0.10.8/pktriot start --config ./bin/pktriot-0.10.8/config.json",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
