@@ -47,10 +47,7 @@ import { SatirePage } from './pages/CMS/SatirePage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
-  baseURL:
-    process.env.NODE_ENV === 'production'
-      ? `https://api.thepaladin.cristata.app/api/v2`
-      : `http://localhost:3001/api/v2`,
+  baseURL: `https://api.thepaladin.dev.cristata.app/api/v2`,
   withCredentials: true,
 });
 configure({ axios: axiosSettings });
@@ -63,8 +60,7 @@ export interface IGridCols {
 function App() {
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
-    baseURL:
-      process.env.NODE_ENV === 'production' ? `https://api.thepaladin.cristata.app` : `http://localhost:3001`,
+    baseURL: process.env.REACT_APP_API_BASE_URL,
     withCredentials: true,
     method: 'GET',
   });
@@ -154,10 +150,7 @@ function App() {
               path={`/sign-out`}
               exact
               component={() => {
-                window.location.href =
-                  process.env.NODE_ENV === 'production'
-                    ? `https://api.thepaladin.cristata.app/auth/clear`
-                    : `http://localhost:3001/auth/clear`;
+                window.location.href = `${process.env.REACT_APP_API_BASE_URL}/auth/clear`;
                 return null;
               }}
             />

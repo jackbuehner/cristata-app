@@ -18,16 +18,12 @@ function SignIn() {
   const query = new URLSearchParams(location.search);
 
   const signInAction = () => {
-    document.location.href =
-      process.env.NODE_ENV === 'production'
-        ? `https://api.thepaladin.cristata.app/auth/github`
-        : `http://localhost:3001/auth/github`;
+    document.location.href = `${process.env.REACT_APP_API_BASE_URL}/auth/github`;
   };
 
   const [{ data: user }, refetchUser] = useAxios({
     url: '/auth',
-    baseURL:
-      process.env.NODE_ENV === 'production' ? `https://api.thepaladin.cristata.app` : `http://localhost:3001`,
+    baseURL: process.env.REACT_APP_API_BASE_URL,
     withCredentials: true,
     method: 'GET',
   });

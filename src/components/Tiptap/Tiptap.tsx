@@ -913,18 +913,11 @@ const Tiptap = (props: ITiptap) => {
   // register with a WebSocket provider
   const providerWebsocket = useMemo(
     () =>
-      new WebsocketProvider(
-        process.env.NODE_ENV === 'production'
-          ? `wss://api.thepaladin.cristata.app/hocuspocus/`
-          : `ws://localhost:3001/hocuspocus/`,
-        props.docName,
-        ydoc,
-        {
-          params: {
-            version: packageJson.version,
-          },
-        }
-      ),
+      new WebsocketProvider(`wss://${process.env.REACT_APP_API_BASE_URL}/hocuspocus/`, props.docName, ydoc, {
+        params: {
+          version: packageJson.version,
+        },
+      }),
     [props.docName, ydoc]
   );
 

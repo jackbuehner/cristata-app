@@ -198,28 +198,21 @@ function Card(props: ICardE) {
             note: note,
           },
           {
-            baseURL:
-              process.env.NODE_ENV === 'production'
-                ? `https://api.thepaladin.cristata.app/api/v2`
-                : `http://localhost:3001/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )
-        .then(
-          async (): Promise<true> => {
-            if (props.refetchProject) await props.refetchProject(); // refetch the project so that it incljdes the new card
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to edit note. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (props.refetchProject) await props.refetchProject(); // refetch the project so that it incljdes the new card
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to edit note. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (
@@ -264,10 +257,7 @@ function Card(props: ICardE) {
           archived: true,
         },
         {
-          baseURL:
-            process.env.NODE_ENV === 'production'
-              ? `https://api.thepaladin.cristata.app/api/v2`
-              : `http://localhost:3001/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         }
       )
@@ -294,27 +284,20 @@ function Card(props: ICardE) {
     const deleteCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL:
-            process.env.NODE_ENV === 'production'
-              ? `https://api.thepaladin.cristata.app/api/v2`
-              : `http://localhost:3001/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         })
-        .then(
-          async (): Promise<true> => {
-            if (props.refetchProject) await props.refetchProject(); // refetch the project so that it does not include the deleted card
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to delete card. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (props.refetchProject) await props.refetchProject(); // refetch the project so that it does not include the deleted card
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to delete card. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (
@@ -351,27 +334,20 @@ function Card(props: ICardE) {
     const removeCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL:
-            process.env.NODE_ENV === 'production'
-              ? `https://api.thepaladin.cristata.app/api/v2`
-              : `http://localhost:3001/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         })
-        .then(
-          async (): Promise<true> => {
-            if (props.refetchProject) await props.refetchProject(); // refetch the project so that it does not include the deleted card
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to remove card. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (props.refetchProject) await props.refetchProject(); // refetch the project so that it does not include the deleted card
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to remove card. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (

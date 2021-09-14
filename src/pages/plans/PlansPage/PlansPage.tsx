@@ -219,10 +219,7 @@ function PlansPage() {
               position: 'top',
             },
             {
-              baseURL:
-                process.env.NODE_ENV === 'production'
-                  ? `https://api.thepaladin.cristata.app/api/v2`
-                  : `http://localhost:3001/api/v2`,
+              baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
               withCredentials: true,
             }
           )
@@ -260,10 +257,7 @@ function PlansPage() {
             name: name,
           },
           {
-            baseURL:
-              process.env.NODE_ENV === 'production'
-                ? `https://api.thepaladin.cristata.app/api/v2`
-                : `http://localhost:3001/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )
@@ -342,10 +336,7 @@ function PlansPage() {
             body: values.desc,
           },
           {
-            baseURL:
-              process.env.NODE_ENV === 'production'
-                ? `https://api.thepaladin.cristata.app/api/v2`
-                : `http://localhost:3001/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )

@@ -11,8 +11,14 @@
 # production
 /build
 
+# packetriot logs and certifications
+bin/pktriot-0.10.8/*
+!bin/pktriot-0.10.8/pktriot
+!bin/pktriot-0.10.8/config.json
+
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local

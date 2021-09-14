@@ -233,28 +233,21 @@ function Column(props: IColumn) {
             note: note,
           },
           {
-            baseURL:
-              process.env.NODE_ENV === 'production'
-                ? `https://api.thepaladin.cristata.app/api/v2`
-                : `http://localhost:3001/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )
-        .then(
-          async (): Promise<true> => {
-            if (props.refetch) await props.refetch(); // refetch the project so that it incljdes the new card
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to add note. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (props.refetch) await props.refetch(); // refetch the project so that it incljdes the new card
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to add note. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (
@@ -314,28 +307,21 @@ function Column(props: IColumn) {
             name: name,
           },
           {
-            baseURL:
-              process.env.NODE_ENV === 'production'
-                ? `https://api.thepaladin.cristata.app/api/v2`
-                : `http://localhost:3001/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )
-        .then(
-          async (): Promise<true> => {
-            if (props.refetch) await props.refetch(); // refetch the project so that it includes the renamed column
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to rename column. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (props.refetch) await props.refetch(); // refetch the project so that it includes the renamed column
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to rename column. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (
@@ -380,27 +366,20 @@ function Column(props: IColumn) {
     const deleteColumn = async () => {
       return await axios
         .delete(`/gh/projects/columns/${props.id}`, {
-          baseURL:
-            process.env.NODE_ENV === 'production'
-              ? `https://api.thepaladin.cristata.app/api/v2`
-              : `http://localhost:3001/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         })
-        .then(
-          async (): Promise<true> => {
-            if (props.refetch) await props.refetch(); // refetch the project so that it does not include the deleted column
-            setIsLoading(false);
-            return true;
-          }
-        )
-        .catch(
-          (err: AxiosError): AxiosError => {
-            console.error(err);
-            toast.error(`Failed to delete column. \n ${err.message}`);
-            setIsLoading(false);
-            return err;
-          }
-        );
+        .then(async (): Promise<true> => {
+          if (props.refetch) await props.refetch(); // refetch the project so that it does not include the deleted column
+          setIsLoading(false);
+          return true;
+        })
+        .catch((err: AxiosError): AxiosError => {
+          console.error(err);
+          toast.error(`Failed to delete column. \n ${err.message}`);
+          setIsLoading(false);
+          return err;
+        });
     };
 
     return (
