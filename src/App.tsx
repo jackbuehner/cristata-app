@@ -47,7 +47,7 @@ import { SatirePage } from './pages/CMS/SatirePage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
-  baseURL: `https://api.thepaladin.dev.cristata.app/api/v2`,
+  baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
   withCredentials: true,
 });
 configure({ axios: axiosSettings });
