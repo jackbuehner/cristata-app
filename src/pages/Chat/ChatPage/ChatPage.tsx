@@ -75,7 +75,7 @@ function ChatPage() {
 
       axios
         .get(`/gh/teams/discussions/${team_slug}?before=${cursorNext}?last=10`, {
-          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         })
         .then(({ data }) => {

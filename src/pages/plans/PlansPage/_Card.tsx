@@ -198,7 +198,7 @@ function Card(props: ICardE) {
             note: note,
           },
           {
-            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )
@@ -257,7 +257,7 @@ function Card(props: ICardE) {
           archived: true,
         },
         {
-          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         }
       )
@@ -284,7 +284,7 @@ function Card(props: ICardE) {
     const deleteCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         })
         .then(async (): Promise<true> => {
@@ -334,7 +334,7 @@ function Card(props: ICardE) {
     const removeCard = async (): Promise<true | AxiosError<any>> => {
       return await axios
         .delete(`/gh/projects/columns/cards/${props.id}`, {
-          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         })
         .then(async (): Promise<true> => {

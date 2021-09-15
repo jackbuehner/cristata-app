@@ -18,12 +18,12 @@ function SignIn() {
   const query = new URLSearchParams(location.search);
 
   const signInAction = () => {
-    document.location.href = `${process.env.REACT_APP_API_BASE_URL}/auth/github`;
+    document.location.href = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/github`;
   };
 
   const [{ data: user }, refetchUser] = useAxios({
     url: '/auth',
-    baseURL: process.env.REACT_APP_API_BASE_URL,
+    baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`,
     withCredentials: true,
     method: 'GET',
   });

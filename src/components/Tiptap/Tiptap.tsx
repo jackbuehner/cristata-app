@@ -913,11 +913,16 @@ const Tiptap = (props: ITiptap) => {
   // register with a WebSocket provider
   const providerWebsocket = useMemo(
     () =>
-      new WebsocketProvider(`wss://${process.env.REACT_APP_API_BASE_URL}/hocuspocus/`, props.docName, ydoc, {
-        params: {
-          version: packageJson.version,
-        },
-      }),
+      new WebsocketProvider(
+        `${process.env.REACT_APP_WS_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/hocuspocus/`,
+        props.docName,
+        ydoc,
+        {
+          params: {
+            version: packageJson.version,
+          },
+        }
+      ),
     [props.docName, ydoc]
   );
 

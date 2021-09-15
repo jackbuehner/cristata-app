@@ -53,7 +53,7 @@ function RecentActivity() {
               <Item>
                 <Profile
                   theme={theme}
-                  src={`${process.env.REACT_APP_API_BASE_URL}/api/v2/users/${user}/photo`}
+                  src={`${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2/users/${user}/photo`}
                 />
                 <Text>
                   <Bold onClick={() => history.push(`/profile/${user}`)}>{userName || user}</Bold>

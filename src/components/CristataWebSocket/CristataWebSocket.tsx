@@ -55,7 +55,7 @@ function CristataWebSocket(props: { children: React.ReactNode }) {
    */
   useEffect(() => {
     const connectWS = () => {
-      const ws = new WebSocket('wss://api.thepaladin.cristata.app/websocket');
+      const ws = new WebSocket(`${process.env.REACT_APP_WS_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/websocket`);
       ws.addEventListener('message', ({ data }) => {
         if (isJSON(data)) {
           const JSONData: { event: string; [key: string]: any } = JSON.parse(data);

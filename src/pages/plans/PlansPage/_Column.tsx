@@ -233,7 +233,7 @@ function Column(props: IColumn) {
             note: note,
           },
           {
-            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )
@@ -307,7 +307,7 @@ function Column(props: IColumn) {
             name: name,
           },
           {
-            baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+            baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
             withCredentials: true,
           }
         )
@@ -366,7 +366,7 @@ function Column(props: IColumn) {
     const deleteColumn = async () => {
       return await axios
         .delete(`/gh/projects/columns/${props.id}`, {
-          baseURL: `${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+          baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
           withCredentials: true,
         })
         .then(async (): Promise<true> => {
