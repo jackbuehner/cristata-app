@@ -467,8 +467,8 @@ const collections: Icollections = {
         label: 'Copy edited by',
         render: (data) => (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
-            {data.people?.authors?.map((author: { name: string; photo?: string }, index: number) => {
-              const { name, photo } = author;
+            {data.people?.editors?.copy?.map((editor: { name: string; photo?: string }, index: number) => {
+              const { name, photo } = editor;
               return (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <img
