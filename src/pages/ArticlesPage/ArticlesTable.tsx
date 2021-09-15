@@ -46,7 +46,7 @@ interface IArticle {
     published_by?: GitHubUserID[];
     editors?: {
       primary?: GitHubUserID;
-      copy?: GitHubUserID[];
+      copy?: GitHubUserID[] | string[] | { name: string; photo: string }[];
     };
   };
   stage?: Stage;
@@ -153,6 +153,42 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
 
             // update the authors in the data copy
             article.people.authors = authors;
+          }
+
+          // use copy editor ids to get copy editor name and image
+          if (article.people.editors?.copy) {
+            // store the auth or names once the are found
+            let copyEditors: { name: string; photo: string }[] = [];
+
+            type copyEditorType =
+              | string
+              | number
+              | {
+                  name: string;
+                  photo: string;
+                };
+
+            // for each copy editor, find the name based on the id
+            article.people.editors?.copy.forEach((copyEditor: copyEditorType) => {
+              if (typeof copyEditor === 'number') {
+                const authorID = copyEditor;
+                // if it is an id, find the name and push it to the array
+                const userObj = findUserAndReturnObj(authorID);
+                if (userObj)
+                  copyEditors.push({
+                    name: userObj.name,
+                    photo: userObj.photo,
+                  });
+              } else if (typeof copyEditor === 'object') {
+                copyEditors.push(copyEditor);
+              }
+            });
+
+            // update the profiles in the data copy
+            article.people.editors = {
+              ...article.people.editors,
+              copy: copyEditors
+            };
           }
         });
 
