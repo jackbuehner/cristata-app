@@ -169,6 +169,26 @@ function ItemDetailsPage() {
       });
   };
 
+  // watch the item
+  const watchItem = (mode: boolean) => {
+    setIsLoading(true);
+    db.patch(`/${collectionName}/${item_id}/watch`, { watch: mode })
+      .then(() => {
+        setIsLoading(false);
+        if (mode) {
+          toast.success(`You are now watching this item.`);
+        } else {
+          toast.success(`You are no longer watching this item.`);
+        }
+        setIsWatching(mode);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.error(err);
+        toast.error(`Failed to watch item. \n ${err.message}`);
+      });
+  };
+
   // get the user data from localstorage
   const [user, setUser] = useState<IAuthUser>();
   useEffect(() => {
@@ -177,6 +197,18 @@ function ItemDetailsPage() {
       setUser(JSON.parse(userJson));
     }
   }, []);
+
+  // store whether user is watching the item
+  const [isWatching, setIsWatching] = useState<boolean>();
+  useEffect(() => {
+    if (user) {
+      if (data?.people?.watching?.includes(parseInt(user.id))) {
+        setIsWatching(true);
+      } else {
+        setIsWatching(false);
+      }
+    }
+  }, [user, data]);
 
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
@@ -272,6 +304,7 @@ function ItemDetailsPage() {
             <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
               Refresh
             </IconButton>
+            <Button onClick={() => watchItem(!isWatching)}>{isWatching ? 'Stop Watching' : 'Watch'}</Button>
             <Button onClick={hideItem} color={'red'}>
               Delete
             </Button>

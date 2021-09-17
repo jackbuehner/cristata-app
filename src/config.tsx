@@ -23,6 +23,7 @@ interface Icollections {
           sortType?: string | ((rowA: Row, rowB: Row, columnId: string, desc: boolean) => -1 | 0 | 1);
         }>;
         isPublishable?: boolean;
+        canWatch?: boolean;
         publishStage?: number;
         home: string;
         collectionName?: string;
@@ -544,6 +545,7 @@ const collections: Icollections = {
       { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
     ],
     isPublishable: true,
+    canWatch: true,
     publishStage: 5.2,
   },
   photoRequests: {
