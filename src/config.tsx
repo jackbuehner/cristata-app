@@ -253,6 +253,12 @@ const collections: Icollections = {
         isDisabled: true,
       },
       {
+        key: 'show_comments',
+        label: 'Show comments',
+        type: 'boolean',
+        description: 'Control whether this article has the comments panel enabled on the website.',
+      },
+      {
         key: 'permissions.users',
         label: 'User access control',
         type: 'multiselect_async',
