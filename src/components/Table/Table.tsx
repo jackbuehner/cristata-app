@@ -8,7 +8,7 @@ import { useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { ChevronDown16Regular, ChevronUp16Regular } from '@fluentui/react-icons';
 import { buttonEffect } from '../Button';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useMemo } from 'react';
 import { excludes as excludesFilter } from './custom-filters/excludes';
 import { includes as includesFilter } from './custom-filters/includes';
@@ -32,6 +32,8 @@ interface ITable {
     href: string; // clicking a row will toke user to this location + the value of the hrefSuffixKey
     hrefSuffixKey: string; // key from the row's data object to append to href (most common usage would be _id)
   };
+  defaultSort?: string;
+  collection: string;
 }
 
 function Table({ filters, ...props }: ITable) {
@@ -39,6 +41,29 @@ function Table({ filters, ...props }: ITable) {
 
   // get the current theme
   const theme = useTheme() as themeType;
+
+  // get the preferred sort method from localstorage
+  const defaultSort = `{
+    "id": ${JSON.stringify(props.defaultSort || props.columns[0].id)},
+    "isSortedDesc": true
+  }`;
+  const [preferredSort, setPreferredSort] = useState<{
+    id: string | undefined;
+    isSortedDesc: boolean | undefined;
+  }>(JSON.parse(localStorage?.getItem(`table.${props.collection}.preferredSort`) || defaultSort));
+
+  // set changed to preferred sort method to localstorage
+  useEffect(() => {
+    if (localStorage && preferredSort !== null) {
+      // if the sort order is undefined, remove the data from localStorage so that the default sort is used on next reload
+      if (preferredSort.isSortedDesc === undefined) {
+        localStorage.removeItem(`table.${props.collection}.preferredSort`);
+        setPreferredSort(JSON.parse(defaultSort));
+      }
+      // otherwise, set the sort id and order
+      else localStorage.setItem(`table.${props.collection}.preferredSort`, JSON.stringify(preferredSort));
+    }
+  }, [preferredSort, props.collection]);
 
   // define custom filters
   const customFilterTypes = useMemo(
@@ -62,8 +87,16 @@ function Table({ filters, ...props }: ITable) {
     {
       columns: props.columns,
       data: props.data.data,
-      // @ts-expect-error filterTypes is actually allowed
       filterTypes: customFilterTypes,
+      initialState: {
+        // @ts-expect-error sortBy is actually allowed
+        sortBy: [
+          {
+            id: preferredSort.id,
+            desc: preferredSort.isSortedDesc,
+          },
+        ],
+      },
     },
     useFilters,
     useSortBy
@@ -118,6 +151,23 @@ function Table({ filters, ...props }: ITable) {
                               : undefined
                           }
                           {...sortableHeaders}
+                          onMouseUp={() => {
+                            // set the preferred sorting value so it is updated in localstorage
+                            // @ts-expect-error `canSort` is valid
+                            if (column.canSort) {
+                              setPreferredSort({
+                                id: column.id,
+                                isSortedDesc:
+                                  // @ts-expect-error `isSortedDesc` is valid (true: desc; false: asc; undefined: not sorted)
+                                  column.isSortedDesc === undefined
+                                    ? false
+                                    : // @ts-expect-error `isSortedDesc` is valid (true: desc; false: asc; undefined: not sorted)
+                                    column.isSortedDesc === false
+                                    ? true
+                                    : undefined,
+                              });
+                            }
+                          }}
                         >
                           {
                             // render the header

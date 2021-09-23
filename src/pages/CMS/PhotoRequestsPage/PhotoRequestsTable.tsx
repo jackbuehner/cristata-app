@@ -140,6 +140,7 @@ const PhotoRequestsTable = forwardRef<IPhotoRequestsImperative, IPhotoRequestsTa
           columns={columns}
           filters={props.filters}
           row={{ href: '/cms/item/photo-requests', hrefSuffixKey: '_id' }}
+          collection={`photoRequests`}
         />
       );
     }

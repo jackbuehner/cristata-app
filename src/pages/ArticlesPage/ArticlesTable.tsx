@@ -187,7 +187,7 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
             // update the profiles in the data copy
             article.people.editors = {
               ...article.people.editors,
-              copy: copyEditors
+              copy: copyEditors,
             };
           }
         });
@@ -248,6 +248,8 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
           columns={columns}
           filters={props.filters}
           row={{ href: '/cms/item/articles', hrefSuffixKey: '_id' }}
+          defaultSort={collectionsConfig.articles?.defaultSortKey}
+          collection={'articles'}
         />
       );
     }

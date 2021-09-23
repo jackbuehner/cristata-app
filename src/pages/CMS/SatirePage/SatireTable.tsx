@@ -209,6 +209,7 @@ const SatireTable = forwardRef<ISatireTableImperative, ISatireTable>(({ setIsLoa
         columns={columns}
         filters={props.filters}
         row={{ href: '/cms/item/satire', hrefSuffixKey: '_id' }}
+        collection={`satire`}
       />
     );
   }

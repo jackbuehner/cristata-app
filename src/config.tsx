@@ -27,6 +27,7 @@ interface Icollections {
         publishStage?: number;
         home: string;
         collectionName?: string;
+        defaultSortKey?: string;
       }
     | undefined;
 }
@@ -553,6 +554,7 @@ const collections: Icollections = {
     isPublishable: true,
     canWatch: true,
     publishStage: 5.2,
+    defaultSortKey: 'timestamps.target_publish_at',
   },
   photoRequests: {
     home: '/cms/photos/requests',
