@@ -5,7 +5,21 @@ import { db } from './utils/axios/db';
 import { Chip } from './components/Chip';
 import { colorType } from './utils/theme/theme';
 import { DateTime } from 'luxon';
-import { ImageSearch24Regular, News24Regular, PersonBoard24Regular } from '@fluentui/react-icons';
+import {
+  Balloon16Regular,
+  Chat24Regular,
+  Cookies24Regular,
+  DocumentOnePage24Regular,
+  DocumentPageBottomRight24Regular,
+  Image24Regular,
+  ImageSearch24Regular,
+  News24Regular,
+  PaintBrush24Regular,
+  PersonBoard24Regular,
+  Sport24Regular,
+  Star24Regular,
+  StarEmphasis24Regular,
+} from '@fluentui/react-icons';
 import { AxiosResponse } from 'axios';
 import { Row } from 'react-table';
 
@@ -1339,5 +1353,96 @@ const home: Ihome = {
   ],
 };
 
-export { collections, features, home };
+const navigation = {
+  cms: [
+    {
+      label: `Articles`,
+      items: [
+        {
+          label: `In-progress articles`,
+          icon: <DocumentPageBottomRight24Regular />,
+          to: `/cms/articles/in-progress`,
+        },
+        { label: `All articles`, icon: <DocumentOnePage24Regular />, to: `/cms/articles/all` },
+        {
+          label: `News articles (in-progress)`,
+          icon: <News24Regular />,
+          to: `/cms/articles/in-progress?category=news`,
+        },
+        {
+          label: `Opinions (in-progress)`,
+          icon: <Chat24Regular />,
+          to: `/cms/articles/in-progress?category=opinion`,
+        },
+        {
+          label: `Sports articles (in-progress)`,
+          icon: <Sport24Regular />,
+          to: `/cms/articles/in-progress?category=sports`,
+        },
+        {
+          label: `Diversity matters articles (in-progress)`,
+          icon: <Star24Regular />,
+          to: `/cms/articles/in-progress?category=diversity%20matters`,
+        },
+        {
+          label: `Arts articles (in-progress)`,
+          icon: <PaintBrush24Regular />,
+          to: `/cms/articles/in-progress?category=arts`,
+        },
+        {
+          label: `Campus & culture articles (in-progress)`,
+          icon: <Balloon16Regular />,
+          to: `/cms/articles/in-progress?category=campus%20%26%20culture`,
+        },
+      ],
+    },
+    {
+      label: `Photos`,
+      items: [
+        {
+          label: `Unfulfilled photo requests`,
+          icon: <ImageSearch24Regular />,
+          to: `/cms/photos/requests/unfulfilled`,
+        },
+        {
+          label: `All photo requests`,
+          icon: <ImageSearch24Regular />,
+          to: `/cms/photos/requests/all`,
+        },
+        {
+          label: `Photo library`,
+          icon: <Image24Regular />,
+          to: `/cms/photos/library`,
+        },
+      ],
+    },
+    {
+      label: `Satire`,
+      items: [
+        {
+          label: `In-progress satire`,
+          icon: <DocumentPageBottomRight24Regular />,
+          to: `/cms/satire/in-progress`,
+        },
+        {
+          label: `All satire`,
+          icon: <Cookies24Regular />,
+          to: `/cms/satire/all`,
+        },
+      ],
+    },
+    {
+      label: `Configuration`,
+      items: [
+        {
+          label: `Featured articles`,
+          icon: <StarEmphasis24Regular />,
+          to: `/cms/item/featured-settings/6101da4a5386ae9ea3147f17`,
+        },
+      ],
+    },
+  ],
+};
+
+export { collections, features, home, navigation };
 export type { tiptapOptions };

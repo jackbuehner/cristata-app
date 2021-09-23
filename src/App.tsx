@@ -7,21 +7,7 @@ import axios from 'axios';
 import useAxios, { configure } from 'axios-hooks';
 import { SideNavSubButton } from './components/Button';
 import { PlansSideNavSub } from './pages/plans/PlansSideNavSub';
-import {
-  ImageSearch24Regular,
-  Image24Regular,
-  DocumentOnePage24Regular,
-  Sport24Regular,
-  News24Regular,
-  PaintBrush24Regular,
-  Star24Regular,
-  Chat24Regular,
-  DocumentPageBottomRight24Regular,
-  Balloon16Regular,
-  Dismiss16Regular,
-  Cookies24Regular,
-  StarEmphasis24Regular,
-} from '@fluentui/react-icons';
+import { Dismiss16Regular } from '@fluentui/react-icons';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,7 +21,7 @@ import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { SideNavHeading } from './components/Heading';
 import { SidenavHeader } from './components/SidenavHeader';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { PhotoRequestsPage } from './pages/CMS/PhotoRequestsPage';
 import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
 import { themeType } from './utils/theme/theme';
@@ -44,6 +30,7 @@ import { Sidenav } from './components/Sidenav/Sidenav';
 import Color from 'color';
 import { HomePage } from './pages/Home';
 import { SatirePage } from './pages/CMS/SatirePage';
+import { navigation } from './config';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -169,115 +156,33 @@ function App() {
                       <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
                         <Switch>
                           <Route path={`/cms`}>
-                            <SideNavHeading>Articles</SideNavHeading>
-                            <SideNavSubButton
-                              Icon={<DocumentPageBottomRight24Regular />}
-                              to={`/cms/articles/in-progress`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              In-progress articles
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<DocumentOnePage24Regular />}
-                              to={`/cms/articles/all`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              All articles
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<News24Regular />}
-                              to={`/cms/articles/in-progress?category=news`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              News articles (in-progress)
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<Chat24Regular />}
-                              to={`/cms/articles/in-progress?category=opinion`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              Opinions (in-progress)
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<Sport24Regular />}
-                              to={`/cms/articles/in-progress?category=sports`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              Sports articles (in-progress)
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<Star24Regular />}
-                              to={`/cms/articles/in-progress?category=diversity%20matters`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              Diversity matters articles (in-progress)
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<PaintBrush24Regular />}
-                              to={`/cms/articles/in-progress?category=arts`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              Arts articles (in-progress)
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<Balloon16Regular />}
-                              to={`/cms/articles/in-progress?category=campus%20%26%20culture`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              Campus &amp; culture articles (in-progress)
-                            </SideNavSubButton>
-
-                            <SideNavHeading>Photos</SideNavHeading>
-                            <SideNavSubButton
-                              Icon={<ImageSearch24Regular />}
-                              to={`/cms/photos/requests/unfulfilled`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              Unfulfilled photo requests
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<ImageSearch24Regular />}
-                              to={`/cms/photos/requests/all`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              All photo requests
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<Image24Regular />}
-                              to={`/cms/photos/library`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              Photo library
-                            </SideNavSubButton>
-                            <SideNavHeading>Satire</SideNavHeading>
-                            <SideNavSubButton
-                              Icon={<DocumentPageBottomRight24Regular />}
-                              to={`/cms/satire/in-progress`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              In-progress satire
-                            </SideNavSubButton>
-                            <SideNavSubButton
-                              Icon={<Cookies24Regular />}
-                              to={`/cms/satire/all`}
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            >
-                              All satire
-                            </SideNavSubButton>
-                            {JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
-                              'MDQ6VGVhbTQ2NDI0MTc='
-                            ) ? (
-                              <>
-                                <SideNavHeading>Configuration</SideNavHeading>
-                                <SideNavSubButton
-                                  Icon={<StarEmphasis24Regular />}
-                                  to={`/cms/item/featured-settings/6101da4a5386ae9ea3147f17`}
-                                  setIsNavVisibleM={setIsNavVisibleM}
-                                >
-                                  Featured articles
-                                </SideNavSubButton>
-                              </>
-                            ) : null}
+                            {navigation.cms.map((group, index) => {
+                              if (
+                                group.label === 'Configuration' &&
+                                JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
+                                  'MDQ6VGVhbTQ2NDI0MTc='
+                                ) !== true
+                              ) {
+                                return <Fragment key={index}></Fragment>;
+                              }
+                              return (
+                                <Fragment key={index}>
+                                  <SideNavHeading>{group.label}</SideNavHeading>
+                                  {group.items.map((item, index) => {
+                                    return (
+                                      <SideNavSubButton
+                                        key={index}
+                                        Icon={item.icon}
+                                        to={item.to}
+                                        setIsNavVisibleM={setIsNavVisibleM}
+                                      >
+                                        {item.label}
+                                      </SideNavSubButton>
+                                    );
+                                  })}
+                                </Fragment>
+                              );
+                            })}
                           </Route>
                           <Route path={`/plans`}>
                             <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
