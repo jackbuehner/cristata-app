@@ -63,7 +63,7 @@ function Table({ filters, ...props }: ITable) {
       // otherwise, set the sort id and order
       else localStorage.setItem(`table.${props.collection}.preferredSort`, JSON.stringify(preferredSort));
     }
-  }, [preferredSort, props.collection]);
+  }, [preferredSort, props.collection, defaultSort]);
 
   // define custom filters
   const customFilterTypes = useMemo(
