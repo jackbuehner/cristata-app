@@ -1,129 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#5438b9" />
+    <style>
+      @font-face {
+        font-family: "Adamant BG";
+        font-weight: 400;
+        font-style: normal;
+        src: url(/fonts/adamant-bg/Adamant_BG-Regular.otf) format("opentype");
+      }
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#5438b9" />
-  <style>
-    @font-face {
-      font-family: 'Adamant BG';
-      font-weight: 400;
-      font-style: normal;
-      src: url(./fonts/adamant-bg/Adamant_BG-Regular.otf) format('opentype');
-    }
+      @font-face {
+        font-family: "Adamant BG";
+        font-weight: 400;
+        font-style: italic;
+        src: url(/fonts/adamant-bg/Adamant_BG-Italic.otf) format("opentype");
+      }
 
-    @font-face {
-      font-family: 'Adamant BG';
-      font-weight: 400;
-      font-style: italic;
-      src: url(./fonts/adamant-bg/Adamant_BG-Italic.otf) format('opentype');
-    }
+      @font-face {
+        font-family: "Adamant BG";
+        font-weight: 700;
+        font-style: normal;
+        src: url(/fonts/adamant-bg/Adamant_BG-Bold.otf) format("opentype");
+      }
 
-    @font-face {
-      font-family: 'Adamant BG';
-      font-weight: 700;
-      font-style: normal;
-      src: url(./fonts/adamant-bg/Adamant_BG-Bold.otf) format('opentype');
-    }
+      @font-face {
+        font-family: "Adamant BG";
+        font-weight: 700;
+        font-style: italic;
+        src: url(/fonts/adamant-bg/Adamant_BG-BoldItalic.otf) format("opentype");
+      }
 
-    @font-face {
-      font-family: 'Adamant BG';
-      font-weight: 700;
-      font-style: italic;
-      src: url(./fonts/adamant-bg/Adamant_BG-BoldItalic.otf) format('opentype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 400;
+        font-style: normal;
+        src: url(/fonts/lato/Lato-Regular.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 400;
-      font-style: normal;
-      src: url(./fonts/lato/Lato-Regular.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 400;
+        font-style: italic;
+        src: url(/fonts/lato/Lato-Italic.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 400;
-      font-style: italic;
-      src: url(./fonts/lato/Lato-Italic.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 500;
+        font-style: normal;
+        src: url(/fonts/lato/Lato-Medium.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 500;
-      font-style: normal;
-      src: url(./fonts/lato/Lato-Medium.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 500;
+        font-style: italic;
+        src: url(/fonts/lato/Lato-MediumItalic.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 500;
-      font-style: italic;
-      src: url(./fonts/lato/Lato-MediumItalic.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 600;
+        font-style: normal;
+        src: url(/fonts/lato/Lato-SemiBold.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 600;
-      font-style: normal;
-      src: url(./fonts/lato/Lato-SemiBold.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 600;
+        font-style: italic;
+        src: url(/fonts/lato/Lato-SemiBoldItalic.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 600;
-      font-style: italic;
-      src: url(./fonts/lato/Lato-SemiBoldItalic.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 700;
+        font-style: normal;
+        src: url(/fonts/lato/Lato-Bold.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 700;
-      font-style: normal;
-      src: url(./fonts/lato/Lato-Bold.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Lato";
+        font-weight: 700;
+        font-style: italic;
+        src: url(/fonts/lato/Lato-BoldItalic.ttf) format("truetype");
+      }
 
-    @font-face {
-      font-family: 'Lato';
-      font-weight: 700;
-      font-style: italic;
-      src: url(./fonts/lato/Lato-BoldItalic.ttf) format('truetype');
-    }
+      @font-face {
+        font-family: "Adobe Thai";
+        font-weight: 700;
+        font-style: italic;
+        src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608dfc487038dd98da877_Adobe_Thai-BoldItalic.otf)
+          format("opentype");
+      }
 
-    @font-face {
-      font-family: 'Adobe Thai';
-      font-weight: 700;
-      font-style: italic;
-      src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608dfc487038dd98da877_Adobe_Thai-BoldItalic.otf) format('opentype');
-    }
+      @font-face {
+        font-family: "Adobe Thai";
+        font-weight: 700;
+        font-style: normal;
+        src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608df7759655a0bd2b31a_Adobe_Thai-Bold.otf)
+          format("opentype");
+      }
 
-    @font-face {
-      font-family: 'Adobe Thai';
-      font-weight: 700;
-      font-style: normal;
-      src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608df7759655a0bd2b31a_Adobe_Thai-Bold.otf) format('opentype');
-    }
+      @font-face {
+        font-family: "Adobe Thai";
+        font-weight: 400;
+        font-style: italic;
+        src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608df6f9f6f1bba0c25d4_Adobe_Thai-Italic.otf)
+          format("opentype");
+      }
 
-    @font-face {
-      font-family: 'Adobe Thai';
-      font-weight: 400;
-      font-style: italic;
-      src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608df6f9f6f1bba0c25d4_Adobe_Thai-Italic.otf) format('opentype');
-    }
-
-    @font-face {
-      font-family: 'Adobe Thai';
-      font-weight: 400;
-      font-style: normal;
-      src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608e04bde145756fc7772_Adobe_Thai-Regular.otf) format('opentype');
-    }
-  </style>
-  <!--
+      @font-face {
+        font-family: "Adobe Thai";
+        font-weight: 400;
+        font-style: normal;
+        src: url(https://uploads-ssl.webflow.com/5f1728bffbeb7318dab364a3/5fc608e04bde145756fc7772_Adobe_Thai-Regular.otf)
+          format("opentype");
+      }
+    </style>
+    <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <!--
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -132,39 +135,40 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-  <title>Cristata</title>
-</head>
+    <title>Cristata</title>
+  </head>
 
-<body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root">
-    <div class="splash-wrapper">
-      <style>
-        .splash-wrapper {
-          inset: 0;
-          position: fixed;
-          z-index: 9999;
-          background: #5438b9;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          animation: none;
-          animation-fill-mode: forwards;
-        }
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+      <div class="splash-wrapper">
+        <style>
+          .splash-wrapper {
+            inset: 0;
+            position: fixed;
+            z-index: 9999;
+            background: #5438b9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: none;
+            animation-fill-mode: forwards;
+          }
 
-        .splash-app-name {
-          font-family: Adamant BG;
-          font-size: 48px;
-          font-weight: 600;
-          color: rgb(250, 249, 248);
-          text-shadow: rgb(210 208 206 / 60%) 0px 0px 8px, rgb(11 4 36 / 60%) 0px 0px 4px;
-          letter-spacing: 2px;
-        }
-      </style>
-      <span class="splash-app-name">Cristata</span>
+          .splash-app-name {
+            font-family: Adamant BG;
+            font-size: 48px;
+            font-weight: 600;
+            color: rgb(250, 249, 248);
+            text-shadow: rgb(210 208 206 / 60%) 0px 0px 8px,
+              rgb(11 4 36 / 60%) 0px 0px 4px;
+            letter-spacing: 2px;
+          }
+        </style>
+        <span class="splash-app-name">Cristata</span>
+      </div>
     </div>
-  </div>
-  <!--
+    <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -174,6 +178,5 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-</body>
-
+  </body>
 </html>
