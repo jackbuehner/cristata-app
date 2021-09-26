@@ -11,7 +11,14 @@ import styled from '@emotion/styled';
 import { css, SerializedStyles, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import React, { useEffect, useMemo, useState } from 'react';
-import { BackIcon, RedoIcon, BoldIcon, ItalicsIcon, UnderlineIcon, StrikeIcon } from './Icons';
+import {
+  BackIcon,
+  RedoIcon,
+  BoldIcon,
+  ItalicsIcon,
+  UnderlineIcon,
+  StrikeIcon,
+} from './Icons';
 import {
   Code20Regular,
   ArrowMinimize20Regular,
@@ -92,7 +99,10 @@ const ToolbarMeta = styled.div`
   gap: 6px;
 `;
 
-const ToolbarTabButton = styled(Button)<{ theme: themeType; isActive?: boolean }>`
+const ToolbarTabButton = styled(Button)<{
+  theme: themeType;
+  isActive?: boolean;
+}>`
   position: relative;
   border: 1px solid transparent;
   padding: 0px 21px;
@@ -152,18 +162,26 @@ const ToolbarRow = styled.div<{ isActive: boolean }>`
   align-content: flex-start;
 `;
 
-const ToolbarRowIconButton = styled(IconButton)<{ theme: themeType; isActive: boolean }>`
+const ToolbarRowIconButton = styled(IconButton)<{
+  theme: themeType;
+  isActive: boolean;
+}>`
   height: 40px;
   width: 40px;
   border: 1px solid transparent;
-  background-color: ${({ theme, isActive }) => (isActive ? '_' : 'transparent')};
+  background-color: ${({ theme, isActive }) =>
+    isActive ? '_' : 'transparent'};
 `;
 
-const ToolbarRowButton = styled(Button)<{ theme: themeType; isActive: boolean }>`
+const ToolbarRowButton = styled(Button)<{
+  theme: themeType;
+  isActive: boolean;
+}>`
   height: 40px;
   min-width: 40px;
   border: 1px solid transparent;
-  background-color: ${({ theme, isActive }) => (isActive ? '_' : 'transparent')};
+  background-color: ${({ theme, isActive }) =>
+    isActive ? '_' : 'transparent'};
   > span[class*='IconStyleWrapper'] {
     width: 20px;
     height: 20px;
@@ -230,11 +248,13 @@ interface ICombobox extends ButtonProps {
 function Combobox(props: ICombobox) {
   const theme = useTheme() as themeType;
   const Box = styled(Button)<{ theme: themeType; width: string }>`
-    background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+    background-color: ${({ theme }) =>
+      theme.mode === 'light' ? 'white' : 'black'};
     height: 28px;
     min-width: 40px;
     box-shadow: none !important;
-    border: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][800]} !important;
+    border: 1px solid ${({ theme }) =>
+      theme.color.neutral[theme.mode][800]} !important;
     width: ${({ width }) => width};
     justify-content: left;
   `;
@@ -282,7 +302,9 @@ interface IMenuBar {
 
 function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
   const theme = useTheme() as themeType;
-  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'utils'>('home');
+  const [activeTab, setActiveTab] = useState<
+    'home' | 'insert' | 'layout' | 'review' | 'utils'
+  >('home');
 
   // DROPDOWNS
   // font family
@@ -298,27 +320,33 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
           }}
           items={[
             {
-              onClick: () => editor?.chain().focus().setFontFamily('Adamant BG').run(),
+              onClick: () =>
+                editor?.chain().focus().setFontFamily('Adamant BG').run(),
               label: 'Adamant BG (Headline)',
             },
             {
-              onClick: () => editor?.chain().focus().setFontFamily('Arial').run(),
+              onClick: () =>
+                editor?.chain().focus().setFontFamily('Arial').run(),
               label: 'Arial',
             },
             {
-              onClick: () => editor?.chain().focus().setFontFamily('Calibri').run(),
+              onClick: () =>
+                editor?.chain().focus().setFontFamily('Calibri').run(),
               label: 'Calibri',
             },
             {
-              onClick: () => editor?.chain().focus().setFontFamily('Consolas').run(),
+              onClick: () =>
+                editor?.chain().focus().setFontFamily('Consolas').run(),
               label: 'Consolas',
             },
             {
-              onClick: () => editor?.chain().focus().setFontFamily('Georgia (Body)').run(),
+              onClick: () =>
+                editor?.chain().focus().setFontFamily('Georgia (Body)').run(),
               label: 'Georgia (Body)',
             },
             {
-              onClick: () => editor?.chain().focus().setFontFamily('Times New Roman').run(),
+              onClick: () =>
+                editor?.chain().focus().setFontFamily('Times New Roman').run(),
               label: 'Times New Roman',
             },
           ]}
@@ -343,15 +371,18 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
           }}
           items={[
             {
-              onClick: () => editor?.chain().focus().toggleHeading({ level: 1 }).run(),
+              onClick: () =>
+                editor?.chain().focus().toggleHeading({ level: 1 }).run(),
               label: <h1>Heading 1</h1>,
             },
             {
-              onClick: () => editor?.chain().focus().toggleHeading({ level: 2 }).run(),
+              onClick: () =>
+                editor?.chain().focus().toggleHeading({ level: 2 }).run(),
               label: <h2>Heading 2</h2>,
             },
             {
-              onClick: () => editor?.chain().focus().toggleHeading({ level: 3 }).run(),
+              onClick: () =>
+                editor?.chain().focus().toggleHeading({ level: 3 }).run(),
               label: <h3>Heading 3</h3>,
             },
             {
@@ -434,7 +465,11 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
         continueButton={{
           text: 'Insert',
           onClick: () => {
-            const result = editor?.chain().focus().setLink({ href: link }).run();
+            const result = editor
+              ?.chain()
+              .focus()
+              .setLink({ href: link })
+              .run();
             // return whether the action was successful
             if (result) return true;
             return false;
@@ -465,7 +500,9 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
         continueButton={{
           text: 'Get Microsoft Editor',
           onClick: () => {
-            window.open(`https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`);
+            window.open(
+              `https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`
+            );
             return true;
           },
         }}
@@ -554,7 +591,9 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
                       font-family: ${theme.font.headline};
                       border-radius: 50%;
                       font-size: 14px;
-                      background-color: ${Color(profile.color).alpha(0.4).string()};
+                      background-color: ${Color(profile.color)
+                        .alpha(0.4)
+                        .string()};
                       user-select: none;
                       color: ${theme.color.neutral[theme.mode][1200]};
                     `}
@@ -574,7 +613,9 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
             </div>
             <ToolbarMetaIconButton
               onClick={() => setIsMax(!isMax)}
-              icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
+              icon={
+                isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />
+              }
               color={'neutral'}
             ></ToolbarMetaIconButton>
           </ToolbarMeta>
@@ -688,7 +729,11 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
                 disabled={!editor.can().toggleOrderedList()}
               ></ToolbarRowIconButton>
               <ToolbarDivider />
-              <Combobox onClick={showTextStyleDropdown} color={'neutral'} width={`128px`}>
+              <Combobox
+                onClick={showTextStyleDropdown}
+                color={'neutral'}
+                width={`128px`}
+              >
                 {
                   // show the correct style name
                   editor.isActive('heading', { level: 1 }) ? (
@@ -773,7 +818,11 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
               />
             </ToolbarRow>
             <ToolbarRow isActive={activeTab === 'layout'}>
-              <Combobox onClick={showLayoutDropdown} color={'neutral'} width={`128px`}>
+              <Combobox
+                onClick={showLayoutDropdown}
+                color={'neutral'}
+                width={`128px`}
+              >
                 {props.layout}
               </Combobox>
             </ToolbarRow>
@@ -873,8 +922,14 @@ function MenuBar({ editor, isMax, setIsMax, ...props }: IMenuBar) {
               />
             </ToolbarRow>
             <ToolbarRow isActive={activeTab === 'utils'}>
-              <Button onClick={() => editor.chain().focus().unsetAllMarks().run()}>clear marks</Button>
-              <Button onClick={() => editor.chain().focus().clearNodes().run()}>clear nodes</Button>
+              <Button
+                onClick={() => editor.chain().focus().unsetAllMarks().run()}
+              >
+                clear marks
+              </Button>
+              <Button onClick={() => editor.chain().focus().clearNodes().run()}>
+                clear nodes
+              </Button>
             </ToolbarRow>
           </ToolbarActionRowContainer>
         )}
@@ -933,7 +988,8 @@ const Tiptap = (props: ITiptap) => {
     color: string;
     sessionId: string;
   }
-  const [awarenessProfiles, setAwarenessProfiles] = useState<IAwarenessProfile[]>();
+  const [awarenessProfiles, setAwarenessProfiles] =
+    useState<IAwarenessProfile[]>();
   useEffect(() => {
     const { awareness } = providerWebsocket;
 
@@ -944,7 +1000,9 @@ const Tiptap = (props: ITiptap) => {
     function saveAwarenessProfiles() {
       // get all current awareness information and filter it to only include
       // sessions with defined users
-      const awarenessValues: IAwarenessProfile[] = Array.from(awareness.getStates().values())
+      const awarenessValues: IAwarenessProfile[] = Array.from(
+        awareness.getStates().values()
+      )
         .filter((value) => value.user)
         .map((value) => value.user);
 
@@ -953,7 +1011,11 @@ const Tiptap = (props: ITiptap) => {
       let awarenessSessions: IAwarenessProfile[] = [];
       awarenessValues.forEach((value: IAwarenessProfile) => {
         const containsSessionId =
-          awarenessSessions.findIndex((session) => session.sessionId === value.sessionId) === -1 ? false : true;
+          awarenessSessions.findIndex(
+            (session) => session.sessionId === value.sessionId
+          ) === -1
+            ? false
+            : true;
         if (!containsSessionId) {
           awarenessSessions.push(value);
         }
@@ -1023,19 +1085,30 @@ const Tiptap = (props: ITiptap) => {
   // get the authors
   const [authors, setAuthors] = useState<IProfile[]>();
   useEffect(() => {
-    if (props.options && props.options.type === 'article' && props.options.keys_article && props.flatData) {
+    if (
+      props.options &&
+      props.options.type === 'article' &&
+      props.options.keys_article &&
+      props.flatData
+    ) {
       let full: IProfile[] = [];
-      (props.flatData[props.options.keys_article.authors] as number[])?.forEach((author_github_id) => {
-        db.get(`/users/${author_github_id}`).then(({ data }: { data: IProfile }) => {
-          full.push(data);
-        });
-      });
+      (props.flatData[props.options.keys_article.authors] as number[])?.forEach(
+        (author_github_id) => {
+          db.get(`/users/${author_github_id}`).then(
+            ({ data }: { data: IProfile }) => {
+              full.push(data);
+            }
+          );
+        }
+      );
       setAuthors(full);
     }
   }, [props.flatData, props.options]);
 
   // manage whether track changes is on
-  const [trackChanges, setTrackChanges] = useState<boolean>(editor?.state.doc.attrs.trackChanges);
+  const [trackChanges, setTrackChanges] = useState<boolean>(
+    editor?.state.doc.attrs.trackChanges
+  );
 
   /**
    * Toggle whether track changes is enabled. Sets the change to react state
@@ -1073,7 +1146,8 @@ const Tiptap = (props: ITiptap) => {
 
   // show prosemirror developer tools when in development mode
   useEffect(() => {
-    if (editor && process.env.NODE_ENV === 'development') applyDevTools(editor.view);
+    if (editor && process.env.NODE_ENV === 'development')
+      applyDevTools(editor.view);
   }, [editor]);
 
   // make user name and color available to tiptap extensions via document attributes
@@ -1083,7 +1157,9 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [editor, props.user]);
 
-  const [connected, setConnected] = useState<boolean>(providerWebsocket.wsconnected);
+  const [connected, setConnected] = useState<boolean>(
+    providerWebsocket.wsconnected
+  );
   useEffect(() => {
     if (providerWebsocket.wsconnected === true) {
       setTimeout(() => {
@@ -1128,6 +1204,7 @@ const Tiptap = (props: ITiptap) => {
           display: ${connected ? 'flex' : 'none'};
           flex-direction: column;
           align-items: center;
+          flex-grow: 1;
         `}
       >
         {
@@ -1142,42 +1219,74 @@ const Tiptap = (props: ITiptap) => {
                   flatDataState={[props.flatData, props.setFlatData]}
                   options={props.options}
                   headline={
-                    (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
+                    (props.flatData[
+                      props.options.keys_article.headline
+                    ] as string) || 'Article Headline'
                   }
                   description={
-                    (props.flatData[props.options.keys_article.description] as string) ||
+                    (props.flatData[
+                      props.options.keys_article.description
+                    ] as string) ||
                     'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
                   }
                   categories={
-                    (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
+                    (props.flatData[
+                      props.options.keys_article.categories
+                    ] as string[]) || ['categories']
                   }
-                  caption={props.flatData[props.options.keys_article.caption] as string}
+                  caption={
+                    props.flatData[props.options.keys_article.caption] as string
+                  }
                   isDisabled={props.isDisabled}
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                  photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
+                  photoUrl={
+                    props.flatData[
+                      props.options.keys_article.photo_url
+                    ] as string
+                  }
                   authors={authors}
-                  target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
+                  target_publish_at={
+                    props.flatData[
+                      props.options.keys_article.target_publish_at
+                    ] as string
+                  }
                 />
               ) : layout === 'full' ? (
                 <FullBleedLayout
                   flatDataState={[props.flatData, props.setFlatData]}
                   options={props.options}
                   headline={
-                    (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
+                    (props.flatData[
+                      props.options.keys_article.headline
+                    ] as string) || 'Article Headline'
                   }
                   description={
-                    (props.flatData[props.options.keys_article.description] as string) ||
+                    (props.flatData[
+                      props.options.keys_article.description
+                    ] as string) ||
                     'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
                   }
                   categories={
-                    (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
+                    (props.flatData[
+                      props.options.keys_article.categories
+                    ] as string[]) || ['categories']
                   }
-                  caption={props.flatData[props.options.keys_article.caption] as string}
+                  caption={
+                    props.flatData[props.options.keys_article.caption] as string
+                  }
                   isDisabled={props.isDisabled}
                   tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                  photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
+                  photoUrl={
+                    props.flatData[
+                      props.options.keys_article.photo_url
+                    ] as string
+                  }
                   authors={authors}
-                  target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
+                  target_publish_at={
+                    props.flatData[
+                      props.options.keys_article.target_publish_at
+                    ] as string
+                  }
                 />
               ) : null}
             </>
@@ -1189,7 +1298,9 @@ const Tiptap = (props: ITiptap) => {
             width: ${tiptapWidth <= 680 ? `100%` : `calc(100% - 40px)`};
             box-sizing: border-box;
             background-color: white;
-            border: ${tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`};
+            border: ${
+              tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`
+            };
             padding: ${tiptapWidth <= 680 ? `24px 20px` : `68px 88px`};
             margin: ${tiptapWidth <= 680 ? `0` : `20px`};
             .ProseMirror {
@@ -1250,7 +1361,9 @@ const Tiptap = (props: ITiptap) => {
         </div>
       </div>
       <Statusbar>
-        <StatusbarBlock>{editor?.getCharacterCount()} characters</StatusbarBlock>
+        <StatusbarBlock>
+          {editor?.getCharacterCount()} characters
+        </StatusbarBlock>
         <StatusbarBlock>
           {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
         </StatusbarBlock>
