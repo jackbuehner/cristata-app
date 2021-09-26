@@ -7,7 +7,7 @@
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
     "@fluentui/react": "^8.5.0",
-    "@fluentui/react-icons": "^1.1.111",
+    "@fluentui/react-icons": "^1.1.141",
     "@material-ui/core": "^4.11.4",
     "@material-ui/pickers": "^3.3.10",
     "@rmwc/linear-progress": "^6.1.4",
