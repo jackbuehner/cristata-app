@@ -7,10 +7,10 @@ import { DateTime } from 'luxon';
 
 interface IStandardLayout {
   flatDataState: [
-    { [key: string]: string | string[] | number | number[] },
+    { [key: string]: string | string[] | number | number[] | boolean },
     React.Dispatch<
       React.SetStateAction<{
-        [key: string]: string | string[] | number | number[];
+        [key: string]: string | string[] | number | number[] | boolean;
       }>
     >
   ];

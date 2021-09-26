@@ -74,7 +74,9 @@ function ItemDetailsPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   // save a flattened version of the data in state for modification
-  const [flatData, setFlatData] = useState<{ [key: string]: string | string[] | number | number[] }>({});
+  const [flatData, setFlatData] = useState<{ [key: string]: string | string[] | number | number[] | boolean }>(
+    {}
+  );
   useEffect(() => {
     if (data) {
       setFlatData(flattenObject(data));
@@ -123,6 +125,17 @@ function ItemDetailsPage() {
    * Sets the updated ISO datetime string in the data
    */
   const handleDateTimeChange = (value: string, key: string) => {
+    setFlatData({
+      ...flatData,
+      [key]: value,
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  /**
+   * Sets an updated boolean value in the data
+   */
+  const handleBooleanChange = (value: boolean, key: string) => {
     setFlatData({
       ...flatData,
       [key]: value,
@@ -378,6 +391,8 @@ function ItemDetailsPage() {
                         type={'checkbox'}
                         name={field.label}
                         id={field.key}
+                        checked={!!flatData[field.key]}
+                        onChange={(e) => handleBooleanChange(e.currentTarget.checked, field.key)}
                         disabled={publishLocked ? true : field.isDisabled}
                       />
                     </InputGroup>

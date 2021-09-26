@@ -891,10 +891,10 @@ interface ITiptap {
     color: string;
   };
   options?: tiptapOptions;
-  flatData?: { [key: string]: string | string[] | number | number[] };
+  flatData?: { [key: string]: string | string[] | number | number[] | boolean };
   setFlatData?: React.Dispatch<
     React.SetStateAction<{
-      [key: string]: string | string[] | number | number[];
+      [key: string]: string | string[] | number | number[] | boolean;
     }>
   >;
   isDisabled?: boolean;
