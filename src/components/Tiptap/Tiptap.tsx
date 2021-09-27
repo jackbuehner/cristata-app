@@ -29,6 +29,7 @@ import { Toolbar } from './components/Toolbar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
 import { DocPropertiesSidebar } from './sidebar-content/DocPropertiesSidebar';
+import { Iaction } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 
 interface ITiptap {
   docName: string;
@@ -47,6 +48,7 @@ interface ITiptap {
   sessionId: string;
   onChange?: (editorJson: string) => void;
   html?: string;
+  actions?: Array<Iaction | null>;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -304,6 +306,7 @@ const Tiptap = (props: ITiptap) => {
         setSidebarTitle={setSidebarTitle}
         flatData={props.flatData}
         setFlatData={props.setFlatData}
+        actions={props.actions}
       />
 
       <div

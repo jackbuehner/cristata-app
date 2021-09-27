@@ -16,6 +16,10 @@ const ToolbarRowButton = styled(Button)<IToolbarRowButton>`
   > span[class*='IconStyleWrapper'] {
     width: 20px;
     height: 20px;
+    > span > svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 `;
 

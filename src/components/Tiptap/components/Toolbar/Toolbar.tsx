@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
 import { Editor } from '@tiptap/react';
-import { Button } from '../../../Button';
 import styled from '@emotion/styled';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../../../utils/theme/theme';
@@ -54,6 +53,7 @@ import { ToolbarRow } from './ToolbarRow';
 import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
+import { Iaction } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 
 const TOOLBAR = styled.div`
 position: relative;
@@ -88,12 +88,13 @@ interface IToolbar {
       [key: string]: string | string[] | number | number[] | boolean;
     }>
   >;
+  actions?: Array<Iaction | null>;
 }
 
 function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
   const [activeTab, setActiveTab] = useState<
-    'home' | 'insert' | 'layout' | 'review' | 'utils'
+    'home' | 'insert' | 'layout' | 'review' | 'actions'
   >('home');
 
   // DROPDOWNS
@@ -349,14 +350,16 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               >
                 Review
               </ToolbarTabButton>
-              <ToolbarTabButton
-                theme={theme}
-                color={'neutral'}
-                isActive={activeTab === 'utils'}
-                onClick={() => setActiveTab('utils')}
-              >
-                Utilities
-              </ToolbarTabButton>
+              {props.actions ? (
+                <ToolbarTabButton
+                  theme={theme}
+                  color={'neutral'}
+                  isActive={activeTab === 'actions'}
+                  onClick={() => setActiveTab('actions')}
+                >
+                  Actions
+                </ToolbarTabButton>
+              ) : null}
             </ToolbarTabList>
           )}
           <ToolbarMeta>
@@ -730,16 +733,28 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 disabled={!editor.can().unsetComment()}
               />
             </ToolbarRow>
-            <ToolbarRow isActive={activeTab === 'utils'}>
-              <Button
-                onClick={() => editor.chain().focus().unsetAllMarks().run()}
-              >
-                clear marks
-              </Button>
-              <Button onClick={() => editor.chain().focus().clearNodes().run()}>
-                clear nodes
-              </Button>
-            </ToolbarRow>
+            {props.actions ? (
+              <ToolbarRow isActive={activeTab === 'actions'}>
+                {props.actions.map((action, index) => {
+                  if (action === null) {
+                    return null;
+                  }
+                  return (
+                    <ToolbarRowButton
+                      key={index}
+                      onClick={action.action}
+                      color={action.color ? action.color : 'neutral'}
+                      disabled={action.disabled}
+                      icon={action.icon}
+                      isActive={false}
+                      theme={theme}
+                    >
+                      {action.label}
+                    </ToolbarRowButton>
+                  );
+                })}
+              </ToolbarRow>
+            ) : null}
           </ToolbarActionRowContainer>
         )}
       </TOOLBAR>

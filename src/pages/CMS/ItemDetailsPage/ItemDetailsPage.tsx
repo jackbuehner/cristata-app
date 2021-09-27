@@ -2,10 +2,17 @@
 import { css, useTheme } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { themeType } from '../../../utils/theme/theme';
+import { colorType, themeType } from '../../../utils/theme/theme';
 import { PageHead } from '../../../components/PageHead';
 import { Button, IconButton } from '../../../components/Button';
-import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import {
+  ArrowClockwise24Regular,
+  CloudArrowUp24Regular,
+  Delete24Regular,
+  EyeHide24Regular,
+  EyeShow24Regular,
+  Save24Regular,
+} from '@fluentui/react-icons';
 import useAxios from 'axios-hooks';
 import { Label } from '../../../components/Label';
 import { TextInput } from '../../../components/TextInput';
@@ -41,6 +48,15 @@ const PageWrapper = styled.div<{ theme?: themeType; isEmbedded?: boolean }>`
   box-sizing: border-box;
   overflow: auto;
 `;
+
+interface Iaction {
+  label: string;
+  type: 'icon' | 'button';
+  icon?: React.ReactElement<any, string | React.JSXElementConstructor<any>>;
+  action: () => void;
+  color?: colorType;
+  disabled?: boolean;
+}
 
 interface IItemDetailsPage {
   flatData?: { [key: string]: string | string[] | number | number[] | boolean };
@@ -360,6 +376,47 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     );
   }, [setFlatData, flatData]);
 
+  const actions: Array<Iaction | null> = [
+    {
+      label: 'Refresh',
+      type: 'icon',
+      icon: <ArrowClockwise24Regular />,
+      action: () => refetch(),
+    },
+    collectionsConfig[dashToCamelCase(collection)]?.canWatch
+      ? {
+          label: isWatching ? 'Stop Watching' : 'Watch',
+          type: 'button',
+          icon: isWatching ? <EyeHide24Regular /> : <EyeShow24Regular />,
+          action: () => watchItem(!isWatching),
+        }
+      : null,
+    {
+      label: 'Delete',
+      type: 'button',
+      icon: <Delete24Regular />,
+      action: hideItem,
+      color: 'red',
+    },
+    {
+      label: 'Save',
+      type: 'button',
+      icon: <Save24Regular />,
+      action: () => saveChanges(),
+      disabled: !hasUnsavedChanges,
+    },
+    collectionsConfig[dashToCamelCase(collection)]?.isPublishable
+      ? //only allow publishing if canPublish is true
+        {
+          label: 'Publish',
+          type: 'button',
+          icon: <CloudArrowUp24Regular />,
+          action: showPublishModal,
+          disabled: cannotPublish,
+        }
+      : null,
+  ];
+
   return (
     <>
       {props.isEmbedded ? null : (
@@ -374,30 +431,37 @@ function ItemDetailsPage(props: IItemDetailsPage) {
           }`}
           buttons={
             <>
-              <IconButton
-                onClick={() => refetch()}
-                icon={<ArrowClockwise24Regular />}
-              >
-                Refresh
-              </IconButton>
-              <Button onClick={() => watchItem(!isWatching)}>
-                {isWatching ? 'Stop Watching' : 'Watch'}
-              </Button>
-              <Button onClick={hideItem} color={'red'}>
-                Delete
-              </Button>
-              <Button
-                onClick={() => saveChanges()}
-                disabled={!hasUnsavedChanges}
-              >
-                Save
-              </Button>
-              {collectionsConfig[dashToCamelCase(collection)]?.isPublishable ? (
-                //only allow publishing if canPublish is true
-                <Button onClick={showPublishModal} disabled={cannotPublish}>
-                  Publish
-                </Button>
-              ) : null}
+              {actions.map((action, index) => {
+                if (action === null) {
+                  return null;
+                }
+                if (action.type === 'icon' && action.icon) {
+                  return (
+                    <IconButton
+                      key={index}
+                      onClick={action.action}
+                      icon={action.icon}
+                      color={action.color}
+                      disabled={action.disabled}
+                    >
+                      {action.label}
+                    </IconButton>
+                  );
+                }
+                if (action.type === 'button') {
+                  return (
+                    <Button
+                      key={index}
+                      onClick={action.action}
+                      color={action.color}
+                      disabled={action.disabled}
+                    >
+                      {action.label}
+                    </Button>
+                  );
+                }
+                return null;
+              })}
             </>
           }
           isLoading={isLoading}
@@ -563,6 +627,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                                 setHasUnsavedChanges(true);
                               }
                             }}
+                            actions={actions}
                           />
                         </div>
                       </InputGroup>
@@ -819,3 +884,4 @@ const Notice = styled.div<{ theme: themeType }>`
 `;
 
 export { ItemDetailsPage };
+export type { Iaction };
