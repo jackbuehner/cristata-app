@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { CircularProgress } from '@material-ui/core';
 import { themeType } from '../../utils/theme/theme';
 
@@ -19,7 +19,10 @@ const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.color.primary[900]} !important;
 `;
 
-function SideNavHeading(props: { children: React.ReactNode; isLoading?: boolean }) {
+function SideNavHeading(props: {
+  children: React.ReactNode;
+  isLoading?: boolean;
+}) {
   const theme = useTheme() as themeType;
 
   return (

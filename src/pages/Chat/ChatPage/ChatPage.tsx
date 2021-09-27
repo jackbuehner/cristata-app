@@ -6,7 +6,7 @@ import useAxios from 'axios-hooks';
 import { IGetDiscussion } from '../../../interfaces/github/discussions';
 import { Message } from './Message';
 import React, { useEffect, useRef, useState } from 'react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { TextArea } from '../../../components/TextArea';
 import { Button } from '../../../components/Button';
 import { Thread } from './Thread';
@@ -49,7 +49,9 @@ function ChatPage() {
   }>();
 
   // get the data
-  const [{ data, loading }, refetch] = useAxios<IGetDiscussion>(`/gh/teams/discussions/${team_slug}?last=10`);
+  const [{ data, loading }, refetch] = useAxios<IGetDiscussion>(
+    `/gh/teams/discussions/${team_slug}?last=10`
+  );
 
   // store the data in state so that it can be mutated
   const [messages, setMessages] = useState(data);
@@ -68,16 +70,22 @@ function ChatPage() {
    */
   const test = () => {
     setIsLoading(true);
-    let messagesCopy = JSON.parse(JSON.stringify(messages)) as IGetDiscussion | undefined;
+    let messagesCopy = JSON.parse(JSON.stringify(messages)) as
+      | IGetDiscussion
+      | undefined;
 
     if (messagesCopy) {
-      const cursorNext = messagesCopy.organization.team.discussions.edges[0].cursor;
+      const cursorNext =
+        messagesCopy.organization.team.discussions.edges[0].cursor;
 
       axios
-        .get(`/gh/teams/discussions/${team_slug}?before=${cursorNext}?last=10`, {
-          baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
-          withCredentials: true,
-        })
+        .get(
+          `/gh/teams/discussions/${team_slug}?before=${cursorNext}?last=10`,
+          {
+            baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+            withCredentials: true,
+          }
+        )
         .then(({ data }) => {
           if (messagesCopy) {
             messagesCopy.organization.team.discussions.edges = [
@@ -108,7 +116,9 @@ function ChatPage() {
       elem?.scrollIntoView();
     } else {
       // otherwise, it is the first load, so scroll messages container to bottom
-      messagesContainerRef.current?.scrollTo({ top: messagesContainerRef.current.scrollHeight });
+      messagesContainerRef.current?.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+      });
     }
   }, [messages]);
 
@@ -129,94 +139,116 @@ function ChatPage() {
         />
         <DiscussionsListWrapper theme={theme}>
           <ChatAreaWrapper theme={theme}>
-            <div style={{ overflow: 'auto', flexGrow: 1 }} ref={messagesContainerRef}>
+            <div
+              style={{ overflow: 'auto', flexGrow: 1 }}
+              ref={messagesContainerRef}
+            >
               {
                 // if there are more messages to load, show the load more button
                 messages?.organization.team.discussions.edges.length !==
                 messages?.organization.team.discussions.totalCount ? (
-                  <div style={{ margin: 10, display: 'flex', justifyContent: 'center' }}>
+                  <div
+                    style={{
+                      margin: 10,
+                      display: 'flex',
+                      justifyContent: 'center',
+                    }}
+                  >
                     <Button onClick={() => test()}>Load more</Button>
                   </div>
                 ) : null
               }
-              {messages?.organization.team.discussions.edges.map(({ node: discussion }, index: number) => {
-                return (
-                  <React.Fragment key={index}>
-                    {
-                      // if this is the discussion at the top of the page
-                      // OR if this is the FIRST discussion with this date,
-                      // show a divider and date
-                      index === 0 ||
-                      discussion.publishedAt.substr(0, 10) !==
-                        messages?.organization.team.discussions.edges[index - 1].node.publishedAt.substr(
-                          0,
-                          10
-                        ) ? (
-                        <div style={{ position: 'relative' }}>
-                          <div
-                            style={{
-                              margin: '20px 0',
-                              borderBottom: `1px solid ${theme.color.neutral[theme.mode][300]}`,
-                            }}
-                          />
-                          <div
-                            style={{
-                              width: '100%',
-                              display: 'flex',
-                              flexDirection: 'row',
-                              justifyContent: 'center',
-                              position: 'absolute',
-                              top: '-6.5px',
-                            }}
-                          >
-                            <span
+              {messages?.organization.team.discussions.edges.map(
+                ({ node: discussion }, index: number) => {
+                  return (
+                    <React.Fragment key={index}>
+                      {
+                        // if this is the discussion at the top of the page
+                        // OR if this is the FIRST discussion with this date,
+                        // show a divider and date
+                        index === 0 ||
+                        discussion.publishedAt.substr(0, 10) !==
+                          messages?.organization.team.discussions.edges[
+                            index - 1
+                          ].node.publishedAt.substr(0, 10) ? (
+                          <div style={{ position: 'relative' }}>
+                            <div
                               style={{
-                                backgroundColor: 'white',
-                                fontFamily: theme.font.detail,
-                                fontSize: 13,
-                                lineHeight: '13px',
-                                color: theme.color.neutral[theme.mode][900],
-                                padding: '0 10px',
+                                margin: '20px 0',
+                                borderBottom: `1px solid ${
+                                  theme.color.neutral[theme.mode][300]
+                                }`,
+                              }}
+                            />
+                            <div
+                              style={{
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                position: 'absolute',
+                                top: '-6.5px',
                               }}
                             >
-                              {new Date(discussion.publishedAt).toLocaleDateString('en-US', {
-                                dateStyle: 'long',
-                              })}
-                            </span>
+                              <span
+                                style={{
+                                  backgroundColor: 'white',
+                                  fontFamily: theme.font.detail,
+                                  fontSize: 13,
+                                  lineHeight: '13px',
+                                  color: theme.color.neutral[theme.mode][900],
+                                  padding: '0 10px',
+                                }}
+                              >
+                                {new Date(
+                                  discussion.publishedAt
+                                ).toLocaleDateString('en-US', {
+                                  dateStyle: 'long',
+                                })}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ) : null
-                    }
-                    <Message
-                      id={discussion.id}
-                      cssExtra={css`
+                        ) : null
+                      }
+                      <Message
+                        id={discussion.id}
+                        cssExtra={css`
                         scroll-margin-top: 91px;
                       `}
-                      author={discussion.author.login}
-                      bodyHTML={discussion.bodyHTML}
-                      time={new Date(discussion.publishedAt).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                      })}
-                      discussionNumber={discussion.number}
-                      reactionGroups={
-                        discussion.reactions.totalCount > 0 ? discussion.reactionGroups : undefined
-                      }
-                      replyCount={discussion.comments.totalCount}
-                      recentReplyDetails={
-                        discussion.comments.totalCount > 0 ? discussion.comments.edges : undefined
-                      }
-                      isPinned={discussion.isPinned}
-                      isSubscribed={discussion.viewerSubscription === 'SUBSCRIBED'}
-                      canPin={discussion.viewerCanPin}
-                      canSubscribe={discussion.viewerCanSubscribe}
-                      canReact={discussion.viewerCanReact}
-                      canReply={true}
-                    />
-                  </React.Fragment>
-                );
-              })}
+                        author={discussion.author.login}
+                        bodyHTML={discussion.bodyHTML}
+                        time={new Date(
+                          discussion.publishedAt
+                        ).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true,
+                        })}
+                        discussionNumber={discussion.number}
+                        reactionGroups={
+                          discussion.reactions.totalCount > 0
+                            ? discussion.reactionGroups
+                            : undefined
+                        }
+                        replyCount={discussion.comments.totalCount}
+                        recentReplyDetails={
+                          discussion.comments.totalCount > 0
+                            ? discussion.comments.edges
+                            : undefined
+                        }
+                        isPinned={discussion.isPinned}
+                        isSubscribed={
+                          discussion.viewerSubscription === 'SUBSCRIBED'
+                        }
+                        canPin={discussion.viewerCanPin}
+                        canSubscribe={discussion.viewerCanSubscribe}
+                        canReact={discussion.viewerCanReact}
+                        canReply={true}
+                      />
+                    </React.Fragment>
+                  );
+                }
+              )}
             </div>
             <div style={{ padding: '20px' }}>
               <TextArea theme={theme} />
@@ -225,7 +257,10 @@ function ChatPage() {
         </DiscussionsListWrapper>
       </div>
       {thread_discussion_number ? (
-        <Thread discussionNumber={thread_discussion_number} teamSlug={team_slug} />
+        <Thread
+          discussionNumber={thread_discussion_number}
+          teamSlug={team_slug}
+        />
       ) : null}
     </WholePageContentWrapper>
   );

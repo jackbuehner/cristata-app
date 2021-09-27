@@ -1,5 +1,5 @@
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { Dismiss12Regular } from '@fluentui/react-icons';
 import { themeType } from '../../../../utils/theme/theme';
 import { IconButton } from '../../../Button';

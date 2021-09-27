@@ -1,7 +1,12 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { Comment20Regular } from '@fluentui/react-icons';
-import { NodeViewWrapper, NodeViewContent, NodeViewProps, Node } from '@tiptap/react';
+import {
+  NodeViewWrapper,
+  NodeViewContent,
+  NodeViewProps,
+  Node,
+} from '@tiptap/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { themeType } from '../../../utils/theme/theme';
 import { IconButton } from '../../Button';
@@ -22,7 +27,9 @@ function CommentContainer(props: ICommentContainer) {
    * When the user types in the textarea, update the message attribute
    * with the new message AND make sure that the textarea height matches the message
    */
-  const handleCommentMessageChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleCommentMessageChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     props.updateAttributes({
       ...props.node.attrs,
       message: event.currentTarget.value,
@@ -77,13 +84,19 @@ function CommentContainer(props: ICommentContainer) {
       {isShown ? (
         <Card theme={theme} contentEditable={false} triggerRect={triggerRect}>
           <Meta contentEditable={false}>
-            <ProfilePhoto theme={theme} src={props.node.attrs.commenter.photo} contentEditable={false} />
+            <ProfilePhoto
+              theme={theme}
+              src={props.node.attrs.commenter.photo}
+              contentEditable={false}
+            />
             <div contentEditable={false}>
               <Commenter theme={theme} contentEditable={false}>
                 {props.node.attrs.commenter.name}
               </Commenter>
               <Timestamp theme={theme} contentEditable={false}>
-                {DateTime.fromISO(props.node.attrs.timestamp).toFormat(`LLL. dd, yyyy 'at' t`)}
+                {DateTime.fromISO(props.node.attrs.timestamp).toFormat(
+                  `LLL. dd, yyyy 'at' t`
+                )}
               </Timestamp>
             </div>
           </Meta>

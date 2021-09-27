@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { useTheme } from '@emotion/react';
 import { colorShade, colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
@@ -58,24 +58,30 @@ interface IMenuItem extends IMenuItemBase {
   noIcons?: boolean;
 }
 
-const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIElement>) => {
-  const theme = useTheme() as themeType;
-  return (
-    <MenuItemComponent
-      onClick={props.onClick}
-      onKeyDown={props.onKeyDown}
-      theme={theme}
-      color={props.color}
-      colorShade={props.colorShade}
-      tabIndex={-1}
-      ref={ref}
-      noEffect={props.noEffect}
-      height={props.height}
-    >
-      {props.noIcons ? null : <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>}
-      <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
-    </MenuItemComponent>
-  );
-});
+const MenuItem = forwardRef(
+  (props: IMenuItem, ref: React.ForwardedRef<HTMLLIElement>) => {
+    const theme = useTheme() as themeType;
+    return (
+      <MenuItemComponent
+        onClick={props.onClick}
+        onKeyDown={props.onKeyDown}
+        theme={theme}
+        color={props.color}
+        colorShade={props.colorShade}
+        tabIndex={-1}
+        ref={ref}
+        noEffect={props.noEffect}
+        height={props.height}
+      >
+        {props.noIcons ? null : (
+          <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>
+        )}
+        <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>
+          {props.children}
+        </span>
+      </MenuItemComponent>
+    );
+  }
+);
 
 export { MenuItem };

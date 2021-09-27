@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import ReactModal from 'react-modal';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button } from '../../components/Button';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { LinearProgress } from '@rmwc/linear-progress';
 import '@material/linear-progress/dist/mdc.linear-progress.css';
 
@@ -16,14 +16,20 @@ import '@material/linear-progress/dist/mdc.linear-progress.css';
  * If the modal has children, the `padding-bottom` the title increases and
  * a bottom border is added.
  */
-const PlainModalTitle = styled.h1<{ modalHasChildren: boolean; theme: themeType }>`
+const PlainModalTitle = styled.h1<{
+  modalHasChildren: boolean;
+  theme: themeType;
+}>`
   font-family: ${({ theme }) => theme.font.headline};
   font-size: 20px;
   font-weight: 600;
   line-height: 1.24;
-  padding: ${({ modalHasChildren }) => (modalHasChildren ? `0 24px 20px 24px` : `0 24px 9px 24px`)};
+  padding: ${({ modalHasChildren }) =>
+    modalHasChildren ? `0 24px 20px 24px` : `0 24px 9px 24px`};
   border-bottom: ${({ theme, modalHasChildren }) =>
-    modalHasChildren ? `1px solid ${theme.color.neutral[theme.mode][200]}` : `1px solid transparent`};
+    modalHasChildren
+      ? `1px solid ${theme.color.neutral[theme.mode][200]}`
+      : `1px solid transparent`};
   margin: 0;
   position: relative;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
@@ -50,7 +56,8 @@ const PlainModalContent = styled.div<{
   titleHeight: number;
   actionRowHeight: number;
 }>`
-  padding: ${({ modalHasChildren }) => (modalHasChildren ? `20px 24px` : `0 24px 20px 24px`)};
+  padding: ${({ modalHasChildren }) =>
+    modalHasChildren ? `20px 24px` : `0 24px 20px 24px`};
   overflow: auto;
   max-height: ${({ theme, titleHeight, actionRowHeight }) =>
     `calc(100vh - 40px - 40px - ${theme.dimensions.titlebar.height} - ${titleHeight}px - ${actionRowHeight}px)`};
@@ -73,9 +80,12 @@ const PlainModalText = styled.p<{ theme: themeType }>`
  * buttons are right-aligned with the the content. A top border is also added.
  */
 const ActionRow = styled.div<{ modalHasChildren: boolean; theme: themeType }>`
-  padding: ${({ modalHasChildren }) => (modalHasChildren ? `16px 24px` : `11px`)};
+  padding: ${({ modalHasChildren }) =>
+    modalHasChildren ? `16px 24px` : `11px`};
   border-top: ${({ theme, modalHasChildren }) =>
-    modalHasChildren ? `1px solid ${theme.color.neutral[theme.mode][200]}` : `1px solid transparent`};
+    modalHasChildren
+      ? `1px solid ${theme.color.neutral[theme.mode][200]}`
+      : `1px solid transparent`};
   flex-wrap: wrap;
   display: flex;
   flex-direction: row;
@@ -90,7 +100,10 @@ const ActionRow = styled.div<{ modalHasChildren: boolean; theme: themeType }>`
  * It appears underneath the title when there are children, and it appears at the top of the modal
  * when there are no children
  */
-const IndeterminateProgress = styled(LinearProgress)<{ modalHasChildren: boolean; theme: themeType }>`
+const IndeterminateProgress = styled(LinearProgress)<{
+  modalHasChildren: boolean;
+  theme: themeType;
+}>`
   --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
   position: absolute !important;
   left: 0;
@@ -203,7 +216,9 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               width: 480px;
               box-sizing: border-box;
               height: fit-content;
-              max-height: calc(100vh - 40px - ${theme.dimensions.titlebar.height});
+              max-height: calc(100vh - 40px - ${
+                theme.dimensions.titlebar.height
+              });
               border: none;
               background: none;
               background-color: ${theme.mode === 'light' ? 'white' : 'black'};
@@ -217,13 +232,22 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               z-index: 100;
               position: fixed;
               inset: 0;
-              background-color: ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.6).string()};
+              background-color: ${Color(theme.color.neutral[theme.mode][1500])
+                .alpha(0.6)
+                .string()};
             `}
           >
-            <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>
+            <PlainModalTitle
+              modalHasChildren={!!props.children}
+              theme={theme}
+              ref={PlainModalTitleElem}
+            >
               {props.title}
               {props.isLoading ? (
-                <IndeterminateProgress modalHasChildren={!!props.children} theme={theme} />
+                <IndeterminateProgress
+                  modalHasChildren={!!props.children}
+                  theme={theme}
+                />
               ) : null}
             </PlainModalTitle>
             <PlainModalContent
@@ -233,12 +257,19 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               actionRowHeight={ActionRowHeight ? ActionRowHeight : 0}
             >
               {props.text ? (
-                <PlainModalText theme={theme} dangerouslySetInnerHTML={{ __html: bold(props.text) }} />
+                <PlainModalText
+                  theme={theme}
+                  dangerouslySetInnerHTML={{ __html: bold(props.text) }}
+                />
               ) : props.children ? (
                 <PlainModalText theme={theme}>{props.children}</PlainModalText>
               ) : null}
             </PlainModalContent>
-            <ActionRow modalHasChildren={!!props.children} theme={theme} ref={ActionRowElem}>
+            <ActionRow
+              modalHasChildren={!!props.children}
+              theme={theme}
+              ref={ActionRowElem}
+            >
               <Button
                 color={props.cancelButton?.color}
                 onClick={handleCancelButtonClick}

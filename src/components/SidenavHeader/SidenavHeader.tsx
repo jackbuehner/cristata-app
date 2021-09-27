@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { Person24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
@@ -40,7 +40,13 @@ function SidenavHeader({
           items={[
             {
               label: (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
                   <span
                     style={{
                       fontFamily: theme.font.headline,
@@ -116,7 +122,9 @@ function SidenavHeader({
     <Wrapper
       theme={theme}
       gridCols={gridCols}
-      isHidden={homeOnly ? location.pathname !== '/' : location.pathname === '/'}
+      isHidden={
+        homeOnly ? location.pathname !== '/' : location.pathname === '/'
+      }
       isHome={homeOnly}
       isNavVisible={isNavVisible}
     >
@@ -170,10 +178,13 @@ const Wrapper = styled.div<{
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
-  border-right: ${({ isHidden, isHome }) => (isHome ? 0 : isHidden ? 0 : 1)}px solid;
+  border-right: ${({ isHidden, isHome }) =>
+    isHome ? 0 : isHidden ? 0 : 1}px solid;
   border-bottom: ${({ isHidden }) => (isHidden ? 0 : 1)}px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
   white-space: nowrap;
   overflow: hidden;
   flex-shrink: 0;

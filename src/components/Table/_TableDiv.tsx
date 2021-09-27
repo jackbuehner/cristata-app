@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { themeType } from '../../utils/theme/theme';
 
 interface ITableDiv {
@@ -16,7 +16,9 @@ const TableDiv = styled.div<ITableDiv>`
   overflow: auto;
   border: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
   border-radius: ${({ theme }) => theme.radius};
 `;
 

@@ -8,7 +8,7 @@ import { useRef, useState } from 'react';
 import { useEffect } from 'react';
 import { themeType } from '../../../utils/theme/theme';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { Button, IconButton } from '../../../components/Button';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import Color from 'color';
@@ -47,7 +47,9 @@ function PhotoLibraryPage() {
     return db
       .get(
         `/sign-s3?file-name=${uuidv4()}&file-type=${file.type}&s3-bucket=${
-          process.env.NODE_ENV === 'production' ? 'paladin-photo-library' : 'paladin-photo-library-test'
+          process.env.NODE_ENV === 'production'
+            ? 'paladin-photo-library'
+            : 'paladin-photo-library-test'
         }`
       )
       .then(({ data }: { data: { signedRequest: string; url: string } }) => {
@@ -70,7 +72,8 @@ function PhotoLibraryPage() {
       .put(signedRequest, file, {
         headers: { 'Content-Type': file.type, 'x-amz-acl': 'public-read' },
         onUploadProgress: (progressEvent) => {
-          if (progressEvent.lengthComputable) setUploadProgress(progressEvent.loaded / progressEvent.total);
+          if (progressEvent.lengthComputable)
+            setUploadProgress(progressEvent.loaded / progressEvent.total);
         },
       })
       .then(() => {
@@ -183,10 +186,15 @@ function PhotoLibraryPage() {
         title={`Photo libary`}
         description={uploadStatus || `📷 📷 📷 📷 📷 📷 📷 📷 📷 📷`}
         // if upload progress is between 0 and 1, provide the upload progress; otherwise, just show whether something is loading
-        isLoading={uploadProgress && uploadProgress !== 1 ? uploadProgress : isLoading}
+        isLoading={
+          uploadProgress && uploadProgress !== 1 ? uploadProgress : isLoading
+        }
         buttons={
           <>
-            <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
+            <IconButton
+              onClick={() => refetch()}
+              icon={<ArrowClockwise24Regular />}
+            >
               Refresh
             </IconButton>
             <Button onClick={upload} disabled={!!isLoading || !!uploadStatus}>
@@ -218,7 +226,8 @@ function PhotoLibraryPage() {
                     theme={theme}
                     isSelected={photo_id === photo._id}
                     onClick={() => {
-                      if (photo_id !== photo._id) history.push(`/cms/photos/library/${photo._id}`);
+                      if (photo_id !== photo._id)
+                        history.push(`/cms/photos/library/${photo._id}`);
                     }}
                   >
                     <ImageBG src={photo.photo_url} theme={theme} />
@@ -230,7 +239,9 @@ function PhotoLibraryPage() {
           </Grid>
         </Wrapper>
         {photo_id ? (
-          <PhotoLibraryFlyout photo={data?.find((photo) => photo._id === photo_id)}></PhotoLibraryFlyout>
+          <PhotoLibraryFlyout
+            photo={data?.find((photo) => photo._id === photo_id)}
+          ></PhotoLibraryFlyout>
         ) : null}
       </WrapperWrapper>
     </>
@@ -267,25 +278,35 @@ const Card = styled.div<{ theme: themeType; isSelected: boolean }>`
   height: 144px;
   box-shadow: ${({ theme, isSelected }) =>
     `0 0 0 1px ${
-      isSelected ? theme.color.primary[800] : Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()
+      isSelected
+        ? theme.color.primary[800]
+        : Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()
     }`};
   border-radius: ${({ theme }) => theme.radius};
   ${({ theme, isSelected }) => `
     &:hover, &:focus, &:active {
       background-color: ${Color(theme.color.primary[800]).alpha(0.2).string()};
       box-shadow: 0 0 0 1px ${
-        isSelected ? theme.color.primary[800] : Color(theme.color.primary[800]).alpha(0.2).string()
+        isSelected
+          ? theme.color.primary[800]
+          : Color(theme.color.primary[800]).alpha(0.2).string()
       }, 0 3.6px 7.2px 0 ${Color(theme.color.neutral[theme.mode][1500])
     .alpha(0.13)
-    .string()}, 0 0.6px 1.8px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
+    .string()}, 0 0.6px 1.8px 0 ${Color(theme.color.neutral[theme.mode][1500])
+    .alpha(0.13)
+    .string()};
     }
     &:hover:active {
       background-color: ${Color(theme.color.primary[800]).alpha(0.25).string()};
       box-shadow: 0 0 0 1px ${
-        isSelected ? theme.color.primary[800] : Color(theme.color.primary[800]).alpha(0.25).string()
+        isSelected
+          ? theme.color.primary[800]
+          : Color(theme.color.primary[800]).alpha(0.25).string()
       } 0 1.8px 3.6px 0 ${Color(theme.color.neutral[theme.mode][1500])
     .alpha(0.13)
-    .string()}, 0 0.3px 0.9px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
+    .string()}, 0 0.3px 0.9px 0 ${Color(theme.color.neutral[theme.mode][1500])
+    .alpha(0.13)
+    .string()};
     }
   `};
   transition: border-color 160ms, border-radius 160ms, background-color 160ms, box-shadow 160ms;
@@ -310,7 +331,10 @@ const ImageLabel = styled.div<{ theme: themeType }>`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  border-top: ${({ theme }) => `1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
+  border-top: ${({ theme }) =>
+    `1px solid ${Color(theme.color.neutral[theme.mode][800])
+      .alpha(0.2)
+      .string()}`};
 `;
 
 export { PhotoLibraryPage };

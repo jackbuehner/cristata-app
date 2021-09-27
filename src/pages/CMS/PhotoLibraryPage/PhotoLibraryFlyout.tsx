@@ -1,6 +1,10 @@
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
-import { PaneClose24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
+import styled from '@emotion/styled/macro';
+import {
+  PaneClose24Regular,
+  Dismiss24Regular,
+  Edit24Regular,
+} from '@fluentui/react-icons';
 import { useHistory } from 'react-router-dom';
 import { Button, IconButton } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
@@ -20,7 +24,13 @@ function PhotoLibraryFlyout({ photo }: IPhotoLibraryFlyout) {
       <Wrapper theme={theme}>
         <Header theme={theme}>
           <IconButton
-            icon={window.innerWidth <= 600 ? <Dismiss24Regular /> : <PaneClose24Regular />}
+            icon={
+              window.innerWidth <= 600 ? (
+                <Dismiss24Regular />
+              ) : (
+                <PaneClose24Regular />
+              )
+            }
             cssExtra={css`
               float: right;
               margin-top: 15px;
@@ -37,7 +47,11 @@ function PhotoLibraryFlyout({ photo }: IPhotoLibraryFlyout) {
         <Details theme={theme}>
           <Label>Location</Label>
           <Item>
-            {photo.photo_url.replace('https://', '').split('.')[0] /* get the location from the URL */}
+            {
+              photo.photo_url
+                .replace('https://', '')
+                .split('.')[0] /* get the location from the URL */
+            }
           </Item>
           <Label>Source</Label>
           <Item>{photo.people.photo_created_by}</Item>
@@ -52,9 +66,14 @@ function PhotoLibraryFlyout({ photo }: IPhotoLibraryFlyout) {
         {photo.tags?.map((tag, index) => {
           return <Chip key={index} label={tag} color={`neutral`} />;
         })}
-        {photo.tags === undefined || photo.tags.length < 1 ? 'No tags could be found for this photo' : null}
+        {photo.tags === undefined || photo.tags.length < 1
+          ? 'No tags could be found for this photo'
+          : null}
         <Footer theme={theme}>
-          <Button icon={<Edit24Regular />} onClick={() => history.push(`/cms/item/photos/${photo._id}`)}>
+          <Button
+            icon={<Edit24Regular />}
+            onClick={() => history.push(`/cms/item/photos/${photo._id}`)}
+          >
             Edit details
           </Button>
         </Footer>
@@ -69,11 +88,14 @@ const Wrapper = styled.div<{ theme: themeType }>`
   height: 100%;
   border-left: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
   padding: 20px 20px 0 20px;
   flex-shrink: 0;
   box-sizing: border-box;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light' ? 'white' : 'black'};
   @media (max-width: 600px) {
     position: fixed;
     height: 100vh;
@@ -91,10 +113,13 @@ const Wrapper = styled.div<{ theme: themeType }>`
 const Header = styled.div<{ theme: themeType }>`
   position: sticky;
   top: -20px;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light' ? 'white' : 'black'};
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
   margin-bottom: 10px;
   width: calc(100% + 40px);
   margin-left: -20px;
@@ -160,10 +185,13 @@ const SectionTitle = styled.h2<{ theme: themeType }>`
 const Footer = styled.div<{ theme: themeType }>`
   position: sticky;
   bottom: 0;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light' ? 'white' : 'black'};
   border-top: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
   width: calc(100% + 40px);
   margin: 20px 0 0 -20px;
   padding: 16px 20px;

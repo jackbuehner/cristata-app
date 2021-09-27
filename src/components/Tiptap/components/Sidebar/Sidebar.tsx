@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { themeType } from '../../../../utils/theme/theme';
 import { SidebarHeader } from './SidebarHeader';
 

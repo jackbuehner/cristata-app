@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import useAxios from 'axios-hooks';
 import { DateTime } from 'luxon';
 import { useHistory } from 'react-router-dom';
@@ -36,7 +36,9 @@ function RecentActivity() {
         itemHistory?.slice(0, 6).map((item, index: number) => {
           let { user, type, at } = item.history[item.history.length - 1];
 
-          const userName = profiles?.find((profile) => profile.github_id === user)?.name;
+          const userName = profiles?.find(
+            (profile) => profile.github_id === user
+          )?.name;
 
           // rename history types
           type =
@@ -56,9 +58,15 @@ function RecentActivity() {
                   src={`${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2/users/${user}/photo`}
                 />
                 <Text>
-                  <Bold onClick={() => history.push(`/profile/${user}`)}>{userName || user}</Bold>
+                  <Bold onClick={() => history.push(`/profile/${user}`)}>
+                    {userName || user}
+                  </Bold>
                   <span> {type} </span>
-                  <Bold onClick={() => history.push(`/cms/item/${item.collection}/${item._id}`)}>
+                  <Bold
+                    onClick={() =>
+                      history.push(`/cms/item/${item.collection}/${item._id}`)
+                    }
+                  >
                     {item.name}
                   </Bold>
                   <span> in </span>

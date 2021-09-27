@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
 import Color from 'color';
@@ -7,10 +7,18 @@ import { useDrop } from 'react-dnd';
 import useDimensions from 'react-use-dimensions';
 import React, { useState } from 'react';
 import { css } from '@emotion/react';
-import { Card as CardType, FullAPIProject } from '../../../interfaces/github/plans';
+import {
+  Card as CardType,
+  FullAPIProject,
+} from '../../../interfaces/github/plans';
 import { Card } from './_Card';
 import { IconButton } from '../../../components/Button';
-import { Add16Regular, Delete16Regular, MoreHorizontal16Regular, Rename16Regular } from '@fluentui/react-icons';
+import {
+  Add16Regular,
+  Delete16Regular,
+  MoreHorizontal16Regular,
+  Rename16Regular,
+} from '@fluentui/react-icons';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../components/Modal';
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig } from 'axios';
@@ -31,7 +39,8 @@ const ColumnWrapper = styled.div<{ theme: themeType }>`
   grid-template-columns: 1fr;
   grid-template-rows: 36px 1fr;
   border: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][300]};
-  background-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][100]).alpha(0.5).string()};
+  background-color: ${({ theme }) =>
+    Color(theme.color.neutral[theme.mode][100]).alpha(0.5).string()};
   border-radius: ${({ theme }) => theme.radius};
   box-sizing: border-box;
   overflow: auto;
@@ -48,7 +57,8 @@ const TopBar = styled.div<{ theme: themeType }>`
   align-items: center;
   position: relative;
   padding: 0 20px;
-  border-bottom: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][300]};
+  border-bottom: 1px solid ${({ theme }) =>
+    theme.color.neutral[theme.mode][300]};
 `;
 
 /**
@@ -113,8 +123,17 @@ function ColumnSpace(props: {
         if (props.moveCard) {
           // sends the requested new position for the dropped card so the UI
           // can be updated and the the GitHub backend can be updated
-          const position = props.first ? 'top' : props.spaceCardId ? `after:${props.spaceCardId}` : 'bottom';
-          props.moveCard(props.columnId, item.from_column_id, item.card_id, position);
+          const position = props.first
+            ? 'top'
+            : props.spaceCardId
+            ? `after:${props.spaceCardId}`
+            : 'bottom';
+          props.moveCard(
+            props.columnId,
+            item.from_column_id,
+            item.card_id,
+            position
+          );
         }
       },
       // provides the variables to the component via the first element in the
@@ -141,9 +160,15 @@ function ColumnSpace(props: {
           content: '';
           position: absolute;
           margin-top: 6px;
-          height: ${(props.first && cardItem) || (isDragging && isOver && cardItem) ? cardItem.height : `0`}px;
+          height: ${
+            (props.first && cardItem) || (isDragging && isOver && cardItem)
+              ? cardItem.height
+              : `0`
+          }px;
           width: 100%;
-          background-color: ${Color(theme.color.primary[900]).alpha(0.05).string()};
+          background-color: ${Color(theme.color.primary[900])
+            .alpha(0.05)
+            .string()};
           border: 1px dotted ${theme.color.primary[800]};
           opacity: ${props.first && isDragging ? '1' : isOver ? '1' : '0'};
           border-radius: 2px;
@@ -151,7 +176,11 @@ function ColumnSpace(props: {
           transition-delay: ${isOver ? '350ms' : '0ms'};
           box-sizing: border-box;
         }
-        padding-bottom: ${(props.first && cardItem) || (isOver && cardItem) ? cardItem.height + 6 : '0'}px;
+        padding-bottom: ${
+          (props.first && cardItem) || (isOver && cardItem)
+            ? cardItem.height + 6
+            : '0'
+        }px;
       `}
       ref={drop}
     >
@@ -202,14 +231,17 @@ function Column(props: IColumn) {
         last={index + 1 === props.cards?.length}
         spaceCardId={card?.id}
       >
-        {card ? <Card key={card.id} refetchProject={props.refetch} {...card}></Card> : null}
+        {card ? (
+          <Card key={card.id} refetchProject={props.refetch} {...card}></Card>
+        ) : null}
       </ColumnSpace>
     );
   };
 
   const [showAddCardModal, hideAddCardModal] = useModal(() => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [noteValue, setNoteValue] = useState<HTMLTextAreaElement['value']>('');
+    const [noteValue, setNoteValue] =
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useState<HTMLTextAreaElement['value']>('');
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -225,7 +257,9 @@ function Column(props: IColumn) {
      *
      * @returns `true` if there were no errors; An `AxiosError` type if there was an error
      */
-    const addNote = async (note: HTMLTextAreaElement['value']): Promise<true | AxiosError<any>> => {
+    const addNote = async (
+      note: HTMLTextAreaElement['value']
+    ): Promise<true | AxiosError<any>> => {
       return await axios
         .post(
           `/gh/projects/columns/${props.id}/cards`,
@@ -283,7 +317,9 @@ function Column(props: IColumn) {
 
   const [showRenameColumnModal, hideRenameColumnModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [nameInputValue, setNameInputValue] = useState<HTMLTextAreaElement['value']>(props.title);
+    const [nameInputValue, setNameInputValue] = useState<
+      HTMLTextAreaElement['value']
+    >(props.title);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -299,7 +335,9 @@ function Column(props: IColumn) {
      *
      * @returns `true` if there were no errors; An `AxiosError` type if there was an error
      */
-    const renameColumn = async (name: HTMLInputElement['value']): Promise<true | AxiosError<any>> => {
+    const renameColumn = async (
+      name: HTMLInputElement['value']
+    ): Promise<true | AxiosError<any>> => {
       return await axios
         .patch(
           `/gh/projects/columns/${props.id}`,

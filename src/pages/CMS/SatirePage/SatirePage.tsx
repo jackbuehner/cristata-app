@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { PageHead } from '../../../components/PageHead';
 import { themeType } from '../../../utils/theme/theme';
 import { SatireTable, ISatireTableImperative } from './SatireTable';
@@ -9,7 +9,12 @@ import { useMemo, useRef, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { db } from '../../../utils/axios/db';
 import { toast } from 'react-toastify';
-import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from 'unique-names-generator';
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -34,7 +39,9 @@ function SatirePage() {
   // base page title on route
   const pageTitle = useMemo(() => {
     if (progress === 'in-progress' && category) {
-      return `In-progress ${category}${category === 'opinion' ? `s` : ` satire`}`;
+      return `In-progress ${category}${
+        category === 'opinion' ? `s` : ` satire`
+      }`;
     } else if (progress === 'in-progress') {
       return 'In-progress satire';
     } else {
@@ -57,7 +64,9 @@ function SatirePage() {
 
   // define the filters for the table
   const tableFilters = useMemo(() => {
-    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
+    let filters: { id: string; value: string }[] = [
+      { id: 'hidden', value: 'true' },
+    ];
     if (progress === 'in-progress') {
       filters.push({ id: 'stage', value: 'Published' });
       filters.push({ id: 'stage', value: 'Uploaded/Scheduled' });
@@ -71,7 +80,10 @@ function SatirePage() {
   // create new satire
   const createNew = () => {
     db.post(`/satire`, {
-      name: uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals], separator: '-' }),
+      name: uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+        separator: '-',
+      }),
     })
       .then(({ data }) => history.push(`/cms/item/satire/${data._id}`))
       .catch((err) => {

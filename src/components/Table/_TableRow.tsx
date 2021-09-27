@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
@@ -15,7 +15,9 @@ const TableRow = styled.div<ITableRow>`
   width: 100%;
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
   ${({ isHeader }) =>
     isHeader
       ? `
@@ -26,7 +28,14 @@ const TableRow = styled.div<ITableRow>`
       : ``}
   ${({ onClick, theme }) =>
     onClick
-      ? buttonEffect('primary', 600, theme, false, { base: 'transparent' }, { base: '1px solid transparent' })
+      ? buttonEffect(
+          'primary',
+          600,
+          theme,
+          false,
+          { base: 'transparent' },
+          { base: '1px solid transparent' }
+        )
       : ``}
 `;
 

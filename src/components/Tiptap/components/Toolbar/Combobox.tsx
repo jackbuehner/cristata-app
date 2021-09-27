@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css, SerializedStyles, useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { ChevronDown12Regular } from '@fluentui/react-icons';
 import { colorType, themeType } from '../../../../utils/theme/theme';
 import { Button } from '../../../Button';

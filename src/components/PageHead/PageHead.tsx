@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { LinearProgress } from '@rmwc/linear-progress';
 import { themeType } from '../../utils/theme/theme';
 
@@ -14,8 +14,11 @@ const Wrapper = styled.div<{ theme?: themeType }>`
   box-sizing: border-box;
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light' ? 'white' : 'black'};
 `;
 
 const TextWrapper = styled.div`
@@ -37,7 +40,9 @@ const Title = styled.span<{ theme?: themeType }>`
   font-weight: 600;
   line-height: 22px;
   color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[1200] : theme.color.neutral.dark[1200]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[1200]
+      : theme.color.neutral.dark[1200]};
 `;
 
 const Description = styled.span<{ theme?: themeType }>`
@@ -45,7 +50,9 @@ const Description = styled.span<{ theme?: themeType }>`
   font-size: 13px;
   font-weight: 400;
   color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[1000] : theme.color.neutral.dark[1000]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[1000]
+      : theme.color.neutral.dark[1000]};
 `;
 
 /**
@@ -54,7 +61,10 @@ const Description = styled.span<{ theme?: themeType }>`
  * It appears underneath the title when there are children, and it appears at the top of the modal
  * when there are no children
  */
-const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType; progress?: number }>`
+const IndeterminateProgress = styled(LinearProgress)<{
+  theme: themeType;
+  progress?: number;
+}>`
   --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
   position: absolute !important;
   left: 0;
@@ -81,7 +91,9 @@ function PageHead(props: IPageHead) {
       {props.isLoading ? (
         <IndeterminateProgress
           theme={theme}
-          progress={typeof props.isLoading === 'number' ? props.isLoading : undefined}
+          progress={
+            typeof props.isLoading === 'number' ? props.isLoading : undefined
+          }
         />
       ) : null}
     </Wrapper>

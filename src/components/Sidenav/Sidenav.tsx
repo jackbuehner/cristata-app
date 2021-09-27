@@ -1,5 +1,5 @@
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import {
   Home32Regular,
   ContentView32Regular,
@@ -28,7 +28,11 @@ function Sidenav(props: ISidenav) {
 
   return (
     <SidenavComponent theme={theme} gridCols={props.gridCols}>
-      <SideNavMainButton Icon={<Home32Regular />} to={`/`} onClick={() => setIsNavVisibleM(false)}>
+      <SideNavMainButton
+        Icon={<Home32Regular />}
+        to={`/`}
+        onClick={() => setIsNavVisibleM(false)}
+      >
         Home
       </SideNavMainButton>
       {featuresConfig['cms'] ? (
@@ -41,17 +45,29 @@ function Sidenav(props: ISidenav) {
         </SideNavMainButton>
       ) : null}
       {featuresConfig['messages'] ? (
-        <SideNavMainButton Icon={<Send28Regular />} to={`/chat`} setIsNavVisibleM={setIsNavVisibleM}>
+        <SideNavMainButton
+          Icon={<Send28Regular />}
+          to={`/chat`}
+          setIsNavVisibleM={setIsNavVisibleM}
+        >
           Messages
         </SideNavMainButton>
       ) : null}
       {featuresConfig['plans'] ? (
-        <SideNavMainButton Icon={<Board28Regular />} to={`/plans`} setIsNavVisibleM={setIsNavVisibleM}>
+        <SideNavMainButton
+          Icon={<Board28Regular />}
+          to={`/plans`}
+          setIsNavVisibleM={setIsNavVisibleM}
+        >
           Plans
         </SideNavMainButton>
       ) : null}
       {featuresConfig['profiles'] ? (
-        <SideNavMainButton Icon={<Person32Regular />} to={`/profile`} setIsNavVisibleM={setIsNavVisibleM}>
+        <SideNavMainButton
+          Icon={<Person32Regular />}
+          to={`/profile`}
+          setIsNavVisibleM={setIsNavVisibleM}
+        >
           Profiles
         </SideNavMainButton>
       ) : null}
@@ -67,7 +83,9 @@ function Sidenav(props: ISidenav) {
           bottom: 0;
           height: 50px;
           svg {
-            transform: ${props.gridCols.sideSub > 0 ? `rotate(0deg)` : `rotate(180deg)`};
+            transform: ${
+              props.gridCols.sideSub > 0 ? `rotate(0deg)` : `rotate(180deg)`
+            };
             transition: transform 200ms;
           }
         `}
@@ -86,7 +104,9 @@ const SidenavComponent = styled.div<{ theme: themeType; gridCols: IGridCols }>`
   background: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
   border-right: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light'
+      ? theme.color.neutral.light[300]
+      : theme.color.neutral.dark[300]};
   @media (max-width: 600px) {
     flex-direction: row;
     justify-content: center;
@@ -95,7 +115,9 @@ const SidenavComponent = styled.div<{ theme: themeType; gridCols: IGridCols }>`
     border-right: none;
     border-top: 1px solid;
     border-color: ${({ theme }) =>
-      theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+      theme.mode === 'light'
+        ? theme.color.neutral.light[300]
+        : theme.color.neutral.dark[300]};
   }
 `;
 

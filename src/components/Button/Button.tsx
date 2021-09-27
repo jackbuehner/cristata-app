@@ -25,7 +25,9 @@ const BUTTON = styled.button<StyledButtonProps>`
   font-weight: 500;
   white-space: nowrap;
   color: ${({ theme, disabled }) =>
-    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
+    disabled
+      ? theme.color.neutral[theme.mode][600]
+      : theme.color.neutral[theme.mode][1400]};
   border-radius: ${({ borderRadius, theme }) =>
     borderRadius?.base !== undefined ? borderRadius.base : theme.radius};
   ${({ disabled, borderRadius, color, colorShade, theme }) =>
@@ -34,10 +36,14 @@ const BUTTON = styled.button<StyledButtonProps>`
       : `
           &:hover,
           &:focus-visible {
-            border-radius: ${borderRadius?.hover ? borderRadius.hover : theme.radius};
+            border-radius: ${
+              borderRadius?.hover ? borderRadius.hover : theme.radius
+            };
           }
           &:active {
-            border-radius: ${borderRadius?.active ? borderRadius.active : theme.radius};
+            border-radius: ${
+              borderRadius?.active ? borderRadius.active : theme.radius
+            };
           }
         `}
   ${({ cssExtra }) => cssExtra}
@@ -106,7 +112,9 @@ const Button: React.FC<ButtonProps> = (props) => {
           {props.icon}
         </IconStyleWrapper>
       ) : null}
-      <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
+      <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>
+        {props.children}
+      </span>
     </BUTTON>
   );
 };

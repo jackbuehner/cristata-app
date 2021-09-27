@@ -19,7 +19,7 @@ import { TextInput } from '../../../components/TextInput';
 import { flattenObject } from '../../../utils/flattenObject';
 import { InputGroup } from '../../../components/InputGroup';
 import { collections as collectionsConfig } from '../../../config';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { db } from '../../../utils/axios/db';
 import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';

@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled from '@emotion/styled/macro';
 import { AxiosResponse } from 'axios';
 import useAxios from 'axios-hooks';
 import Color from 'color';
@@ -53,13 +53,17 @@ function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
           item = flattenObject(item);
 
           // format the date for which this user last signed in
-          const lastSignIn = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
+          const lastSignIn = DateTime.fromISO(
+            item[props.keys.lastModified]
+          ).toFormat(`LLL. dd, yyyy`);
 
           return (
             <Card
               theme={theme}
               key={index}
-              onClick={() => history.push(props.toPrefix + item[props.keys.toSuffix])}
+              onClick={() =>
+                history.push(props.toPrefix + item[props.keys.toSuffix])
+              }
             >
               <Name theme={theme}>{item[props.keys.name]}</Name>
               <History theme={theme}>Last signed in at {lastSignIn}</History>
@@ -80,28 +84,40 @@ function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
         let lastModifiedBy: number;
         // @ts-expect-error props.keys.history might exist
         if (props.keys.history) {
-          // @ts-expect-error props.keys.history might exist
-          lastModifiedBy = item[props.keys.history][item[props.keys.history]?.length - 1].user;
+          lastModifiedBy =
+            // @ts-expect-error props.keys.history might exist
+            item[props.keys.history][item[props.keys.history]?.length - 1].user;
         }
         // @ts-expect-error props.keys.lastModifiedBy might exist
-        else if (props.keys.lastModifiedBy) lastModifiedBy = item[props.keys.lastModifiedBy];
+        else if (props.keys.lastModifiedBy)
+          // @ts-expect-error props.keys.lastModifiedBy might exist
+          lastModifiedBy = item[props.keys.lastModifiedBy];
 
         // format the date for which this item was last modified
-        const lastModifiedAt = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
+        const lastModifiedAt = DateTime.fromISO(
+          item[props.keys.lastModified]
+        ).toFormat(`LLL. dd, yyyy`);
 
         return (
           <Card
             theme={theme}
             key={index}
-            onClick={() => history.push(props.toPrefix + item[props.keys.toSuffix])}
+            onClick={() =>
+              history.push(props.toPrefix + item[props.keys.toSuffix])
+            }
           >
-            {props.keys.photo ? <Photo src={item[props.keys.photo]} theme={theme} /> : null}
+            {props.keys.photo ? (
+              <Photo src={item[props.keys.photo]} theme={theme} />
+            ) : null}
             <Name theme={theme}>{item[props.keys.name]}</Name>
             {props.keys.description ? (
-              <Description theme={theme}>{item[props.keys.description]}</Description>
+              <Description theme={theme}>
+                {item[props.keys.description]}
+              </Description>
             ) : null}
             <History theme={theme}>
-              {users?.find((user) => user.github_id === lastModifiedBy)?.name} • {lastModifiedAt}
+              {users?.find((user) => user.github_id === lastModifiedBy)?.name} •{' '}
+              {lastModifiedAt}
             </History>
           </Card>
         );
@@ -120,25 +136,36 @@ const Row = styled.div`
 
 const Card = styled.div<{ theme: themeType }>`
   width: 200px;
-  box-shadow: ${({ theme }) => `0 0 0 1px ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
+  box-shadow: ${({ theme }) =>
+    `0 0 0 1px ${Color(theme.color.neutral[theme.mode][800])
+      .alpha(0.2)
+      .string()}`};
   border-radius: ${({ theme }) => theme.radius};
   flex-shrink: 0;
   ${({ theme }) => `
     &:hover, &:focus, &:active {
       background-color: ${Color(theme.color.primary[800]).alpha(0.2).string()};
-      box-shadow: 0 0 0 1px ${Color(theme.color.primary[800]).alpha(0.2).string()}, 0 3.6px 7.2px 0 ${Color(
+      box-shadow: 0 0 0 1px ${Color(theme.color.primary[800])
+        .alpha(0.2)
+        .string()}, 0 3.6px 7.2px 0 ${Color(
     theme.color.neutral[theme.mode][1500]
   )
     .alpha(0.13)
-    .string()}, 0 0.6px 1.8px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
+    .string()}, 0 0.6px 1.8px 0 ${Color(theme.color.neutral[theme.mode][1500])
+    .alpha(0.13)
+    .string()};
     }
     &:hover:active {
       background-color: ${Color(theme.color.primary[800]).alpha(0.25).string()};
-      box-shadow: 0 0 0 1px ${Color(theme.color.primary[800]).alpha(0.25).string()} 0 1.8px 3.6px 0 ${Color(
+      box-shadow: 0 0 0 1px ${Color(theme.color.primary[800])
+        .alpha(0.25)
+        .string()} 0 1.8px 3.6px 0 ${Color(
     theme.color.neutral[theme.mode][1500]
   )
     .alpha(0.13)
-    .string()}, 0 0.3px 0.9px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
+    .string()}, 0 0.3px 0.9px 0 ${Color(theme.color.neutral[theme.mode][1500])
+    .alpha(0.13)
+    .string()};
     }
   `};
   user-select: none;
