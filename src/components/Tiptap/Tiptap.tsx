@@ -233,17 +233,6 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [editor, props.user]);
 
-  const [connected, setConnected] = useState<boolean>(providerWebsocket.wsconnected);
-  useEffect(() => {
-    if (providerWebsocket.wsconnected === true) {
-      setTimeout(() => {
-        setConnected(providerWebsocket.wsconnected);
-      }, 1000);
-    } else {
-      setConnected(false);
-    }
-  }, [providerWebsocket.wsconnected, setConnected]);
-
   // manage whether sidebar is open
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
@@ -343,7 +332,8 @@ const Tiptap = (props: ITiptap) => {
           css={css`
             overflow: auto;
             width: 100%;
-            display: ${connected ? 'flex' : 'none'};
+            display: flex;
+            height: ${providerWebsocket.wsconnected ? '100%' : '0'};
             flex-direction: column;
             align-items: center;
             flex-grow: 1;
