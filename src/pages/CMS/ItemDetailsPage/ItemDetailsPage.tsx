@@ -73,8 +73,6 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
   const history = useHistory();
   const { search } = useLocation();
 
-  console.log(search);
-
   // get the url parameters from the route
   let { collection, item_id } = useParams<{
     collection: string;
