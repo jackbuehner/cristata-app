@@ -68,7 +68,10 @@ interface IItemDetailsPage {
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
 }
 
-function ItemDetailsPage(props: IItemDetailsPage) {
+function ItemDetailsPage({
+  setFlatData: propsSetFlatData,
+  ...props
+}: IItemDetailsPage) {
   const theme = useTheme() as themeType;
   const history = useHistory();
 
@@ -111,7 +114,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       setFlatData(flattenObject(data));
       setHasUnsavedChanges(false);
     }
-  }, [data]);
+  }, [data, props.flatData]);
 
   // if flatData was passed as props, keep flatData from props in sync with the source
   useEffect(() => {
@@ -122,10 +125,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   }, [props.flatData]);
   useEffect(() => {
     // component --> source
-    if (props.setFlatData) {
-      props.setFlatData(flatData);
+    if (propsSetFlatData) {
+      propsSetFlatData(flatData);
     }
-  }, [flatData]);
+  }, [flatData, propsSetFlatData]);
 
   //
   const handleTextChange = (
