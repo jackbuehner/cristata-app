@@ -4,14 +4,7 @@ import styled from '@emotion/styled/macro';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../../../utils/theme/theme';
 import React, { useState } from 'react';
-import {
-  BackIcon,
-  RedoIcon,
-  BoldIcon,
-  ItalicsIcon,
-  UnderlineIcon,
-  StrikeIcon,
-} from './../../Icons';
+import { BackIcon, RedoIcon, BoldIcon, ItalicsIcon, UnderlineIcon, StrikeIcon } from './../../Icons';
 import {
   Code20Regular,
   ArrowMinimize20Regular,
@@ -54,12 +47,13 @@ import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
 import { Iaction } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { useHistory } from 'react-router-dom';
 
 const TOOLBAR = styled.div`
-position: relative;
-z-index: 10;
-box-shadow: rgb(0 0 0 / 13%) 0px 1.6px 3.6px 0px, rgb(0 0 0 / 11%) 0px 0.3px 0.9px 0px;
-width: 100%;
+  position: relative;
+  z-index: 10;
+  box-shadow: rgb(0 0 0 / 13%) 0px 1.6px 3.6px 0px, rgb(0 0 0 / 11%) 0px 0.3px 0.9px 0px;
+  width: 100%;
 `;
 
 interface IToolbar {
@@ -93,9 +87,8 @@ interface IToolbar {
 
 function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
-  const [activeTab, setActiveTab] = useState<
-    'home' | 'insert' | 'layout' | 'review' | 'actions'
-  >('home');
+  const history = useHistory();
+  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
 
   // DROPDOWNS
   // font family
@@ -111,33 +104,27 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
           }}
           items={[
             {
-              onClick: () =>
-                editor?.chain().focus().setFontFamily('Adamant BG').run(),
+              onClick: () => editor?.chain().focus().setFontFamily('Adamant BG').run(),
               label: 'Adamant BG (Headline)',
             },
             {
-              onClick: () =>
-                editor?.chain().focus().setFontFamily('Arial').run(),
+              onClick: () => editor?.chain().focus().setFontFamily('Arial').run(),
               label: 'Arial',
             },
             {
-              onClick: () =>
-                editor?.chain().focus().setFontFamily('Calibri').run(),
+              onClick: () => editor?.chain().focus().setFontFamily('Calibri').run(),
               label: 'Calibri',
             },
             {
-              onClick: () =>
-                editor?.chain().focus().setFontFamily('Consolas').run(),
+              onClick: () => editor?.chain().focus().setFontFamily('Consolas').run(),
               label: 'Consolas',
             },
             {
-              onClick: () =>
-                editor?.chain().focus().setFontFamily('Georgia (Body)').run(),
+              onClick: () => editor?.chain().focus().setFontFamily('Georgia (Body)').run(),
               label: 'Georgia (Body)',
             },
             {
-              onClick: () =>
-                editor?.chain().focus().setFontFamily('Times New Roman').run(),
+              onClick: () => editor?.chain().focus().setFontFamily('Times New Roman').run(),
               label: 'Times New Roman',
             },
           ]}
@@ -162,18 +149,15 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
           }}
           items={[
             {
-              onClick: () =>
-                editor?.chain().focus().toggleHeading({ level: 1 }).run(),
+              onClick: () => editor?.chain().focus().toggleHeading({ level: 1 }).run(),
               label: <h1>Heading 1</h1>,
             },
             {
-              onClick: () =>
-                editor?.chain().focus().toggleHeading({ level: 2 }).run(),
+              onClick: () => editor?.chain().focus().toggleHeading({ level: 2 }).run(),
               label: <h2>Heading 2</h2>,
             },
             {
-              onClick: () =>
-                editor?.chain().focus().toggleHeading({ level: 3 }).run(),
+              onClick: () => editor?.chain().focus().toggleHeading({ level: 3 }).run(),
               label: <h3>Heading 3</h3>,
             },
             {
@@ -256,11 +240,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
         continueButton={{
           text: 'Insert',
           onClick: () => {
-            const result = editor
-              ?.chain()
-              .focus()
-              .setLink({ href: link })
-              .run();
+            const result = editor?.chain().focus().setLink({ href: link }).run();
             // return whether the action was successful
             if (result) return true;
             return false;
@@ -291,9 +271,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
         continueButton={{
           text: 'Get Microsoft Editor',
           onClick: () => {
-            window.open(
-              `https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`
-            );
+            window.open(`https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`);
             return true;
           },
         }}
@@ -384,9 +362,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                       font-family: ${theme.font.headline};
                       border-radius: 50%;
                       font-size: 14px;
-                      background-color: ${Color(profile.color)
-                        .alpha(0.4)
-                        .string()};
+                      background-color: ${Color(profile.color).alpha(0.4).string()};
                       user-select: none;
                       color: ${theme.color.neutral[theme.mode][1200]};
                     `}
@@ -408,26 +384,23 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               icon={<Database20Regular />}
               color={'neutral'}
               onClick={() => {
-                if (
-                  props.isSidebarOpen &&
-                  props.sidebarTitle === 'Document properties'
-                ) {
+                if (props.isSidebarOpen && props.sidebarTitle === 'Document properties') {
                   props.setIsSidebarOpen(false);
                 } else {
                   props.setIsSidebarOpen(true);
                   props.setSidebarTitle('Document properties');
                 }
               }}
-              isActive={
-                props.isSidebarOpen &&
-                props.sidebarTitle === 'Document properties'
-              }
+              isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
             />
             <ToolbarMetaIconButton
-              onClick={() => setIsMax(!isMax)}
-              icon={
-                isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />
-              }
+              onClick={() => {
+                setIsMax(!isMax);
+                history.push({
+                  search: `?fs=${Number(!isMax)}`,
+                });
+              }}
+              icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
               color={'neutral'}
             />
           </ToolbarMeta>
@@ -541,11 +514,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 disabled={!editor.can().toggleOrderedList()}
               ></ToolbarRowIconButton>
               <ToolbarDivider />
-              <Combobox
-                onClick={showTextStyleDropdown}
-                color={'neutral'}
-                width={`128px`}
-              >
+              <Combobox onClick={showTextStyleDropdown} color={'neutral'} width={`128px`}>
                 {
                   // show the correct style name
                   editor.isActive('heading', { level: 1 }) ? (
@@ -630,11 +599,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               />
             </ToolbarRow>
             <ToolbarRow isActive={activeTab === 'layout'}>
-              <Combobox
-                onClick={showLayoutDropdown}
-                color={'neutral'}
-                width={`128px`}
-              >
+              <Combobox onClick={showLayoutDropdown} color={'neutral'} width={`128px`}>
                 {props.layout}
               </Combobox>
             </ToolbarRow>

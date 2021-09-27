@@ -49,6 +49,7 @@ interface ITiptap {
   onChange?: (editorJson: string) => void;
   html?: string;
   actions?: Array<Iaction | null>;
+  isMaximized?: boolean;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -81,8 +82,7 @@ const Tiptap = (props: ITiptap) => {
     color: string;
     sessionId: string;
   }
-  const [awarenessProfiles, setAwarenessProfiles] =
-    useState<IAwarenessProfile[]>();
+  const [awarenessProfiles, setAwarenessProfiles] = useState<IAwarenessProfile[]>();
   useEffect(() => {
     const { awareness } = providerWebsocket;
 
@@ -93,9 +93,7 @@ const Tiptap = (props: ITiptap) => {
     function saveAwarenessProfiles() {
       // get all current awareness information and filter it to only include
       // sessions with defined users
-      const awarenessValues: IAwarenessProfile[] = Array.from(
-        awareness.getStates().values()
-      )
+      const awarenessValues: IAwarenessProfile[] = Array.from(awareness.getStates().values())
         .filter((value) => value.user)
         .map((value) => value.user);
 
@@ -104,11 +102,7 @@ const Tiptap = (props: ITiptap) => {
       let awarenessSessions: IAwarenessProfile[] = [];
       awarenessValues.forEach((value: IAwarenessProfile) => {
         const containsSessionId =
-          awarenessSessions.findIndex(
-            (session) => session.sessionId === value.sessionId
-          ) === -1
-            ? false
-            : true;
+          awarenessSessions.findIndex((session) => session.sessionId === value.sessionId) === -1 ? false : true;
         if (!containsSessionId) {
           awarenessSessions.push(value);
         }
@@ -167,7 +161,7 @@ const Tiptap = (props: ITiptap) => {
   });
 
   // whether the editor is maximized
-  const [isMax, setIsMax] = useState<boolean>(false);
+  const [isMax, setIsMax] = useState<boolean>(props.isMaximized || false);
 
   // monitor the dimensions of the editor
   const { observe, width: tiptapWidth, height: tiptapHieght } = useDimensions();
@@ -178,30 +172,19 @@ const Tiptap = (props: ITiptap) => {
   // get the authors
   const [authors, setAuthors] = useState<IProfile[]>();
   useEffect(() => {
-    if (
-      props.options &&
-      props.options.type === 'article' &&
-      props.options.keys_article &&
-      props.flatData
-    ) {
+    if (props.options && props.options.type === 'article' && props.options.keys_article && props.flatData) {
       let full: IProfile[] = [];
-      (props.flatData[props.options.keys_article.authors] as number[])?.forEach(
-        (author_github_id) => {
-          db.get(`/users/${author_github_id}`).then(
-            ({ data }: { data: IProfile }) => {
-              full.push(data);
-            }
-          );
-        }
-      );
+      (props.flatData[props.options.keys_article.authors] as number[])?.forEach((author_github_id) => {
+        db.get(`/users/${author_github_id}`).then(({ data }: { data: IProfile }) => {
+          full.push(data);
+        });
+      });
       setAuthors(full);
     }
   }, [props.flatData, props.options]);
 
   // manage whether track changes is on
-  const [trackChanges, setTrackChanges] = useState<boolean>(
-    editor?.state.doc.attrs.trackChanges
-  );
+  const [trackChanges, setTrackChanges] = useState<boolean>(editor?.state.doc.attrs.trackChanges);
 
   /**
    * Toggle whether track changes is enabled. Sets the change to react state
@@ -239,8 +222,7 @@ const Tiptap = (props: ITiptap) => {
 
   // show prosemirror developer tools when in development mode
   useEffect(() => {
-    if (editor && process.env.NODE_ENV === 'development')
-      applyDevTools(editor.view);
+    if (editor && process.env.NODE_ENV === 'development') applyDevTools(editor.view);
   }, [editor]);
 
   // make user name and color available to tiptap extensions via document attributes
@@ -250,9 +232,7 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [editor, props.user]);
 
-  const [connected, setConnected] = useState<boolean>(
-    providerWebsocket.wsconnected
-  );
+  const [connected, setConnected] = useState<boolean>(providerWebsocket.wsconnected);
   useEffect(() => {
     if (providerWebsocket.wsconnected === true) {
       setTimeout(() => {
@@ -267,9 +247,7 @@ const Tiptap = (props: ITiptap) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   // manage the content of the sidebar
-  const [sidebarContent, setSidebarContent] = useState<React.ReactNode>(
-    <p>Sidebar</p>
-  );
+  const [sidebarContent, setSidebarContent] = useState<React.ReactNode>(<p>Sidebar</p>);
 
   // manage the sidebar title
   const [sidebarTitle, setSidebarTitle] = useState<string>('');
@@ -311,23 +289,23 @@ const Tiptap = (props: ITiptap) => {
 
       <div
         css={css`
-        display: flex;
-        flex-direction: row;
-        gap: 0;
-        overflow: auto;
-        width: 100%;
-        height: 100%;
-      `}
+          display: flex;
+          flex-direction: row;
+          gap: 0;
+          overflow: auto;
+          width: 100%;
+          height: 100%;
+        `}
       >
         <div
           css={css`
-          overflow: auto;
-          width: 100%;
-          display: ${connected ? 'flex' : 'none'};
-          flex-direction: column;
-          align-items: center;
-          flex-grow: 1;
-        `}
+            overflow: auto;
+            width: 100%;
+            display: ${connected ? 'flex' : 'none'};
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+          `}
         >
           {
             // if it is an article type, show article metadata and photo
@@ -341,78 +319,42 @@ const Tiptap = (props: ITiptap) => {
                     flatDataState={[props.flatData, props.setFlatData]}
                     options={props.options}
                     headline={
-                      (props.flatData[
-                        props.options.keys_article.headline
-                      ] as string) || 'Article Headline'
+                      (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
                     }
                     description={
-                      (props.flatData[
-                        props.options.keys_article.description
-                      ] as string) ||
+                      (props.flatData[props.options.keys_article.description] as string) ||
                       'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
                     }
                     categories={
-                      (props.flatData[
-                        props.options.keys_article.categories
-                      ] as string[]) || ['categories']
+                      (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
                     }
-                    caption={
-                      props.flatData[
-                        props.options.keys_article.caption
-                      ] as string
-                    }
+                    caption={props.flatData[props.options.keys_article.caption] as string}
                     isDisabled={props.isDisabled}
                     tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                    photoUrl={
-                      props.flatData[
-                        props.options.keys_article.photo_url
-                      ] as string
-                    }
+                    photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
                     authors={authors}
-                    target_publish_at={
-                      props.flatData[
-                        props.options.keys_article.target_publish_at
-                      ] as string
-                    }
+                    target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
                   />
                 ) : layout === 'full' ? (
                   <FullBleedLayout
                     flatDataState={[props.flatData, props.setFlatData]}
                     options={props.options}
                     headline={
-                      (props.flatData[
-                        props.options.keys_article.headline
-                      ] as string) || 'Article Headline'
+                      (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
                     }
                     description={
-                      (props.flatData[
-                        props.options.keys_article.description
-                      ] as string) ||
+                      (props.flatData[props.options.keys_article.description] as string) ||
                       'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
                     }
                     categories={
-                      (props.flatData[
-                        props.options.keys_article.categories
-                      ] as string[]) || ['categories']
+                      (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
                     }
-                    caption={
-                      props.flatData[
-                        props.options.keys_article.caption
-                      ] as string
-                    }
+                    caption={props.flatData[props.options.keys_article.caption] as string}
                     isDisabled={props.isDisabled}
                     tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                    photoUrl={
-                      props.flatData[
-                        props.options.keys_article.photo_url
-                      ] as string
-                    }
+                    photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
                     authors={authors}
-                    target_publish_at={
-                      props.flatData[
-                        props.options.keys_article.target_publish_at
-                      ] as string
-                    }
+                    target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
                   />
                 ) : null}
               </>
@@ -420,91 +362,80 @@ const Tiptap = (props: ITiptap) => {
           }
           <div
             css={css`
-            max-width: ${tiptapWidth <= 680 ? `unset` : `768px`};
-            width: ${tiptapWidth <= 680 ? `100%` : `calc(100% - 40px)`};
-            box-sizing: border-box;
-            background-color: white;
-            border: ${
-              tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`
-            };
-            padding: ${tiptapWidth <= 680 ? `24px 20px` : `68px 88px`};
-            margin: ${tiptapWidth <= 680 ? `0` : `20px`};
-            .ProseMirror {
-              font-family: Georgia, Times, 'Times New Roman', serif;
-              color: #3a3a3a;
-              font-size: 17px;
-              line-height: 1.7;
-              font-weight: 400;
-              font-variant-numeric: lining-nums;
-              *::selection {
-                background-color: #c4dffc;
+              max-width: ${tiptapWidth <= 680 ? `unset` : `768px`};
+              width: ${tiptapWidth <= 680 ? `100%` : `calc(100% - 40px)`};
+              box-sizing: border-box;
+              background-color: white;
+              border: ${tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`};
+              padding: ${tiptapWidth <= 680 ? `24px 20px` : `68px 88px`};
+              margin: ${tiptapWidth <= 680 ? `0` : `20px`};
+              .ProseMirror {
+                font-family: Georgia, Times, 'Times New Roman', serif;
+                color: #3a3a3a;
+                font-size: 17px;
+                line-height: 1.7;
+                font-weight: 400;
+                font-variant-numeric: lining-nums;
+                *::selection {
+                  background-color: #c4dffc;
+                }
+                // only use bottom margin for paragraphs
+                p {
+                  margin-top: 0;
+                  margin-bottom: 10px;
+                }
+                // show placeholder message when the editor is empty
+                p.is-editor-empty:first-child::before {
+                  content: attr(data-placeholder);
+                  float: left;
+                  color: ${theme.color.neutral[theme.mode][600]};
+                  pointer-events: none;
+                  height: 0;
+                }
+                .collaboration-cursor__caret {
+                  position: relative;
+                  margin-left: -0.5px;
+                  margin-right: -0.5px;
+                  border-left: 0.5px solid #0d0d0d;
+                  border-right: 0.5px solid #0d0d0d;
+                  word-break: normal;
+                  pointer-events: none;
+                }
+                .collaboration-cursor__label {
+                  position: absolute;
+                  top: -1.4em;
+                  left: -1px;
+                  font-size: 12px;
+                  font-style: normal;
+                  font-weight: 680;
+                  line-height: normal;
+                  user-select: none;
+                  color: ${theme.color.neutral['light'][1500]};
+                  font-family: ${theme.font.detail};
+                  padding: 0.1rem 0.3rem;
+                  border-radius: 0;
+                  white-space: nowrap;
+                }
+                addition {
+                  color: #d0021b;
+                  border-bottom: 1px solid #d0021b;
+                }
               }
-              // only use bottom margin for paragraphs
-              p {
-                margin-top: 0;
-                margin-bottom: 10px;
-              }
-              // show placeholder message when the editor is empty
-              p.is-editor-empty:first-child::before {
-                content: attr(data-placeholder);
-                float: left;
-                color: ${theme.color.neutral[theme.mode][600]};
-                pointer-events: none;
-                height: 0;
-              }
-              .collaboration-cursor__caret {
-                position: relative;
-                margin-left: -0.5px;
-                margin-right: -0.5px;
-                border-left: 0.5px solid #0d0d0d;
-                border-right: 0.5px solid #0d0d0d;
-                word-break: normal;
-                pointer-events: none;
-              }
-              .collaboration-cursor__label {
-                position: absolute;
-                top: -1.4em;
-                left: -1px;
-                font-size: 12px;
-                font-style: normal;
-                font-weight: 680;
-                line-height: normal;
-                user-select: none;
-                color: ${theme.color.neutral['light'][1500]};
-                font-family: ${theme.font.detail};
-                padding: 0.1rem 0.3rem;
-                border-radius: 0;
-                white-space: nowrap;
-              }
-              addition {
-                color: #d0021b;
-                border-bottom: 1px solid #d0021b;
-              }
-            }
-          `}
+            `}
           >
             <EditorContent editor={editor} />
           </div>
         </div>
-        <Sidebar
-          isOpen={isSidebarOpen}
-          closeFunction={() => setIsSidebarOpen(false)}
-          header={sidebarTitle}
-        >
+        <Sidebar isOpen={isSidebarOpen} closeFunction={() => setIsSidebarOpen(false)} header={sidebarTitle}>
           {sidebarTitle === 'Document properties' ? (
-            <DocPropertiesSidebar
-              flatData={props.flatData}
-              setFlatData={props.setFlatData}
-            />
+            <DocPropertiesSidebar flatData={props.flatData} setFlatData={props.setFlatData} />
           ) : (
             sidebarContent
           )}
         </Sidebar>
       </div>
       <Statusbar>
-        <StatusbarBlock>
-          {editor?.getCharacterCount()} characters
-        </StatusbarBlock>
+        <StatusbarBlock>{editor?.getCharacterCount()} characters</StatusbarBlock>
         <StatusbarBlock>
           {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
         </StatusbarBlock>
