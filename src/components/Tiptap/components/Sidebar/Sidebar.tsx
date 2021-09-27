@@ -24,7 +24,7 @@ const SIDEBAR = styled.div<I_SIDEBAR>`
 
 const Container = styled.div`
   overflow-y: auto;
-  height: 100%;
+  height: calc(100% - 42px);
   width: 100%;
   > div {
     padding: 12px;
