@@ -167,8 +167,18 @@ const Tiptap = (props: ITiptap) => {
   // whether the editor is maximized
   const [isMax, setIsMax] = useState<boolean>(props.isMaximized || false);
 
+  // manage whether sidebar is open
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
   // monitor the dimensions of the editor
-  const { observe, width: tiptapWidth, height: tiptapHieght } = useDimensions();
+  const { observe, width: thisWidth, height: tiptapHieght } = useDimensions();
+
+  // store width minus sidebar width
+  const [tiptapWidth, setTipTapWidth] = useState(thisWidth);
+  useEffect(() => {
+    if (isSidebarOpen) setTipTapWidth(thisWidth - 301);
+    else setTipTapWidth(thisWidth);
+  }, [thisWidth, isSidebarOpen]);
 
   // layout picker
   const [layout, setLayout] = useState<'standard' | 'full'>('standard');
@@ -236,9 +246,6 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [editor, props.user]);
 
-  // manage whether sidebar is open
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-
   // manage the content of the sidebar
   const [sidebarContent, setSidebarContent] = useState<React.ReactNode>(<p>Sidebar</p>);
 
@@ -293,7 +300,7 @@ const Tiptap = (props: ITiptap) => {
       setSidebarTitle('Document properties');
       setIsSidebarOpen(true);
     }
-  });
+  }, [location.search]);
 
   return (
     <div
