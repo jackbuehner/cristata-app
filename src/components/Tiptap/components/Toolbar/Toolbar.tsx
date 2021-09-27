@@ -23,6 +23,7 @@ import {
   Link20Regular,
   CommentAdd20Regular,
   CommentOff20Regular,
+  Database20Regular,
 } from '@fluentui/react-icons';
 import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
@@ -76,6 +77,17 @@ interface IToolbar {
   };
   toggleTrackChanges: () => void;
   trackChanges: boolean;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSidebarContent: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+  sidebarTitle: string;
+  setSidebarTitle: React.Dispatch<React.SetStateAction<string>>;
+  flatData?: { [key: string]: string | string[] | number | number[] | boolean };
+  setFlatData?: React.Dispatch<
+    React.SetStateAction<{
+      [key: string]: string | string[] | number | number[] | boolean;
+    }>
+  >;
 }
 
 function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
@@ -390,12 +402,31 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               })}
             </div>
             <ToolbarMetaIconButton
+              icon={<Database20Regular />}
+              color={'neutral'}
+              onClick={() => {
+                if (
+                  props.isSidebarOpen &&
+                  props.sidebarTitle === 'Document properties'
+                ) {
+                  props.setIsSidebarOpen(false);
+                } else {
+                  props.setIsSidebarOpen(true);
+                  props.setSidebarTitle('Document properties');
+                }
+              }}
+              isActive={
+                props.isSidebarOpen &&
+                props.sidebarTitle === 'Document properties'
+              }
+            />
+            <ToolbarMetaIconButton
               onClick={() => setIsMax(!isMax)}
               icon={
                 isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />
               }
               color={'neutral'}
-            ></ToolbarMetaIconButton>
+            />
           </ToolbarMeta>
         </ToolbarTabRow>
         {props.isDisabled ? null : (

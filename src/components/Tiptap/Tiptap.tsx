@@ -27,6 +27,8 @@ import { SetDocAttrStep } from './utilities/SetDocAttrStep';
 import { TrackChanges } from './extension-track-changes';
 import { Toolbar } from './components/Toolbar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
+import { Sidebar } from './components/Sidebar';
+import { DocPropertiesSidebar } from './sidebar-content/DocPropertiesSidebar';
 
 interface ITiptap {
   docName: string;
@@ -259,6 +261,17 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [providerWebsocket.wsconnected, setConnected]);
 
+  // manage whether sidebar is open
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
+  // manage the content of the sidebar
+  const [sidebarContent, setSidebarContent] = useState<React.ReactNode>(
+    <p>Sidebar</p>
+  );
+
+  // manage the sidebar title
+  const [sidebarTitle, setSidebarTitle] = useState<string>('');
+
   return (
     <div
       css={css`
@@ -284,10 +297,27 @@ const Tiptap = (props: ITiptap) => {
         user={props.user}
         toggleTrackChanges={toggleTrackChanges}
         trackChanges={trackChanges}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        setSidebarContent={setSidebarContent}
+        sidebarTitle={sidebarTitle}
+        setSidebarTitle={setSidebarTitle}
+        flatData={props.flatData}
+        setFlatData={props.setFlatData}
       />
 
       <div
         css={css`
+        display: flex;
+        flex-direction: row;
+        gap: 0;
+        overflow: auto;
+        width: 100%;
+        height: 100%;
+      `}
+      >
+        <div
+          css={css`
           overflow: auto;
           width: 100%;
           display: ${connected ? 'flex' : 'none'};
@@ -295,94 +325,98 @@ const Tiptap = (props: ITiptap) => {
           align-items: center;
           flex-grow: 1;
         `}
-      >
-        {
-          // if it is an article type, show article metadata and photo
-          props.options?.type === 'article' &&
-          props.options.keys_article &&
-          props.flatData &&
-          props.setFlatData ? (
-            <>
-              {layout === 'standard' ? (
-                <StandardLayout
-                  flatDataState={[props.flatData, props.setFlatData]}
-                  options={props.options}
-                  headline={
-                    (props.flatData[
-                      props.options.keys_article.headline
-                    ] as string) || 'Article Headline'
-                  }
-                  description={
-                    (props.flatData[
-                      props.options.keys_article.description
-                    ] as string) ||
-                    'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
-                  }
-                  categories={
-                    (props.flatData[
-                      props.options.keys_article.categories
-                    ] as string[]) || ['categories']
-                  }
-                  caption={
-                    props.flatData[props.options.keys_article.caption] as string
-                  }
-                  isDisabled={props.isDisabled}
-                  tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                  photoUrl={
-                    props.flatData[
-                      props.options.keys_article.photo_url
-                    ] as string
-                  }
-                  authors={authors}
-                  target_publish_at={
-                    props.flatData[
-                      props.options.keys_article.target_publish_at
-                    ] as string
-                  }
-                />
-              ) : layout === 'full' ? (
-                <FullBleedLayout
-                  flatDataState={[props.flatData, props.setFlatData]}
-                  options={props.options}
-                  headline={
-                    (props.flatData[
-                      props.options.keys_article.headline
-                    ] as string) || 'Article Headline'
-                  }
-                  description={
-                    (props.flatData[
-                      props.options.keys_article.description
-                    ] as string) ||
-                    'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
-                  }
-                  categories={
-                    (props.flatData[
-                      props.options.keys_article.categories
-                    ] as string[]) || ['categories']
-                  }
-                  caption={
-                    props.flatData[props.options.keys_article.caption] as string
-                  }
-                  isDisabled={props.isDisabled}
-                  tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                  photoUrl={
-                    props.flatData[
-                      props.options.keys_article.photo_url
-                    ] as string
-                  }
-                  authors={authors}
-                  target_publish_at={
-                    props.flatData[
-                      props.options.keys_article.target_publish_at
-                    ] as string
-                  }
-                />
-              ) : null}
-            </>
-          ) : null
-        }
-        <div
-          css={css`
+        >
+          {
+            // if it is an article type, show article metadata and photo
+            props.options?.type === 'article' &&
+            props.options.keys_article &&
+            props.flatData &&
+            props.setFlatData ? (
+              <>
+                {layout === 'standard' ? (
+                  <StandardLayout
+                    flatDataState={[props.flatData, props.setFlatData]}
+                    options={props.options}
+                    headline={
+                      (props.flatData[
+                        props.options.keys_article.headline
+                      ] as string) || 'Article Headline'
+                    }
+                    description={
+                      (props.flatData[
+                        props.options.keys_article.description
+                      ] as string) ||
+                      'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
+                    }
+                    categories={
+                      (props.flatData[
+                        props.options.keys_article.categories
+                      ] as string[]) || ['categories']
+                    }
+                    caption={
+                      props.flatData[
+                        props.options.keys_article.caption
+                      ] as string
+                    }
+                    isDisabled={props.isDisabled}
+                    tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                    photoUrl={
+                      props.flatData[
+                        props.options.keys_article.photo_url
+                      ] as string
+                    }
+                    authors={authors}
+                    target_publish_at={
+                      props.flatData[
+                        props.options.keys_article.target_publish_at
+                      ] as string
+                    }
+                  />
+                ) : layout === 'full' ? (
+                  <FullBleedLayout
+                    flatDataState={[props.flatData, props.setFlatData]}
+                    options={props.options}
+                    headline={
+                      (props.flatData[
+                        props.options.keys_article.headline
+                      ] as string) || 'Article Headline'
+                    }
+                    description={
+                      (props.flatData[
+                        props.options.keys_article.description
+                      ] as string) ||
+                      'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
+                    }
+                    categories={
+                      (props.flatData[
+                        props.options.keys_article.categories
+                      ] as string[]) || ['categories']
+                    }
+                    caption={
+                      props.flatData[
+                        props.options.keys_article.caption
+                      ] as string
+                    }
+                    isDisabled={props.isDisabled}
+                    tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                    photoUrl={
+                      props.flatData[
+                        props.options.keys_article.photo_url
+                      ] as string
+                    }
+                    authors={authors}
+                    target_publish_at={
+                      props.flatData[
+                        props.options.keys_article.target_publish_at
+                      ] as string
+                    }
+                  />
+                ) : null}
+              </>
+            ) : null
+          }
+          <div
+            css={css`
             max-width: ${tiptapWidth <= 680 ? `unset` : `768px`};
             width: ${tiptapWidth <= 680 ? `100%` : `calc(100% - 40px)`};
             box-sizing: border-box;
@@ -445,9 +479,24 @@ const Tiptap = (props: ITiptap) => {
               }
             }
           `}
-        >
-          <EditorContent editor={editor} />
+          >
+            <EditorContent editor={editor} />
+          </div>
         </div>
+        <Sidebar
+          isOpen={isSidebarOpen}
+          closeFunction={() => setIsSidebarOpen(false)}
+          header={sidebarTitle}
+        >
+          {sidebarTitle === 'Document properties' ? (
+            <DocPropertiesSidebar
+              flatData={props.flatData}
+              setFlatData={props.setFlatData}
+            />
+          ) : (
+            sidebarContent
+          )}
+        </Sidebar>
       </div>
       <Statusbar>
         <StatusbarBlock>
