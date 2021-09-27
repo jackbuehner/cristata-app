@@ -108,7 +108,11 @@ const Button: React.FC<ButtonProps> = (props) => {
       {props.customIcon ? (
         props.customIcon
       ) : props.icon ? (
-        <IconStyleWrapper theme={theme} disabled={props.disabled}>
+        <IconStyleWrapper
+          theme={theme}
+          disabled={props.disabled}
+          className={`IconStyleWrapper`}
+        >
           {props.icon}
         </IconStyleWrapper>
       ) : null}
