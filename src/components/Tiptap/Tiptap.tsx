@@ -31,6 +31,7 @@ import { Sidebar } from './components/Sidebar';
 import { DocPropertiesSidebar } from './sidebar-content/DocPropertiesSidebar';
 import { Iaction } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
+import { useHistory, useLocation } from 'react-router-dom';
 
 interface ITiptap {
   docName: string;
@@ -55,6 +56,8 @@ interface ITiptap {
 
 const Tiptap = (props: ITiptap) => {
   const theme = useTheme() as themeType;
+  const history = useHistory();
+  const location = useLocation();
 
   // A new Y document
   const ydoc = useMemo(() => new Y.Doc(), []);
@@ -283,6 +286,15 @@ const Tiptap = (props: ITiptap) => {
     updateWordCount(editor.getJSON().content);
   });
 
+  // open the sidebar to document properties if the url contains the correct search param
+  useEffect(() => {
+    console.log(!!new URLSearchParams(location.search).get('props'));
+    if (new URLSearchParams(location.search).get('props') === '1') {
+      setSidebarTitle('Document properties');
+      setIsSidebarOpen(true);
+    }
+  });
+
   return (
     <div
       css={css`
@@ -458,7 +470,17 @@ const Tiptap = (props: ITiptap) => {
             <EditorContent editor={editor} />
           </div>
         </div>
-        <Sidebar isOpen={isSidebarOpen} closeFunction={() => setIsSidebarOpen(false)} header={sidebarTitle}>
+        <Sidebar
+          isOpen={isSidebarOpen}
+          closeFunction={() => {
+            setIsSidebarOpen(false);
+            setSidebarTitle('');
+            history.replace({
+              search: `?fs=${Number(isMax)}&props=0`,
+            });
+          }}
+          header={sidebarTitle}
+        >
           {sidebarTitle === 'Document properties' ? (
             <DocPropertiesSidebar flatData={props.flatData} setFlatData={props.setFlatData} />
           ) : (

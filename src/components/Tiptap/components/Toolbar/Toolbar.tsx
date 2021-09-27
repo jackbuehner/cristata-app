@@ -386,9 +386,16 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               onClick={() => {
                 if (props.isSidebarOpen && props.sidebarTitle === 'Document properties') {
                   props.setIsSidebarOpen(false);
+                  props.setSidebarTitle('');
+                  history.replace({
+                    search: `?fs=${Number(isMax)}&props=0`,
+                  });
                 } else {
                   props.setIsSidebarOpen(true);
                   props.setSidebarTitle('Document properties');
+                  history.replace({
+                    search: `?fs=${Number(isMax)}&props=1`,
+                  });
                 }
               }}
               isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
@@ -396,8 +403,8 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
             <ToolbarMetaIconButton
               onClick={() => {
                 setIsMax(!isMax);
-                history.push({
-                  search: `?fs=${Number(!isMax)}`,
+                history.replace({
+                  search: `?fs=${Number(!isMax)}&props=${Number(props.sidebarTitle === 'Document properties')}`,
                 });
               }}
               icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
