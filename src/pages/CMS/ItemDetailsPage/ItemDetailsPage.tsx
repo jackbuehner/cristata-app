@@ -541,7 +541,7 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                           docName={`${collection}.${item_id}`}
                           user={{
                             name: user.displayName,
-                            color: colorHash.hex(user._id),
+                            color: colorHash.hex(user._id || user.id),
                           }}
                           options={field.tiptap}
                           flatData={flatData}
