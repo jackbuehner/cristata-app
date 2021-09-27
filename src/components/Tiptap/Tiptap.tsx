@@ -30,6 +30,7 @@ import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
 import { DocPropertiesSidebar } from './sidebar-content/DocPropertiesSidebar';
 import { Iaction } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
 
 interface ITiptap {
   docName: string;
@@ -252,6 +253,47 @@ const Tiptap = (props: ITiptap) => {
   // manage the sidebar title
   const [sidebarTitle, setSidebarTitle] = useState<string>('');
 
+  type content = { type: string; text?: string; content?: content[] };
+  /**
+   * Calculate the word count of the the content found in prosemirror JSON.
+   * @param content content value from prosemirror JSON
+   * @returns number of words
+   */
+  async function getWordCount(content: content[]) {
+    let wordCount = 0;
+
+    // loop through array of content
+    for (let i = 0; i < content.length; i++) {
+      const chunk = content[i];
+
+      // if the chunk is text add to the word count
+      if (chunk.text) {
+        // (1) remove extra white space
+        // (2) split at space characters
+        // (3) get the length of the resultant array
+        const chunkWordCount = chunk.text.replace(/\s+/g, ' ').split(' ').length;
+        // add the word count for the chunk to the overall word count
+        wordCount += chunkWordCount;
+      } else if (chunk.content) {
+        wordCount += await getWordCount(chunk.content);
+      }
+    }
+
+    return wordCount;
+  }
+
+  // store the editor word count
+  const [wordCount, setWordCount] = useState<number>(0);
+
+  // keep the editor word count up to date (debounce with 5 second delay)
+  const updateWordCount = AwesomeDebouncePromise(async (content: content[]) => {
+    const count = await getWordCount(content);
+    setWordCount(count);
+  }, 5000);
+  editor?.on('update', ({ editor }: { editor: Editor }) => {
+    updateWordCount(editor.getJSON().content);
+  });
+
   return (
     <div
       css={css`
@@ -435,7 +477,14 @@ const Tiptap = (props: ITiptap) => {
         </Sidebar>
       </div>
       <Statusbar>
-        <StatusbarBlock>{editor?.getCharacterCount()} characters</StatusbarBlock>
+        {providerWebsocket.wsconnected ? (
+          <>
+            <StatusbarBlock>
+              {wordCount} word{wordCount !== 1 ? 's' : ''}
+            </StatusbarBlock>
+            <StatusbarBlock>{editor?.getCharacterCount()} characters</StatusbarBlock>
+          </>
+        ) : null}
         <StatusbarBlock>
           {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
         </StatusbarBlock>
