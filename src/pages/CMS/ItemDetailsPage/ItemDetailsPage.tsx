@@ -431,7 +431,7 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
       )}
 
       <PageWrapper theme={theme} isEmbedded={props.isEmbedded}>
-        {publishLocked ? (
+        {publishLocked && !props.isEmbedded ? (
           <Notice theme={theme}>
             This document is opened in read-only mode because it has been published and you do not have publish
             permissions.
@@ -562,6 +562,11 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                             }
                           }}
                           actions={actions}
+                          message={
+                            publishLocked
+                              ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
+                              : undefined
+                          }
                         />
                       </div>
                     </InputGroup>
@@ -776,7 +781,7 @@ const Notice = styled.div<{ theme: themeType }>`
   position: sticky;
   top: -20px;
   margin: -20px 0 20px -20px;
-  width: calc(100% + 40px);
+  width: 100%;
   z-index: 99;
 `;
 

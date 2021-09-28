@@ -32,6 +32,7 @@ import { DocPropertiesSidebar } from './sidebar-content/DocPropertiesSidebar';
 import { Iaction } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useHistory, useLocation } from 'react-router-dom';
+import { Noticebar } from './components/Noticebar';
 
 interface ITiptap {
   docName: string;
@@ -52,6 +53,7 @@ interface ITiptap {
   html?: string;
   actions?: Array<Iaction | null>;
   isMaximized?: boolean;
+  message?: string;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -358,6 +360,7 @@ const Tiptap = (props: ITiptap) => {
             flex-grow: 1;
           `}
         >
+          {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
           {
             // if it is an article type, show article metadata and photo
             props.options?.type === 'article' &&
