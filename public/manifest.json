@@ -13,5 +13,15 @@
   "display": "standalone",
   "theme_color": "#523ABB",
   "background_color": "#523ABB",
-  "display_override": ["window-controls-overlay"]
+  "display_override": ["window-controls-overlay"],
+  "protocol_handlers": [
+    {
+      "protocol": "web+cristata",
+      "url": "/proto?url=%s"
+    },
+    {
+      "protocol": "cristata",
+      "url": "/proto?url=%s"
+    }
+  ]
 }

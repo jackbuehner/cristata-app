@@ -32,6 +32,7 @@ import { HomePage } from './pages/Home';
 import { SatirePage } from './pages/CMS/SatirePage';
 import { navigation } from './config';
 import { Titlebar } from './components/Titlebar';
+import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -134,6 +135,9 @@ function App() {
         <Router>
           <SplashScreen loading={loadingUser} error={errorUser} user={user} />
           <Switch>
+            <Route path={`/proto`}>
+              <ProtocolHandlerPage />
+            </Route>
             <Route path={`/sign-in`} exact>
               <SignIn />
             </Route>
