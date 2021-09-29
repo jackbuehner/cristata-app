@@ -9,6 +9,7 @@ interface IMenuItemBase {
   colorShade?: colorShade;
   noEffect?: boolean;
   height?: number;
+  disabled?: boolean;
 }
 
 interface IMenuItemComponent extends IMenuItemBase {
@@ -25,7 +26,8 @@ const MenuItemComponent = styled.li<IMenuItemComponent>`
   font-size: 14px;
   overflow: hidden;
   white-space: nowrap;
-  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
+  color: ${({ theme, disabled }) =>
+    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
   ${({ theme, color, colorShade, noEffect }) =>
     noEffect
       ? ''
@@ -58,30 +60,25 @@ interface IMenuItem extends IMenuItemBase {
   noIcons?: boolean;
 }
 
-const MenuItem = forwardRef(
-  (props: IMenuItem, ref: React.ForwardedRef<HTMLLIElement>) => {
-    const theme = useTheme() as themeType;
-    return (
-      <MenuItemComponent
-        onClick={props.onClick}
-        onKeyDown={props.onKeyDown}
-        theme={theme}
-        color={props.color}
-        colorShade={props.colorShade}
-        tabIndex={-1}
-        ref={ref}
-        noEffect={props.noEffect}
-        height={props.height}
-      >
-        {props.noIcons ? null : (
-          <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>
-        )}
-        <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>
-          {props.children}
-        </span>
-      </MenuItemComponent>
-    );
-  }
-);
+const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIElement>) => {
+  const theme = useTheme() as themeType;
+  return (
+    <MenuItemComponent
+      onClick={props.onClick}
+      onKeyDown={props.onKeyDown}
+      theme={theme}
+      color={props.color}
+      colorShade={props.colorShade}
+      tabIndex={-1}
+      ref={ref}
+      noEffect={props.disabled || props.noEffect}
+      height={props.height}
+      disabled={props.disabled}
+    >
+      {props.noIcons ? null : <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>}
+      <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
+    </MenuItemComponent>
+  );
+});
 
 export { MenuItem };

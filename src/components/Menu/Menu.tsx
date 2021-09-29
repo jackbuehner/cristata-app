@@ -16,6 +16,7 @@ interface IMenu {
     colorShade?: colorShade;
     noEffect?: boolean;
     height?: number;
+    disabled?: boolean;
   }>;
   noIcons?: boolean;
 }
@@ -23,22 +24,30 @@ interface IMenu {
 const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>) => {
   return (
     <MenuList top={props.pos.top} left={props.pos.left} width={props.pos.width} ref={ref}>
-      {props.items.map((item, index: number) => {
-        return (
-          <MenuItem
-            key={index}
-            onClick={item.onClick}
-            icon={item.icon}
-            color={item.color}
-            colorShade={item.colorShade}
-            noIcons={props.noIcons}
-            noEffect={item.noEffect}
-            height={item.height}
-          >
-            {item.label}
-          </MenuItem>
-        );
-      })}
+      {props.items
+        // move disabled items to bottom
+        .sort((a, b) => {
+          if (a.disabled && b.disabled) return 0;
+          else if (a.disabled && !b.disabled) return 1;
+          return -1;
+        })
+        .map((item, index: number) => {
+          return (
+            <MenuItem
+              key={index}
+              onClick={item.onClick}
+              icon={item.icon}
+              color={item.color}
+              colorShade={item.colorShade}
+              noIcons={props.noIcons}
+              noEffect={item.noEffect}
+              height={item.height}
+              disabled={item.disabled}
+            >
+              {item.label}
+            </MenuItem>
+          );
+        })}
     </MenuList>
   );
 });

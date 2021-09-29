@@ -107,26 +107,37 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
             {
               onClick: () => editor?.chain().focus().setFontFamily('Adamant BG').run(),
               label: 'Adamant BG (Headline)',
+              color: 'neutral',
+              disabled: true,
             },
             {
               onClick: () => editor?.chain().focus().setFontFamily('Arial').run(),
               label: 'Arial',
+              color: 'neutral',
+              disabled: true,
             },
             {
               onClick: () => editor?.chain().focus().setFontFamily('Calibri').run(),
               label: 'Calibri',
+              color: 'neutral',
+              disabled: true,
             },
             {
               onClick: () => editor?.chain().focus().setFontFamily('Consolas').run(),
               label: 'Consolas',
+              color: 'neutral',
+              disabled: true,
             },
             {
-              onClick: () => editor?.chain().focus().setFontFamily('Georgia (Body)').run(),
+              onClick: () => editor?.chain().focus().setFontFamily('Georgia').run(),
               label: 'Georgia (Body)',
+              color: 'neutral',
             },
             {
               onClick: () => editor?.chain().focus().setFontFamily('Times New Roman').run(),
               label: 'Times New Roman',
+              color: 'neutral',
+              disabled: true,
             },
           ]}
           noIcons
@@ -440,7 +451,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               <Combobox
                 onClick={showFontFamilyDropdown}
                 color={'neutral'}
-                disabled={true /*!editor.can().setFontFamily('Georgia')*/}
+                disabled={!editor.can().setFontFamily('Georgia')}
                 width={`128px`}
                 cssContainerExtra={css`
                   padding-right: 0;
