@@ -300,7 +300,6 @@ const Tiptap = (props: ITiptap) => {
 
   // open the sidebar to document properties if the url contains the correct search param
   useEffect(() => {
-    console.log(!!new URLSearchParams(location.search).get('props'));
     if (new URLSearchParams(location.search).get('props') === '1') {
       setSidebarTitle('Document properties');
       setIsSidebarOpen(true);

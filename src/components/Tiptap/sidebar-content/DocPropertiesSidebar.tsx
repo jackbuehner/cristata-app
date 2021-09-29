@@ -10,14 +10,7 @@ interface IDocPropertiesSidebar {
 }
 
 function DocPropertiesSidebar(props: IDocPropertiesSidebar) {
-  console.log(props.flatData?.name);
-  return (
-    <ItemDetailsPage
-      isEmbedded
-      flatData={props.flatData}
-      setFlatData={props.setFlatData}
-    />
-  );
+  return <ItemDetailsPage isEmbedded flatData={props.flatData} setFlatData={props.setFlatData} />;
 }
 
 export { DocPropertiesSidebar };

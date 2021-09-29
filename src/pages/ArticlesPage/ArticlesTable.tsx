@@ -201,7 +201,6 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
     useImperativeHandle(ref, () => ({
       refetchData() {
         refetch();
-        console.log('hello world');
       },
     }));
 

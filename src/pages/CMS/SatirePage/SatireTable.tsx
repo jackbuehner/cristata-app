@@ -164,7 +164,6 @@ const SatireTable = forwardRef<ISatireTableImperative, ISatireTable>(({ setIsLoa
   useImperativeHandle(ref, () => ({
     refetchData() {
       refetch();
-      console.log('hello world');
     },
   }));
 

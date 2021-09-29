@@ -10,12 +10,7 @@ import {
 import { useMemo, useState } from 'react';
 import { DateTime } from 'luxon';
 import { IconButton } from '../../../components/Button';
-import {
-  Pin16Regular,
-  Comment16Regular,
-  Alert16Regular,
-  Emoji16Regular,
-} from '@fluentui/react-icons';
+import { Pin16Regular, Comment16Regular, Alert16Regular, Emoji16Regular } from '@fluentui/react-icons';
 import { useHistory } from 'react-router-dom';
 
 const MessageComponent = styled.div<{
@@ -125,12 +120,7 @@ function Message(props: IMessage) {
   const history = useHistory();
 
   const recentReplyAuthors = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          props.recentReplyDetails?.map((reply) => reply.node.author.login)
-        )
-      ),
+    () => Array.from(new Set(props.recentReplyDetails?.map((reply) => reply.node.author.login))),
     [props.recentReplyDetails]
   );
 
@@ -166,10 +156,7 @@ function Message(props: IMessage) {
           <AuthorName theme={theme}>{props.author}</AuthorName>
           <Timestamp theme={theme}>{props.time}</Timestamp>
         </div>
-        <MessageBody
-          theme={theme}
-          dangerouslySetInnerHTML={{ __html: props.bodyHTML }}
-        />
+        <MessageBody theme={theme} dangerouslySetInnerHTML={{ __html: props.bodyHTML }} />
         {
           // if there are provided reaction groups, show the applied reactions as chips
           props.reactionGroups ? (
@@ -192,11 +179,8 @@ function Message(props: IMessage) {
                   return (
                     <Chip
                       key={index}
-                      label={`${emoji[reactionGroup.content]} ${
-                        reactionGroup.users.totalCount
-                      }`}
+                      label={`${emoji[reactionGroup.content]} ${reactionGroup.users.totalCount}`}
                       color={'neutral'}
-                      onClick={() => console.log('hi')}
                       cssExtra={css`
                         font-family: Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
                       `}
@@ -209,33 +193,19 @@ function Message(props: IMessage) {
         {
           // if there are replies, show the number of replies, the first three profile images, and the last reply time
           props.replyCount > 0 && props.discussionNumber ? (
-            <MessageReply.DetailsWrapper
-              onClick={() =>
-                history.push(`/chat/admin/${props.discussionNumber}`)
-              }
-            >
+            <MessageReply.DetailsWrapper onClick={() => history.push(`/chat/admin/${props.discussionNumber}`)}>
               <MessageReply.DetailsProfilePhotosWrapper>
                 {recentReplyAuthors.map((author, index: number) => {
-                  return (
-                    <MessageReply.DetailsProfilePhoto
-                      theme={theme}
-                      key={index}
-                      alt={``}
-                    />
-                  );
+                  return <MessageReply.DetailsProfilePhoto theme={theme} key={index} alt={``} />;
                 })}
               </MessageReply.DetailsProfilePhotosWrapper>
               <MessageReply.DetailsCount theme={theme}>
-                {props.replyCount === 1
-                  ? `${props.replyCount} reply`
-                  : `${props.replyCount} replies`}
+                {props.replyCount === 1 ? `${props.replyCount} reply` : `${props.replyCount} replies`}
               </MessageReply.DetailsCount>
               <MessageReply.DetailsTimestamp theme={theme}>
                 {props.replyCount > 1 ? `Last reply ` : ``}
                 {props.recentReplyDetails
-                  ? DateTime.fromISO(
-                      props.recentReplyDetails[0].node.createdAt
-                    ).toRelative()
+                  ? DateTime.fromISO(props.recentReplyDetails[0].node.createdAt).toRelative()
                   : null}
               </MessageReply.DetailsTimestamp>
             </MessageReply.DetailsWrapper>
@@ -258,9 +228,7 @@ function Message(props: IMessage) {
               width={`28px`}
               backgroundColor={{ base: 'transparent' }}
               border={{ base: '1px solid transparent' }}
-              onClick={() =>
-                history.push(`/chat/admin/${props.discussionNumber}`)
-              }
+              onClick={() => history.push(`/chat/admin/${props.discussionNumber}`)}
             />
           ) : null}
 
@@ -271,9 +239,7 @@ function Message(props: IMessage) {
               width={`28px`}
               backgroundColor={{
                 base: props.isPinned
-                  ? Color(theme.color.neutral[theme.mode][800])
-                      .alpha(0.15)
-                      .string()
+                  ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
                   : 'transparent',
               }}
               border={{ base: '1px solid transparent' }}
@@ -286,9 +252,7 @@ function Message(props: IMessage) {
               width={`28px`}
               backgroundColor={{
                 base: props.isSubscribed
-                  ? Color(theme.color.neutral[theme.mode][800])
-                      .alpha(0.15)
-                      .string()
+                  ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()
                   : 'transparent',
               }}
               border={{ base: '1px solid transparent' }}
@@ -330,8 +294,7 @@ const MessageReply = {
     font-family: ${({ theme }) => theme.font.detail};
     font-size: 13px;
     font-weight: 600;
-    color: ${({ theme }) =>
-      Color(theme.color.primary[800]).desaturate(0.36).string()};
+    color: ${({ theme }) => Color(theme.color.primary[800]).desaturate(0.36).string()};
     &:hover {
       text-decoration: underline;
       cursor: pointer;

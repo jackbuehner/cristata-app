@@ -93,7 +93,6 @@ const PhotoRequestsTable = forwardRef<IPhotoRequestsImperative, IPhotoRequestsTa
     useImperativeHandle(ref, () => ({
       refetchData() {
         refetch();
-        console.log('hello world');
       },
     }));
 
