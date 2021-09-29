@@ -136,10 +136,12 @@ const collections: Icollections = {
           // with the data, create the options array
           let options: Array<{ value: string; label: string }> = [];
           photos.forEach((photo) => {
-            options.push({
-              value: photo.photo_url,
-              label: photo.name || photo._id,
-            });
+            if (photo.people.photo_created_by) {
+              options.push({
+                value: photo.photo_url,
+                label: photo.name || photo._id,
+              });
+            }
           });
 
           // filter the options based on `inputValue`
