@@ -83,6 +83,7 @@ interface IToolbar {
     }>
   >;
   actions?: Array<Iaction | null>;
+  forceMax?: boolean;
 }
 
 function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
@@ -388,28 +389,32 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                   props.setIsSidebarOpen(false);
                   props.setSidebarTitle('');
                   history.replace({
-                    search: `?fs=${Number(isMax)}&props=0`,
+                    search: `?fs=${props.forceMax ? 'force' : Number(isMax)}&props=0`,
                   });
                 } else {
                   props.setIsSidebarOpen(true);
                   props.setSidebarTitle('Document properties');
                   history.replace({
-                    search: `?fs=${Number(isMax)}&props=1`,
+                    search: `?fs=${props.forceMax ? 'force' : Number(isMax)}&props=1`,
                   });
                 }
               }}
               isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
             />
-            <ToolbarMetaIconButton
-              onClick={() => {
-                setIsMax(!isMax);
-                history.replace({
-                  search: `?fs=${Number(!isMax)}&props=${Number(props.sidebarTitle === 'Document properties')}`,
-                });
-              }}
-              icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
-              color={'neutral'}
-            />
+            {!props.forceMax ? (
+              <ToolbarMetaIconButton
+                onClick={() => {
+                  setIsMax(!isMax);
+                  history.replace({
+                    search: `?fs=${Number(!isMax)}&props=${Number(
+                      props.sidebarTitle === 'Document properties'
+                    )}`,
+                  });
+                }}
+                icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
+                color={'neutral'}
+              />
+            ) : null}
           </ToolbarMeta>
         </ToolbarTabRow>
         {props.isDisabled ? null : (

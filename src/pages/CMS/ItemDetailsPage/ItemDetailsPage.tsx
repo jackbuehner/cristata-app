@@ -388,6 +388,9 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
       : null,
   ];
 
+  // variable with the fs search param
+  const fs = new URLSearchParams(search).get('fs');
+
   return (
     <>
       {props.isEmbedded ? null : (
@@ -549,7 +552,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                           isDisabled={publishLocked ? true : isHTML ? true : field.isDisabled}
                           sessionId={sessionId}
                           html={html}
-                          isMaximized={!!new URLSearchParams(search).get('fs')}
+                          isMaximized={fs === '1' || fs === 'force'}
+                          forceMax={fs === 'force'}
                           onChange={(editorJson: string) => {
                             if (editorJson !== flatData[field.key]) {
                               if (flatData.name) {

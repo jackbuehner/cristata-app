@@ -55,6 +55,7 @@ interface ITiptap {
   html?: string;
   actions?: Array<Iaction | null>;
   isMaximized?: boolean;
+  forceMax?: boolean;
   message?: string;
 }
 
@@ -390,6 +391,7 @@ const Tiptap = (props: ITiptap) => {
         editor={editor}
         isMax={isMax}
         setIsMax={setIsMax}
+        forceMax={props.forceMax}
         isDisabled={props.isDisabled}
         layout={layout}
         setLayout={setLayout}

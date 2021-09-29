@@ -32,6 +32,7 @@ interface ITable {
     href: string; // clicking a row will toke user to this location + the value of the hrefSuffixKey
     hrefSuffixKey: string; // key from the row's data object to append to href (most common usage would be _id)
     hrefSearch?: string; // url search params to append to hreg
+    windowName?: string;
   };
   defaultSort?: string;
   collection: string;
@@ -224,11 +225,19 @@ function Table({ filters, ...props }: ITable) {
                   // if props for onClick action is defined (via `props.row`), push history
                   onClick={() =>
                     props.row
-                      ? history.push(
-                          `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
-                            props.row.hrefSearch || ''
-                          }`
-                        )
+                      ? props.row.windowName
+                        ? window.open(
+                            `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
+                              props.row.hrefSearch || ''
+                            }`,
+                            props.row.windowName,
+                            'location=no'
+                          )
+                        : history.push(
+                            `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
+                              props.row.hrefSearch || ''
+                            }`
+                          )
                       : null
                   }
                 >

@@ -247,7 +247,20 @@ const ArticlesTable = forwardRef<IArticlesTableImperative, IArticlesTable>(
           data={{ data: data as { [key: string]: any }[], loading, error }}
           columns={columns}
           filters={props.filters}
-          row={{ href: '/cms/item/articles', hrefSuffixKey: '_id' }}
+          row={
+            window.matchMedia('(display-mode: standalone)').matches
+              ? {
+                  href: '/cms/item/articles',
+                  hrefSuffixKey: '_id',
+                  hrefSearch: '?fs=force&props=1',
+                  windowName: 'editor',
+                }
+              : {
+                  href: '/cms/item/articles',
+                  hrefSuffixKey: '_id',
+                  hrefSearch: '?fs=1&props=1',
+                }
+          }
           defaultSort={collectionsConfig.articles?.defaultSortKey}
           collection={'articles'}
         />
