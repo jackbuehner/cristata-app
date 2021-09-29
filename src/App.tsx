@@ -31,6 +31,7 @@ import Color from 'color';
 import { HomePage } from './pages/Home';
 import { SatirePage } from './pages/CMS/SatirePage';
 import { navigation } from './config';
+import { Titlebar } from './components/Titlebar';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -76,8 +77,7 @@ function App() {
     .Toastify__toast {
       border-radius: ${({ theme }) => theme.radius};
       padding: 0;
-      background-color: ${({ theme }) =>
-        theme.mode === 'light' ? 'white' : 'black'};
+      background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
       color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
       font-family: ${({ theme }) => theme.font.detail};
       font-size: 15px;
@@ -86,8 +86,7 @@ function App() {
         align-items: center;
         justify-content: center;
         width: 50px;
-        background-color: ${({ theme }) =>
-          theme.mode === 'light' ? 'white' : 'black'};
+        background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
       }
     }
     .Toastify__toast--error {
@@ -113,11 +112,13 @@ function App() {
       padding-left: 0;
     }
     .Toastify__progress-bar {
-      background-color: ${({ theme }) =>
-        Color(theme.color.neutral[theme.mode][800]).alpha(0.25).string()};
+      background-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][800]).alpha(0.25).string()};
       height: 3px;
     }
   `;
+
+  //@ts-expect-error windowControlsOverlay is only available in some browsers
+  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
   return (
     <>
@@ -145,40 +146,27 @@ function App() {
               }}
             />
             <Route>
-              <PageWrapper>
-                <SidenavHeader
-                  gridCols={gridCols}
-                  homeOnly
-                  isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                />
+              {isCustomTitlebarVisible ? <Titlebar /> : null}
+              <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
+                <SidenavHeader gridCols={gridCols} homeOnly isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]} />
                 <Wrapper>
-                  <SideNavWrapper
-                    gridCols={gridCols}
-                    isNavVisibleM={isNavVisibleM}
-                  >
-                    <SidenavHeader
-                      gridCols={gridCols}
-                      isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                    />
+                  <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
+                    <SidenavHeader gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]} />
                     <SideNavs>
                       <Sidenav
                         gridCols={gridCols}
                         toggleSideNavSub={toggleSideNavSub}
                         isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
                       />
-                      <SidenavSub
-                        gridCols={gridCols}
-                        isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                      >
+                      <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
                         <Switch>
                           <Route path={`/cms`}>
                             {navigation.cms.map((group, index) => {
                               if (
                                 group.label === 'Configuration' &&
-                                JSON.parse(
-                                  localStorage.getItem('auth.user') as string
-                                )?.teams.includes('MDQ6VGVhbTQ2NDI0MTc=') !==
-                                  true
+                                JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
+                                  'MDQ6VGVhbTQ2NDI0MTc='
+                                ) !== true
                               ) {
                                 return <Fragment key={index}></Fragment>;
                               }
@@ -202,19 +190,13 @@ function App() {
                             })}
                           </Route>
                           <Route path={`/plans`}>
-                            <PlansSideNavSub
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            />
+                            <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
                           <Route path={`/chat`}>
-                            <ChatSideNavSub
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            />
+                            <ChatSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
                           <Route path={`/profile`}>
-                            <ProfileSideNavSub
-                              setIsNavVisibleM={setIsNavVisibleM}
-                            />
+                            <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
                         </Switch>
                       </SidenavSub>
@@ -238,9 +220,7 @@ function App() {
                         <ItemDetailsPage />
                       </Route>
                       <Route path={`/cms`}>CMS</Route>
-                      <Route
-                        path={`/chat/:team_slug/:thread_discussion_number?`}
-                      >
+                      <Route path={`/chat/:team_slug/:thread_discussion_number?`}>
                         <ChatPage />
                       </Route>
                       <Route path={`/plans/org/:id`}>
@@ -264,11 +244,12 @@ function App() {
   );
 }
 
-const PageWrapper = styled.div`
+const PageWrapper = styled.div<{ isCustomTitlebarVisible?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  height: ${({ isCustomTitlebarVisible }) =>
+    isCustomTitlebarVisible ? 'calc(100% - env(titlebar-area-height, 33px))' : '100%'};
   position: fixed;
 `;
 
@@ -312,8 +293,7 @@ const SideNavs = styled.div`
 
 const Content = styled.div<{ theme: themeType }>`
   overflow: auto;
-  background-color: ${({ theme }) =>
-    theme.mode === 'light' ? 'white' : 'black'};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
   width: 100%;
   height: 100%;
 `;
