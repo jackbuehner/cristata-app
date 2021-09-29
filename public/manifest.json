@@ -20,7 +20,7 @@
       "url": "/proto?url=%s"
     },
     {
-      "protocol": "cristata",
+      "protocol": "web+paladincristata",
       "url": "/proto?url=%s"
     }
   ]
