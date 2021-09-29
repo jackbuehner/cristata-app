@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import { AxiosError } from 'axios';
 import { useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { themeType } from '../../utils/theme/theme';
 
 interface ISplashScreen {
@@ -18,6 +18,7 @@ interface ISplashScreen {
 function SplashScreen(props: ISplashScreen) {
   const theme = useTheme() as themeType;
   const history = useHistory();
+  const location = useLocation();
 
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
@@ -61,6 +62,11 @@ function SplashScreen(props: ISplashScreen) {
     }
   });
 
+  // whether the user is on a cms page where the editor is maximized to fill the entire page
+  // (we need to set the background color to blue instead of primary)
+  const isFullEditorPage =
+    location.pathname.indexOf(`/cms/item/`) === 0 && new URLSearchParams(location.search).get('fs') === '1';
+
   return (
     <div className={`splash-wrapper`}>
       <style>
@@ -69,7 +75,7 @@ function SplashScreen(props: ISplashScreen) {
             inset: 0;
             position: fixed;
             z-index: 9999;
-            background: ${theme.color.primary[800]};
+            background: ${isFullEditorPage ? theme.color.blue[800] : theme.color.primary[800]};
             display: flex;
             align-items: center;
             justify-content: center;
