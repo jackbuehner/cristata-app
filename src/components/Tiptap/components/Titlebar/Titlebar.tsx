@@ -29,7 +29,7 @@ function Titlebar(props: ITitlebar) {
   }, [theme.color.blue, theme.color.primary]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
-  const customTitlebarOffsetX = navigator.windowControlsOverlay.getBoundingClientRect().x;
+  const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect().x;
 
   return (
     <Wrapper>
