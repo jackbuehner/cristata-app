@@ -189,7 +189,7 @@ const Comment = Node.create<CommentOptions>({
                 // get the parent node, which is the entire comment node if the anchor is inside the comment
                 const parent = tr.selection.$anchor;
                 // check whether the node is a comment node
-                const isComment = parent.node().hasMarkup(this.type);
+                const isComment = parent.node().type.name === this.type.name;
                 return isComment;
               } catch (error) {
                 console.error(error);
