@@ -27,4 +27,4 @@ interface IProfile {
   teams: GitHubTeamID[];
 }
 
-export type { IProfile };
+export type { IProfile, GitHubUserID, GitHubTeamID };

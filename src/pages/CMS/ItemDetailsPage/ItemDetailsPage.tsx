@@ -395,7 +395,7 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
     <>
       {props.isEmbedded ? null : (
         <PageHead
-          title={data ? data.name : item_id}
+          title={data && data.name ? data.name : item_id}
           description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection
             .slice(1)
             .replace('-', ' ')} collection ${hasUnsavedChanges ? ' | Unsaved changes' : ''}`}

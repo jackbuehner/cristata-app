@@ -7,6 +7,7 @@ import { colorType } from './utils/theme/theme';
 import { DateTime } from 'luxon';
 import {
   Balloon16Regular,
+  BookGlobe24Regular,
   Chat24Regular,
   Cookies24Regular,
   DocumentOnePage24Regular,
@@ -1152,6 +1153,56 @@ const collections: Icollections = {
     isPublishable: true,
     publishStage: 5.2,
   },
+  shorturl: {
+    home: '/cms/shorturls',
+    fields: [
+      {
+        key: 'original_url',
+        label: 'Destination URL',
+        type: 'text',
+        description: 'The short URL will redirect to this URL.',
+      },
+      {
+        key: 'domain',
+        label: 'Domain',
+        type: 'select',
+        description: 'The domain for the short url.',
+        options: [{ value: 'flusher.page', label: 'flusher.page' }],
+      },
+      {
+        key: 'code',
+        label: 'Short URL code',
+        type: 'text',
+        description: 'The code for the short url.',
+        isDisabled: true,
+      },
+      { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
+      { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
+    ],
+    columns: [
+      {
+        key: 'code',
+        label: 'Code',
+        width: 100,
+      },
+      {
+        key: 'short_url',
+        label: 'Short URL',
+        render: (data) => {
+          return (
+            <span>
+              https://{data.domain}/{data.code}
+            </span>
+          );
+        },
+        width: 250,
+      },
+      { key: 'original_url', label: 'Destination', width: 350 },
+      { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
+    ],
+    isPublishable: false,
+    canWatch: false,
+  },
   featuredSettings: {
     home: '/cms/item/featured-settings/6101da4a5386ae9ea3147f17',
     fields: [
@@ -1446,6 +1497,19 @@ const navigation: Inavigation = {
           label: `All satire`,
           icon: <Cookies24Regular />,
           to: `/cms/satire/all`,
+        },
+      ],
+    },
+    {
+      label: `Short URLs`,
+      items: [
+        {
+          label: `flusher.page`,
+          icon: <BookGlobe24Regular />,
+          to: `/cms/shorturls`,
+          isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
+            'MDQ6VGVhbTQ2NDI0MTc='
+          ),
         },
       ],
     },
