@@ -1355,7 +1355,23 @@ const home: Ihome = {
   ],
 };
 
-const navigation = {
+interface Inavigation {
+  cms: INavGroup[];
+}
+
+interface INavGroup {
+  label: string;
+  items: INavItem[];
+}
+
+interface INavItem {
+  label: string;
+  icon: JSX.Element;
+  to: string;
+  isHidden?: boolean;
+}
+
+const navigation: Inavigation = {
   cms: [
     {
       label: `Articles`,
@@ -1440,6 +1456,9 @@ const navigation = {
           label: `Featured articles`,
           icon: <StarEmphasis24Regular />,
           to: `/cms/item/featured-settings/6101da4a5386ae9ea3147f17`,
+          isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
+            'MDQ6VGVhbTQ2NDI0MTc='
+          ),
         },
       ],
     },

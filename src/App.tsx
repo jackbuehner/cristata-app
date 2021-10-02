@@ -166,18 +166,17 @@ function App() {
                         <Switch>
                           <Route path={`/cms`}>
                             {navigation.cms.map((group, index) => {
-                              if (
-                                group.label === 'Configuration' &&
-                                JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
-                                  'MDQ6VGVhbTQ2NDI0MTc='
-                                ) !== true
-                              ) {
-                                return <Fragment key={index}></Fragment>;
-                              }
+                              // store the group items that are not hidden
+                              const enabledGroupItems = group.items.filter((item) => item.isHidden !== true);
+
+                              // if there are no visible items, do not show the group
+                              if (enabledGroupItems.length === 0) return null;
+
+                              // create the group and its items
                               return (
                                 <Fragment key={index}>
                                   <SideNavHeading>{group.label}</SideNavHeading>
-                                  {group.items.map((item, index) => {
+                                  {enabledGroupItems.map((item, index) => {
                                     return (
                                       <SideNavSubButton
                                         key={index}
