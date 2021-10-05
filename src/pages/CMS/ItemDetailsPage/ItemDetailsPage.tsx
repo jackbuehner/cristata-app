@@ -284,7 +284,11 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [confirm, setConfirm] = useState<string>();
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [timestamp, setTimestamp] = useState<string | null>(null);
+    const [timestamp, setTimestamp] = useState<string>(flatData['timestamps.published_at'] as string);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [updatedTimestamp, setUpdatedTimestamp] = useState<string>(
+      flatData['timestamps.updated_at'] as string
+    );
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -322,15 +326,42 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
             Paladin's Board will be able to unpublish this article.
           </p>
           <InputGroup type={`text`}>
-            <Label htmlFor={'date'}>Choose publish date and time</Label>
+            <Label
+              htmlFor={'date'}
+              description={
+                'This data can be any time in the past or future. Content will not appear until the date has occured.'
+              }
+            >
+              Choose publish date and time
+            </Label>
             <DateTime
-              value={timestamp}
+              value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestamp}
               onChange={(date) => {
                 if (date) setTimestamp(date.toUTC().toISO());
               }}
               placeholder={'Pick a time'}
             />
           </InputGroup>
+          {
+            // if the article has already been published, allow setting an update timestamp
+            flatData['timestamps.published_at'] !== '0001-01-01T01:00:00.000Z' ? (
+              <InputGroup type={`text`}>
+                <Label
+                  htmlFor={'date'}
+                  description={'Use this field if the contents of the article were updated after publish.'}
+                >
+                  Choose updated date and time
+                </Label>
+                <DateTime
+                  value={updatedTimestamp === '0001-01-01T01:00:00.000Z' ? null : updatedTimestamp}
+                  onChange={(date) => {
+                    if (date) setUpdatedTimestamp(date.toUTC().toISO());
+                  }}
+                  placeholder={'Pick a time'}
+                />
+              </InputGroup>
+            ) : null
+          }
           <InputGroup type={'text'}>
             <Label htmlFor={'confirm'}>Confirm publish</Label>
             <TextInput
