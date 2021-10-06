@@ -21,7 +21,7 @@ declare module '@tiptap/core' {
        *
        * This command will expand the selection to include the entiere comment node.
        */
-      unsetComment: () => Command;
+      unsetComment: (position?: number) => Command;
     };
   }
 }
@@ -181,9 +181,21 @@ const Comment = Node.create<CommentOptions>({
           }
         },
       unsetComment:
-        () =>
+        (position) =>
         ({ chain, commands, state, tr, dispatch }) => {
           return chain()
+            .command(({ tr }) => {
+              try {
+                // if position is defined, change the the positon (move the cursor)
+                if (position) {
+                  tr.setSelection(TextSelection.create(state.doc, position));
+                }
+                return true;
+              } catch (error) {
+                console.error(error);
+                return false;
+              }
+            })
             .command(({ tr }) => {
               try {
                 // get the parent node, which is the entire comment node if the anchor is inside the comment
