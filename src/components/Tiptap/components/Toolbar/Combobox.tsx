@@ -20,13 +20,11 @@ function Combobox(props: ICombobox) {
     width: string;
     side: 'left' | 'right';
   }>`
-    background-color: ${({ theme }) =>
-      theme.mode === 'light' ? 'white' : 'black'};
+    background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
     height: 28px;
     min-width: 40px;
     box-shadow: none !important;
-    border-color: ${({ theme }) =>
-      theme.color.neutral[theme.mode][800]} !important;
+    border-color: ${({ theme }) => theme.color.neutral[theme.mode][800]} !important;
     border-width: 1px;
     border-left-width: ${({ side }) => (side === 'right' ? 0 : 1)}px !important;
     border-radius: 0 !important;
@@ -45,7 +43,6 @@ function Combobox(props: ICombobox) {
     <ToolbarRowButton
       onClick={undefined}
       isActive={false}
-      theme={theme}
       cssExtra={css`
         background: none !important;
         box-shadow: none !important;
@@ -62,17 +59,11 @@ function Combobox(props: ICombobox) {
           side={'left'}
           disabled={props.disabled}
           cssExtra={css`
-          overflow: hidden;
-          ${props.cssExtra}
-        `}
+            overflow: hidden;
+            ${props.cssExtra}
+          `}
         />
-        <Box
-          width={'16px'}
-          theme={theme}
-          color={props.color}
-          side={'right'}
-          disabled={props.disabled}
-        >
+        <Box width={'16px'} theme={theme} color={props.color} side={'right'} disabled={props.disabled}>
           <ChevronDown12Regular />
         </Box>
       </WrapperButton>

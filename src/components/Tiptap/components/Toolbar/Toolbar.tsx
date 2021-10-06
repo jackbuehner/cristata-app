@@ -567,8 +567,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().setHorizontalRule().run()}
                 isActive={false}
                 icon={<LineHorizontal120Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().setHorizontalRule()}
               >
                 Horizontal Line
@@ -577,8 +575,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                 isActive={editor.isActive('codeBlock')}
                 icon={<Code20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleCodeBlock()}
               >
                 Code Block
@@ -587,8 +583,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={showLinkModal}
                 isActive={false}
                 icon={<Link20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().setTextSelection({ from: 0, to: 1 })}
               >
                 Insert Link
@@ -606,8 +600,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 }
                 isActive={false}
                 icon={<CommentAdd20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().setComment('', { name: '', photo: '' })}
               >
                 Insert Comment
@@ -631,8 +623,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => showMSFTEditorModal()}
                 isActive={false}
                 icon={<Editor20Icon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor}
               >
                 Editor (spell check)
@@ -650,8 +640,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => props.toggleTrackChanges()}
                 isActive={props.trackChanges}
                 icon={<TrackChanges20Icon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor}
               >
                 Track changes (text only)
@@ -660,8 +648,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().approveChange().run()}
                 isActive={false}
                 icon={<AcceptRevision20Icon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor}
               >
                 Accept
@@ -670,8 +656,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().rejectChange().run()}
                 isActive={false}
                 icon={<RejectRevision20Icon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor}
               >
                 Reject
@@ -706,8 +690,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 }
                 isActive={false}
                 icon={<CommentAdd20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().setComment('', { name: '', photo: '' })}
               >
                 Insert Comment
@@ -731,11 +713,10 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                     <ToolbarRowButton
                       key={index}
                       onClick={action.action}
-                      color={action.color ? action.color : 'neutral'}
+                      color={action.color}
                       disabled={action.disabled}
                       icon={action.icon}
                       isActive={false}
-                      theme={theme}
                     >
                       {action.label}
                     </ToolbarRowButton>

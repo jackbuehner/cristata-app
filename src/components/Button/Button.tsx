@@ -3,6 +3,7 @@ import styled from '@emotion/styled/macro';
 import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType, colorShade, colorType } from '../../utils/theme/theme';
 import { buttonEffect } from './buttonEffect';
+import { ChevronDown12Regular } from '@fluentui/react-icons';
 
 interface StyledButtonProps extends ButtonProps {
   color: colorType;
@@ -25,9 +26,7 @@ const BUTTON = styled.button<StyledButtonProps>`
   font-weight: 500;
   white-space: nowrap;
   color: ${({ theme, disabled }) =>
-    disabled
-      ? theme.color.neutral[theme.mode][600]
-      : theme.color.neutral[theme.mode][1400]};
+    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
   border-radius: ${({ borderRadius, theme }) =>
     borderRadius?.base !== undefined ? borderRadius.base : theme.radius};
   ${({ disabled, borderRadius, color, colorShade, theme }) =>
@@ -36,28 +35,39 @@ const BUTTON = styled.button<StyledButtonProps>`
       : `
           &:hover,
           &:focus-visible {
-            border-radius: ${
-              borderRadius?.hover ? borderRadius.hover : theme.radius
-            };
+            border-radius: ${borderRadius?.hover ? borderRadius.hover : theme.radius};
           }
           &:active {
-            border-radius: ${
-              borderRadius?.active ? borderRadius.active : theme.radius
-            };
+            border-radius: ${borderRadius?.active ? borderRadius.active : theme.radius};
           }
         `}
   ${({ cssExtra }) => cssExtra}
 `;
 
-const IconStyleWrapper = styled.span<{ theme: themeType; disabled?: boolean }>`
+const IconStyleWrapper = styled.span<{ theme: themeType; disabled?: boolean; size?: number }>`
   margin: 0 8px 0 -4px;
-  width: 16px;
-  height: 16px;
+  width: ${({ size }) => (size ? size : 16)}px;
+  height: ${({ size }) => (size ? size : 16)}px;
   > svg {
-    width: 16px;
-    height: 16px;
+    width: ${({ size }) => (size ? size : 16)}px;
+    height: ${({ size }) => (size ? size : 16)}px;
     fill: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
     opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
+  }
+`;
+
+const ChevronWrapper = styled.span<{ theme: themeType; disabled?: boolean; size?: number }>`
+  margin: 0 -4px 0 8px;
+  width: ${({ size }) => (size ? size : 12)}px;
+  height: ${({ size }) => (size ? size : 12)}px;
+  svg {
+    width: ${({ size }) => (size ? size : 12)}px;
+    height: ${({ size }) => (size ? size : 12)}px;
+    fill: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
+    opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
+  }
+  span {
+    display: flex;
   }
 `;
 
@@ -85,6 +95,7 @@ export interface ButtonProps {
   customIcon?: React.ReactElement;
   disableLabelAlignmentFix?: boolean;
   className?: string;
+  showChevron?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
@@ -108,17 +119,16 @@ const Button: React.FC<ButtonProps> = (props) => {
       {props.customIcon ? (
         props.customIcon
       ) : props.icon ? (
-        <IconStyleWrapper
-          theme={theme}
-          disabled={props.disabled}
-          className={`IconStyleWrapper`}
-        >
+        <IconStyleWrapper theme={theme} disabled={props.disabled} className={`IconStyleWrapper`}>
           {props.icon}
         </IconStyleWrapper>
       ) : null}
-      <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>
-        {props.children}
-      </span>
+      <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
+      {props.showChevron ? (
+        <ChevronWrapper theme={theme} disabled={props.disabled} className={`ChevronWrapper`} size={12}>
+          <ChevronDown12Regular />
+        </ChevronWrapper>
+      ) : null}
     </BUTTON>
   );
 };

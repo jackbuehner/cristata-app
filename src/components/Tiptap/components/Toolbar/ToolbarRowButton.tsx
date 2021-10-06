@@ -1,18 +1,18 @@
 import styled from '@emotion/styled/macro';
+import { useTheme } from '@emotion/react';
 import { themeType } from '../../../../utils/theme/theme';
 import { Button } from '../../../Button';
+import { ButtonProps } from '../../../Button/Button';
 
-interface IToolbarRowButton {
-  theme: themeType;
-  isActive: boolean;
+interface IToolbarRowButton extends ButtonProps {
+  isActive?: boolean;
 }
 
-const ToolbarRowButton = styled(Button)<IToolbarRowButton>`
+const ToolbarRowButtonComponent = styled(Button)<IToolbarRowButton>`
   height: 40px;
   min-width: 40px;
   border: 1px solid transparent;
-  background-color: ${({ theme, isActive }) =>
-    isActive ? '_' : 'transparent'};
+  background-color: ${({ isActive }) => (isActive ? '_' : 'transparent')};
   > span[class*='IconStyleWrapper'] {
     width: 20px;
     height: 20px;
@@ -22,5 +22,22 @@ const ToolbarRowButton = styled(Button)<IToolbarRowButton>`
     }
   }
 `;
+
+function ToolbarRowButton({ children, color, isActive, ...props }: IToolbarRowButton) {
+  const theme = useTheme() as themeType;
+
+  return (
+    <>
+      <ToolbarRowButtonComponent
+        {...props}
+        theme={theme}
+        color={color ? color : 'neutral'}
+        isActive={isActive ? isActive : false}
+      >
+        {children}
+      </ToolbarRowButtonComponent>
+    </>
+  );
+}
 
 export { ToolbarRowButton };
