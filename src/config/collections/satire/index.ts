@@ -1,0 +1,1 @@
+export { satire } from './satire';

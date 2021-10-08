@@ -1,0 +1,1 @@
+export { featuredSettings } from './featuredSettings';
