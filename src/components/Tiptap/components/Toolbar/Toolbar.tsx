@@ -16,6 +16,7 @@ import {
   CommentAdd20Regular,
   CommentOff20Regular,
   Database20Regular,
+  Apps20Regular,
 } from '@fluentui/react-icons';
 import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
@@ -297,6 +298,85 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
       ></PlainModal>
     );
   }, [editor]);
+  // insert sweepwidget widget
+  const [showSweepwidgetModal, hideSweepwidgetModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [idValue, setIdValue] = useState<HTMLTextAreaElement['value']>('');
+
+    /**
+     * When the user types in the field, update `idValue` in state
+     */
+    const handleIdFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setIdValue(e.target.value);
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideSweepwidgetModal}
+        title={`SweepWidget Giveaway`}
+        continueButton={{
+          text: 'Insert',
+          onClick: () => {
+            if (editor) {
+              editor.chain().focus().insertSweepwidgetWidget('34804-gfbwtdns').run();
+              return true;
+            }
+            return false;
+          },
+          disabled: idValue.length < 1,
+        }}
+      >
+        <Label
+          description={`The giveaway ID can be found on your <a href="https://sweepwidget.com/user">SweepWidget user page</a>.
+            
+            <b>Instructions</b>
+            <ol style="margin: 0; padding: 0 0 0 12px; display: flex; flex-direction: column;">
+              <li>Go to your <a href="https://sweepwidget.com/user">SweepWidget user page</a></li>
+              <li>Click "Embed into your blog or website"</a></li>
+              <li>Copy the ID from the code. For example: For <code style="background: #e0e0e0;">id="34804-gfbwtdns"</code>, the ID is <code style="background: #e0e0e0;">34804-gfbwtdns</code>.</li>
+              <li>Paste the code into the field below these instructions.</a></li>
+            </ol>
+          `}
+        >
+          Giveaway ID
+        </Label>
+        <TextInput
+          name={'sw-id'}
+          id={'sw-id'}
+          value={idValue}
+          onChange={handleIdFieldChange}
+          placeholder={`Type sweepwidget id...`}
+        ></TextInput>
+      </PlainModal>
+    );
+  }, [editor]);
+
+  // widgets dropdown
+  const [showWidgetsDropdown] = useDropdown(
+    (triggerRect, dropdownRef) => {
+      return (
+        <Menu
+          ref={dropdownRef}
+          pos={{
+            top: triggerRect.bottom,
+            left: triggerRect.left,
+            width: 180,
+          }}
+          items={[
+            {
+              onClick: showSweepwidgetModal,
+              label: 'SweepWidget Giveaway',
+              color: 'neutral',
+            },
+          ]}
+          noIcons
+        />
+      );
+    },
+    [],
+    true,
+    true
+  );
 
   if (!editor) {
     return null;
@@ -571,13 +651,8 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               >
                 Horizontal Line
               </ToolbarRowButton>
-              <ToolbarRowButton
-                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                isActive={editor.isActive('codeBlock')}
-                icon={<Code20Regular />}
-                disabled={!editor.can().toggleCodeBlock()}
-              >
-                Code Block
+              <ToolbarRowButton onClick={showWidgetsDropdown} icon={<Apps20Regular />} showChevron>
+                Widgets
               </ToolbarRowButton>
               <ToolbarRowButton
                 onClick={showLinkModal}
@@ -585,7 +660,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 icon={<Link20Regular />}
                 disabled={!editor.can().setTextSelection({ from: 0, to: 1 })}
               >
-                Insert Link
+                Link
               </ToolbarRowButton>
               <ToolbarRowButton
                 onClick={() =>
@@ -602,7 +677,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 icon={<CommentAdd20Regular />}
                 disabled={!editor.can().setComment('', { name: '', photo: '' })}
               >
-                Insert Comment
+                Comment
               </ToolbarRowButton>
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().unsetComment().run()}
