@@ -2,9 +2,9 @@ import useAxios from 'axios-hooks';
 import { SideNavSubButton } from '../../../components/Button';
 import { TaskListLtr20Regular } from '@fluentui/react-icons';
 import { APIProject } from '../../../interfaces/github/plans';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { SideNavHeading } from '../../../components/Heading';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 
 interface IPlansSideNavSub {
   setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
@@ -12,7 +12,17 @@ interface IPlansSideNavSub {
 
 function PlansSideNavSub(props: IPlansSideNavSub) {
   const history = useHistory();
+  const { pathname } = useLocation();
   const [{ data, loading, error }] = useAxios<APIProject[]>('/gh/org/projects');
+
+  useEffect(() => {
+    // navigate to the first project in the navigation
+    if (data && data[0]) {
+      if (pathname === '/plans') {
+        history.push(`/plans/org/${data[0].id}`);
+      }
+    }
+  }, [data, pathname, history]);
 
   if (loading) return <SideNavHeading isLoading>Plans</SideNavHeading>;
   if (error) {
@@ -20,10 +30,6 @@ function PlansSideNavSub(props: IPlansSideNavSub) {
     return <span>Error: {error.code}</span>;
   }
   if (data) {
-    // navigate to the first project in the navigation
-    if (data[0]) {
-      history.push(`/plans/org/${data[0].id}`);
-    }
     return (
       <>
         <SideNavHeading>Plans</SideNavHeading>
