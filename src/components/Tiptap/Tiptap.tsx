@@ -156,7 +156,10 @@ const Tiptap = (props: ITiptap) => {
         },
       }),
       Placeholder.configure({
-        placeholder: 'Write something...',
+        placeholder: ({ editor }) => {
+          if (editor.state.selection.from <= 1) return 'Write something...';
+          return '';
+        },
       }),
       SweepwidgetWidget,
     ],
@@ -511,7 +514,7 @@ const Tiptap = (props: ITiptap) => {
                   margin-bottom: 10px;
                 }
                 // show placeholder message when the editor is empty
-                p.is-editor-empty:first-child::before {
+                p.is-empty:first-child::before {
                   content: attr(data-placeholder);
                   float: left;
                   color: ${theme.color.neutral[theme.mode][600]};
