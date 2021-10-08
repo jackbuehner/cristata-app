@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Comment20Regular, Delete20Regular, Dismiss20Regular } from '@fluentui/react-icons';
+import { Comment20Regular, CommentOff20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 import { NodeViewWrapper, NodeViewContent, NodeViewProps, Node } from '@tiptap/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { themeType } from '../../../utils/theme/theme';
@@ -78,7 +78,7 @@ function CommentContainer(props: ICommentContainer) {
         <Card theme={theme} contentEditable={false} triggerRect={triggerRect}>
           <div style={{ position: 'absolute', top: 0, right: 30 }}>
             <IconButton
-              icon={<Delete20Regular />}
+              icon={<CommentOff20Regular />}
               backgroundColor={{ base: 'transparent' }}
               border={{ base: '1px solid transparent' }}
               onClick={() => props.editor.commands.unsetComment(props.getPos() + props.node.nodeSize - 1)}
