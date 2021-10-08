@@ -1,8 +1,10 @@
 import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled/macro';
 import { AxiosError } from 'axios';
 import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { themeType } from '../../utils/theme/theme';
+import { Button } from '../Button';
 
 interface ISplashScreen {
   loading: boolean; // loading status of api request for user
@@ -102,8 +104,19 @@ function SplashScreen(props: ISplashScreen) {
       `}
       </style>
       <span className={`splash-app-name`}>Cristata</span>
+      {props.error ? <ErrorBlock theme={theme}>Failed to connect to the server.</ErrorBlock> : null}
     </div>
   );
 }
+
+const ErrorBlock = styled.div<{ theme: themeType }>`
+  font-family: ${({ theme }) => theme.font.detail};
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  bottom: 100px;
+`;
 
 export { SplashScreen };
