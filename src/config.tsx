@@ -107,9 +107,9 @@ const collections: Icollections = {
       },
       {
         key: 'categories',
-        label: 'Sections',
+        label: 'Categories',
         type: 'multiselect',
-        description: 'The sections in which this article belongs.',
+        description: 'The sections or categories in which this article belongs.',
         options: [
           { value: 'news', label: 'News' },
           { value: 'opinion', label: 'Opinions' },
@@ -117,6 +117,7 @@ const collections: Icollections = {
           { value: 'diversity', label: 'Diversity Matters' },
           { value: 'arts', label: 'Arts' },
           { value: 'campus-culture', label: 'Campus & Culture' },
+          { value: 'giveaway', label: 'Giveaway' },
         ],
       },
       {
@@ -406,7 +407,7 @@ const collections: Icollections = {
       },
       {
         key: 'categories',
-        label: 'Sections',
+        label: 'Categories',
         render: (data) => {
           const categories: { [key: string]: string } = {
             news: 'News',
@@ -415,6 +416,7 @@ const collections: Icollections = {
             diversity: 'Diversity Matters',
             arts: 'Arts',
             'campus-culture': 'Campus & Culture',
+            giveaway: 'Giveaway',
           };
           return (
             <div>
