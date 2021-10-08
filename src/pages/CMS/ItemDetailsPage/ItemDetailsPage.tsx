@@ -484,8 +484,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
             collectionsConfig[dashToCamelCase(collection)]?.fields.map((field, index) => {
               if (field.type === 'text') {
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -507,8 +507,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
 
               if (field.type === 'boolean') {
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`checkbox`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`checkbox`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -536,8 +536,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                 const isHTML = field.tiptap && field.tiptap.isHTMLkey && flatData[field.tiptap.isHTMLkey];
                 const html = isHTML ? (flatData[field.key] as string) : undefined;
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -611,8 +611,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
 
               if (field.type === 'select') {
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -639,8 +639,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
 
               if (field.type === 'select_async') {
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -669,8 +669,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
               if (field.type === 'multiselect') {
                 const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -700,8 +700,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
               if (field.type === 'multiselect_async') {
                 const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -732,8 +732,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
               if (field.type === 'multiselect_creatable') {
                 const val = flatData[field.key] as string[];
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -763,8 +763,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
 
               if (field.type === 'datetime') {
                 return (
-                  <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                    <InputGroup type={`text`} key={index}>
+                  <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                    <InputGroup type={`text`}>
                       <Label
                         htmlFor={field.key}
                         description={field.description}
@@ -789,8 +789,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
               }
 
               return (
-                <ErrorBoundary fallback={<div>Error loading field '{field.key}'</div>}>
-                  <InputGroup type={`text`} key={index}>
+                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                  <InputGroup type={`text`}>
                     <Label
                       htmlFor={field.key}
                       description={field.description}

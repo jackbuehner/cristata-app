@@ -74,6 +74,7 @@ function Titlebar(props: ITitlebar) {
           {props.actions?.map((action, index) => {
             return (
               <TitlebarButton
+                key={index}
                 title={action.label}
                 width={33}
                 iconSize={action.label === 'Save' ? 20 : undefined}

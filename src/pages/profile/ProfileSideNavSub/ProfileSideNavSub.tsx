@@ -110,9 +110,8 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
         <SideNavHeading>Profiles</SideNavHeading>
         {data.map((profile: IProfile, index: number) => {
           return (
-            <div style={{ position: 'relative', width: '100%' }}>
+            <div style={{ position: 'relative', width: '100%' }} key={index}>
               <Button
-                key={index}
                 height={`48px`}
                 width={`calc(100% - 12px)`}
                 cssExtra={css`

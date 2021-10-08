@@ -121,13 +121,13 @@ function Table({ filters, ...props }: ITable) {
         <TableGroup theme={theme} isHeader role={`rowgroup`}>
           {
             // create a row for each header row
-            headerGroups.map((headerGroup) => {
+            headerGroups.map((headerGroup, index) => {
               return (
                 // apply header row row props
-                <TableRow role={`row`} {...headerGroup.getHeaderGroupProps()}>
+                <TableRow role={`row`} {...headerGroup.getHeaderGroupProps()} key={index}>
                   {
                     // loop over the headers in each row
-                    headerGroup.headers.map((column) => {
+                    headerGroup.headers.map((column, index) => {
                       const sortableHeaders =
                         // @ts-expect-error getSortByToggleProps is allowed when useSortBy hook is present and isSortable is a custom variable in the config
                         column.isSortable !== false ? column.getHeaderProps(column.getSortByToggleProps()) : {};
@@ -135,6 +135,7 @@ function Table({ filters, ...props }: ITable) {
                       return (
                         // apply header cell props
                         <TableCell
+                          key={index}
                           role={`columnheader`}
                           width={column.width}
                           isHeader
@@ -221,6 +222,7 @@ function Table({ filters, ...props }: ITable) {
                 <TableRow
                   role={`row`}
                   {...row.getRowProps()}
+                  key={rowIndex}
                   theme={theme}
                   // if props for onClick action is defined (via `props.row`), push history
                   onClick={() =>
@@ -243,10 +245,10 @@ function Table({ filters, ...props }: ITable) {
                 >
                   {
                     // loop over the row cells to render each cell
-                    row.cells.map((cell) => {
+                    row.cells.map((cell, index) => {
                       // apply cell props
                       return (
-                        <TableCell role={`cell`} width={cell.column.width} {...cell.getCellProps()}>
+                        <TableCell role={`cell`} width={cell.column.width} {...cell.getCellProps()} key={index}>
                           {
                             // render cell contents
                             cell.render('Cell')
