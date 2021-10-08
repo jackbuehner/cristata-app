@@ -1,0 +1,1 @@
+export { socialArticles } from './socialArticles';

@@ -8,6 +8,7 @@ import {
   DocumentPageBottomRight24Regular,
   Image24Regular,
   ImageSearch24Regular,
+  LinkSquare24Regular,
   News24Regular,
   PaintBrush24Regular,
   PersonBoard24Regular,
@@ -213,6 +214,14 @@ const navigation: Inavigation = {
           label: `Featured articles`,
           icon: <StarEmphasis24Regular />,
           to: `/cms/item/featured-settings/6101da4a5386ae9ea3147f17`,
+          isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
+            'MDQ6VGVhbTQ2NDI0MTc='
+          ),
+        },
+        {
+          label: `Social media articles (LIFT)`,
+          icon: <LinkSquare24Regular />,
+          to: `/cms/item/social-articles/615ff1210e3e31a22a3c5746`,
           isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
             'MDQ6VGVhbTQ2NDI0MTc='
           ),

@@ -5,6 +5,7 @@ import { photos } from './collections/photos';
 import { satire } from './collections/satire';
 import { shorturl } from './collections/shorturl';
 import { featuredSettings } from './collections/featuredSettings';
+import { socialArticles } from './collections/socialArticles';
 
 const collections: collectionsType = {
   articles,
@@ -13,6 +14,7 @@ const collections: collectionsType = {
   satire,
   shorturl,
   featuredSettings,
+  socialArticles,
 };
 
 interface collectionsType {
