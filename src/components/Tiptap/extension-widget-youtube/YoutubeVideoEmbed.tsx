@@ -72,6 +72,7 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
         onMouseOut={() => setIsMouseOver(false)}
       >
         <iframe
+          title={'YouTube video'}
           style={{ aspectRatio: '16/9', margin: '20px 0' }}
           width={'100%'}
           src={`https://www.youtube-nocookie.com/embed/${props.node.attrs.videoId}?modestbranding=1`}
