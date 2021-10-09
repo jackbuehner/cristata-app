@@ -4,7 +4,6 @@ import { AxiosError } from 'axios';
 import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { themeType } from '../../utils/theme/theme';
-import { Button } from '../Button';
 
 interface ISplashScreen {
   loading: boolean; // loading status of api request for user
