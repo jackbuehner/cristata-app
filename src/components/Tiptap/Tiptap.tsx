@@ -36,6 +36,7 @@ import { Noticebar } from './components/Noticebar';
 import { Titlebar } from './components/Titlebar';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
 import { SweepwidgetWidget } from './extension-widget-sweepwidget';
+import { YoutubeWidget } from './extension-widget-youtube';
 
 interface ITiptap {
   docName: string;
@@ -162,6 +163,7 @@ const Tiptap = (props: ITiptap) => {
         },
       }),
       SweepwidgetWidget,
+      YoutubeWidget,
     ],
     onUpdate() {
       const editor = this as unknown as Editor;

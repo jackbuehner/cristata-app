@@ -350,6 +350,56 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
       </PlainModal>
     );
   }, [editor]);
+  // insert youtube widget
+  const [showYoutubeModal, hideYoutubeModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [idValue, setIdValue] = useState<HTMLTextAreaElement['value']>('');
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [videoUrl, setVideoUrl] = useState<HTMLTextAreaElement['value']>(``);
+
+    /**
+     * When the user types in the field, update `idValue` and `videoUrl` in state
+     */
+    const handleVideoUrlFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      try {
+        setVideoUrl(e.target.value);
+        const { search } = new URL(e.target.value);
+        const UrlSearch = new URLSearchParams(search);
+        const videoId = UrlSearch.get('v');
+        if (videoId) setIdValue(videoId);
+        else setIdValue('');
+      } catch (error) {
+        setIdValue('');
+      }
+    };
+
+    return (
+      <PlainModal
+        hideModal={hideYoutubeModal}
+        title={`Insert YouTube video`}
+        continueButton={{
+          text: 'Insert',
+          onClick: () => {
+            if (editor) {
+              editor.chain().focus().insertYoutubeWidget(idValue).run();
+              return true;
+            }
+            return false;
+          },
+          disabled: idValue.length < 1,
+        }}
+      >
+        <Label description={`Use the full video url instead of the shortened one.`}>Video URL</Label>
+        <TextInput
+          name={'video-url'}
+          id={'video-url'}
+          value={videoUrl}
+          onChange={handleVideoUrlFieldChange}
+          placeholder={`Type youtube video url...`}
+        ></TextInput>
+      </PlainModal>
+    );
+  }, [editor]);
 
   // widgets dropdown
   const [showWidgetsDropdown] = useDropdown(
@@ -366,6 +416,11 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
             {
               onClick: showSweepwidgetModal,
               label: 'SweepWidget Giveaway',
+              color: 'neutral',
+            },
+            {
+              onClick: showYoutubeModal,
+              label: 'Youtube Video',
               color: 'neutral',
             },
           ]}

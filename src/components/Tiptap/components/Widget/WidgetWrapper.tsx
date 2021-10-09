@@ -6,6 +6,8 @@ const WidgetWrapper = styled.div`
   margin: 20px 0;
   position: relative;
   min-height: 20px;
+  display: flex;
+  flex-direction: column;
 `;
 
 export { WidgetWrapper };

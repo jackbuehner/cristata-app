@@ -6,6 +6,7 @@ import { IconButton } from '../../../Button';
 interface IWidgetActions extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   isVisible?: boolean;
   actions: {
+    active?: boolean;
     color?: colorType;
     disabled?: boolean;
     icon: React.ReactElement;
@@ -19,10 +20,10 @@ function WidgetActions({ isVisible, actions, ...props }: IWidgetActions) {
 
   return (
     <WidgetActionsComponent {...props} theme={theme} isVisible={isVisible !== undefined ? isVisible : true}>
-      {actions.map(({ color, disabled, icon, onClick }, index) => {
+      {actions.map(({ color, disabled, icon, active, onClick }, index) => {
         return (
           <IconButton
-            backgroundColor={{ base: 'transparent' }}
+            backgroundColor={{ base: active ? 'rgba(128, 128, 128, 0.2)' : 'transparent' }}
             border={{ base: '1px solid transparent' }}
             color={color ? color : 'neutral'}
             disabled={disabled}
