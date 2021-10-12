@@ -1,6 +1,7 @@
+import { IShortURL } from '../../../interfaces/cristata/shorturl';
 import { collection } from '../../collections';
 
-const shorturl: collection = {
+const shorturl: collection<IShortURL> = {
   home: '/cms/shorturls',
   fields: [
     {

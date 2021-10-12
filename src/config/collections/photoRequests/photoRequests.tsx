@@ -1,4 +1,5 @@
 import { Chip } from '../../../components/Chip';
+import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
 import { colorType } from '../../../utils/theme/theme';
@@ -6,7 +7,7 @@ import { collection } from '../../collections';
 import { selectProfile } from '../articles/selectProfile';
 import { selectTeam } from '../articles/selectTeam';
 
-const photoRequests: collection = {
+const photoRequests: collection<IPhotoRequest> = {
   home: '/cms/photos/requests',
   fields: [
     { key: 'name', label: 'Request', type: 'text', description: 'A description of the needed photo.' },

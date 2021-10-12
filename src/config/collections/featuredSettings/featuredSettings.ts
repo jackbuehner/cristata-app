@@ -1,7 +1,8 @@
 import { collection } from '../../collections';
+import { IArticle } from '../articles/articles';
 import { selectArticle } from './selectArticle';
 
-const featuredSettings: collection = {
+const featuredSettings: collection<IFeaturedSettings> = {
   home: '/cms/item/featured-settings/6101da4a5386ae9ea3147f17',
   fields: [
     {
@@ -36,5 +37,14 @@ const featuredSettings: collection = {
   columns: [],
   collectionName: 'settings',
 };
+
+interface IFeaturedSettings {
+  setting: {
+    first: IArticle;
+    second: IArticle;
+    third: IArticle;
+    fourth: IArticle;
+  };
+}
 
 export { featuredSettings };

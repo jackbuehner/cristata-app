@@ -1,12 +1,13 @@
 import { DateTime } from 'luxon';
 import { Chip } from '../../../components/Chip';
+import { GitHubUserID } from '../../../interfaces/cristata/profiles';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 import { selectPhotoPath } from '../articles/selectPhotoPath';
 import { selectProfile } from '../articles/selectProfile';
 import { selectTeam } from '../articles/selectTeam';
 
-const satire: collection = {
+const satire: collection<ISatire> = {
   home: '/cms/satire/in-progress',
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the satire.' },
@@ -278,4 +279,51 @@ const satire: collection = {
   publishStage: 5.2,
 };
 
+// permissions groups
+type Teams = string;
+
+// use these as the stages for satires
+enum Stage {
+  PLANNING = 1.1,
+  DRAFT = 2.1,
+  PENDING_EDITOR_REVIEW = 3.1,
+  PENDING_INTERVIEWEE_APPROVAL = 3.2,
+  PENDING_EDIT = 3.4,
+  PENDING_UPLOAD = 4.1,
+  UPLOADED = 5.1,
+  PUBLISHED = 5.2,
+}
+
+// interface for each satire
+interface ISatire {
+  name?: string;
+  permissions: {
+    teams?: Teams[];
+    users: GitHubUserID[];
+  };
+  locked?: boolean;
+  timestamps?: {
+    created_at?: Date;
+    modified_at?: Date;
+    published_at?: Date;
+    target_publish_at?: Date;
+  };
+  people: {
+    authors?: GitHubUserID[] | string[] | { name: string; photo: string }[];
+    created_by?: GitHubUserID | { name: string; photo: string };
+    modified_by?: GitHubUserID[];
+    last_modified_by: GitHubUserID | { name: string; photo: string };
+    published_by?: GitHubUserID[];
+    editors?: {
+      primary?: GitHubUserID;
+      copy?: GitHubUserID[];
+    };
+  };
+  stage?: Stage;
+  categories?: string[];
+  tags?: string[];
+  description?: string;
+}
+
 export { satire };
+export type { ISatire };

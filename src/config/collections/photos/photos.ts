@@ -1,4 +1,7 @@
-const photos = {
+import { IPhoto } from '../../../interfaces/cristata/photos';
+import { collection } from '../../collections';
+
+const photos: collection<IPhoto> = {
   home: '/cms/photos/library',
   fields: [
     { key: 'name', label: 'Name', type: 'text', description: 'The name of the photo in the CMS.' },

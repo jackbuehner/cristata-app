@@ -18,10 +18,10 @@ const collections: collectionsType = {
 };
 
 interface collectionsType {
-  [key: string]: collection | undefined;
+  [key: string]: collection<any> | undefined;
 }
 
-interface collection {
+interface collection<I> {
   fields: IField[];
   columns: Array<{
     key: string;

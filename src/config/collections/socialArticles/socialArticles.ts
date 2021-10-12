@@ -1,7 +1,8 @@
 import { collection } from '../../collections';
+import { IArticle } from '../articles/articles';
 import { selectArticle } from './selectArticle';
 
-const socialArticles: collection = {
+const socialArticles: collection<ISocialArticles> = {
   home: '/cms/item/social-articles/615ff1210e3e31a22a3c5746',
   fields: [
     {
@@ -57,5 +58,17 @@ const socialArticles: collection = {
   columns: [],
   collectionName: 'settings',
 };
+
+interface ISocialArticles {
+  setting: {
+    monday: IArticle;
+    tuesday: IArticle;
+    wednesday: IArticle;
+    thursday: IArticle;
+    friday: IArticle;
+    saturday: IArticle;
+    sunday: IArticle;
+  };
+}
 
 export { socialArticles };

@@ -1,12 +1,13 @@
 import { DateTime } from 'luxon';
 import { Chip } from '../../../components/Chip';
+import { GitHubUserID } from '../../../interfaces/cristata/profiles';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 import { selectPhotoPath } from './selectPhotoPath';
 import { selectProfile } from './selectProfile';
 import { selectTeam } from './selectTeam';
 
-const articles: collection = {
+const articles: collection<IArticle> = {
   home: '/cms/articles/in-progress',
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
@@ -379,6 +380,51 @@ const articles: collection = {
   canWatch: true,
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
+
+// permissions groups
+type Teams = string;
+
+// interface for each article
+interface IArticle {
+  name?: string;
+  permissions: {
+    teams?: Teams[];
+    users: GitHubUserID[];
+  };
+  locked?: boolean;
+  timestamps?: {
+    created_at?: Date;
+    modified_at?: Date;
+    published_at?: Date;
+    target_publish_at?: Date;
+  };
+  people: {
+    authors?: GitHubUserID[] | string[] | { name: string; photo: string }[];
+    created_by?: GitHubUserID | { name: string; photo: string };
+    modified_by?: GitHubUserID[];
+    last_modified_by: GitHubUserID | { name: string; photo: string };
+    published_by?: GitHubUserID[];
+    editors?: {
+      primary?: GitHubUserID;
+      copy?: GitHubUserID[] | string[] | { name: string; photo: string }[];
+    };
 };
+  stage?: Stage;
+  categories?: string[];
+  tags?: string[];
+  description?: string;
+}
+// use these as the stages for articles
+enum Stage {
+  PLANNING = 1.1,
+  DRAFT = 2.1,
+  PENDING_EDITOR_REVIEW = 3.1,
+  PENDING_INTERVIEWEE_APPROVAL = 3.2,
+  PENDING_EDIT = 3.4,
+  PENDING_UPLOAD = 4.1,
+  UPLOADED = 5.1,
+  PUBLISHED = 5.2,
+}
 
 export { articles };
+export type { IArticle };
