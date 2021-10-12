@@ -6,6 +6,10 @@ import { satire } from './collections/satire';
 import { shorturl } from './collections/shorturl';
 import { featuredSettings } from './collections/featuredSettings';
 import { socialArticles } from './collections/socialArticles';
+import { IProfile } from '../interfaces/cristata/profiles';
+import { History } from 'history';
+import { toast as toastify } from 'react-toastify';
+import { Dispatch, SetStateAction } from 'react';
 
 const collections: collectionsType = {
   articles,
@@ -32,12 +36,23 @@ interface collection<I> {
     isSortable?: false;
     sortType?: string | ((rowA: Row, rowB: Row, columnId: string, desc: boolean) => -1 | 0 | 1);
   }>;
+  row?: {
+    href: string;
+    hrefSuffixKey: string;
+    hrefSearch?: string;
+    windowName?: string;
+  };
   isPublishable?: boolean;
   canWatch?: boolean;
   publishStage?: number;
   home: string;
   collectionName?: string;
+  pageTitle?: (progress: string, search: string) => string;
+  pageDescription?: (progress: string, search: string) => string;
   defaultSortKey?: string;
+  onTableData?: (data: I[], users: IProfile[]) => I[];
+  tableFilters?: (progress: string, search: string) => { id: string; value: string }[];
+  createNew?: (loadingState: [boolean, Dispatch<SetStateAction<boolean>>], toast: typeof toastify, history: History) => void;
 }
 
 interface tiptapOptions {

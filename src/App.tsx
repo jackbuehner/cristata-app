@@ -1,4 +1,3 @@
-import { ArticlesPage } from './pages/ArticlesPage/index';
 import { PlansPage } from './pages/plans/PlansPage/PlansPage';
 import { theme } from './utils/theme';
 import './App.css';
@@ -22,18 +21,16 @@ import { ProfilePage } from './pages/profile/ProfilePage';
 import { SideNavHeading } from './components/Heading';
 import { SidenavHeader } from './components/SidenavHeader';
 import { Fragment, useState } from 'react';
-import { PhotoRequestsPage } from './pages/CMS/PhotoRequestsPage';
 import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
 import { themeType } from './utils/theme/theme';
 import { SidenavSub } from './components/SidenavSub';
 import { Sidenav } from './components/Sidenav/Sidenav';
 import Color from 'color';
 import { HomePage } from './pages/Home';
-import { SatirePage } from './pages/CMS/SatirePage';
 import { navigation } from './config';
 import { Titlebar } from './components/Titlebar';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
-import { ShortUrlPage } from './pages/CMS/ShortUrlPage';
+import { CollectionPage } from './pages/CMS/CollectionPage';
 
 // configure axios global settings
 const axiosSettings = axios.create({
@@ -208,20 +205,14 @@ function App() {
                   </SideNavWrapper>
                   <Content theme={theme}>
                     <Switch>
-                      <Route path={`/cms/articles/:progress`}>
-                        <ArticlesPage />
-                      </Route>
-                      <Route path={`/cms/satire/:progress`}>
-                        <SatirePage />
-                      </Route>
-                      <Route path={`/cms/shorturls`}>
-                        <ShortUrlPage />
-                      </Route>
-                      <Route path={`/cms/photos/requests/:progress`}>
-                        <PhotoRequestsPage />
-                      </Route>
                       <Route path={`/cms/photos/library/:photo_id?`}>
                         <PhotoLibraryPage />
+                      </Route>
+                      <Route path={`/cms/collection/:collection/:progress`}>
+                        <CollectionPage />
+                      </Route>
+                      <Route path={`/cms/collection/:collection`}>
+                        <CollectionPage />
                       </Route>
                       <Route path={`/cms/item/:collection/:item_id`}>
                         <ItemDetailsPage />

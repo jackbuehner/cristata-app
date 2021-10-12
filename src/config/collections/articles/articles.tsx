@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon';
+import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
 import { GitHubUserID } from '../../../interfaces/cristata/profiles';
+import { db } from '../../../utils/axios/db';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 import { selectPhotoPath } from './selectPhotoPath';
@@ -8,7 +10,7 @@ import { selectProfile } from './selectProfile';
 import { selectTeam } from './selectTeam';
 
 const articles: collection<IArticle> = {
-  home: '/cms/articles/in-progress',
+  home: '/cms/collection/articles/in-progress',
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
     {
@@ -376,10 +378,177 @@ const articles: collection<IArticle> = {
     },
     { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
   ],
+  row: {
+    href: '/cms/item/articles',
+    hrefSuffixKey: '_id',
+    hrefSearch: '?fs=force&props=1',
+    windowName: window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
+  },
   isPublishable: true,
   canWatch: true,
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
+  onTableData: (articles, users) => {
+    /**
+     * Find user in user data.
+     */
+    const findUserAndReturnObj = (userID: number) => {
+      const user = users?.find((user) => user.github_id === userID);
+      return user;
+    };
+
+    // change userIDs to user display names
+    articles.forEach((article) => {
+      // format created by ids to names and photos
+      if (typeof article.people.created_by === 'number') {
+        const user = findUserAndReturnObj(article.people.created_by);
+        if (user) {
+          const { name, photo } = user;
+          article.people.created_by = { name, photo };
+        }
+      }
+      // format last modified by ids to names and photos
+      if (typeof article.people.last_modified_by === 'number') {
+        const user = findUserAndReturnObj(article.people.last_modified_by);
+        if (user) {
+          const { name, photo } = user;
+          article.people.last_modified_by = { name, photo };
+        }
+      }
+      // use author ids to get author name and image
+      if (article.people.authors) {
+        // store the auth or names once the are found
+        let authors: { name: string; photo: string }[] = [];
+
+        type authorType =
+          | string
+          | number
+          | {
+              name: string;
+              photo: string;
+            };
+
+        // for each author, find the name based on the id
+        article.people.authors.forEach((author: authorType) => {
+          if (typeof author === 'number') {
+            const authorID = author;
+            // if it is an id, find the name and push it to the array
+            const userObj = findUserAndReturnObj(authorID);
+            if (userObj)
+              authors.push({
+                name: userObj.name,
+                photo: userObj.photo,
+              });
+          } else if (typeof author === 'object') {
+            authors.push(author);
+          }
+        });
+
+        // update the authors in the data copy
+        article.people.authors = authors;
+      }
+
+      // use copy editor ids to get copy editor name and image
+      if (article.people.editors?.copy) {
+        // store the auth or names once the are found
+        let copyEditors: { name: string; photo: string }[] = [];
+
+        type copyEditorType =
+          | string
+          | number
+          | {
+              name: string;
+              photo: string;
+            };
+
+        // for each copy editor, find the name based on the id
+        article.people.editors?.copy.forEach((copyEditor: copyEditorType) => {
+          if (typeof copyEditor === 'number') {
+            const authorID = copyEditor;
+            // if it is an id, find the name and push it to the array
+            const userObj = findUserAndReturnObj(authorID);
+            if (userObj)
+              copyEditors.push({
+                name: userObj.name,
+                photo: userObj.photo,
+              });
+          } else if (typeof copyEditor === 'object') {
+            copyEditors.push(copyEditor);
+          }
+        });
+
+        // update the profiles in the data copy
+        article.people.editors = {
+          ...article.people.editors,
+          copy: copyEditors,
+        };
+      }
+    });
+
+    return articles;
+  },
+  pageTitle: (progress, search) => {
+    // get the category of the page
+    const category = new URLSearchParams(search).get('category');
+
+    // build a title string based on the progress and category
+    if (progress === 'in-progress' && category) {
+      return `In-progress ${category}${category === 'opinion' ? `s` : ` articles`}`;
+    } else if (progress === 'in-progress') {
+      return 'In-progress articles';
+    } else {
+      return 'All articles';
+    }
+  },
+  pageDescription: (progress, search) => {
+    // get the category of the page
+    const category = new URLSearchParams(search).get('category');
+
+    // build a description string based on the progress and category
+    if (progress === 'in-progress' && category) {
+      return `The ${category}${
+        category === 'opinion' ? `s` : ` articles`
+      } we are planning, drafting, and editing.`;
+    } else if (progress === 'in-progress') {
+      return `The articles we are planning, drafting, and editing.`;
+    } else {
+      return `Every article that is in-progress or published on the web.`;
+    }
+  },
+  tableFilters: (progress, search) => {
+    // get the category of the page
+    const category = new URLSearchParams(search).get('category');
+
+    // build the filters array based on the progress and category
+    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
+    if (progress === 'in-progress') {
+      filters.push({ id: 'stage', value: 'Published' });
+      filters.push({ id: 'stage', value: 'Uploaded/Scheduled' });
+    }
+    if (category) {
+      filters.push({ id: 'categories', value: category });
+    }
+    return filters;
+  },
+  createNew: ([loading, setIsLoading], toast, history) => {
+    setIsLoading(true);
+    db.post(`/articles`, {
+      name: uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+        separator: '-',
+      }),
+    })
+      .then(({ data }) => {
+        setIsLoading(false);
+        history.push(`/cms/item/articles/${data._id}`);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.error(err);
+        toast.error(`Failed to save changes. \n ${err.message}`);
+      });
+  },
+};
 
 // permissions groups
 type Teams = string;
@@ -408,7 +577,7 @@ interface IArticle {
       primary?: GitHubUserID;
       copy?: GitHubUserID[] | string[] | { name: string; photo: string }[];
     };
-};
+  };
   stage?: Stage;
   categories?: string[];
   tags?: string[];

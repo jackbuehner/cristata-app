@@ -1,3 +1,4 @@
+import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
 import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { IProfile } from '../../../interfaces/cristata/profiles';
@@ -8,7 +9,7 @@ import { selectProfile } from '../articles/selectProfile';
 import { selectTeam } from '../articles/selectTeam';
 
 const photoRequests: collection<IPhotoRequest> = {
-  home: '/cms/photos/requests',
+  home: '/cms/collection/photo-requests',
   fields: [
     { key: 'name', label: 'Request', type: 'text', description: 'A description of the needed photo.' },
     {
@@ -133,7 +134,77 @@ const photoRequests: collection<IPhotoRequest> = {
     },
     { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
   ],
+  row: { href: '/cms/item/photo-requests', hrefSuffixKey: '_id' },
   isPublishable: false,
+  onTableData: (photoRequests, users) => {
+    /**
+     * Find user in user data.
+     */
+    const findUserAndReturnObj = (userID: number) => {
+      const user = users?.find((user) => user.github_id === userID);
+      return user;
+    };
+
+    // change userIDs to user display names
+    photoRequests.forEach((photoRequest) => {
+      // format created by ids to names and photos
+      if (typeof photoRequest.people.created_by === 'number') {
+        const user = findUserAndReturnObj(photoRequest.people.created_by);
+        if (user) {
+          const { name, photo } = user;
+          photoRequest.people.created_by = { name, photo };
+        }
+      }
+      // format last modified by ids to names and photos
+      if (typeof photoRequest.people.last_modified_by === 'number') {
+        const user = findUserAndReturnObj(photoRequest.people.last_modified_by);
+        if (user) {
+          const { name, photo } = user;
+          photoRequest.people.last_modified_by = { name, photo };
+        }
+      }
+      // format requested by by ids to names and photos
+      if (typeof photoRequest.people.requested_by === 'number') {
+        const user = findUserAndReturnObj(photoRequest.people.requested_by);
+        if (user) {
+          const { name, photo } = user;
+          photoRequest.people.requested_by = { name, photo };
+        }
+      }
+    });
+
+    return photoRequests;
+  },
+  pageTitle: () => `Photo requests`,
+  pageDescription: () => `If a photo you need is not in the photo library, make a request here.`,
+  tableFilters: (progress) => {
+    // build the filters array based on the progress
+    let filters: { id: string; value: string }[] = [
+      { id: 'hidden', value: 'true' },
+    ];
+    if (progress === 'unfulfilled') {
+      filters.push({ id: 'stage', value: 'Fulfilled' });
+    }
+    return filters;
+  },
+  createNew: ([loading, setIsLoading], toast, history) => {
+    setIsLoading(true);
+    db.post(`/photo-requests`, {
+      name: uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+        separator: '-',
+      }),
+    })
+      .then(({ data }) => {
+        setIsLoading(false);
+        history.push(`/cms/item/photo-requests/${data._id}`);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.error(err);
+        toast.error(`Failed to save changes. \n ${err.message}`);
+      });
+  },
 };
 
 export { photoRequests };

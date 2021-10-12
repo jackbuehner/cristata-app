@@ -124,38 +124,38 @@ const navigation: Inavigation = {
         {
           label: `In-progress articles`,
           icon: <DocumentPageBottomRight24Regular />,
-          to: `/cms/articles/in-progress`,
+          to: `/cms/collection/articles/in-progress`,
         },
-        { label: `All articles`, icon: <DocumentOnePage24Regular />, to: `/cms/articles/all` },
+        { label: `All articles`, icon: <DocumentOnePage24Regular />, to: `/cms/collection/articles/all` },
         {
           label: `News articles (in-progress)`,
           icon: <News24Regular />,
-          to: `/cms/articles/in-progress?category=news`,
+          to: `/cms/collection/articles/in-progress?category=news`,
         },
         {
           label: `Opinions (in-progress)`,
           icon: <Chat24Regular />,
-          to: `/cms/articles/in-progress?category=opinion`,
+          to: `/cms/collection/articles/in-progress?category=opinion`,
         },
         {
           label: `Sports articles (in-progress)`,
           icon: <Sport24Regular />,
-          to: `/cms/articles/in-progress?category=sports`,
+          to: `/cms/collection/articles/in-progress?category=sports`,
         },
         {
           label: `Diversity matters articles (in-progress)`,
           icon: <Star24Regular />,
-          to: `/cms/articles/in-progress?category=diversity%20matters`,
+          to: `/cms/collection/articles/in-progress?category=diversity%20matters`,
         },
         {
           label: `Arts articles (in-progress)`,
           icon: <PaintBrush24Regular />,
-          to: `/cms/articles/in-progress?category=arts`,
+          to: `/cms/collection/articles/in-progress?category=arts`,
         },
         {
           label: `Campus & culture articles (in-progress)`,
           icon: <Balloon16Regular />,
-          to: `/cms/articles/in-progress?category=campus%20%26%20culture`,
+          to: `/cms/collection/articles/in-progress?category=campus%20%26%20culture`,
         },
       ],
     },
@@ -165,12 +165,12 @@ const navigation: Inavigation = {
         {
           label: `Unfulfilled photo requests`,
           icon: <ImageSearch24Regular />,
-          to: `/cms/photos/requests/unfulfilled`,
+          to: `/cms/collection/photo-requests/unfulfilled`,
         },
         {
           label: `All photo requests`,
           icon: <ImageSearch24Regular />,
-          to: `/cms/photos/requests/all`,
+          to: `/cms/collection/photo-requests/all`,
         },
         {
           label: `Photo library`,
@@ -185,12 +185,12 @@ const navigation: Inavigation = {
         {
           label: `In-progress satire`,
           icon: <DocumentPageBottomRight24Regular />,
-          to: `/cms/satire/in-progress`,
+          to: `/cms/collection/satire/in-progress`,
         },
         {
           label: `All satire`,
           icon: <Cookies24Regular />,
-          to: `/cms/satire/all`,
+          to: `/cms/collection/satire/all`,
         },
       ],
     },
@@ -200,7 +200,7 @@ const navigation: Inavigation = {
         {
           label: `flusher.page`,
           icon: <BookGlobe24Regular />,
-          to: `/cms/shorturls`,
+          to: `/cms/collection/shorturl`,
           isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
             'MDQ6VGVhbTQ2NDI0MTc='
           ),
