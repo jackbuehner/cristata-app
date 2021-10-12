@@ -236,6 +236,7 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
           toast.success(`You are no longer watching this item.`);
         }
         setIsWatching(mode);
+        refetch();
       })
       .catch((err) => {
         setIsLoading(false);
