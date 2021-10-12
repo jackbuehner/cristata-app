@@ -14,6 +14,7 @@ import { IGridCols } from '../../App';
 import { themeType } from '../../utils/theme/theme';
 import { SideNavMainButton } from '../Button';
 import { features as featuresConfig } from '../../config';
+import { navigation as navigationConfig } from '../../config';
 
 interface ISidenav {
   gridCols: IGridCols;
@@ -38,7 +39,14 @@ function Sidenav(props: ISidenav) {
       {featuresConfig['cms'] ? (
         <SideNavMainButton
           Icon={<ContentView32Regular />}
-          to={`/cms/articles/in-progress`}
+          to={
+            // use `to` from first CMS page that is not hidden
+            navigationConfig.cms
+            .filter((group) => {
+              const enabledGroupItems = group.items.filter((item) => item.isHidden !== true);
+              return enabledGroupItems.length !== 0;
+            })
+            [0].items.filter((item) => item.isHidden !== true)[0].to}
           setIsNavVisibleM={setIsNavVisibleM}
         >
           CMS
