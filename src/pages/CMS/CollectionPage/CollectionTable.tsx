@@ -126,7 +126,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
             filters={props.filters}
             row={collection.row}
             defaultSort={collection?.defaultSortKey}
-            collection={'props.collection'}
+            id={props.collection}
           />
         </ErrorBoundary>
       );

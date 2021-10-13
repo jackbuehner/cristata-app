@@ -35,7 +35,7 @@ interface ITable {
     windowName?: string;
   };
   defaultSort?: string;
-  collection: string;
+  id: string;
 }
 
 function Table({ filters, ...props }: ITable) {
@@ -52,20 +52,20 @@ function Table({ filters, ...props }: ITable) {
   const [preferredSort, setPreferredSort] = useState<{
     id: string | undefined;
     isSortedDesc: boolean | undefined;
-  }>(JSON.parse(localStorage?.getItem(`table.${props.collection}.preferredSort`) || defaultSort));
+  }>(JSON.parse(localStorage?.getItem(`table.${props.id}.preferredSort`) || defaultSort));
 
   // set changed to preferred sort method to localstorage
   useEffect(() => {
     if (localStorage && preferredSort !== null) {
       // if the sort order is undefined, remove the data from localStorage so that the default sort is used on next reload
       if (preferredSort.isSortedDesc === undefined) {
-        localStorage.removeItem(`table.${props.collection}.preferredSort`);
+        localStorage.removeItem(`table.${props.id}.preferredSort`);
         setPreferredSort(JSON.parse(defaultSort));
       }
       // otherwise, set the sort id and order
-      else localStorage.setItem(`table.${props.collection}.preferredSort`, JSON.stringify(preferredSort));
+      else localStorage.setItem(`table.${props.id}.preferredSort`, JSON.stringify(preferredSort));
     }
-  }, [preferredSort, props.collection, defaultSort]);
+  }, [preferredSort, props.id, defaultSort]);
 
   // define custom filters
   const customFilterTypes = useMemo(
