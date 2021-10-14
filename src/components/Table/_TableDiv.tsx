@@ -3,6 +3,7 @@ import { themeType } from '../../utils/theme/theme';
 
 interface ITableDiv {
   theme?: themeType;
+  noOverflow?: boolean;
 }
 
 const TableDiv = styled.div<ITableDiv>`
@@ -13,12 +14,10 @@ const TableDiv = styled.div<ITableDiv>`
   width: 100%;
   height: fit-content;
   max-height: 100%;
-  overflow: auto;
+  overflow: ${({ noOverflow }) => (noOverflow ? 'hidden' : 'auto')};
   border: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light'
-      ? theme.color.neutral.light[300]
-      : theme.color.neutral.dark[300]};
+    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
   border-radius: ${({ theme }) => theme.radius};
 `;
 

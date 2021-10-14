@@ -173,9 +173,12 @@ const articles: collection<IArticle> = {
           5.2: 'green',
         };
 
-        return (
-          <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} data-number={data.stage} />
-        );
+        if (data.stage) {
+          return (
+            <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} data-number={data.stage} />
+          );
+        }
+        return <></>;
       },
       filter: 'excludes',
       sortType: (rowA, rowB, columnId) => {
@@ -195,23 +198,28 @@ const articles: collection<IArticle> = {
     {
       key: 'people.authors',
       label: 'Authors',
-      render: (data) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
-          {data.people?.authors?.map((author: { name: string; photo?: string }, index: number) => {
-            const { name, photo } = author;
-            return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <img
-                  src={photo}
-                  alt={``}
-                  style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
-                />
-                <span style={{ fontSize: 14 }}>{name}</span>
-              </div>
-            );
-          })}
-        </div>
-      ),
+      render: (data) => {
+        if (data.people && data.people.authors) {
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
+              {data.people.authors.map((author: { name: string; photo?: string }, index: number) => {
+                const { name, photo } = author;
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <img
+                      src={photo}
+                      alt={``}
+                      style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                    />
+                    <span style={{ fontSize: 14 }}>{name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        }
+        return <></>;
+      },
       isSortable: false,
     },
     {
@@ -258,29 +266,32 @@ const articles: collection<IArticle> = {
       key: 'timestamps.target_publish_at',
       label: 'Target date',
       render: (data) => {
-        const date = DateTime.fromISO(data.timestamps?.target_publish_at).toFormat(`LLL. dd, yyyy`);
-        if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
+        if (data.timestamps && data.timestamps.target_publish_at) {
+          const date = DateTime.fromISO(data.timestamps.target_publish_at).toFormat(`LLL. dd, yyyy`);
+          if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
 
-        const isLate = DateTime.fromISO(data.timestamps?.target_publish_at) < DateTime.now() && data.stage < 5;
-        const isIn24hrs =
-          DateTime.fromISO(data.timestamps?.target_publish_at) < DateTime.fromMillis(Date.now() + 86400000) &&
-          data.stage < 5; // one day in advance
-        const isSoon =
-          DateTime.fromISO(data.timestamps?.target_publish_at) < DateTime.fromMillis(Date.now() + 259200000) &&
-          data.stage < 5; // three days in advance
+          const isLate = DateTime.fromISO(data.timestamps.target_publish_at) < DateTime.now() && data.stage < 5;
+          const isIn24hrs =
+            DateTime.fromISO(data.timestamps.target_publish_at) < DateTime.fromMillis(Date.now() + 86400000) &&
+            data.stage < 5; // one day in advance
+          const isSoon =
+            DateTime.fromISO(data.timestamps.target_publish_at) < DateTime.fromMillis(Date.now() + 259200000) &&
+            data.stage < 5; // three days in advance
 
-        return (
-          <div style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {date}
-            {isLate ? (
-              <Chip label={`Late`} color={`red`} />
-            ) : isIn24hrs ? (
-              <Chip label={`24 hours`} color={`orange`} />
-            ) : isSoon ? (
-              <Chip label={`Soon`} color={`neutral`} />
-            ) : null}
-          </div>
-        );
+          return (
+            <div style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+              {date}
+              {isLate ? (
+                <Chip label={`Late`} color={`red`} />
+              ) : isIn24hrs ? (
+                <Chip label={`24 hours`} color={`orange`} />
+              ) : isSoon ? (
+                <Chip label={`Soon`} color={`neutral`} />
+              ) : null}
+            </div>
+          );
+        }
+        return <></>;
       },
       width: 174,
       sortType: (rowA, rowB, columnId) => {
@@ -300,39 +311,47 @@ const articles: collection<IArticle> = {
     {
       key: 'people.editors.copy',
       label: 'Copy edited by',
-      render: (data) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
-          {data.people?.editors?.copy?.map((editor: { name: string; photo?: string }, index: number) => {
-            const { name, photo } = editor;
-            return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <img
-                  src={photo}
-                  alt={``}
-                  style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
-                />
-                <span style={{ fontSize: 14 }}>{name}</span>
-              </div>
-            );
-          })}
-        </div>
-      ),
+      render: (data) => {
+        if (data.people && data.people.editors && data.people.editors.copy) {
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
+              {data.people.editors.copy.map((editor: { name: string; photo?: string }, index: number) => {
+                const { name, photo } = editor;
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <img
+                      src={photo}
+                      alt={``}
+                      style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                    />
+                    <span style={{ fontSize: 14 }}>{name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        }
+        return <></>;
+      },
       isSortable: false,
     },
     {
       key: 'people.created_by',
       label: 'Created by',
       render: (data) => {
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <img
-              src={data.people?.created_by?.photo}
-              alt={``}
-              style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
-            />
-            <span style={{ fontSize: 14 }}>{data.people?.created_by?.name}</span>
-          </div>
-        );
+        if (data.people && data.people.created_by) {
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <img
+                src={data.people.created_by.photo}
+                alt={``}
+                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+              />
+              <span style={{ fontSize: 14 }}>{data.people.created_by.name}</span>
+            </div>
+          );
+        }
+        return <></>;
       },
       isSortable: false,
     },
@@ -340,16 +359,19 @@ const articles: collection<IArticle> = {
       key: 'people.last_modified_by',
       label: 'Last modified by',
       render: (data) => {
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <img
-              src={data.people?.last_modified_by?.photo}
-              alt={``}
-              style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
-            />
-            <span style={{ fontSize: 14 }}>{data.people?.last_modified_by?.name}</span>
-          </div>
-        );
+        if (data.people && data.people.last_modified_by) {
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <img
+                src={data.people?.last_modified_by?.photo}
+                alt={``}
+                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+              />
+              <span style={{ fontSize: 14 }}>{data.people?.last_modified_by?.name}</span>
+            </div>
+          );
+        }
+        return <></>;
       },
       isSortable: false,
     },
@@ -357,9 +379,12 @@ const articles: collection<IArticle> = {
       key: 'timestamps.modified_at',
       label: 'Last modified',
       render: (data) => {
-        const date = DateTime.fromISO(data.timestamps?.modified_at).toFormat(`LLL. dd, yyyy`);
-        if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
-        return <div style={{ fontSize: 14 }}>{date}</div>;
+        if (data.timestamps && data.timestamps.modified_at) {
+          const date = DateTime.fromISO(data.timestamps?.modified_at).toFormat(`LLL. dd, yyyy`);
+          if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
+          return <div style={{ fontSize: 14 }}>{date}</div>;
+        }
+        return <></>;
       },
       sortType: (rowA, rowB, columnId) => {
         /**

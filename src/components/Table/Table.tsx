@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { excludes as excludesFilter } from './custom-filters/excludes';
 import { includes as includesFilter } from './custom-filters/includes';
 import { useHistory } from 'react-router';
+import Skeleton from 'react-skeleton-loader';
 
 interface ITable {
   data: {
@@ -116,7 +117,7 @@ function Table({ filters, ...props }: ITable) {
   return (
     <>
       {/* apply the table props */}
-      <TableDiv role={`table`} theme={theme} {...getTableProps()}>
+      <TableDiv role={`table`} theme={theme} {...getTableProps()} noOverflow={!!props.data.loading}>
         {/* table header */}
         <TableGroup theme={theme} isHeader role={`rowgroup`}>
           {
@@ -225,22 +226,27 @@ function Table({ filters, ...props }: ITable) {
                   key={rowIndex}
                   theme={theme}
                   // if props for onClick action is defined (via `props.row`), push history
-                  onClick={() =>
-                    props.row
-                      ? props.row.windowName
-                        ? window.open(
-                            `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
-                              props.row.hrefSearch || ''
-                            }`,
-                            props.row.windowName,
-                            'location=no'
-                          )
-                        : history.push(
-                            `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
-                              props.row.hrefSearch || ''
-                            }`
-                          )
-                      : null
+                  onClick={
+                    props.data.loading
+                      ? undefined
+                      : props.row
+                      ? () =>
+                          props.row
+                            ? props.row.windowName
+                              ? window.open(
+                                  `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
+                                    props.row.hrefSearch || ''
+                                  }`,
+                                  props.row.windowName,
+                                  'location=no'
+                                )
+                              : history.push(
+                                  `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
+                                    props.row.hrefSearch || ''
+                                  }`
+                                )
+                            : null
+                      : undefined
                   }
                 >
                   {
@@ -249,10 +255,16 @@ function Table({ filters, ...props }: ITable) {
                       // apply cell props
                       return (
                         <TableCell role={`cell`} width={cell.column.width} {...cell.getCellProps()} key={index}>
-                          {
+                          {props.data.loading ? (
+                            <Skeleton
+                              color={theme.color.neutral[theme.mode][100]}
+                              width={`${parseInt(`${cell.column.width}` || `150`) - 30}px`}
+                              borderRadius={theme.radius}
+                            />
+                          ) : (
                             // render cell contents
                             cell.render('Cell')
-                          }
+                          )}
                         </TableCell>
                       );
                     })

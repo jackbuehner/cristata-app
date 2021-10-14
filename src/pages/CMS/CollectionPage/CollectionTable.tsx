@@ -98,7 +98,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       });
     }, [collection]);
 
-    if (!data && loading) return <p>Loading...</p>;
     if (!data && error)
       return (
         <>
@@ -116,24 +115,25 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       );
     }
 
-    // if data is defined, render the table
-    else if (data) {
-      return (
-        <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
-          <Table
-            data={{ data: data as { [key: string]: any }[], loading, error }}
-            columns={columns}
-            filters={props.filters}
-            row={collection.row}
-            defaultSort={collection?.defaultSortKey}
-            id={props.collection}
-          />
-        </ErrorBoundary>
-      );
-    }
-
-    // otherwise, render an unhelpful, generic
-    return <p>Something went wrong</p>;
+    // render the table
+    return (
+      <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
+        <Table
+          data={{
+            // when data is undefined, generate placeholder rows
+            data:
+              (data as { [key: string]: any }[]) || Array(Math.floor((window.innerHeight - 100) / 38)).fill({}),
+            loading,
+            error,
+          }}
+          columns={columns}
+          filters={props.filters}
+          row={collection.row}
+          defaultSort={collection?.defaultSortKey}
+          id={props.collection}
+        />
+      </ErrorBoundary>
+    );
   }
 );
 

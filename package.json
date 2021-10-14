@@ -47,6 +47,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "react-select": "^4.3.1",
+    "react-skeleton-loader": "^1.0.4",
     "react-table": "^7.6.3",
     "react-toastify": "^7.0.3",
     "react-use-dimensions": "^1.2.1",
