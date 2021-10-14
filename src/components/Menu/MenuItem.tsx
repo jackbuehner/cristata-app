@@ -26,6 +26,7 @@ const MenuItemComponent = styled.li<IMenuItemComponent>`
   font-size: 14px;
   overflow: hidden;
   white-space: nowrap;
+  cursor: default;
   color: ${({ theme, disabled }) =>
     disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
   ${({ theme, color, colorShade, noEffect }) =>
@@ -64,7 +65,7 @@ const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIEle
   const theme = useTheme() as themeType;
   return (
     <MenuItemComponent
-      onClick={props.onClick}
+      onClick={props.disabled ? undefined : props.onClick}
       onKeyDown={props.onKeyDown}
       theme={theme}
       color={props.color}
