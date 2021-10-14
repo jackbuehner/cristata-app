@@ -10,6 +10,7 @@ import { Menu } from '../Menu';
 import { useDropdown } from '../../hooks/useDropdown';
 import { IGridCols } from '../../App';
 import { Dispatch, SetStateAction } from 'react';
+import { genAvatar } from '../../utils/genAvatar';
 
 function SidenavHeader({
   gridCols,
@@ -122,9 +123,7 @@ function SidenavHeader({
     <Wrapper
       theme={theme}
       gridCols={gridCols}
-      isHidden={
-        homeOnly ? location.pathname !== '/' : location.pathname === '/'
-      }
+      isHidden={homeOnly ? location.pathname !== '/' : location.pathname === '/'}
       isHome={homeOnly}
       isNavVisible={isNavVisible}
     >
@@ -136,7 +135,7 @@ function SidenavHeader({
         <IconButton
           icon={<span></span>}
           cssExtra={css`
-            background: url(${profile?.photo});
+            background: url(${profile?.photo ? profile.photo : profile ? genAvatar(profile._id) : ''});
             background-position: center;
             background-size: cover;
             width: 30px;
@@ -178,13 +177,10 @@ const Wrapper = styled.div<{
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
-  border-right: ${({ isHidden, isHome }) =>
-    isHome ? 0 : isHidden ? 0 : 1}px solid;
+  border-right: ${({ isHidden, isHome }) => (isHome ? 0 : isHidden ? 0 : 1)}px solid;
   border-bottom: ${({ isHidden }) => (isHidden ? 0 : 1)}px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light'
-      ? theme.color.neutral.light[300]
-      : theme.color.neutral.dark[300]};
+    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
   white-space: nowrap;
   overflow: hidden;
   flex-shrink: 0;

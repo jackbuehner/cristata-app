@@ -35,6 +35,8 @@ import LuxonUtils from '@date-io/luxon';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import Color from 'color';
 import { ErrorBoundary } from 'react-error-boundary';
+import { IProfile } from '../../../interfaces/cristata/profiles';
+import { genAvatar } from '../../../utils/genAvatar';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -72,6 +74,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
   const theme = useTheme() as themeType;
   const history = useHistory();
   const { search } = useLocation();
+
+  const [{ data: profile }] = useAxios<IProfile>(`/users/me`);
 
   // get the url parameters from the route
   let { collection, item_id } = useParams<{
@@ -577,6 +581,7 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                           user={{
                             name: user.displayName,
                             color: colorHash.hex(user._id || user.id),
+                            photo: profile?.photo ? profile.photo : genAvatar(user._id || user.id),
                           }}
                           options={field.tiptap}
                           flatData={flatData}

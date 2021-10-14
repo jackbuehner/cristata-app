@@ -65,7 +65,7 @@ interface IToolbar {
   isDisabled?: boolean;
   layout: 'standard' | 'full';
   setLayout: React.Dispatch<React.SetStateAction<'standard' | 'full'>>;
-  awarenessProfiles?: { name: string; color: string; sessionId: string }[];
+  awarenessProfiles?: { name: string; color: string; sessionId: string; photo: string }[];
   tiptapWidth: number;
   user: {
     name: string;
@@ -515,20 +515,14 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                       border-radius: 50%;
                       font-size: 14px;
                       background-color: ${Color(profile.color).alpha(0.4).string()};
+                      background-image: url('${profile.photo}');
                       user-select: none;
                       color: ${theme.color.neutral[theme.mode][1200]};
+                      background-position: center;
+                      background-size: cover;
                     `}
                     title={profile.name}
-                  >
-                    {profile.name
-                      ? profile.name
-                          .match(/(^\S\S?|\b\S)?/g)
-                          ?.join('')
-                          .match(/(^\S|\S$)?/g)
-                          ?.join('')
-                          .toUpperCase()
-                      : '??'}
-                  </div>
+                  ></div>
                 );
               })}
             </div>

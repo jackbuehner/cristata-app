@@ -44,6 +44,7 @@ interface ITiptap {
   user: {
     name: string;
     color: string;
+    photo: string;
   };
   options?: tiptapOptions;
   flatData?: { [key: string]: string | string[] | number | number[] | boolean };
@@ -93,6 +94,7 @@ const Tiptap = (props: ITiptap) => {
     name: string;
     color: string;
     sessionId: string;
+    photo: string;
   }
   const [awarenessProfiles, setAwarenessProfiles] = useState<IAwarenessProfile[]>();
   useEffect(() => {
@@ -156,6 +158,7 @@ const Tiptap = (props: ITiptap) => {
           name: props.user.name,
           color: props.user.color,
           sessionId: props.sessionId,
+          photo: props.user.photo,
         },
       }),
       Placeholder.configure({

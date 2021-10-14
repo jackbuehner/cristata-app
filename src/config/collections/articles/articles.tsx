@@ -3,6 +3,7 @@ import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-
 import { Chip } from '../../../components/Chip';
 import { GitHubUserID } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
+import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 import { selectPhotoPath } from './selectPhotoPath';
@@ -229,19 +230,21 @@ const articles: collection<IArticle> = {
         if (data.people && data.people.authors) {
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
-              {data.people.authors.map((author: { name: string; photo?: string }, index: number) => {
-                const { name, photo } = author;
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <img
-                      src={photo}
-                      alt={``}
-                      style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
-                    />
-                    <span style={{ fontSize: 14 }}>{name}</span>
-                  </div>
-                );
-              })}
+              {data.people.authors.map(
+                (author: { name: string; photo?: string; _id: string }, index: number) => {
+                  const { name, photo, _id } = author;
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <img
+                        src={photo ? photo : _id ? genAvatar(_id) : ''}
+                        alt={``}
+                        style={{ width: 20, height: 20, borderRadius: '50%' }}
+                      />
+                      <span style={{ fontSize: 14 }}>{name}</span>
+                    </div>
+                  );
+                }
+              )}
             </div>
           );
         }
@@ -342,19 +345,21 @@ const articles: collection<IArticle> = {
         if (data.people && data.people.editors && data.people.editors.copy) {
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
-              {data.people.editors.copy.map((editor: { name: string; photo?: string }, index: number) => {
-                const { name, photo } = editor;
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <img
-                      src={photo}
-                      alt={``}
-                      style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
-                    />
-                    <span style={{ fontSize: 14 }}>{name}</span>
-                  </div>
-                );
-              })}
+              {data.people.editors.copy.map(
+                (editor: { name: string; photo?: string; _id: string }, index: number) => {
+                  const { name, photo, _id } = editor;
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <img
+                        src={photo ? photo : _id ? genAvatar(_id) : ''}
+                        alt={``}
+                        style={{ width: 20, height: 20, borderRadius: '50%' }}
+                      />
+                      <span style={{ fontSize: 14 }}>{name}</span>
+                    </div>
+                  );
+                }
+              )}
             </div>
           );
         }
@@ -370,9 +375,15 @@ const articles: collection<IArticle> = {
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <img
-                src={data.people.created_by.photo}
+                src={
+                  data.people.created_by.photo
+                    ? data.people.created_by.photo
+                    : data.people.created_by._id
+                    ? genAvatar(data.people.created_by._id)
+                    : ''
+                }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                style={{ width: 20, height: 20, borderRadius: '50%' }}
               />
               <span style={{ fontSize: 14 }}>{data.people.created_by.name}</span>
             </div>
@@ -390,11 +401,17 @@ const articles: collection<IArticle> = {
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <img
-                src={data.people?.last_modified_by?.photo}
+                src={
+                  data.people.last_modified_by.photo
+                    ? data.people.last_modified_by.photo
+                    : data.people.last_modified_by._id
+                    ? genAvatar(data.people.last_modified_by._id)
+                    : ''
+                }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                style={{ width: 20, height: 20, borderRadius: '50%' }}
               />
-              <span style={{ fontSize: 14 }}>{data.people?.last_modified_by?.name}</span>
+              <span style={{ fontSize: 14 }}>{data.people.last_modified_by.name}</span>
             </div>
           );
         }
@@ -440,7 +457,7 @@ const articles: collection<IArticle> = {
   canWatch: true,
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
-  onTableData: (articles, users) => {
+  onTableData: (data, users) => {
     /**
      * Find user in user data.
      */
@@ -449,28 +466,30 @@ const articles: collection<IArticle> = {
       return user;
     };
 
+    const articles = [...data];
+
     // change userIDs to user display names
     articles.forEach((article) => {
       // format created by ids to names and photos
       if (typeof article.people.created_by === 'number') {
         const user = findUserAndReturnObj(article.people.created_by);
         if (user) {
-          const { name, photo } = user;
-          article.people.created_by = { name, photo };
+          const { name, photo, _id } = user;
+          article.people.created_by = { name, photo, _id };
         }
       }
       // format last modified by ids to names and photos
       if (typeof article.people.last_modified_by === 'number') {
         const user = findUserAndReturnObj(article.people.last_modified_by);
         if (user) {
-          const { name, photo } = user;
-          article.people.last_modified_by = { name, photo };
+          const { name, photo, _id } = user;
+          article.people.last_modified_by = { name, photo, _id };
         }
       }
       // use author ids to get author name and image
       if (article.people.authors) {
         // store the auth or names once the are found
-        let authors: { name: string; photo: string }[] = [];
+        let authors: { name: string; photo: string; _id: string }[] = [];
 
         type authorType =
           | string
@@ -478,6 +497,7 @@ const articles: collection<IArticle> = {
           | {
               name: string;
               photo: string;
+              _id: string;
             };
 
         // for each author, find the name based on the id
@@ -490,6 +510,7 @@ const articles: collection<IArticle> = {
               authors.push({
                 name: userObj.name,
                 photo: userObj.photo,
+                _id: userObj._id,
               });
           } else if (typeof author === 'object') {
             authors.push(author);
@@ -503,7 +524,7 @@ const articles: collection<IArticle> = {
       // use copy editor ids to get copy editor name and image
       if (article.people.editors?.copy) {
         // store the auth or names once the are found
-        let copyEditors: { name: string; photo: string }[] = [];
+        let copyEditors: { name: string; photo: string; _id: string }[] = [];
 
         type copyEditorType =
           | string
@@ -511,6 +532,7 @@ const articles: collection<IArticle> = {
           | {
               name: string;
               photo: string;
+              _id: string;
             };
 
         // for each copy editor, find the name based on the id
@@ -523,6 +545,7 @@ const articles: collection<IArticle> = {
               copyEditors.push({
                 name: userObj.name,
                 photo: userObj.photo,
+                _id: userObj._id,
               });
           } else if (typeof copyEditor === 'object') {
             copyEditors.push(copyEditor);
@@ -620,14 +643,14 @@ interface IArticle {
     target_publish_at?: Date;
   };
   people: {
-    authors?: GitHubUserID[] | string[] | { name: string; photo: string }[];
-    created_by?: GitHubUserID | { name: string; photo: string };
+    authors?: GitHubUserID[] | string[] | { name: string; photo: string; _id: string }[];
+    created_by?: GitHubUserID | { name: string; photo: string; _id: string };
     modified_by?: GitHubUserID[];
-    last_modified_by: GitHubUserID | { name: string; photo: string };
+    last_modified_by: GitHubUserID | { name: string; photo: string; _id: string };
     published_by?: GitHubUserID[];
     editors?: {
       primary?: GitHubUserID;
-      copy?: GitHubUserID[] | string[] | { name: string; photo: string }[];
+      copy?: GitHubUserID[] | string[] | { name: string; photo: string; _id: string }[];
     };
   };
   stage?: Stage;

@@ -20,10 +20,10 @@ interface IPhotoRequest {
     modified_at?: string; // ISO string
   };
   people: {
-    created_by?: GitHubUserID | { name: string; photo: string };
+    created_by?: GitHubUserID | { name: string; photo: string; _id: string };
     modified_by?: GitHubUserID[];
-    last_modified_by: GitHubUserID | { name: string; photo: string };
-    requested_by?: GitHubUserID | { name: string; photo: string };
+    last_modified_by: GitHubUserID | { name: string; photo: string; _id: string };
+    requested_by?: GitHubUserID | { name: string; photo: string; _id: string };
   };
   stage?: Stage;
   description?: string;

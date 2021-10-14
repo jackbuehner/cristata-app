@@ -3,6 +3,7 @@ import { Chip } from '../../../components/Chip';
 import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
+import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 import { selectProfile } from '../articles/selectProfile';
@@ -120,9 +121,15 @@ const photoRequests: collection<IPhotoRequest> = {
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <img
-                src={data.people.requested_by.photo}
+                src={
+                  data.people.requested_by.photo
+                    ? data.people.requested_by.photo
+                    : data.people.requested_by._id
+                    ? genAvatar(data.people.requested_by._id)
+                    : null
+                }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%', border: '1px solid lightgray' }}
+                style={{ width: 20, height: 20, borderRadius: '50%' }}
               />
               <span style={{ fontSize: 14 }}>{data.people.requested_by.name}</span>
             </div>
@@ -136,7 +143,7 @@ const photoRequests: collection<IPhotoRequest> = {
   ],
   row: { href: '/cms/item/photo-requests', hrefSuffixKey: '_id' },
   isPublishable: false,
-  onTableData: (photoRequests, users) => {
+  onTableData: (data, users) => {
     /**
      * Find user in user data.
      */
@@ -145,30 +152,32 @@ const photoRequests: collection<IPhotoRequest> = {
       return user;
     };
 
+    const photoRequests = [...data];
+
     // change userIDs to user display names
     photoRequests.forEach((photoRequest) => {
       // format created by ids to names and photos
       if (typeof photoRequest.people.created_by === 'number') {
         const user = findUserAndReturnObj(photoRequest.people.created_by);
         if (user) {
-          const { name, photo } = user;
-          photoRequest.people.created_by = { name, photo };
+          const { name, photo, _id } = user;
+          photoRequest.people.created_by = { name, photo, _id };
         }
       }
       // format last modified by ids to names and photos
       if (typeof photoRequest.people.last_modified_by === 'number') {
         const user = findUserAndReturnObj(photoRequest.people.last_modified_by);
         if (user) {
-          const { name, photo } = user;
-          photoRequest.people.last_modified_by = { name, photo };
+          const { name, photo, _id } = user;
+          photoRequest.people.last_modified_by = { name, photo, _id };
         }
       }
       // format requested by by ids to names and photos
       if (typeof photoRequest.people.requested_by === 'number') {
         const user = findUserAndReturnObj(photoRequest.people.requested_by);
         if (user) {
-          const { name, photo } = user;
-          photoRequest.people.requested_by = { name, photo };
+          const { name, photo, _id } = user;
+          photoRequest.people.requested_by = { name, photo, _id };
         }
       }
     });
@@ -179,9 +188,7 @@ const photoRequests: collection<IPhotoRequest> = {
   pageDescription: () => `If a photo you need is not in the photo library, make a request here.`,
   tableFilters: (progress) => {
     // build the filters array based on the progress
-    let filters: { id: string; value: string }[] = [
-      { id: 'hidden', value: 'true' },
-    ];
+    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
     if (progress === 'unfulfilled') {
       filters.push({ id: 'stage', value: 'Fulfilled' });
     }

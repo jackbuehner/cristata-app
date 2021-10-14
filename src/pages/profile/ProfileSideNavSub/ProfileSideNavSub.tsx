@@ -11,6 +11,7 @@ import { Call24Regular, Chat24Regular, Mail24Regular, MoreHorizontal20Regular } 
 import { useDropdown } from '../../../hooks/useDropdown';
 import { Menu } from '../../../components/Menu';
 import { Dispatch, SetStateAction, useState } from 'react';
+import { genAvatar } from '../../../utils/genAvatar';
 
 interface IProfileSideNavSub {
   setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
@@ -136,7 +137,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                 }}
                 customIcon={
                   <img
-                    src={profile.photo || 'https://avatars.githubusercontent.com/u/69555023'}
+                    src={profile.photo || genAvatar(profile._id)}
                     alt={``}
                     css={css`
                       width: 36px;

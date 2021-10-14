@@ -20,6 +20,7 @@ import { AxiosError } from 'axios';
 import { db } from '../../../utils/axios/db';
 import { toast } from 'react-toastify';
 import { IGetTeams } from '../../../interfaces/github/teams';
+import { genAvatar } from '../../../utils/genAvatar';
 
 function ProfilePage() {
   const theme = useTheme() as themeType;
@@ -29,9 +30,7 @@ function ProfilePage() {
     profile_id: string;
   }>();
 
-  const [{ data, loading, error }, refetch] = useAxios<IProfile>(
-    `/users/${profile_id}`
-  );
+  const [{ data, loading, error }, refetch] = useAxios<IProfile>(`/users/${profile_id}`);
   const [{ data: teamsData }] = useAxios<IGetTeams>(`/gh/teams`);
 
   const [showEditModal, hideEditModal] = useModal(() => {
@@ -101,9 +100,7 @@ function ProfilePage() {
               name={`phone-field`}
               id={`phone-field`}
               value={`${fieldData.phone === undefined ? '' : fieldData.phone}`}
-              onChange={(e) =>
-                handleFieldChange(e.currentTarget.value, `phone`)
-              }
+              onChange={(e) => handleFieldChange(e.currentTarget.value, `phone`)}
               type={`number`}
             />
           </InputGroup>
@@ -112,15 +109,8 @@ function ProfilePage() {
             <TextInput
               name={`twitter-field`}
               id={`twitter-field`}
-              value={
-                fieldData.twitter === undefined ? '' : `@${fieldData.twitter}`
-              }
-              onChange={(e) =>
-                handleFieldChange(
-                  e.currentTarget.value.replace(`@`, ``),
-                  `twitter`
-                )
-              }
+              value={fieldData.twitter === undefined ? '' : `@${fieldData.twitter}`}
+              onChange={(e) => handleFieldChange(e.currentTarget.value.replace(`@`, ``), `twitter`)}
             />
           </InputGroup>
           <InputGroup type={`text`}>
@@ -131,17 +121,13 @@ function ProfilePage() {
               value={fieldData.biography}
               theme={theme}
               rows={8}
-              onChange={(e) =>
-                handleFieldChange(e.currentTarget.value, `biography`)
-              }
+              onChange={(e) => handleFieldChange(e.currentTarget.value, `biography`)}
             />
           </InputGroup>
+          <Note theme={theme}>To change other fields, contact a Web Editor.</Note>
           <Note theme={theme}>
-            To change other fields, contact a Web Editor.
-          </Note>
-          <Note theme={theme}>
-            Team memberships can be managed on{' '}
-            <a href={`https://github.com/orgs/paladin-news/teams`}>GitHub</a>.
+            Team memberships can be managed on <a href={`https://github.com/orgs/paladin-news/teams`}>GitHub</a>
+            .
           </Note>
         </PlainModal>
       );
@@ -157,10 +143,7 @@ function ProfilePage() {
         isLoading={loading}
         buttons={
           <>
-            <IconButton
-              onClick={() => refetch()}
-              icon={<ArrowClockwise24Regular />}
-            >
+            <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
               Refetch
             </IconButton>
             <Button onClick={showEditModal}>Edit</Button>
@@ -170,13 +153,7 @@ function ProfilePage() {
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
           <TopBox>
-            <Photo
-              src={
-                data.photo || 'https://avatars.githubusercontent.com/u/69555023'
-              }
-              alt={``}
-              theme={theme}
-            />
+            <Photo src={data.photo || genAvatar(data._id)} alt={``} theme={theme} />
             <div>
               <Name theme={theme}>{data.name}</Name>
               <Title theme={theme}>{data.current_title || 'Employee'}</Title>
@@ -185,9 +162,7 @@ function ProfilePage() {
                   <Button
                     onClick={() =>
                       window.open(
-                        `https://teams.microsoft.com/l/chat/0/0?users=${
-                          data.email.split('@')[0]
-                        }@furman.edu`
+                        `https://teams.microsoft.com/l/chat/0/0?users=${data.email.split('@')[0]}@furman.edu`
                       )
                     }
                   >
@@ -195,20 +170,10 @@ function ProfilePage() {
                   </Button>
                 ) : null}
                 {data.email ? (
-                  <Button
-                    onClick={() =>
-                      (window.location.href = `mailto:${data.email}`)
-                    }
-                  >
-                    Email
-                  </Button>
+                  <Button onClick={() => (window.location.href = `mailto:${data.email}`)}>Email</Button>
                 ) : null}
                 {data.phone ? (
-                  <Button
-                    onClick={() => (window.location.href = `tel:${data.phone}`)}
-                  >
-                    Phone
-                  </Button>
+                  <Button onClick={() => (window.location.href = `tel:${data.phone}`)}>Phone</Button>
                 ) : null}
               </ButtonRow>
             </div>
@@ -231,32 +196,23 @@ function ProfilePage() {
             <ItemLabel theme={theme}>Join date</ItemLabel>
             <Item theme={theme}>
               {data.timestamps.joined_at
-                ? DateTime.fromISO(data.timestamps.joined_at).toFormat(
-                    `dd LLLL yyyy`
-                  )
+                ? DateTime.fromISO(data.timestamps.joined_at).toFormat(`dd LLLL yyyy`)
                 : ``}
             </Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Teams &amp; Groups</SectionTitle>
           {data.teams.map((teamId, index) => {
-            const teamSlug = teamsData?.organization.teams.edges.find(
-              (team) => team.node.id === teamId
-            )?.node.slug;
-            return (
-              <Chip key={index} label={teamSlug || teamId} color={`neutral`} />
-            );
+            const teamSlug = teamsData?.organization.teams.edges.find((team) => team.node.id === teamId)?.node
+              .slug;
+            return <Chip key={index} label={teamSlug || teamId} color={`neutral`} />;
           })}
           <LastEdited theme={theme}>
-            Last edited on{' '}
-            {DateTime.fromISO(data.timestamps.modified_at).toFormat(
-              `dd LLLL yyyy 'at' h:mm a`
-            )}
+            Last edited on {DateTime.fromISO(data.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
           </LastEdited>
         </ContentWrapper>
       ) : (
         <div>
-          Something went wrong while trying retrieve this profile:{' '}
-          <pre>{JSON.stringify(error, null, 2)}</pre>
+          Something went wrong while trying retrieve this profile: <pre>{JSON.stringify(error, null, 2)}</pre>
         </div>
       )}
     </>
@@ -285,7 +241,7 @@ const TopBox = styled.div`
 const Photo = styled.img<{ theme: themeType }>`
   width: 92px;
   height: 92px;
-  border: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
+  border: 0px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
   border-radius: ${({ theme }) => theme.radius};
 `;
 
