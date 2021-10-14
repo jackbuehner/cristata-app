@@ -89,6 +89,33 @@ const satire: collection<ISatire> = {
       tiptap: {
         type: 'satire',
         isHTMLkey: 'legacy_html',
+        features: {
+          fontFamilies: [
+            { name: 'Adamant BG', label: 'Adamant BG (Headline)', disabled: true },
+            { name: 'Arial', disabled: true },
+            { name: 'Calibri', disabled: true },
+            { name: 'Consolas', disabled: true },
+            { name: 'Georgia', label: 'Georgia (Body)' },
+            { name: 'Times New Roman', disabled: true },
+          ],
+          fontSizes: [],
+          bold: true,
+          italic: true,
+          underline: true,
+          strike: true,
+          code: true,
+          bulletList: true,
+          orderedList: true,
+          textStylePicker: true,
+          horizontalRule: true,
+          widgets: {
+            sweepwidget: true,
+            youtube: true,
+          },
+          link: true,
+          comment: true,
+          trackChanges: true,
+        },
       },
     },
     {
@@ -284,7 +311,7 @@ const satire: collection<ISatire> = {
     /**
      * Find user in user data.
      */
-     const findUserAndReturnObj = (userID: number) => {
+    const findUserAndReturnObj = (userID: number) => {
       const user = users?.find((user) => user.github_id === userID);
       return user;
     };
@@ -348,9 +375,7 @@ const satire: collection<ISatire> = {
 
     // build a title string based on the progress and category
     if (progress === 'in-progress' && category) {
-      return `In-progress ${category}${
-        category === 'opinion' ? `s` : ` satire`
-      }`;
+      return `In-progress ${category}${category === 'opinion' ? `s` : ` satire`}`;
     } else if (progress === 'in-progress') {
       return 'In-progress satire';
     } else {
@@ -377,9 +402,7 @@ const satire: collection<ISatire> = {
     const category = new URLSearchParams(search).get('category');
 
     // build the filters array based on the progress and category
-    let filters: { id: string; value: string }[] = [
-      { id: 'hidden', value: 'true' },
-    ];
+    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
     if (progress === 'in-progress') {
       filters.push({ id: 'stage', value: 'Published' });
       filters.push({ id: 'stage', value: 'Uploaded/Scheduled' });
@@ -399,7 +422,7 @@ const satire: collection<ISatire> = {
     })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/satire/${data._id}`)
+        history.push(`/cms/item/satire/${data._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

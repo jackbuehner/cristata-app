@@ -137,6 +137,7 @@ const Tiptap = (props: ITiptap) => {
       Underline,
       TextStyle,
       FontFamily,
+      FontSize,
       Comment,
       Link.configure({
         HTMLAttributes: {
@@ -415,6 +416,7 @@ const Tiptap = (props: ITiptap) => {
         flatData={props.flatData}
         setFlatData={props.setFlatData}
         actions={props.actions}
+        options={props.options}
       />
 
       <div

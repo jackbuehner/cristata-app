@@ -52,7 +52,11 @@ interface collection<I> {
   defaultSortKey?: string;
   onTableData?: (data: I[], users: IProfile[]) => I[];
   tableFilters?: (progress: string, search: string) => { id: string; value: string }[];
-  createNew?: (loadingState: [boolean, Dispatch<SetStateAction<boolean>>], toast: typeof toastify, history: History) => void;
+  createNew?: (
+    loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
+    toast: typeof toastify,
+    history: History
+  ) => void;
 }
 
 interface tiptapOptions {
@@ -66,6 +70,30 @@ interface tiptapOptions {
     photo_url: string;
     authors: string;
     target_publish_at: string;
+  };
+  features: {
+    fontFamilies?: {
+      name: string;
+      label?: string;
+      disabled?: boolean;
+    }[];
+    fontSizes?: string[];
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strike?: boolean;
+    code?: boolean;
+    bulletList?: boolean;
+    orderedList?: boolean;
+    textStylePicker?: boolean;
+    horizontalRule?: boolean;
+    widgets?: {
+      sweepwidget?: boolean;
+      youtube?: boolean;
+    };
+    link?: boolean;
+    comment?: boolean;
+    trackChanges?: boolean;
   };
 }
 
