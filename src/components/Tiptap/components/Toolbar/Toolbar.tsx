@@ -569,16 +569,12 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().undo().run()}
                 icon={<BackIcon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().undo()}
                 isActive={false}
               />
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().redo().run()}
                 icon={<RedoIcon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().redo()}
                 isActive={false}
               />
@@ -618,40 +614,30 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().toggleBold().run()}
                 isActive={editor.isActive('bold')}
                 icon={<BoldIcon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleBold()}
               />
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().toggleItalic().run()}
                 isActive={editor.isActive('italic')}
                 icon={<ItalicsIcon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleItalic()}
               />
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().toggleUnderline().run()}
                 isActive={editor.isActive('underline')}
                 icon={<UnderlineIcon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleUnderline()}
               />
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().toggleStrike().run()}
                 isActive={editor.isActive('strike')}
                 icon={<StrikeIcon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleStrike()}
               />
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().toggleCode().run()}
                 isActive={editor.isActive('code')}
                 icon={<Code20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleCode()}
               ></ToolbarRowIconButton>
               <ToolbarDivider />
@@ -659,16 +645,12 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
                 isActive={editor.isActive('bulletList')}
                 icon={<TextBulletListLtr20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleBulletList()}
               ></ToolbarRowIconButton>
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
                 isActive={editor.isActive('orderedList')}
                 icon={<TextNumberListLtr20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().toggleOrderedList()}
               ></ToolbarRowIconButton>
               <ToolbarDivider />
@@ -738,8 +720,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().unsetComment().run()}
                 isActive={false}
                 icon={<CommentOff20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().unsetComment()}
               />
             </ToolbarRow>
@@ -761,8 +741,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => null}
                 isActive={false}
                 icon={<WordCountList20Icon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={true}
               />
               <ToolbarDivider />
@@ -794,16 +772,12 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().previousChange().run()}
                 isActive={false}
                 icon={<PreviousRevision20Icon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor}
               />
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().nextChange().run()}
                 isActive={false}
                 icon={<NextRevision20Icon />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor}
               />
               <ToolbarDivider />
@@ -828,8 +802,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => editor.chain().focus().unsetComment().run()}
                 isActive={false}
                 icon={<CommentOff20Regular />}
-                theme={theme}
-                color={'neutral'}
                 disabled={!editor.can().unsetComment()}
               />
             </ToolbarRow>
