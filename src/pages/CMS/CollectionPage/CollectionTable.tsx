@@ -30,7 +30,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
     // get data and store it in state
     const [{ data: initialData, loading, error }, refetch] = useAxios(props.collection);
-    const [data, setData] = useState(initialData);
+    const [data, setData] = useState<any[]>();
     useEffect(() => {
       if (initialData) {
         setData(initialData);
@@ -122,7 +122,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           data={{
             // when data is undefined, generate placeholder rows
             data:
-              (data as { [key: string]: any }[]) || Array(Math.floor((window.innerHeight - 100) / 38)).fill({}),
+              !data || loading
+                ? Array(Math.floor((window.innerHeight - 100) / 38)).fill({})
+                : (data as { [key: string]: any }[]),
             loading,
             error,
           }}
