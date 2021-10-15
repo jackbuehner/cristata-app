@@ -238,7 +238,7 @@ const articles: collection<IArticle> = {
                       <img
                         src={photo ? photo : _id ? genAvatar(_id) : ''}
                         alt={``}
-                        style={{ width: 20, height: 20, borderRadius: '50%' }}
+                        style={{ width: 20, height: 20, borderRadius: 2 }}
                       />
                       <span style={{ fontSize: 14 }}>{name}</span>
                     </div>
@@ -353,7 +353,7 @@ const articles: collection<IArticle> = {
                       <img
                         src={photo ? photo : _id ? genAvatar(_id) : ''}
                         alt={``}
-                        style={{ width: 20, height: 20, borderRadius: '50%' }}
+                        style={{ width: 20, height: 20, borderRadius: 2 }}
                       />
                       <span style={{ fontSize: 14 }}>{name}</span>
                     </div>
@@ -383,7 +383,7 @@ const articles: collection<IArticle> = {
                     : ''
                 }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%' }}
+                style={{ width: 20, height: 20, borderRadius: 2 }}
               />
               <span style={{ fontSize: 14 }}>{data.people.created_by.name}</span>
             </div>
@@ -409,7 +409,7 @@ const articles: collection<IArticle> = {
                     : ''
                 }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%' }}
+                style={{ width: 20, height: 20, borderRadius: 2 }}
               />
               <span style={{ fontSize: 14 }}>{data.people.last_modified_by.name}</span>
             </div>

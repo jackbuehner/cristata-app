@@ -129,7 +129,7 @@ const photoRequests: collection<IPhotoRequest> = {
                     : null
                 }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%' }}
+                style={{ width: 20, height: 20, borderRadius: 2 }}
               />
               <span style={{ fontSize: 14 }}>{data.people.requested_by.name}</span>
             </div>

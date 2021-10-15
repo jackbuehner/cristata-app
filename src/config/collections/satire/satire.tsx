@@ -184,7 +184,7 @@ const satire: collection<ISatire> = {
           {data.people?.display_authors?.map((author: string, index: number) => {
             return (
               <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <img src={genAvatar(author)} alt={``} style={{ width: 20, height: 20, borderRadius: '50%' }} />
+                <img src={genAvatar(author)} alt={``} style={{ width: 20, height: 20, borderRadius: 2 }} />
                 <span style={{ fontSize: 14 }}>{author}</span>
               </div>
             );
@@ -207,7 +207,7 @@ const satire: collection<ISatire> = {
                       <img
                         src={photo ? photo : _id ? genAvatar(_id) : ''}
                         alt={``}
-                        style={{ width: 20, height: 20, borderRadius: '50%' }}
+                        style={{ width: 20, height: 20, borderRadius: 2 }}
                       />
                       <span style={{ fontSize: 14 }}>{name}</span>
                     </div>
@@ -282,7 +282,7 @@ const satire: collection<ISatire> = {
                     : ''
                 }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%' }}
+                style={{ width: 20, height: 20, borderRadius: 2 }}
               />
               <span style={{ fontSize: 14 }}>{data.people.created_by.name}</span>
             </div>
@@ -308,7 +308,7 @@ const satire: collection<ISatire> = {
                     : ''
                 }
                 alt={``}
-                style={{ width: 20, height: 20, borderRadius: '50%' }}
+                style={{ width: 20, height: 20, borderRadius: 2 }}
               />
               <span style={{ fontSize: 14 }}>{data.people.last_modified_by.name}</span>
             </div>
