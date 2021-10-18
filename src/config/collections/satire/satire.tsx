@@ -120,13 +120,6 @@ const satire: collection<ISatire> = {
       },
     },
     {
-      key: 'locked',
-      label: 'Locked status',
-      type: 'boolean',
-      description: 'Control whether this article is able to be modified. NOT IMPLIMENTED.',
-      isDisabled: true,
-    },
-    {
       key: 'permissions.users',
       label: 'User access control',
       type: 'multiselect_async',

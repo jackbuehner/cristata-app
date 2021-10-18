@@ -142,13 +142,6 @@ const articles: collection<IArticle> = {
       },
     },
     {
-      key: 'locked',
-      label: 'Locked status',
-      type: 'boolean',
-      description: 'Control whether this article is able to be modified. NOT IMPLIMENTED.',
-      isDisabled: true,
-    },
-    {
       key: 'show_comments',
       label: 'Show comments',
       type: 'boolean',
