@@ -8,7 +8,7 @@ async function selectPhotoPath(inputValue: string) {
   // with the data, create the options array
   let options: Array<{ value: string; label: string }> = [];
   photos.forEach((photo) => {
-    if (photo.people.photo_created_by) {
+    if (photo.people?.photo_created_by) {
       options.push({
         value: photo.photo_url,
         label: photo.name || photo._id,
