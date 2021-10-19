@@ -339,6 +339,7 @@ function ItemDetailsPage({
                 collectionsConfig[dashToCamelCase(collection)]?.publishStage;
               if (publishStage) {
                 const saved = await saveChanges({
+                  ...flatData,
                   stage: publishStage,
                   'timestamps.published_at': timestamp,
                 });
