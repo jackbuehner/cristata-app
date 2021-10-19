@@ -6,7 +6,7 @@ import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { Button, IconButton } from '../../../components/Button';
 import { collections as collectionsConfig } from '../../../config';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
@@ -52,7 +52,7 @@ function CollectionPage() {
     progress: string;
   }>();
 
-  const collectionConfig = collectionsConfig[dashToCamelCase(collection)]
+  const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
 
   // set the collection for this page
   if (collectionConfig) {
@@ -73,6 +73,11 @@ function CollectionPage() {
     // otherwise, build a title using the collection string
     return collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ') + ' collection';
   }, [progress, location.search, store.collection, collection]);
+
+  // set document title
+  useEffect(() => {
+    document.title = `${store.pageTitle} - Cristata`;
+  }, [store.pageTitle]);
 
   // set the page description
   store.pageDescription = useMemo(() => {

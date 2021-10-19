@@ -19,18 +19,21 @@ import { home as homeConfig } from '../../config';
 import useAxios from 'axios-hooks';
 import { WorkflowStatusCard } from './WorkflowStatusCard';
 import { RecentActivity } from './RecentActivity';
+import { useEffect } from 'react';
 
 function HomePage() {
   const theme = useTheme() as themeType;
 
-  const [{ data: workflowStages }] = useAxios<{ _id: number; count: number }[]>(
-    `/articles/stage-counts`
-  );
+  const [{ data: workflowStages }] = useAxios<{ _id: number; count: number }[]>(`/articles/stage-counts`);
   const stages = workflowStages?.reduce(
-    (obj: { [key: number]: number }, item) =>
-      Object.assign(obj, { [item._id]: item.count }),
+    (obj: { [key: number]: number }, item) => Object.assign(obj, { [item._id]: item.count }),
     {}
   );
+
+  // set document title
+  useEffect(() => {
+    document.title = `Cristata`;
+  }, []);
 
   return (
     <Grid theme={theme}>
@@ -41,25 +44,17 @@ function HomePage() {
         css={css`
           grid-area: activity;
           border-right: 1px solid
-            ${
-              theme.mode === 'light'
-                ? theme.color.neutral.light[300]
-                : theme.color.neutral.dark[300]
-            };
+            ${theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
           @media (max-width: 600px) {
             border-right: none;
           }
         `}
       >
-        <HomeSectionHeading icon={<Pulse24Regular />}>
-          Recent CMS Activty
-        </HomeSectionHeading>
+        <HomeSectionHeading icon={<Pulse24Regular />}>Recent CMS Activty</HomeSectionHeading>
         <RecentActivity />
       </div>
       <div style={{ gridArea: 'workflow' }}>
-        <HomeSectionHeading icon={<DataUsage24Regular />}>
-          Workflow
-        </HomeSectionHeading>
+        <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
         {stages ? (
           <>
             <WorkflowStatusCard
@@ -90,9 +85,7 @@ function HomePage() {
             <WorkflowStatusCard
               icon={<MailInbox24Regular />}
               color={'red'}
-              count={
-                (stages[3.1] || 0) + (stages[3.3] || 0) + (stages[3.5] || 0)
-              }
+              count={(stages[3.1] || 0) + (stages[3.3] || 0) + (stages[3.5] || 0)}
               to={`/cms/articles/in-progress`}
             >
               In review
@@ -117,13 +110,10 @@ function HomePage() {
         ) : null}
       </div>
       <div style={{ gridArea: 'announcement' }}>
-        <HomeSectionHeading icon={<Megaphone24Regular />}>
-          Welcome to Cristata (Beta)
-        </HomeSectionHeading>
+        <HomeSectionHeading icon={<Megaphone24Regular />}>Welcome to Cristata (Beta)</HomeSectionHeading>
         <p>
-          The dashboard is still under construction, but the Content Manager
-          (CMS), Plans, and Profiles are already available. Access these tools
-          by using the sidebar on the left.
+          The dashboard is still under construction, but the Content Manager (CMS), Plans, and Profiles are
+          already available. Access these tools by using the sidebar on the left.
         </p>
       </div>
       {homeConfig.recentItems.map((item, index: number) => {
@@ -136,15 +126,8 @@ function HomePage() {
             }}
             key={index}
           >
-            <HomeSectionHeading icon={item.icon}>
-              {item.label}
-            </HomeSectionHeading>
-            <ItemsRow
-              data={item.data}
-              keys={item.keys}
-              toPrefix={item.toPrefix}
-              isProfile={item.isProfile}
-            />
+            <HomeSectionHeading icon={item.icon}>{item.label}</HomeSectionHeading>
+            <ItemsRow data={item.data} keys={item.keys} toPrefix={item.toPrefix} isProfile={item.isProfile} />
           </div>
         );
       })}
@@ -155,8 +138,7 @@ function HomePage() {
 const Grid = styled.div<{ theme: themeType }>`
   height: calc(100% - 40px);
   @media (max-width: 600px) {
-    height: ${({ theme }) =>
-      `calc(100% - 40px - ${theme.dimensions.bottomNav.height})`};
+    height: ${({ theme }) => `calc(100% - 40px - ${theme.dimensions.bottomNav.height})`};
   }
   box-sizing: border-box;
   overflow: hidden auto;
@@ -185,9 +167,7 @@ const Grid = styled.div<{ theme: themeType }>`
   > div {
     border-bottom: 1px solid;
     border-color: ${({ theme }) =>
-      theme.mode === 'light'
-        ? theme.color.neutral.light[300]
-        : theme.color.neutral.dark[300]};
+      theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
     padding: 20px;
     font-family: ${({ theme }) => theme.font.detail};
     font-size: 14px;

@@ -148,6 +148,13 @@ function ItemDetailsPage({
     }
   }, [changedFlatData, propsSetChangedFlatData]);
 
+  // set document title
+  useEffect(() => {
+    document.title = `${Object.keys(changedFlatData).length > 0 ? '*' : ''}${
+      flatData && flatData.name ? flatData.name : data && data.name ? data.name : item_id
+    } - Cristata`;
+  }, [changedFlatData, data, flatData, item_id]);
+
   //
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     setFlatData({

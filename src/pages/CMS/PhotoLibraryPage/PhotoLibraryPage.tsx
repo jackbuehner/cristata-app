@@ -40,6 +40,11 @@ function PhotoLibraryPage() {
   // get the url parameters from the route
   let { photo_id } = useParams<{ photo_id?: string }>();
 
+  // set document title
+  useEffect(() => {
+    document.title = `Photo library - Cristata`;
+  }, []);
+
   /**
    * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
    */

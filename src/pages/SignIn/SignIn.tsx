@@ -6,10 +6,7 @@ import { Button } from '../../components/Button';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { CircularProgress } from '@material-ui/core';
-import {
-  Checkmark28Regular,
-  ErrorCircle24Regular,
-} from '@fluentui/react-icons';
+import { Checkmark28Regular, ErrorCircle24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { db } from '../../utils/axios/db';
 import useAxios from 'axios-hooks';
@@ -24,6 +21,11 @@ function SignIn() {
     document.location.href = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/github`;
   };
 
+  // set document title
+  useEffect(() => {
+    document.title = `Cristata`;
+  }, []);
+
   const [{ data: user }, refetchUser] = useAxios({
     url: '/auth',
     baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`,
@@ -32,14 +34,7 @@ function SignIn() {
   });
 
   const [step, setStep] = useState<
-    | 'notice'
-    | '2fa_check'
-    | '2fa_enable'
-    | '2fa_yes'
-    | 'join_attempt'
-    | 'join_success'
-    | 'join_fail'
-    | 'done'
+    'notice' | '2fa_check' | '2fa_enable' | '2fa_yes' | 'join_attempt' | 'join_success' | 'join_fail' | 'done'
   >('notice');
 
   /**
@@ -86,16 +81,13 @@ function SignIn() {
             </div>
             <div style={{ marginTop: 34 }}>
               <p>
-                It looks like you aren't part of the <i>The Paladin</i> on
-                GitHub. Let's try to fix that.
+                It looks like you aren't part of the <i>The Paladin</i> on GitHub. Let's try to fix that.
               </p>
               <p>There are a few steps we need to take:</p>
               <ol>
                 <li>Ensure you have two-factor authentication enabled.</li>
                 <li>Send you an invite to the organization.</li>
-                <li>
-                  Accept the invite and ensure you have the correct permissions.
-                </li>
+                <li>Accept the invite and ensure you have the correct permissions.</li>
               </ol>
             </div>
             <div
@@ -125,9 +117,7 @@ function SignIn() {
             </div>
             <div style={{ marginTop: 60, textAlign: 'center' }}>
               <Spinner theme={theme} />
-              <p>
-                Checking if your account has two-factor authentication enabled
-              </p>
+              <p>Checking if your account has two-factor authentication enabled</p>
             </div>
             <div
               style={{
@@ -161,17 +151,12 @@ function SignIn() {
               <p>You need to enable two factor authentication (2fa).</p>
               <p>
                 Go to{' '}
-                <a
-                  href={`https://github.com/settings/security`}
-                  target={`_blank`}
-                >
+                <a href={`https://github.com/settings/security`} target={`_blank`}>
                   Account Security
                 </a>{' '}
                 and click <b>Enable two-factor authentication.</b>
               </p>
-              <p>
-                You need to have Duo or another 2fa app installed to enable 2fa.
-              </p>
+              <p>You need to have Duo or another 2fa app installed to enable 2fa.</p>
             </div>
             <div
               style={{
@@ -265,10 +250,7 @@ function SignIn() {
             <div style={{ marginTop: 60, textAlign: 'center' }}>
               <ErrorCircle24Regular />
               <p>There was an error inviting you to the organization.</p>
-              <HelpLink
-                theme={theme}
-                href={`mailto:jack.buehner@thepaladin.news`}
-              >
+              <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
                 Contact Web Editor
               </HelpLink>
             </div>
@@ -300,10 +282,9 @@ function SignIn() {
             <div style={{ marginTop: 44, textAlign: 'center' }}>
               <Checkmark28Regular />
               <p>
-                Your account has been invited to <i>The Paladin</i>! <br></br>{' '}
-                Please check your email to accept the invitation. <br></br>{' '}
-                <br></br> Come back to the sign in page once you have accepted
-                the invitation.
+                Your account has been invited to <i>The Paladin</i>! <br></br> Please check your email to accept
+                the invitation. <br></br> <br></br> Come back to the sign in page once you have accepted the
+                invitation.
               </p>
             </div>
             <div
@@ -346,9 +327,7 @@ function SignIn() {
           </Button>
         </Form>
         <div>
-          <HelpNote theme={theme}>
-            Having problems signing in? Request help from the Web Editor.
-          </HelpNote>
+          <HelpNote theme={theme}>Having problems signing in? Request help from the Web Editor.</HelpNote>
           <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
             Contact Web Editor
           </HelpLink>

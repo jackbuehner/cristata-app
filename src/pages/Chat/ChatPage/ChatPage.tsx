@@ -114,6 +114,11 @@ function ChatPage() {
 
   useEffect(() => {}, [messages]);
 
+  // set document title
+  useEffect(() => {
+    document.title = `#paladin-news/${team_slug} - Cristata`;
+  }, [team_slug]);
+
   return (
     <WholePageContentWrapper>
       <div style={{ flexGrow: 1 }}>

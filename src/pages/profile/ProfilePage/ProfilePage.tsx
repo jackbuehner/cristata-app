@@ -15,7 +15,7 @@ import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { TextInput } from '../../../components/TextInput';
 import { TextArea } from '../../../components/TextArea';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AxiosError } from 'axios';
 import { db } from '../../../utils/axios/db';
 import { toast } from 'react-toastify';
@@ -32,6 +32,11 @@ function ProfilePage() {
 
   const [{ data, loading, error }, refetch] = useAxios<IProfile>(`/users/${profile_id}`);
   const [{ data: teamsData }] = useAxios<IGetTeams>(`/gh/teams`);
+
+  // set document title
+  useEffect(() => {
+    document.title = `${data ? data.name + ' - ' : ''} Profile - Cristata`;
+  }, [data]);
 
   const [showEditModal, hideEditModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
