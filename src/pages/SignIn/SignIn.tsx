@@ -60,8 +60,8 @@ function SignIn() {
   // on the check step, determine whether 2fa is enabled and change to the next appropriate step
   useEffect(() => {
     if (step === '2fa_check') {
-      setTimeout(() => {
-        if (is2faEnabled()) {
+      setTimeout(async () => {
+        if (await is2faEnabled()) {
           setStep('2fa_yes');
         } else {
           setStep('2fa_enable');
