@@ -360,9 +360,9 @@ function ItemDetailsPage({
                 collectionsConfig[dashToCamelCase(collection)]?.publishStage;
               if (publishStage) {
                 const saved = await saveChanges({
-                  ...flatData,
                   stage: publishStage,
                   'timestamps.published_at': timestamp,
+                  'timestamps.updated_at': updatedTimestamp,
                 });
                 // return whether the action was successful
                 setIsLoading(false);
@@ -761,9 +761,7 @@ function ItemDetailsPage({
                       val={vals}
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
-                            valueObjs
-                              ? valueObjs.map((obj: { value: string; number: string }) => obj.value)
-                              : '',
+                          valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
                           field.key,
                           field.dataType || 'string'
                         )
@@ -795,9 +793,7 @@ function ItemDetailsPage({
                       val={vals}
                       onChange={(valueObjs) => {
                         handleMultiselectChange(
-                            valueObjs
-                              ? valueObjs.map((obj: { value: string; label: string }) => obj.value)
-                              : '',
+                          valueObjs ? valueObjs.map((obj: { value: string; label: string }) => obj.value) : '',
                           field.key,
                           field.dataType || 'string'
                         );
@@ -828,9 +824,7 @@ function ItemDetailsPage({
                       val={val}
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
-                            valueObjs
-                              ? valueObjs.map((obj: { value: string; number: string }) => obj.value)
-                              : '',
+                          valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
                           field.key,
                           field.dataType || 'string'
                         )
@@ -886,7 +880,8 @@ function ItemDetailsPage({
                 </InputGroup>
               </ErrorBoundary>
             );
-            })}
+          })
+        )}
       </PageWrapper>
     </>
   );
