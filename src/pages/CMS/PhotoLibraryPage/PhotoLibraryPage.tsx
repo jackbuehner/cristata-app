@@ -216,21 +216,23 @@ function PhotoLibraryPage() {
           <Grid>
             {
               // show a grid of the photos
-              data?.map((photo: any, index: number) => {
-                return (
-                  <Card
-                    key={index}
-                    theme={theme}
-                    isSelected={photo_id === photo._id}
-                    onClick={() => {
-                      if (photo_id !== photo._id) history.push(`/cms/photos/library/${photo._id}`);
-                    }}
-                  >
-                    <ImageBG src={photo.photo_url} theme={theme} />
-                    <ImageLabel theme={theme}>{photo.name}</ImageLabel>
-                  </Card>
-                );
-              })
+              data
+                ?.filter((photo) => photo.hidden !== true)
+                .map((photo: any, index: number) => {
+                  return (
+                    <Card
+                      key={index}
+                      theme={theme}
+                      isSelected={photo_id === photo._id}
+                      onClick={() => {
+                        if (photo_id !== photo._id) history.push(`/cms/photos/library/${photo._id}`);
+                      }}
+                    >
+                      <ImageBG src={photo.photo_url} theme={theme} />
+                      <ImageLabel theme={theme}>{photo.name}</ImageLabel>
+                    </Card>
+                  );
+                })
             }
           </Grid>
         </Wrapper>
