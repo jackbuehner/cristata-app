@@ -1,5 +1,4 @@
 import { IPhoto } from '../../../interfaces/cristata/photos';
-import { IProfile } from '../../../interfaces/cristata/profiles';
 import { collection } from '../../collections';
 
 const photos: collection<IPhoto> = {
