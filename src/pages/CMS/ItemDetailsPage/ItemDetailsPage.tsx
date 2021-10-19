@@ -60,17 +60,23 @@ interface Iaction {
   disabled?: boolean;
 }
 
-interface IItemDetailsPage {
-  flatData?: { [key: string]: string | string[] | number | number[] | boolean };
-  setFlatData?: React.Dispatch<
-    React.SetStateAction<{
+export interface flatDataType {
   [key: string]: string | string[] | number | number[] | boolean;
-    }>
-  >;
+}
+
+interface IItemDetailsPage {
+  flatData?: flatDataType;
+  setFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
+  changedFlatData?: flatDataType;
+  setChangedFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
 }
 
-function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetailsPage) {
+function ItemDetailsPage({
+  setFlatData: propsSetFlatData,
+  setChangedFlatData: propsSetChangedFlatData,
+  ...props
+}: IItemDetailsPage) {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const { search } = useLocation();
@@ -105,9 +111,7 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   // save a flattened version of the data in state for modification
-  const [flatData, setFlatData] = useState<{
-    [key: string]: string | string[] | number | number[] | boolean;
-  }>(props.flatData ? props.flatData : {});
+  const [flatData, setFlatData] = useState<flatDataType>(props.flatData ? props.flatData : {});
   useEffect(() => {
     // only if data has been fetched AND flatData was not provided as props
     if (data && !props.flatData) {
@@ -115,6 +119,11 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
       setHasUnsavedChanges(false);
     }
   }, [data, props.flatData]);
+
+  // save any changes that need to be sent to the server in state
+  const [changedFlatData, setChangedFlatData] = useState<{
+    [key: string]: string | string[] | number | number[] | boolean;
+  }>(props.changedFlatData ? props.changedFlatData : {});
 
   // if flatData was passed as props, keep flatData from props in sync with the source
   useEffect(() => {
@@ -130,10 +139,27 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
     }
   }, [flatData, propsSetFlatData]);
 
+  useEffect(() => {
+    // source --> component
+    if (props.changedFlatData) {
+      setChangedFlatData(props.changedFlatData);
+    }
+  }, [props.changedFlatData]);
+  useEffect(() => {
+    // component --> source
+    if (propsSetChangedFlatData) {
+      propsSetChangedFlatData(changedFlatData);
+    }
+  }, [changedFlatData, propsSetChangedFlatData]);
+
   //
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     setFlatData({
       ...flatData,
+      [key]: e.currentTarget.value,
+    });
+    setChangedFlatData({
+      ...changedFlatData,
       [key]: e.currentTarget.value,
     });
     setHasUnsavedChanges(true);
@@ -150,6 +176,10 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
       ...flatData,
       [key]: type === 'number' ? parseFloat(value as string) : value,
     });
+    setChangedFlatData({
+      ...changedFlatData,
+      [key]: type === 'number' ? parseFloat(value as string) : value,
+    });
     setHasUnsavedChanges(true);
   };
 
@@ -164,6 +194,10 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
       ...flatData,
       [key]: value,
     });
+    setChangedFlatData({
+      ...changedFlatData,
+      [key]: value,
+    });
     setHasUnsavedChanges(true);
   };
 
@@ -173,6 +207,10 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
   const handleDateTimeChange = (value: string, key: string) => {
     setFlatData({
       ...flatData,
+      [key]: value,
+    });
+    setChangedFlatData({
+      ...changedFlatData,
       [key]: value,
     });
     setHasUnsavedChanges(true);
@@ -186,18 +224,18 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
       ...flatData,
       [key]: value,
     });
+    setChangedFlatData({
+      ...changedFlatData,
+      [key]: value,
+    });
     setHasUnsavedChanges(true);
   };
 
   // save changes to the databse
   const saveChanges = async (extraData: { [key: string]: any } = {}) => {
     setIsLoading(true);
-    setFlatData({
-      ...flatData,
-      ...extraData,
-    });
     return await db
-      .patch(`/${collectionName}/${item_id}`, unflattenObject({ ...flatData, ...extraData }))
+      .patch(`/${collectionName}/${item_id}`, unflattenObject({ ...changedFlatData, ...extraData }))
       .then(() => {
         setIsLoading(false);
         toast.success(`Changes successfully saved.`);
@@ -590,6 +628,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                           options={field.tiptap}
                           flatData={flatData}
                           setFlatData={setFlatData}
+                          changedFlatData={changedFlatData}
+                          setChangedFlatData={setChangedFlatData}
                           isDisabled={publishLocked ? true : isHTML ? true : field.isDisabled}
                           sessionId={sessionId}
                           html={html}

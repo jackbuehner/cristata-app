@@ -30,7 +30,7 @@ import { Toolbar } from './components/Toolbar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
 import { DocPropertiesSidebar } from './sidebar-content/DocPropertiesSidebar';
-import { Iaction } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { flatDataType, Iaction } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Noticebar } from './components/Noticebar';
@@ -47,12 +47,10 @@ interface ITiptap {
     photo: string;
   };
   options?: tiptapOptions;
-  flatData?: { [key: string]: string | string[] | number | number[] | boolean };
-  setFlatData?: React.Dispatch<
-    React.SetStateAction<{
-      [key: string]: string | string[] | number | number[] | boolean;
-    }>
-  >;
+  flatData?: flatDataType;
+  setFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
+  changedFlatData?: flatDataType;
+  setChangedFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
   isDisabled?: boolean;
   sessionId: string;
   onChange?: (editorJson: string) => void;
@@ -207,8 +205,8 @@ const Tiptap = (props: ITiptap) => {
       let full: IProfile[] = [];
       (props.flatData[props.options.keys_article.authors] as number[])?.forEach((author_github_id) => {
         db.get(`/users/${author_github_id}`).then(({ data }: { data: IProfile }) => {
-          full.push(data);
-        });
+            full.push(data);
+          });
       });
       setAuthors(full);
     }
@@ -575,7 +573,12 @@ const Tiptap = (props: ITiptap) => {
           header={sidebarTitle}
         >
           {sidebarTitle === 'Document properties' ? (
-            <DocPropertiesSidebar flatData={props.flatData} setFlatData={props.setFlatData} />
+            <DocPropertiesSidebar
+              flatData={props.flatData}
+              setFlatData={props.setFlatData}
+              changedFlatData={props.changedFlatData}
+              setChangedFlatData={props.setChangedFlatData}
+            />
           ) : (
             sidebarContent
           )}
