@@ -1,7 +1,5 @@
 import { IProfile } from './profiles';
 
-type GitHubUserID = number;
-
 interface IPhoto {
   _id: string;
   name?: string;
