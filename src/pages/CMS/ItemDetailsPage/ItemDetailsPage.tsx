@@ -529,16 +529,20 @@ function ItemDetailsPage({
             permissions.
           </Notice>
         ) : null}
-        {loading || (isPublishable ? loadingPermissions : false)
-          ? // loading
+        {loading || (isPublishable ? loadingPermissions : false) ? (
+          // loading
           'Loading...'
-          : //error
-          error || flatData.hidden
-          ? 'Error loading.'
-          : // waiting for user info
-          user === undefined || sessionId === null
-          ? null
-          : // data loaded
+        ) : //error
+        error || flatData.hidden ? (
+          <div>
+            Error loading.
+            <pre>
+              <code>{JSON.stringify(error, null, 2)}</code>
+            </pre>
+          </div>
+        ) : // waiting for user info
+        user === undefined || sessionId === null ? null : (
+          // data loaded
           collectionsConfig[dashToCamelCase(collection)]?.fields.map((field, index) => {
             if (field.type === 'text') {
               return (
