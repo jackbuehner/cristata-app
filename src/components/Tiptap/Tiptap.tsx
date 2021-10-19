@@ -203,10 +203,16 @@ const Tiptap = (props: ITiptap) => {
   useEffect(() => {
     if (props.options && props.options.type === 'article' && props.options.keys_article && props.flatData) {
       let full: IProfile[] = [];
-      (props.flatData[props.options.keys_article.authors] as number[])?.forEach((author_github_id) => {
-        db.get(`/users/${author_github_id}`).then(({ data }: { data: IProfile }) => {
+      (props.flatData[props.options.keys_article.authors] as (number | IProfile)[])?.forEach((author) => {
+        if (typeof author === 'number') {
+          // get full author profile
+          db.get(`/users/${author}`).then(({ data }: { data: IProfile }) => {
             full.push(data);
           });
+        } else {
+          // author is already the full profile
+          full.push(author as IProfile);
+        }
       });
       setAuthors(full);
     }
