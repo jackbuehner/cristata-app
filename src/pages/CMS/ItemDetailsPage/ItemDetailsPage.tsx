@@ -311,13 +311,10 @@ function ItemDetailsPage({
   // store whether user is watching the item
   const [isWatching, setIsWatching] = useState<boolean>();
   useEffect(() => {
-    if (user) {
-      if (data?.people?.watching?.includes(parseInt(user.id))) {
-        setIsWatching(true);
-      } else {
-        setIsWatching(false);
-      }
-    }
+    if (user && data?.people?.watching && JSON.stringify(data.people.watching).includes(user.id))
+      // stringify it since it can be either a profile id or a profile object
+      setIsWatching(true);
+    else setIsWatching(false);
   }, [user, data]);
 
   // get the session id from sessionstorage
