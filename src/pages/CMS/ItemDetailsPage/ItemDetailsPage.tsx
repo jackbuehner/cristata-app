@@ -107,16 +107,12 @@ function ItemDetailsPage({
     setIsLoading(loading);
   }, [loading]);
 
-  // keep track of whether changes have been made that have not been saved
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-
   // save a flattened version of the data in state for modification
   const [flatData, setFlatData] = useState<flatDataType>(props.flatData ? props.flatData : {});
   useEffect(() => {
     // only if data has been fetched AND flatData was not provided as props
     if (data && !props.flatData) {
       setFlatData(flattenObject(data));
-      setHasUnsavedChanges(false);
     }
   }, [data, props.flatData]);
 
@@ -162,7 +158,6 @@ function ItemDetailsPage({
       ...changedFlatData,
       [key]: e.currentTarget.value,
     });
-    setHasUnsavedChanges(true);
   };
 
   /**
@@ -180,7 +175,6 @@ function ItemDetailsPage({
       ...changedFlatData,
       [key]: type === 'number' ? parseFloat(value as string) : value,
     });
-    setHasUnsavedChanges(true);
   };
 
   /**
@@ -198,7 +192,6 @@ function ItemDetailsPage({
       ...changedFlatData,
       [key]: value,
     });
-    setHasUnsavedChanges(true);
   };
 
   /**
@@ -213,7 +206,6 @@ function ItemDetailsPage({
       ...changedFlatData,
       [key]: value,
     });
-    setHasUnsavedChanges(true);
   };
 
   /**
@@ -228,7 +220,6 @@ function ItemDetailsPage({
       ...changedFlatData,
       [key]: value,
     });
-    setHasUnsavedChanges(true);
   };
 
   // save changes to the databse
@@ -240,7 +231,7 @@ function ItemDetailsPage({
         setIsLoading(false);
         toast.success(`Changes successfully saved.`);
         refetch();
-        setHasUnsavedChanges(false);
+        setChangedFlatData({});
         return true;
       })
       .catch((err) => {
@@ -448,7 +439,7 @@ function ItemDetailsPage({
       type: 'button',
       icon: <Save24Regular />,
       action: () => saveChanges(),
-      disabled: !hasUnsavedChanges,
+      disabled: Object.keys(changedFlatData).length === 0,
     },
     collectionsConfig[dashToCamelCase(collection)]?.isPublishable
       ? //only allow publishing if canPublish is true
@@ -472,7 +463,9 @@ function ItemDetailsPage({
           title={data && data.name ? data.name : item_id}
           description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection
             .slice(1)
-            .replace('-', ' ')} collection ${hasUnsavedChanges ? ' | Unsaved changes' : ''}`}
+            .replace('-', ' ')} collection ${
+            Object.keys(changedFlatData).length > 0 ? ' | Unsaved changes' : ''
+          }`}
           buttons={
             <>
               {actions.map((action, index) => {
@@ -643,7 +636,6 @@ function ItemDetailsPage({
                                   [field.key]: editorJson,
                                 });
                               }
-                              setHasUnsavedChanges(true);
                             }
                           }}
                           actions={actions}
