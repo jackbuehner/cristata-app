@@ -64,7 +64,7 @@ interface IItemDetailsPage {
   flatData?: { [key: string]: string | string[] | number | number[] | boolean };
   setFlatData?: React.Dispatch<
     React.SetStateAction<{
-      [key: string]: string | string[] | number | number[] | boolean;
+  [key: string]: string | string[] | number | number[] | boolean;
     }>
   >;
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
@@ -501,7 +501,11 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                       <TextInput
                         name={field.label}
                         id={field.key}
-                        value={flatData[field.key] as string}
+                        value={
+                          field.modifyValue
+                            ? field.modifyValue(flatData[field.key] as string)
+                            : (flatData[field.key] as string)
+                        }
                         onChange={(e) => handleTextChange(e, field.key)}
                         isDisabled={publishLocked ? true : field.isDisabled}
                       />
@@ -628,7 +632,11 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                       </Label>
                       <Select
                         options={field.options}
-                        val={`${flatData[field.key] as string | number}`}
+                        val={
+                          field.modifyValue
+                            ? field.modifyValue(`${flatData[field.key] as string | number}`)
+                            : `${flatData[field.key] as string | number}`
+                        }
                         onChange={(valueObj) =>
                           handleSelectChange(
                             valueObj ? valueObj.value : '',
@@ -657,7 +665,11 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                       <Select
                         loadOptions={field.async_options}
                         async
-                        val={`${flatData[field.key] as string | number}`}
+                        val={
+                          field.modifyValue
+                            ? field.modifyValue(`${flatData[field.key] as string | number}`)
+                            : `${flatData[field.key] as string | number}`
+                        }
                         onChange={(valueObj) =>
                           handleSelectChange(
                             valueObj ? valueObj.value : '',
@@ -673,7 +685,9 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
               }
 
               if (field.type === 'multiselect') {
-                const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
+                const vals = (flatData[field.key] as (string | number)[])?.map((val) =>
+                  field.modifyValue ? field.modifyValue(val) : val.toString()
+                ); // ensures that values are strings
                 return (
                   <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
                     <InputGroup type={`text`}>
@@ -704,7 +718,9 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
               }
 
               if (field.type === 'multiselect_async') {
-                const vals = (flatData[field.key] as (string | number)[])?.map((val) => val.toString()); // ensures that values are strings
+                const vals = (flatData[field.key] as (string | number)[])?.map((val) =>
+                  field.modifyValue ? field.modifyValue(val) : val.toString()
+                ); // ensures that values are strings
                 return (
                   <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
                     <InputGroup type={`text`}>
@@ -736,7 +752,9 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
               }
 
               if (field.type === 'multiselect_creatable') {
-                const val = flatData[field.key] as string[];
+                const val = (flatData[field.key] as string[])?.map((val) =>
+                  field.modifyValue ? field.modifyValue(val) : val
+                );
                 return (
                   <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
                     <InputGroup type={`text`}>
@@ -782,6 +800,8 @@ function ItemDetailsPage({ setFlatData: propsSetFlatData, ...props }: IItemDetai
                         value={
                           flatData[field.key] === '0001-01-01T01:00:00.000Z'
                             ? null
+                            : field.modifyValue
+                            ? field.modifyValue(flatData[field.key] as string)
                             : (flatData[field.key] as string)
                         }
                         onChange={(date) => {

@@ -111,6 +111,7 @@ interface IField {
   isDisabled?: boolean;
   dataType?: string;
   async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
+  modifyValue?: (value: unknown) => string; // for arrays of values, each value is individually put through this function
 }
 
 export { collections };
