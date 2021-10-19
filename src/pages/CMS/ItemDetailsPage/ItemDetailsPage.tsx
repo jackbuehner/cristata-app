@@ -317,6 +317,21 @@ function ItemDetailsPage({
     else setIsWatching(false);
   }, [user, data]);
 
+  // store whether the user is a mandatory watcher
+  const [isMadatoryWatcher, setIsMandatoryWatcher] = useState<boolean>();
+  useEffect(() => {
+    // get the mandatory watchers
+    const mandatoryWatchersKeys = collectionsConfig[dashToCamelCase(collection)]?.mandatoryWatchers;
+    const mandatoryWatchers = mandatoryWatchersKeys
+      ?.map((key) => JSON.stringify(flatData[key]))
+      .filter((watcher) => watcher !== undefined); // stringify it since it can be either a profile id or a profile object
+
+    // set if current user is a mandatory watcher by checking if the user is inside `mandatoryWatchers`
+    if (user && mandatoryWatchers && JSON.stringify(mandatoryWatchers).includes(user.id))
+      setIsMandatoryWatcher(true);
+    else setIsMandatoryWatcher(false);
+  }, [collection, user, flatData]);
+
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
 
@@ -440,9 +455,10 @@ function ItemDetailsPage({
     },
     collectionsConfig[dashToCamelCase(collection)]?.canWatch
       ? {
-          label: isWatching ? 'Stop Watching' : 'Watch',
+          label: isWatching || isMadatoryWatcher ? 'Stop Watching' : 'Watch',
           type: 'button',
-          icon: isWatching ? <EyeHide24Regular /> : <EyeShow24Regular />,
+          icon: isWatching || isMadatoryWatcher ? <EyeHide24Regular /> : <EyeShow24Regular />,
+          disabled: isMadatoryWatcher,
           action: () => watchItem(!isWatching),
         }
       : null,

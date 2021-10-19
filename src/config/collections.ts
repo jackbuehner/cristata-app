@@ -45,6 +45,7 @@ interface collection<I> {
   };
   isPublishable?: boolean;
   canWatch?: boolean;
+  mandatoryWatchers?: string[];
   publishStage?: number;
   home: string;
   collectionName?: string;

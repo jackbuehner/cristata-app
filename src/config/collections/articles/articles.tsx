@@ -463,6 +463,7 @@ const articles: collection<IArticle> = {
   },
   isPublishable: true,
   canWatch: true,
+  mandatoryWatchers: ['people.authors', 'people.editors.primary'],
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
   pageTitle: (progress, search) => {
