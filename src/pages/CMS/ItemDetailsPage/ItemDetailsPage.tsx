@@ -514,7 +514,7 @@ function ItemDetailsPage({
             permissions.
           </Notice>
         ) : null}
-        {loading || loadingPermissions
+        {loading || (isPublishable ? loadingPermissions : false)
           ? // loading
             'Loading...'
           : //error
