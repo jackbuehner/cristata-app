@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
-import { GitHubUserID } from '../../../interfaces/cristata/profiles';
+import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
@@ -74,6 +74,11 @@ const satire: collection<ISatire> = {
       description: 'The authors of this piece of satire. These names do not appear on the website.',
       async_options: (val) => selectProfile(val),
       dataType: 'number',
+      modifyValue: (data) => {
+        if (Object.prototype.toString.call(data) === '[object Object]')
+          return (data as IProfile).github_id.toString();
+        return JSON.stringify(data);
+      },
     },
     {
       key: 'people.editors.copy',
@@ -82,6 +87,11 @@ const satire: collection<ISatire> = {
       description: 'The copy editors who have made edits to this article.',
       async_options: (val) => selectProfile(val),
       dataType: 'number',
+      modifyValue: (data) => {
+        if (Object.prototype.toString.call(data) === '[object Object]')
+          return (data as IProfile).github_id.toString();
+        return JSON.stringify(data);
+      },
     },
     {
       key: 'body',
@@ -326,72 +336,6 @@ const satire: collection<ISatire> = {
   row: { href: '/cms/item/satire', hrefSuffixKey: '_id' },
   isPublishable: true,
   publishStage: 5.2,
-  onTableData: (data, users) => {
-    /**
-     * Find user in user data.
-     */
-    const findUserAndReturnObj = (userID: number) => {
-      const user = users?.find((user) => user.github_id === userID);
-      return user;
-    };
-
-    const satires = [...data];
-
-    satires.forEach((satire) => {
-      // format created by ids to names and photos
-      if (typeof satire.people.created_by === 'number') {
-        const user = findUserAndReturnObj(satire.people.created_by);
-        if (user) {
-          const { name, photo, _id } = user;
-          satire.people.created_by = { name, photo, _id };
-        }
-      }
-      // format last modified by ids to names and photos
-      if (typeof satire.people.last_modified_by === 'number') {
-        const user = findUserAndReturnObj(satire.people.last_modified_by);
-        if (user) {
-          const { name, photo, _id } = user;
-          satire.people.last_modified_by = { name, photo, _id };
-        }
-      }
-      // use author ids to get author name and image
-      if (satire.people.authors) {
-        // store the auth or names once the are found
-        let authors: { name: string; photo: string; _id: string }[] = [];
-
-        type authorType =
-          | string
-          | number
-          | {
-              name: string;
-              photo: string;
-              _id: string;
-            };
-
-        // for each author, find the name based on the id
-        satire.people.authors.forEach((author: authorType) => {
-          if (typeof author === 'number') {
-            const authorID = author;
-            // if it is an id, find the name and push it to the array
-            const userObj = findUserAndReturnObj(authorID);
-            if (userObj)
-              authors.push({
-                name: userObj.name,
-                photo: userObj.photo,
-                _id: userObj._id,
-              });
-          } else if (typeof author === 'object') {
-            authors.push(author);
-          }
-        });
-
-        // update the authors in the data copy
-        satire.people.authors = authors;
-      }
-    });
-
-    return satires;
-  },
   pageTitle: (progress, search) => {
     // get the category of the page
     const category = new URLSearchParams(search).get('category');
@@ -485,14 +429,15 @@ interface ISatire {
     target_publish_at?: Date;
   };
   people: {
-    authors?: GitHubUserID[] | string[] | { name: string; photo: string; _id: string }[];
-    created_by?: GitHubUserID | { name: string; photo: string; _id: string };
-    modified_by?: GitHubUserID[];
-    last_modified_by: GitHubUserID | { name: string; photo: string; _id: string };
-    published_by?: GitHubUserID[];
+    authors?: IProfile[];
+    created_by?: IProfile;
+    display_authors?: string[];
+    modified_by?: IProfile[];
+    last_modified_by: IProfile;
+    published_by?: IProfile[];
     editors?: {
-      primary?: GitHubUserID;
-      copy?: GitHubUserID[];
+      primary?: IProfile;
+      copy?: IProfile[];
     };
   };
   stage?: Stage;

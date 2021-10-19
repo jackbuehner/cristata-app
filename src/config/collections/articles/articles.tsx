@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
-import { GitHubUserID } from '../../../interfaces/cristata/profiles';
+import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
@@ -79,6 +79,11 @@ const articles: collection<IArticle> = {
       description: 'The authors that appear on the byline.',
       async_options: (val) => selectProfile(val),
       dataType: 'number',
+      modifyValue: (data) => {
+        if (Object.prototype.toString.call(data) === '[object Object]')
+          return (data as IProfile).github_id.toString();
+        return JSON.stringify(data);
+      },
     },
     {
       key: 'people.editors.primary',
@@ -87,6 +92,11 @@ const articles: collection<IArticle> = {
       description: 'The managing editors responsible for this article.',
       async_options: (val) => selectProfile(val),
       dataType: 'number',
+      modifyValue: (data) => {
+        if (Object.prototype.toString.call(data) === '[object Object]')
+          return (data as IProfile).github_id.toString();
+        return JSON.stringify(data);
+      },
     },
     {
       key: 'people.editors.copy',
@@ -95,6 +105,11 @@ const articles: collection<IArticle> = {
       description: 'The copy editors who have made edits to this article.',
       async_options: (val) => selectProfile(val),
       dataType: 'number',
+      modifyValue: (data) => {
+        if (Object.prototype.toString.call(data) === '[object Object]')
+          return (data as IProfile).github_id.toString();
+        return JSON.stringify(data);
+      },
     },
     {
       key: 'body',
@@ -450,111 +465,6 @@ const articles: collection<IArticle> = {
   canWatch: true,
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
-  onTableData: (data, users) => {
-    /**
-     * Find user in user data.
-     */
-    const findUserAndReturnObj = (userID: number) => {
-      const user = users?.find((user) => user.github_id === userID);
-      return user;
-    };
-
-    const articles = [...data];
-
-    // change userIDs to user display names
-    articles.forEach((article) => {
-      // format created by ids to names and photos
-      if (typeof article.people.created_by === 'number') {
-        const user = findUserAndReturnObj(article.people.created_by);
-        if (user) {
-          const { name, photo, _id } = user;
-          article.people.created_by = { name, photo, _id };
-        }
-      }
-      // format last modified by ids to names and photos
-      if (typeof article.people.last_modified_by === 'number') {
-        const user = findUserAndReturnObj(article.people.last_modified_by);
-        if (user) {
-          const { name, photo, _id } = user;
-          article.people.last_modified_by = { name, photo, _id };
-        }
-      }
-      // use author ids to get author name and image
-      if (article.people.authors) {
-        // store the auth or names once the are found
-        let authors: { name: string; photo: string; _id: string }[] = [];
-
-        type authorType =
-          | string
-          | number
-          | {
-              name: string;
-              photo: string;
-              _id: string;
-            };
-
-        // for each author, find the name based on the id
-        article.people.authors.forEach((author: authorType) => {
-          if (typeof author === 'number') {
-            const authorID = author;
-            // if it is an id, find the name and push it to the array
-            const userObj = findUserAndReturnObj(authorID);
-            if (userObj)
-              authors.push({
-                name: userObj.name,
-                photo: userObj.photo,
-                _id: userObj._id,
-              });
-          } else if (typeof author === 'object') {
-            authors.push(author);
-          }
-        });
-
-        // update the authors in the data copy
-        article.people.authors = authors;
-      }
-
-      // use copy editor ids to get copy editor name and image
-      if (article.people.editors?.copy) {
-        // store the auth or names once the are found
-        let copyEditors: { name: string; photo: string; _id: string }[] = [];
-
-        type copyEditorType =
-          | string
-          | number
-          | {
-              name: string;
-              photo: string;
-              _id: string;
-            };
-
-        // for each copy editor, find the name based on the id
-        article.people.editors?.copy.forEach((copyEditor: copyEditorType) => {
-          if (typeof copyEditor === 'number') {
-            const authorID = copyEditor;
-            // if it is an id, find the name and push it to the array
-            const userObj = findUserAndReturnObj(authorID);
-            if (userObj)
-              copyEditors.push({
-                name: userObj.name,
-                photo: userObj.photo,
-                _id: userObj._id,
-              });
-          } else if (typeof copyEditor === 'object') {
-            copyEditors.push(copyEditor);
-          }
-        });
-
-        // update the profiles in the data copy
-        article.people.editors = {
-          ...article.people.editors,
-          copy: copyEditors,
-        };
-      }
-    });
-
-    return articles;
-  },
   pageTitle: (progress, search) => {
     // get the category of the page
     const category = new URLSearchParams(search).get('category');
@@ -636,14 +546,14 @@ interface IArticle {
     target_publish_at?: Date;
   };
   people: {
-    authors?: GitHubUserID[] | string[] | { name: string; photo: string; _id: string }[];
-    created_by?: GitHubUserID | { name: string; photo: string; _id: string };
-    modified_by?: GitHubUserID[];
-    last_modified_by: GitHubUserID | { name: string; photo: string; _id: string };
-    published_by?: GitHubUserID[];
+    authors?: IProfile[];
+    created_by?: IProfile;
+    modified_by?: IProfile[];
+    last_modified_by: IProfile;
+    published_by?: IProfile[];
     editors?: {
-      primary?: GitHubUserID;
-      copy?: GitHubUserID[] | string[] | { name: string; photo: string; _id: string }[];
+      primary?: IProfile;
+      copy?: IProfile[];
     };
   };
   stage?: Stage;

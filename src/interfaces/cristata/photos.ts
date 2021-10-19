@@ -1,3 +1,5 @@
+import { IProfile } from './profiles';
+
 type GitHubUserID = number;
 
 interface IPhoto {
@@ -9,9 +11,9 @@ interface IPhoto {
   };
   people: {
     photo_created_by?: string;
-    uploaded_by?: GitHubUserID;
-    modified_by?: GitHubUserID[];
-    last_modified_by: GitHubUserID;
+    uploaded_by?: IProfile;
+    modified_by?: IProfile[];
+    last_modified_by: IProfile;
   };
   tags?: string[];
   file_type: string;

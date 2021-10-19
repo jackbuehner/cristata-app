@@ -1,3 +1,5 @@
+import { IProfile } from './profiles';
+
 type GitHubUserID = number;
 type GitHubTeamNodeID = string;
 
@@ -20,10 +22,10 @@ interface IPhotoRequest {
     modified_at?: string; // ISO string
   };
   people: {
-    created_by?: GitHubUserID | { name: string; photo: string; _id: string };
-    modified_by?: GitHubUserID[];
-    last_modified_by: GitHubUserID | { name: string; photo: string; _id: string };
-    requested_by?: GitHubUserID | { name: string; photo: string; _id: string };
+    created_by?: IProfile;
+    modified_by?: IProfile[];
+    last_modified_by: IProfile;
+    requested_by?: IProfile;
   };
   stage?: Stage;
   description?: string;

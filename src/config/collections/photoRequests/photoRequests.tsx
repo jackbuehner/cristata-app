@@ -57,6 +57,8 @@ const photoRequests: collection<IPhotoRequest> = {
       type: 'select_async',
       description: 'This person will be contacted if the photo team has questions about the request.',
       async_options: (val) => selectProfile(val),
+      dataType: 'number',
+      modifyValue: (val, data) => `${data['people.requested_by.github_id']}`,
     },
     {
       key: 'permissions.users',
@@ -143,47 +145,6 @@ const photoRequests: collection<IPhotoRequest> = {
   ],
   row: { href: '/cms/item/photo-requests', hrefSuffixKey: '_id' },
   isPublishable: false,
-  onTableData: (data, users) => {
-    /**
-     * Find user in user data.
-     */
-    const findUserAndReturnObj = (userID: number) => {
-      const user = users?.find((user) => user.github_id === userID);
-      return user;
-    };
-
-    const photoRequests = [...data];
-
-    // change userIDs to user display names
-    photoRequests.forEach((photoRequest) => {
-      // format created by ids to names and photos
-      if (typeof photoRequest.people.created_by === 'number') {
-        const user = findUserAndReturnObj(photoRequest.people.created_by);
-        if (user) {
-          const { name, photo, _id } = user;
-          photoRequest.people.created_by = { name, photo, _id };
-        }
-      }
-      // format last modified by ids to names and photos
-      if (typeof photoRequest.people.last_modified_by === 'number') {
-        const user = findUserAndReturnObj(photoRequest.people.last_modified_by);
-        if (user) {
-          const { name, photo, _id } = user;
-          photoRequest.people.last_modified_by = { name, photo, _id };
-        }
-      }
-      // format requested by by ids to names and photos
-      if (typeof photoRequest.people.requested_by === 'number') {
-        const user = findUserAndReturnObj(photoRequest.people.requested_by);
-        if (user) {
-          const { name, photo, _id } = user;
-          photoRequest.people.requested_by = { name, photo, _id };
-        }
-      }
-    });
-
-    return photoRequests;
-  },
   pageTitle: () => `Photo requests`,
   pageDescription: () => `If a photo you need is not in the photo library, make a request here.`,
   tableFilters: (progress) => {
