@@ -541,7 +541,7 @@ function ItemDetailsPage({
                         id={field.key}
                         value={
                           field.modifyValue
-                            ? field.modifyValue(flatData[field.key] as string)
+                            ? field.modifyValue(flatData[field.key] as string, flatData)
                             : (flatData[field.key] as string)
                         }
                         onChange={(e) => handleTextChange(e, field.key)}
@@ -674,7 +674,7 @@ function ItemDetailsPage({
                         options={field.options}
                         val={
                           field.modifyValue
-                            ? field.modifyValue(`${flatData[field.key] as string | number}`)
+                            ? field.modifyValue(`${flatData[field.key] as string | number}`, flatData)
                             : `${flatData[field.key] as string | number}`
                         }
                         onChange={(valueObj) =>
@@ -707,7 +707,7 @@ function ItemDetailsPage({
                         async
                         val={
                           field.modifyValue
-                            ? field.modifyValue(`${flatData[field.key] as string | number}`)
+                            ? field.modifyValue(`${flatData[field.key] as string | number}`, flatData)
                             : `${flatData[field.key] as string | number}`
                         }
                         onChange={(valueObj) =>
@@ -726,7 +726,7 @@ function ItemDetailsPage({
 
               if (field.type === 'multiselect') {
                 const vals = (flatData[field.key] as (string | number)[])?.map((val) =>
-                  field.modifyValue ? field.modifyValue(val) : val.toString()
+                  field.modifyValue ? field.modifyValue(val, flatData) : val.toString()
                 ); // ensures that values are strings
                 return (
                   <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
@@ -759,7 +759,7 @@ function ItemDetailsPage({
 
               if (field.type === 'multiselect_async') {
                 const vals = (flatData[field.key] as (string | number)[])?.map((val) =>
-                  field.modifyValue ? field.modifyValue(val) : val.toString()
+                  field.modifyValue ? field.modifyValue(val, flatData) : val.toString()
                 ); // ensures that values are strings
                 return (
                   <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
@@ -793,7 +793,7 @@ function ItemDetailsPage({
 
               if (field.type === 'multiselect_creatable') {
                 const val = (flatData[field.key] as string[])?.map((val) =>
-                  field.modifyValue ? field.modifyValue(val) : val
+                  field.modifyValue ? field.modifyValue(val, flatData) : val
                 );
                 return (
                   <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
@@ -841,7 +841,7 @@ function ItemDetailsPage({
                           flatData[field.key] === '0001-01-01T01:00:00.000Z'
                             ? null
                             : field.modifyValue
-                            ? field.modifyValue(flatData[field.key] as string)
+                            ? field.modifyValue(flatData[field.key] as string, flatData)
                             : (flatData[field.key] as string)
                         }
                         onChange={(date) => {
