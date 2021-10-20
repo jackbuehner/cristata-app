@@ -210,35 +210,38 @@ const Comment = Node.create<CommentOptions>({
             })
             .command(({ tr, chain }) => {
               try {
-                // get the entire comment node
-                const parent = tr.selection.$anchor.parent;
+                if (dispatch) {
+                  // dispatch is undefined when testing whether the command is possible with `can()`
+                  // get the entire comment node
+                  const comment = tr.selection.$anchor.parent;
 
-                // also store the start position of the parent
-                const start = tr.selection.$anchor.start();
+                  // also store the start position of the comment
+                  const start = tr.selection.$anchor.start();
 
-                // get the text nodes in the comment node
-                const textNodes: ProsemirrorNode<any>[] = [];
-                parent.content.descendants((textNode) => {
-                  textNodes.push(textNode);
-                });
+                  // get the text nodes in the comment node
+                  const textNodes: ProsemirrorNode<any>[] = [];
+                  comment.content.descendants((textNode) => {
+                    textNodes.push(textNode);
+                  });
 
-                // select the entire comment node and delete it
-                tr.setSelection(TextSelection.near(tr.selection.$anchor));
-                chain().selectParentNode().deleteSelection().run();
+                  // get the type of the node that is the parent of the comment node
+                  // (usually a paragraph)
+                  const parentNodeType = tr.doc.resolve(start).parent.type;
 
-                // get the type of the node that is the parent of the comment node
-                // (usually a paragraph)
-                const parentOfParentType = tr.doc.resolve(start).parent.type;
+                  // create a new node that matches the new parent type
+                  const newNode = parentNodeType.createAndFill({}, textNodes);
 
-                // create a new node that matches the new parent type
-                const newNode = parentOfParentType.createAndFill({}, textNodes);
+                  // select the entire comment node and delete it
+                  tr.setSelection(TextSelection.near(tr.selection.$anchor));
+                  chain().selectParentNode().deleteSelection().run();
 
-                if (newNode) {
-                  // replace the empty space left after removing the comment and
-                  // replace it with the slice, which has the text nodes inside
-                  // of the comment node
-                  const slice = new Slice(newNode.content, 0, 0);
-                  tr.replace(start - 1, start - 1, slice);
+                  if (newNode) {
+                    // replace the empty space left after removing the comment and
+                    // replace it with the slice, which has the text nodes inside
+                    // of the comment node
+                    const slice = new Slice(newNode.content, 0, 0);
+                    tr.replace(start - 1, start - 1, slice);
+                  }
                 }
                 return true;
               } catch (error) {
