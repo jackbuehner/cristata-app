@@ -149,9 +149,7 @@ const Card = styled.div<{ theme: themeType; triggerRect: DOMRect }>`
   border: 1px solid lightgray;
   top: ${({ triggerRect }) => triggerRect.y + triggerRect.height}px;
   left: ${({ triggerRect }) =>
-    triggerRect.x + triggerRect.width / 2 + 280 > document.body.offsetWidth
-      ? document.body.offsetWidth - 300
-      : triggerRect.x + triggerRect.width / 2 - 140}px;
+    triggerRect.x + 300 > document.body.offsetWidth ? document.body.offsetWidth - 300 : triggerRect.x}px;
   border-radius: ${({ theme }) => theme.radius};
   *::selection {
     background-color: transparent !important;
