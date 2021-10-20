@@ -34,14 +34,14 @@ function CommentContainer(props: ICommentContainer) {
     }
   };
 
+  // control whether the card is shown
+  const [isShown, setIsShown] = useState<boolean>(true);
+
   // store the position and size information of the toggle button that executes `toggleCard()`
   const [triggerRect, setTriggerRect] = useState<DOMRect>();
   useEffect(() => {
     if (toggleRef?.current) setTriggerRect(toggleRef.current.getBoundingClientRect());
-  }, [toggleRef]);
-
-  // control whether the card is shown
-  const [isShown, setIsShown] = useState<boolean>(true);
+  }, [toggleRef, isShown]);
 
   // set the textarea height to match the current message height once messageRef is defined and comment is shown
   useEffect(() => {
