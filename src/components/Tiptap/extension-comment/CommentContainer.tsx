@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Comment20Regular, CommentOff20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 import { NodeViewWrapper, NodeViewContent, NodeViewProps, Node } from '@tiptap/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { themeType } from '../../../utils/theme/theme';
 import { IconButton } from '../../Button';
 import { TextArea } from '../../TextArea';
@@ -17,6 +17,7 @@ interface ICommentContainer extends NodeViewProps {
 function CommentContainer(props: ICommentContainer) {
   const theme = useTheme() as themeType;
   const messageRef = useRef<HTMLTextAreaElement>(null);
+  const toggleRef = useRef<HTMLSpanElement>(null);
 
   /**
    * When the user types in the textarea, update the message attribute
@@ -33,11 +34,14 @@ function CommentContainer(props: ICommentContainer) {
     }
   };
 
-  // store the position and size information of the last element that executed `toggleCard()`
-  const [triggerRect, setTriggerRect] = useState<DOMRect>(new DOMRect());
+  // store the position and size information of the toggle button that executes `toggleCard()`
+  const [triggerRect, setTriggerRect] = useState<DOMRect>();
+  useEffect(() => {
+    if (toggleRef?.current) setTriggerRect(toggleRef.current.getBoundingClientRect());
+  }, [toggleRef]);
 
   // control whether the card is shown
-  const [isShown, setIsShown] = useState<boolean>(false);
+  const [isShown, setIsShown] = useState<boolean>(true);
 
   // set the textarea height to match the current message height once messageRef is defined and comment is shown
   useEffect(() => {
@@ -48,11 +52,17 @@ function CommentContainer(props: ICommentContainer) {
   }, [isShown, messageRef]);
 
   /**
+   * Removes the comment node while keeping the text inside the node.
+   */
+  const unsetComment = useCallback(() => {
+    props.editor.commands.unsetComment(props.getPos() + props.node.nodeSize - 1);
+  }, [props]);
+
+  /**
    * Toggle the card when a button is clicked
    */
   const toggleCard = (e: React.MouseEvent) => {
     setIsShown(!isShown);
-    setTriggerRect(e.currentTarget.getBoundingClientRect());
   };
 
   /**
@@ -73,15 +83,16 @@ function CommentContainer(props: ICommentContainer) {
         as={`span`}
         style={{ backgroundColor: Color(props.node.attrs.color).alpha(0.4) }}
       ></NodeViewContent>
+      <span style={{ position: 'absolute', marginLeft: -11, marginTop: 15 }} ref={toggleRef} />
       <ToggleCardButton icon={<Comment20Regular />} onClick={toggleCard} />
       {isShown ? (
-        <Card theme={theme} contentEditable={false} triggerRect={triggerRect}>
+        <Card theme={theme} contentEditable={false} triggerRect={triggerRect || new DOMRect()}>
           <div style={{ position: 'absolute', top: 0, right: 30 }}>
             <IconButton
               icon={<CommentOff20Regular />}
               backgroundColor={{ base: 'transparent' }}
               border={{ base: '1px solid transparent' }}
-              onClick={() => props.editor.commands.unsetComment(props.getPos() + props.node.nodeSize - 1)}
+              onClick={unsetComment}
             />
           </div>
           <div style={{ position: 'absolute', top: 0, right: 0 }}>
