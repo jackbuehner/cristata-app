@@ -59,6 +59,13 @@ function CommentContainer(props: ICommentContainer) {
   }, [props]);
 
   /**
+   * Removes the comment if the comment text is empty.
+   */
+  const unsetEmptyComment = useCallback(() => {
+    if (props.node.attrs.message?.length === 0) unsetComment();
+  }, [props.node.attrs.message?.length, unsetComment]);
+
+  /**
    * Toggle the card when a button is clicked
    */
   const toggleCard = (e: React.MouseEvent) => {
@@ -76,6 +83,13 @@ function CommentContainer(props: ICommentContainer) {
     document.addEventListener('scroll', closeOnScroll, true);
     return document.removeEventListener('scroll', closeOnScroll);
   }, [setIsShown]);
+
+  /**
+   * Unsets a comment if it does not contain any comment text and it is hidden.
+   */
+  useEffect(() => {
+    if (!isShown) unsetEmptyComment();
+  }, [isShown, unsetEmptyComment]);
 
   return (
     <NodeViewWrapper as={`span`}>
