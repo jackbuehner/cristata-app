@@ -118,12 +118,12 @@ function CommentContainer(props: ICommentContainer) {
 }
 
 const ToggleCardButton = styled(IconButton)`
-  height: 18px;
-  width: 18px;
+  height: 30px;
+  width: 30px;
   position: absolute;
   display: inline-flex;
-  margin-top: -8px;
-  margin-left: -6px;
+  margin-top: -15px;
+  margin-left: -11px;
   padding: 2px;
   background-color: transparent;
   border-color: transparent;
