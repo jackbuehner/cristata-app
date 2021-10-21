@@ -70,6 +70,7 @@ interface IToolbar {
   user: {
     name: string;
     color: string;
+    photo: string;
   };
   toggleTrackChanges: () => void;
   trackChanges: boolean;
@@ -731,7 +732,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                       .focus()
                       .setComment(props.user.color, {
                         name: props.user.name,
-                        photo: 'https://avatars.githubusercontent.com/u/69555023',
+                        photo: props.user.photo,
                       })
                       .run()
                   }
@@ -822,7 +823,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                         .focus()
                         .setComment(props.user.color, {
                           name: props.user.name,
-                          photo: 'https://avatars.githubusercontent.com/u/69555023',
+                          photo: props.user.photo,
                         })
                         .run()
                     }
