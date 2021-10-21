@@ -50,6 +50,10 @@ import { ToolbarRowButton } from './ToolbarRowButton';
 import { Iaction } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { useHistory } from 'react-router-dom';
 import { tiptapOptions } from '../../../../config';
+import { Select } from '../../../Select';
+import { ErrorBoundary } from 'react-error-boundary';
+import { IPhoto } from '../../../../interfaces/cristata/photos';
+import { db } from '../../../../utils/axios/db';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -405,6 +409,68 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
     );
   }, [editor]);
 
+  // insert photo widget
+  const [showPhotoWidgetModal, hidePhotoWidgetModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [photoId, setPhotoId] = useState<HTMLTextAreaElement['value']>(``);
+
+    return (
+      <PlainModal
+        hideModal={hidePhotoWidgetModal}
+        title={`Insert photo`}
+        continueButton={{
+          text: 'Insert',
+          onClick: () => {
+            if (editor) {
+              editor.chain().focus().insertPhotoWidget(photoId).run();
+              return true;
+            }
+            return false;
+          },
+          disabled: photoId.length < 1,
+        }}
+      >
+        <ErrorBoundary fallback={<div>Error loading async select field</div>}>
+          <InputGroup type={`text`}>
+            <Label
+              description={`Select from photos uploaded to the photo library. Photos only appear if they have proper photo attribution.`}
+            >
+              Select photo
+            </Label>
+            <Select
+              loadOptions={async (inputValue: string) => {
+                // get all photos
+                const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
+
+                // with the data, create the options array
+                let options: Array<{ value: string; label: string }> = [];
+                photos.forEach((photo) => {
+                  if (photo.people?.photo_created_by) {
+                    options.push({
+                      value: photo._id,
+                      label: photo.name || photo._id,
+                    });
+                  }
+                });
+
+                // filter the options based on `inputValue`
+                const filteredOptions = options.filter((option) =>
+                  option.label.toLowerCase().includes(inputValue.toLowerCase())
+                );
+
+                // return the filtered options
+                return filteredOptions;
+              }}
+              async
+              val={photoId}
+              onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
+            />
+          </InputGroup>
+        </ErrorBoundary>
+      </PlainModal>
+    );
+  }, [editor]);
+
   // widgets dropdown
   const [showWidgetsDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
@@ -417,6 +483,12 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
             width: 180,
           }}
           items={[
+            {
+              onClick: showPhotoWidgetModal,
+              label: 'Photo',
+              color: 'neutral',
+              disabled: !props.options?.features.widgets?.photoWidget,
+            },
             {
               onClick: showSweepwidgetModal,
               label: 'SweepWidget Giveaway',

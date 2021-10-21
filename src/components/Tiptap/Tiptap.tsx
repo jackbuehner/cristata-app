@@ -38,6 +38,8 @@ import { Titlebar } from './components/Titlebar';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
 import { SweepwidgetWidget } from './extension-widget-sweepwidget';
 import { YoutubeWidget } from './extension-widget-youtube';
+import { PhotoWidget } from './extension-photo';
+import { ErrorBoundary } from 'react-error-boundary';
 
 interface ITiptap {
   docName: string;
@@ -167,6 +169,7 @@ const Tiptap = (props: ITiptap) => {
       }),
       SweepwidgetWidget,
       YoutubeWidget,
+      PhotoWidget,
     ],
     onUpdate() {
       const editor = this as unknown as Editor;
@@ -567,28 +570,30 @@ const Tiptap = (props: ITiptap) => {
             <EditorContent editor={editor} />
           </div>
         </div>
-        <Sidebar
-          isOpen={isSidebarOpen}
-          closeFunction={() => {
-            setIsSidebarOpen(false);
-            setSidebarTitle('');
-            history.replace({
-              search: `?fs=${Number(isMax)}&props=0`,
-            });
-          }}
-          header={sidebarTitle}
-        >
-          {sidebarTitle === 'Document properties' ? (
-            <DocPropertiesSidebar
-              flatData={props.flatData}
-              setFlatData={props.setFlatData}
-              changedFlatData={props.changedFlatData}
-              setChangedFlatData={props.setChangedFlatData}
-            />
-          ) : (
-            sidebarContent
-          )}
-        </Sidebar>
+        <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
+          <Sidebar
+            isOpen={isSidebarOpen}
+            closeFunction={() => {
+              setIsSidebarOpen(false);
+              setSidebarTitle('');
+              history.replace({
+                search: `?fs=${Number(isMax)}&props=0`,
+              });
+            }}
+            header={sidebarTitle}
+          >
+            {sidebarTitle === 'Document properties' ? (
+              <DocPropertiesSidebar
+                flatData={props.flatData}
+                setFlatData={props.setFlatData}
+                changedFlatData={props.changedFlatData}
+                setChangedFlatData={props.setChangedFlatData}
+              />
+            ) : (
+              sidebarContent
+            )}
+          </Sidebar>
+        </ErrorBoundary>
       </div>
       <Statusbar>
         {providerWebsocket.wsconnected ? (

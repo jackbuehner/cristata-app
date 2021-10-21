@@ -147,6 +147,7 @@ const articles: collection<IArticle> = {
           textStylePicker: true,
           horizontalRule: true,
           widgets: {
+            photoWidget: true,
             sweepwidget: true,
             youtube: true,
           },

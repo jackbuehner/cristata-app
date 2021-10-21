@@ -90,6 +90,7 @@ interface tiptapOptions {
     textStylePicker?: boolean;
     horizontalRule?: boolean;
     widgets?: {
+      photoWidget?: boolean;
       sweepwidget?: boolean;
       youtube?: boolean;
     };
