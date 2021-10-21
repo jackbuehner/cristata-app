@@ -116,6 +116,9 @@ function ItemDetailsPage({
     }
   }, [data, props.flatData]);
 
+  // save changes to tiptap editors
+  const [tiptapFlatData, setTiptapFlatData] = useState<flatDataType>();
+
   // save any changes that need to be sent to the server in state
   const [changedFlatData, setChangedFlatData] = useState<{
     [key: string]: string | string[] | number | number[] | boolean;
@@ -233,20 +236,11 @@ function ItemDetailsPage({
   const saveChanges = async (extraData: { [key: string]: any } = {}) => {
     setIsLoading(true);
 
-    // get the flatData for tiptap fields
-    const tiptapFields = collectionsConfig[dashToCamelCase(collection)]?.fields
-      .filter((field) => field.type === 'tiptap')
-      .map((field) => field.key);
-    const tiptapFieldsData: { [key: string]: any } = {};
-    tiptapFields?.forEach((key) => {
-      tiptapFieldsData[key] = flatData[key];
-    });
-
     // patch to database
     return await db
       .patch(
         `/${collectionName}/${item_id}`,
-        unflattenObject({ ...changedFlatData, ...tiptapFieldsData, ...extraData })
+        unflattenObject({ ...changedFlatData, ...tiptapFlatData, ...extraData })
       )
       .then(() => {
         setIsLoading(false);
@@ -669,12 +663,10 @@ function ItemDetailsPage({
                         forceMax={fs === 'force'}
                         onChange={(editorJson: string) => {
                           if (editorJson !== flatData[field.key]) {
-                            if (flatData.name) {
-                              setFlatData({
-                                ...flatData,
-                                [field.key]: editorJson,
-                              });
-                            }
+                            setTiptapFlatData({
+                              ...tiptapFlatData,
+                              [field.key]: editorJson,
+                            });
                           }
                         }}
                         actions={actions}
