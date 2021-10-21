@@ -131,9 +131,9 @@ function ItemDetailsPage({
   useEffect(() => {
     // component --> source
     if (propsSetFlatData) {
-      propsSetFlatData(flatData);
+      if (props.flatData !== flatData) propsSetFlatData(flatData);
     }
-  }, [flatData, propsSetFlatData]);
+  }, [flatData, props.flatData, propsSetFlatData]);
 
   useEffect(() => {
     // source --> component
@@ -144,9 +144,9 @@ function ItemDetailsPage({
   useEffect(() => {
     // component --> source
     if (propsSetChangedFlatData) {
-      propsSetChangedFlatData(changedFlatData);
+      if (props.changedFlatData !== changedFlatData) propsSetChangedFlatData(changedFlatData);
     }
-  }, [changedFlatData, propsSetChangedFlatData]);
+  }, [changedFlatData, props.changedFlatData, propsSetChangedFlatData]);
 
   // set document title
   useEffect(() => {
@@ -444,7 +444,7 @@ function ItemDetailsPage({
         </PlainModal>
       </MuiPickersUtilsProvider>
     );
-  }, [setFlatData, flatData]);
+  }, [flatData]);
 
   const actions: Array<Iaction | null> = [
     {
