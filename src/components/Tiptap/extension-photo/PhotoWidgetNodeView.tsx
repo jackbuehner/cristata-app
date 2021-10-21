@@ -30,6 +30,12 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
     [photos, photoId]
   );
 
+  // set the photo url and credit attributes
+  if (photo) {
+    if (photo.photo_url) props.updateAttributes({ photoUrl: photo.photo_url });
+    if (photo.people?.photo_created_by) props.updateAttributes({ photoCredit: photo.people.photo_created_by });
+  }
+
   // insert photo widget
   const [showPhotoWidgetModal, hidePhotoWidgetModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks

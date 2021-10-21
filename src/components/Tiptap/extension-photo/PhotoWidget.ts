@@ -38,6 +38,24 @@ const PhotoWidget = Node.create<PhotoWidgetOptions>({
           photoId: element.getAttribute('data-photo-id') || '',
         }),
       },
+      photoUrl: {
+        default: '',
+        renderHTML: (attributes) => ({
+          'data-photo-url': attributes.photoUrl,
+        }),
+        parseHTML: (element) => ({
+          photoUrl: element.getAttribute('data-photo-url') || '',
+        }),
+      },
+      photoCredit: {
+        default: '',
+        renderHTML: (attributes) => ({
+          'data-photo-credit': attributes.photoCredit,
+        }),
+        parseHTML: (element) => ({
+          photoCredit: element.getAttribute('data-photo-credit') || '',
+        }),
+      },
       showCaption: {
         default: false,
         renderHTML: (attributes) => ({
