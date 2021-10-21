@@ -64,6 +64,29 @@ function CommentContainer(props: ICommentContainer) {
   // control whether the card is shown
   const [isShown, setIsShown] = useState<boolean>(true);
 
+  // track whether mouse is over comment toggle button
+  const [isMouseOverToggle, setIsMouseOverToggle] = useState<boolean>(false);
+
+  // increase the color intensity of the commented content when the comment is open
+  useEffect(() => {
+    if (isShown) {
+      props.updateAttributes({
+        ...props.node.attrs,
+        alpha: 0.4,
+      });
+    } else if (isMouseOverToggle) {
+      props.updateAttributes({
+        ...props.node.attrs,
+        alpha: 0.3,
+      });
+    } else {
+      props.updateAttributes({
+        ...props.node.attrs,
+        alpha: 0.15,
+      });
+    }
+  }, [isMouseOverToggle, isShown, props]);
+
   // store the position and size information of the toggle button that executes `toggleCard()`
   const [triggerRect, setTriggerRect] = useState<DOMRect>();
   useEffect(() => {
@@ -123,10 +146,15 @@ function CommentContainer(props: ICommentContainer) {
     <NodeViewWrapper as={`span`}>
       <NodeViewContent
         as={`span`}
-        style={{ backgroundColor: Color(props.node.attrs.color).alpha(0.4) }}
+        style={{ backgroundColor: Color(props.node.attrs.color).alpha(props.node.attrs.alpha) }}
       ></NodeViewContent>
       <span style={{ position: 'absolute', marginLeft: -5, marginTop: 24 }} ref={toggleRef} />
-      <ToggleCardButton icon={<Comment20Regular />} onClick={toggleCard} />
+      <ToggleCardButton
+        icon={<Comment20Regular />}
+        onClick={toggleCard}
+        onMouseEnter={() => setIsMouseOverToggle(true)}
+        onMouseLeave={() => setIsMouseOverToggle(false)}
+      />
       {isShown ? (
         <Card theme={theme} contentEditable={false} triggerRect={triggerRect || new DOMRect()}>
           {isEditMode ? null : (

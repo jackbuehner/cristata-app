@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import styled from '@emotion/styled/macro';
 import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType, colorShade, colorType } from '../../utils/theme/theme';
@@ -62,6 +62,8 @@ export interface ButtonProps {
   colorShade?: colorShade;
   icon: React.ReactElement;
   className?: string;
+  onMouseEnter?: MouseEventHandler<HTMLButtonElement>;
+  onMouseLeave?: MouseEventHandler<HTMLButtonElement>;
 }
 
 const IconButton: React.FC<ButtonProps> = (props) => {
@@ -82,6 +84,8 @@ const IconButton: React.FC<ButtonProps> = (props) => {
       theme={theme}
       icon={props.icon}
       className={props.className}
+      onMouseEnter={props.onMouseEnter}
+      onMouseLeave={props.onMouseLeave}
     >
       {props.icon}
     </BUTTON>

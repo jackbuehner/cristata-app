@@ -52,12 +52,15 @@ const Comment = Node.create<CommentOptions>({
         // apply these attributes to the rendered element in the editor
         renderHTML: (attributes) => {
           return {
-            style: `background-color: ${Color(attributes.color).alpha(0.4).string()}`,
+            style: `background-color: ${Color(attributes.color).alpha(attributes.alpha).string()}`,
           };
         },
         parseHTML: (element) => ({
           color: element.style.backgroundColor || '#faf0a2',
         }),
+      },
+      alpha: {
+        default: 0.15,
       },
       message: {
         default: '',
