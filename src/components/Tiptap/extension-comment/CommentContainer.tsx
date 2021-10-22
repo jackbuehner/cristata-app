@@ -62,7 +62,7 @@ function CommentContainer(props: ICommentContainer) {
   };
 
   // control whether the card is shown
-  const [isShown, setIsShown] = useState<boolean>(true);
+  const [isShown, setIsShown] = useState<boolean>(props.node.attrs.message.length === 0);
 
   // track whether mouse is over comment toggle button
   const [isMouseOverToggle, setIsMouseOverToggle] = useState<boolean>(false);
