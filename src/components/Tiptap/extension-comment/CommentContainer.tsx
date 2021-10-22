@@ -67,26 +67,6 @@ function CommentContainer(props: ICommentContainer) {
   // track whether mouse is over comment toggle button
   const [isMouseOverToggle, setIsMouseOverToggle] = useState<boolean>(false);
 
-  // increase the color intensity of the commented content when the comment is open
-  useEffect(() => {
-    if (isShown) {
-      props.updateAttributes({
-        ...props.node.attrs,
-        alpha: 0.4,
-      });
-    } else if (isMouseOverToggle) {
-      props.updateAttributes({
-        ...props.node.attrs,
-        alpha: 0.3,
-      });
-    } else {
-      props.updateAttributes({
-        ...props.node.attrs,
-        alpha: 0.15,
-      });
-    }
-  }, [isMouseOverToggle, isShown, props]);
-
   // store the position and size information of the toggle button that executes `toggleCard()`
   const [triggerRect, setTriggerRect] = useState<DOMRect>();
   useEffect(() => {
@@ -105,6 +85,7 @@ function CommentContainer(props: ICommentContainer) {
    * Removes the comment node while keeping the text inside the node.
    */
   const unsetComment = useCallback(() => {
+    setIsShown(false);
     props.editor.commands.unsetComment(props.getPos() + props.node.nodeSize - 1);
   }, [props]);
 
@@ -120,6 +101,7 @@ function CommentContainer(props: ICommentContainer) {
    */
   const toggleCard = (e: React.MouseEvent) => {
     setIsShown(!isShown);
+    props.updateAttributes({ alpha: props.node.attrs.alpha < 0.4 ? 0.4 : isMouseOverToggle ? 0.3 : 0.15 });
   };
 
   /**
@@ -152,8 +134,14 @@ function CommentContainer(props: ICommentContainer) {
       <ToggleCardButton
         icon={<Comment20Regular />}
         onClick={toggleCard}
-        onMouseEnter={() => setIsMouseOverToggle(true)}
-        onMouseLeave={() => setIsMouseOverToggle(false)}
+        onMouseEnter={() => {
+          setIsMouseOverToggle(true);
+          if (!isShown) props.updateAttributes({ alpha: 0.3 });
+        }}
+        onMouseLeave={() => {
+          setIsMouseOverToggle(false);
+          if (!isShown) props.updateAttributes({ alpha: 0.15 });
+        }}
       />
       {isShown ? (
         <Card theme={theme} contentEditable={false} triggerRect={triggerRect || new DOMRect()}>
