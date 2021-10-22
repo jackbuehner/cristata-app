@@ -399,6 +399,7 @@ const Tiptap = (props: ITiptap) => {
                 isActive: trackChanges,
               },
             ]}
+            isDisabled={props.isDisabled}
           />
         ) : null}
       </ErrorBoundary>

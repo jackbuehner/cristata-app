@@ -14,6 +14,7 @@ interface ITitlebar {
     action?: () => void;
     isActive?: boolean;
   }>;
+  isDisabled?: boolean;
 }
 
 function Titlebar(props: ITitlebar) {
@@ -80,7 +81,7 @@ function Titlebar(props: ITitlebar) {
                 iconSize={action.label === 'Save' ? 20 : undefined}
                 onClick={action.action}
                 isActive={action.isActive}
-                disabled={action.disabled}
+                disabled={props.isDisabled || action.disabled}
               >
                 {action.icon}
               </TitlebarButton>
