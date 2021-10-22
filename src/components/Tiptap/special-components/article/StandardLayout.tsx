@@ -127,7 +127,7 @@ function StandardLayout(props: IStandardLayout) {
     return (
       <Container tiptapWidth={props.tiptapSize.width}>
         <Categories>
-          {(categories as string[]).map((cat, index) => (
+          {(categories as string[])?.map((cat, index) => (
             <Category key={index}>
               {categoryLabels?.find((categoryLabel) => categoryLabel.value === cat)?.label}
             </Category>

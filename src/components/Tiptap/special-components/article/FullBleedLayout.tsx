@@ -129,7 +129,7 @@ function FullBleedLayout(props: IFullBleedLayout) {
         <PhotoContainer tiptapWidth={props.tiptapSize.width} photoUrl={photoUrl}>
           <div>
             <Categories>
-              {(categories as string[]).map((cat, index) => (
+              {(categories as string[])?.map((cat, index) => (
                 <Category key={index}>
                   {categoryLabels?.find((categoryLabel) => categoryLabel.value === cat)?.label}
                 </Category>
