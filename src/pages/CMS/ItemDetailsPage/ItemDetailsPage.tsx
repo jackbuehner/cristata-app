@@ -565,6 +565,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         }}
                         options={field.tiptap}
                         isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}
+                        showLoading={state.isLoading}
                         sessionId={sessionId}
                         html={html}
                         isMaximized={fs === '1' || fs === 'force'}

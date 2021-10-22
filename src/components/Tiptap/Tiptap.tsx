@@ -37,6 +37,8 @@ import { SweepwidgetWidget } from './extension-widget-sweepwidget';
 import { YoutubeWidget } from './extension-widget-youtube';
 import { PhotoWidget } from './extension-photo';
 import { ErrorBoundary } from 'react-error-boundary';
+import styled from '@emotion/styled';
+import { LinearProgress } from '@rmwc/linear-progress';
 
 interface ITiptap {
   docName: string;
@@ -55,6 +57,7 @@ interface ITiptap {
   isMaximized?: boolean;
   forceMax?: boolean;
   message?: string;
+  showLoading?: boolean;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -399,29 +402,39 @@ const Tiptap = (props: ITiptap) => {
           />
         ) : null}
       </ErrorBoundary>
-      <ErrorBoundary fallback={<div>Error loading toolbar</div>}>
-        <Toolbar
-          editor={editor}
-          isMax={isMax}
-          setIsMax={setIsMax}
-          forceMax={props.forceMax}
-          isDisabled={props.isDisabled}
-          layout={layout}
-          setLayout={setLayout}
-          awarenessProfiles={awarenessProfiles}
-          tiptapWidth={tiptapWidth}
-          user={props.user}
-          toggleTrackChanges={toggleTrackChanges}
-          trackChanges={trackChanges}
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-          setSidebarContent={setSidebarContent}
-          sidebarTitle={sidebarTitle}
-          setSidebarTitle={setSidebarTitle}
-          actions={props.actions}
-          options={props.options}
-        />
-      </ErrorBoundary>
+      <div
+        css={css`
+          flex-grow: 0;
+          flex-shrink: 0;
+          width: 100%;
+          position: relative;
+        `}
+      >
+        <ErrorBoundary fallback={<div>Error loading toolbar</div>}>
+          <Toolbar
+            editor={editor}
+            isMax={isMax}
+            setIsMax={setIsMax}
+            forceMax={props.forceMax}
+            isDisabled={props.isDisabled}
+            layout={layout}
+            setLayout={setLayout}
+            awarenessProfiles={awarenessProfiles}
+            tiptapWidth={tiptapWidth}
+            user={props.user}
+            toggleTrackChanges={toggleTrackChanges}
+            trackChanges={trackChanges}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+            setSidebarContent={setSidebarContent}
+            sidebarTitle={sidebarTitle}
+            setSidebarTitle={setSidebarTitle}
+            actions={props.actions}
+            options={props.options}
+          />
+        </ErrorBoundary>
+        {props.showLoading ? <IndeterminateProgress theme={theme} /> : null}
+      </div>
       <div
         css={css`
           display: flex;
@@ -573,5 +586,17 @@ const Tiptap = (props: ITiptap) => {
     </div>
   );
 };
+
+const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType }>`
+  --mdc-theme-primary: ${({ theme }) => theme.color.blue[800]};
+  left: 0;
+  bottom: 0;
+  position: absolute;
+  z-index: 10;
+  .mdc-linear-progress__buffer,
+  .mdc-linear-progress__buffering-dots {
+    background: none;
+  }
+`;
 
 export { Tiptap };
