@@ -9,6 +9,7 @@ export interface CmsItemState {
   unsavedFields: fields;
   tipTapFields: { [key: string]: string }; // JSON string of prosmirror content
   isUnsaved: boolean;
+  isLoading: boolean;
 }
 
 const initialState: CmsItemState = {
@@ -16,6 +17,7 @@ const initialState: CmsItemState = {
   unsavedFields: {},
   tipTapFields: {},
   isUnsaved: false,
+  isLoading: false,
 };
 
 export const cmsItemSlice = createSlice({
@@ -59,9 +61,17 @@ export const cmsItemSlice = createSlice({
       state.unsavedFields = {};
       state.isUnsaved = false;
     },
+    /**
+     * Sets whether data is loading.
+     *
+     * _This is useful for disabling fields while new data is fetched._
+     */
+    setIsLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
   },
 });
 
-export const { setFields, setField, clearUnsavedFields } = cmsItemSlice.actions;
+export const { setFields, setField, clearUnsavedFields, setIsLoading } = cmsItemSlice.actions;
 
 export default cmsItemSlice.reducer;

@@ -36,7 +36,7 @@ import Color from 'color';
 import { ErrorBoundary } from 'react-error-boundary';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
-import { setFields, setField } from '../../../redux/slices/cmsItemSlice';
+import { setFields, setField, setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
@@ -91,12 +91,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // get the item
   const [{ data, loading, error }, refetch] = useAxios<{ [key: string]: any }>(`/${collectionName}/${item_id}`);
-
-  // store whether the page is loading/updating/saving
-  const [isLoading, setIsLoading] = useState<boolean>(loading);
   useEffect(() => {
-    setIsLoading(loading);
-  }, [loading]);
+    dispatch(setIsLoading(loading));
+  }, [dispatch, loading]);
 
   // save the item to redux
   useEffect(() => {
@@ -440,7 +437,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               })}
             </>
           }
-          isLoading={isLoading}
+          isLoading={state.isLoading}
         />
       )}
 
@@ -451,7 +448,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             permissions.
           </Notice>
         ) : null}
-        {loading || (isPublishable ? loadingPermissions : false) ? (
+        {(state.isLoading && !data) || (isPublishable ? loadingPermissions : false) ? (
           // loading
           'Loading...'
         ) : //error
@@ -473,7 +470,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -486,7 +483,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           : (state.fields[field.key] as string)
                       }
                       onChange={(e) => handleTextChange(e, field.key)}
-                      isDisabled={publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -500,7 +497,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -510,7 +507,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       id={field.key}
                       checked={!!state.fields[field.key]}
                       onChange={(e) => handleBooleanChange(e.currentTarget.checked, field.key)}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -529,7 +526,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -567,7 +564,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           photo: profile?.photo ? profile.photo : genAvatar(user._id || user.id),
                         }}
                         options={field.tiptap}
-                        isDisabled={publishLocked ? true : isHTML ? true : field.isDisabled}
+                        isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}
                         sessionId={sessionId}
                         html={html}
                         isMaximized={fs === '1' || fs === 'force'}
@@ -597,7 +594,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -615,7 +612,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           typeof state.fields[field.key] === 'number' ? 'number' : 'string'
                         )
                       }
-                      isDisabled={publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -629,7 +626,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -648,7 +645,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           typeof state.fields[field.key] === 'number' ? 'number' : 'string'
                         )
                       }
-                      isDisabled={publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -665,7 +662,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -679,7 +676,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           field.dataType || 'string'
                         )
                       }
-                      isDisabled={publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -696,7 +693,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -711,7 +708,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           field.dataType || 'string'
                         );
                       }}
-                      isDisabled={publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -728,7 +725,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -743,7 +740,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         )
                       }
                       isCreatable
-                      isDisabled={publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -757,7 +754,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={field.key}
                       description={field.description}
-                      disabled={publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -772,7 +769,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       onChange={(date) => {
                         if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);
                       }}
-                      isDisabled={publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -785,7 +782,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                   <Label
                     htmlFor={field.key}
                     description={field.description}
-                    disabled={publishLocked ? true : field.isDisabled}
+                    disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                   >
                     {field.label}
                   </Label>
