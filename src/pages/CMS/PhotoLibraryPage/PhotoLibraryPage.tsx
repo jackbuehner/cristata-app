@@ -15,6 +15,7 @@ import Color from 'color';
 import { useHistory, useParams } from 'react-router-dom';
 import { IPhoto } from '../../../interfaces/cristata/photos';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
+import ReactTooltip from 'react-tooltip';
 
 function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
@@ -182,6 +183,11 @@ function PhotoLibraryPage() {
     uploadInputRef?.current?.click();
   };
 
+  // update tooltip listener when component changes
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
+
   return (
     <>
       <PageHead
@@ -191,7 +197,11 @@ function PhotoLibraryPage() {
         isLoading={uploadProgress && uploadProgress !== 1 ? uploadProgress : isLoading}
         buttons={
           <>
-            <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
+            <IconButton
+              data-tip={'Refresh library'}
+              onClick={() => refetch()}
+              icon={<ArrowClockwise24Regular />}
+            >
               Refresh
             </IconButton>
             <Button onClick={upload} disabled={!!isLoading || !!uploadStatus}>

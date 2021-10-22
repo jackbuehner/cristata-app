@@ -11,6 +11,7 @@ import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { collection } from '../../../config/collections';
+import ReactTooltip from 'react-tooltip';
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -99,6 +100,11 @@ function CollectionPage() {
     store.createNew = () => store.collection.createNew([isLoading, setIsLoading], toast, history);
   }
 
+  // update tooltip listener when component changes
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
+
   const tableRef = useRef<ICollectionTableImperative>(null);
   return (
     <>
@@ -108,7 +114,11 @@ function CollectionPage() {
         isLoading={isLoading}
         buttons={
           <>
-            <IconButton onClick={() => tableRef.current?.refetchData()} icon={<ArrowClockwise24Regular />}>
+            <IconButton
+              data-tip={'Refresh data'}
+              onClick={() => tableRef.current?.refetchData()}
+              icon={<ArrowClockwise24Regular />}
+            >
               Refresh
             </IconButton>
             {store.createNew ? <Button onClick={store.createNew}>Create new</Button> : null}

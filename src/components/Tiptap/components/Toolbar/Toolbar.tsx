@@ -3,7 +3,7 @@ import { Editor } from '@tiptap/react';
 import styled from '@emotion/styled/macro';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../../../utils/theme/theme';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BackIcon, RedoIcon, BoldIcon, ItalicsIcon, UnderlineIcon, StrikeIcon } from './../../Icons';
 import {
   Code20Regular,
@@ -54,6 +54,7 @@ import { Select } from '../../../Select';
 import { ErrorBoundary } from 'react-error-boundary';
 import { IPhoto } from '../../../../interfaces/cristata/photos';
 import { db } from '../../../../utils/axios/db';
+import ReactTooltip from 'react-tooltip';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -92,6 +93,11 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
+
+  // update tooltip listener when component changes
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
 
   // DROPDOWNS
   // font family
@@ -616,6 +622,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 }
               }}
               isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
+              data-tip={`${props.isSidebarOpen && props.sidebarTitle ? 'Hide' : 'Show'} document properties`}
             />
             {!props.forceMax ? (
               <ToolbarMetaIconButton
@@ -629,6 +636,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 }}
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
                 color={'neutral'}
+                data-tip={(isMax ? 'Maximize' : 'Minimize') + ' editor'}
               />
             ) : null}
           </ToolbarMeta>
@@ -640,12 +648,14 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               icon={<BackIcon />}
               disabled={props.isDisabled || !editor.can().undo()}
               isActive={false}
+              data-tip={'Undo'}
             />
             <ToolbarRowIconButton
               onClick={() => editor.chain().focus().redo().run()}
               icon={<RedoIcon />}
               disabled={props.isDisabled || !editor.can().redo()}
               isActive={false}
+              data-tip={'Redo'}
             />
             <ToolbarDivider />
             <Combobox
@@ -689,6 +699,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={editor.isActive('bold')}
                 icon={<BoldIcon />}
                 disabled={props.isDisabled || !editor.can().toggleBold()}
+                data-tip={'Bold'}
               />
             ) : null}
             {props.options?.features.italic ? (
@@ -697,6 +708,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={editor.isActive('italic')}
                 icon={<ItalicsIcon />}
                 disabled={props.isDisabled || !editor.can().toggleItalic()}
+                data-tip={'Italic'}
               />
             ) : null}
             {props.options?.features.underline ? (
@@ -705,6 +717,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={editor.isActive('underline')}
                 icon={<UnderlineIcon />}
                 disabled={props.isDisabled || !editor.can().toggleUnderline()}
+                data-tip={'Underline'}
               />
             ) : null}
             {props.options?.features.strike ? (
@@ -713,6 +726,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={editor.isActive('strike')}
                 icon={<StrikeIcon />}
                 disabled={props.isDisabled || !editor.can().toggleStrike()}
+                data-tip={'Strikethrough'}
               />
             ) : null}
             {props.options?.features.code ? (
@@ -721,6 +735,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={editor.isActive('code')}
                 icon={<Code20Regular />}
                 disabled={props.isDisabled || !editor.can().toggleCode()}
+                data-tip={'Code'}
               />
             ) : null}
             <ToolbarDivider />
@@ -730,6 +745,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={editor.isActive('bulletList')}
                 icon={<TextBulletListLtr20Regular />}
                 disabled={props.isDisabled || !editor.can().toggleBulletList()}
+                data-tip={'Bullets'}
               />
             ) : null}
             {props.options?.features.orderedList ? (
@@ -738,6 +754,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={editor.isActive('orderedList')}
                 icon={<TextNumberListLtr20Regular />}
                 disabled={props.isDisabled || !editor.can().toggleOrderedList()}
+                data-tip={'Numbering'}
               />
             ) : null}
             <ToolbarDivider />
@@ -829,6 +846,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 isActive={false}
                 icon={<CommentOff20Regular />}
                 disabled={props.isDisabled || !editor.can().unsetComment()}
+                data-tip={'Delete comment'}
               />
             ) : null}
           </ToolbarRow>
@@ -856,6 +874,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               isActive={false}
               icon={<WordCountList20Icon />}
               disabled={props.isDisabled || true}
+              data-tip={'Word count'}
             />
             <ToolbarDivider />
             {props.options?.features.trackChanges ? (
@@ -889,12 +908,14 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                   isActive={false}
                   icon={<PreviousRevision20Icon />}
                   disabled={props.isDisabled || !editor}
+                  data-tip={'Previous change'}
                 />
                 <ToolbarRowIconButton
                   onClick={() => editor.chain().focus().nextChange().run()}
                   isActive={false}
                   icon={<NextRevision20Icon />}
                   disabled={props.isDisabled || !editor}
+                  data-tip={'Next change'}
                 />
                 <ToolbarDivider />
               </>
@@ -923,6 +944,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                   isActive={false}
                   icon={<CommentOff20Regular />}
                   disabled={props.isDisabled || !editor.can().unsetComment()}
+                  data-tip={'Delete comment'}
                 />{' '}
               </>
             ) : null}

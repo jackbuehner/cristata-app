@@ -38,6 +38,7 @@ import { IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
 import { setFields, setField, setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
+import ReactTooltip from 'react-tooltip';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -71,6 +72,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const { search } = useLocation();
+
+  // update tooltip listener when component changes
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
 
   const [{ data: profile }] = useAxios<IProfile>(`/users/me`);
 
@@ -421,9 +427,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       icon={action.icon}
                       color={action.color}
                       disabled={action.disabled}
-                    >
-                      {action.label}
-                    </IconButton>
+                      data-tip={action.label}
+                    />
                   );
                 }
                 if (action.type === 'button') {

@@ -71,6 +71,7 @@ const IconButton: React.FC<ButtonProps> = (props) => {
 
   return (
     <BUTTON
+      {...props}
       onClick={props.onClick}
       height={props.height}
       width={props.width}

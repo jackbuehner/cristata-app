@@ -1,6 +1,8 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss12Regular } from '@fluentui/react-icons';
+import { useEffect } from 'react';
+import ReactTooltip from 'react-tooltip';
 import { themeType } from '../../../../utils/theme/theme';
 import { IconButton } from '../../../Button';
 
@@ -34,6 +36,11 @@ interface ISidebarHeader {
 function SidebarHeader(props: ISidebarHeader) {
   const theme = useTheme() as themeType;
 
+  // update tooltip listener when component changes
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
+
   return (
     <Container theme={theme}>
       <Title theme={theme}>{props.children}</Title>
@@ -45,11 +52,12 @@ function SidebarHeader(props: ISidebarHeader) {
           backgroundColor={{ base: 'transparent' }}
           border={{ base: '1px solid transparent' }}
           cssExtra={css`
-          span > svg {
-            width: 16px;
-            height: 16px;
-          }
-        `}
+            span > svg {
+              width: 16px;
+              height: 16px;
+            }
+          `}
+          data-tip={'Close sidebar'}
           width={`30px`}
           height={`30px`}
         />

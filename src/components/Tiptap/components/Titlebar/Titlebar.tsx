@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import ReactTooltip from 'react-tooltip';
 import { themeType } from '../../../../utils/theme/theme';
 
 interface ITitlebar {
@@ -20,6 +21,11 @@ interface ITitlebar {
 function Titlebar(props: ITitlebar) {
   const history = useHistory();
   const theme = useTheme() as themeType;
+
+  // update tooltip listener when component changes
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
 
   useEffect(() => {
     // on component mount, set the titlebar theme color to blue
@@ -51,7 +57,7 @@ function Titlebar(props: ITitlebar) {
               <>
                 <TitlebarButton
                   onClick={() => history.goBack()}
-                  title={'Go back'}
+                  data-tip={'Go back'}
                   iconSize={16}
                   width={customTitlebarOffsetX !== 0 ? 33 : undefined}
                 >
@@ -59,7 +65,7 @@ function Titlebar(props: ITitlebar) {
                 </TitlebarButton>
                 <TitlebarButton
                   onClick={() => history.goForward()}
-                  title={'Go forward'}
+                  data-tip={'Go forward'}
                   iconSize={16}
                   width={customTitlebarOffsetX !== 0 ? 33 : undefined}
                 >
@@ -76,7 +82,7 @@ function Titlebar(props: ITitlebar) {
             return (
               <TitlebarButton
                 key={index}
-                title={action.label}
+                data-tip={action.label}
                 width={33}
                 iconSize={action.label === 'Save' ? 20 : undefined}
                 onClick={action.action}
