@@ -16,7 +16,6 @@ import {
 import useAxios from 'axios-hooks';
 import { Label } from '../../../components/Label';
 import { TextInput } from '../../../components/TextInput';
-import { flattenObject } from '../../../utils/flattenObject';
 import { InputGroup } from '../../../components/InputGroup';
 import { collections as collectionsConfig } from '../../../config';
 import styled from '@emotion/styled/macro';
@@ -37,6 +36,8 @@ import Color from 'color';
 import { ErrorBoundary } from 'react-error-boundary';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
+import { setFields, setField } from '../../../redux/slices/cmsItemSlice';
+import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -60,23 +61,13 @@ interface Iaction {
   disabled?: boolean;
 }
 
-export interface flatDataType {
-  [key: string]: string | string[] | number | number[] | boolean;
-}
-
 interface IItemDetailsPage {
-  flatData?: flatDataType;
-  setFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
-  changedFlatData?: flatDataType;
-  setChangedFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
 }
 
-function ItemDetailsPage({
-  setFlatData: propsSetFlatData,
-  setChangedFlatData: propsSetChangedFlatData,
-  ...props
-}: IItemDetailsPage) {
+function ItemDetailsPage(props: IItemDetailsPage) {
+  const state = useAppSelector((state) => state.cmsItem);
+  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const history = useHistory();
   const { search } = useLocation();
@@ -99,7 +90,7 @@ function ItemDetailsPage({
   }
 
   // get the item
-  const [{ data, loading, error }, refetch] = useAxios(`/${collectionName}/${item_id}`);
+  const [{ data, loading, error }, refetch] = useAxios<{ [key: string]: any }>(`/${collectionName}/${item_id}`);
 
   // store whether the page is loading/updating/saving
   const [isLoading, setIsLoading] = useState<boolean>(loading);
@@ -107,67 +98,20 @@ function ItemDetailsPage({
     setIsLoading(loading);
   }, [loading]);
 
-  // save a flattened version of the data in state for modification
-  const [flatData, setFlatData] = useState<flatDataType>(props.flatData ? props.flatData : {});
+  // save the item to redux
   useEffect(() => {
-    // only if data has been fetched AND flatData was not provided as props
-    if (data && !props.flatData) {
-      setFlatData(flattenObject(data));
-    }
-  }, [data, props.flatData]);
-
-  // save changes to tiptap editors
-  const [tiptapFlatData, setTiptapFlatData] = useState<flatDataType>();
-
-  // save any changes that need to be sent to the server in state
-  const [changedFlatData, setChangedFlatData] = useState<{
-    [key: string]: string | string[] | number | number[] | boolean;
-  }>(props.changedFlatData ? props.changedFlatData : {});
-
-  // if flatData was passed as props, keep flatData from props in sync with the source
-  useEffect(() => {
-    // source --> component
-    if (props.flatData) {
-      setFlatData(props.flatData);
-    }
-  }, [props.flatData]);
-  useEffect(() => {
-    // component --> source
-    if (propsSetFlatData) {
-      if (props.flatData !== flatData) propsSetFlatData(flatData);
-    }
-  }, [flatData, props.flatData, propsSetFlatData]);
-
-  useEffect(() => {
-    // source --> component
-    if (props.changedFlatData) {
-      setChangedFlatData(props.changedFlatData);
-    }
-  }, [props.changedFlatData]);
-  useEffect(() => {
-    // component --> source
-    if (propsSetChangedFlatData) {
-      if (props.changedFlatData !== changedFlatData) propsSetChangedFlatData(changedFlatData);
-    }
-  }, [changedFlatData, props.changedFlatData, propsSetChangedFlatData]);
+    if (data) dispatch(setFields(data));
+  }, [data, dispatch]);
 
   // set document title
   useEffect(() => {
-    document.title = `${Object.keys(changedFlatData).length > 0 ? '*' : ''}${
-      flatData && flatData.name ? flatData.name : data && data.name ? data.name : item_id
-    } - Cristata`;
-  }, [changedFlatData, data, flatData, item_id]);
+    document.title = `${state.isUnsaved ? '*' : ''}${state.fields.name || item_id} - Cristata`;
+  }, [data, item_id, state.fields.name, state.isUnsaved]);
 
   //
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
-    setFlatData({
-      ...flatData,
-      [key]: e.currentTarget.value,
-    });
-    setChangedFlatData({
-      ...changedFlatData,
-      [key]: e.currentTarget.value,
-    });
+    const value = e.currentTarget.value;
+    dispatch(setField(value, key));
   };
 
   /**
@@ -177,14 +121,8 @@ function ItemDetailsPage({
    * @param type the type stored in the flat data
    */
   const handleSelectChange = (value: string | number, key: string, type: string) => {
-    setFlatData({
-      ...flatData,
-      [key]: type === 'number' ? parseFloat(value as string) : value,
-    });
-    setChangedFlatData({
-      ...changedFlatData,
-      [key]: type === 'number' ? parseFloat(value as string) : value,
-    });
+    value = type === 'number' ? parseFloat(value as string) : value;
+    dispatch(setField(value, key));
   };
 
   /**
@@ -194,42 +132,21 @@ function ItemDetailsPage({
   const handleMultiselectChange = (value: string[] | number[], key: string, type: string) => {
     if (type === 'number') value = value.map((val: string | number) => parseInt(`${val}`));
     if (type === 'string') value = value.map((val: string | number) => val.toString());
-    setFlatData({
-      ...flatData,
-      [key]: value,
-    });
-    setChangedFlatData({
-      ...changedFlatData,
-      [key]: value,
-    });
+    dispatch(setField(value, key));
   };
 
   /**
    * Sets the updated ISO datetime string in the data
    */
   const handleDateTimeChange = (value: string, key: string) => {
-    setFlatData({
-      ...flatData,
-      [key]: value,
-    });
-    setChangedFlatData({
-      ...changedFlatData,
-      [key]: value,
-    });
+    dispatch(setField(value, key));
   };
 
   /**
    * Sets an updated boolean value in the data
    */
   const handleBooleanChange = (value: boolean, key: string) => {
-    setFlatData({
-      ...flatData,
-      [key]: value,
-    });
-    setChangedFlatData({
-      ...changedFlatData,
-      [key]: value,
-    });
+    dispatch(setField(value, key));
   };
 
   // save changes to the databse
@@ -240,13 +157,12 @@ function ItemDetailsPage({
     return await db
       .patch(
         `/${collectionName}/${item_id}`,
-        unflattenObject({ ...changedFlatData, ...tiptapFlatData, ...extraData })
+        unflattenObject({ ...state.unsavedFields, ...state.tipTapFields, ...extraData })
       )
       .then(() => {
         setIsLoading(false);
         toast.success(`Changes successfully saved.`);
         refetch();
-        setChangedFlatData({});
         return true;
       })
       .catch((err) => {
@@ -317,14 +233,14 @@ function ItemDetailsPage({
     // get the mandatory watchers
     const mandatoryWatchersKeys = collectionsConfig[dashToCamelCase(collection)]?.mandatoryWatchers;
     const mandatoryWatchers = mandatoryWatchersKeys
-      ?.map((key) => JSON.stringify(flatData[key]))
+      ?.map((key) => JSON.stringify(state.fields[key]))
       .filter((watcher) => watcher !== undefined); // stringify it since it can be either a profile id or a profile object
 
     // set if current user is a mandatory watcher by checking if the user is inside `mandatoryWatchers`
     if (user && mandatoryWatchers && JSON.stringify(mandatoryWatchers).includes(user.id))
       setIsMandatoryWatcher(true);
     else setIsMandatoryWatcher(false);
-  }, [collection, user, flatData]);
+  }, [collection, user, state.fields]);
 
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
@@ -338,17 +254,18 @@ function ItemDetailsPage({
   const cannotPublish = permissions?.canPublish !== true;
   const publishStage: number | undefined = collectionsConfig[dashToCamelCase(collection)]?.publishStage;
   const isPublishable = collectionsConfig[dashToCamelCase(collection)]?.isPublishable; // true only if set in config
-  const publishLocked = cannotPublish !== false && flatData.stage === publishStage && isPublishable === true; // if true, lock the publishing capability
+  const publishLocked =
+    cannotPublish !== false && state.fields.stage === publishStage && isPublishable === true; // if true, lock the publishing capability
 
   // publish confirmation modal
   const [showPublishModal, hidePublishModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [confirm, setConfirm] = useState<string>();
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [timestamp, setTimestamp] = useState<string>(flatData['timestamps.published_at'] as string);
+    const [timestamp, setTimestamp] = useState<string>(state.fields['timestamps.published_at'] as string);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [updatedTimestamp, setUpdatedTimestamp] = useState<string>(
-      flatData['timestamps.updated_at'] as string
+      state.fields['timestamps.updated_at'] as string
     );
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -406,7 +323,7 @@ function ItemDetailsPage({
           </InputGroup>
           {
             // if the article has already been published, allow setting an update timestamp
-            flatData['timestamps.published_at'] !== '0001-01-01T01:00:00.000Z' ? (
+            state.fields['timestamps.published_at'] !== '0001-01-01T01:00:00.000Z' ? (
               <InputGroup type={`text`}>
                 <Label
                   htmlFor={'date'}
@@ -438,7 +355,7 @@ function ItemDetailsPage({
         </PlainModal>
       </MuiPickersUtilsProvider>
     );
-  }, [flatData]);
+  }, [state.fields]);
 
   const actions: Array<Iaction | null> = [
     {
@@ -468,7 +385,7 @@ function ItemDetailsPage({
       type: 'button',
       icon: <Save24Regular />,
       action: () => saveChanges(),
-      disabled: Object.keys(changedFlatData).length === 0,
+      disabled: !state.isUnsaved,
     },
     collectionsConfig[dashToCamelCase(collection)]?.isPublishable
       ? //only allow publishing if canPublish is true
@@ -492,9 +409,7 @@ function ItemDetailsPage({
           title={data && data.name ? data.name : item_id}
           description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection
             .slice(1)
-            .replace('-', ' ')} collection ${
-            Object.keys(changedFlatData).length > 0 ? ' | Unsaved changes' : ''
-          }`}
+            .replace('-', ' ')} collection ${state.isUnsaved ? ' | Unsaved changes' : ''}`}
           buttons={
             <>
               {actions.map((action, index) => {
@@ -540,7 +455,7 @@ function ItemDetailsPage({
           // loading
           'Loading...'
         ) : //error
-        error || flatData.hidden ? (
+        error || state.fields.hidden ? (
           <div>
             Error loading.
             <pre>
@@ -567,8 +482,8 @@ function ItemDetailsPage({
                       id={field.key}
                       value={
                         field.modifyValue
-                          ? field.modifyValue(flatData[field.key] as string, flatData)
-                          : (flatData[field.key] as string)
+                          ? field.modifyValue(state.fields[field.key] as string, state.fields)
+                          : (state.fields[field.key] as string)
                       }
                       onChange={(e) => handleTextChange(e, field.key)}
                       isDisabled={publishLocked ? true : field.isDisabled}
@@ -593,7 +508,7 @@ function ItemDetailsPage({
                       type={'checkbox'}
                       name={field.label}
                       id={field.key}
-                      checked={!!flatData[field.key]}
+                      checked={!!state.fields[field.key]}
                       onChange={(e) => handleBooleanChange(e.currentTarget.checked, field.key)}
                       disabled={publishLocked ? true : field.isDisabled}
                     />
@@ -606,8 +521,8 @@ function ItemDetailsPage({
               if (props.isEmbedded) {
                 return null;
               }
-              const isHTML = field.tiptap && field.tiptap.isHTMLkey && flatData[field.tiptap.isHTMLkey];
-              const html = isHTML ? (flatData[field.key] as string) : undefined;
+              const isHTML = field.tiptap && field.tiptap.isHTMLkey && state.fields[field.tiptap.isHTMLkey];
+              const html = isHTML ? (state.fields[field.key] as string) : undefined;
               return (
                 <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
                   <InputGroup type={`text`}>
@@ -652,21 +567,14 @@ function ItemDetailsPage({
                           photo: profile?.photo ? profile.photo : genAvatar(user._id || user.id),
                         }}
                         options={field.tiptap}
-                        flatData={flatData}
-                        setFlatData={setFlatData}
-                        changedFlatData={changedFlatData}
-                        setChangedFlatData={setChangedFlatData}
                         isDisabled={publishLocked ? true : isHTML ? true : field.isDisabled}
                         sessionId={sessionId}
                         html={html}
                         isMaximized={fs === '1' || fs === 'force'}
                         forceMax={fs === 'force'}
                         onChange={(editorJson: string) => {
-                          if (editorJson !== flatData[field.key]) {
-                            setTiptapFlatData({
-                              ...tiptapFlatData,
-                              [field.key]: editorJson,
-                            });
+                          if (editorJson !== state.fields[field.key]) {
+                            setField(editorJson, field.key, 'tiptap');
                           }
                         }}
                         actions={actions}
@@ -697,14 +605,14 @@ function ItemDetailsPage({
                       options={field.options}
                       val={
                         field.modifyValue
-                          ? field.modifyValue(`${flatData[field.key] as string | number}`, flatData)
-                          : `${flatData[field.key] as string | number}`
+                          ? field.modifyValue(`${state.fields[field.key] as string | number}`, state.fields)
+                          : `${state.fields[field.key] as string | number}`
                       }
                       onChange={(valueObj) =>
                         handleSelectChange(
                           valueObj ? valueObj.value : '',
                           field.key,
-                          typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                          typeof state.fields[field.key] === 'number' ? 'number' : 'string'
                         )
                       }
                       isDisabled={publishLocked ? true : field.isDisabled}
@@ -730,14 +638,14 @@ function ItemDetailsPage({
                       async
                       val={
                         field.modifyValue
-                          ? field.modifyValue(`${flatData[field.key] as string | number}`, flatData)
-                          : `${flatData[field.key] as string | number}`
+                          ? field.modifyValue(`${state.fields[field.key] as string | number}`, state.fields)
+                          : `${state.fields[field.key] as string | number}`
                       }
                       onChange={(valueObj) =>
                         handleSelectChange(
                           valueObj ? valueObj.value : '',
                           field.key,
-                          typeof flatData[field.key] === 'number' ? 'number' : 'string'
+                          typeof state.fields[field.key] === 'number' ? 'number' : 'string'
                         )
                       }
                       isDisabled={publishLocked ? true : field.isDisabled}
@@ -748,8 +656,8 @@ function ItemDetailsPage({
             }
 
             if (field.type === 'multiselect') {
-              const vals = (flatData[field.key] as (string | number)[])?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, flatData) : val.toString()
+              const vals = (state.fields[field.key] as (string | number)[])?.map((val) =>
+                field.modifyValue ? field.modifyValue(val, state.fields) : val.toString()
               ); // ensures that values are strings
               return (
                 <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
@@ -779,8 +687,8 @@ function ItemDetailsPage({
             }
 
             if (field.type === 'multiselect_async') {
-              const vals = (flatData[field.key] as (string | number)[])?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, flatData) : val.toString()
+              const vals = (state.fields[field.key] as (string | number)[])?.map((val) =>
+                field.modifyValue ? field.modifyValue(val, state.fields) : val.toString()
               ); // ensures that values are strings
               return (
                 <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
@@ -811,8 +719,8 @@ function ItemDetailsPage({
             }
 
             if (field.type === 'multiselect_creatable') {
-              const val = (flatData[field.key] as string[])?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, flatData) : val
+              const val = (state.fields[field.key] as string[])?.map((val) =>
+                field.modifyValue ? field.modifyValue(val, state.fields) : val
               );
               return (
                 <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
@@ -855,11 +763,11 @@ function ItemDetailsPage({
                     </Label>
                     <DateTime
                       value={
-                        flatData[field.key] === '0001-01-01T01:00:00.000Z'
+                        state.fields[field.key] === '0001-01-01T01:00:00.000Z'
                           ? null
                           : field.modifyValue
-                          ? field.modifyValue(flatData[field.key] as string, flatData)
-                          : (flatData[field.key] as string)
+                          ? field.modifyValue(state.fields[field.key] as string, state.fields)
+                          : (state.fields[field.key] as string)
                       }
                       onChange={(date) => {
                         if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);

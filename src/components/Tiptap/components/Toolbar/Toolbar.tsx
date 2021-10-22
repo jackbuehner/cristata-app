@@ -83,12 +83,6 @@ interface IToolbar {
   setSidebarContent: React.Dispatch<React.SetStateAction<React.ReactNode>>;
   sidebarTitle: string;
   setSidebarTitle: React.Dispatch<React.SetStateAction<string>>;
-  flatData?: { [key: string]: string | string[] | number | number[] | boolean };
-  setFlatData?: React.Dispatch<
-    React.SetStateAction<{
-      [key: string]: string | string[] | number | number[] | boolean;
-    }>
-  >;
   actions?: Array<Iaction | null>;
   forceMax?: boolean;
   options?: tiptapOptions;

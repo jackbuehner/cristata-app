@@ -20,8 +20,6 @@ import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { FullBleedLayout } from './special-components/article/FullBleedLayout';
-import { IProfile } from '../../interfaces/cristata/profiles';
-import { db } from '../../utils/axios/db';
 import applyDevTools from 'prosemirror-dev-tools';
 import './office-icon/colors1.css';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
@@ -29,8 +27,7 @@ import { TrackChanges } from './extension-track-changes';
 import { Toolbar } from './components/Toolbar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
-import { DocPropertiesSidebar } from './sidebar-content/DocPropertiesSidebar';
-import { flatDataType, Iaction } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { Iaction, ItemDetailsPage } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Noticebar } from './components/Noticebar';
@@ -43,16 +40,13 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 interface ITiptap {
   docName: string;
+  title?: string;
   user: {
     name: string;
     color: string;
     photo: string;
   };
   options?: tiptapOptions;
-  flatData?: flatDataType;
-  setFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
-  changedFlatData?: flatDataType;
-  setChangedFlatData?: React.Dispatch<React.SetStateAction<flatDataType>>;
   isDisabled?: boolean;
   sessionId: string;
   onChange?: (editorJson: string) => void;
@@ -201,26 +195,6 @@ const Tiptap = (props: ITiptap) => {
   // layout picker
   const [layout, setLayout] = useState<'standard' | 'full'>('standard');
 
-  // get the authors
-  const [authors, setAuthors] = useState<IProfile[]>();
-  useEffect(() => {
-    if (props.options && props.options.type === 'article' && props.options.keys_article && props.flatData) {
-      let full: IProfile[] = [];
-      (props.flatData[props.options.keys_article.authors] as (number | IProfile)[])?.forEach((author) => {
-        if (typeof author === 'number') {
-          // get full author profile
-          db.get(`/users/${author}`).then(({ data }: { data: IProfile }) => {
-            full.push(data);
-          });
-        } else {
-          // author is already the full profile
-          full.push(author as IProfile);
-        }
-      });
-      setAuthors(full);
-    }
-  }, [props.flatData, props.options]);
-
   // manage whether track changes is on
   const [trackChanges, setTrackChanges] = useState<boolean>(editor?.state.doc.attrs.trackChanges);
 
@@ -340,12 +314,7 @@ const Tiptap = (props: ITiptap) => {
     >
       {isMax ? (
         <Titlebar
-          title={
-            // if it is an article, use the article title
-            props.options?.type === 'article' && props.options.keys_article && props.flatData
-              ? (props.flatData[props.options.keys_article.headline] as string)
-              : undefined
-          }
+          title={props.title}
           actions={[
             {
               label: 'Undo',
@@ -423,8 +392,6 @@ const Tiptap = (props: ITiptap) => {
         setSidebarContent={setSidebarContent}
         sidebarTitle={sidebarTitle}
         setSidebarTitle={setSidebarTitle}
-        flatData={props.flatData}
-        setFlatData={props.setFlatData}
         actions={props.actions}
         options={props.options}
       />
@@ -453,52 +420,19 @@ const Tiptap = (props: ITiptap) => {
           {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
           {
             // if it is an article type, show article metadata and photo
-            props.options?.type === 'article' &&
-            props.options.keys_article &&
-            props.flatData &&
-            props.setFlatData ? (
+            props.options?.type === 'article' && props.options.keys_article ? (
               <>
                 {layout === 'standard' ? (
                   <StandardLayout
-                    flatDataState={[props.flatData, props.setFlatData]}
                     options={props.options}
-                    headline={
-                      (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
-                    }
-                    description={
-                      (props.flatData[props.options.keys_article.description] as string) ||
-                      'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
-                    }
-                    categories={
-                      (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
-                    }
-                    caption={props.flatData[props.options.keys_article.caption] as string}
                     isDisabled={props.isDisabled}
                     tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                    photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
-                    authors={authors}
-                    target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
                   />
                 ) : layout === 'full' ? (
                   <FullBleedLayout
-                    flatDataState={[props.flatData, props.setFlatData]}
                     options={props.options}
-                    headline={
-                      (props.flatData[props.options.keys_article.headline] as string) || 'Article Headline'
-                    }
-                    description={
-                      (props.flatData[props.options.keys_article.description] as string) ||
-                      'A summary of the article, a notable quote from the interviewee, or a message to draw in a reader.'
-                    }
-                    categories={
-                      (props.flatData[props.options.keys_article.categories] as string[]) || ['categories']
-                    }
-                    caption={props.flatData[props.options.keys_article.caption] as string}
                     isDisabled={props.isDisabled}
                     tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                    photoUrl={props.flatData[props.options.keys_article.photo_url] as string}
-                    authors={authors}
-                    target_publish_at={props.flatData[props.options.keys_article.target_publish_at] as string}
                   />
                 ) : null}
               </>
@@ -582,16 +516,7 @@ const Tiptap = (props: ITiptap) => {
             }}
             header={sidebarTitle}
           >
-            {sidebarTitle === 'Document properties' ? (
-              <DocPropertiesSidebar
-                flatData={props.flatData}
-                setFlatData={props.setFlatData}
-                changedFlatData={props.changedFlatData}
-                setChangedFlatData={props.setChangedFlatData}
-              />
-            ) : (
-              sidebarContent
-            )}
+            {sidebarTitle === 'Document properties' ? <ItemDetailsPage isEmbedded /> : sidebarContent}
           </Sidebar>
         </ErrorBoundary>
       </div>

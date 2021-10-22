@@ -10,7 +10,7 @@ import { IProfile } from '../interfaces/cristata/profiles';
 import { History } from 'history';
 import { toast as toastify } from 'react-toastify';
 import { Dispatch, SetStateAction } from 'react';
-import { flatDataType } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { CmsItemState } from '../redux/slices/cmsItemSlice';
 
 const collections: collectionsType = {
   articles,
@@ -114,7 +114,7 @@ interface IField {
   isDisabled?: boolean;
   dataType?: string;
   async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
-  modifyValue?: (value: unknown, flatData: flatDataType) => string; // for arrays of values, each value is individually put through this function
+  modifyValue?: (value: unknown, fields: CmsItemState['fields']) => string; // for arrays of values, each value is individually put through this function
 }
 
 export { collections };

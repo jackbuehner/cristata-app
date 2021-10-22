@@ -7,29 +7,16 @@ import { DateTime } from 'luxon';
 import { IPhoto } from '../../../../interfaces/cristata/photos';
 import { db } from '../../../../utils/axios/db';
 import { useState, useEffect } from 'react';
+import { setField } from '../../../../redux/slices/cmsItemSlice';
+import { useAppSelector, useAppDispatch } from '../../../../redux/hooks';
 
 interface IStandardLayout {
-  flatDataState: [
-    { [key: string]: string | string[] | number | number[] | boolean },
-    React.Dispatch<
-      React.SetStateAction<{
-        [key: string]: string | string[] | number | number[] | boolean;
-      }>
-    >
-  ];
   options: tiptapOptions;
-  headline: string;
-  categories: string[];
-  description: string;
-  caption?: string;
   isDisabled?: boolean;
   tiptapSize: {
     width: number;
     height: number;
   };
-  photoUrl: string;
-  authors?: IProfile[];
-  target_publish_at: string;
 }
 
 /**
@@ -39,7 +26,8 @@ interface IStandardLayout {
  * in tiptapOptions.
  */
 function StandardLayout(props: IStandardLayout) {
-  const [data, setData] = props.flatDataState;
+  const state = useAppSelector((state) => state.cmsItem);
+  const dispatch = useAppDispatch();
 
   /**
    * Prevent new lines in fields.
@@ -61,10 +49,7 @@ function StandardLayout(props: IStandardLayout) {
   const handleCEBlur = (event: React.FocusEvent, key_article: 'headline' | 'description' | 'caption') => {
     const key = props.options.keys_article?.[key_article];
     if (key && event.currentTarget.textContent) {
-      setData({
-        ...data,
-        [key]: event.currentTarget.textContent,
-      });
+      dispatch(setField(event.currentTarget.textContent, key));
     }
   };
 
@@ -77,8 +62,6 @@ function StandardLayout(props: IStandardLayout) {
     suppressContentEditableWarning: true, // suppress warning from react about managed contenteditable element
     isDisabled: props.isDisabled,
   };
-
-  const categories = collectionsConfig['articles']?.fields.find((field) => field.key === 'categories')?.options;
 
   /**
    * Retrieves the photo source from a photo.
@@ -97,85 +80,125 @@ function StandardLayout(props: IStandardLayout) {
     return matchedPhoto?.people.photo_created_by;
   };
 
+  // determine the photographer/artist
   const [photoCredit, setPhotoCredit] = useState<string>();
   useEffect(() => {
     (async () => {
-      const credit = await getPhotoSourceFromUrl(props.photoUrl);
-      if (credit) setPhotoCredit(credit);
+      if (props.options.keys_article) {
+        const credit = await getPhotoSourceFromUrl(state.fields[props.options.keys_article.photo_url]);
+        if (credit) setPhotoCredit(credit);
+      }
     })();
-  }, [setPhotoCredit, props.photoUrl]);
+  }, [setPhotoCredit, props.options.keys_article, state.fields]);
 
-  return (
-    <Container tiptapWidth={props.tiptapSize.width}>
-      <Categories>
-        {props.categories.map((cat, index) => (
-          <Category key={index}>{categories?.find((category) => category.value === cat)?.label}</Category>
-        ))}
-      </Categories>
-      <Headline {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'headline')}>
-        {props.headline}
-      </Headline>
-      <Description {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'description')}>
-        {props.description}
-      </Description>
-      <PhotoContainer tiptapWidth={props.tiptapSize.width}>
-        <Photo draggable={'false'} src={props.photoUrl} />
-      </PhotoContainer>
-      <Caption {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'caption')}>
-        {props.caption}
-      </Caption>
-      <Credit>{photoCredit}</Credit>
-      <MetaGrid>
-        <Authors>
-          <AuthorPhotos>
-            {props.authors?.map((author: IProfile, index: number) => {
-              return <AuthorPhoto key={index} draggable={'false'} src={author.photo} />;
-            })}
-          </AuthorPhotos>
-          <Author>By</Author>
-          {props.authors && props.authors.length === 1 ? (
-            <AuthorLink>
-              <Author>{props.authors[0].name}</Author>
-            </AuthorLink>
-          ) : props.authors && props.authors.length === 2 ? (
-            <>
-              <AuthorLink>
-                <Author>{props.authors[0].name}</Author>
-              </AuthorLink>
-              <Author> and </Author>
-              <AuthorLink>
-                <Author>{props.authors[1].name}</Author>
-              </AuthorLink>
-            </>
-          ) : props.authors && props.authors.length >= 3 ? (
-            <>
-              {props.authors.slice(0, props.authors.length - 1).map((author: IProfile, index: number) => {
-                return (
-                  <>
-                    <AuthorLink>
-                      <Author key={index}>{author.name}</Author>
-                    </AuthorLink>
-                    <Author>, </Author>
-                  </>
-                );
+  // get the authors
+  const [authors, setAuthors] = useState<IProfile[]>([]);
+  useEffect(() => {
+    if (props.options.keys_article && state.fields) {
+      let full: IProfile[] = [];
+      (state.fields[props.options.keys_article.authors] as (number | IProfile)[])?.forEach((author) => {
+        if (typeof author === 'number') {
+          // get full author profile
+          db.get(`/users/${author}`).then(({ data }: { data: IProfile }) => {
+            full.push(data);
+          });
+        } else {
+          // author is already the full profile
+          full.push(author as IProfile);
+        }
+      });
+      setAuthors(full);
+    }
+  }, [props.options.keys_article, state.fields]);
+
+  if (state.fields && props.options.keys_article) {
+    const { keys_article } = props.options;
+    const headline = state.fields[keys_article.headline];
+    const description = state.fields[keys_article.description];
+    const categories = state.fields[keys_article.categories];
+    const caption = state.fields[keys_article.caption];
+    const photoUrl = state.fields[keys_article.photo_url];
+    const targetPublishAt = state.fields[keys_article.target_publish_at];
+
+    const categoryLabels = collectionsConfig['articles']?.fields.find(
+      (field) => field.key === 'categories'
+    )?.options;
+
+    return (
+      <Container tiptapWidth={props.tiptapSize.width}>
+        <Categories>
+          {(categories as string[]).map((cat, index) => (
+            <Category key={index}>
+              {categoryLabels?.find((categoryLabel) => categoryLabel.value === cat)?.label}
+            </Category>
+          ))}
+        </Categories>
+        <Headline {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'headline')}>
+          {headline}
+        </Headline>
+        <Description {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'description')}>
+          {description}
+        </Description>
+        <PhotoContainer tiptapWidth={props.tiptapSize.width}>
+          <Photo draggable={'false'} src={photoUrl} />
+        </PhotoContainer>
+        <Caption {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, 'caption')}>
+          {caption}
+        </Caption>
+        <Credit>{photoCredit}</Credit>
+        <MetaGrid>
+          <Authors>
+            <AuthorPhotos>
+              {authors?.map((author: IProfile, index: number) => {
+                return <AuthorPhoto key={index} draggable={'false'} src={author.photo} />;
               })}
-              <Author>and </Author>
+            </AuthorPhotos>
+            <Author>By</Author>
+            {authors.length === 1 ? (
               <AuthorLink>
-                <Author>{props.authors.pop()?.name}</Author>
+                <Author>{authors[0].name}</Author>
               </AuthorLink>
-            </>
-          ) : null}
-        </Authors>
-        <PublishDate>{DateTime.fromISO(props.target_publish_at).toFormat(`LLLL dd, yyyy`)}</PublishDate>
-        <SocialButtons>
-          <SocialButton icon={<FacebookIcon />} />
-          <SocialButton icon={<TwitterIcon />} />
-          <SocialButton icon={<EmailIcon />} />
-          <SocialButton icon={<LinkedinIcon />} />
-        </SocialButtons>
-      </MetaGrid>
-    </Container>
-  );
+            ) : authors && authors.length === 2 ? (
+              <>
+                <AuthorLink>
+                  <Author>{authors[0].name}</Author>
+                </AuthorLink>
+                <Author> and </Author>
+                <AuthorLink>
+                  <Author>{authors[1].name}</Author>
+                </AuthorLink>
+              </>
+            ) : authors && authors.length >= 3 ? (
+              <>
+                {authors.slice(0, authors.length - 1).map((author: IProfile, index: number) => {
+                  return (
+                    <>
+                      <AuthorLink>
+                        <Author key={index}>{author.name}</Author>
+                      </AuthorLink>
+                      <Author>, </Author>
+                    </>
+                  );
+                })}
+                <Author>and </Author>
+                <AuthorLink>
+                  <Author>{authors.pop()?.name}</Author>
+                </AuthorLink>
+              </>
+            ) : null}
+          </Authors>
+          <PublishDate>{DateTime.fromISO(targetPublishAt).toFormat(`LLLL dd, yyyy`)}</PublishDate>
+          <SocialButtons>
+            <SocialButton icon={<FacebookIcon />} />
+            <SocialButton icon={<TwitterIcon />} />
+            <SocialButton icon={<EmailIcon />} />
+            <SocialButton icon={<LinkedinIcon />} />
+          </SocialButtons>
+        </MetaGrid>
+      </Container>
+    );
+  }
+  return null;
 }
 
 const Container = styled.div<{ tiptapWidth: number }>`

@@ -9,18 +9,22 @@ import reportWebVitals from './reportWebVitals';
 import { DropdownProvider } from './hooks/useDropdown';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import LuxonUtils from '@date-io/luxon';
+import { store } from './redux/store';
+import { Provider as ReduxProvider } from 'react-redux';
 
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <ModalProvider>
-        <DropdownProvider>
-          <MuiPickersUtilsProvider utils={LuxonUtils}>
-            <App />
-          </MuiPickersUtilsProvider>
-        </DropdownProvider>
-      </ModalProvider>
-    </ThemeProvider>
+    <ReduxProvider store={store}>
+      <ThemeProvider theme={theme}>
+        <ModalProvider>
+          <DropdownProvider>
+            <MuiPickersUtilsProvider utils={LuxonUtils}>
+              <App />
+            </MuiPickersUtilsProvider>
+          </DropdownProvider>
+        </ModalProvider>
+      </ThemeProvider>
+    </ReduxProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
