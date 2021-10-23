@@ -115,6 +115,7 @@ interface IField {
   dataType?: string;
   async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
   modifyValue?: (value: unknown, fields: CmsItemState['fields']) => string; // for arrays of values, each value is individually put through this function
+  Component?: React.ComponentType<CustomFieldProps>;
 }
 
 export { collections };

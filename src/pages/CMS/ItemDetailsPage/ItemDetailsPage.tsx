@@ -36,9 +36,10 @@ import Color from 'color';
 import { ErrorBoundary } from 'react-error-boundary';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
-import { setFields, setField, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/slices/cmsItemSlice';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ReactTooltip from 'react-tooltip';
+import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -782,6 +783,21 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
+            if (field.type === 'custom' && field.Component) {
+              return (
+                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                  <field.Component
+                    state={state}
+                    dispatch={dispatch}
+                    setStateFunctions={{ setFields, setField, setIsLoading }}
+                    theme={theme}
+                    search={search}
+                    actions={actions}
+                  />
+                </ErrorBoundary>
+              );
+            }
+
             return (
               <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
                 <InputGroup type={`text`}>
@@ -815,5 +831,18 @@ const Notice = styled.div<{ theme: themeType }>`
   z-index: 99;
 `;
 
+interface CustomFieldProps {
+  state: CmsItemState;
+  dispatch: Dispatch<AnyAction>;
+  setStateFunctions: {
+    setFields: typeof setFields;
+    setField: typeof setField;
+    setIsLoading: typeof setIsLoading;
+  };
+  theme: themeType;
+  search: string;
+  actions: (Iaction | null)[];
+}
+
 export { ItemDetailsPage };
-export type { Iaction };
+export type { Iaction, CustomFieldProps };
