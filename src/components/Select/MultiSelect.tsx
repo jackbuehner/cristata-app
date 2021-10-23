@@ -1,4 +1,4 @@
-import { useTheme } from '@emotion/react';
+import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { OptionsType, OptionTypeBase, GroupTypeBase } from 'react-select';
 import Creatable from 'react-select/creatable';
@@ -24,6 +24,7 @@ interface IMultiSelect<
   isCreatable?: boolean;
   isDisabled?: boolean;
   async?: boolean;
+  cssExtra?: SerializedStyles;
 }
 
 /**
@@ -111,6 +112,7 @@ function MultiSelect(props: IMultiSelect) {
         onChange={props.onChange}
         isMulti
         isDisabled={props.isDisabled}
+        cssExtra={props.cssExtra}
       />
     );
   }
@@ -129,6 +131,7 @@ function MultiSelect(props: IMultiSelect) {
         onChange={props.onChange}
         isMulti
         isDisabled={props.isDisabled}
+        cssExtra={props.cssExtra}
         cacheOptions
       />
     );
@@ -147,6 +150,7 @@ function MultiSelect(props: IMultiSelect) {
       onChange={props.onChange}
       isMulti
       isDisabled={props.isDisabled}
+      cssExtra={props.cssExtra}
     />
   );
 }

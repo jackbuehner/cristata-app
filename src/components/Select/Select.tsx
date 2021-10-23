@@ -1,4 +1,4 @@
-import { useTheme } from '@emotion/react';
+import { SerializedStyles, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { themeType } from '../../utils/theme/theme';
 import ReactSelect, { OptionTypeBase, GroupTypeBase } from 'react-select';
@@ -24,6 +24,7 @@ interface ISelect<
   isCreatable?: boolean;
   isDisabled?: boolean;
   async?: boolean;
+  cssExtra?: SerializedStyles;
 }
 
 interface ISelectComponent extends ISelect {
@@ -40,20 +41,17 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
     box-sizing: border-box;
     border-radius: ${({ appTheme: theme }) => theme.radius};
     border: none;
-    box-shadow: ${({ appTheme: theme }) =>
-      theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
+    box-shadow: ${({ appTheme: theme }) => theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
     transition: box-shadow 240ms;
     font-family: ${({ appTheme: theme }) => theme.font['detail']};
     font-size: 14px;
     font-variant-numeric: lining-nums;
     &:hover {
-      box-shadow: ${({ appTheme: theme }) =>
-        theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+      box-shadow: ${({ appTheme: theme }) => theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
     }
     &:focus-within {
       outline: none;
-      box-shadow: ${({ appTheme: theme }) =>
-        theme.color.primary[800]} 0px 0px 0px 2px inset;
+      box-shadow: ${({ appTheme: theme }) => theme.color.primary[800]} 0px 0px 0px 2px inset;
     }
   }
   // container with values (only one is is visible with single selects)
@@ -78,22 +76,8 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
     font-size: 14px;
   }
   .react-select__option:not(.react-select__option--is-disabled) {
-    ${({
-      color,
-      colorShade,
-      appTheme: theme,
-      isDisabled,
-      backgroundColor,
-      border,
-    }) =>
-      buttonEffect(
-        color,
-        colorShade,
-        theme,
-        isDisabled,
-        backgroundColor,
-        border
-      )}
+    ${({ color, colorShade, appTheme: theme, isDisabled, backgroundColor, border }) =>
+      buttonEffect(color, colorShade, theme, isDisabled, backgroundColor, border)}
   }
   // the option that is already selected
   .react-select__option--is-selected {
@@ -114,6 +98,7 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
     font-variant-numeric: lining-nums;
     color: ${({ appTheme: theme }) => theme.color.neutral[theme.mode][1000]};
   }
+  ${({ cssExtra }) => cssExtra}
 `;
 
 /**
@@ -146,8 +131,7 @@ function Select(props: ISelect) {
    * Converts the value to a value object (for the async select)
    */
   const getValueObjectAsync = (val?: string) => {
-    if (val && props.loadOptions)
-      return asyncOptions?.find((opt) => opt.value === val);
+    if (val && props.loadOptions) return asyncOptions?.find((opt) => opt.value === val);
     return undefined;
   };
 
@@ -170,6 +154,7 @@ function Select(props: ISelect) {
         value={getValueObject(props.val)}
         onChange={props.onChange}
         isDisabled={props.isDisabled}
+        cssExtra={props.cssExtra}
       />
     );
   }
@@ -187,6 +172,7 @@ function Select(props: ISelect) {
         value={getValueObjectAsync(props.val)}
         onChange={props.onChange}
         isDisabled={props.isDisabled}
+        cssExtra={props.cssExtra}
         cacheOptions
       />
     );
@@ -204,6 +190,7 @@ function Select(props: ISelect) {
       value={getValueObject(props.val)}
       onChange={props.onChange}
       isDisabled={props.isDisabled}
+      cssExtra={props.cssExtra}
     />
   );
 }
