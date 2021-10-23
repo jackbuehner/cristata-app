@@ -562,6 +562,15 @@ interface IArticle {
   categories?: string[];
   tags?: string[];
   description?: string;
+  photo_path: string;
+  video_path?: string;
+  photo_caption?: string;
+  body?: string;
+  versions?: IArticle[]; // store previous versions of the article
+  hidden?: boolean;
+  show_comments: boolean;
+  legacy_html: boolean; // true if it is html from the old webflow
+  history?: { type: string; user: GitHubUserID; at: string }[];
 }
 // use these as the stages for articles
 enum Stage {
