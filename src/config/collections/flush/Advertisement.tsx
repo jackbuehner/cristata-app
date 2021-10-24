@@ -26,7 +26,7 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
           <>
             <AvailableMessage>YOUR ADVERTISEMENT HERE</AvailableMessage>
             <AvailableSize>
-              1.5” x 4.25”
+              3.95” x 2.65”
               <br />
               <br />
             </AvailableSize>
