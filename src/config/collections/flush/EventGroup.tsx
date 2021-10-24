@@ -183,14 +183,14 @@ const Dir = styled.div<{ direction: -1 | 1 }>`
 const EventLabel = styled.h3`
   font-family: Lato;
   font-size: 12pt;
-  font-weight: normal;
+  font-weight: 500;
   color: black;
   width: calc(100% - 0.58in - 0.3in);
   height: 0.28in;
   height: 100%;
   margin: 0 0 0 0.3in;
   padding: 0;
-  padding: 0.081in 0 0 0;
+  padding: 0.071in 0 0.01in 0;
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
