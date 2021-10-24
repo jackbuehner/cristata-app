@@ -238,7 +238,7 @@ const Line = styled.div<{ isLast?: boolean; isFirst?: boolean }>`
     ${({ isFirst, isLast }) => (isFirst ? `100% - 0.05in` : isLast ? `100% + 0.05in` : `100%`)} + 3pt
   );
   width: 3pt;
-  background-color: rgb(70, 35, 105);
+  background-color: black;
   position: absolute;
   left: calc(2pt + 0.11in / 2 - 1.5pt);
   top: calc(${({ isFirst }) => (isFirst ? 0.05 : 0)}in - 1.5pt);
@@ -247,14 +247,14 @@ const Line = styled.div<{ isLast?: boolean; isFirst?: boolean }>`
 
 const Circle = styled.div`
   display: block;
-  height: 0.11in;
-  width: 0.11in;
+  height: calc(0.11in - 1.5pt);
+  width: calc(0.11in - 1.5pt);
   background-color: white;
-  border: 2pt solid rgb(70, 35, 105);
+  box-shadow: 0 0 0 2pt black;
   border-radius: 50%;
   position: absolute;
-  left: 0;
-  top: 0.1in;
+  left: calc(0.11in - 5pt);
+  top: 0.14in;
 `;
 
 export { EventGroup };
