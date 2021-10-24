@@ -51,6 +51,7 @@ interface collection<I> {
   collectionName?: string;
   pageTitle?: (progress: string, search: string) => string;
   pageDescription?: (progress: string, search: string) => string;
+  itemPageTitle?: (data: CmsItemState['fields']) => string;
   defaultSortKey?: string;
   onTableData?: (data: I[], users: IProfile[]) => I[];
   tableFilters?: (progress: string, search: string) => { id: string; value: string }[];

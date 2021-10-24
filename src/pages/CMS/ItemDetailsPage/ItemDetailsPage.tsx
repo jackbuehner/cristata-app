@@ -87,11 +87,12 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     item_id: string;
   }>();
 
+  const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
+
   // collection name in the database (fall back to collection from url)
   let collectionName: string = `${collection}`;
-  if (collectionsConfig[dashToCamelCase(collection)]) {
-    const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
-    if (collectionConfig && collectionConfig.collectionName) {
+  if (collectionConfig) {
+    if (collectionConfig.collectionName) {
       collectionName = collectionConfig.collectionName;
     }
   }
@@ -109,8 +110,12 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // set document title
   useEffect(() => {
-    document.title = `${state.isUnsaved ? '*' : ''}${state.fields.name || item_id} - Cristata`;
-  }, [data, item_id, state.fields.name, state.isUnsaved]);
+    document.title = `${state.isUnsaved ? '*' : ''}${
+      collectionConfig?.itemPageTitle
+        ? collectionConfig.itemPageTitle(state.fields)
+        : state.fields.name || item_id
+    } - Cristata`;
+  }, [collectionConfig, data, item_id, state.fields, state.fields.name, state.isUnsaved]);
 
   //
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
@@ -183,7 +188,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       .then(() => {
         setIsLoading(false);
         toast.success(`Item successfully hidden.`);
-        history.push(collectionsConfig[dashToCamelCase(collection)]?.home || '/');
+        history.push(collectionConfig?.home || '/');
       })
       .catch((err) => {
         setIsLoading(false);
@@ -235,7 +240,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const [isMadatoryWatcher, setIsMandatoryWatcher] = useState<boolean>();
   useEffect(() => {
     // get the mandatory watchers
-    const mandatoryWatchersKeys = collectionsConfig[dashToCamelCase(collection)]?.mandatoryWatchers;
+    const mandatoryWatchersKeys = collectionConfig?.mandatoryWatchers;
     const mandatoryWatchers = mandatoryWatchersKeys
       ?.map((key) => JSON.stringify(state.fields[key]))
       .filter((watcher) => watcher !== undefined); // stringify it since it can be either a profile id or a profile object
@@ -244,7 +249,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     if (user && mandatoryWatchers && JSON.stringify(mandatoryWatchers).includes(user.id))
       setIsMandatoryWatcher(true);
     else setIsMandatoryWatcher(false);
-  }, [collection, user, state.fields]);
+  }, [collection, user, state.fields, collectionConfig?.mandatoryWatchers]);
 
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
@@ -256,8 +261,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // calculate publish permissions
   const cannotPublish = permissions?.canPublish !== true;
-  const publishStage: number | undefined = collectionsConfig[dashToCamelCase(collection)]?.publishStage;
-  const isPublishable = collectionsConfig[dashToCamelCase(collection)]?.isPublishable; // true only if set in config
+  const publishStage: number | undefined = collectionConfig?.publishStage;
+  const isPublishable = collectionConfig?.isPublishable; // true only if set in config
   const publishLocked =
     cannotPublish !== false && state.fields.stage === publishStage && isPublishable === true; // if true, lock the publishing capability
 
@@ -283,8 +288,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             text: 'Publish',
             onClick: async () => {
               setIsLoading(true);
-              const publishStage: number | undefined =
-                collectionsConfig[dashToCamelCase(collection)]?.publishStage;
+              const publishStage: number | undefined = collectionConfig?.publishStage;
               if (publishStage) {
                 const saved = await saveChanges({
                   stage: publishStage,
@@ -368,7 +372,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       icon: <ArrowClockwise24Regular />,
       action: () => refetch(),
     },
-    collectionsConfig[dashToCamelCase(collection)]?.canWatch
+    collectionConfig?.canWatch
       ? {
           label: isWatching || isMadatoryWatcher ? 'Stop Watching' : 'Watch',
           type: 'button',
@@ -391,7 +395,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       action: () => saveChanges(),
       disabled: !state.isUnsaved,
     },
-    collectionsConfig[dashToCamelCase(collection)]?.isPublishable
+    collectionConfig?.isPublishable
       ? //only allow publishing if canPublish is true
         {
           label: 'Publish',
@@ -410,7 +414,13 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     <>
       {props.isEmbedded ? null : (
         <PageHead
-          title={data && data.name ? data.name : item_id}
+          title={
+            collectionConfig && collectionConfig.itemPageTitle
+              ? collectionConfig.itemPageTitle(state.fields)
+              : data && data.name
+              ? data.name
+              : item_id
+          }
           description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection
             .slice(1)
             .replace('-', ' ')} collection ${state.isUnsaved ? ' | Unsaved changes' : ''}`}
@@ -468,7 +478,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
         ) : // waiting for user info
         user === undefined || sessionId === null ? null : (
           // data loaded
-          collectionsConfig[dashToCamelCase(collection)]?.fields.map((field, index) => {
+          collectionConfig?.fields.map((field, index) => {
             if (field.type === 'text') {
               return (
                 <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
