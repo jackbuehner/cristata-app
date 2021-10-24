@@ -157,6 +157,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const saveChanges = async (extraData: { [key: string]: any } = {}) => {
     setIsLoading(true);
 
+    console.log(state.tipTapFields);
+
     // patch to database
     return await db
       .patch(
@@ -578,7 +580,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         forceMax={fs === 'force'}
                         onChange={(editorJson: string) => {
                           if (editorJson !== state.fields[field.key]) {
-                            setField(editorJson, field.key, 'tiptap');
+                            dispatch(setField(editorJson, field.key, 'tiptap'));
                           }
                         }}
                         actions={actions}
