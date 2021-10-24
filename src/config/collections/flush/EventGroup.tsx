@@ -2,11 +2,12 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { ChevronDown12Regular, ChevronUp12Regular } from '@fluentui/react-icons';
-import { DatePicker } from '@material-ui/pickers';
+import { DateTimePicker } from '@material-ui/pickers';
 import { useRef, useState } from 'react';
 import { buttonEffect, IconButton } from '../../../components/Button';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { formatISODate } from '../../../utils/formatISODate';
+import { DateTime } from 'luxon';
 
 type eventType = {
   name: string;
@@ -39,11 +40,11 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
   /**
    * When a `contenteditable` element is blurred, update the value in state.
    */
-  const handleCEBlur = (e: React.FocusEvent, index: number, key: 'name' | 'location') => {
-    if (key && e.currentTarget.textContent !== null) {
-      if (events && events[index][key] !== e.currentTarget.textContent) {
+  const handleCEBlur = (text: string | null, index: number, key: 'name' | 'location' | 'date') => {
+    if (key && text !== null) {
+      if (events && events[index][key] !== text) {
         const copy = JSON.parse(JSON.stringify(events));
-        copy[index][key] = e.currentTarget.textContent;
+        copy[index][key] = text;
         dispatch(setField(copy, 'events'));
       }
     }
@@ -107,7 +108,10 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
       ) : null}
       <Line isFirst={index === 0} isLast={index === events.length - 1} />
       <Circle />
-      <EventLabel {...contentEditableAttrs} onBlur={(e) => handleCEBlur(e, index, 'name')}>
+      <EventLabel
+        {...contentEditableAttrs}
+        onBlur={(e) => handleCEBlur(e.currentTarget.textContent, index, 'name')}
+      >
         {event.name}
       </EventLabel>
       <EventDescription>
@@ -129,12 +133,13 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
             }
           }}
         >
-          {formatISODate(event.date, true, false)}
+          {formatISODate(event.date, true, false)} at{' '}
+          {DateTime.fromISO(event.date).toLocaleString(DateTime.TIME_SIMPLE)}
         </span>
         &nbsp;–&nbsp;
         <span
           {...contentEditableAttrs}
-          onBlur={(e) => handleCEBlur(e, index, 'location')}
+          onBlur={(e) => handleCEBlur(e.currentTarget.textContent, index, 'location')}
           style={{ flexGrow: 1 }}
         >
           {event.location}
@@ -142,9 +147,9 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
       </EventDescription>
       <EventCode></EventCode>
       <div ref={datePickerRef}>
-        <DatePicker
+        <DateTimePicker
           value={undefined}
-          onChange={() => null}
+          onChange={(datetime) => handleCEBlur(datetime?.toISO() || null, index, 'date')}
           animateYearScrolling
           style={{ height: 0, width: 0 }}
         />
