@@ -128,7 +128,7 @@ const Tiptap = (props: ITiptap) => {
   }, [providerWebsocket]);
 
   const editor = useEditor({
-    editable: props.isDisabled === true ? false : true,
+    editable: props.isDisabled ? false : true,
     content: props.html,
     extensions: [
       StarterKit.configure({ history: false }),
@@ -178,6 +178,11 @@ const Tiptap = (props: ITiptap) => {
       }
     },
   });
+
+  // change whether the editor is editable based on prop change
+  useEffect(() => {
+    editor?.setEditable(props.isDisabled ? false : true);
+  }, [editor, props.isDisabled]);
 
   // whether the editor is maximized
   const [isMax, setIsMax] = useState<boolean>(props.isMaximized || false);
