@@ -3,13 +3,14 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { Button } from '../../../components/Button';
+import { Button, IconButton } from '../../../components/Button';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { EventGroup } from './EventGroup';
 import { IFlush } from './flush';
 import { SectionHead } from './SectionHead';
 import { Checkbox as RmwcCheckbox } from '@rmwc/checkbox';
 import '@material/checkbox/dist/mdc.checkbox.css';
+import { CalendarAdd20Regular, Delete20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 
 const Checkbox = styled(RmwcCheckbox)<{ label?: string; checked?: boolean; onChange?: () => void }>`
   --mdc-theme-secondary: black;
@@ -76,6 +77,52 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
   return (
     <Container height={props.height}>
       <SectionHead>Upcoming events</SectionHead>
+      {events ? (
+        <div
+          css={css`
+            display: flex;
+            flex-direction: row;
+            gap: 6px;
+            width: 180px;
+            position: absolute;
+            top: 20px;
+            right: 0;
+            justify-content: flex-end;
+          `}
+        >
+          {isRemoveMode ? (
+            <>
+              <Button
+                onClick={() => {
+                  removeEvents(toRemove);
+                  setIsRemoveMode(false);
+                }}
+                cssExtra={css`
+                  flex: 1;
+                `}
+              >
+                Remove selected
+              </Button>
+              <IconButton
+                icon={<Dismiss20Regular />}
+                onClick={() => setIsRemoveMode(false)}
+                data-tip={'Cancel'}
+              />
+            </>
+          ) : (
+            <>
+              {events.length < 14 ? (
+                <IconButton icon={<CalendarAdd20Regular />} onClick={addEvent} data-tip={'Add event'} />
+              ) : null}
+              <IconButton
+                icon={<Delete20Regular />}
+                onClick={() => setIsRemoveMode(true)}
+                data-tip={'Remove events'}
+              />
+            </>
+          )}
+        </div>
+      ) : null}
       {events?.map((event, index, array) => {
         return (
           <div
@@ -114,52 +161,6 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
           </div>
         );
       })}
-      {events && events.length < 14 ? (
-        <div
-          css={css`
-            display: flex;
-            flex-directionl: row;
-            gap: 6px;
-            margin-top: 20px;
-          `}
-        >
-          {isRemoveMode ? (
-            <>
-              <Button
-                onClick={() => {
-                  removeEvents(toRemove);
-                  setIsRemoveMode(false);
-                }}
-                cssExtra={css`
-                  flex: 1;
-                `}
-              >
-                Remove selected events
-              </Button>
-              <Button onClick={() => setIsRemoveMode(false)}>Cancel</Button>
-            </>
-          ) : (
-            <>
-              <Button
-                onClick={addEvent}
-                cssExtra={css`
-                  flex: 1;
-                `}
-              >
-                Add event
-              </Button>
-              <Button
-                onClick={() => setIsRemoveMode(true)}
-                cssExtra={css`
-                  flex: 1;
-                `}
-              >
-                Remove events
-              </Button>
-            </>
-          )}
-        </div>
-      ) : null}
     </Container>
   );
 }
@@ -170,6 +171,8 @@ const Container = styled.div<{ height?: string }>`
   height: ${({ height }) => height};
   flex-wrap: column;
   box-sizing: border-box;
+  z-index: 1;
+  position: relative;
 `;
 
 export { Upcoming };
