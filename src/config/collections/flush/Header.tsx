@@ -11,7 +11,9 @@ function Header({ state, dispatch, ...props }: CustomFieldProps) {
   const { setField } = props.setStateFunctions;
 
   const handleVolIssueChange = (e: ChangeEvent<HTMLInputElement>, key: string) => {
-    dispatch(setField(parseInt(e.currentTarget.value), key));
+    let num = Math.round(parseInt(e.currentTarget.value));
+    if (num < 1) num = 1;
+    dispatch(setField(num, key));
   };
 
   return (
