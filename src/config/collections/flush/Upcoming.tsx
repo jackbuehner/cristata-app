@@ -28,6 +28,8 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
   const [isRemoveMode, setIsRemoveMode] = useState<boolean>(false);
   const [toRemove, setToRemove] = useState<number[]>([]);
 
+  const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
+
   /**
    * Add an event object to the array of events;
    */
@@ -75,7 +77,11 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
   });
 
   return (
-    <Container height={props.height}>
+    <Container
+      height={props.height}
+      onMouseEnter={() => setIsMouseOver(true)}
+      onMouseLeave={() => setIsMouseOver(false)}
+    >
       <SectionHead>Upcoming events</SectionHead>
       {events ? (
         <div
@@ -90,37 +96,39 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
             justify-content: flex-end;
           `}
         >
-          {isRemoveMode ? (
-            <>
-              <Button
-                onClick={() => {
-                  removeEvents(toRemove);
-                  setIsRemoveMode(false);
-                }}
-                cssExtra={css`
-                  flex: 1;
-                `}
-              >
-                Remove selected
-              </Button>
-              <IconButton
-                icon={<Dismiss20Regular />}
-                onClick={() => setIsRemoveMode(false)}
-                data-tip={'Cancel'}
-              />
-            </>
-          ) : (
-            <>
-              {events.length < 14 ? (
-                <IconButton icon={<CalendarAdd20Regular />} onClick={addEvent} data-tip={'Add event'} />
-              ) : null}
-              <IconButton
-                icon={<Delete20Regular />}
-                onClick={() => setIsRemoveMode(true)}
-                data-tip={'Remove events'}
-              />
-            </>
-          )}
+          {isMouseOver ? (
+            isRemoveMode ? (
+              <>
+                <Button
+                  onClick={() => {
+                    removeEvents(toRemove);
+                    setIsRemoveMode(false);
+                  }}
+                  cssExtra={css`
+                    flex: 1;
+                  `}
+                >
+                  Remove selected
+                </Button>
+                <IconButton
+                  icon={<Dismiss20Regular />}
+                  onClick={() => setIsRemoveMode(false)}
+                  data-tip={'Cancel'}
+                />
+              </>
+            ) : (
+              <>
+                {events.length < 14 ? (
+                  <IconButton icon={<CalendarAdd20Regular />} onClick={addEvent} data-tip={'Add event'} />
+                ) : null}
+                <IconButton
+                  icon={<Delete20Regular />}
+                  onClick={() => setIsRemoveMode(true)}
+                  data-tip={'Remove events'}
+                />
+              </>
+            )
+          ) : null}
         </div>
       ) : null}
       {events?.map((event, index, array) => {

@@ -9,7 +9,7 @@ import { Upcoming } from './Upcoming';
 
 function FlushDocumentEditor(props: CustomFieldProps) {
   return (
-    <Page>
+    <Page id={'printarea'}>
       <Header {...props} />
       <Columns>
         <Column>
