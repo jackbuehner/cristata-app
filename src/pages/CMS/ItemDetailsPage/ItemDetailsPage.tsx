@@ -157,8 +157,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const saveChanges = async (extraData: { [key: string]: any } = {}) => {
     setIsLoading(true);
 
-    console.log(state.tipTapFields);
-
     // patch to database
     return await db
       .patch(
