@@ -184,7 +184,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   // set the item to hidden
   const hideItem = () => {
     setIsLoading(true);
-    db.patch(`/${collectionName}/${item_id}`, { ...data, hidden: true })
+    db.patch(`/${collectionName}/${item_id}`, { hidden: true })
       .then(() => {
         setIsLoading(false);
         toast.success(`Item successfully hidden.`);
