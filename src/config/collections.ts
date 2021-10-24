@@ -9,8 +9,10 @@ import { socialArticles } from './collections/socialArticles';
 import { IProfile } from '../interfaces/cristata/profiles';
 import { History } from 'history';
 import { toast as toastify } from 'react-toastify';
-import { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { CmsItemState } from '../redux/slices/cmsItemSlice';
+import { flush } from './collections/flush';
+import { CustomFieldProps } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 
 const collections: collectionsType = {
   articles,
@@ -20,6 +22,7 @@ const collections: collectionsType = {
   shorturl,
   featuredSettings,
   socialArticles,
+  flush,
 };
 
 interface collectionsType {

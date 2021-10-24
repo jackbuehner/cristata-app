@@ -1,4 +1,4 @@
-import { useTheme } from '@emotion/react';
+import { SerializedStyles, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { themeType } from '../../utils/theme/theme';
 import { DateTimePicker } from '@material-ui/pickers';
@@ -9,6 +9,7 @@ interface DateTimeI {
   onChange: (date: MaterialUiPickersDate) => void;
   isDisabled?: boolean;
   placeholder?: string;
+  cssExtra?: SerializedStyles;
 }
 
 interface DateTimeComponentI extends DateTimeI {
@@ -22,17 +23,14 @@ const DateTimeComponent = styled(DateTimePicker)<DateTimeComponentI>`
   box-sizing: border-box;
   border-radius: ${({ theme }) => theme.radius};
   border: none;
-  box-shadow: ${({ theme }) =>
-    theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
+  box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
   transition: box-shadow 240ms;
   &:hover {
-    box-shadow: ${({ theme }) =>
-      theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+    box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
   }
   &:focus-within {
     outline: none;
-    box-shadow: ${({ theme }) =>
-      theme.color.primary[800]} 0px 0px 0px 2px inset;
+    box-shadow: ${({ theme }) => theme.color.primary[800]} 0px 0px 0px 2px inset;
   }
   .MuiInputBase-root.MuiInput-underline {
     &::before,
@@ -50,6 +48,7 @@ const DateTimeComponent = styled(DateTimePicker)<DateTimeComponentI>`
       font-weight: 500;
     }
   }
+  ${({ cssExtra }) => cssExtra}
 `;
 
 function DateTime(props: DateTimeI) {
@@ -61,6 +60,7 @@ function DateTime(props: DateTimeI) {
       theme={theme}
       disabled={props.isDisabled}
       placeholder={props.placeholder}
+      cssExtra={props.cssExtra}
     />
   );
 }

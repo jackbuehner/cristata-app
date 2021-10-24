@@ -4,6 +4,7 @@ import {
   BookGlobe24Regular,
   Chat24Regular,
   Cookies24Regular,
+  Document24Regular,
   DocumentOnePage24Regular,
   DocumentPageBottomRight24Regular,
   Image24Regular,
@@ -191,6 +192,19 @@ const navigation: Inavigation = {
           label: `All satire`,
           icon: <Cookies24Regular />,
           to: `/cms/collection/satire/all`,
+        },
+      ],
+    },
+    {
+      label: `The Royal Flush`,
+      items: [
+        {
+          label: `Documents`,
+          icon: <Document24Regular />,
+          to: `/cms/collection/flush`,
+          isHidden: !['T_kwDOBCVTT84AUIJM', 'MDQ6VGVhbTQ2NDI0MTc='].some((team) =>
+            JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(team)
+          ),
         },
       ],
     },
