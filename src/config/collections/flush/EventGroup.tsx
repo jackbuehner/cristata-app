@@ -6,7 +6,6 @@ import { DateTimePicker } from '@material-ui/pickers';
 import { useRef, useState } from 'react';
 import { buttonEffect, IconButton } from '../../../components/Button';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { formatISODate } from '../../../utils/formatISODate';
 import { DateTime } from 'luxon';
 
 type eventType = {
@@ -118,6 +117,7 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
         <span
           data-tip={'Change date'}
           css={css`
+            white-space: nowrap;
             ${buttonEffect(
               'primary',
               800,
@@ -133,25 +133,29 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
             }
           }}
         >
-          {formatISODate(event.date, true, false)} at{' '}
+          {DateTime.fromISO(event.date).toFormat('cccc')} at{' '}
           {DateTime.fromISO(event.date).toLocaleString(DateTime.TIME_SIMPLE)}
         </span>
         &nbsp;–&nbsp;
         <span
           {...contentEditableAttrs}
           onBlur={(e) => handleCEBlur(e.currentTarget.textContent, index, 'location')}
-          style={{ flexGrow: 1 }}
+          css={css`
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          `}
         >
           {event.location}
         </span>
       </EventDescription>
       <EventCode></EventCode>
-      <div ref={datePickerRef}>
+      <div ref={datePickerRef} style={{ height: 0, width: 0 }}>
         <DateTimePicker
           value={undefined}
           onChange={(datetime) => handleCEBlur(datetime?.toISO() || null, index, 'date')}
           animateYearScrolling
-          style={{ height: 0, width: 0 }}
         />
       </div>
     </EventGroupComponent>
@@ -162,6 +166,7 @@ const EventGroupComponent = styled.div`
   display: flex;
   flex-direction: column;
   height: 0.44in;
+  height: 100%;
   position: relative;
   box-sizing: border-box;
 `;
@@ -182,8 +187,10 @@ const EventLabel = styled.h3`
   color: black;
   width: calc(100% - 0.58in - 0.3in);
   height: 0.28in;
+  height: 100%;
   margin: 0 0 0 0.3in;
   padding: 0;
+  padding: 0.081in 0 0 0;
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
@@ -196,7 +203,7 @@ const EventDescription = styled.span`
   font-weight: normal;
   font-style: italic;
   color: rgba(0, 0, 0, 0.65);
-  width: calc(100% - 0.58in - 0.3in);
+  width: calc(100% - 0.3in);
   height: 0.16in;
   margin: 0 0 0 0.3in;
   padding: 0;
@@ -227,7 +234,9 @@ const EventCode = styled.div`
 
 const Line = styled.div<{ isLast?: boolean; isFirst?: boolean }>`
   display: block;
-  height: calc(${({ isFirst, isLast }) => (isFirst ? 0.39 : isLast ? 0.49 : 0.44)}in + 3pt);
+  height: calc(
+    ${({ isFirst, isLast }) => (isFirst ? `100% - 0.05in` : isLast ? `100% + 0.05in` : `100%`)} + 3pt
+  );
   width: 3pt;
   background-color: rgb(70, 35, 105);
   position: absolute;
