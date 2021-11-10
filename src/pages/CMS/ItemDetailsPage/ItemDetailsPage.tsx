@@ -40,7 +40,7 @@ import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ReactTooltip from 'react-tooltip';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { buildFullKey } from '../../../utils/buildFullKey';
@@ -238,9 +238,19 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   };
 
   // set the item to hidden
+  const HIDE_ITEM = gql`mutation {
+    ${collectionConfig?.query.name.singular}Hide(${collectionConfig?.query.identifier || '_id'}: "${item_id}") {
+      hidden
+    }
+  }`;
+  const [hideItemMutation] = useMutation(HIDE_ITEM);
+
+  /**
+   * Set the item to be hidden.
+   */
   const hideItem = () => {
     setIsLoading(true);
-    db.patch(`/${collectionName}/${item_id}`, { hidden: true })
+    hideItemMutation()
       .then(() => {
         setIsLoading(false);
         toast.success(`Item successfully hidden.`);
@@ -254,9 +264,37 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   };
 
   // watch the item
+  const WATCH_ITEM = gql`mutation {
+    ${collectionConfig?.query.name.singular}Watch(${
+    collectionConfig?.query.identifier || '_id'
+  }: "${item_id}") {
+      people {
+        watching {
+          github_id
+        }
+      }
+    }
+  }`;
+  const UNWATCH_ITEM = gql`mutation {
+    ${collectionConfig?.query.name.singular}Watch(${
+    collectionConfig?.query.identifier || '_id'
+  }: "${item_id}", watch: false) {
+      people {
+        watching {
+          github_id
+        }
+      }
+    }
+  }`;
+  const [watchItemMutation] = useMutation(WATCH_ITEM);
+  const [unwatchItemMutation] = useMutation(UNWATCH_ITEM);
+
+  /**
+   * Toggle whether the current user is watching this item
+   */
   const watchItem = (mode: boolean) => {
     setIsLoading(true);
-    db.patch(`/${collectionName}/${item_id}/watch`, { watch: mode })
+    (mode ? watchItemMutation() : unwatchItemMutation())
       .then(() => {
         setIsLoading(false);
         if (mode) {
@@ -329,11 +367,19 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [timestamp, setTimestamp] = useState<string>(state.fields['timestamps.published_at'] as string);
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [updatedTimestamp, setUpdatedTimestamp] = useState<string>(
-      state.fields['timestamps.updated_at'] as string
-    );
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const PUBLISH_ITEM = gql`mutation {
+      ${collectionConfig?.query.name.singular}Publish(${
+      collectionConfig?.query.identifier || '_id'
+    }: "${item_id}", published_at: "${timestamp || new Date().toISOString()}", publish: true) {
+        timestamps {
+          published_at
+        }
+      }
+    }`;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [publishItem] = useMutation(PUBLISH_ITEM);
 
     return (
       <MuiPickersUtilsProvider utils={LuxonUtils}>
@@ -346,14 +392,13 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               setIsLoading(true);
               const publishStage: number | undefined = collectionConfig?.publishStage;
               if (publishStage) {
-                const saved = await saveChanges({
+                const isPublished = !!(await publishItem()).data;
+                const isStageSet = await saveChanges({
                   stage: publishStage,
-                  'timestamps.published_at': timestamp,
-                  'timestamps.updated_at': updatedTimestamp,
                 });
                 // return whether the action was successful
                 setIsLoading(false);
-                if (saved === true) return true;
+                if (isStageSet === true && isPublished === true) return true;
               }
               return false;
             },
@@ -385,26 +430,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               placeholder={'Pick a time'}
             />
           </InputGroup>
-          {
-            // if the article has already been published, allow setting an update timestamp
-            state.fields['timestamps.published_at'] !== '0001-01-01T01:00:00.000Z' ? (
-              <InputGroup type={`text`}>
-                <Label
-                  htmlFor={'date'}
-                  description={'Use this field if the contents of the article were updated after publish.'}
-                >
-                  Choose updated date and time
-                </Label>
-                <DateTime
-                  value={updatedTimestamp === '0001-01-01T01:00:00.000Z' ? null : updatedTimestamp}
-                  onChange={(date) => {
-                    if (date) setUpdatedTimestamp(date.toUTC().toISO());
-                  }}
-                  placeholder={'Pick a time'}
-                />
-              </InputGroup>
-            ) : null
-          }
           <InputGroup type={'text'}>
             <Label htmlFor={'confirm'}>Confirm publish</Label>
             <TextInput
