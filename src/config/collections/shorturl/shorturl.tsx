@@ -4,6 +4,13 @@ import { collection } from '../../collections';
 
 const shorturl: collection<IShortURL> = {
   home: '/cms/collection/shorturls',
+  query: {
+    name: {
+      singular: 'shorturl',
+      plural: 'shorturls',
+    },
+    identifier: 'code',
+  },
   fields: [
     {
       key: 'original_url',

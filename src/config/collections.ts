@@ -52,6 +52,14 @@ interface collection<I> {
   publishStage?: number;
   home: string;
   collectionName?: string;
+  query: {
+    name: {
+      singular: string;
+      plural: string;
+    };
+    identifier: string;
+    force?: string[];
+  };
   pageTitle?: (progress: string, search: string) => string;
   pageDescription?: (progress: string, search: string) => string;
   itemPageTitle?: (data: CmsItemState['fields']) => string;
@@ -106,6 +114,8 @@ interface tiptapOptions {
 
 interface IField {
   key: string;
+  from?: string; // when the key is inside json from a field, include the JSON field name here and use a key inside the json for the key property
+  subfield?: string; // choose a subfield when the key is for a field with subfields
   label?: string; // fall back to name if not provided
   type: string;
   description?: string;

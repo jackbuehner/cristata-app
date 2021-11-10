@@ -14,6 +14,8 @@ import { Provider as ReduxProvider } from 'react-redux';
 import ReactTooltip from 'react-tooltip';
 import styled from '@emotion/styled/macro';
 import Color from 'color';
+import { ApolloProvider } from '@apollo/client';
+import { client } from './graphql/client';
 
 const Tooltip = styled(ReactTooltip)`
   margin: 0 !important;
@@ -45,30 +47,32 @@ const Tooltip = styled(ReactTooltip)`
 ReactDOM.render(
   <React.StrictMode>
     <ReduxProvider store={store}>
-      <ThemeProvider theme={theme}>
-        <ModalProvider>
-          <DropdownProvider>
-            <MuiPickersUtilsProvider utils={LuxonUtils}>
-              <App />
-              <Tooltip
-                place={'bottom'}
-                effect={'float'}
-                delayShow={600}
-                delayHide={100}
-                theme={theme}
-                overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace) => {
-                  if (place === desiredPlace)
-                    return {
-                      top: pos.top + 2,
-                      left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
-                    };
-                  return pos;
-                }}
-              />
-            </MuiPickersUtilsProvider>
-          </DropdownProvider>
-        </ModalProvider>
-      </ThemeProvider>
+      <ApolloProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <ModalProvider>
+            <DropdownProvider>
+              <MuiPickersUtilsProvider utils={LuxonUtils}>
+                <App />
+                <Tooltip
+                  place={'bottom'}
+                  effect={'float'}
+                  delayShow={600}
+                  delayHide={100}
+                  theme={theme}
+                  overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace) => {
+                    if (place === desiredPlace)
+                      return {
+                        top: pos.top + 2,
+                        left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
+                      };
+                    return pos;
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+            </DropdownProvider>
+          </ModalProvider>
+        </ThemeProvider>
+      </ApolloProvider>
     </ReduxProvider>
   </React.StrictMode>,
   document.getElementById('root')

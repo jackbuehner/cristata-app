@@ -1,16 +1,13 @@
 import styled from '@emotion/styled/macro';
-import useAxios from 'axios-hooks';
 import { useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { Select } from '../../../components/Select';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { IArticle } from '../articles/articles';
 import { selectArticle } from '../featuredSettings/selectArticle';
 import { SelectionOverlay } from './SelectionOverlay';
 import { collections as collectionsConfig } from '../../../config';
-import { IProfile } from '../../../interfaces/cristata/profiles';
 import { Renderer } from '@cristata/prosemirror-to-html-js';
 
 interface IFeaturedArticle extends CustomFieldProps {
@@ -28,7 +25,17 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
 
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
 
-  const [{ data: article }] = useAxios<IArticle>(`/articles/${state.fields[key]}`);
+  const article = {
+    _id: state.fields[key + '._id'] as string,
+    name: state.fields[key + '.name'] as string,
+    categories: state.fields[key + '.categories'] as string[],
+    description: state.fields[key + '.description'] as string,
+    photo_path: state.fields[key + '.photo_path'] as string,
+    body: state.fields[key + '.body'] as string,
+    people: {
+      authors: state.fields[key + '.people.authors'] as { name: string }[],
+    },
+  };
 
   const categoryLabels = collectionsConfig['articles']?.fields.find(
     (field) => field.key === 'categories'
@@ -95,7 +102,7 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
               <>
                 {article.people.authors
                   .slice(0, article.people.authors.length - 1)
-                  .map((author: IProfile, index: number) => {
+                  .map((author, index: number) => {
                     return (
                       <>
                         <Author key={index}>{author.name}</Author>

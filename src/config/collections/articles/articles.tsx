@@ -12,6 +12,13 @@ import { selectTeam } from './selectTeam';
 
 const articles: collection<IArticle> = {
   home: '/cms/collection/articles/in-progress',
+  query: {
+    name: {
+      singular: 'article',
+      plural: 'articles',
+    },
+    identifier: '_id',
+  },
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
     {
@@ -74,6 +81,7 @@ const articles: collection<IArticle> = {
     },
     {
       key: 'people.authors',
+      subfield: 'github_id',
       label: 'Byline',
       type: 'multiselect_async',
       description: 'The authors that appear on the byline.',
@@ -87,6 +95,7 @@ const articles: collection<IArticle> = {
     },
     {
       key: 'people.editors.primary',
+      subfield: 'github_id',
       label: 'Section editors',
       type: 'multiselect_async',
       description: 'The managing editors responsible for this article.',
@@ -100,6 +109,7 @@ const articles: collection<IArticle> = {
     },
     {
       key: 'people.editors.copy',
+      subfield: 'github_id',
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
@@ -464,7 +474,7 @@ const articles: collection<IArticle> = {
   },
   isPublishable: true,
   canWatch: true,
-  mandatoryWatchers: ['people.authors', 'people.editors.primary'],
+  mandatoryWatchers: ['people.authors.github_id', 'people.editors.primary.github_id'],
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
   pageTitle: (progress, search) => {

@@ -40,6 +40,12 @@ import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ReactTooltip from 'react-tooltip';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
+import { gql, useQuery } from '@apollo/client';
+import { merge } from 'merge-anything';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import { buildFullKey } from '../../../utils/buildFullKey';
+import { isJSON } from '../../../utils/isJSON';
+import { flattenObject } from '../../../utils/flattenObject';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -97,8 +103,58 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     }
   }
 
+  const requiredFields = [
+    '_id',
+    'hidden',
+    'locked',
+    'history.type',
+    'history.user.name',
+    'history.at',
+    'timestamps.modified_at',
+    'timestamps.created_at',
+  ];
+  const publishableRequiredFields = ['timestamps.updated_at', 'timestamps.published_at'];
+
+  const GENERATED_ITEM_QUERY = collectionConfig
+    ? gql(
+        jsonToGraphQLQuery(
+          {
+            query: {
+              [collectionConfig.query.name.singular]: {
+                __args: {
+                  [collectionConfig.query.identifier]: item_id,
+                },
+                ...unflattenObject(
+                  merge(
+                    {},
+                    ...(collectionConfig?.query.name.singular !== 'setting'
+                      ? requiredFields.map((field) => ({ [field]: true }))
+                      : []),
+                    ...(collectionConfig?.isPublishable
+                      ? publishableRequiredFields.map((field) => ({ [field]: true }))
+                      : []),
+                    collectionConfig?.canWatch ? { 'people.watching.github_id': true } : {},
+                    ...(collectionConfig?.query.force?.map((field) => ({ [field]: true })) || []),
+                    ...(collectionConfig?.mandatoryWatchers?.map((field) => ({ [field]: true })) || []),
+                    ...collectionConfig?.fields.map((field) => ({
+                      [field.from ? field.from : field.subfield ? field.key + '.' + field.subfield : field.key]:
+                        true,
+                    }))
+                  )
+                ),
+              },
+            },
+          },
+          { pretty: true }
+        )
+      )
+    : gql``;
+
   // get the item
-  const [{ data, loading, error }, refetch] = useAxios<{ [key: string]: any }>(`/${collectionName}/${item_id}`);
+  const { loading, error, refetch, ...req } = useQuery(GENERATED_ITEM_QUERY);
+  let data = collectionConfig ? req.data?.[collectionConfig.query.name.singular] : undefined;
+
+  //const [{ data, loading, error }, refetch] = useAxios<{ [key: string]: any }>(`/${collectionName}/${item_id}`);
   useEffect(() => {
     dispatch(setIsLoading(loading));
   }, [dispatch, loading]);
@@ -479,12 +535,29 @@ function ItemDetailsPage(props: IItemDetailsPage) {
         user === undefined || sessionId === null ? null : (
           // data loaded
           collectionConfig?.fields.map((field, index) => {
+            // if a field is from a JSON object, unstringify the JSON in the source data
+            if (field.from) {
+              // check if it is JSON since it may have alreadt been converted
+              if (isJSON(state.fields[field.from])) {
+                const parsed = JSON.parse(state.fields[field.from]);
+                const flatData = flattenObject(data);
+                flatData[field.from] = parsed;
+                const updatedData = unflattenObject(flatData);
+                dispatch(setFields(updatedData));
+              }
+            }
+
             if (field.type === 'text') {
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -492,13 +565,16 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     </Label>
                     <TextInput
                       name={field.label}
-                      id={field.key}
+                      id={buildFullKey(field.key, field.from, field.subfield)}
                       value={
                         field.modifyValue
-                          ? field.modifyValue(state.fields[field.key] as string, state.fields)
-                          : (state.fields[field.key] as string)
+                          ? field.modifyValue(
+                              state.fields[buildFullKey(field.key, field.from, field.subfield)] as string,
+                              state.fields
+                            )
+                          : (state.fields[buildFullKey(field.key, field.from, field.subfield)] as string)
                       }
-                      onChange={(e) => handleTextChange(e, field.key)}
+                      onChange={(e) => handleTextChange(e, buildFullKey(field.key, field.from, field.subfield))}
                       isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
@@ -508,10 +584,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'boolean') {
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`checkbox`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -520,9 +601,14 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <input
                       type={'checkbox'}
                       name={field.label}
-                      id={field.key}
-                      checked={!!state.fields[field.key]}
-                      onChange={(e) => handleBooleanChange(e.currentTarget.checked, field.key)}
+                      id={buildFullKey(field.key, field.from, field.subfield)}
+                      checked={!!state.fields[buildFullKey(field.key, field.from, field.subfield)]}
+                      onChange={(e) =>
+                        handleBooleanChange(
+                          e.currentTarget.checked,
+                          buildFullKey(field.key, field.from, field.subfield)
+                        )
+                      }
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
                   </InputGroup>
@@ -535,19 +621,26 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                 return null;
               }
               const isHTML = field.tiptap && field.tiptap.isHTMLkey && state.fields[field.tiptap.isHTMLkey];
-              const html = isHTML ? (state.fields[field.key] as string) : undefined;
+              const html = isHTML
+                ? (state.fields[buildFullKey(field.key, field.from, field.subfield)] as string)
+                : undefined;
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
                     <div
-                      id={field.key}
+                      id={buildFullKey(field.key, field.from, field.subfield)}
                       css={css`
                         width: 100%;
                         box-sizing: border-box;
@@ -587,8 +680,16 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         isMaximized={fs === '1' || fs === 'force'}
                         forceMax={fs === 'force'}
                         onChange={(editorJson: string) => {
-                          if (editorJson !== state.fields[field.key]) {
-                            dispatch(setField(editorJson, field.key, 'tiptap'));
+                          if (
+                            editorJson !== state.fields[buildFullKey(field.key, field.from, field.subfield)]
+                          ) {
+                            dispatch(
+                              setField(
+                                editorJson,
+                                buildFullKey(field.key, field.from, field.subfield),
+                                'tiptap'
+                              )
+                            );
                           }
                         }}
                         actions={actions}
@@ -606,10 +707,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'select') {
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -619,14 +725,27 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       options={field.options}
                       val={
                         field.modifyValue
-                          ? field.modifyValue(`${state.fields[field.key] as string | number}`, state.fields)
-                          : `${state.fields[field.key] as string | number}`
+                          ? field.modifyValue(
+                              `${
+                                state.fields[buildFullKey(field.key, field.from, field.subfield)] as
+                                  | string
+                                  | number
+                              }`,
+                              state.fields
+                            )
+                          : `${
+                              state.fields[buildFullKey(field.key, field.from, field.subfield)] as
+                                | string
+                                | number
+                            }`
                       }
                       onChange={(valueObj) =>
                         handleSelectChange(
                           valueObj ? valueObj.value : '',
-                          field.key,
-                          typeof state.fields[field.key] === 'number' ? 'number' : 'string'
+                          buildFullKey(field.key, field.from, field.subfield),
+                          typeof state.fields[buildFullKey(field.key, field.from, field.subfield)] === 'number'
+                            ? 'number'
+                            : 'string'
                         )
                       }
                       isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
@@ -638,10 +757,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'select_async') {
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -652,14 +776,27 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       async
                       val={
                         field.modifyValue
-                          ? field.modifyValue(`${state.fields[field.key] as string | number}`, state.fields)
-                          : `${state.fields[field.key] as string | number}`
+                          ? field.modifyValue(
+                              `${
+                                state.fields[buildFullKey(field.key, field.from, field.subfield)] as
+                                  | string
+                                  | number
+                              }`,
+                              state.fields
+                            )
+                          : `${
+                              state.fields[buildFullKey(field.key, field.from, field.subfield)] as
+                                | string
+                                | number
+                            }`
                       }
                       onChange={(valueObj) =>
                         handleSelectChange(
                           valueObj ? valueObj.value : '',
-                          field.key,
-                          typeof state.fields[field.key] === 'number' ? 'number' : 'string'
+                          buildFullKey(field.key, field.from, field.subfield),
+                          typeof state.fields[buildFullKey(field.key, field.from, field.subfield)] === 'number'
+                            ? 'number'
+                            : 'string'
                         )
                       }
                       isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
@@ -670,14 +807,19 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             }
 
             if (field.type === 'multiselect') {
-              const vals = (state.fields[field.key] as (string | number)[])?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, state.fields) : val.toString()
-              ); // ensures that values are strings
+              const vals = (
+                state.fields[buildFullKey(field.key, field.from, field.subfield)] as (string | number)[]
+              )?.map((val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val.toString())); // ensures that values are strings
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -689,7 +831,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
                           valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                          field.key,
+                          buildFullKey(field.key, field.from, field.subfield),
                           field.dataType || 'string'
                         )
                       }
@@ -701,14 +843,19 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             }
 
             if (field.type === 'multiselect_async') {
-              const vals = (state.fields[field.key] as (string | number)[])?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, state.fields) : val.toString()
-              ); // ensures that values are strings
+              const vals = (
+                state.fields[buildFullKey(field.key, field.from, field.subfield)] as (string | number)[]
+              )?.map((val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val.toString())); // ensures that values are strings
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -721,7 +868,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       onChange={(valueObjs) => {
                         handleMultiselectChange(
                           valueObjs ? valueObjs.map((obj: { value: string; label: string }) => obj.value) : '',
-                          field.key,
+                          buildFullKey(field.key, field.from, field.subfield),
                           field.dataType || 'string'
                         );
                       }}
@@ -733,14 +880,19 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             }
 
             if (field.type === 'multiselect_creatable') {
-              const val = (state.fields[field.key] as string[])?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, state.fields) : val
+              const val = (state.fields[buildFullKey(field.key, field.from, field.subfield)] as string[])?.map(
+                (val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val)
               );
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -752,7 +904,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
                           valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
-                          field.key,
+                          buildFullKey(field.key, field.from, field.subfield),
                           field.dataType || 'string'
                         )
                       }
@@ -766,10 +918,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'datetime') {
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <InputGroup type={`text`}>
                     <Label
-                      htmlFor={field.key}
+                      htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                       description={field.description}
                       disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     >
@@ -777,14 +934,22 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     </Label>
                     <DateTime
                       value={
-                        state.fields[field.key] === '0001-01-01T01:00:00.000Z'
+                        state.fields[buildFullKey(field.key, field.from, field.subfield)] ===
+                        '0001-01-01T01:00:00.000Z'
                           ? null
                           : field.modifyValue
-                          ? field.modifyValue(state.fields[field.key] as string, state.fields)
-                          : (state.fields[field.key] as string)
+                          ? field.modifyValue(
+                              state.fields[buildFullKey(field.key, field.from, field.subfield)] as string,
+                              state.fields
+                            )
+                          : (state.fields[buildFullKey(field.key, field.from, field.subfield)] as string)
                       }
                       onChange={(date) => {
-                        if (date) handleDateTimeChange(date.toUTC().toISO(), field.key);
+                        if (date)
+                          handleDateTimeChange(
+                            date.toUTC().toISO(),
+                            buildFullKey(field.key, field.from, field.subfield)
+                          );
                       }}
                       isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
                     />
@@ -795,7 +960,12 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'custom' && field.Component) {
               return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <ErrorBoundary
+                  key={index}
+                  fallback={
+                    <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                  }
+                >
                   <field.Component
                     state={state}
                     dispatch={dispatch}
@@ -809,10 +979,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             }
 
             return (
-              <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+              <ErrorBoundary
+                key={index}
+                fallback={
+                  <div>Error loading field '{buildFullKey(field.key, field.from, field.subfield)}'</div>
+                }
+              >
                 <InputGroup type={`text`}>
                   <Label
-                    htmlFor={field.key}
+                    htmlFor={buildFullKey(field.key, field.from, field.subfield)}
                     description={field.description}
                     disabled={state.isLoading || publishLocked ? true : field.isDisabled}
                   >

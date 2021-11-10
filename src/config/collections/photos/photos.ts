@@ -3,6 +3,13 @@ import { collection } from '../../collections';
 
 const photos: collection<IPhoto> = {
   home: '/cms/photos/library',
+  query: {
+    name: {
+      singular: 'photo',
+      plural: 'photos',
+    },
+    identifier: '_id',
+  },
   fields: [
     { key: 'name', label: 'Name', type: 'text', description: 'The name of the photo in the CMS.' },
     {

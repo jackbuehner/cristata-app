@@ -1,11 +1,9 @@
 import styled from '@emotion/styled/macro';
-import useAxios from 'axios-hooks';
 import { useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Label } from '../../../components/Label';
 import { MultiSelect } from '../../../components/Select';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { IArticle } from '../articles/articles';
 import { selectArticle } from '../featuredSettings/selectArticle';
 import { SelectionOverlay } from './SelectionOverlay';
 import { SectionHead } from './SectionHead';
@@ -18,7 +16,7 @@ interface IMoreArticles extends CustomFieldProps {
 function MoreArticles({ state, dispatch, ...props }: IMoreArticles) {
   const { setField } = props.setStateFunctions;
   const key = 'articles.more';
-  const articleIds: string[] | undefined = state.fields[key];
+  const articles: { name: string; categories: string[]; _id: string }[] | undefined = state.fields[key];
 
   const handleMultiselectChange = (value: string[] | number[], key: string) => {
     dispatch(
@@ -41,7 +39,7 @@ function MoreArticles({ state, dispatch, ...props }: IMoreArticles) {
           <MultiSelect
             loadOptions={selectArticle}
             async
-            val={articleIds}
+            val={articles?.map(({ _id }) => _id)}
             onChange={(valueObjs) =>
               handleMultiselectChange(
                 valueObjs ? valueObjs.map((obj: { value: string; number: string }) => obj.value) : '',
@@ -64,10 +62,10 @@ function MoreArticles({ state, dispatch, ...props }: IMoreArticles) {
           Read them at <i>thepaladin.news/flusher</i>
         </Subhead>
         <ArticleList>
-          {articleIds?.map((id) => {
+          {articles?.map((article) => {
             return (
               <ArticleItem>
-                <ArticleHeadline id={id} />
+                <ArticleHeadline headline={article.name} categories={article.categories} />
               </ArticleItem>
             );
           })}
@@ -110,18 +108,16 @@ const ArticleList = styled.ol`
 const ArticleItem = styled.li``;
 
 interface IArticleHeadline {
-  id: string;
+  headline: string;
+  categories: string[];
 }
 
 function ArticleHeadline(props: IArticleHeadline) {
-  const [{ data: article }] = useAxios<IArticle>(`/articles/${props.id}`);
-
-  const isOpinion = (article?.categories?.findIndex((category) => category === 'opinion') || -1) > -1;
-
+  const isOpinion = (props.categories.findIndex((category) => category === 'opinion') || -1) > -1;
   return (
     <Headline>
       {isOpinion ? 'Opinion: ' : ''}
-      {article?.name}
+      {props.headline}
     </Headline>
   );
 }

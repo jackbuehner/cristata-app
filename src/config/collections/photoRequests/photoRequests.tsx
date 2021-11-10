@@ -11,6 +11,13 @@ import { selectTeam } from '../articles/selectTeam';
 
 const photoRequests: collection<IPhotoRequest> = {
   home: '/cms/collection/photo-requests',
+  query: {
+    name: {
+      singular: 'photoRequest',
+      plural: 'photoRequests',
+    },
+    identifier: '_id',
+  },
   fields: [
     { key: 'name', label: 'Request', type: 'text', description: 'A description of the needed photo.' },
     {
@@ -53,6 +60,7 @@ const photoRequests: collection<IPhotoRequest> = {
     },
     {
       key: 'people.requested_by',
+      subfield: 'github_id',
       label: 'Requester',
       type: 'select_async',
       description: 'This person will be contacted if the photo team has questions about the request.',

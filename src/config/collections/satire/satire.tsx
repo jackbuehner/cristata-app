@@ -12,6 +12,13 @@ import { selectTeam } from '../articles/selectTeam';
 
 const satire: collection<ISatire> = {
   home: '/cms/collection/satire/in-progress',
+  query: {
+    name: {
+      singular: 'satire',
+      plural: 'satires',
+    },
+    identifier: '_id',
+  },
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the satire.' },
     {
@@ -69,6 +76,7 @@ const satire: collection<ISatire> = {
     },
     {
       key: 'people.authors',
+      subfield: 'github_id',
       label: 'Authors',
       type: 'multiselect_async',
       description: 'The authors of this piece of satire. These names do not appear on the website.',
@@ -82,6 +90,7 @@ const satire: collection<ISatire> = {
     },
     {
       key: 'people.editors.copy',
+      subfield: 'github_id',
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
