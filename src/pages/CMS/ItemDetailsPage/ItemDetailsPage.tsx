@@ -40,7 +40,7 @@ import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ReactTooltip from 'react-tooltip';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql, NetworkStatus, useMutation, useQuery } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { buildFullKey } from '../../../utils/buildFullKey';
@@ -151,13 +151,17 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     : gql``;
 
   // get the item
-  const { loading, error, refetch, ...req } = useQuery(GENERATED_ITEM_QUERY);
+  const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {notifyOnNetworkStatusChange: true});
   let data = collectionConfig ? req.data?.[collectionConfig.query.name.singular] : undefined;
 
-  //const [{ data, loading, error }, refetch] = useAxios<{ [key: string]: any }>(`/${collectionName}/${item_id}`);
+  // if the query is loading or refetching, set `isLoading` in redux
   useEffect(() => {
-    dispatch(setIsLoading(loading));
-  }, [dispatch, loading]);
+    if (loading || networkStatus === NetworkStatus.refetch) {
+      dispatch(setIsLoading(true));
+    } else {
+      dispatch(setIsLoading(false));
+    }
+  }, [dispatch, loading, networkStatus]);
 
   // save the item to redux
   useEffect(() => {
