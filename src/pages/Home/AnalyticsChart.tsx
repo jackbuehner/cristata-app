@@ -30,10 +30,10 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
 
       // The data for our dataset
       data: {
-        labels: ['', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', ''],
+        labels: ['', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', ''],
         datasets: [
           {
-            data: [0, 3841, 6763, 3705, 2976, 531, 1728, 2591, 2467, 1421, 826, 555, 127, 200],
+            data: [0, 2976, 531, 1728, 2591, 2467, 1421, 826, 555, 127, null, null, 1312, 324],
           },
         ],
       },
