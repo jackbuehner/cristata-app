@@ -76,6 +76,10 @@ interface collection<I> {
 interface tiptapOptions {
   type: string;
   isHTMLkey?: string;
+  layouts?: {
+    key: string;
+    options: { value: string; label: string }[];
+  };
   keys_article?: {
     headline: string;
     description: string;

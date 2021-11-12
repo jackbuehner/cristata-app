@@ -18,6 +18,7 @@ const articles: collection<IArticle> = {
       plural: 'articles',
     },
     identifier: '_id',
+    force: ['layout'],
   },
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
@@ -128,6 +129,13 @@ const articles: collection<IArticle> = {
       tiptap: {
         type: 'article',
         isHTMLkey: 'legacy_html',
+        layouts: {
+          key: 'layout',
+          options: [
+            { value: 'standard', label: 'Standard' },
+            { value: 'full', label: 'Full' },
+          ],
+        },
         keys_article: {
           headline: 'name',
           description: 'description',

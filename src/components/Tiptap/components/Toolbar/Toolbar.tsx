@@ -68,8 +68,11 @@ interface IToolbar {
   isMax: boolean;
   setIsMax: React.Dispatch<React.SetStateAction<boolean>>;
   isDisabled?: boolean;
-  layout: 'standard' | 'full';
-  setLayout: React.Dispatch<React.SetStateAction<'standard' | 'full'>>;
+  layouts?: {
+    layout?: string;
+    options: { value: string; label: string }[];
+    setLayout: (layout: string) => void;
+  };
   awarenessProfiles?: { name: string; color: string; sessionId: string; photo: string }[];
   tiptapWidth: number;
   user: {
@@ -222,16 +225,14 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
             left: triggerRect.left,
             width: 180,
           }}
-          items={[
-            {
-              onClick: () => props.setLayout('standard'),
-              label: 'Standard',
-            },
-            {
-              onClick: () => props.setLayout('full'),
-              label: 'Full',
-            },
-          ]}
+          items={
+            props.layouts?.options.map((option) => {
+              return {
+                onClick: () => props.layouts?.setLayout(option.value),
+                label: option.label,
+              };
+            }) || []
+          }
           noIcons
         />
       );
@@ -850,16 +851,18 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               />
             ) : null}
           </ToolbarRow>
-          <ToolbarRow isActive={activeTab === 'layout'}>
-            <Combobox
-              onClick={showLayoutDropdown}
-              color={'neutral'}
-              width={`128px`}
-              disabled={props.isDisabled}
-            >
-              {props.layout}
-            </Combobox>
-          </ToolbarRow>
+          {props.layouts && props.layouts.layout ? (
+            <ToolbarRow isActive={activeTab === 'layout'}>
+              <Combobox
+                onClick={showLayoutDropdown}
+                color={'neutral'}
+                width={`128px`}
+                disabled={props.isDisabled}
+              >
+                {props.layouts.options.find((option) => option.value === props.layouts!.layout)?.label}
+              </Combobox>
+            </ToolbarRow>
+          ) : null}
           <ToolbarRow isActive={activeTab === 'review'}>
             <ToolbarRowButton
               onClick={() => showMSFTEditorModal()}

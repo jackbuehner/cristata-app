@@ -39,6 +39,8 @@ import { PhotoWidget } from './extension-photo';
 import { ErrorBoundary } from 'react-error-boundary';
 import styled from '@emotion/styled';
 import { LinearProgress } from '@rmwc/linear-progress';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { setField } from '../../redux/slices/cmsItemSlice';
 
 interface ITiptap {
   docName: string;
@@ -61,6 +63,8 @@ interface ITiptap {
 }
 
 const Tiptap = (props: ITiptap) => {
+  const state = useAppSelector((state) => state.cmsItem);
+  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const history = useHistory();
   const location = useLocation();
@@ -201,7 +205,13 @@ const Tiptap = (props: ITiptap) => {
   }, [thisWidth, isSidebarOpen]);
 
   // layout picker
-  const [layout, setLayout] = useState<'standard' | 'full'>('standard');
+  const layout: string | undefined = state.fields[props.options?.layouts?.key || ''];
+  const layoutOptions = props.options?.layouts?.options || [];
+  const setLayout = (layout: string) => {
+    if (props.options?.layouts) {
+      dispatch(setField(layout, props.options.layouts.key));
+    }
+  };
 
   // manage whether track changes is on
   const [trackChanges, setTrackChanges] = useState<boolean>(editor?.state.doc.attrs.trackChanges);
@@ -423,8 +433,7 @@ const Tiptap = (props: ITiptap) => {
             setIsMax={setIsMax}
             forceMax={props.forceMax}
             isDisabled={props.isDisabled}
-            layout={layout}
-            setLayout={setLayout}
+            layouts={{ layout, options: layoutOptions, setLayout }}
             awarenessProfiles={awarenessProfiles}
             tiptapWidth={tiptapWidth}
             user={props.user}
