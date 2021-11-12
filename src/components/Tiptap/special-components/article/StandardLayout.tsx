@@ -2,13 +2,18 @@ import styled from '@emotion/styled/macro';
 import { tiptapOptions } from '../../../../config';
 import { IconButton } from '../../../Button';
 import { collections as collectionsConfig } from '../../../../config';
-import { IProfile } from '../../../../interfaces/cristata/profiles';
 import { DateTime } from 'luxon';
-import { IPhoto } from '../../../../interfaces/cristata/photos';
-import { db } from '../../../../utils/axios/db';
 import { useState, useEffect } from 'react';
 import { setField } from '../../../../redux/slices/cmsItemSlice';
 import { useAppSelector, useAppDispatch } from '../../../../redux/hooks';
+import { client } from '../../../../graphql/client';
+import {
+  GET_AUTHORS_FROM_GITHUB_IDS,
+  GET_AUTHORS_FROM_GITHUB_IDS__TYPE,
+  GET_PHOTOGRAPHER_BY_PHOTO_URL,
+  GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE,
+} from '../../../../graphql/queries';
+import { useQuery } from '@apollo/client';
 
 interface IStandardLayout {
   options: tiptapOptions;
@@ -70,14 +75,16 @@ function StandardLayout(props: IStandardLayout) {
    * @returns promise: the source of the photo OR `undefined`
    */
   const getPhotoSourceFromUrl = async (url: string) => {
-    // get all photos
-    const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
+    // get the data
+    const { data, error } = await client.query<GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE>({
+      query: GET_PHOTOGRAPHER_BY_PHOTO_URL(url),
+    });
 
-    // find photo with matching url
-    const matchedPhoto = photos.find((photo) => photo.photo_url === url);
+    // log error if it occurs
+    if (error) console.error(error);
 
     // return the photo source
-    return matchedPhoto?.people.photo_created_by;
+    return data?.photos.docs?.[0].people?.photo_created_by;
   };
 
   // determine the photographer/artist
@@ -92,24 +99,13 @@ function StandardLayout(props: IStandardLayout) {
   }, [setPhotoCredit, props.options.keys_article, state.fields]);
 
   // get the authors
-  const [authors, setAuthors] = useState<IProfile[]>([]);
-  useEffect(() => {
-    if (props.options.keys_article && state.fields) {
-      let full: IProfile[] = [];
-      (state.fields[props.options.keys_article.authors] as (number | IProfile)[])?.forEach((author) => {
-        if (typeof author === 'number') {
-          // get full author profile
-          db.get(`/users/${author}`).then(({ data }: { data: IProfile }) => {
-            full.push(data);
-          });
-        } else {
-          // author is already the full profile
-          full.push(author as IProfile);
-        }
-      });
-      setAuthors(full);
-    }
-  }, [props.options.keys_article, state.fields]);
+  type authorObjsType = { github_id: number }[];
+  const authorObjs = (state.fields[props.options.keys_article?.authors || ''] || []) as authorObjsType;
+  const github_ids = authorObjs.map((obj) => obj.github_id);
+  const { data: authorsDocs } = useQuery<GET_AUTHORS_FROM_GITHUB_IDS__TYPE>(
+    GET_AUTHORS_FROM_GITHUB_IDS(github_ids)
+  );
+  const authors = authorsDocs?.users.docs || [];
 
   if (state.fields && props.options.keys_article) {
     const { keys_article } = props.options;
@@ -149,7 +145,7 @@ function StandardLayout(props: IStandardLayout) {
         <MetaGrid>
           <Authors>
             <AuthorPhotos>
-              {authors?.map((author: IProfile, index: number) => {
+              {authors?.map((author, index: number) => {
                 return <AuthorPhoto key={index} draggable={'false'} src={author.photo} />;
               })}
             </AuthorPhotos>
@@ -170,7 +166,7 @@ function StandardLayout(props: IStandardLayout) {
               </>
             ) : authors && authors.length >= 3 ? (
               <>
-                {authors.slice(0, authors.length - 1).map((author: IProfile, index: number) => {
+                {authors.slice(0, authors.length - 1).map((author, index: number) => {
                   return (
                     <>
                       <AuthorLink>
