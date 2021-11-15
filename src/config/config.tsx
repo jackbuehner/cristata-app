@@ -199,7 +199,7 @@ const navigation: Inavigation = {
       label: `The Royal Flush`,
       items: [
         {
-          label: `Documents`,
+          label: `(T)Issues`,
           icon: <Document24Regular />,
           to: `/cms/collection/flush`,
           isHidden: !['T_kwDOBCVTT84AUIJM', 'MDQ6VGVhbTQ2NDI0MTc='].some((team) =>
