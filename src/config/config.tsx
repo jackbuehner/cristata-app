@@ -146,7 +146,7 @@ const navigation: Inavigation = {
         {
           label: `Diversity matters articles (in-progress)`,
           icon: <Star24Regular />,
-          to: `/cms/collection/articles/in-progress?category=diversity%20matters`,
+          to: `/cms/collection/articles/in-progress?category=diversity`,
         },
         {
           label: `Arts articles (in-progress)`,
@@ -156,7 +156,7 @@ const navigation: Inavigation = {
         {
           label: `Campus & culture articles (in-progress)`,
           icon: <Balloon16Regular />,
-          to: `/cms/collection/articles/in-progress?category=campus%20%26%20culture`,
+          to: `/cms/collection/articles/in-progress?category=campus-culture`,
         },
       ],
     },
