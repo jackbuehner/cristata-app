@@ -1,5 +1,6 @@
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
+import { mongoFilterType } from '../../../graphql/client';
 import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
@@ -17,6 +18,7 @@ const photoRequests: collection<IPhotoRequest> = {
       plural: 'photoRequests',
     },
     identifier: '_id',
+    force: ['hidden'],
   },
   fields: [
     { key: 'name', label: 'Request', type: 'text', description: 'A description of the needed photo.' },
@@ -108,24 +110,11 @@ const photoRequests: collection<IPhotoRequest> = {
         );
       },
       width: 100,
-      filter: 'excludes',
-      sortType: (rowA, rowB, columnId) => {
-        /**
-         * Sort the column by stage. This is a specialized function that retrieves the stage number
-         * from the react div component.
-         *
-         * @returns 1 if rowA stage is ahead of rowB stage, -1 if rowB is ahead of rowA, 0 if equal
-         */
-        const stageA = rowA.values[columnId].props['data-number'];
-        const stageB = rowB.values[columnId].props['data-number'];
-        if (stageA > stageB) return 1;
-        else if (stageB > stageA) return -1;
-        return 0;
-      },
     },
     {
       key: 'people.requested_by',
       label: 'Requested by',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people?.requested_by) {
           return (
@@ -149,19 +138,19 @@ const photoRequests: collection<IPhotoRequest> = {
       },
       isSortable: false,
     },
-    { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
   ],
   row: { href: '/cms/item/photo-requests', hrefSuffixKey: '_id' },
   isPublishable: false,
   pageTitle: () => `Photo requests`,
   pageDescription: () => `If a photo you need is not in the photo library, make a request here.`,
-  tableFilters: (progress) => {
-    // build the filters array based on the progress
-    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
-    if (progress === 'unfulfilled') {
-      filters.push({ id: 'stage', value: 'Fulfilled' });
-    }
-    return filters;
+  tableDataFilter: (progress) => {
+    // set a filter object
+    const filter: mongoFilterType = { hidden: { $ne: true } };
+
+    // modify filter based on the progress
+    if (progress === 'unfulfilled') filter.stage = { $nin: [3.1] };
+
+    return filter;
   },
   createNew: ([loading, setIsLoading], toast, history) => {
     setIsLoading(true);

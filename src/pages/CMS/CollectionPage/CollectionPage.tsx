@@ -6,12 +6,13 @@ import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { Button, IconButton } from '../../../components/Button';
 import { collections as collectionsConfig } from '../../../config';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { collection } from '../../../config/collections';
 import ReactTooltip from 'react-tooltip';
+import { mongoFilterType } from '../../../graphql/client';
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -28,7 +29,8 @@ interface IStore {
   collectionName: string;
   pageTitle: string;
   pageDescription?: string;
-  tableFilters?: { id: string; value: string }[];
+  tableFilters?: { id: string; value: string | boolean }[];
+  mongoDataFilter?: mongoFilterType;
   createNew?: () => void;
 }
 
@@ -45,6 +47,7 @@ function CollectionPage() {
     pageTitle: '',
     pageDescription: undefined,
     tableFilters: undefined,
+    mongoDataFilter: undefined,
   };
 
   // get the url parameters from the route
@@ -55,50 +58,29 @@ function CollectionPage() {
 
   const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
 
-  // set the collection for this page
   if (collectionConfig) {
+    // set the collection for this page
     store.collection = collectionConfig;
-  }
-
-  // set the collection name
-  if (collectionConfig) {
+    // set the collection name
     store.collectionName = collectionConfig.collectionName || collection;
-  }
-
-  // set the page title
-  store.pageTitle = useMemo(() => {
-    if (store.collection.pageTitle) {
+    // set the page title
+    store.pageTitle =
       // if defined, use the page title from the config
-      return store.collection.pageTitle(progress, location.search);
-    }
-    // otherwise, build a title using the collection string
-    return collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ') + ' collection';
-  }, [progress, location.search, store.collection, collection]);
+      store.collection.pageTitle?.(progress, location.search) ||
+      // otherwise, build a title using the collection string
+      collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ') + ' collection';
+    // set the page description
+    store.pageDescription = store.collection.pageDescription?.(progress, location.search);
+    // set the data filter for mongoDB
+    store.mongoDataFilter = store.collection.tableDataFilter?.(progress, location.search);
+    // set the createNew function
+    store.createNew = () => store.collection.createNew?.([isLoading, setIsLoading], toast, history);
+  }
 
   // set document title
   useEffect(() => {
     document.title = `${store.pageTitle} - Cristata`;
   }, [store.pageTitle]);
-
-  // set the page description
-  store.pageDescription = useMemo(() => {
-    if (store.collection.pageDescription) {
-      return store.collection.pageDescription(progress, location.search);
-    }
-  }, [progress, location.search, store.collection]);
-
-  // set the table filters
-  store.tableFilters = useMemo(() => {
-    if (store.collection.tableFilters) {
-      return store.collection.tableFilters(progress, location.search);
-    }
-  }, [progress, location.search, store.collection]);
-
-  // set the createNew function
-  if (store.collection.createNew) {
-    // @ts-expect-error createNew is not undefined because we checked it on the above line
-    store.createNew = () => store.collection.createNew([isLoading, setIsLoading], toast, history);
-  }
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -130,6 +112,7 @@ function CollectionPage() {
           collection={store.collectionName}
           progress={progress}
           filters={store.tableFilters}
+          filter={store.mongoDataFilter}
           ref={tableRef}
           setIsLoading={setIsLoading}
         />

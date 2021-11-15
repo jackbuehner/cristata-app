@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
+import { mongoFilterType } from '../../../graphql/client';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
@@ -18,7 +19,7 @@ const articles: collection<IArticle> = {
       plural: 'articles',
     },
     identifier: '_id',
-    force: ['layout'],
+    force: ['layout', 'hidden'],
   },
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
@@ -235,24 +236,11 @@ const articles: collection<IArticle> = {
         }
         return <></>;
       },
-      filter: 'excludes',
-      sortType: (rowA, rowB, columnId) => {
-        /**
-         * Sort the column by stage. This is a specialized function that retrieves the stage number
-         * from the react div component.
-         *
-         * @returns 1 if rowA stage is ahead of rowB stage, -1 if rowB is ahead of rowA, 0 if equal
-         */
-        const stageA = rowA.values[columnId].props['data-number'];
-        const stageB = rowB.values[columnId].props['data-number'];
-        if (stageA > stageB) return 1;
-        else if (stageB > stageA) return -1;
-        return 0;
-      },
     },
     {
       key: 'people.authors',
       label: 'Authors',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people && data.people.authors) {
           return (
@@ -351,23 +339,11 @@ const articles: collection<IArticle> = {
         return <></>;
       },
       width: 174,
-      sortType: (rowA, rowB, columnId) => {
-        /**
-         * Sort the column by date. This is a specialized function that retrieves the first child (the date)
-         * from the react div component.
-         *
-         * @returns 1 if rowA time is larger than rowB, -1 if rowB is larger than rowA, 0 is equal
-         */
-        const timeA = new Date(rowA.values[columnId].props.children?.[0]).getTime();
-        const timeB = new Date(rowB.values[columnId].props.children?.[0]).getTime();
-        if (timeA > timeB) return 1;
-        else if (timeB > timeA) return -1;
-        return 0;
-      },
     },
     {
       key: 'people.editors.copy',
       label: 'Copy edited by',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people && data.people.editors && data.people.editors.copy) {
           return (
@@ -397,6 +373,7 @@ const articles: collection<IArticle> = {
     {
       key: 'people.created_by',
       label: 'Created by',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people && data.people.created_by) {
           return (
@@ -423,6 +400,7 @@ const articles: collection<IArticle> = {
     {
       key: 'people.last_modified_by',
       label: 'Last modified by',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people && data.people.last_modified_by) {
           return (
@@ -457,22 +435,7 @@ const articles: collection<IArticle> = {
         }
         return <></>;
       },
-      sortType: (rowA, rowB, columnId) => {
-        /**
-         * Sort the column by date. This is a specialized function that retrieves the first child (the date)
-         * from the react div component.
-         *
-         * @returns 1 if rowA time is larger than rowB, -1 if rowB is larger than rowA, 0 is equal
-         */
-        const timeA = new Date(rowA.values[columnId].props.children).getTime();
-        const timeB = new Date(rowB.values[columnId].props.children).getTime();
-        console.log(timeA);
-        if (timeA > timeB) return 1;
-        else if (timeB > timeA) return -1;
-        return 0;
-      },
     },
-    { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
   ],
   row: {
     href: '/cms/item/articles',
@@ -513,20 +476,24 @@ const articles: collection<IArticle> = {
       return `Every article that is in-progress or published on the web.`;
     }
   },
-  tableFilters: (progress, search) => {
+  tableDataFilter: (progress, search) => {
     // get the category of the page
     const category = new URLSearchParams(search).get('category');
 
-    // build the filters array based on the progress and category
-    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
-    if (progress === 'in-progress') {
-      filters.push({ id: 'stage', value: 'Published' });
-      filters.push({ id: 'stage', value: 'Uploaded/Scheduled' });
+    // set a filter object
+    const filter: mongoFilterType = { hidden: { $ne: true } };
+
+    // modify filter based on the progress and category
+    if (progress === 'in-progress') filter.stage = { $nin: [5.1, 5.2] };
+    if (category) filter.categories = category;
+
+    return filter;
+  },
+  prependSort: (sort) => {
+    if (sort['timestamps.target_publish_at']) {
+      return { 'timestamps.target_publish_at_is_baseline': 1 };
     }
-    if (category) {
-      filters.push({ id: 'categories', value: category });
-    }
-    return filters;
+    return {};
   },
   createNew: ([loading, setIsLoading], toast, history) => {
     setIsLoading(true);
@@ -559,11 +526,11 @@ interface IArticle {
     users: GitHubUserID[];
   };
   locked?: boolean;
-  timestamps?: {
-    created_at?: Date;
-    modified_at?: Date;
-    published_at?: Date;
-    target_publish_at?: Date;
+  timestamps: {
+    created_at?: string;
+    modified_at?: string;
+    published_at?: string;
+    target_publish_at?: string;
   };
   people: {
     authors?: IProfile[];

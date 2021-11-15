@@ -30,14 +30,11 @@ const flush: collection<IFlush> = {
       'volume',
       'issue',
       'left_advert_photo_url',
+      'hidden',
     ],
   },
   fields: [{ key: 'events', type: 'custom', Component: FlushDocumentEditor }],
-  columns: [
-    { key: 'volume' },
-    { key: 'issue' },
-    { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
-  ],
+  columns: [{ key: 'volume' }, { key: 'issue' }],
   row: {
     href: '/cms/item/flush',
     hrefSuffixKey: '_id',
@@ -51,7 +48,7 @@ const flush: collection<IFlush> = {
     `The Royal Flush – Vol. ${
       !isNaN(parseInt(fields['volume'])) ? roman.romanize(parseInt(fields['volume'])) : '??'
     }, Iss. ${fields.issue || '??'}`,
-  tableFilters: () => [{ id: 'hidden', value: 'true' }],
+  tableDataFilter: () => ({ hidden: { $ne: true } }),
   createNew: ([loading, setIsLoading], toast, history) => {
     setIsLoading(true);
     db.post(`/flush`)

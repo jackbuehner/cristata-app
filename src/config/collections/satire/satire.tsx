@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
+import { mongoFilterType } from '../../../graphql/client';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
@@ -18,6 +19,7 @@ const satire: collection<ISatire> = {
       plural: 'satires',
     },
     identifier: '_id',
+    force: ['hidden', 'legacy_html'],
   },
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the satire.' },
@@ -185,8 +187,6 @@ const satire: collection<ISatire> = {
 
         return <Chip label={Stage[data.stage]} color={Color[data.stage] || 'neutral'} />;
       },
-      filter: 'excludes',
-      isSortable: false,
     },
     {
       key: 'people.display_authors',
@@ -207,6 +207,7 @@ const satire: collection<ISatire> = {
     {
       key: 'people.authors',
       label: 'Authors',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people && data.people.authors) {
           return (
@@ -276,11 +277,11 @@ const satire: collection<ISatire> = {
         );
       },
       width: 174,
-      isSortable: false,
     },
     {
       key: 'people.created_by',
       label: 'Created by',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people && data.people.created_by) {
           return (
@@ -307,6 +308,7 @@ const satire: collection<ISatire> = {
     {
       key: 'people.last_modified_by',
       label: 'Last modified by',
+      subfields: ['name', 'photo', '_id'],
       render: (data) => {
         if (data.people && data.people.last_modified_by) {
           return (
@@ -338,13 +340,12 @@ const satire: collection<ISatire> = {
         if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
         return <div style={{ fontSize: 14 }}>{date}</div>;
       },
-      isSortable: false,
     },
-    { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
   ],
   row: { href: '/cms/item/satire', hrefSuffixKey: '_id' },
   isPublishable: true,
   publishStage: 5.2,
+  defaultSortKey: 'timestamps.target_publish_at',
   pageTitle: (progress, search) => {
     // get the category of the page
     const category = new URLSearchParams(search).get('category');
@@ -373,20 +374,24 @@ const satire: collection<ISatire> = {
       return `Every piece of satire that is in-progress or published on the web.`;
     }
   },
-  tableFilters: (progress, search) => {
+  tableDataFilter: (progress, search) => {
     // get the category of the page
     const category = new URLSearchParams(search).get('category');
 
-    // build the filters array based on the progress and category
-    let filters: { id: string; value: string }[] = [{ id: 'hidden', value: 'true' }];
-    if (progress === 'in-progress') {
-      filters.push({ id: 'stage', value: 'Published' });
-      filters.push({ id: 'stage', value: 'Uploaded/Scheduled' });
+    // set a filter object
+    const filter: mongoFilterType = { hidden: { $ne: true } };
+
+    // modify filter based on the progress and category
+    if (progress === 'in-progress') filter.stage = { $nin: [5.1, 5.2] };
+    if (category) filter.categories = category;
+
+    return filter;
+  },
+  prependSort: (sort) => {
+    if (sort['timestamps.target_publish_at']) {
+      return { 'timestamps.target_publish_at_is_baseline': 1 };
     }
-    if (category) {
-      filters.push({ id: 'categories', value: category });
-    }
-    return filters;
+    return {};
   },
   createNew: ([loading, setIsLoading], toast, history) => {
     setIsLoading(true);

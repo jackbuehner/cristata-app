@@ -42,7 +42,7 @@ const shorturl: collection<IShortURL> = {
       width: 100,
     },
     {
-      key: 'short_url',
+      key: 'domain',
       label: 'Short URL',
       render: (data) => {
         return (
@@ -59,37 +59,6 @@ const shorturl: collection<IShortURL> = {
   row: { href: '/cms/item/shorturl', hrefSuffixKey: 'code' },
   isPublishable: false,
   canWatch: false,
-  onTableData: (shorturls, users) => {
-    /**
-     * Find user in user data.
-     */
-    const findUserAndReturnObj = (userID: number) => {
-      const user = users?.find((user) => user.github_id === userID);
-      return user;
-    };
-
-    // change userIDs to user display names
-    shorturls.forEach((shorturl) => {
-      // format created by ids to names and photos
-      if (typeof shorturl.people.created_by === 'number') {
-        const user = findUserAndReturnObj(shorturl.people.created_by);
-        if (user) {
-          const { name, photo } = user;
-          shorturl.people.created_by = { name, photo };
-        }
-      }
-      // format last modified by ids to names and photos
-      if (typeof shorturl.people.last_modified_by === 'number') {
-        const user = findUserAndReturnObj(shorturl.people.last_modified_by);
-        if (user) {
-          const { name, photo } = user;
-          shorturl.people.last_modified_by = { name, photo };
-        }
-      }
-    });
-
-    return shorturls;
-  },
   pageTitle: () => 'Short URLs',
   pageDescription: () => 'Generate short URLs that redirect to other pages.',
   createNew: ([loading, setIsLoading], toast, history) => {

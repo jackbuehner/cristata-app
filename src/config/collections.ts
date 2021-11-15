@@ -6,13 +6,13 @@ import { satire } from './collections/satire';
 import { shorturl } from './collections/shorturl';
 import { featuredSettings } from './collections/featuredSettings';
 import { socialArticles } from './collections/socialArticles';
-import { IProfile } from '../interfaces/cristata/profiles';
 import { History } from 'history';
 import { toast as toastify } from 'react-toastify';
 import React, { Dispatch, SetStateAction } from 'react';
 import { CmsItemState } from '../redux/slices/cmsItemSlice';
 import { flush } from './collections/flush';
 import { CustomFieldProps } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { mongoFilterType, mongoSortType } from '../graphql/client';
 
 const collections: collectionsType = {
   articles,
@@ -33,6 +33,8 @@ interface collection<I> {
   fields: IField[];
   columns: Array<{
     key: string;
+    isJSON?: boolean; // if the key is a JSON field
+    subfields?: string[]; // choose subfields for when the key is for a field with subfields
     label?: string;
     width?: number;
     render?: (data: { [key: string]: any }) => React.ReactElement;
@@ -64,8 +66,10 @@ interface collection<I> {
   pageDescription?: (progress: string, search: string) => string;
   itemPageTitle?: (data: CmsItemState['fields']) => string;
   defaultSortKey?: string;
-  onTableData?: (data: I[], users: IProfile[]) => I[];
-  tableFilters?: (progress: string, search: string) => { id: string; value: string }[];
+  prependSort?: (sort: mongoSortType) => mongoSortType | {};
+  prependFilter?: (filter: mongoFilterType) => mongoFilterType | {};
+  onTableData?: (data: I[]) => I[];
+  tableDataFilter?: (progress: string, search: string) => mongoFilterType;
   createNew?: (
     loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
     toast: typeof toastify,
