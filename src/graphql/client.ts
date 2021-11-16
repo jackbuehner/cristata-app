@@ -5,7 +5,7 @@ import { Paged } from '../interfaces/cristata/paged';
 
 const collectionPluralNames = [
   ...new Set(
-    Object.entries(collections).map(([key, value]) => {
+    Object.entries(collections || {}).map(([key, value]) => {
       return value!.query.name.plural;
     })
   ),
