@@ -1,6 +1,8 @@
+import { gql } from '@apollo/client';
+import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
-import { mongoFilterType } from '../../../graphql/client';
+import { client, mongoFilterType } from '../../../graphql/client';
 import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
@@ -154,15 +156,37 @@ const photoRequests: collection<IPhotoRequest> = {
   },
   createNew: ([loading, setIsLoading], toast, history) => {
     setIsLoading(true);
-    db.post(`/photo-requests`, {
-      name: uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-      }),
-    })
+
+    const CREATE_NEW_PHOTO_REQUEST = gql(
+      jsonToGraphQLQuery({
+        mutation: {
+          __name: 'photoRequestCreate',
+          __variables: {
+            name: 'String!',
+          },
+          photoRequestCreate: {
+            __args: {
+              name: new VariableType('name'),
+            },
+            _id: true,
+          },
+        },
+      })
+    );
+
+    client
+      .mutate({
+        mutation: CREATE_NEW_PHOTO_REQUEST,
+        variables: {
+          name: uniqueNamesGenerator({
+            dictionaries: [adjectives, colors, animals],
+            separator: '-',
+          }),
+        },
+      })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/photo-requests/${data._id}`);
+        history.push(`/cms/item/photo-requests/${data.photoRequestCreate._id}`);
       })
       .catch((err) => {
         setIsLoading(false);
