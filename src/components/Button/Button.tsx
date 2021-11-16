@@ -73,6 +73,7 @@ const ChevronWrapper = styled.span<{ theme: themeType; disabled?: boolean; size?
 
 export interface ButtonProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onAuxClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   height?: string;
   width?: string;
   border?: {
@@ -103,7 +104,9 @@ const Button: React.FC<ButtonProps> = (props) => {
 
   return (
     <BUTTON
+      {...props}
       onClick={props.onClick}
+      onAuxClick={props.onAuxClick}
       height={props.height}
       width={props.width}
       border={props.border}
