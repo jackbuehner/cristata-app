@@ -46,7 +46,7 @@ const IconStyleWrapper = styled.span`
   margin: 0 12px 0 -4px;
   width: 16px;
   height: 16px;
-  > svg {
+  svg {
     width: 16px;
     height: 16px;
   }
