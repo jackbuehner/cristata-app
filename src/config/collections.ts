@@ -69,7 +69,7 @@ interface collection<I> {
   prependSort?: (sort: mongoSortType) => mongoSortType | {};
   prependFilter?: (filter: mongoFilterType) => mongoFilterType | {};
   onTableData?: (data: I[]) => I[];
-  tableDataFilter?: (progress: string, search: string) => mongoFilterType;
+  tableDataFilter?: (progress: string, search: string, filter: mongoFilterType) => mongoFilterType;
   createNew?: (
     loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
     toast: typeof toastify,

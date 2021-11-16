@@ -145,9 +145,9 @@ const photoRequests: collection<IPhotoRequest> = {
   isPublishable: false,
   pageTitle: () => `Photo requests`,
   pageDescription: () => `If a photo you need is not in the photo library, make a request here.`,
-  tableDataFilter: (progress) => {
+  tableDataFilter: (progress, _, srcFilter) => {
     // set a filter object
-    const filter: mongoFilterType = { hidden: { $ne: true } };
+    const filter: mongoFilterType = { ...srcFilter, hidden: { $ne: true } };
 
     // modify filter based on the progress
     if (progress === 'unfulfilled') filter.stage = { $nin: [3.1] };

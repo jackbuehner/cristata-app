@@ -29,7 +29,16 @@ interface ICollectionTable {
 }
 
 interface ICollectionTableImperative {
+  /**
+   * Refetch the data for the table.
+   *
+   * The number of rows will be reduced to the standard length when the data is fetchd.
+   */
   refetchData(): void;
+  /**
+   * Reset the table sort filters back to default.
+   */
+  resetSort(): void;
 }
 
 const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>(
@@ -176,10 +185,13 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // modify the data as specified in the config
     if (collection?.onTableData && docs) docs = collection.onTableData([...docs]);
 
-    // make the refetch data function available to the parent element via a ref
+    // make functions available to the parent element via a ref
     useImperativeHandle(ref, () => ({
       refetchData() {
         refetch();
+      },
+      resetSort() {
+        setSort({});
       },
     }));
 

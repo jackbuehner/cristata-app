@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
-import { mongoFilterType } from '../../../graphql/client';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
@@ -346,46 +345,24 @@ const satire: collection<ISatire> = {
   isPublishable: true,
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
-  pageTitle: (progress, search) => {
-    // get the category of the page
-    const category = new URLSearchParams(search).get('category');
-
-    // build a title string based on the progress and category
-    if (progress === 'in-progress' && category) {
-      return `In-progress ${category}${category === 'opinion' ? `s` : ` satire`}`;
-    } else if (progress === 'in-progress') {
+  pageTitle: (progress) => {
+    if (progress === 'in-progress') {
       return 'In-progress satire';
-    } else {
-      return 'All satire';
     }
+    return 'All satire';
   },
-  pageDescription: (progress, search) => {
-    // get the category of the page
-    const category = new URLSearchParams(search).get('category');
-
-    // build a description string based on the progress and category
-    if (progress === 'in-progress' && category) {
-      return `The ${category}${
-        category === 'opinion' ? `s` : ` satire`
-      } we are planning, drafting, and editing.`;
-    } else if (progress === 'in-progress') {
+  pageDescription: (progress) => {
+    if (progress === 'in-progress') {
       return `The satire we are planning, drafting, and editing.`;
-    } else {
-      return `Every piece of satire that is in-progress or published on the web.`;
     }
+    return `Every piece of satire that is in-progress or published on the web.`;
   },
-  tableDataFilter: (progress, search) => {
-    // get the category of the page
-    const category = new URLSearchParams(search).get('category');
+  tableDataFilter: (progress, search, sourceFilter) => {
+    // modify filter based on the progress
+    const filter = { ...sourceFilter };
+    if (progress === 'in-progress' && !filter.stage) filter.stage = { $nin: [5.1, 5.2] };
 
-    // set a filter object
-    const filter: mongoFilterType = { hidden: { $ne: true } };
-
-    // modify filter based on the progress and category
-    if (progress === 'in-progress') filter.stage = { $nin: [5.1, 5.2] };
-    if (category) filter.categories = category;
-
-    return filter;
+    return { ...filter, hidden: { $ne: true } };
   },
   prependSort: (sort) => {
     if (sort['timestamps.target_publish_at']) {

@@ -3,8 +3,8 @@ import styled from '@emotion/styled/macro';
 import { PageHead } from '../../../components/PageHead';
 import { themeType } from '../../../utils/theme/theme';
 import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
-import { ArrowClockwise16Regular, ArrowClockwise24Regular } from '@fluentui/react-icons';
-import { Button, IconButton } from '../../../components/Button';
+import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
+import { Button } from '../../../components/Button';
 import { collections as collectionsConfig } from '../../../config';
 import { useEffect, useRef, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
@@ -15,6 +15,14 @@ import ReactTooltip from 'react-tooltip';
 import { mongoFilterType } from '../../../graphql/client';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { Menu } from '../../../components/Menu';
+import { useModal } from 'react-modal-hook';
+import { PlainModal } from '../../../components/Modal';
+import { InputGroup } from '../../../components/InputGroup';
+import { Label } from '../../../components/Label';
+import { ErrorBoundary } from 'react-error-boundary';
+import { TextInput } from '../../../components/TextInput';
+import { MultiSelect } from '../../../components/Select';
+import { isJSON } from '../../../utils/isJSON';
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -58,6 +66,21 @@ function CollectionPage() {
     progress: string;
   }>();
 
+  // build a filter for the table based on url search params
+  const defaultFilter: mongoFilterType = { hidden: { $ne: true } };
+  new URLSearchParams(location.search).forEach((value, param) => {
+    const isNegated = param[0] === '!';
+    const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
+
+    if (isNegated && isArray) defaultFilter[param.slice(1)] = { $nin: JSON.parse(value) };
+    if (isNegated && !isArray) defaultFilter[param.slice(1)] = { $ne: parseFloat(value) || value };
+    if (!isNegated && isArray) defaultFilter[param] = { $in: JSON.parse(value) };
+    if (!isNegated && !isArray)
+      defaultFilter[param] = !isNaN(parseFloat(value))
+        ? { $eq: parseFloat(value) }
+        : { $regex: value, $options: 'i' };
+  });
+
   const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
 
   if (collectionConfig) {
@@ -74,7 +97,7 @@ function CollectionPage() {
     // set the page description
     store.pageDescription = store.collection.pageDescription?.(progress, location.search);
     // set the data filter for mongoDB
-    store.mongoDataFilter = store.collection.tableDataFilter?.(progress, location.search);
+    store.mongoDataFilter = store.collection.tableDataFilter?.(progress, location.search, defaultFilter);
     // set the createNew function
     store.createNew = () => store.collection.createNew?.([isLoading, setIsLoading], toast, history);
   }
@@ -88,6 +111,125 @@ function CollectionPage() {
   useEffect(() => {
     ReactTooltip.rebuild();
   });
+
+  // filter modal
+  const [showFilterModal, hideFilterModal] = useModal(() => {
+    const searchParams = new URLSearchParams(location.search);
+
+    const params: {
+      [key: string]: { value: string | undefined | string[] | number[]; isNegated: boolean };
+    } = {};
+
+    const fields = collectionConfig?.fields
+      .filter(({ subfield }) => !subfield)
+      .filter(({ from }) => !from)
+      .filter(({ modifyValue }) => !modifyValue)
+      .filter(({ type }) => type === 'text' || type === 'select' || type === 'multiselect');
+
+    fields?.forEach((field) => {
+      const searchParam = field.key;
+      const searchValue = searchParams.get(searchParam);
+
+      if (searchValue) {
+        const isNegated = searchValue[0] === '!';
+        const isArray = isJSON(searchValue) && Array.isArray(JSON.parse(searchValue));
+
+        if (isNegated && isArray) {
+          params[searchParam] = {
+            value: JSON.parse(searchValue.slice(1)).filter(
+              (elem: unknown) => typeof elem === 'string' || typeof elem === 'number'
+            ),
+            isNegated,
+          };
+        } else if (isNegated && !isArray) {
+          params[searchParam] = { value: searchValue.slice(1), isNegated };
+        } else if (!isNegated && isArray) {
+          params[searchParam] = {
+            value: JSON.parse(searchValue).filter(
+              (elem: unknown) => typeof elem === 'string' || typeof elem === 'number'
+            ),
+            isNegated,
+          };
+        } else if (!isNegated && !isArray) {
+          params[searchParam] = { value: searchValue, isNegated };
+        }
+      }
+    });
+
+    return (
+      <PlainModal
+        hideModal={hideFilterModal}
+        title={`Choose filters`}
+        continueButton={{ text: 'Close' }}
+        cancelButton={null}
+      >
+        <div>
+          {fields?.map((field, index) => {
+            const value = params[field.key]?.value;
+
+            if (field.type === 'text' && (typeof value === 'string' || typeof value === 'undefined')) {
+              return (
+                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                  <InputGroup type={`text`}>
+                    <Label htmlFor={field.key}>{field.label}</Label>
+                    <TextInput
+                      name={field.label}
+                      id={field.key}
+                      value={value}
+                      onChange={(e) => searchParams.set(field.key, e.currentTarget.value)}
+                      onBlur={() => history.replace(location.pathname + '?' + searchParams.toString())}
+                    />
+                  </InputGroup>
+                </ErrorBoundary>
+              );
+            }
+
+            if (field.type === 'select' || field.type === 'multiselect') {
+              const valueIsArray = Array.isArray(value);
+              const val = value
+                ? valueIsArray
+                  ? (value as unknown as string[] | number[])
+                  : [value as unknown as string]
+                : undefined;
+
+              return (
+                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                  <InputGroup type={`text`}>
+                    <Label htmlFor={field.key}>{field.label}</Label>
+                    <MultiSelect
+                      options={field.options?.map(({ value, label }) => ({ value, label }))}
+                      val={val?.map((v: string | number) => `${v}`)}
+                      onChange={(opts) => {
+                        if (opts?.length === 0) {
+                          searchParams.delete(field.key);
+                        } else {
+                          searchParams.set(
+                            field.key,
+                            JSON.stringify(
+                              opts?.map((opt: { label: string; value: string }) =>
+                                field.dataType === 'number' ? parseFloat(opt.value as string) : opt.value
+                              )
+                            )
+                          );
+                        }
+                        history.replace(location.pathname + '?' + searchParams.toString());
+                      }}
+                    />
+                  </InputGroup>
+                </ErrorBoundary>
+              );
+            }
+            return (
+              <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <Label htmlFor={field.key}>{field.label}</Label>
+                <pre>{JSON.stringify(field)}</pre>
+              </ErrorBoundary>
+            );
+          })}
+        </div>
+      </PlainModal>
+    );
+  }, [location.search]);
 
   // tools dropdown
   const [showToolsDropdown] = useDropdown(
@@ -105,6 +247,16 @@ function CollectionPage() {
               label: 'Refresh data',
               icon: <ArrowClockwise16Regular />,
               onClick: () => tableRef.current?.refetchData(),
+            },
+            {
+              label: 'Filter',
+              icon: <Filter16Regular />,
+              onClick: showFilterModal,
+            },
+            {
+              label: 'Clear filter',
+              icon: <FilterDismiss16Regular />,
+              onClick: () => history.push(location.pathname),
             },
           ]}
         />
@@ -125,7 +277,23 @@ function CollectionPage() {
         buttons={
           <>
             {store.createNew ? <Button onClick={store.createNew}>Create new</Button> : null}
-            <Button onClick={showToolsDropdown} showChevron>
+            <Button
+              onClick={(e) => {
+                // refetch data on shift click
+                if (e.ctrlKey || e.metaKey) tableRef.current?.refetchData();
+                // otherwise, open dropdown
+                else showToolsDropdown(e);
+              }}
+              onAuxClick={({ button }) => {
+                // refetch data on middle click
+                if (button === 1) tableRef.current?.refetchData();
+              }}
+              data-tip={`${
+                // @ts-expect-error userAgentData exists
+                navigator.userAgentData.platform === 'macOS' ? 'cmd' : 'ctrl'
+              } + click to refresh data`}
+              showChevron
+            >
               Tools
             </Button>
           </>

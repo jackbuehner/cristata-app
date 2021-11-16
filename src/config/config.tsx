@@ -131,32 +131,32 @@ const navigation: Inavigation = {
         {
           label: `News articles (in-progress)`,
           icon: <News24Regular />,
-          to: `/cms/collection/articles/in-progress?category=news`,
+          to: `/cms/collection/articles/in-progress?categories=%5B"news"%5D`,
         },
         {
           label: `Opinions (in-progress)`,
           icon: <Chat24Regular />,
-          to: `/cms/collection/articles/in-progress?category=opinion`,
+          to: `/cms/collection/articles/in-progress?categories=%5B"opinion"%5D`,
         },
         {
           label: `Sports articles (in-progress)`,
           icon: <Sport24Regular />,
-          to: `/cms/collection/articles/in-progress?category=sports`,
+          to: `/cms/collection/articles/in-progress?categories=%5B"sports"%5D`,
         },
         {
           label: `Diversity matters articles (in-progress)`,
           icon: <Star24Regular />,
-          to: `/cms/collection/articles/in-progress?category=diversity`,
+          to: `/cms/collection/articles/in-progress?categories=%5B"diversity"%5D`,
         },
         {
           label: `Arts articles (in-progress)`,
           icon: <PaintBrush24Regular />,
-          to: `/cms/collection/articles/in-progress?category=arts`,
+          to: `/cms/collection/articles/in-progress?categories=%5B"arts"%5D`,
         },
         {
           label: `Campus & culture articles (in-progress)`,
           icon: <Balloon16Regular />,
-          to: `/cms/collection/articles/in-progress?category=campus-culture`,
+          to: `/cms/collection/articles/in-progress?categories=%5B"campus-culture"%5D`,
         },
       ],
     },

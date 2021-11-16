@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
-import { mongoFilterType } from '../../../graphql/client';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
@@ -10,6 +9,7 @@ import { collection } from '../../collections';
 import { selectPhotoPath } from './selectPhotoPath';
 import { selectProfile } from './selectProfile';
 import { selectTeam } from './selectTeam';
+import { isJSON } from '../../../utils/isJSON';
 
 const articles: collection<IArticle> = {
   home: '/cms/collection/articles/in-progress',
@@ -45,6 +45,7 @@ const articles: collection<IArticle> = {
         { value: '5.1', label: 'Uploaded/Scheduled', isDisabled: true },
         { value: '5.2', label: 'Published', isDisabled: true },
       ],
+      dataType: 'number',
     },
     {
       key: 'categories',
@@ -449,45 +450,64 @@ const articles: collection<IArticle> = {
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
   pageTitle: (progress, search) => {
+    const paramsLength = Array.from(new URLSearchParams(search).keys()).length;
+
     // get the category of the page
-    const category = new URLSearchParams(search).get('category');
+    const categoriesParam = new URLSearchParams(search).get('categories');
+    const categories: string[] = isJSON(categoriesParam || '') ? JSON.parse(categoriesParam || '') : undefined;
+
+    // function rename categories with different display names
+    const rename = (str: string) => {
+      if (str === 'diversity') return 'diversity matters';
+      if (str === 'campus-culture') return 'campus & culture';
+      if (str === 'opinion') return 'opinions';
+      return str;
+    };
 
     // build a title string based on the progress and category
-    if (progress === 'in-progress' && category) {
-      return `In-progress ${category}${category === 'opinion' ? `s` : ` articles`}`;
-    } else if (progress === 'in-progress') {
+    if (progress === 'in-progress' && categories?.length === 1) {
+      return `In-progress ${rename(categories[0])}${categories[0] === 'opinion' ? `` : ` articles`}`;
+    } else if (progress === 'in-progress' && paramsLength === 0) {
       return 'In-progress articles';
-    } else {
+    } else if (progress === 'all' && paramsLength === 0) {
       return 'All articles';
     }
+    return 'Articles [custom view]';
   },
   pageDescription: (progress, search) => {
+    const paramsLength = Array.from(new URLSearchParams(search).keys()).length;
+
     // get the category of the page
-    const category = new URLSearchParams(search).get('category');
+    const categoriesParam = new URLSearchParams(search).get('categories');
+    const categories: string[] = isJSON(categoriesParam || '') ? JSON.parse(categoriesParam || '') : undefined;
+
+    // function rename categories with different display names
+    const rename = (str: string) => {
+      if (str === 'diversity') return 'diversity matters';
+      if (str === 'campus-culture') return 'campus & culture';
+      if (str === 'opinion') return 'opinions';
+      return str;
+    };
 
     // build a description string based on the progress and category
-    if (progress === 'in-progress' && category) {
-      return `The ${category}${
-        category === 'opinion' ? `s` : ` articles`
+    if (progress === 'in-progress' && categories?.length === 1) {
+      return `The ${rename(categories[0])}${
+        categories[0] === 'opinion' ? `` : ` articles`
       } we are planning, drafting, and editing.`;
-    } else if (progress === 'in-progress') {
+    } else if (progress === 'in-progress' && paramsLength === 0) {
       return `The articles we are planning, drafting, and editing.`;
-    } else {
+    } else if (progress === 'all' && paramsLength === 0) {
       return `Every article that is in-progress or published on the web.`;
+    } else {
+      return decodeURIComponent(search.slice(1)).split('&').join(' | ');
     }
   },
-  tableDataFilter: (progress, search) => {
-    // get the category of the page
-    const category = new URLSearchParams(search).get('category');
+  tableDataFilter: (progress, search, sourceFilter) => {
+    // modify filter based on the progress
+    const filter = { ...sourceFilter };
+    if (progress === 'in-progress' && !filter.stage) filter.stage = { $nin: [5.1, 5.2] };
 
-    // set a filter object
-    const filter: mongoFilterType = { hidden: { $ne: true } };
-
-    // modify filter based on the progress and category
-    if (progress === 'in-progress') filter.stage = { $nin: [5.1, 5.2] };
-    if (category) filter.categories = category;
-
-    return filter;
+    return { ...filter, hidden: { $ne: true } };
   },
   prependSort: (sort) => {
     if (sort['timestamps.target_publish_at']) {

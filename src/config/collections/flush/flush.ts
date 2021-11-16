@@ -48,7 +48,7 @@ const flush: collection<IFlush> = {
     `The Royal Flush – Vol. ${
       !isNaN(parseInt(fields['volume'])) ? roman.romanize(parseInt(fields['volume'])) : '??'
     }, Iss. ${fields.issue || '??'}`,
-  tableDataFilter: () => ({ hidden: { $ne: true } }),
+  tableDataFilter: (_, __, filter) => ({ ...filter, hidden: { $ne: true } }),
   createNew: ([loading, setIsLoading], toast, history) => {
     setIsLoading(true);
     db.post(`/flush`)
