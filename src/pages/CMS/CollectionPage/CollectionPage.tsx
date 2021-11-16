@@ -3,7 +3,7 @@ import styled from '@emotion/styled/macro';
 import { PageHead } from '../../../components/PageHead';
 import { themeType } from '../../../utils/theme/theme';
 import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
-import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import { ArrowClockwise16Regular, ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { Button, IconButton } from '../../../components/Button';
 import { collections as collectionsConfig } from '../../../config';
 import { useEffect, useRef, useState } from 'react';
@@ -13,6 +13,8 @@ import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { collection } from '../../../config/collections';
 import ReactTooltip from 'react-tooltip';
 import { mongoFilterType } from '../../../graphql/client';
+import { useDropdown } from '../../../hooks/useDropdown';
+import { Menu } from '../../../components/Menu';
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
@@ -87,6 +89,32 @@ function CollectionPage() {
     ReactTooltip.rebuild();
   });
 
+  // tools dropdown
+  const [showToolsDropdown] = useDropdown(
+    (triggerRect, dropdownRef) => {
+      return (
+        <Menu
+          ref={dropdownRef}
+          pos={{
+            top: triggerRect.bottom,
+            left: triggerRect.left + triggerRect.width - 240,
+            width: 240,
+          }}
+          items={[
+            {
+              label: 'Refresh data',
+              icon: <ArrowClockwise16Regular />,
+              onClick: () => tableRef.current?.refetchData(),
+            },
+          ]}
+        />
+      );
+    },
+    [],
+    true,
+    true
+  );
+
   const tableRef = useRef<ICollectionTableImperative>(null);
   return (
     <>
@@ -96,14 +124,10 @@ function CollectionPage() {
         isLoading={isLoading}
         buttons={
           <>
-            <IconButton
-              data-tip={'Refresh data'}
-              onClick={() => tableRef.current?.refetchData()}
-              icon={<ArrowClockwise24Regular />}
-            >
-              Refresh
-            </IconButton>
             {store.createNew ? <Button onClick={store.createNew}>Create new</Button> : null}
+            <Button onClick={showToolsDropdown} showChevron>
+              Tools
+            </Button>
           </>
         }
       />
