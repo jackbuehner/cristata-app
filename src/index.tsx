@@ -16,6 +16,8 @@ import styled from '@emotion/styled/macro';
 import Color from 'color';
 import { ApolloProvider } from '@apollo/client';
 import { client } from './graphql/client';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import { serializeError } from 'serialize-error';
 
 const Tooltip = styled(ReactTooltip)`
   margin: 0 !important;
@@ -44,36 +46,82 @@ const Tooltip = styled(ReactTooltip)`
   }
 `;
 
+function AppErrorFallback({ error: unserializedError, resetErrorBoundary }: FallbackProps) {
+  const error = serializeError(unserializedError);
+  return (
+    <div
+      role='alert'
+      style={{
+        padding: 20,
+        backgroundColor: '#5438B9',
+        color: '#e0e0e0',
+        fontFamily: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
+      }}
+    >
+      <div
+        style={{
+          float: 'right',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          marginTop: 84,
+          width: 'fit-content',
+        }}
+      >
+        <button onClick={resetErrorBoundary} className={`error-button`}>
+          Try again
+        </button>
+        <button
+          onClick={() => {
+            // eslint-disable-next-line no-self-assign
+            if (document && document.location) document.location = document.location;
+          }}
+          className={`error-button`}
+        >
+          Refresh
+        </button>
+      </div>
+      <p style={{ fontSize: 120, margin: '20px 0 -10px 0', fontWeight: 300 }}>:(</p>
+      <p style={{ fontSize: 28, margin: '20px 0' }}>Something went wrong</p>
+      <p style={{ fontSize: 22, margin: '20px 0', whiteSpace: 'pre-wrap' }}>{error.message}</p>
+      <pre style={{ whiteSpace: 'pre-wrap' }}>{error.stack}</pre>
+      <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(error, null, 2)}</pre>
+    </div>
+  );
+}
+
 ReactDOM.render(
   <React.StrictMode>
-    <ReduxProvider store={store}>
-      <ApolloProvider client={client}>
-        <ThemeProvider theme={theme}>
-          <ModalProvider>
-            <DropdownProvider>
-              <MuiPickersUtilsProvider utils={LuxonUtils}>
-                <App />
-                <Tooltip
-                  place={'bottom'}
-                  effect={'float'}
-                  delayShow={600}
-                  delayHide={100}
-                  theme={theme}
-                  overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace) => {
-                    if (place === desiredPlace)
-                      return {
-                        top: pos.top + 2,
-                        left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
-                      };
-                    return pos;
-                  }}
-                />
-              </MuiPickersUtilsProvider>
-            </DropdownProvider>
-          </ModalProvider>
-        </ThemeProvider>
-      </ApolloProvider>
-    </ReduxProvider>
+    <ErrorBoundary FallbackComponent={AppErrorFallback}>
+      <ReduxProvider store={store}>
+        <ApolloProvider client={client}>
+          <ThemeProvider theme={theme}>
+            <ModalProvider>
+              <DropdownProvider>
+                <MuiPickersUtilsProvider utils={LuxonUtils}>
+                  <App />
+                  <Tooltip
+                    place={'bottom'}
+                    effect={'float'}
+                    delayShow={600}
+                    delayHide={100}
+                    theme={theme}
+                    overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace) => {
+                      if (place === desiredPlace)
+                        return {
+                          top: pos.top + 2,
+                          left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
+                        };
+                      return pos;
+                    }}
+                  />
+                </MuiPickersUtilsProvider>
+              </DropdownProvider>
+            </ModalProvider>
+          </ThemeProvider>
+        </ApolloProvider>
+      </ReduxProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
   document.getElementById('root')
 );

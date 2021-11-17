@@ -138,6 +138,49 @@
         }
       }
     </style>
+    <!-- Error Page Button Styles -->
+    <style>
+      .error-button {
+        cursor: default;
+        user-select: none;
+        background-color: hsl(253deg 54% 90%);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        transition: border-color 160ms ease 0s, border-radius 160ms ease 0s,
+          background-color 160ms ease 0s, box-shadow 160ms ease 0s;
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        justify-content: center;
+        min-width: 80px;
+        width: unset;
+        height: 30px;
+        padding: 0px 10px;
+        font-family: Lato;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: rgb(25, 25, 25);
+        border-radius: 2px;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+      }
+      .error-button:hover,
+      .error-button:focus-visible,
+      .error-button:active {
+        background-color: hsl(253deg 52% 96%);
+        border: 1px solid rgba(105, 81, 194, 0.2);
+        box-shadow: rgb(25, 11, 75) 0px 1.6px 3.6px 0px,
+          rgb(0 0 0 / 11%) 0px 0.3px 0.9px 0px;
+      }
+      .error-button:hover:active {
+        background-color: hsl(253deg 52% 84%);
+        border: 1px solid rgba(105, 81, 194, 0.25);
+      }
+    </style>
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
