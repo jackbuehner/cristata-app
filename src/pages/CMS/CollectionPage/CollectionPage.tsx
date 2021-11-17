@@ -290,7 +290,7 @@ function CollectionPage() {
               }}
               data-tip={`${
                 // @ts-expect-error userAgentData exists
-                navigator.userAgentData.platform === 'macOS' ? 'cmd' : 'ctrl'
+                navigator.userAgentData?.platform === 'macOS' ? 'cmd' : 'ctrl'
               } + click to refresh data`}
               showChevron
             >
