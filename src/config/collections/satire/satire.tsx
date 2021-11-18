@@ -84,8 +84,10 @@ const satire: collection<ISatire> = {
       async_options: (val) => selectProfile(val),
       dataType: 'number',
       modifyValue: (data) => {
-        if (Object.prototype.toString.call(data) === '[object Object]')
-          return (data as IProfile).github_id.toString();
+        if (Object.prototype.toString.call(data) === '[object Object]') {
+          const stringId = (data as Partial<IProfile>).github_id?.toString();
+          if (stringId) return stringId;
+        }
         return JSON.stringify(data);
       },
     },
@@ -98,8 +100,10 @@ const satire: collection<ISatire> = {
       async_options: (val) => selectProfile(val),
       dataType: 'number',
       modifyValue: (data) => {
-        if (Object.prototype.toString.call(data) === '[object Object]')
-          return (data as IProfile).github_id.toString();
+        if (Object.prototype.toString.call(data) === '[object Object]') {
+          const stringId = (data as Partial<IProfile>).github_id?.toString();
+          if (stringId) return stringId;
+        }
         return JSON.stringify(data);
       },
     },
