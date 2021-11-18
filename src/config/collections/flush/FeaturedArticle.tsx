@@ -1,5 +1,5 @@
 import styled from '@emotion/styled/macro';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
@@ -25,17 +25,20 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
 
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
 
-  const article = {
-    _id: state.fields[key + '._id'] as string,
-    name: state.fields[key + '.name'] as string,
-    categories: state.fields[key + '.categories'] as string[],
-    description: state.fields[key + '.description'] as string,
-    photo_path: state.fields[key + '.photo_path'] as string,
-    body: state.fields[key + '.body'] as string,
-    people: {
-      authors: state.fields[key + '.people.authors'] as { name: string }[],
-    },
-  };
+  const article = useMemo(
+    () => ({
+      _id: state.fields[key + '._id'] as string,
+      name: state.fields[key + '.name'] as string,
+      categories: state.fields[key + '.categories'] as string[],
+      description: state.fields[key + '.description'] as string,
+      photo_path: state.fields[key + '.photo_path'] as string,
+      body: state.fields[key + '.body'] as string,
+      people: {
+        authors: state.fields[key + '.people.authors'] as { name: string }[],
+      },
+    }),
+    [state.fields]
+  );
 
   const categoryLabels = collectionsConfig['articles']?.fields.find(
     (field) => field.key === 'categories'
@@ -49,6 +52,21 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
       }),
     [article?.body]
   );
+
+  // fetch the photo using the proxy and create a blob url
+  // (this allows the photo to be used in svg with cors errors)
+  const [photoUrl, setPhotoUrl] = useState<string>();
+  useEffect(() => {
+    if (article?.photo_path) {
+      fetch(
+        `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/proxy/${article.photo_path}`
+      ).then((res) => {
+        res.blob().then((blob) => {
+          setPhotoUrl(URL.createObjectURL(blob));
+        });
+      });
+    }
+  }, [article]);
 
   return (
     <Wrapper onMouseEnter={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>
@@ -119,7 +137,7 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
           </Byline>
           <Body>
             <PhotoContainer>
-              <Photo src={article?.photo_path} alt={''} />
+              <Photo src={photoUrl} alt={''} />
             </PhotoContainer>
             <article dangerouslySetInnerHTML={{ __html: articleBody }} />
           </Body>

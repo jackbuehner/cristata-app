@@ -5,7 +5,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { Select } from '../../../components/Select';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { selectPhotoPath } from '../articles/selectPhotoPath';
 import { Button } from '../../../components/Button';
 
@@ -14,6 +14,21 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
   const key = 'left_advert_photo_url';
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
 
+  // fetch the photo using the proxy and create a blob url
+  // (this allows the photo to be used in svg with cors errors)
+  const [photoUrl, setPhotoUrl] = useState<string>();
+  useEffect(() => {
+    if (state.fields[key]) {
+      fetch(
+        `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/proxy/${state.fields[key]}`
+      ).then((res) => {
+        res.blob().then((blob) => {
+          setPhotoUrl(URL.createObjectURL(blob));
+        });
+      });
+    }
+  }, [state.fields]);
+
   const handleSelectChange = (value: string | number, key: string, type: string) => {
     value = type === 'number' ? parseFloat(value as string) : value;
     dispatch(setField(value, key));
@@ -21,7 +36,7 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
 
   return (
     <Wrapper onMouseEnter={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>
-      <Available photo={state.fields[key]}>
+      <Available photo={photoUrl}>
         {!state.fields[key] ? (
           <>
             <AvailableMessage>YOUR ADVERTISEMENT HERE</AvailableMessage>
