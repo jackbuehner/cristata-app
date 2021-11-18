@@ -107,6 +107,7 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
       ) : null}
       <Line isFirst={index === 0} isLast={index === events.length - 1} />
       <Circle />
+      <InnerCircle />
       <EventLabel
         {...contentEditableAttrs}
         onBlur={(e) => handleCEBlur(e.currentTarget.textContent, index, 'name')}
@@ -130,6 +131,7 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
           onClick={() => {
             if (datePickerRef && datePickerRef.current && datePickerRef.current.firstElementChild) {
               (datePickerRef.current.firstElementChild as HTMLDivElement).click();
+              (datePickerRef.current.firstElementChild as HTMLDivElement).style.display = 'block';
             }
           }}
         >
@@ -151,11 +153,16 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
         </span>
       </EventDescription>
       <EventCode></EventCode>
-      <div ref={datePickerRef} style={{ height: 0, width: 0 }}>
+      <div ref={datePickerRef} style={{ height: 0, width: 0, display: 'none' }}>
         <DateTimePicker
           value={undefined}
           onChange={(datetime) => handleCEBlur(datetime?.toISO() || null, index, 'date')}
           animateYearScrolling
+          onClose={() => {
+            if (datePickerRef && datePickerRef.current && datePickerRef.current.firstElementChild) {
+              (datePickerRef.current.firstElementChild as HTMLDivElement).style.display = 'none';
+            }
+          }}
         />
       </div>
     </EventGroupComponent>
@@ -247,10 +254,21 @@ const Line = styled.div<{ isLast?: boolean; isFirst?: boolean }>`
 
 const Circle = styled.div`
   display: block;
+  height: calc(0.11in - 1.5pt + 4pt);
+  width: calc(0.11in - 1.5pt + 4pt);
+  background-color: black;
+  border-radius: 50%;
+  position: absolute;
+  left: calc(0.11in - 5pt - 2.1pt);
+  top: calc(0.14in - 2pt);
+  transform: translate3d(0, 0, 0);
+`;
+
+const InnerCircle = styled.div`
+  display: block;
   height: calc(0.11in - 1.5pt);
   width: calc(0.11in - 1.5pt);
   background-color: white;
-  box-shadow: 0 0 0 2pt black;
   border-radius: 50%;
   position: absolute;
   left: calc(0.11in - 5pt);
