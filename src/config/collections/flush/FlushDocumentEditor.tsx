@@ -7,47 +7,78 @@ import { Footer } from './Footer';
 import { Header } from './Header';
 import { MoreArticles } from './MoreArticles';
 import { Upcoming } from './Upcoming';
-import html2pdf from 'html2pdf.js';
 import roman from 'romans';
-import { DocumentPdf20Regular } from '@fluentui/react-icons';
+import { Image20Regular } from '@fluentui/react-icons';
 import { css } from '@emotion/react';
+import { elementToSVG, inlineResources } from 'dom-to-svg';
+import { saveAs } from 'file-saver';
 
 function FlushDocumentEditor(props: CustomFieldProps) {
-  const savePdf = () => {
+  const fileName = `The Royal Flush Vol. ${
+    !isNaN(parseInt(props.state.fields['volume']))
+      ? roman.romanize(parseInt(props.state.fields['volume']))
+      : '??'
+  } Iss. ${props.state.fields['issue'] || '??'}`;
+
+  /**
+   * Create an SVG from the print area.
+   *
+   * @returns SVG
+   */
+  const createSvg = async () => {
     const element = document.getElementById('printarea');
-    const options = {
-      // margins are already built in to the element
-      margin: 0,
-      // set filename to the same as the page title
-      filename: `The Royal Flush Vol. ${
-        !isNaN(parseInt(props.state.fields['volume']))
-          ? roman.romanize(parseInt(props.state.fields['volume']))
-          : '??'
-      } Iss. ${props.state.fields['issue'] || '??'}.pdf`,
-      // default quality image
-      image: { type: 'jpeg', quality: 0.98 },
-      // do not convert links to links in the pdf
-      enabledLinks: false,
-      // use higher scale so that it is not pixelated when zoomed
-      html2canvas: { scale: 6 },
-      jsPDF: { format: [612, 792] }, // set to letter size (specifying 'letter' should worl, but causes an error)
-    };
-    html2pdf().from(element).set(options).save();
+    if (element) {
+      try {
+        // capture the print area as an svg
+        const svgDocument = elementToSVG(element);
+
+        // inline external resources (fonts, images, etc) as data URIs
+        await inlineResources(svgDocument.documentElement);
+
+        // get svg string
+        const svgString = new XMLSerializer().serializeToString(svgDocument);
+
+        // create a blob
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+
+        return svgBlob;
+      } catch {
+        throw new Error('failed to screenshot print area');
+      }
+    }
+    throw new Error('could not find print area');
+  };
+
+  /**
+   * Save the print area as an SVG file.
+   */
+  const saveSvg = () => {
+    createSvg()
+      .then((blob) => {
+        const file = new File([blob], fileName + '.svg', {
+          lastModified: props.state.fields['timestamps.modified_at'],
+        });
+        saveAs(file, fileName + '.svg');
+      })
+      .catch((error) => {
+        console.error(error);
+        throw new Error(error);
+      });
   };
 
   return (
     <>
       <ActionsRow>
         <Button
-          onClick={savePdf}
-          icon={<DocumentPdf20Regular />}
+          onClick={saveSvg}
+          icon={<Image20Regular />}
           cssExtra={css`
             > .IconStyleWrapper {
               height: 20px !important;
             }
           `}
         >
-          Export PDF
+          Export SVG
         </Button>
       </ActionsRow>
       <div id={'printarea'} style={{ width: '9in', height: 'fit-content' }}>
@@ -77,6 +108,7 @@ const ActionsRow = styled.div`
   align-items: center;
   justify-content: flex-end;
   margin-bottom: 20px;
+  gap: 6px;
 `;
 
 const Page = styled.div`
