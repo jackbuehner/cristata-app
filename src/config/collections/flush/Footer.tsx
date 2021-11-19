@@ -47,8 +47,8 @@ const Container = styled.div`
   border-top: 2pt solid;
   border-bottom: 2pt solid;
   border-color: #acacac;
-  height: 0.6in;
-  padding: 0.1in;
+  height: 0.54in;
+  padding: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

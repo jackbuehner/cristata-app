@@ -113,7 +113,7 @@ interface IArticleHeadline {
 }
 
 function ArticleHeadline(props: IArticleHeadline) {
-  const isOpinion = (props.categories.findIndex((category) => category === 'opinion') || -1) > -1;
+  const isOpinion = (props.categories?.findIndex((category) => category === 'opinion') || -1) > -1;
   return (
     <Headline>
       {isOpinion ? 'Opinion: ' : ''}

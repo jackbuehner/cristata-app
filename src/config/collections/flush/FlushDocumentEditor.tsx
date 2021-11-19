@@ -55,7 +55,7 @@ function FlushDocumentEditor(props: CustomFieldProps) {
           <Header {...props} />
           <Columns>
             <Column>
-              <Upcoming height={'6.80in'} {...props} />
+              <Upcoming height={'6.74in'} {...props} />
               <Advertisement {...props} />
             </Column>
             <Column>
