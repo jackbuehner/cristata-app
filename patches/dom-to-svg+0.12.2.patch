@@ -1,3 +1,38 @@
+diff --git a/node_modules/dom-to-svg/lib/element.js b/node_modules/dom-to-svg/lib/element.js
+index 06c4d99..29c8c3e 100644
+--- a/node_modules/dom-to-svg/lib/element.js
++++ b/node_modules/dom-to-svg/lib/element.js
+@@ -150,6 +150,8 @@ export function handleElement(element, context) {
+             (element.getAttribute('src') || element.getAttribute('srcset'))) {
+             const svgImage = context.svgDocument.createElementNS(svgNamespace, 'image');
+             svgImage.id = `${id}-image`; // read by inlineResources()
++            // use href and xlink:href since the standard requires href, but many svg readers expect the deprecated xlink:href
++            svgImage.setAttribute('href', element.currentSrc || element.src);
+             svgImage.setAttribute('xlink:href', element.currentSrc || element.src);
+             const paddingLeft = (_a = parseCSSLength(styles.paddingLeft, bounds.width)) !== null && _a !== void 0 ? _a : 0;
+             const paddingRight = (_b = parseCSSLength(styles.paddingRight, bounds.width)) !== null && _b !== void 0 ? _b : 0;
+@@ -242,6 +244,8 @@ function addBackgroundAndBorders(styles, bounds, backgroundAndBordersContainer,
+                         // not the page. But we have no means to know what stylesheet the style came from
+                         // (unless we iterate through all rules in all style sheets and find the matching one).
+                         const url = new URL(unescapeStringValue(urlArgument.value), window.location.href);
++                        // use href and xlink:href since the standard requires href, but many svg readers expect the deprecated xlink:href
++                        image.setAttribute('href', url.href);
+                         image.setAttribute('xlink:href', url.href);
+                         if (backgroundRepeat === 'no-repeat' ||
+                             (backgroundPositionX === 0 &&
+diff --git a/node_modules/dom-to-svg/lib/inline.js b/node_modules/dom-to-svg/lib/inline.js
+index 1097009..ef5af32 100644
+--- a/node_modules/dom-to-svg/lib/inline.js
++++ b/node_modules/dom-to-svg/lib/inline.js
+@@ -60,6 +60,8 @@ export async function inlineResources(element) {
+                     // Inline binary images as base64 data: URL
+                     const dataUrl = await blobToDataURL(blob);
+                     element.dataset.src = element.href.baseVal;
++                    // use href and xlink:href since the standard requires href, but many svg readers expect the deprecated xlink:href
++                    element.setAttribute('href', dataUrl.href);
+                     element.setAttribute('xlink:href', dataUrl.href);
+                 }
+             }
 diff --git a/node_modules/dom-to-svg/lib/text.js b/node_modules/dom-to-svg/lib/text.js
 index bfd1a53..1d2f6e6 100644
 --- a/node_modules/dom-to-svg/lib/text.js
