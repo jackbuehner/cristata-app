@@ -104,7 +104,7 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
             <Category>Section</Category>
           )}
         </Categories>
-        <Headline>{article?.name || `Headline of a Featured Article`}</Headline>
+        <Headline>{article?.name?.replace(/ +(?= )/g, '') || `Headline of a Featured Article`}</Headline>
         <BodyWrapper>
           <Byline>
             <Author>By</Author>
@@ -139,7 +139,7 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
             <PhotoContainer>
               <Photo src={photoUrl} alt={''} />
             </PhotoContainer>
-            <article dangerouslySetInnerHTML={{ __html: articleBody }} />
+            <article dangerouslySetInnerHTML={{ __html: articleBody?.replace(/ +(?= )/g, '') }} />
           </Body>
         </BodyWrapper>
         <Continue>

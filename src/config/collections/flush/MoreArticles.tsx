@@ -117,7 +117,7 @@ function ArticleHeadline(props: IArticleHeadline) {
   return (
     <Headline>
       {isOpinion ? 'Opinion: ' : ''}
-      {props.headline}
+      {props.headline?.replace(/ +(?= )/g, '')}
     </Headline>
   );
 }
