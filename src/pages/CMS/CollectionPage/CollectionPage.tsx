@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { collection } from '../../../config/collections';
 import ReactTooltip from 'react-tooltip';
-import { mongoFilterType } from '../../../graphql/client';
+import { client, mongoFilterType } from '../../../graphql/client';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { Menu } from '../../../components/Menu';
 import { useModal } from 'react-modal-hook';
@@ -99,7 +99,7 @@ function CollectionPage() {
     // set the data filter for mongoDB
     store.mongoDataFilter = store.collection.tableDataFilter?.(progress, location.search, defaultFilter);
     // set the createNew function
-    store.createNew = () => store.collection.createNew?.([isLoading, setIsLoading], toast, history);
+    store.createNew = () => store.collection.createNew?.([isLoading, setIsLoading], client, toast, history);
   }
 
   // set document title

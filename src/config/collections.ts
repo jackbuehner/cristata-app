@@ -13,6 +13,7 @@ import { CmsItemState } from '../redux/slices/cmsItemSlice';
 import { flush } from './collections/flush';
 import { CustomFieldProps } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { mongoFilterType, mongoSortType } from '../graphql/client';
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 const collections: collectionsType = {
   articles,
@@ -72,6 +73,7 @@ interface collection<I> {
   tableDataFilter?: (progress: string, search: string, filter: mongoFilterType) => mongoFilterType;
   createNew?: (
     loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
+    client: ApolloClient<NormalizedCacheObject>,
     toast: typeof toastify,
     history: History
   ) => void;

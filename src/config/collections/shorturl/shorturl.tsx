@@ -61,7 +61,7 @@ const shorturl: collection<IShortURL> = {
   canWatch: false,
   pageTitle: () => 'Short URLs',
   pageDescription: () => 'Generate short URLs that redirect to other pages.',
-  createNew: ([loading, setIsLoading], toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
     db.post(`/shorturl`)
       .then(({ data }) => {

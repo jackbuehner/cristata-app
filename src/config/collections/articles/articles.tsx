@@ -521,7 +521,7 @@ const articles: collection<IArticle> = {
     }
     return {};
   },
-  createNew: ([loading, setIsLoading], toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
     db.post(`/articles`, {
       name: uniqueNamesGenerator({

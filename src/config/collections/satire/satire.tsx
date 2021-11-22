@@ -374,7 +374,7 @@ const satire: collection<ISatire> = {
     }
     return {};
   },
-  createNew: ([loading, setIsLoading], toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
     db.post(`/satire`, {
       name: uniqueNamesGenerator({

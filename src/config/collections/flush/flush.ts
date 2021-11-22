@@ -49,7 +49,7 @@ const flush: collection<IFlush> = {
       !isNaN(parseInt(fields['volume'])) ? roman.romanize(parseInt(fields['volume'])) : '??'
     }, Iss. ${fields.issue || '??'}`,
   tableDataFilter: (_, __, filter) => ({ ...filter, hidden: { $ne: true } }),
-  createNew: ([loading, setIsLoading], toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
     db.post(`/flush`)
       .then(({ data }) => {

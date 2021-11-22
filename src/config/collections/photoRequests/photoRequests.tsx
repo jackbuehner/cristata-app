@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
-import { client, mongoFilterType } from '../../../graphql/client';
+import { mongoFilterType } from '../../../graphql/client';
 import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { IProfile } from '../../../interfaces/cristata/profiles';
 import { db } from '../../../utils/axios/db';
@@ -154,7 +154,7 @@ const photoRequests: collection<IPhotoRequest> = {
 
     return filter;
   },
-  createNew: ([loading, setIsLoading], toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
 
     const CREATE_NEW_PHOTO_REQUEST = gql(
