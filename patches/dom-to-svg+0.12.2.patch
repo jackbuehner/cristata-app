@@ -1,0 +1,14 @@
+diff --git a/node_modules/dom-to-svg/lib/text.js b/node_modules/dom-to-svg/lib/text.js
+index bfd1a53..1d2f6e6 100644
+--- a/node_modules/dom-to-svg/lib/text.js
++++ b/node_modules/dom-to-svg/lib/text.js
+@@ -57,7 +57,8 @@ export function handleTextNode(textNode, context) {
+             textSpan.setAttribute('x', lineRectangle.x.toString());
+             textSpan.setAttribute('y', lineRectangle.bottom.toString()); // intentionally bottom because of dominant-baseline setting
+             textSpan.setAttribute('textLength', lineRectangle.width.toString());
+-            textSpan.setAttribute('lengthAdjust', 'spacingAndGlyphs');
++            // set lengthAdjust to spacing, which inserts space between each character if there are not enough characters to use the full line width
++            textSpan.setAttribute('lengthAdjust', 'spacing');
+             svgTextElement.append(textSpan);
+         };
+         try {
