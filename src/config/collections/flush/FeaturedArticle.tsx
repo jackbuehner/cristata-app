@@ -9,6 +9,7 @@ import { selectArticle } from '../featuredSettings/selectArticle';
 import { SelectionOverlay } from './SelectionOverlay';
 import { collections as collectionsConfig } from '../../../config';
 import { Renderer } from '@cristata/prosemirror-to-html-js';
+import { isJSON } from '../../../utils/isJSON';
 
 interface IFeaturedArticle extends CustomFieldProps {
   height?: string;
@@ -48,9 +49,9 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
     () =>
       new Renderer().render({
         type: 'doc',
-        content: JSON.parse(article?.body || '{}'),
+        content: article && article.body ? isJSON(article.body) ? JSON.parse(article.body) : [{type: 'text', text: 'Error: Legacy HTML articles cannot be embedded in issues of The Royal Flush.'}] : '',
       }),
-    [article?.body]
+    [article]
   );
 
   // fetch the photo using the proxy and create a blob url
