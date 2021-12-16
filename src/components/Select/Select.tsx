@@ -7,13 +7,18 @@ import Color from 'color';
 import Creatable from 'react-select/creatable';
 import AsyncSelect from 'react-select/async';
 import { useEffect, useState } from 'react';
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { ClientConsumer } from '../../graphql/client';
 
 interface ISelect<
   OptionType extends OptionTypeBase = { label: string; value: string },
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
 > {
   options?: ReadonlyArray<OptionType | GroupType>;
-  loadOptions?: (inputValue: string) => Promise<
+  loadOptions?: (
+    inputValue: string,
+    client: ApolloClient<NormalizedCacheObject>
+  ) => Promise<
     Array<{
       value: string;
       label: string;
@@ -120,8 +125,7 @@ function Select(props: ISelect) {
   useEffect(() => {
     async function updateOptions() {
       if (props.loadOptions) {
-        const options = await props.loadOptions!('');
-        setAsyncOptions(options);
+        setAsyncOptions([]);
       }
     }
     updateOptions();
@@ -161,20 +165,26 @@ function Select(props: ISelect) {
 
   if (!props.isCreatable && props.async) {
     return (
-      <AsyncSelectComponent
-        loadOptions={props.loadOptions}
-        classNamePrefix={`react-select`}
-        appTheme={theme}
-        color={`primary`}
-        colorShade={600}
-        backgroundColor={{ base: 'white' }}
-        border={{ base: '1px solid transparent' }}
-        value={getValueObjectAsync(props.val)}
-        onChange={props.onChange}
-        isDisabled={props.isDisabled}
-        cssExtra={props.cssExtra}
-        cacheOptions
-      />
+      <ClientConsumer>
+        {(client) => (
+          <AsyncSelectComponent
+            loadOptions={
+              props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, client) : undefined
+            }
+            classNamePrefix={`react-select`}
+            appTheme={theme}
+            color={`primary`}
+            colorShade={600}
+            backgroundColor={{ base: 'white' }}
+            border={{ base: '1px solid transparent' }}
+            value={getValueObjectAsync(props.val)}
+            onChange={props.onChange}
+            isDisabled={props.isDisabled}
+            cssExtra={props.cssExtra}
+            cacheOptions
+          />
+        )}
+      </ClientConsumer>
     );
   }
 

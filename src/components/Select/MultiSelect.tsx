@@ -6,6 +6,8 @@ import { SelectComponent } from './Select';
 import AsyncSelect from 'react-select/async';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { ClientConsumer } from '../../graphql/client';
 
 interface IMultiSelect<
   OptionType extends OptionTypeBase = { label: string; value: string },
@@ -13,7 +15,10 @@ interface IMultiSelect<
 > {
   options?: ReadonlyArray<OptionType | GroupType>;
   //loadOptions?: (inputValue: string, callback: (options: OptionsType<OptionType>) => void) => void;
-  loadOptions?: (inputValue: string) => Promise<
+  loadOptions?: (
+    inputValue: string,
+    client: ApolloClient<NormalizedCacheObject>
+  ) => Promise<
     Array<{
       value: string;
       label: string;
@@ -25,6 +30,7 @@ interface IMultiSelect<
   isDisabled?: boolean;
   async?: boolean;
   cssExtra?: SerializedStyles;
+  client: ApolloClient<NormalizedCacheObject>;
 }
 
 /**
@@ -62,32 +68,22 @@ function MultiSelect(props: IMultiSelect) {
   const [asyncOptions, setAsyncOptions] = useState<Array<OptionTypeBase>>();
   useEffect(() => {
     async function updateOptions() {
-      if (props.loadOptions) {
-        const options = await props.loadOptions!('');
+      if (props.loadOptions && props.client) {
+        const options = await props.loadOptions!(props.val?.join('; ') || '', props.client);
         setAsyncOptions(options);
       }
     }
     updateOptions();
-  }, [props.loadOptions]);
+  }, [props.client, props.loadOptions, props.val]);
+
+  console.log(asyncOptions);
 
   /**
    * Converts the values to value objects (for the async select)
    */
-  const getValueObjectsAsync = (values?: string[]) => {
+  const getValueObjectsAsync = async (values?: string[]) => {
     if (values && props.loadOptions) {
-      let valueObjs: Array<OptionTypeBase> = [];
-      values.forEach((value) => {
-        const options = asyncOptions;
-
-        if (options) {
-          const foundValue = options.find((opt) => opt.value === value);
-          if (foundValue) {
-            // if the found value exists, add it to valueObjs
-            valueObjs.push(foundValue);
-          }
-        }
-      });
-      return valueObjs;
+      return await props.loadOptions(values.join('; '), props.client);
     }
     return undefined;
   };
@@ -120,7 +116,9 @@ function MultiSelect(props: IMultiSelect) {
   if (!props.isCreatable && props.async) {
     return (
       <AsyncSelectComponent
-        loadOptions={props.loadOptions}
+        loadOptions={
+          props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, props.client) : undefined
+        }
         classNamePrefix={`react-select`}
         appTheme={theme}
         color={`primary`}
@@ -155,4 +153,8 @@ function MultiSelect(props: IMultiSelect) {
   );
 }
 
-export { MultiSelect };
+function MultiSelectParent(props: Omit<IMultiSelect, 'client'>) {
+  return <ClientConsumer>{(client) => <MultiSelect {...props} client={client} />}</ClientConsumer>;
+}
+
+export { MultiSelectParent as MultiSelect };

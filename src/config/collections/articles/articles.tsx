@@ -88,7 +88,7 @@ const articles: collection<IArticle> = {
       label: 'Byline',
       type: 'multiselect_async',
       description: 'The authors that appear on the byline.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -104,7 +104,7 @@ const articles: collection<IArticle> = {
       label: 'Section editors',
       type: 'multiselect_async',
       description: 'The managing editors responsible for this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -120,7 +120,7 @@ const articles: collection<IArticle> = {
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -194,7 +194,7 @@ const articles: collection<IArticle> = {
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
     },
     {

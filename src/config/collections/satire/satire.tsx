@@ -81,7 +81,7 @@ const satire: collection<ISatire> = {
       label: 'Authors',
       type: 'multiselect_async',
       description: 'The authors of this piece of satire. These names do not appear on the website.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -97,7 +97,7 @@ const satire: collection<ISatire> = {
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -148,7 +148,7 @@ const satire: collection<ISatire> = {
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
     },
     {

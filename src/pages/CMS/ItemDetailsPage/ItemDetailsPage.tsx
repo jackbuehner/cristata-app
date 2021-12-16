@@ -46,6 +46,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { buildFullKey } from '../../../utils/buildFullKey';
 import { isJSON } from '../../../utils/isJSON';
 import { flattenObject } from '../../../utils/flattenObject';
+import { client } from '../../../graphql/client';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -151,7 +152,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     : gql``;
 
   // get the item
-  const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {notifyOnNetworkStatusChange: true});
+  const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
+    notifyOnNetworkStatusChange: true,
+  });
   let data = collectionConfig ? req.data?.[collectionConfig.query.name.singular] : undefined;
 
   // if the query is loading or refetching, set `isLoading` in redux
@@ -597,7 +600,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         field.modifyValue
                           ? field.modifyValue(
                               state.fields[buildFullKey(field.key, field.from, undefined)] as string,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : (state.fields[buildFullKey(field.key, field.from, undefined)] as string)
                       }
@@ -744,7 +748,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                               `${
                                 state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
                               }`,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : `${state.fields[buildFullKey(field.key, field.from, undefined)] as string | number}`
                       }
@@ -787,7 +792,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                               `${
                                 state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
                               }`,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : `${state.fields[buildFullKey(field.key, field.from, undefined)] as string | number}`
                       }
@@ -810,7 +816,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             if (field.type === 'multiselect') {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as (string | number)[]
-              )?.map((val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val.toString())); // ensures that values are strings
+              )?.map((val) =>
+                field.modifyValue ? field.modifyValue(val, state.fields, client) : val.toString()
+              ); // ensures that values are strings
               return (
                 <ErrorBoundary
                   key={index}
@@ -844,7 +852,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             if (field.type === 'multiselect_async') {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as (string | number)[]
-              )?.map((val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val.toString())); // ensures that values are strings
+              )?.map((val) =>
+                field.modifyValue ? field.modifyValue(val, state.fields, client) : val.toString()
+              ); // ensures that values are strings
               return (
                 <ErrorBoundary
                   key={index}
@@ -878,7 +888,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'multiselect_creatable') {
               const val = (state.fields[buildFullKey(field.key, field.from, undefined)] as string[])?.map(
-                (val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val)
+                (val) => (field.modifyValue ? field.modifyValue(val, state.fields, client) : val)
               );
               return (
                 <ErrorBoundary
@@ -933,7 +943,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           : field.modifyValue
                           ? field.modifyValue(
                               state.fields[buildFullKey(field.key, field.from, undefined)] as string,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : (state.fields[buildFullKey(field.key, field.from, undefined)] as string)
                       }

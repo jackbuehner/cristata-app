@@ -2,6 +2,7 @@ import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { collections } from '../config';
 import { Paged } from '../interfaces/cristata/paged';
+import { ClientConsumer } from './ClientConsumer';
 
 const collectionPluralNames = [
   ...new Set(
@@ -49,4 +50,4 @@ type mongoFilterType = { [key: string]: string | boolean | number | string[] | n
 type mongoSortType = { [key: string]: -1 | 1 };
 
 export type { mongoFilterType, mongoSortType };
-export { client };
+export { client, ClientConsumer };

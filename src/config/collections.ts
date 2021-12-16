@@ -137,8 +137,15 @@ interface IField {
   }>;
   isDisabled?: boolean;
   dataType?: string;
-  async_options?: (inputValue: string) => Promise<Array<{ value: string; label: string }>>;
-  modifyValue?: (value: unknown, fields: CmsItemState['fields']) => string; // for arrays of values, each value is individually put through this function
+  async_options?: (
+    inputValue: string,
+    client: ApolloClient<NormalizedCacheObject>
+  ) => Promise<Array<{ value: string; label: string }>>;
+  modifyValue?: (
+    value: unknown,
+    fields: CmsItemState['fields'],
+    client: ApolloClient<NormalizedCacheObject>
+  ) => string; // for arrays of values, each value is individually put through this function
   Component?: React.ComponentType<CustomFieldProps>;
 }
 
