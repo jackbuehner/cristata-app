@@ -11,8 +11,6 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
-import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
-import { ChatPage } from './pages/Chat/ChatPage';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { SplashScreen } from './components/SplashScreen';
 import { SignIn } from './pages/SignIn';
@@ -193,9 +191,6 @@ function App() {
                           <Route path={`/plans`}>
                             <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
-                          <Route path={`/chat`}>
-                            <ChatSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
-                          </Route>
                           <Route path={`/profile`}>
                             <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
@@ -218,9 +213,6 @@ function App() {
                         <ItemDetailsPage />
                       </Route>
                       <Route path={`/cms`}>CMS</Route>
-                      <Route path={`/chat/:team_slug/:thread_discussion_number?`}>
-                        <ChatPage />
-                      </Route>
                       <Route path={`/plans/org/:id`}>
                         <PlansPage />
                       </Route>
