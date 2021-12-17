@@ -1,6 +1,5 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { merge } from 'merge-anything';
-import { collections } from '../config';
 import { Paged } from '../interfaces/cristata/paged';
 import { ClientConsumer } from './ClientConsumer';
 
