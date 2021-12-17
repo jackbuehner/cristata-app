@@ -34,7 +34,6 @@ import LuxonUtils from '@date-io/luxon';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import Color from 'color';
 import { ErrorBoundary } from 'react-error-boundary';
-import { IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
 import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/slices/cmsItemSlice';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
@@ -47,6 +46,7 @@ import { buildFullKey } from '../../../utils/buildFullKey';
 import { isJSON } from '../../../utils/isJSON';
 import { flattenObject } from '../../../utils/flattenObject';
 import { client } from '../../../graphql/client';
+import { ME_BASIC, ME_BASIC__TYPE } from '../../../graphql/queries';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -86,7 +86,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     ReactTooltip.rebuild();
   });
 
-  const [{ data: profile }] = useAxios<IProfile>(`/users/me`);
+  const { data: profiles } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'no-cache' });
 
   // get the url parameters from the route
   let { collection, item_id } = useParams<{
@@ -695,9 +695,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       <Tiptap
                         docName={`${collection}.${item_id}`}
                         user={{
-                          name: user.displayName,
-                          color: colorHash.hex(user._id || user.id),
-                          photo: profile?.photo ? profile.photo : genAvatar(user._id || user.id),
+                          name: profiles?.me.name || user.displayName,
+                          color: colorHash.hex(profiles?.me._id || user._id || user.id),
+                          photo: profiles?.me.photo
+                            ? profiles.me.photo
+                            : genAvatar(profiles?.me._id || user._id || user.id),
                         }}
                         options={field.tiptap}
                         isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}

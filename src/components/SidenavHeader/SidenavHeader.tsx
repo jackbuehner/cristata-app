@@ -4,13 +4,13 @@ import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
 import { useHistory, useLocation } from 'react-router-dom';
-import useAxios from 'axios-hooks';
-import { IProfile } from '../../interfaces/cristata/profiles';
 import { Menu } from '../Menu';
 import { useDropdown } from '../../hooks/useDropdown';
 import { IGridCols } from '../../App';
 import { Dispatch, SetStateAction } from 'react';
 import { genAvatar } from '../../utils/genAvatar';
+import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
+import { useQuery } from '@apollo/client';
 
 function SidenavHeader({
   gridCols,
@@ -26,7 +26,7 @@ function SidenavHeader({
   const location = useLocation();
   const [isNavVisible, setIsNavVisible] = props.isNavVisibleM;
 
-  const [{ data: profile }] = useAxios<IProfile>(`/users/me`);
+  const { data: profiles } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'no-cache' });
 
   const [showDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
@@ -57,7 +57,7 @@ function SidenavHeader({
                       marginBottom: 4,
                     }}
                   >
-                    {profile?.name}
+                    {profiles?.me.name}
                   </span>
                   <span
                     style={{
@@ -67,7 +67,7 @@ function SidenavHeader({
                       color: theme.color.neutral[theme.mode][1200],
                     }}
                   >
-                    {profile?.current_title || 'Employee'}
+                    {profiles?.me?.current_title || 'Employee'}
                   </span>
                   <span
                     style={{
@@ -77,7 +77,7 @@ function SidenavHeader({
                       color: theme.color.neutral[theme.mode][1200],
                     }}
                   >
-                    {profile?.email}
+                    {profiles?.me?.email}
                   </span>
                   <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
                     <Button
@@ -87,7 +87,7 @@ function SidenavHeader({
                         background-color: transparent;
                       `}
                       onClick={() => {
-                        history.push(`/profile/${profile?._id}`);
+                        history.push(`/profile/${profiles?.me._id}`);
                         setIsNavVisible(false);
                       }}
                     >
@@ -114,7 +114,7 @@ function SidenavHeader({
         />
       );
     },
-    [profile],
+    [profiles?.me],
     true,
     true
   );
@@ -135,7 +135,11 @@ function SidenavHeader({
         <IconButton
           icon={<span></span>}
           cssExtra={css`
-            background: url(${profile?.photo ? profile.photo : profile ? genAvatar(profile._id) : ''});
+            background: url(${profiles?.me.photo
+              ? profiles.me.photo
+              : profiles?.me
+              ? genAvatar(profiles?.me._id)
+              : ''});
             background-position: center;
             background-size: cover;
             width: 30px;
