@@ -40,7 +40,7 @@ import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ReactTooltip from 'react-tooltip';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { gql, NetworkStatus, useMutation, useQuery } from '@apollo/client';
+import { ApolloClient, gql, NetworkStatus, NormalizedCacheObject, useMutation, useQuery } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { buildFullKey } from '../../../utils/buildFullKey';
@@ -742,6 +742,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     </Label>
                     <Select
                       options={field.options}
+                      client={client}
                       val={
                         field.modifyValue
                           ? field.modifyValue(
@@ -786,6 +787,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Select
                       loadOptions={field.async_options}
                       async
+                      client={client}
                       val={
                         field.modifyValue
                           ? field.modifyValue(
@@ -975,6 +977,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     theme={theme}
                     search={search}
                     actions={actions}
+                    client={client}
                   />
                 </ErrorBoundary>
               );
@@ -1027,6 +1030,7 @@ interface CustomFieldProps {
   theme: themeType;
   search: string;
   actions: (Iaction | null)[];
+  client: ApolloClient<NormalizedCacheObject>;
 }
 
 export { ItemDetailsPage };

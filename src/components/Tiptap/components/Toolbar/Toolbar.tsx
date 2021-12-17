@@ -55,6 +55,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { IPhoto } from '../../../../interfaces/cristata/photos';
 import { db } from '../../../../utils/axios/db';
 import ReactTooltip from 'react-tooltip';
+import { ClientConsumer } from '../../../../graphql/client';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -438,34 +439,39 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
             >
               Select photo
             </Label>
-            <Select
-              loadOptions={async (inputValue: string) => {
-                // get all photos
-                const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
+            <ClientConsumer>
+              {(client) => (
+                <Select
+                  client={client}
+                  loadOptions={async (inputValue: string) => {
+                    // get all photos
+                    const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
 
-                // with the data, create the options array
-                let options: Array<{ value: string; label: string }> = [];
-                photos.forEach((photo) => {
-                  if (photo.people?.photo_created_by) {
-                    options.push({
-                      value: photo._id,
-                      label: photo.name || photo._id,
+                    // with the data, create the options array
+                    let options: Array<{ value: string; label: string }> = [];
+                    photos.forEach((photo) => {
+                      if (photo.people?.photo_created_by) {
+                        options.push({
+                          value: photo._id,
+                          label: photo.name || photo._id,
+                        });
+                      }
                     });
-                  }
-                });
 
-                // filter the options based on `inputValue`
-                const filteredOptions = options.filter((option) =>
-                  option.label.toLowerCase().includes(inputValue.toLowerCase())
-                );
+                    // filter the options based on `inputValue`
+                    const filteredOptions = options.filter((option) =>
+                      option.label.toLowerCase().includes(inputValue.toLowerCase())
+                    );
 
-                // return the filtered options
-                return filteredOptions;
-              }}
-              async
-              val={photoId}
-              onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
-            />
+                    // return the filtered options
+                    return filteredOptions;
+                  }}
+                  async
+                  val={photoId}
+                  onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
+                />
+              )}
+            </ClientConsumer>
           </InputGroup>
         </ErrorBoundary>
       </PlainModal>

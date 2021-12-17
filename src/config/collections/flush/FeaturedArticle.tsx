@@ -10,6 +10,7 @@ import { SelectionOverlay } from './SelectionOverlay';
 import { collections as collectionsConfig } from '../../../config';
 import { Renderer } from '@cristata/prosemirror-to-html-js';
 import { isJSON } from '../../../utils/isJSON';
+import { ClientConsumer } from '../../../graphql/client';
 
 interface IFeaturedArticle extends CustomFieldProps {
   height?: string;
@@ -49,7 +50,17 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
     () =>
       new Renderer().render({
         type: 'doc',
-        content: article && article.body ? isJSON(article.body) ? JSON.parse(article.body) : [{type: 'text', text: 'Error: Legacy HTML articles cannot be embedded in issues of The Royal Flush.'}] : '',
+        content:
+          article && article.body
+            ? isJSON(article.body)
+              ? JSON.parse(article.body)
+              : [
+                  {
+                    type: 'text',
+                    text: 'Error: Legacy HTML articles cannot be embedded in issues of The Royal Flush.',
+                  },
+                ]
+            : '',
       }),
     [article]
   );
@@ -77,19 +88,24 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
             <Label htmlFor={key} disabled={state.isLoading}>
               {'Select featured article'}
             </Label>
-            <Select
-              loadOptions={selectArticle}
-              async
-              val={`${state.fields[key]}`}
-              onChange={(valueObj) =>
-                handleSelectChange(
-                  valueObj?.value || '',
-                  key,
-                  typeof state.fields[key] === 'number' ? 'number' : 'string'
-                )
-              }
-              isDisabled={state.isLoading}
-            />
+            <ClientConsumer>
+              {(client) => (
+                <Select
+                  client={client}
+                  loadOptions={selectArticle}
+                  async
+                  val={`${state.fields[key]}`}
+                  onChange={(valueObj) =>
+                    handleSelectChange(
+                      valueObj?.value || '',
+                      key,
+                      typeof state.fields[key] === 'number' ? 'number' : 'string'
+                    )
+                  }
+                  isDisabled={state.isLoading}
+                />
+              )}
+            </ClientConsumer>
           </InputGroup>
         </ErrorBoundary>
       </SelectionOverlay>

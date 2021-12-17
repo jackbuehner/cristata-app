@@ -5,11 +5,13 @@ import { Paged } from '../interfaces/cristata/paged';
 import { ClientConsumer } from './ClientConsumer';
 
 const collectionPluralNames = [
-  ...new Set(
-    Object.entries(collections).map(([key, value]) => {
-      return value!.query.name.plural;
-    })
-  ),
+  'articles',
+  'settings',
+  'flushes',
+  'photoRequests',
+  'photos',
+  'satires',
+  'shorturls',
 ];
 
 const collectionQueryTypePolicies = collectionPluralNames.map((query) => {

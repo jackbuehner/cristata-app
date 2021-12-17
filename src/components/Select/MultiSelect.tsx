@@ -68,6 +68,7 @@ function MultiSelect(props: IMultiSelect) {
   if (props.isCreatable && !props.async) {
     return (
       <CreatableSelectComponent
+        client={props.client}
         options={props.options}
         classNamePrefix={`react-select`}
         appTheme={theme}
@@ -86,31 +87,28 @@ function MultiSelect(props: IMultiSelect) {
 
   if (!props.isCreatable && props.async) {
     return (
-      <ClientConsumer>
-        {(client) => (
-          <SelectAsync
-            client={client}
-            asyncOptions={
-              props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, client) : undefined
-            }
-            classNamePrefix={`react-select`}
-            appTheme={theme}
-            color={`primary`}
-            colorShade={600}
-            valueStrings={props.val}
-            onChange={props.onChange}
-            isMulti
-            isDisabled={props.isDisabled}
-            cssExtra={props.cssExtra}
-            cacheOptions
-          />
-        )}
-      </ClientConsumer>
+      <SelectAsync
+        client={props.client}
+        asyncOptions={
+          props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, props.client) : undefined
+        }
+        classNamePrefix={`react-select`}
+        appTheme={theme}
+        color={`primary`}
+        colorShade={600}
+        valueStrings={props.val}
+        onChange={props.onChange}
+        isMulti
+        isDisabled={props.isDisabled}
+        cssExtra={props.cssExtra}
+        cacheOptions
+      />
     );
   }
 
   return (
     <SelectComponent
+      client={props.client}
       options={props.options}
       classNamePrefix={`react-select`}
       appTheme={theme}

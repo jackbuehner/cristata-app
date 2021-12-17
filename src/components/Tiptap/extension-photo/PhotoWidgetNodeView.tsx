@@ -5,6 +5,7 @@ import useAxios from 'axios-hooks';
 import { useMemo, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
+import { ClientConsumer } from '../../../graphql/client';
 import { IPhoto } from '../../../interfaces/cristata/photos';
 import { db } from '../../../utils/axios/db';
 import { InputGroup } from '../../InputGroup';
@@ -61,34 +62,39 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             >
               Select photo
             </Label>
-            <Select
-              loadOptions={async (inputValue: string) => {
-                // get all photos
-                const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
+            <ClientConsumer>
+              {(client) => (
+                <Select
+                  client={client}
+                  loadOptions={async (inputValue: string) => {
+                    // get all photos
+                    const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
 
-                // with the data, create the options array
-                let options: Array<{ value: string; label: string }> = [];
-                photos.forEach((photo) => {
-                  if (photo.people?.photo_created_by) {
-                    options.push({
-                      value: photo._id,
-                      label: photo.name || photo._id,
+                    // with the data, create the options array
+                    let options: Array<{ value: string; label: string }> = [];
+                    photos.forEach((photo) => {
+                      if (photo.people?.photo_created_by) {
+                        options.push({
+                          value: photo._id,
+                          label: photo.name || photo._id,
+                        });
+                      }
                     });
-                  }
-                });
 
-                // filter the options based on `inputValue`
-                const filteredOptions = options.filter((option) =>
-                  option.label.toLowerCase().includes(inputValue.toLowerCase())
-                );
+                    // filter the options based on `inputValue`
+                    const filteredOptions = options.filter((option) =>
+                      option.label.toLowerCase().includes(inputValue.toLowerCase())
+                    );
 
-                // return the filtered options
-                return filteredOptions;
-              }}
-              async
-              val={photoId}
-              onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
-            />
+                    // return the filtered options
+                    return filteredOptions;
+                  }}
+                  async
+                  val={photoId}
+                  onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
+                />
+              )}
+            </ClientConsumer>
           </InputGroup>
         </ErrorBoundary>
       </PlainModal>

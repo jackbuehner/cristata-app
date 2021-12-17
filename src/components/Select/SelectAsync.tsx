@@ -69,6 +69,7 @@ function SelectAsync({ asyncOptions, client, valueStrings, isMulti, ...props }: 
 
   return (
     <AsyncSelectComponent
+      client={client}
       loadOptions={asyncOptions ? (inputValue: string) => asyncOptions!(inputValue, client) : undefined}
       classNamePrefix={`react-select`}
       appTheme={props.appTheme}

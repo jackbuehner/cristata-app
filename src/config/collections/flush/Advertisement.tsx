@@ -57,6 +57,7 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
               {'Select advertiser photo'}
             </Label>
             <Select
+              client={props.client}
               loadOptions={selectPhotoPath}
               async
               val={`${state.fields[key]}`}

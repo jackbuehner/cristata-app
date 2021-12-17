@@ -6,7 +6,6 @@ import { buttonEffect } from '../Button';
 import Color from 'color';
 import Creatable from 'react-select/creatable';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { ClientConsumer } from '../../graphql/client';
 import { SelectAsync } from './SelectAsync';
 
 interface ISelect<
@@ -29,6 +28,7 @@ interface ISelect<
   isDisabled?: boolean;
   async?: boolean;
   cssExtra?: SerializedStyles;
+  client: ApolloClient<NormalizedCacheObject>;
 }
 
 interface ISelectComponent extends ISelect {
@@ -125,6 +125,7 @@ function Select(props: ISelect) {
   if (props.isCreatable && !props.async) {
     return (
       <CreatableSelectComponent
+        client={props.client}
         options={props.options}
         classNamePrefix={`react-select`}
         appTheme={theme}
@@ -142,32 +143,29 @@ function Select(props: ISelect) {
 
   if (!props.isCreatable && props.async) {
     return (
-      <ClientConsumer>
-        {(client) => (
-          <SelectAsync
-            client={client}
-            asyncOptions={
-              props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, client) : undefined
-            }
-            classNamePrefix={`react-select`}
-            appTheme={theme}
-            color={`primary`}
-            colorShade={600}
-            backgroundColor={{ base: 'white' }}
-            border={{ base: '1px solid transparent' }}
-            valueStrings={props.val && props.val !== 'undefined' ? [props.val] : undefined}
-            onChange={props.onChange}
-            isDisabled={props.isDisabled}
-            cssExtra={props.cssExtra}
-            cacheOptions
-          />
-        )}
-      </ClientConsumer>
+      <SelectAsync
+        client={props.client}
+        asyncOptions={
+          props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, props.client) : undefined
+        }
+        classNamePrefix={`react-select`}
+        appTheme={theme}
+        color={`primary`}
+        colorShade={600}
+        backgroundColor={{ base: 'white' }}
+        border={{ base: '1px solid transparent' }}
+        valueStrings={props.val && props.val !== 'undefined' ? [props.val] : undefined}
+        onChange={props.onChange}
+        isDisabled={props.isDisabled}
+        cssExtra={props.cssExtra}
+        cacheOptions
+      />
     );
   }
 
   return (
     <SelectComponent
+      client={props.client}
       options={props.options}
       classNamePrefix={`react-select`}
       appTheme={theme}
