@@ -17,7 +17,7 @@ const socialArticles: collection<ISocialArticles> = {
       from: 'setting',
       label: 'Monday',
       type: 'multiselect_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -25,7 +25,7 @@ const socialArticles: collection<ISocialArticles> = {
       from: 'setting',
       label: 'Tuesday',
       type: 'multiselect_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -33,7 +33,7 @@ const socialArticles: collection<ISocialArticles> = {
       from: 'setting',
       label: 'Wednesday',
       type: 'multiselect_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -41,7 +41,7 @@ const socialArticles: collection<ISocialArticles> = {
       from: 'setting',
       label: 'Thursday',
       type: 'multiselect_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -49,7 +49,7 @@ const socialArticles: collection<ISocialArticles> = {
       from: 'setting',
       label: 'Friday',
       type: 'multiselect_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -57,7 +57,7 @@ const socialArticles: collection<ISocialArticles> = {
       from: 'setting',
       label: 'Saturday',
       type: 'multiselect_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -65,7 +65,7 @@ const socialArticles: collection<ISocialArticles> = {
       from: 'setting',
       label: 'Sunday',
       type: 'multiselect_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
   ],

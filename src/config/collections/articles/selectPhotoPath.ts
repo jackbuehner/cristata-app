@@ -1,28 +1,41 @@
-import { IPhoto } from '../../../interfaces/cristata/photos';
-import { db } from '../../../utils/axios/db';
+import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import mongoose from 'mongoose';
+import { Paged } from '../../../interfaces/cristata/paged';
 
-async function selectPhotoPath(inputValue: string) {
-  // get all photos
-  const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
-
-  // with the data, create the options array
-  let options: Array<{ value: string; label: string }> = [];
-  photos.forEach((photo) => {
-    if (photo.people?.photo_created_by) {
-      options.push({
-        value: photo.photo_url,
-        label: photo.name || photo._id,
-      });
-    }
+async function selectPhotoPath(inputValue: string, client: ApolloClient<NormalizedCacheObject>) {
+  // get the photos that best match the current input
+  type QueryDocType = { _id: mongoose.Types.ObjectId; photo_url: string; name: string };
+  const QUERY = (input: string) =>
+    gql(
+      jsonToGraphQLQuery({
+        query: {
+          photos: {
+            __args: {
+              limit: 10,
+              filter: JSON.stringify({
+                $or: [{ name: { $regex: input, $options: 'i' } }, { photo_url: input }],
+              }),
+            },
+            docs: {
+              _id: true,
+              photo_url: true,
+              name: true,
+            },
+          },
+        },
+      })
+    );
+  const { data } = await client.query<{ photos: Paged<QueryDocType> }>({
+    query: QUERY(inputValue),
+    fetchPolicy: 'no-cache',
   });
 
-  // filter the options based on `inputValue`
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(inputValue.toLowerCase())
-  );
+  // with the photo data, create the options array
+  const options = data.photos.docs.map((photo) => ({ value: photo.photo_url, label: photo.name }));
 
-  // return the filtered options
-  return filteredOptions;
+  // return the options array
+  return options;
 }
 
 export { selectPhotoPath };

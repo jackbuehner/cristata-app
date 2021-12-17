@@ -1,14 +1,12 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
-import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import mongoose from 'mongoose';
 import { Paged } from '../../../interfaces/cristata/paged';
-
-// TODO: Switch to GraphQL API
 
 async function selectProfile(inputValue: string, client: ApolloClient<NormalizedCacheObject>) {
   // get the five years that best match the current input
   type QueryDocType = { _id: mongoose.Types.ObjectId; github_id: string; name: string };
-  const QUERY = (name: string) =>
+  const QUERY = (input: string) =>
     gql(
       jsonToGraphQLQuery({
         query: {
@@ -16,7 +14,11 @@ async function selectProfile(inputValue: string, client: ApolloClient<Normalized
             __args: {
               limit: 5,
               filter: JSON.stringify({
-                $or: [{ name: { $regex: name, $options: 'i' } }, { _id: { $in: inputValue.split('; ') } }],
+                $or: [
+                  { name: { $regex: input, $options: 'i' } },
+                  { _id: { $in: inputValue.split('; ') } },
+                  { github_id: { $in: input.split('; ').map((github_id) => parseInt(github_id)) } },
+                ],
               }),
             },
             docs: {
@@ -30,10 +32,14 @@ async function selectProfile(inputValue: string, client: ApolloClient<Normalized
     );
   const { data } = await client.query<{ users: Paged<QueryDocType> }>({
     query: QUERY(inputValue),
+    fetchPolicy: 'no-cache',
   });
 
   // with the user data, create the options array
-  return data.users.docs.map((user) => ({ value: user.github_id, label: user.name }));
+  const options = data.users.docs.map((user) => ({ value: user.github_id, label: user.name }));
+
+  // return the opions array
+  return options;
 }
 
 export { selectProfile };

@@ -1,26 +1,56 @@
-import { db } from '../../../utils/axios/db';
+import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import mongoose from 'mongoose';
+import { Paged } from '../../../interfaces/cristata/paged';
+import { isObjectId } from '../../../utils/isObjectId';
 
-async function selectArticle(inputValue: string) {
-  // get all articles
-  const { data: articles } = await db.get(`/articles`);
-
-  // with the article data, create the options array
-  let options: Array<{ value: string; label: string }> = [];
-  articles.forEach((article: { _id: string; name: string; stage: number }) => {
-    if (article.stage > 5)
-      options.push({
-        value: article._id,
-        label: `${article.name} (${article._id.slice(-7, article._id.length)})`,
-      });
+async function selectArticle(inputValue: string, client: ApolloClient<NormalizedCacheObject>) {
+  // get the articles that best match the current input
+  type QueryDocType = { _id: mongoose.Types.ObjectId; name: string };
+  const QUERY = (input: string) =>
+    gql(
+      jsonToGraphQLQuery({
+        query: {
+          articles: {
+            __args: {
+              limit: 10,
+              ...(isObjectId(input)
+                ? { _ids: [input], filter: JSON.stringify({ stage: { $gt: 5 } }) }
+                : {
+                    filter: JSON.stringify({
+                      $and: [
+                        { stage: { $gt: 5 } },
+                        {
+                          $or: [{ name: { $regex: input, $options: 'i' } }],
+                        },
+                      ],
+                    }),
+                  }),
+            },
+            docs: {
+              _id: true,
+              name: true,
+            },
+          },
+        },
+      })
+    );
+  const { data } = await client.query<{ articles: Paged<QueryDocType> }>({
+    query: QUERY(inputValue),
+    fetchPolicy: 'no-cache',
   });
 
-  // filter the options based on `inputValue`
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(inputValue.toLowerCase())
-  );
+  // with the photo data, create the options array
+  const options = data.articles.docs.map((article) => {
+    const objectIdHex = new mongoose.Types.ObjectId(article._id).toHexString();
+    return {
+      value: objectIdHex,
+      label: `${article.name} (${objectIdHex.slice(-7, objectIdHex.length)})`,
+    };
+  });
 
-  // return the filtered options
-  return filteredOptions;
+  // return the options array
+  return options;
 }
 
 export { selectArticle };

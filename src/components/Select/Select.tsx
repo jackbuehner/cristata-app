@@ -5,10 +5,9 @@ import ReactSelect, { OptionTypeBase, GroupTypeBase } from 'react-select';
 import { buttonEffect } from '../Button';
 import Color from 'color';
 import Creatable from 'react-select/creatable';
-import AsyncSelect from 'react-select/async';
-import { useEffect, useState } from 'react';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { ClientConsumer } from '../../graphql/client';
+import { SelectAsync } from './SelectAsync';
 
 interface ISelect<
   OptionType extends OptionTypeBase = { label: string; value: string },
@@ -120,30 +119,8 @@ function Select(props: ISelect) {
     return undefined;
   };
 
-  // once `loadOptions` becomes available, store the options returned by the function
-  const [asyncOptions, setAsyncOptions] = useState<Array<OptionTypeBase>>();
-  useEffect(() => {
-    async function updateOptions() {
-      if (props.loadOptions) {
-        setAsyncOptions([]);
-      }
-    }
-    updateOptions();
-  }, [props.loadOptions]);
-
-  /**
-   * Converts the value to a value object (for the async select)
-   */
-  const getValueObjectAsync = (val?: string) => {
-    if (val && props.loadOptions) return asyncOptions?.find((opt) => opt.value === val);
-    return undefined;
-  };
-
   // use the styles of the normal select component for the creatable select component
   const CreatableSelectComponent = SelectComponent.withComponent(Creatable);
-
-  // use the styles of the normal select component for the async select component
-  const AsyncSelectComponent = SelectComponent.withComponent(AsyncSelect);
 
   if (props.isCreatable && !props.async) {
     return (
@@ -167,8 +144,9 @@ function Select(props: ISelect) {
     return (
       <ClientConsumer>
         {(client) => (
-          <AsyncSelectComponent
-            loadOptions={
+          <SelectAsync
+            client={client}
+            asyncOptions={
               props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, client) : undefined
             }
             classNamePrefix={`react-select`}
@@ -177,7 +155,7 @@ function Select(props: ISelect) {
             colorShade={600}
             backgroundColor={{ base: 'white' }}
             border={{ base: '1px solid transparent' }}
-            value={getValueObjectAsync(props.val)}
+            valueStrings={props.val && props.val !== 'undefined' ? [props.val] : undefined}
             onChange={props.onChange}
             isDisabled={props.isDisabled}
             cssExtra={props.cssExtra}

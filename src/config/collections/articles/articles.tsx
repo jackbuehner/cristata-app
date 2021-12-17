@@ -73,7 +73,7 @@ const articles: collection<IArticle> = {
       label: 'Photo',
       type: 'select_async',
       description: 'The photo that appears at the top of every article and in most article cards.',
-      async_options: (val) => selectPhotoPath(val),
+      async_options: (val, client) => selectPhotoPath(val, client),
     },
     {
       key: 'photo_caption',
