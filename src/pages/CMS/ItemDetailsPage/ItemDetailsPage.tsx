@@ -13,7 +13,6 @@ import {
   EyeShow24Regular,
   Save24Regular,
 } from '@fluentui/react-icons';
-import useAxios from 'axios-hooks';
 import { Label } from '../../../components/Label';
 import { TextInput } from '../../../components/TextInput';
 import { InputGroup } from '../../../components/InputGroup';
@@ -356,12 +355,28 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const sessionId = sessionStorage.getItem('sessionId');
 
   // determine whether the user can publish the item
-  const [{ data: permissions, loading: loadingPermissions }] = useAxios<{
-    canPublish: boolean;
-  }>(`/${collection}/permissions`);
+  const { data: permissionsData, loading: loadingPermissions } = useQuery(
+    collectionConfig
+      ? gql(
+          jsonToGraphQLQuery({
+            query: {
+              [collectionConfig.query.name.singular + 'ActionAccess']: {
+                modify: true,
+                hide: true,
+                lock: true,
+                watch: true,
+                publish: true,
+              },
+            },
+          })
+        )
+      : gql``
+  );
+  const permissions: Record<string, boolean> | undefined =
+    permissionsData?.[collectionConfig!.query.name.singular + 'ActionAccess'];
 
   // calculate publish permissions
-  const cannotPublish = permissions?.canPublish !== true;
+  const cannotPublish = permissions?.publish !== true;
   const publishStage: number | undefined = collectionConfig?.publishStage;
   const isPublishable = collectionConfig?.isPublishable; // true only if set in config
   const publishLocked =
@@ -465,7 +480,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
           label: isWatching || isMadatoryWatcher ? 'Stop Watching' : 'Watch',
           type: 'button',
           icon: isWatching || isMadatoryWatcher ? <EyeHide24Regular /> : <EyeShow24Regular />,
-          disabled: isMadatoryWatcher,
+          disabled: isMadatoryWatcher || permissions?.watch !== true,
           action: () => watchItem(!isWatching),
         }
       : null,
@@ -475,13 +490,14 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       icon: <Delete24Regular />,
       action: hideItem,
       color: 'red',
+      disabled: permissions?.hide !== true,
     },
     {
       label: 'Save',
       type: 'button',
       icon: <Save24Regular />,
       action: () => saveChanges(),
-      disabled: !state.isUnsaved,
+      disabled: !state.isUnsaved || permissions?.modify !== true,
     },
     collectionConfig?.isPublishable
       ? //only allow publishing if canPublish is true
