@@ -1,3 +1,4 @@
+import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { PaneClose24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
@@ -6,14 +7,14 @@ import { useHistory } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
-import { IPhoto } from '../../../interfaces/cristata/photos';
+import { PHOTO, PHOTO__TYPE } from '../../../graphql/queries';
 import { themeType } from '../../../utils/theme/theme';
 
 interface IPhotoLibraryFlyout {
-  photo?: IPhoto;
+  photo_id: string;
 }
 
-function PhotoLibraryFlyout({ photo }: IPhotoLibraryFlyout) {
+function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
   const theme = useTheme() as themeType;
   const history = useHistory();
 
@@ -22,54 +23,74 @@ function PhotoLibraryFlyout({ photo }: IPhotoLibraryFlyout) {
     ReactTooltip.rebuild();
   });
 
-  if (photo) {
-    return (
-      <Wrapper theme={theme}>
-        <Header theme={theme}>
-          <IconButton
-            icon={window.innerWidth <= 600 ? <Dismiss24Regular /> : <PaneClose24Regular />}
-            cssExtra={css`
-              float: right;
-              margin-top: 15px;
-            `}
-            onClick={() => history.push(`/cms/photos/library`)}
-            data-tip={'Close panel'}
-          />
-          <Name theme={theme}>{photo.name}</Name>
-        </Header>
-        <Photo src={photo.photo_url} alt={''}></Photo>
-        <Url href={photo.photo_url} target={`_blank`} theme={theme}>
-          {photo.photo_url}
-        </Url>
-        <SectionTitle theme={theme}>Details</SectionTitle>
-        <Details theme={theme}>
-          <Label>Location</Label>
-          <Item>
-            {photo.photo_url.replace('https://', '').split('.')[0] /* get the location from the URL */}
-          </Item>
-          <Label>Source</Label>
-          <Item>{photo.people.photo_created_by}</Item>
-          <Label>Type</Label>
-          <Item>{photo.file_type}</Item>
-          <Label>Dimensions</Label>
-          <Item>{`${photo.dimensions.x} x ${photo.dimensions.y}`}</Item>
-          <Label>ID</Label>
-          <Item>{photo._id}</Item>
-        </Details>
-        <SectionTitle theme={theme}>Tags</SectionTitle>
-        {photo.tags?.map((tag, index) => {
-          return <Chip key={index} label={tag} color={`neutral`} />;
-        })}
-        {photo.tags === undefined || photo.tags.length < 1 ? 'No tags could be found for this photo' : null}
-        <Footer theme={theme}>
-          <Button icon={<Edit24Regular />} onClick={() => history.push(`/cms/item/photos/${photo._id}`)}>
-            Edit details
-          </Button>
-        </Footer>
-      </Wrapper>
-    );
-  }
-  return <Wrapper theme={theme}>Failed to load photo details.</Wrapper>;
+  // get the photo
+  const { data, loading, error, networkStatus } = useQuery<PHOTO__TYPE>(PHOTO, {
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'cache-and-network',
+    variables: { _id: photo_id },
+  });
+  const photo = data?.photo;
+
+  return (
+    <Wrapper theme={theme}>
+      <Header theme={theme}>
+        <IconButton
+          icon={window.innerWidth <= 600 ? <Dismiss24Regular /> : <PaneClose24Regular />}
+          cssExtra={css`
+            float: right;
+            margin-top: 15px;
+          `}
+          onClick={() => history.push(`/cms/photos/library`)}
+          data-tip={'Close panel'}
+        />
+        <Name theme={theme}>
+          {loading || networkStatus === NetworkStatus.refetch ? 'Loading...' : photo ? photo.name : 'Error'}
+        </Name>
+      </Header>
+      {loading ? (
+        ''
+      ) : photo ? (
+        <>
+          <Photo src={photo.photo_url} alt={''}></Photo>
+          <Url href={photo.photo_url} target={`_blank`} theme={theme}>
+            {photo.photo_url}
+          </Url>
+          <SectionTitle theme={theme}>Details</SectionTitle>
+          <Details theme={theme}>
+            <Label>Location</Label>
+            <Item>
+              {photo.photo_url.replace('https://', '').split('.')[0] /* get the location from the URL */}
+            </Item>
+            <Label>Source</Label>
+            <Item>{photo.people.photo_created_by}</Item>
+            <Label>Type</Label>
+            <Item>{photo.file_type}</Item>
+            <Label>Dimensions</Label>
+            <Item>{`${photo.dimensions.x} x ${photo.dimensions.y}`}</Item>
+            <Label>ID</Label>
+            <Item>{photo._id}</Item>
+          </Details>
+          <SectionTitle theme={theme}>Tags</SectionTitle>
+          {photo.tags?.map((tag, index) => {
+            return <Chip key={index} label={tag} color={`neutral`} />;
+          })}
+          {photo.tags === undefined || photo.tags.length < 1 ? 'No tags could be found for this photo' : null}
+          <Footer theme={theme}>
+            <Button icon={<Edit24Regular />} onClick={() => history.push(`/cms/item/photos/${photo._id}`)}>
+              Edit details
+            </Button>
+          </Footer>
+        </>
+      ) : error ? (
+        <>
+          <p>Failed to load photo details.</p>
+          <code>{JSON.stringify(error, null, 2)}</code>
+        </>
+      ) : (
+        <p>Unknown error.</p>
+      )}
+    </Wrapper>
+  );
 }
 
 const Wrapper = styled.div<{ theme: themeType }>`
