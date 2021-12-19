@@ -132,7 +132,16 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     return () => {
       if (observer) observer.disconnect();
     };
-  }, [data?.profiles?.docs, fetchMore, loading, networkStatus, SpinnerRef, SideNavRef]);
+  }, [
+    data?.profiles?.docs,
+    data?.profiles?.hasNextPage,
+    data?.profiles?.nextPage,
+    fetchMore,
+    loading,
+    networkStatus,
+    SpinnerRef,
+    SideNavRef,
+  ]);
 
   if (loading)
     return (
