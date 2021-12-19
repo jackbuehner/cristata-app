@@ -9,7 +9,7 @@ const pagedFields = {
   nextPage: true,
 };
 
-function paged(obj: Record<string, boolean>) {
+function paged(obj: Record<string, unknown>) {
   return {
     ...pagedFields,
     docs: obj,
