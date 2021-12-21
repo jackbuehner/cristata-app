@@ -30,6 +30,7 @@ const TextInputComponent = styled.input<ITextInputComponent>`
   box-sizing: border-box;
   border-radius: ${({ theme }) => theme.radius};
   border: none;
+  appearance: none; /* override native appearance (safari fix) */
   box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
   transition: box-shadow 240ms;
   font-family: ${({ theme, font }) => theme.font[font ? font : 'detail']};
