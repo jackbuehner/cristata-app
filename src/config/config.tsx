@@ -1,4 +1,3 @@
-import { db } from '../utils/axios/db';
 import {
   Balloon16Regular,
   BookGlobe24Regular,
@@ -17,9 +16,7 @@ import {
   Star24Regular,
   StarEmphasis24Regular,
 } from '@fluentui/react-icons';
-import { AxiosResponse } from 'axios';
 import { client } from '../graphql/client';
-import { HISTORY } from '../graphql/queries';
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { Paged } from '../interfaces/cristata/paged';

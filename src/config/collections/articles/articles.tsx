@@ -2,7 +2,6 @@ import { DateTime } from 'luxon';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
-import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
@@ -10,6 +9,7 @@ import { selectPhotoPath } from './selectPhotoPath';
 import { selectProfile } from './selectProfile';
 import { selectTeam } from './selectTeam';
 import { isJSON } from '../../../utils/isJSON';
+import { gql } from '@apollo/client';
 
 const articles: collection<IArticle> = {
   home: '/cms/collection/articles/in-progress',
@@ -523,15 +523,27 @@ const articles: collection<IArticle> = {
   },
   createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
-    db.post(`/articles`, {
-      name: uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-      }),
-    })
+    client
+      .mutate<{ articleCreate?: { _id: string } }>({
+        mutation: gql`
+          mutation Create($name: String!) {
+            articleCreate(name: $name) {
+              _id
+            }
+          }
+        `,
+        variables: {
+          // generate a document name
+          name: uniqueNamesGenerator({
+            dictionaries: [adjectives, colors, animals],
+            separator: '-',
+          }),
+        },
+      })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/articles/${data._id}`);
+        // navigate to the new document upon successful creation
+        history.push(`/cms/item/articles/${data?.articleCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

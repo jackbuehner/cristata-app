@@ -1,8 +1,8 @@
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
-import { db } from '../../../utils/axios/db';
 import { collection } from '../../collections';
 import { FlushDocumentEditor } from './FlushDocumentEditor';
 import roman from 'romans';
+import { gql } from '@apollo/client';
 
 const flush: collection<IFlush> = {
   home: '/cms/collection/flush',
@@ -51,10 +51,24 @@ const flush: collection<IFlush> = {
   tableDataFilter: (_, __, filter) => ({ ...filter, hidden: { $ne: true } }),
   createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
-    db.post(`/flush`)
+    client
+      .mutate<{ flushCreate?: { _id: string } }>({
+        mutation: gql`
+          mutation Create($volume: Int!, $issue: Int!) {
+            flushCreate(volume: $volume, issue: $issue) {
+              _id
+            }
+          }
+        `,
+        variables: {
+          volume: 99,
+          issue: 99,
+        },
+      })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/flush/${data._id}`);
+        // navigate to the new document upon successful creation
+        history.push(`/cms/item/flush/${data?.flushCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

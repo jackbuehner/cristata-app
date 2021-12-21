@@ -1,8 +1,8 @@
+import { gql } from '@apollo/client';
 import { DateTime } from 'luxon';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
-import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
@@ -376,15 +376,27 @@ const satire: collection<ISatire> = {
   },
   createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
-    db.post(`/satire`, {
-      name: uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-      }),
-    })
+    client
+      .mutate<{ satireCreate?: { _id: string } }>({
+        mutation: gql`
+          mutation Create($name: String!) {
+            satireCreate(name: $name) {
+              _id
+            }
+          }
+        `,
+        variables: {
+          // generate a document name
+          name: uniqueNamesGenerator({
+            dictionaries: [adjectives, colors, animals],
+            separator: '-',
+          }),
+        },
+      })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/satire/${data._id}`);
+        // navigate to the new document upon successful creation
+        history.push(`/cms/item/satire/${data?.satireCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);
