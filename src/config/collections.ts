@@ -14,6 +14,7 @@ import { flush } from './collections/flush';
 import { CustomFieldProps } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { mongoFilterType, mongoSortType } from '../graphql/client';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { CreateNewStateType } from '../pages/CMS/CollectionPage/CollectionPage';
 
 const collections: collectionsType = {
   articles,
@@ -75,7 +76,11 @@ interface collection<I> {
     loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
     client: ApolloClient<NormalizedCacheObject>,
     toast: typeof toastify,
-    history: History
+    history: History,
+    createNewModal: {
+      state: [CreateNewStateType, Dispatch<SetStateAction<CreateNewStateType>>];
+      modal: [() => void, () => void];
+    }
   ) => void;
 }
 

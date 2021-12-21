@@ -24,6 +24,34 @@ import { TextInput } from '../../../components/TextInput';
 import { MultiSelect } from '../../../components/Select';
 import { isJSON } from '../../../utils/isJSON';
 
+type CreateNewStateType = {
+  /**
+   * The fields that should appear in the modal.
+   *
+   * **Options**
+   *
+   * text: text field
+   */
+  fields: { type: 'text'; label: string; key: string }[];
+  /**
+   * The state of the fields (the field values).
+   *
+   * When modifying other parts of this state object, be sure to
+   * always copy this state object into the main state object. Failure to
+   * do this will result in data loss.
+   */
+  state: Record<string, unknown>;
+  /**
+   * The function that executes after the user clicks the 'create' button.
+   *
+   * `args` is the resulting values from the modal fields defined in `fields`
+   *
+   * Return true to tell the app that the modal should close.
+   * Return false to tell the app that the modal should stay open.
+   */
+  create: (args: CreateNewStateType['state']) => boolean;
+};
+
 const TableWrapper = styled.div<{ theme?: themeType }>`
   padding: 20px;
   height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
@@ -81,6 +109,13 @@ function CollectionPage() {
         : { $regex: value, $options: 'i' };
   });
 
+  // store the fields and state for the createNew modal
+  const [createNewState, setCreateNewState] = useState<CreateNewStateType>({
+    fields: [],
+    state: {},
+    create: () => true,
+  });
+
   const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
 
   if (collectionConfig) {
@@ -99,7 +134,11 @@ function CollectionPage() {
     // set the data filter for mongoDB
     store.mongoDataFilter = store.collection.tableDataFilter?.(progress, location.search, defaultFilter);
     // set the createNew function
-    store.createNew = () => store.collection.createNew?.([isLoading, setIsLoading], client, toast, history);
+    store.createNew = () =>
+      store.collection.createNew?.([isLoading, setIsLoading], client, toast, history, {
+        state: [createNewState, setCreateNewState],
+        modal: [showCreateNewModal, hideCreateNewModal],
+      });
   }
 
   // set document title
@@ -111,6 +150,55 @@ function CollectionPage() {
   useEffect(() => {
     ReactTooltip.rebuild();
   });
+
+  // createNew modal
+  const [showCreateNewModal, hideCreateNewModal] = useModal(() => {
+    return (
+      <PlainModal
+        hideModal={hideCreateNewModal}
+        title={`Create new`}
+        isLoading={isLoading}
+        continueButton={{
+          text: 'Create',
+          onClick: () => {
+            createNewState.create(createNewState.state);
+            return false;
+          },
+        }}
+      >
+        {createNewState.fields.map((field, index) => {
+          const value = createNewState.state[field.key];
+
+          if (field.type === 'text' && (typeof value === 'string' || typeof value === 'undefined')) {
+            return (
+              <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
+                <InputGroup type={`text`}>
+                  <Label htmlFor={field.key}>{field.label}</Label>
+                  <TextInput
+                    name={field.label}
+                    id={field.key}
+                    value={value}
+                    onChange={(e) =>
+                      setCreateNewState({
+                        ...createNewState,
+                        state: {
+                          ...createNewState.state,
+                          [field.key]: e.currentTarget.value,
+                        },
+                      })
+                    }
+                  />
+                </InputGroup>
+              </ErrorBoundary>
+            );
+          }
+          return null;
+        })}
+        <div>{JSON.stringify(createNewState.fields)}</div>
+        <div>{JSON.stringify(createNewState.state)}</div>
+      </PlainModal>
+    );
+  }, [createNewState, isLoading]);
 
   // filter modal
   const [showFilterModal, hideFilterModal] = useModal(() => {
@@ -314,3 +402,4 @@ function CollectionPage() {
 }
 
 export { CollectionPage };
+export type { CreateNewStateType };
