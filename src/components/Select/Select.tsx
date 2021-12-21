@@ -5,15 +5,18 @@ import ReactSelect, { OptionTypeBase, GroupTypeBase } from 'react-select';
 import { buttonEffect } from '../Button';
 import Color from 'color';
 import Creatable from 'react-select/creatable';
-import AsyncSelect from 'react-select/async';
-import { useEffect, useState } from 'react';
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { SelectAsync } from './SelectAsync';
 
 interface ISelect<
   OptionType extends OptionTypeBase = { label: string; value: string },
   GroupType extends GroupTypeBase<OptionType> = GroupTypeBase<OptionType>
 > {
   options?: ReadonlyArray<OptionType | GroupType>;
-  loadOptions?: (inputValue: string) => Promise<
+  loadOptions?: (
+    inputValue: string,
+    client: ApolloClient<NormalizedCacheObject>
+  ) => Promise<
     Array<{
       value: string;
       label: string;
@@ -25,6 +28,7 @@ interface ISelect<
   isDisabled?: boolean;
   async?: boolean;
   cssExtra?: SerializedStyles;
+  client: ApolloClient<NormalizedCacheObject>;
 }
 
 interface ISelectComponent extends ISelect {
@@ -115,35 +119,13 @@ function Select(props: ISelect) {
     return undefined;
   };
 
-  // once `loadOptions` becomes available, store the options returned by the function
-  const [asyncOptions, setAsyncOptions] = useState<Array<OptionTypeBase>>();
-  useEffect(() => {
-    async function updateOptions() {
-      if (props.loadOptions) {
-        const options = await props.loadOptions!('');
-        setAsyncOptions(options);
-      }
-    }
-    updateOptions();
-  }, [props.loadOptions]);
-
-  /**
-   * Converts the value to a value object (for the async select)
-   */
-  const getValueObjectAsync = (val?: string) => {
-    if (val && props.loadOptions) return asyncOptions?.find((opt) => opt.value === val);
-    return undefined;
-  };
-
   // use the styles of the normal select component for the creatable select component
   const CreatableSelectComponent = SelectComponent.withComponent(Creatable);
-
-  // use the styles of the normal select component for the async select component
-  const AsyncSelectComponent = SelectComponent.withComponent(AsyncSelect);
 
   if (props.isCreatable && !props.async) {
     return (
       <CreatableSelectComponent
+        client={props.client}
         options={props.options}
         classNamePrefix={`react-select`}
         appTheme={theme}
@@ -161,15 +143,18 @@ function Select(props: ISelect) {
 
   if (!props.isCreatable && props.async) {
     return (
-      <AsyncSelectComponent
-        loadOptions={props.loadOptions}
+      <SelectAsync
+        client={props.client}
+        asyncOptions={
+          props.loadOptions ? (inputValue: string) => props.loadOptions!(inputValue, props.client) : undefined
+        }
         classNamePrefix={`react-select`}
         appTheme={theme}
         color={`primary`}
         colorShade={600}
         backgroundColor={{ base: 'white' }}
         border={{ base: '1px solid transparent' }}
-        value={getValueObjectAsync(props.val)}
+        valueStrings={props.val && props.val !== 'undefined' ? [props.val] : undefined}
         onChange={props.onChange}
         isDisabled={props.isDisabled}
         cssExtra={props.cssExtra}
@@ -180,6 +165,7 @@ function Select(props: ISelect) {
 
   return (
     <SelectComponent
+      client={props.client}
       options={props.options}
       classNamePrefix={`react-select`}
       appTheme={theme}

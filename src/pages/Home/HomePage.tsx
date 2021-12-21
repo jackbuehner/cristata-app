@@ -16,17 +16,23 @@ import {
 } from '@fluentui/react-icons';
 import { ItemsRow } from './ItemsRow';
 import { home as homeConfig } from '../../config';
-import useAxios from 'axios-hooks';
 import { WorkflowStatusCard } from './WorkflowStatusCard';
 import { RecentActivity } from './RecentActivity';
 import { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
+import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
 
 function HomePage() {
   const theme = useTheme() as themeType;
 
-  const [{ data: workflowStages }] = useAxios<{ _id: number; count: number }[]>(`/articles/stage-counts`);
+  const { data: workflowStagesAll } = useQuery<STAGE_COUNTS__TYPE>(STAGE_COUNTS, { fetchPolicy: 'no-cache' });
+  const workflowStages = [].concat(...(Object.values({ ...workflowStagesAll }) as any)) as {
+    _id: number;
+    count: number;
+  }[];
   const stages = workflowStages?.reduce(
-    (obj: { [key: number]: number }, item) => Object.assign(obj, { [item._id]: item.count }),
+    (obj: { [key: number]: number }, item) =>
+      Object.assign(obj, { [item._id]: (obj[item._id] || 0) + item.count }),
     {}
   );
 

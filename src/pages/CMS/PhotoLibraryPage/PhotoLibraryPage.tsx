@@ -1,4 +1,3 @@
-import useAxios from 'axios-hooks';
 import { toast } from 'react-toastify';
 import { PageHead } from '../../../components/PageHead';
 import { db } from '../../../utils/axios/db';
@@ -13,20 +12,42 @@ import { Button, IconButton } from '../../../components/Button';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useHistory, useParams } from 'react-router-dom';
-import { IPhoto } from '../../../interfaces/cristata/photos';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 import ReactTooltip from 'react-tooltip';
+import { NetworkStatus, useQuery } from '@apollo/client';
+import {
+  CREATE_PHOTO,
+  CREATE_PHOTO__TYPE,
+  MODIFY_PHOTO,
+  MODIFY_PHOTO__TYPE,
+  PHOTOS_BASIC,
+  PHOTOS_BASIC__TYPE,
+} from '../../../graphql/queries';
+import { CircularProgress } from '@material-ui/core';
+import { client } from '../../../graphql/client';
 
 function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
-  const [{ data, loading }, refetch] = useAxios<IPhoto[]>(`/photos`);
   const history = useHistory();
+
+  // get the photos
+  const { data, loading, error, refetch, networkStatus, fetchMore } = useQuery<PHOTOS_BASIC__TYPE>(
+    PHOTOS_BASIC,
+    {
+      notifyOnNetworkStatusChange: true,
+      variables: { limit: 25 },
+    }
+  );
+  const photos = data?.photos.docs;
 
   // keep track of whether something is loading
   const [isLoading, setIsLoading] = useState<boolean>(loading);
   useEffect(() => {
-    setIsLoading(loading);
-  }, [loading]);
+    if (loading) setIsLoading(loading);
+    else if (networkStatus === NetworkStatus.refetch) setIsLoading(loading);
+    else if (networkStatus === NetworkStatus.fetchMore) setIsLoading(loading);
+    else setIsLoading(false);
+  }, [loading, networkStatus]);
 
   // keep track of the upload progress
   const [uploadProgress, setUploadProgress] = useState<number>(0); // should be between 0 and 1
@@ -45,6 +66,56 @@ function PhotoLibraryPage() {
   useEffect(() => {
     document.title = `Photo library - Cristata`;
   }, []);
+
+  // create a ref for the spinner that appears when more items can be loaded
+  const SpinnerRef = useRef<HTMLDivElement>(null);
+  // also create a ref for the photo grid container
+  const WrapperRef = useRef<HTMLDivElement>(null);
+
+  // use IntersectionObserver to detect when the load more items spinner is
+  // intersecting in the photo grid, and then attempt to load more rows of the table
+  useEffect(() => {
+    let observer: IntersectionObserver;
+    if (SpinnerRef.current && WrapperRef.current) {
+      const options: IntersectionObserverInit = {
+        root: WrapperRef.current,
+        threshold: 0.75, // require at least 75% intersection
+      };
+      const callback: IntersectionObserverCallback = (entries, observer) => {
+        entries.forEach((spinner) => {
+          if (spinner.isIntersecting && !loading && networkStatus !== NetworkStatus.refetch) {
+            // make spinner visible
+            if (SpinnerRef.current) SpinnerRef.current.style.opacity = '1';
+            // fetch more rows of data
+            if (data?.photos?.hasNextPage) {
+              fetchMore({
+                variables: {
+                  page: data.photos.nextPage,
+                },
+              });
+            }
+          } else {
+            // make spinner invisible until it is intersecting enough
+            if (SpinnerRef.current) SpinnerRef.current.style.opacity = '0';
+          }
+        });
+      };
+      observer = new IntersectionObserver(callback, options);
+      observer.observe(SpinnerRef.current);
+    }
+    return () => {
+      if (observer) observer.disconnect();
+    };
+  }, [
+    data?.photos?.docs,
+    data?.photos?.hasNextPage,
+    data?.photos?.nextPage,
+    fetchMore,
+    loading,
+    networkStatus,
+    SpinnerRef,
+    WrapperRef,
+  ]);
 
   /**
    * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
@@ -147,25 +218,43 @@ function PhotoLibraryPage() {
 
       if (isUploaded) {
         setUploadStatus('Finishing upload...');
-        db.post(`/photos`, {
-          name: file.name,
-          file_type: file.type,
-          photo_url: url,
-          dimensions: {
-            x: imageDimensions?.x,
-            y: imageDimensions?.y,
-          },
-          size: file.size,
-        })
-          .then(({ data }) => {
-            setIsLoading(false);
-            setUploadStatus(null);
+        await client
+          .mutate<CREATE_PHOTO__TYPE>({
+            mutation: CREATE_PHOTO,
+            variables: { name: file.name },
+          })
+          .then((res) => {
+            // save the _id of the new photo
+            const _id = res.data?.photoCreate._id;
 
-            // refresh the page of photos with the new photo
-            refetch();
+            if (_id) {
+              client
+                .mutate<MODIFY_PHOTO__TYPE>({
+                  mutation: MODIFY_PHOTO,
+                  variables: {
+                    _id,
+                    input: {
+                      file_type: file.type,
+                      photo_url: url,
+                      dimensions: {
+                        x: imageDimensions?.x,
+                        y: imageDimensions?.y,
+                      },
+                      size: file.size,
+                    },
+                  },
+                })
+                .then(() => {
+                  setIsLoading(false);
+                  setUploadStatus(null);
 
-            // open the photo metadata
-            history.push(`/cms/photos/library/${data._id}`);
+                  // refresh the page of photos with the new photo
+                  refetch();
+
+                  // open the photo metadata
+                  history.push(`/cms/photos/library/${_id}`);
+                });
+            }
           })
           .catch((error) => {
             console.error(error);
@@ -204,31 +293,32 @@ function PhotoLibraryPage() {
             >
               Refresh
             </IconButton>
-            <Button onClick={upload} disabled={!!isLoading || !!uploadStatus}>
+            <Button onClick={upload} disabled={!!isLoading || !!uploadStatus || !!error}>
               Upload
             </Button>
           </>
         }
       />
-      <WrapperWrapper theme={theme}>
-        <Wrapper theme={theme}>
-          <input
-            ref={uploadInputRef}
-            type={`file`}
-            accept={`.png, .jpg, .jpeg, .jpe, .jfif, .webp, .svg, .gif`}
-            onChange={async (e) => {
-              if (e.target.files) {
-                addNewFile(e.target.files[0]);
-              }
-            }}
-            style={{ display: 'none' }}
-          />
-          <Grid>
-            {
-              // show a grid of the photos
-              data
-                ?.filter((photo) => photo.hidden !== true)
-                .map((photo: any, index: number) => {
+      {error ? (
+        <pre>{JSON.stringify(error, null, 2)}</pre>
+      ) : (
+        <WrapperWrapper theme={theme}>
+          <Wrapper theme={theme} ref={WrapperRef}>
+            <input
+              ref={uploadInputRef}
+              type={`file`}
+              accept={`.png, .jpg, .jpeg, .jpe, .jfif, .webp, .svg, .gif`}
+              onChange={async (e) => {
+                if (e.target.files) {
+                  addNewFile(e.target.files[0]);
+                }
+              }}
+              style={{ display: 'none' }}
+            />
+            <Grid>
+              {
+                // show a grid of the photos
+                photos?.map((photo: any, index: number) => {
                   return (
                     <Card
                       key={index}
@@ -243,13 +333,17 @@ function PhotoLibraryPage() {
                     </Card>
                   );
                 })
-            }
-          </Grid>
-        </Wrapper>
-        {photo_id ? (
-          <PhotoLibraryFlyout photo={data?.find((photo) => photo._id === photo_id)}></PhotoLibraryFlyout>
-        ) : null}
-      </WrapperWrapper>
+              }
+              {data?.photos?.hasNextPage ? (
+                <div ref={SpinnerRef}>
+                  <Spinner theme={theme} />
+                </div>
+              ) : null}
+            </Grid>
+          </Wrapper>
+          {photo_id ? <PhotoLibraryFlyout photo_id={photo_id}></PhotoLibraryFlyout> : null}
+        </WrapperWrapper>
+      )}
     </>
   );
 }
@@ -328,6 +422,12 @@ const ImageLabel = styled.div<{ theme: themeType }>`
   white-space: nowrap;
   text-overflow: ellipsis;
   border-top: ${({ theme }) => `1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
+`;
+const Spinner = styled(CircularProgress)<{ theme: themeType }>`
+  width: 20px !important;
+  height: 20px !important;
+  margin: 10px;
+  font-family: ${({ theme }) => theme.color.primary[900]} !important;
 `;
 
 export { PhotoLibraryPage };

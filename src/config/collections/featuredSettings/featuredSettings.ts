@@ -17,7 +17,7 @@ const featuredSettings: collection<IFeaturedSettings> = {
       from: 'setting',
       label: 'First article',
       type: 'select_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -25,7 +25,7 @@ const featuredSettings: collection<IFeaturedSettings> = {
       from: 'setting',
       label: 'Second article',
       type: 'select_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -33,7 +33,7 @@ const featuredSettings: collection<IFeaturedSettings> = {
       from: 'setting',
       label: 'Third article',
       type: 'select_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
     {
@@ -41,7 +41,7 @@ const featuredSettings: collection<IFeaturedSettings> = {
       from: 'setting',
       label: 'Fourth article',
       type: 'select_async',
-      async_options: (val) => selectArticle(val),
+      async_options: (val, client) => selectArticle(val, client),
       dataType: 'string',
     },
   ],

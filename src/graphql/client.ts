@@ -1,17 +1,19 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { merge } from 'merge-anything';
-import { collections } from '../config';
 import { Paged } from '../interfaces/cristata/paged';
+import { ClientConsumer } from './ClientConsumer';
 
 const collectionPluralNames = [
-  ...new Set(
-    Object.entries(collections).map(([key, value]) => {
-      return value!.query.name.plural;
-    })
-  ),
+  'articles',
+  'settings',
+  'flushes',
+  'photoRequests',
+  'photos',
+  'satires',
+  'shorturls',
 ];
 
-const collectionQueryTypePolicies = collectionPluralNames.map((query) => {
+const collectionQueryTypePolicies = [...collectionPluralNames, 'users'].map((query) => {
   return {
     [query]: {
       // Don't cache separate results based on
@@ -49,4 +51,4 @@ type mongoFilterType = { [key: string]: string | boolean | number | string[] | n
 type mongoSortType = { [key: string]: -1 | 1 };
 
 export type { mongoFilterType, mongoSortType };
-export { client };
+export { client, ClientConsumer };

@@ -3,8 +3,6 @@ import { useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
 import { Button, IconButton } from '../../../components/Button';
 import { useParams } from 'react-router';
-import useAxios from 'axios-hooks';
-import { IProfile } from '../../../interfaces/cristata/profiles';
 import { PageHead } from '../../../components/PageHead';
 import { Chip } from '../../../components/Chip';
 import { DateTime } from 'luxon';
@@ -16,11 +14,11 @@ import { Label } from '../../../components/Label';
 import { TextInput } from '../../../components/TextInput';
 import { TextArea } from '../../../components/TextArea';
 import { useEffect, useState } from 'react';
-import { AxiosError } from 'axios';
-import { db } from '../../../utils/axios/db';
 import { toast } from 'react-toastify';
-import { IGetTeams } from '../../../interfaces/github/teams';
 import { genAvatar } from '../../../utils/genAvatar';
+import { ApolloError, useQuery } from '@apollo/client';
+import { MUTATE_PROFILE, MUTATE_PROFILE__TYPE, PROFILE, PROFILE__TYPE } from '../../../graphql/queries';
+import { client } from '../../../graphql/client';
 
 function ProfilePage() {
   const theme = useTheme() as themeType;
@@ -30,20 +28,22 @@ function ProfilePage() {
     profile_id: string;
   }>();
 
-  const [{ data, loading, error }, refetch] = useAxios<IProfile>(`/users/${profile_id}`);
-  const [{ data: teamsData }] = useAxios<IGetTeams>(`/gh/teams`);
+  const { data, loading, error, refetch } = useQuery<PROFILE__TYPE>(PROFILE, {
+    fetchPolicy: 'no-cache',
+    variables: { _id: profile_id },
+  });
 
   // set document title
   useEffect(() => {
-    document.title = `${data ? data.name + ' - ' : ''} Profile - Cristata`;
+    document.title = `${data ? data.profile.name + ' - ' : ''} Profile - Cristata`;
   }, [data]);
 
   const [showEditModal, hideEditModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [fieldData, setFieldData] = useState({
-      phone: data?.phone,
-      twitter: data?.twitter,
-      biography: data?.biography,
+      phone: data?.profile.phone,
+      twitter: data?.profile.twitter,
+      biography: data?.profile.biography,
     });
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -62,19 +62,23 @@ function ProfilePage() {
     /**
      * Update the user data by posting it to the API.
      *
-     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     * @returns `true` if there were no errors; An `ApolloError` type if there was an error
      */
-    const updateProfileData = async (): Promise<true | AxiosError<any>> => {
-      return await db
-        .patch(`/users/${profile_id}_${data?.github_id}`, {
-          ...fieldData,
+    const updateProfileData = async (): Promise<true | ApolloError> => {
+      return await client
+        .mutate<MUTATE_PROFILE__TYPE>({
+          mutation: MUTATE_PROFILE,
+          variables: {
+            _id: data?.profile._id,
+            input: fieldData,
+          },
         })
         .then(async (): Promise<true> => {
           if (refetch) await refetch(); // refetch the profile so that it includes the new data
           setIsLoading(false);
           return true;
         })
-        .catch((err: AxiosError): AxiosError => {
+        .catch((err: ApolloError): ApolloError => {
           console.error(err);
           toast.error(`Failed to update profile. \n ${err.message}`);
           setIsLoading(false);
@@ -86,7 +90,7 @@ function ProfilePage() {
       return (
         <PlainModal
           hideModal={hideEditModal}
-          title={data ? data.name : `Edit profile`}
+          title={data ? data.profile.name : `Edit profile`}
           continueButton={{
             text: 'Save',
             onClick: async () => {
@@ -143,8 +147,8 @@ function ProfilePage() {
   return (
     <>
       <PageHead
-        title={data ? `Profile: ${data.name}` : `Profile viewer`}
-        description={data ? data.email || `contact@thepaladin.news` : undefined}
+        title={data ? `Profile: ${data.profile.name}` : `Profile viewer`}
+        description={data ? data.profile.email || `contact@thepaladin.news` : undefined}
         isLoading={loading}
         buttons={
           <>
@@ -158,27 +162,29 @@ function ProfilePage() {
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
           <TopBox>
-            <Photo src={data.photo || genAvatar(data._id)} alt={``} theme={theme} />
+            <Photo src={data.profile.photo || genAvatar(data.profile._id)} alt={``} theme={theme} />
             <div>
-              <Name theme={theme}>{data.name}</Name>
-              <Title theme={theme}>{data.current_title || 'Employee'}</Title>
+              <Name theme={theme}>{data.profile.name}</Name>
+              <Title theme={theme}>{data.profile.current_title || 'Employee'}</Title>
               <ButtonRow>
-                {data.email ? (
+                {data.profile.email ? (
                   <Button
                     onClick={() =>
                       window.open(
-                        `https://teams.microsoft.com/l/chat/0/0?users=${data.email.split('@')[0]}@furman.edu`
+                        `https://teams.microsoft.com/l/chat/0/0?users=${
+                          data.profile.email!.split('@')[0]
+                        }@furman.edu`
                       )
                     }
                   >
                     Message
                   </Button>
                 ) : null}
-                {data.email ? (
-                  <Button onClick={() => (window.location.href = `mailto:${data.email}`)}>Email</Button>
+                {data.profile.email ? (
+                  <Button onClick={() => (window.location.href = `mailto:${data.profile.email}`)}>Email</Button>
                 ) : null}
-                {data.phone ? (
-                  <Button onClick={() => (window.location.href = `tel:${data.phone}`)}>Phone</Button>
+                {data.profile.phone ? (
+                  <Button onClick={() => (window.location.href = `tel:${data.profile.phone}`)}>Phone</Button>
                 ) : null}
               </ButtonRow>
             </div>
@@ -186,33 +192,32 @@ function ProfilePage() {
           <SectionTitle theme={theme}>Contact Information</SectionTitle>
           <ItemGrid>
             <ItemLabel theme={theme}>Phone</ItemLabel>
-            <Item theme={theme}>{data.phone}</Item>
+            <Item theme={theme}>{data.profile.phone}</Item>
             <ItemLabel theme={theme}>Email</ItemLabel>
-            <Item theme={theme}>{data.email}</Item>
+            <Item theme={theme}>{data.profile.email}</Item>
             <ItemLabel theme={theme}>Twitter</ItemLabel>
-            <Item theme={theme}>{data.twitter ? `@${data.twitter}` : ``}</Item>
+            <Item theme={theme}>{data.profile.twitter ? `@${data.profile.twitter}` : ``}</Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Work Information</SectionTitle>
           <ItemGrid>
             <ItemLabel theme={theme}>Biography</ItemLabel>
-            <Item theme={theme}>{data.biography}</Item>
+            <Item theme={theme}>{data.profile.biography}</Item>
             <ItemLabel theme={theme}>Current title</ItemLabel>
-            <Item theme={theme}>{data.current_title || `Employee`}</Item>
+            <Item theme={theme}>{data.profile.current_title || `Employee`}</Item>
             <ItemLabel theme={theme}>Join date</ItemLabel>
             <Item theme={theme}>
-              {data.timestamps.joined_at
-                ? DateTime.fromISO(data.timestamps.joined_at).toFormat(`dd LLLL yyyy`)
+              {data.profile.timestamps.joined_at
+                ? DateTime.fromISO(data.profile.timestamps.joined_at).toFormat(`dd LLLL yyyy`)
                 : ``}
             </Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Teams &amp; Groups</SectionTitle>
-          {data.teams.map((teamId, index) => {
-            const teamSlug = teamsData?.organization.teams.edges.find((team) => team.node.id === teamId)?.node
-              .slug;
-            return <Chip key={index} label={teamSlug || teamId} color={`neutral`} />;
+          {data.profile.teams.docs.map((team) => {
+            return <Chip key={team._id} label={team.slug} color={`neutral`} />;
           })}
           <LastEdited theme={theme}>
-            Last edited on {DateTime.fromISO(data.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
+            Last edited on{' '}
+            {DateTime.fromISO(data.profile.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
           </LastEdited>
         </ContentWrapper>
       ) : (

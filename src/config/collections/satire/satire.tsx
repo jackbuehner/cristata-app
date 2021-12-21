@@ -1,8 +1,8 @@
+import { gql } from '@apollo/client';
 import { DateTime } from 'luxon';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
-import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
@@ -54,7 +54,7 @@ const satire: collection<ISatire> = {
       label: 'Photo',
       type: 'select_async',
       description: 'The photo that appears at the top of the piece.',
-      async_options: (val) => selectPhotoPath(val),
+      async_options: (val, client) => selectPhotoPath(val, client),
     },
     {
       key: 'photo_caption',
@@ -81,7 +81,7 @@ const satire: collection<ISatire> = {
       label: 'Authors',
       type: 'multiselect_async',
       description: 'The authors of this piece of satire. These names do not appear on the website.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -97,7 +97,7 @@ const satire: collection<ISatire> = {
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -148,7 +148,7 @@ const satire: collection<ISatire> = {
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
     },
     {
@@ -376,15 +376,27 @@ const satire: collection<ISatire> = {
   },
   createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
-    db.post(`/satire`, {
-      name: uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-      }),
-    })
+    client
+      .mutate<{ satireCreate?: { _id: string } }>({
+        mutation: gql`
+          mutation Create($name: String!) {
+            satireCreate(name: $name) {
+              _id
+            }
+          }
+        `,
+        variables: {
+          // generate a document name
+          name: uniqueNamesGenerator({
+            dictionaries: [adjectives, colors, animals],
+            separator: '-',
+          }),
+        },
+      })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/satire/${data._id}`);
+        // navigate to the new document upon successful creation
+        history.push(`/cms/item/satire/${data?.satireCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

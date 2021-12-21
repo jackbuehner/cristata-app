@@ -2,7 +2,6 @@ import { DateTime } from 'luxon';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
 import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
-import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
@@ -10,6 +9,7 @@ import { selectPhotoPath } from './selectPhotoPath';
 import { selectProfile } from './selectProfile';
 import { selectTeam } from './selectTeam';
 import { isJSON } from '../../../utils/isJSON';
+import { gql } from '@apollo/client';
 
 const articles: collection<IArticle> = {
   home: '/cms/collection/articles/in-progress',
@@ -73,7 +73,7 @@ const articles: collection<IArticle> = {
       label: 'Photo',
       type: 'select_async',
       description: 'The photo that appears at the top of every article and in most article cards.',
-      async_options: (val) => selectPhotoPath(val),
+      async_options: (val, client) => selectPhotoPath(val, client),
     },
     {
       key: 'photo_caption',
@@ -88,7 +88,7 @@ const articles: collection<IArticle> = {
       label: 'Byline',
       type: 'multiselect_async',
       description: 'The authors that appear on the byline.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -104,7 +104,7 @@ const articles: collection<IArticle> = {
       label: 'Section editors',
       type: 'multiselect_async',
       description: 'The managing editors responsible for this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -120,7 +120,7 @@ const articles: collection<IArticle> = {
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (data) => {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -194,7 +194,7 @@ const articles: collection<IArticle> = {
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this article.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
     },
     {
@@ -523,15 +523,27 @@ const articles: collection<IArticle> = {
   },
   createNew: ([loading, setIsLoading], client, toast, history) => {
     setIsLoading(true);
-    db.post(`/articles`, {
-      name: uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-      }),
-    })
+    client
+      .mutate<{ articleCreate?: { _id: string } }>({
+        mutation: gql`
+          mutation Create($name: String!) {
+            articleCreate(name: $name) {
+              _id
+            }
+          }
+        `,
+        variables: {
+          // generate a document name
+          name: uniqueNamesGenerator({
+            dictionaries: [adjectives, colors, animals],
+            separator: '-',
+          }),
+        },
+      })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/articles/${data._id}`);
+        // navigate to the new document upon successful creation
+        history.push(`/cms/item/articles/${data?.articleCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

@@ -13,7 +13,6 @@ import {
   EyeShow24Regular,
   Save24Regular,
 } from '@fluentui/react-icons';
-import useAxios from 'axios-hooks';
 import { Label } from '../../../components/Label';
 import { TextInput } from '../../../components/TextInput';
 import { InputGroup } from '../../../components/InputGroup';
@@ -34,18 +33,19 @@ import LuxonUtils from '@date-io/luxon';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import Color from 'color';
 import { ErrorBoundary } from 'react-error-boundary';
-import { IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
 import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/slices/cmsItemSlice';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ReactTooltip from 'react-tooltip';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { gql, NetworkStatus, useMutation, useQuery } from '@apollo/client';
+import { ApolloClient, gql, NetworkStatus, NormalizedCacheObject, useMutation, useQuery } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { buildFullKey } from '../../../utils/buildFullKey';
 import { isJSON } from '../../../utils/isJSON';
 import { flattenObject } from '../../../utils/flattenObject';
+import { client } from '../../../graphql/client';
+import { ME_BASIC, ME_BASIC__TYPE } from '../../../graphql/queries';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -85,7 +85,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     ReactTooltip.rebuild();
   });
 
-  const [{ data: profile }] = useAxios<IProfile>(`/users/me`);
+  const { data: profiles } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'no-cache' });
 
   // get the url parameters from the route
   let { collection, item_id } = useParams<{
@@ -151,7 +151,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     : gql``;
 
   // get the item
-  const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {notifyOnNetworkStatusChange: true});
+  const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
+    notifyOnNetworkStatusChange: true,
+  });
   let data = collectionConfig ? req.data?.[collectionConfig.query.name.singular] : undefined;
 
   // if the query is loading or refetching, set `isLoading` in redux
@@ -353,12 +355,28 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const sessionId = sessionStorage.getItem('sessionId');
 
   // determine whether the user can publish the item
-  const [{ data: permissions, loading: loadingPermissions }] = useAxios<{
-    canPublish: boolean;
-  }>(`/${collection}/permissions`);
+  const { data: permissionsData, loading: loadingPermissions } = useQuery(
+    collectionConfig
+      ? gql(
+          jsonToGraphQLQuery({
+            query: {
+              [collectionConfig.query.name.singular + 'ActionAccess']: {
+                modify: true,
+                hide: true,
+                lock: true,
+                watch: true,
+                publish: true,
+              },
+            },
+          })
+        )
+      : gql``
+  );
+  const permissions: Record<string, boolean> | undefined =
+    permissionsData?.[collectionConfig!.query.name.singular + 'ActionAccess'];
 
   // calculate publish permissions
-  const cannotPublish = permissions?.canPublish !== true;
+  const cannotPublish = permissions?.publish !== true;
   const publishStage: number | undefined = collectionConfig?.publishStage;
   const isPublishable = collectionConfig?.isPublishable; // true only if set in config
   const publishLocked =
@@ -462,7 +480,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
           label: isWatching || isMadatoryWatcher ? 'Stop Watching' : 'Watch',
           type: 'button',
           icon: isWatching || isMadatoryWatcher ? <EyeHide24Regular /> : <EyeShow24Regular />,
-          disabled: isMadatoryWatcher,
+          disabled: isMadatoryWatcher || permissions?.watch !== true,
           action: () => watchItem(!isWatching),
         }
       : null,
@@ -472,13 +490,14 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       icon: <Delete24Regular />,
       action: hideItem,
       color: 'red',
+      disabled: permissions?.hide !== true,
     },
     {
       label: 'Save',
       type: 'button',
       icon: <Save24Regular />,
       action: () => saveChanges(),
-      disabled: !state.isUnsaved,
+      disabled: !state.isUnsaved || permissions?.modify !== true,
     },
     collectionConfig?.isPublishable
       ? //only allow publishing if canPublish is true
@@ -597,7 +616,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         field.modifyValue
                           ? field.modifyValue(
                               state.fields[buildFullKey(field.key, field.from, undefined)] as string,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : (state.fields[buildFullKey(field.key, field.from, undefined)] as string)
                       }
@@ -691,9 +711,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       <Tiptap
                         docName={`${collection}.${item_id}`}
                         user={{
-                          name: user.displayName,
-                          color: colorHash.hex(user._id || user.id),
-                          photo: profile?.photo ? profile.photo : genAvatar(user._id || user.id),
+                          name: profiles?.me.name || user.displayName,
+                          color: colorHash.hex(profiles?.me._id || user._id || user.id),
+                          photo: profiles?.me.photo
+                            ? profiles.me.photo
+                            : genAvatar(profiles?.me._id || user._id || user.id),
                         }}
                         options={field.tiptap}
                         isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}
@@ -738,13 +760,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     </Label>
                     <Select
                       options={field.options}
+                      client={client}
                       val={
                         field.modifyValue
                           ? field.modifyValue(
                               `${
                                 state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
                               }`,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : `${state.fields[buildFullKey(field.key, field.from, undefined)] as string | number}`
                       }
@@ -781,13 +805,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Select
                       loadOptions={field.async_options}
                       async
+                      client={client}
                       val={
                         field.modifyValue
                           ? field.modifyValue(
                               `${
                                 state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
                               }`,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : `${state.fields[buildFullKey(field.key, field.from, undefined)] as string | number}`
                       }
@@ -810,7 +836,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             if (field.type === 'multiselect') {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as (string | number)[]
-              )?.map((val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val.toString())); // ensures that values are strings
+              )?.map((val) =>
+                field.modifyValue ? field.modifyValue(val, state.fields, client) : val.toString()
+              ); // ensures that values are strings
               return (
                 <ErrorBoundary
                   key={index}
@@ -844,7 +872,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             if (field.type === 'multiselect_async') {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as (string | number)[]
-              )?.map((val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val.toString())); // ensures that values are strings
+              )?.map((val) =>
+                field.modifyValue ? field.modifyValue(val, state.fields, client) : val.toString()
+              ); // ensures that values are strings
               return (
                 <ErrorBoundary
                   key={index}
@@ -878,7 +908,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'multiselect_creatable') {
               const val = (state.fields[buildFullKey(field.key, field.from, undefined)] as string[])?.map(
-                (val) => (field.modifyValue ? field.modifyValue(val, state.fields) : val)
+                (val) => (field.modifyValue ? field.modifyValue(val, state.fields, client) : val)
               );
               return (
                 <ErrorBoundary
@@ -933,7 +963,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           : field.modifyValue
                           ? field.modifyValue(
                               state.fields[buildFullKey(field.key, field.from, undefined)] as string,
-                              state.fields
+                              state.fields,
+                              client
                             )
                           : (state.fields[buildFullKey(field.key, field.from, undefined)] as string)
                       }
@@ -964,6 +995,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     theme={theme}
                     search={search}
                     actions={actions}
+                    client={client}
                   />
                 </ErrorBoundary>
               );
@@ -1016,6 +1048,7 @@ interface CustomFieldProps {
   theme: themeType;
   search: string;
   actions: (Iaction | null)[];
+  client: ApolloClient<NormalizedCacheObject>;
 }
 
 export { ItemDetailsPage };

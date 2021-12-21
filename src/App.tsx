@@ -2,7 +2,6 @@ import { PlansPage } from './pages/plans/PlansPage/PlansPage';
 import { theme } from './utils/theme';
 import './App.css';
 import styled from '@emotion/styled/macro';
-import axios from 'axios';
 import useAxios, { configure } from 'axios-hooks';
 import { SideNavSubButton } from './components/Button';
 import { PlansSideNavSub } from './pages/plans/PlansSideNavSub';
@@ -11,8 +10,6 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
-import { ChatSideNavSub } from './pages/Chat/ChatSideNavSub';
-import { ChatPage } from './pages/Chat/ChatPage';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { SplashScreen } from './components/SplashScreen';
 import { SignIn } from './pages/SignIn';
@@ -31,13 +28,10 @@ import { navigation } from './config';
 import { Titlebar } from './components/Titlebar';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { CollectionPage } from './pages/CMS/CollectionPage';
+import { db } from './utils/axios/db';
 
 // configure axios global settings
-const axiosSettings = axios.create({
-  baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/api/v2`,
-  withCredentials: true,
-});
-configure({ axios: axiosSettings });
+configure({ axios: db });
 
 export interface IGridCols {
   side: number;
@@ -193,9 +187,6 @@ function App() {
                           <Route path={`/plans`}>
                             <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
-                          <Route path={`/chat`}>
-                            <ChatSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
-                          </Route>
                           <Route path={`/profile`}>
                             <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
@@ -218,9 +209,6 @@ function App() {
                         <ItemDetailsPage />
                       </Route>
                       <Route path={`/cms`}>CMS</Route>
-                      <Route path={`/chat/:team_slug/:thread_discussion_number?`}>
-                        <ChatPage />
-                      </Route>
                       <Route path={`/plans/org/:id`}>
                         <PlansPage />
                       </Route>

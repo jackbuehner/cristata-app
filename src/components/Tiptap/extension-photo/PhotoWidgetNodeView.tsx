@@ -1,12 +1,17 @@
+import { useQuery } from '@apollo/client';
 import styled from '@emotion/styled/macro';
 import { Delete16Regular, Edit16Regular, TextDescription20Regular } from '@fluentui/react-icons';
 import { NodeViewWrapper, NodeViewProps, Node, NodeViewContent } from '@tiptap/react';
-import useAxios from 'axios-hooks';
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
-import { IPhoto } from '../../../interfaces/cristata/photos';
-import { db } from '../../../utils/axios/db';
+import { ClientConsumer } from '../../../graphql/client';
+import {
+  PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
+  PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
+  PHOTO_BASIC,
+  PHOTO_BASIC__TYPE,
+} from '../../../graphql/queries';
 import { InputGroup } from '../../InputGroup';
 import { Label } from '../../Label';
 import { PlainModal } from '../../Modal';
@@ -23,12 +28,10 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
 
   // get the photo from the database using the photoId attribute
-  const { photoId } = props.node.attrs;
-  const [{ data: photos }] = useAxios<IPhoto[]>(`/photos`);
-  const photo = useMemo<IPhoto | undefined>(
-    () => photos?.find((photo) => photo._id === photoId),
-    [photos, photoId]
-  );
+  const PHOTO_QUERY = useQuery<PHOTO_BASIC__TYPE>(PHOTO_BASIC, {
+    variables: { _id: props.node.attrs.photoId },
+  });
+  const photo = PHOTO_QUERY.data?.photo;
 
   // set the photo url and credit attributes
   if (photo) {
@@ -61,34 +64,32 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             >
               Select photo
             </Label>
-            <Select
-              loadOptions={async (inputValue: string) => {
-                // get all photos
-                const { data: photos }: { data: IPhoto[] } = await db.get(`/photos`);
-
-                // with the data, create the options array
-                let options: Array<{ value: string; label: string }> = [];
-                photos.forEach((photo) => {
-                  if (photo.people?.photo_created_by) {
-                    options.push({
-                      value: photo._id,
-                      label: photo.name || photo._id,
+            <ClientConsumer>
+              {(client) => (
+                <Select
+                  client={client}
+                  loadOptions={async (inputValue: string) => {
+                    // get the photos that best match the input value
+                    const { data } = await client.query<PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE>({
+                      query: PHOTOS_BASIC_BY_REGEXNAME_OR_URL(inputValue),
+                      fetchPolicy: 'no-cache',
                     });
-                  }
-                });
 
-                // filter the options based on `inputValue`
-                const filteredOptions = options.filter((option) =>
-                  option.label.toLowerCase().includes(inputValue.toLowerCase())
-                );
+                    // with the photo data, create the options array
+                    const options = data?.photos.docs.map((photo) => ({
+                      value: photo.photo_url,
+                      label: photo.name,
+                    }));
 
-                // return the filtered options
-                return filteredOptions;
-              }}
-              async
-              val={photoId}
-              onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
-            />
+                    // return the options array
+                    return options || [];
+                  }}
+                  async
+                  val={photoId}
+                  onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
+                />
+              )}
+            </ClientConsumer>
           </InputGroup>
         </ErrorBoundary>
       </PlainModal>

@@ -4,13 +4,12 @@ import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-
 import { Chip } from '../../../components/Chip';
 import { mongoFilterType } from '../../../graphql/client';
 import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
-import { IProfile } from '../../../interfaces/cristata/profiles';
-import { db } from '../../../utils/axios/db';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 import { selectProfile } from '../articles/selectProfile';
 import { selectTeam } from '../articles/selectTeam';
+import { selectArticle } from '../featuredSettings/selectArticle';
 
 const photoRequests: collection<IPhotoRequest> = {
   home: '/cms/collection/photo-requests',
@@ -40,27 +39,7 @@ const photoRequests: collection<IPhotoRequest> = {
       label: 'Relevant article',
       type: 'select_async',
       description: 'The article in need of this photo.',
-      async_options: async (inputValue: string) => {
-        // get all articles
-        const { data: articles }: { data: IProfile[] } = await db.get(`/articles`);
-
-        // with the article data, create the options array
-        let options: Array<{ value: string; label: string }> = [];
-        articles.forEach((article) => {
-          options.push({
-            value: `${article._id}`,
-            label: article.name,
-          });
-        });
-
-        // filter the options based on `inputValue`
-        const filteredOptions = options.filter((option) =>
-          option.label.toLowerCase().includes(inputValue.toLowerCase())
-        );
-
-        // return the filtered options
-        return filteredOptions;
-      },
+      async_options: (val, client) => selectArticle(val, client),
     },
     {
       key: 'people.requested_by',
@@ -68,7 +47,7 @@ const photoRequests: collection<IPhotoRequest> = {
       label: 'Requester',
       type: 'select_async',
       description: 'This person will be contacted if the photo team has questions about the request.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
       modifyValue: (val, data) => `${data['people.requested_by.github_id']}`,
     },
@@ -77,7 +56,7 @@ const photoRequests: collection<IPhotoRequest> = {
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this photo request.',
-      async_options: (val) => selectProfile(val),
+      async_options: (val, client) => selectProfile(val, client),
       dataType: 'number',
     },
     {

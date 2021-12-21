@@ -1,4 +1,3 @@
-import { db } from '../utils/axios/db';
 import {
   Balloon16Regular,
   BookGlobe24Regular,
@@ -17,7 +16,11 @@ import {
   Star24Regular,
   StarEmphasis24Regular,
 } from '@fluentui/react-icons';
-import { AxiosResponse } from 'axios';
+import { client } from '../graphql/client';
+import { gql } from '@apollo/client';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import { Paged } from '../interfaces/cristata/paged';
+import { paged } from '../graphql/paged';
 
 interface Ifeatures {
   [key: string]: boolean | { [key: string]: boolean };
@@ -34,7 +37,7 @@ interface Ihome {
   recentItems: Array<{
     label: string;
     icon: React.ReactElement;
-    data: () => Promise<AxiosResponse<Record<string, any>[]>>;
+    data: () => Promise<Record<string, unknown>[] | undefined>;
     toPrefix: string;
     isProfile?: boolean;
     keys:
@@ -62,7 +65,39 @@ const home: Ihome = {
     {
       label: 'Articles',
       icon: <News24Regular />,
-      data: async () => await db.get(`/articles?historyType=patched&historyType=created`),
+      data: async () => {
+        const res = await client.query<{ articles?: Paged<Record<string, unknown>> }>({
+          query: gql(
+            jsonToGraphQLQuery({
+              query: {
+                articles: {
+                  __args: {
+                    limit: 20,
+                    page: 1,
+                    sort: JSON.stringify({ 'timestamps.modified_at': -1 }),
+                  },
+                  ...paged({
+                    _id: true,
+                    name: true,
+                    description: true,
+                    photo_path: true,
+                    history: {
+                      user: {
+                        name: true,
+                      },
+                    },
+                    timestamps: {
+                      modified_at: true,
+                    },
+                  }),
+                },
+              },
+            })
+          ),
+          fetchPolicy: 'no-cache',
+        });
+        return res.data.articles?.docs;
+      },
       toPrefix: '/cms/item/articles/',
       keys: {
         photo: 'photo_path',
@@ -76,12 +111,37 @@ const home: Ihome = {
     {
       label: 'Profiles',
       icon: <PersonBoard24Regular />,
-      data: async () => await db.get(`/users`),
+      data: async () => {
+        const res = await client.query<{ users?: Paged<Record<string, unknown>> }>({
+          query: gql(
+            jsonToGraphQLQuery({
+              query: {
+                users: {
+                  __args: {
+                    limit: 20,
+                    page: 1,
+                    sort: JSON.stringify({ 'timestamps.last_login_at': -1 }),
+                  },
+                  ...paged({
+                    _id: true,
+                    name: true,
+                    timestamps: {
+                      last_login_at: true,
+                    },
+                  }),
+                },
+              },
+            })
+          ),
+          fetchPolicy: 'no-cache',
+        });
+        return res.data.users?.docs;
+      },
       toPrefix: '/profile/',
       keys: {
         name: 'name',
         lastModified: 'timestamps.last_login_at',
-        lastModifiedBy: 'people.last_modified_by',
+        lastModifiedBy: '_id',
         toSuffix: '_id',
       },
       isProfile: true,
@@ -89,7 +149,37 @@ const home: Ihome = {
     {
       label: 'Photo requests',
       icon: <ImageSearch24Regular />,
-      data: async () => await db.get(`/photo-requests?historyType=patched&historyType=created`),
+      data: async () => {
+        const res = await client.query<{ photoRequests?: Paged<Record<string, unknown>> }>({
+          query: gql(
+            jsonToGraphQLQuery({
+              query: {
+                photoRequests: {
+                  __args: {
+                    limit: 20,
+                    page: 1,
+                    sort: JSON.stringify({ 'timestamps.modified_at': -1 }),
+                  },
+                  ...paged({
+                    _id: true,
+                    name: true,
+                    history: {
+                      user: {
+                        name: true,
+                      },
+                    },
+                    timestamps: {
+                      modified_at: true,
+                    },
+                  }),
+                },
+              },
+            })
+          ),
+          fetchPolicy: 'no-cache',
+        });
+        return res.data.photoRequests?.docs;
+      },
       toPrefix: '/cms/item/photo-requests/',
       keys: {
         name: 'name',
