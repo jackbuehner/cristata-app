@@ -25,7 +25,6 @@ interface IModifiedByKeys extends IBaseKeys {
 }
 
 interface IItemsRow {
-  //data: () => Promise<AxiosResponse<Record<string, any>[]>>;
   data: () => Promise<Record<string, unknown>[] | undefined>;
   keys: IHistoryKeys | IModifiedByKeys;
   toPrefix: string;

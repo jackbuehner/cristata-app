@@ -62,7 +62,7 @@ function ProfilePage() {
     /**
      * Update the user data by posting it to the API.
      *
-     * @returns `true` if there were no errors; An `AxiosError` type if there was an error
+     * @returns `true` if there were no errors; An `ApolloError` type if there was an error
      */
     const updateProfileData = async (): Promise<true | ApolloError> => {
       return await client
