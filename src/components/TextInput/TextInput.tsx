@@ -5,6 +5,10 @@ import { themeType } from '../../utils/theme/theme';
 interface ITextInputBase {
   font?: 'headline' | 'body' | 'detail';
   isDisabled?: boolean;
+  lineHeight?: string;
+  textColor?: { default: string; focused: string };
+  backgroundColor?: { default: string; focused: string };
+  borderColor?: { default: string; hovered: string; focused: string };
 }
 
 interface ITextInputComponent extends ITextInputBase {
@@ -25,23 +29,30 @@ interface ITextInput extends ITextInputBase {
 
 const TextInputComponent = styled.input<ITextInputComponent>`
   padding: 8px;
-  line-height: 1.2;
+  line-height: ${({ lineHeight }) => lineHeight || '16px'};
+  background-color: ${({ backgroundColor }) => backgroundColor?.default || 'transparent'};
+  color: ${({ textColor, theme }) => textColor?.default || theme.color.neutral[theme.mode][1400]};
   width: 100%;
   box-sizing: border-box;
   border-radius: ${({ theme }) => theme.radius};
   border: none;
   appearance: none; /* override native appearance (safari fix) */
-  box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
+  box-shadow: ${({ borderColor, theme }) => borderColor?.default || theme.color.neutral[theme.mode][800]} 0px
+    0px 0px 1px inset;
   transition: box-shadow 240ms;
   font-family: ${({ theme, font }) => theme.font[font ? font : 'detail']};
   font-size: 14px;
   font-variant-numeric: lining-nums;
   &:hover {
-    box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+    box-shadow: ${({ borderColor, theme }) => borderColor?.hovered || theme.color.neutral[theme.mode][1000]} 0px
+      0px 0px 1px inset;
   }
   &:focus {
     outline: none;
-    box-shadow: ${({ theme }) => theme.color.primary[800]} 0px 0px 0px 2px inset;
+    box-shadow: ${({ borderColor, theme }) => borderColor?.focused || theme.color.primary[800]} 0px 0px 0px 2px
+      inset;
+    background-color: ${({ backgroundColor }) => backgroundColor?.focused || '#ffffff'};
+    color: ${({ textColor, theme }) => textColor?.focused || theme.color.neutral['light'][1400]};
   }
 `;
 
@@ -61,6 +72,10 @@ function TextInput(props: ITextInput) {
       placeholder={props.placeholder}
       disabled={props.isDisabled}
       type={props.type || 'text'}
+      lineHeight={props.lineHeight}
+      textColor={props.textColor}
+      backgroundColor={props.backgroundColor}
+      borderColor={props.borderColor}
     />
   );
 }
