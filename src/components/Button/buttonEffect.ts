@@ -8,9 +8,13 @@ function buttonEffect(
   disabled?: boolean,
   backgroundColor?: {
     base?: string;
+    hover?: string;
+    active?: string;
   },
   border?: {
     base?: string;
+    hover?: string;
+    active?: string;
   }
 ) {
   return `
@@ -37,14 +41,20 @@ function buttonEffect(
             &:focus-visible,
             &:active {
               background-color: ${
-                color === 'neutral'
+                backgroundColor?.hover
+                  ? backgroundColor.hover
+                  : color === 'neutral'
                   ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.2).string()
                   : Color(theme.color[color][colorShade]).alpha(0.2).string()
               };
-              border: 1px solid ${
-                color === 'neutral'
-                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.2).string()
-                  : Color(theme.color[color][colorShade]).alpha(0.2).string()
+              border: ${
+                border?.hover
+                  ? border.hover
+                  : `1px solid ${
+                      color === 'neutral'
+                        ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.2).string()
+                        : Color(theme.color[color][colorShade]).alpha(0.2).string()
+                    }`
               };
               box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 13%),
                 0 0.3px 0.9px 0 rgb(0 0 0 / 11%);
@@ -54,14 +64,20 @@ function buttonEffect(
             }
             &:hover:active {
               background-color: ${
-                color === 'neutral'
+                backgroundColor?.active
+                  ? backgroundColor.active
+                  : color === 'neutral'
                   ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.25).string()
                   : Color(theme.color[color][colorShade]).alpha(0.25).string()
               };
-              border: 1px solid ${
-                color === 'neutral'
-                  ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.25).string()
-                  : Color(theme.color[color][colorShade]).alpha(0.25).string()
+              border: ${
+                border?.active
+                  ? border.active
+                  : `1px solid ${
+                      color === 'neutral'
+                        ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.25).string()
+                        : Color(theme.color[color][colorShade]).alpha(0.25).string()
+                    }`
               };
             }
             &:active {

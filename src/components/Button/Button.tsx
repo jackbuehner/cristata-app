@@ -78,9 +78,13 @@ export interface ButtonProps {
   width?: string;
   border?: {
     base?: string;
+    hover?: string;
+    active?: string;
   };
   backgroundColor?: {
     base?: string;
+    hover?: string;
+    active?: string;
   };
   cssExtra?: SerializedStyles;
   borderRadius?: {
