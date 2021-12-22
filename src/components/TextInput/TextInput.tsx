@@ -24,7 +24,7 @@ interface ITextInput extends ITextInputBase {
   title?: string;
   id?: string;
   placeholder?: string;
-  type?: 'text' | 'number';
+  type?: 'text' | 'number' | 'password';
 }
 
 const TextInputComponent = styled.input<ITextInputComponent>`
