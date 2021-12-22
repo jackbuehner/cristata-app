@@ -77,7 +77,7 @@ function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
         if (props.keys.history) {
           lastModifiedBy.name =
             // @ts-expect-error props.keys.history might exist
-            item[props.keys.history][item[props.keys.history]?.length - 1]?.user?.name || 'Unknown';
+            item[props.keys.history]?.[item[props.keys.history]?.length - 1]?.user?.name || 'Unknown';
         }
         // @ts-expect-error props.keys.lastModifiedBy might exist
         else if (props.keys.lastModifiedBy)
