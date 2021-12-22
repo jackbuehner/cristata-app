@@ -57,7 +57,7 @@ function SidenavHeader({
                       marginBottom: 4,
                     }}
                   >
-                    {profiles?.me.name}
+                    {profiles?.me?.name}
                   </span>
                   <span
                     style={{
