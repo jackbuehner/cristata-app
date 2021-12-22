@@ -19,6 +19,7 @@ interface ITextInput extends ITextInputBase {
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   value?: string;
   name?: string;
   title?: string;
@@ -65,6 +66,7 @@ function TextInput(props: ITextInput) {
       onFocus={props.onFocus}
       onChange={props.onChange}
       onBlur={props.onBlur}
+      onKeyPress={props.onKeyPress}
       value={props.value}
       name={props.name}
       title={props.title}
