@@ -1,3 +1,2 @@
-import { SignIn } from './SignIn';
-
-export { SignIn };
+export { SignIn } from './SignIn';
+export { LegacySignIn } from './LegacySignIn';

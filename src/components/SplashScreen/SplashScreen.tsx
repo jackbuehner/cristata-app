@@ -51,7 +51,7 @@ function SplashScreen(props: ISplashScreen) {
   useEffect(() => {
     if (props.user && !props.user.member_status) {
       localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
-      history.push('/sign-in?isMember=false'); // redirect
+      history.push('/sign-in-legacy?isMember=false'); // redirect
     }
   }, [props.user, history]);
 

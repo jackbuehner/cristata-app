@@ -1,24 +1,102 @@
 /** @jsxImportSource @emotion/react */
-import styled from '@emotion/styled/macro';
 import { css, useTheme } from '@emotion/react';
-import { themeType } from '../../utils/theme/theme';
+import styled from '@emotion/styled/macro';
+import { LinearProgress } from '@rmwc/linear-progress';
+import { useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
-import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import { CircularProgress } from '@material-ui/core';
-import { Checkmark28Regular, ErrorCircle24Regular } from '@fluentui/react-icons';
-import { useEffect } from 'react';
-import { db } from '../../utils/axios/db';
-import useAxios from 'axios-hooks';
-import { useCallback } from 'react';
+import { TextInput } from '../../components/TextInput';
+import { client } from '../../graphql/client';
+import { USER_EXISTS, USER_EXISTS__TYPE, USER_METHODS, USER_METHODS__TYPE } from '../../graphql/queries';
+import useScript from '../../hooks/useScript';
+import { themeType } from '../../utils/theme/theme';
 
-function SignIn() {
+interface ISignIn {
+  view?: 'sign-in';
+}
+
+function SignIn(props: ISignIn) {
   const theme = useTheme() as themeType;
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
+  const { pathname, search, hash, ...location } = useLocation();
+  const locState = location.state as { username?: string; step?: string };
+  const history = useHistory();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null); // error message
+  const [cred, setCred] = useState<{ username?: string; password?: string }>(); // collection credentials
 
-  const signInAction = () => {
+  // nodegarden
+  useScript('/scripts/nodegarden.js', 'nodegardenscript');
+
+  /**
+   * Redirect client to the github authentication URL (on the server).
+   * The server should redirect back to this page once it has authenticated
+   * the client.
+   */
+  const signInWithGitHubAction = () => {
+    setIsLoading(true);
     document.location.href = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/github`;
+  };
+
+  /**
+   * Check that a username exists and can be used to sign in.
+   *
+   * Redirect the the password page if the username exists and it can be used
+   * to sign in. Otherwise, display an appropriate error:
+   *
+   * - Username does not exist (doesn't exist)
+   * - Could not find username (unknown error)
+   * - Could not confirm username status (unknown error checking login methods)
+   * @param username
+   */
+  const checkUsername = (username: string) => {
+    (async () => {
+      setError(null);
+      setIsLoading(true);
+
+      // check that the user exists
+      const res = await client.query<USER_EXISTS__TYPE>({
+        query: USER_EXISTS,
+        variables: { username },
+        fetchPolicy: 'network-only',
+      });
+
+      // the user exists
+      if (res.data?.userExists.exists) {
+        const user = res.data.userExists.doc;
+        // check the login methods
+        const methodsRes = await client.query<USER_METHODS__TYPE>({
+          query: USER_METHODS,
+          variables: { username },
+          fetchPolicy: 'network-only',
+        });
+        // the user can sign in with a password
+        if (methodsRes.data?.userMethods.includes('local')) {
+          history.push(pathname + search + hash, {
+            username: user ? user.email || user.slug + '@thepaladin.news' : username,
+            step: 'password',
+          });
+        }
+        // unknown error
+        else if (methodsRes.error) setError('Could not confirm username status');
+        // local password method not enabled (need to use GitHub sign-in)
+        else setError(`Your account cannot sign in with a password. Try a different sign-in method.`);
+      }
+      // user does not exist
+      else if (res.data) setError('Username does not exist');
+      // unknown error
+      else if (res.error) setError('Could not find username');
+      setIsLoading(false);
+    })();
+  };
+
+  /**
+   * Signs in by submitting the credentials to the server.
+   * If successful, redirect to app.
+   * If failure, display message.
+   * If 2fa code requested, move to 2fa step.
+   */
+  const signInWithCredentials = () => {
+    // code to sign in here
   };
 
   // set document title
@@ -26,321 +104,184 @@ function SignIn() {
     document.title = `Cristata`;
   }, []);
 
-  const [{ data: user }, refetchUser] = useAxios({
-    url: '/auth',
-    baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`,
-    withCredentials: true,
-    method: 'GET',
-  });
-
-  const [step, setStep] = useState<
-    'notice' | '2fa_check' | '2fa_enable' | '2fa_yes' | 'join_attempt' | 'join_success' | 'join_fail' | 'done'
-  >('notice');
-
   /**
-   * Determine whether this user has two factor authentication enabled.
+   * Execute `nextFunction()` when the `Enter` key is pressed.
+   *
+   * Add this function to the `onKeyPress` prop to activate it.
    */
-  const is2faEnabled = useCallback(async () => {
-    await refetchUser();
-    if (user) {
-      return user.two_factor_authentication;
+  const nextOnEnter = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.code === 'Enter') {
+      nextFunction();
     }
-    return false;
-  }, [user, refetchUser]);
-
-  /**
-   * Attempt to join the org, and redirect the user to the correct step after a response is received
-   */
-  const attemptOrgJoin = () => {
-    db.post('/gh/org/invite')
-      .then(() => setStep('join_success'))
-      .catch(() => setStep('join_fail'));
   };
 
-  // on the check step, determine whether 2fa is enabled and change to the next appropriate step
-  useEffect(() => {
-    if (step === '2fa_check') {
-      setTimeout(async () => {
-        if (await is2faEnabled()) {
-          setStep('2fa_yes');
-        } else {
-          setStep('2fa_enable');
-        }
-      }, 1000);
-    }
-  }, [step, setStep, is2faEnabled]);
+  // set the template variables
+  let nextFunction: () => void = () =>
+    !cred?.username ? setError('Enter an email or username') : checkUsername(cred.username);
+  let title: string = 'Sign in';
+  let reason: string = 'to continue to Cristata';
+  let form: JSX.Element = (
+    <>
+      <TextInput
+        lineHeight={'24px'}
+        placeholder={'Username'}
+        value={cred?.username}
+        onChange={(e) => setCred({ ...cred, username: e.currentTarget.value })}
+        onKeyPress={nextOnEnter}
+      />
+      {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
+      <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
+        Need account?
+      </HelpLink>
+    </>
+  );
+  let note: JSX.Element = (
+    <>
+      <HelpNote theme={theme}>Having problems signing in? Request help from the Digitial Director.</HelpNote>
+      <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
+        Contact Digital Director
+      </HelpLink>
+    </>
+  );
+  let buttons: JSX.Element = <Button onClick={nextFunction}>Next</Button>;
+  let below: JSX.Element = (
+    <Button
+      height={`2rem`}
+      cssExtra={css`
+        font-weight: 600;
+        color: #ccc;
+        padding-left: 16px;
+        padding-right: 16px;
+      `}
+      backgroundColor={{
+        base: 'transparent',
+        hover: 'rgba(255, 255, 255, 0.10)',
+        active: 'rgba(255, 255, 255, 0.04)',
+      }}
+      border={{
+        base: '1px solid rgba(255, 255, 255, 0.16)',
+        hover: '1px solid rgba(255, 255, 255, 0.1)',
+        active: '1px solid rgba(255, 255, 255, 0.1)',
+      }}
+      onClick={signInWithGitHubAction}
+      icon={
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          id='Layer_1'
+          viewBox='0 0 47.999998 48.000002'
+          width='48'
+          height='48'
+        >
+          <linearGradient
+            id='SVGID_1_'
+            gradientUnits='userSpaceOnUse'
+            x1='-216.625'
+            y1='-385.75'
+            x2='-215.918'
+            y2='-385.043'
+          >
+            <stop offset='0' id='stop6' stop-color='#dedfe3' />
+            <stop offset='.174' id='stop8' stop-color='#d8d9dd' />
+            <stop offset='.352' id='stop10' stop-color='#c9cacd' />
+            <stop offset='.532' id='stop12' stop-color='#b4b5b8' />
+            <stop offset='.714' id='stop14' stop-color='#989a9c' />
+            <stop offset='.895' id='stop16' stop-color='#797c7e' />
+            <stop offset='1' id='stop18' stop-color='#656b6c' />
+          </linearGradient>
+          <path
+            d='M23.928 1.15C11 1.15.514 11.638.514 24.566c0 10.343 6.75 19.105 15.945 22.265 1.148.144 1.58-.574 1.58-1.15v-4.02c-6.465 1.436-7.902-3.16-7.902-3.16-1.005-2.73-2.586-3.45-2.586-3.45-2.154-1.435.144-1.435.144-1.435 2.298.144 3.59 2.442 3.59 2.442 2.156 3.59 5.46 2.586 6.753 2.01.142-1.58.86-2.585 1.435-3.16-5.17-.574-10.63-2.585-10.63-11.635 0-2.585.862-4.596 2.442-6.32-.287-.575-1.005-3.017.288-6.177 0 0 2.01-.574 6.464 2.442 1.866-.574 3.877-.718 5.888-.718 2.01 0 4.022.286 5.89.717 4.453-3.016 6.464-2.442 6.464-2.442 1.293 3.16.43 5.602.287 6.177a9.29 9.29 0 0 1 2.44 6.32c0 9.05-5.458 10.918-10.63 11.492.863.718 1.58 2.155 1.58 4.31v6.464c0 .574.432 1.292 1.58 1.15 9.338-3.16 15.946-11.924 15.946-22.266-.143-12.785-10.63-23.27-23.558-23.27z'
+            id='path20'
+            clip-rule='evenodd'
+            fill='currentColor'
+            fill-rule='evenodd'
+          />
+        </svg>
+      }
+    >
+      Sign in with GitHub
+    </Button>
+  );
 
-  if (query.get('isMember') === 'false') {
-    // step that notifies the user that they need to join the organization
-    if (step === 'notice') {
-      return (
-        <Wrapper theme={theme}>
-          <Box theme={theme}>
-            <div>
-              <Wordmark theme={theme}>The Paladin</Wordmark>
-            </div>
-            <div style={{ marginTop: 34 }}>
-              <p>
-                It looks like you aren't part of the <i>The Paladin</i> on GitHub. Let's try to fix that.
-              </p>
-              <p>There are a few steps we need to take:</p>
-              <ol>
-                <li>Ensure you have two-factor authentication enabled.</li>
-                <li>Send you an invite to the organization.</li>
-                <li>Accept the invite and ensure you have the correct permissions.</li>
-              </ol>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                position: 'absolute',
-                width: 'calc(100% - 90px)',
-                left: 45,
-                bottom: 35,
-              }}
-            >
-              <Button onClick={() => setStep('2fa_check')}>Continue</Button>
-            </div>
-          </Box>
-        </Wrapper>
-      );
-    }
-
-    // step that checks if the user has two factor authentication
-    if (step === '2fa_check') {
-      return (
-        <Wrapper theme={theme}>
-          <Box theme={theme}>
-            <div>
-              <Wordmark theme={theme}>The Paladin</Wordmark>
-            </div>
-            <div style={{ marginTop: 60, textAlign: 'center' }}>
-              <Spinner theme={theme} />
-              <p>Checking if your account has two-factor authentication enabled</p>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                position: 'absolute',
-                width: 'calc(100% - 90px)',
-                left: 45,
-                bottom: 35,
-              }}
-            >
-              <Button onClick={() => setStep('notice')}>Back</Button>
-              <Button disabled onClick={() => setStep('2fa_enable')}>
-                Continue
-              </Button>
-            </div>
-          </Box>
-        </Wrapper>
-      );
-    }
-
-    // step to tell user to enable 2fa
-    if (step === '2fa_enable') {
-      return (
-        <Wrapper theme={theme}>
-          <Box theme={theme}>
-            <div>
-              <Wordmark theme={theme}>The Paladin</Wordmark>
-            </div>
-            <div style={{ marginTop: 34 }}>
-              <p>You need to enable two factor authentication (2fa).</p>
-              <p>
-                Go to{' '}
-                <a href={`https://github.com/settings/security`} target={`_blank`}>
-                  Account Security
-                </a>{' '}
-                and click <b>Enable two-factor authentication.</b>
-              </p>
-              <p>You need to have Duo or another 2fa app installed to enable 2fa.</p>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                position: 'absolute',
-                width: 'calc(100% - 90px)',
-                left: 45,
-                bottom: 35,
-              }}
-            >
-              <Button onClick={() => setStep('notice')}>Back</Button>
-              <Button onClick={() => setStep('2fa_check')}>Check again</Button>
-            </div>
-          </Box>
-        </Wrapper>
-      );
-    }
-
-    // step that tells the user two factor authentication is enabled
-    if (step === '2fa_yes') {
-      return (
-        <Wrapper theme={theme}>
-          <Box theme={theme}>
-            <div>
-              <Wordmark theme={theme}>The Paladin</Wordmark>
-            </div>
-            <div style={{ marginTop: 60, textAlign: 'center' }}>
-              <Checkmark28Regular />
-              <p>Your account has two-factor authentication enabled!</p>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                position: 'absolute',
-                width: 'calc(100% - 90px)',
-                left: 45,
-                bottom: 35,
-              }}
-            >
-              <Button onClick={() => setStep('notice')}>Back</Button>
-              <Button onClick={() => setStep('join_attempt')}>Continue</Button>
-            </div>
-          </Box>
-        </Wrapper>
-      );
-    }
-
-    // atempt to join the organization
-    if (step === 'join_attempt') {
-      attemptOrgJoin();
-      return (
-        <Wrapper theme={theme}>
-          <Box theme={theme}>
-            <div>
-              <Wordmark theme={theme}>The Paladin</Wordmark>
-            </div>
-            <div style={{ marginTop: 60, textAlign: 'center' }}>
-              <Spinner theme={theme} />
-              <p>
-                Attempting to join <i>The Paladin</i> on GitHub
-              </p>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                position: 'absolute',
-                width: 'calc(100% - 90px)',
-                left: 45,
-                bottom: 35,
-              }}
-            >
-              <Button onClick={() => setStep('2fa_check')}>Back</Button>
-              <Button onClick={() => setStep('join_attempt')}>Continue</Button>
-            </div>
-          </Box>
-        </Wrapper>
-      );
-    }
-
-    // join attempt failed
-    if (step === 'join_fail') {
-      return (
-        <Wrapper theme={theme}>
-          <Box theme={theme}>
-            <div>
-              <Wordmark theme={theme}>The Paladin</Wordmark>
-            </div>
-            <div style={{ marginTop: 60, textAlign: 'center' }}>
-              <ErrorCircle24Regular />
-              <p>There was an error inviting you to the organization.</p>
-              <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
-                Contact Web Editor
-              </HelpLink>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                position: 'absolute',
-                width: 'calc(100% - 90px)',
-                left: 45,
-                bottom: 35,
-              }}
-            >
-              <Button onClick={() => setStep('2fa_yes')}>Back</Button>
-            </div>
-          </Box>
-        </Wrapper>
-      );
-    }
-
-    // join attempt was a success
-    if (step === 'join_success') {
-      return (
-        <Wrapper theme={theme}>
-          <Box theme={theme}>
-            <div>
-              <Wordmark theme={theme}>The Paladin</Wordmark>
-            </div>
-            <div style={{ marginTop: 44, textAlign: 'center' }}>
-              <Checkmark28Regular />
-              <p>
-                Your account has been invited to <i>The Paladin</i>! <br></br> Please check your email to accept
-                the invitation. <br></br> <br></br> Come back to the sign in page once you have accepted the
-                invitation.
-              </p>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                position: 'absolute',
-                width: 'calc(100% - 90px)',
-                left: 45,
-                bottom: 35,
-              }}
-            >
-              <Button onClick={() => setStep('2fa_yes')}>Back</Button>
-              <Button onClick={() => setStep('done')}>Finish</Button>
-            </div>
-          </Box>
-        </Wrapper>
-      );
-    }
+  // set the template variables for the password step
+  if (locState?.step === 'password') {
+    title = 'Welcome back';
+    if (locState?.username && typeof locState.username === 'string') reason = locState.username;
+    form = (
+      <>
+        <TextInput
+          lineHeight={'24px'}
+          placeholder={'Password'}
+          value={cred?.password || ''}
+          onChange={(e) => setCred({ ...cred, password: e.currentTarget.value })}
+          onKeyPress={nextOnEnter}
+          type={'password'}
+        />
+        {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
+      </>
+    );
+    note = <></>;
+    buttons = (
+      <>
+        <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
+          Forgot password?
+        </HelpLink>
+        <Button onClick={nextFunction}>Next</Button>
+      </>
+    );
+    below = <></>;
+    nextFunction = () =>
+      !cred?.password || cred.password.length === 0 ? setError('Enter your password') : signInWithCredentials();
   }
 
   return (
     <Wrapper theme={theme}>
       <Box theme={theme}>
+        {isLoading ? <IndeterminateProgress theme={theme} /> : null}
         <div>
           <Wordmark theme={theme}>The Paladin</Wordmark>
-          <Title theme={theme}>Sign In</Title>
-          <Reason theme={theme}>to continue to Cristata</Reason>
+          <Title theme={theme}>{title}</Title>
+          <Reason theme={theme}>{reason}</Reason>
         </div>
-        <Form>
-          <Button
-            width={`100%`}
-            height={`3rem`}
-            cssExtra={css`
-              font-weight: 600;
-            `}
-            onClick={signInAction}
-          >
-            Sign in with GitHub
-          </Button>
-        </Form>
-        <div>
-          <HelpNote theme={theme}>Having problems signing in? Request help from the Web Editor.</HelpNote>
-          <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
-            Contact Web Editor
-          </HelpLink>
-        </div>
+        <Form>{form}</Form>
+        <Help>{note}</Help>
+        <ButtonRow>{buttons}</ButtonRow>
+        <Below>{below}</Below>
       </Box>
+      <div
+        id={'nodegardencontainer'}
+        style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: -1 }}
+      ></div>
     </Wrapper>
   );
 }
 
-const Spinner = styled(CircularProgress)<{ theme: themeType }>`
-  width: 28px !important;
-  height: 28px !important;
-  color: ${({ theme }) => theme.color.primary[900]} !important;
+const Below = styled.div`
+  position: absolute;
+  top: 100%;
+  padding: 10px 0;
+  width: calc(100% - 80px);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  @media (max-width: 460px) {
+    width: 100%;
+    left: 0px;
+    background-color: black;
+  }
+`;
+
+const ErrorMessage = styled.div<{ theme: themeType }>`
+  font-family: ${({ theme }) => theme.font.detail};
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 0.85rem;
+  color: ${({ theme }) => theme.color.danger[700]};
+  display: flex;
+  &::before {
+    content: '⚠';
+    margin-right: 6px;
+  }
 `;
 
 const Wrapper = styled.div<{ theme: themeType }>`
@@ -356,15 +297,16 @@ const Wrapper = styled.div<{ theme: themeType }>`
 
 const Box = styled.div<{ theme: themeType }>`
   position: absolute;
+  z-index: 10;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: block;
-  width: 300px;
+  width: 310px;
   background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
   box-shadow: rgb(0 0 0 / 14%) 0px 2px 2px 0px, rgb(0 0 0 / 12%) 0px 1px 5px 0px,
     rgb(0 0 0 / 20%) 0px 3px 1px -2px;
-  padding: 45px;
+  padding: 50px 40px 40px 40px;
   box-sizing: content-box;
   border-radius: ${({ theme }) => theme.radius};
   @media (max-width: 460px) {
@@ -372,15 +314,17 @@ const Box = styled.div<{ theme: themeType }>`
     inset: 0;
     transform: none;
     width: unset;
+    border-radius: 0;
   }
-  min-height: 260px;
+  min-height: 360px;
+  user-select: none;
 `;
 
 const Wordmark = styled.div<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.font.wordmark};
   font-weight: 600;
   font-size: 2rem;
-  line-height: 1rem;
+  line-height: 1.5rem;
   color: ${({ theme }) => theme.color.primary[800]};
   margin: 0px;
   text-align: center;
@@ -411,7 +355,14 @@ const Reason = styled.p<{ theme: themeType }>`
 `;
 
 const Form = styled.div`
-  padding: 20px 0px;
+  padding: 24px 0px;
+  > *:not(:last-child) {
+    margin-bottom: 8px;
+  }
+`;
+
+const Help = styled.div`
+  margin: 0;
 `;
 
 const HelpNote = styled.p<{ theme: themeType }>`
@@ -427,6 +378,37 @@ const HelpLink = styled.a<{ theme: themeType }>`
   font-weight: 600;
   font-size: 14px;
   color: ${({ theme }) => theme.color.primary[800]};
+`;
+
+const ButtonRow = styled.div`
+  margin: 36px 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+
+  > *:only-child {
+    margin-left: auto;
+  }
+`;
+
+/**
+ * The indeterminate progressbar that appears by the modal title when `isLoading` is `true`.
+ *
+ * It appears underneath the title when there are children, and it appears at the top of the modal
+ * when there are no children
+ */
+const IndeterminateProgress = styled(LinearProgress)<{
+  theme: themeType;
+}>`
+  --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
+  position: absolute !important;
+  left: 0;
+  top: 0;
+  border-radius: ${({ theme }) => `${theme.radius} ${theme.radius} 0 0`};
+  @media (max-width: 460px) {
+    border-radius: 0;
+  }
 `;
 
 export { SignIn };

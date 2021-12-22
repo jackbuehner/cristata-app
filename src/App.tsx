@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { SplashScreen } from './components/SplashScreen';
-import { SignIn } from './pages/SignIn';
+import { LegacySignIn, SignIn } from './pages/SignIn';
 import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { SideNavHeading } from './components/Heading';
@@ -132,6 +132,9 @@ function App() {
             </Route>
             <Route path={`/sign-in`} exact>
               <SignIn />
+            </Route>
+            <Route path={`/sign-in-legacy`} exact>
+              <LegacySignIn />
             </Route>
             <Route
               path={`/sign-out`}
