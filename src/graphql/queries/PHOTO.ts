@@ -50,7 +50,9 @@ const PHOTO = gql(
         },
         permissions: {
           teams: true,
-          users: true,
+          users: {
+            _id: true,
+          },
         },
       },
     },
