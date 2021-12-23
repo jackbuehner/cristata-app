@@ -155,4 +155,4 @@ interface IField {
 }
 
 export { collections };
-export type { collection, tiptapOptions };
+export type { collection, tiptapOptions, IField };

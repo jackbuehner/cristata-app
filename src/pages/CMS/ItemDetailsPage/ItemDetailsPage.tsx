@@ -46,6 +46,8 @@ import { isJSON } from '../../../utils/isJSON';
 import { flattenObject } from '../../../utils/flattenObject';
 import { client } from '../../../graphql/client';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../../graphql/queries';
+import { isObject } from '../../../utils/isObject';
+import { IField } from '../../../config/collections';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -514,6 +516,20 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   // variable with the fs search param
   const fs = new URLSearchParams(search).get('fs');
 
+  /**
+   * Process values for selects
+   */
+  type multiselectValType = string | number | Record<string, unknown>;
+  const processValue = (val: multiselectValType, field: IField) => {
+    // if the value should be a subfield of an object and the provided value is an object,
+    // change the value to the subfield value
+    if (field.subfield && isObject(val)) val = val[field.subfield] as string | number;
+    // if the field has a `modifyValue` function, execute it now
+    if (field.modifyValue) val = field.modifyValue(val, state.fields, client);
+    // ensure that values are strings
+    return val.toString();
+  };
+
   return (
     <>
       {props.isEmbedded ? null : (
@@ -835,10 +851,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'multiselect') {
               const vals = (
-                state.fields[buildFullKey(field.key, field.from, undefined)] as (string | number)[]
-              )?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, state.fields, client) : val.toString()
-              ); // ensures that values are strings
+                state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
+              )?.map((val) => processValue(val, field));
               return (
                 <ErrorBoundary
                   key={index}
@@ -871,10 +885,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'multiselect_async') {
               const vals = (
-                state.fields[buildFullKey(field.key, field.from, undefined)] as (string | number)[]
-              )?.map((val) =>
-                field.modifyValue ? field.modifyValue(val, state.fields, client) : val.toString()
-              ); // ensures that values are strings
+                state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
+              )?.map((val) => processValue(val, field));
               return (
                 <ErrorBoundary
                   key={index}
@@ -907,9 +919,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             }
 
             if (field.type === 'multiselect_creatable') {
-              const val = (state.fields[buildFullKey(field.key, field.from, undefined)] as string[])?.map(
-                (val) => (field.modifyValue ? field.modifyValue(val, state.fields, client) : val)
-              );
+              const val = (
+                state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
+              )?.map((val) => processValue(val, field));
               return (
                 <ErrorBoundary
                   key={index}
