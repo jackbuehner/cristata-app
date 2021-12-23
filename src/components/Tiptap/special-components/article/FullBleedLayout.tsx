@@ -84,7 +84,7 @@ function FullBleedLayout(props: IFullBleedLayout) {
     if (error) console.error(error);
 
     // return the photo source
-    return data?.photos.docs?.[0].people?.photo_created_by;
+    return data?.photos.docs?.[0]?.people?.photo_created_by;
   };
 
   // determine the photographer/artist
