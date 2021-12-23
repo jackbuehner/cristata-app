@@ -30,7 +30,6 @@ const PROFILE = gql(
           last_login_at: true,
         },
         photo: true,
-        github_id: true,
         teams: {
           docs: {
             _id: true,
@@ -58,7 +57,6 @@ type PROFILE__DOC_TYPE = {
   biography?: string;
   current_title?: string;
   photo?: string;
-  github_id: number;
   teams: {
     docs: Array<{
       _id: string;

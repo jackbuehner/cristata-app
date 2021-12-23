@@ -77,35 +77,19 @@ const satire: collection<ISatire> = {
     },
     {
       key: 'people.authors',
-      subfield: 'github_id',
+      subfield: '_id',
       label: 'Authors',
       type: 'multiselect_async',
       description: 'The authors of this piece of satire. These names do not appear on the website.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
-      modifyValue: (data) => {
-        if (Object.prototype.toString.call(data) === '[object Object]') {
-          const stringId = (data as Partial<IProfile>).github_id?.toString();
-          if (stringId) return stringId;
-        }
-        return JSON.stringify(data);
-      },
     },
     {
       key: 'people.editors.copy',
-      subfield: 'github_id',
+      subfield: '_id',
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
-      modifyValue: (data) => {
-        if (Object.prototype.toString.call(data) === '[object Object]') {
-          const stringId = (data as Partial<IProfile>).github_id?.toString();
-          if (stringId) return stringId;
-        }
-        return JSON.stringify(data);
-      },
     },
     {
       key: 'body',
@@ -145,11 +129,11 @@ const satire: collection<ISatire> = {
     },
     {
       key: 'permissions.users',
+      subfield: '_id',
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this article.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
     },
     {
       key: 'permissions.teams',

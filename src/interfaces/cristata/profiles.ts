@@ -23,7 +23,6 @@ interface IProfile {
   };
   photo: string; // url to photo
   versions: IProfile[]; // store previous versions of the user profile
-  github_id: GitHubUserID;
   teams: GitHubTeamID[];
 }
 

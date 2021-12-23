@@ -43,21 +43,19 @@ const photoRequests: collection<IPhotoRequest> = {
     },
     {
       key: 'people.requested_by',
-      subfield: 'github_id',
+      subfield: '_id',
       label: 'Requester',
       type: 'select_async',
       description: 'This person will be contacted if the photo team has questions about the request.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
-      modifyValue: (val, data) => `${data['people.requested_by.github_id']}`,
     },
     {
       key: 'permissions.users',
+      subfield: '_id',
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this photo request.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
     },
     {
       key: 'permissions.teams',

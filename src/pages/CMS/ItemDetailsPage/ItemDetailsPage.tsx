@@ -135,7 +135,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     ...(collectionConfig?.isPublishable
                       ? publishableRequiredFields.map((field) => ({ [field]: true }))
                       : []),
-                    collectionConfig?.canWatch ? { 'people.watching.github_id': true } : {},
+                    collectionConfig?.canWatch ? { 'people.watching._id': true } : {},
                     ...(collectionConfig?.query.force?.map((field) => ({ [field]: true })) || []),
                     ...(collectionConfig?.mandatoryWatchers?.map((field) => ({ [field]: true })) || []),
                     ...collectionConfig?.fields.map((field) => ({
@@ -278,7 +278,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   }: "${item_id}") {
       people {
         watching {
-          github_id
+          _id
         }
       }
     }
@@ -289,7 +289,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   }: "${item_id}", watch: false) {
       people {
         watching {
-          github_id
+          _id
         }
       }
     }

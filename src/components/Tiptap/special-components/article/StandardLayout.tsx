@@ -8,12 +8,9 @@ import { setField } from '../../../../redux/slices/cmsItemSlice';
 import { useAppSelector, useAppDispatch } from '../../../../redux/hooks';
 import { client } from '../../../../graphql/client';
 import {
-  GET_AUTHORS_FROM_GITHUB_IDS,
-  GET_AUTHORS_FROM_GITHUB_IDS__TYPE,
   GET_PHOTOGRAPHER_BY_PHOTO_URL,
   GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE,
 } from '../../../../graphql/queries';
-import { useQuery } from '@apollo/client';
 
 interface IStandardLayout {
   options: tiptapOptions;
@@ -99,13 +96,8 @@ function StandardLayout(props: IStandardLayout) {
   }, [setPhotoCredit, props.options.keys_article, state.fields]);
 
   // get the authors
-  type authorObjsType = { github_id: number }[];
-  const authorObjs = (state.fields[props.options.keys_article?.authors || ''] || []) as authorObjsType;
-  const github_ids = authorObjs.map((obj) => obj.github_id);
-  const { data: authorsDocs } = useQuery<GET_AUTHORS_FROM_GITHUB_IDS__TYPE>(
-    GET_AUTHORS_FROM_GITHUB_IDS(github_ids)
-  );
-  const authors = authorsDocs?.users.docs || [];
+  type authorObjsType = { name: string; photo: string }[];
+  const authors = (state.fields[props.options.keys_article?.authors || ''] || []) as authorObjsType;
 
   if (state.fields && props.options.keys_article) {
     const { keys_article } = props.options;

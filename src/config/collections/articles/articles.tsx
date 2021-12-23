@@ -19,7 +19,7 @@ const articles: collection<IArticle> = {
       plural: 'articles',
     },
     identifier: '_id',
-    force: ['layout', 'hidden'],
+    force: ['layout', 'hidden', 'people.authors.name', 'people.authors.photo'],
   },
   fields: [
     { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
@@ -84,51 +84,27 @@ const articles: collection<IArticle> = {
     },
     {
       key: 'people.authors',
-      subfield: 'github_id',
+      subfield: '_id',
       label: 'Byline',
       type: 'multiselect_async',
       description: 'The authors that appear on the byline.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
-      modifyValue: (data) => {
-        if (Object.prototype.toString.call(data) === '[object Object]') {
-          const stringId = (data as Partial<IProfile>).github_id?.toString();
-          if (stringId) return stringId;
-        }
-        return JSON.stringify(data);
-      },
     },
     {
       key: 'people.editors.primary',
-      subfield: 'github_id',
+      subfield: '_id',
       label: 'Section editors',
       type: 'multiselect_async',
       description: 'The managing editors responsible for this article.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
-      modifyValue: (data) => {
-        if (Object.prototype.toString.call(data) === '[object Object]') {
-          const stringId = (data as Partial<IProfile>).github_id?.toString();
-          if (stringId) return stringId;
-        }
-        return JSON.stringify(data);
-      },
     },
     {
       key: 'people.editors.copy',
-      subfield: 'github_id',
+      subfield: '_id',
       label: 'Copy editors',
       type: 'multiselect_async',
       description: 'The copy editors who have made edits to this article.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
-      modifyValue: (data) => {
-        if (Object.prototype.toString.call(data) === '[object Object]') {
-          const stringId = (data as Partial<IProfile>).github_id?.toString();
-          if (stringId) return stringId;
-        }
-        return JSON.stringify(data);
-      },
     },
     {
       key: 'body',
@@ -191,11 +167,11 @@ const articles: collection<IArticle> = {
     },
     {
       key: 'permissions.users',
+      subfield: '_id',
       label: 'User access control',
       type: 'multiselect_async',
       description: 'Control which users can see this article.',
       async_options: (val, client) => selectProfile(val, client),
-      dataType: 'number',
     },
     {
       key: 'permissions.teams',
@@ -452,7 +428,7 @@ const articles: collection<IArticle> = {
   },
   isPublishable: true,
   canWatch: true,
-  mandatoryWatchers: ['people.authors.github_id', 'people.editors.primary.github_id'],
+  mandatoryWatchers: ['people.authors._id', 'people.editors.primary._id'],
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
   pageTitle: (progress, search) => {
