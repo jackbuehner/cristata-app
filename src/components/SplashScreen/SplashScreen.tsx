@@ -37,9 +37,10 @@ function SplashScreen(props: ISplashScreen) {
     }
   }, [props.error, history]);
 
-  // set the user to localstorage if the user is authenticated and is a member
+  // set the user to localstorage if the user is authenticated and requires no
+  // other login steps
   useEffect(() => {
-    if (props.user && props.user.member_status) {
+    if (props.user && !props.user.next_step) {
       localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
       const redirect = localStorage.getItem('auth.redirect_after') || '/';
       history.push(redirect !== '/sign-in' ? redirect : '/'); // redirect
@@ -49,7 +50,7 @@ function SplashScreen(props: ISplashScreen) {
 
   // if the user is not a member, set it to localstorage but redirect to page to help them become members
   useEffect(() => {
-    if (props.user && !props.user.member_status) {
+    if (props.user && props.user.next_step === 'join_gh_org') {
       localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
       history.push('/sign-in-legacy?isMember=false'); // redirect
     }
