@@ -96,7 +96,32 @@ function SignIn(props: ISignIn) {
    * If 2fa code requested, move to 2fa step.
    */
   const signInWithCredentials = () => {
-    // code to sign in here
+    fetch(`${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/local`, {
+      method: 'post',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: cred?.username,
+        password: cred?.password,
+        redirect: false,
+      }),
+      redirect: 'follow',
+      cache: 'no-cache',
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.error) setError(json.error);
+        else if (json.data) {
+          // TODO: read whether two_factor_authentication is enabled and require the user to enable it
+          window.location.reload();
+        } else setError('Failed to authenticate successfully');
+      })
+      .catch((error) => {
+        console.error(error);
+        setError('An unexpected error occured');
+      });
   };
 
   // set document title
@@ -206,6 +231,8 @@ function SignIn(props: ISignIn) {
   if (locState?.step === 'password') {
     title = 'Welcome back';
     if (locState?.username && typeof locState.username === 'string') reason = locState.username;
+    nextFunction = () =>
+      !cred?.password || cred.password.length === 0 ? setError('Enter your password') : signInWithCredentials();
     form = (
       <>
         <TextInput
@@ -229,8 +256,6 @@ function SignIn(props: ISignIn) {
       </>
     );
     below = <></>;
-    nextFunction = () =>
-      !cred?.password || cred.password.length === 0 ? setError('Enter your password') : signInWithCredentials();
   }
 
   return (
