@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
+import { Titlebar } from '../../components/Titlebar';
 import { client } from '../../graphql/client';
 import { USER_EXISTS, USER_EXISTS__TYPE, USER_METHODS, USER_METHODS__TYPE } from '../../graphql/queries';
 import useScript from '../../hooks/useScript';
@@ -23,6 +24,9 @@ function SignIn(props: ISignIn) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null); // error message
   const [cred, setCred] = useState<{ username?: string; password?: string }>(); // collection credentials
+
+  //@ts-expect-error windowControlsOverlay is only available in some browsers
+  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
   // nodegarden
   useScript('/scripts/nodegarden.js', 'nodegardenscript');
@@ -259,24 +263,27 @@ function SignIn(props: ISignIn) {
   }
 
   return (
-    <Wrapper theme={theme}>
-      <Box theme={theme}>
-        {isLoading ? <IndeterminateProgress theme={theme} /> : null}
-        <div>
-          <Wordmark theme={theme}>The Paladin</Wordmark>
-          <Title theme={theme}>{title}</Title>
-          <Reason theme={theme}>{reason}</Reason>
-        </div>
-        <Form>{form}</Form>
-        <Help>{note}</Help>
-        <ButtonRow>{buttons}</ButtonRow>
-        <Below>{below}</Below>
-      </Box>
-      <div
-        id={'nodegardencontainer'}
-        style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: -1 }}
-      ></div>
-    </Wrapper>
+    <>
+      {isCustomTitlebarVisible ? <Titlebar /> : null}
+      <Wrapper theme={theme}>
+        <Box theme={theme}>
+          {isLoading ? <IndeterminateProgress theme={theme} /> : null}
+          <div>
+            <Wordmark theme={theme}>The Paladin</Wordmark>
+            <Title theme={theme}>{title}</Title>
+            <Reason theme={theme}>{reason}</Reason>
+          </div>
+          <Form>{form}</Form>
+          <Help>{note}</Help>
+          <ButtonRow>{buttons}</ButtonRow>
+          <Below>{below}</Below>
+        </Box>
+        <div
+          id={'nodegardencontainer'}
+          style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: -1 }}
+        ></div>
+      </Wrapper>
+    </>
   );
 }
 
@@ -310,7 +317,7 @@ const ErrorMessage = styled.div<{ theme: themeType }>`
 `;
 
 const Wrapper = styled.div<{ theme: themeType }>`
-  height: 100%;
+  height: calc(100% - env(titlebar-area-height, 0px));
   width: 100%;
   position: absolute;
   left: 0px;
