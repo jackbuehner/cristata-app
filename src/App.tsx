@@ -29,6 +29,9 @@ import { Titlebar } from './components/Titlebar';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { CollectionPage } from './pages/CMS/CollectionPage';
 import { db } from './utils/axios/db';
+import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
+import { TeamsNav } from './pages/teams/TeamsNav';
+import { TeamPage } from './pages/teams/TeamPage';
 
 // configure axios global settings
 configure({ axios: db });
@@ -193,6 +196,9 @@ function App() {
                           <Route path={`/profile`}>
                             <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
                           </Route>
+                          <Route path={`/teams`}>
+                            <TeamsNav setIsNavVisibleM={setIsNavVisibleM} />
+                          </Route>
                         </Switch>
                       </SidenavSub>
                     </SideNavs>
@@ -217,6 +223,12 @@ function App() {
                       </Route>
                       <Route path={`/profile/:profile_id`}>
                         <ProfilePage />
+                      </Route>
+                      <Route path={`/teams/:team_id`} exact>
+                        <TeamPage />
+                      </Route>
+                      <Route path={`/teams`}>
+                        <TeamsOverviewPage />
                       </Route>
                       <Route path={`/`}>
                         <HomePage />

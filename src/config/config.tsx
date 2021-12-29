@@ -31,6 +31,7 @@ const features: Ifeatures = {
   messages: false,
   plans: true,
   profiles: true,
+  teams: true,
 };
 
 interface Ihome {
