@@ -14,6 +14,10 @@ export { PHOTOS_BASIC } from './PHOTOS_BASIC';
 export { PHOTOS_BASIC_BY_REGEXNAME_OR_URL } from './PHOTOS_BASIC_BY_REGEXNAME_OR_URL';
 export { USER_EXISTS } from './USER_EXISTS';
 export { USER_METHODS } from './USER_METHODS';
+export { CREATE_TEAM } from './CREATE_TEAM';
+export { TEAM } from './TEAM';
+export { TEAMS } from './TEAMS';
+export { TEAM_UNASSIGNED_USERS } from './TEAM_UNASSIGNED_USERS';
 export type { GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE } from './GET_PHOTOGRAPHER_BY_PHOTO_URL';
 export type { STAGE_COUNTS__TYPE } from './STAGE_COUNTS';
 export type { ME_BASIC__TYPE } from './ME_BASIC';
@@ -33,3 +37,7 @@ export type {
 } from './PHOTOS_BASIC_BY_REGEXNAME_OR_URL';
 export type { USER_EXISTS__TYPE } from './USER_EXISTS';
 export type { USER_METHODS__TYPE } from './USER_METHODS';
+export type { CREATE_TEAM__TYPE, CREATE_TEAM__DOC_TYPE } from './CREATE_TEAM';
+export type { TEAM__TYPE, TEAM__DOC_TYPE } from './TEAM';
+export type { TEAMS__TYPE, TEAMS__DOC_TYPE } from './TEAMS';
+export type { TEAM_UNASSIGNED_USERS__TYPE, TEAM_UNASSIGNED_USERS__DOC_TYPE } from './TEAM_UNASSIGNED_USERS';
