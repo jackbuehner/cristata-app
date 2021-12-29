@@ -1,7 +1,7 @@
 import styled from '@emotion/styled/macro';
 
 interface IInputGroupBase {
-  type: 'text' | 'checkbox';
+  type: 'text' | 'checkbox' | 'display';
   noGrid?: boolean;
 }
 
@@ -15,7 +15,7 @@ const InputGroupComponent = styled.div<IInputGroupComponent>`
   margin-block-end: 12px;
   display: ${({ noGrid }) => (noGrid ? 'block' : 'grid')};
   grid-template-columns: ${({ type }) =>
-    type === 'checkbox' ? `1fr 30px` : `1fr`};
+    type === 'checkbox' ? `1fr 30px` : type === 'display' ? `1fr auto` : `1fr`};
 `;
 
 function InputGroup(props: IInputGroup) {
