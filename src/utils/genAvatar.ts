@@ -7,9 +7,14 @@ import ColorHash from 'color-hash';
  *
  * @param id string identifier to be used when generating the avatar and its color scheme
  * @param size width and height of the generated avatart (default: 120)
+ * @param type type of avatar (default: beam)
  * @returns
  */
-function genAvatar(id: string, size = 120) {
+function genAvatar(
+  id: string,
+  size = 120,
+  type: 'beam' | 'bauhaus' | 'pixel' | 'marble' | 'ring' | 'sunset' = 'beam'
+) {
   const colorHash = new ColorHash({ saturation: 0.6, lightness: 0.8 }); // note that this config is different than the one that picks the user accent color
 
   const colors = [
@@ -20,7 +25,7 @@ function genAvatar(id: string, size = 120) {
     colorHash.hex(id.split('').reverse().join('')),
   ];
 
-  return `https://source.boringavatars.com/beam/${size}/${id}?colors=${colors
+  return `https://source.boringavatars.com/${type}/${size}/${id}?colors=${colors
     .toString()
     .replaceAll('#', '')}&square`;
 }
