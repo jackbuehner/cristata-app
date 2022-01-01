@@ -1,15 +1,17 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import Color from 'color';
 import { useHistory } from 'react-router-dom';
 import { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
 interface IUserCard {
-  href: string;
+  href?: string;
   name: string;
   position: string;
   email: string;
   photo?: string;
+  children?: React.ReactNode;
 }
 
 function UserCard(props: IUserCard) {
@@ -22,13 +24,14 @@ function UserCard(props: IUserCard) {
       href={props.href}
       onClick={(e) => {
         e.preventDefault();
-        history.push(props.href);
+        if (props.href) history.push(props.href);
       }}
     >
       <ProfilePhoto theme={theme} src={props.photo || ''} />
       <Name theme={theme}>{props.name}</Name>
       <Info theme={theme}>{props.position}</Info>
       <Info theme={theme}>{props.email}</Info>
+      {props.children}
     </Component>
   );
 }
@@ -41,7 +44,8 @@ const Component = styled.a<{ theme: themeType }>`
   border-radius: ${({ theme }) => theme.radius};
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   text-decoration: none;
-  ${({ theme }) => buttonEffect('primary', 800, theme, false, { base: 'transparent' })}
+  border: ${({ theme }) => `1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
+  ${({ theme, href }) => (href ? buttonEffect('primary', 800, theme, false, { base: 'transparent' }) : null)}
 `;
 
 const ProfilePhoto = styled.div<{ theme: themeType; src?: string }>`
