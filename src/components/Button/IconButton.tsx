@@ -46,6 +46,7 @@ const BUTTON = styled.button<StyledButtonProps>`
 
 export interface ButtonProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onAuxClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   height?: string;
   width?: string;
   border?: {
@@ -76,6 +77,7 @@ const IconButton: React.FC<ButtonProps> = (props) => {
     <BUTTON
       {...props}
       onClick={props.onClick}
+      onAuxClick={props.onAuxClick}
       height={props.height}
       width={props.width}
       border={props.border}
