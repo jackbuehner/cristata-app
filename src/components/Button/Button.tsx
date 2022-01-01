@@ -48,11 +48,14 @@ const IconStyleWrapper = styled.span<{ theme: themeType; disabled?: boolean; siz
   margin: 0 8px 0 -4px;
   width: ${({ size }) => (size ? size : 16)}px;
   height: ${({ size }) => (size ? size : 16)}px;
-  > svg {
+  svg {
     width: ${({ size }) => (size ? size : 16)}px;
     height: ${({ size }) => (size ? size : 16)}px;
     fill: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
     opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
+  }
+  span {
+    display: flex;
   }
 `;
 

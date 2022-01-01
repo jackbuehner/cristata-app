@@ -34,6 +34,9 @@ const BUTTON = styled.button<StyledButtonProps>`
           }
         `}
   ${({ cssExtra }) => cssExtra}
+  > span {
+    display: contents;
+  }
   svg {
     width: 20px;
     height: 20px;
