@@ -19,6 +19,7 @@ interface IMenu {
     disabled?: boolean;
   }>;
   noIcons?: boolean;
+  showDisabledLast?: boolean;
 }
 
 const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>) => {
@@ -27,9 +28,12 @@ const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>
       {props.items
         // move disabled items to bottom
         .sort((a, b) => {
-          if (a.disabled && b.disabled) return 0;
-          else if (a.disabled && !b.disabled) return 1;
-          return -1;
+          if (props.showDisabledLast) {
+            if (a.disabled && b.disabled) return 0;
+            else if (a.disabled && !b.disabled) return 1;
+            return -1;
+          }
+          return 0;
         })
         .map((item, index: number) => {
           return (
