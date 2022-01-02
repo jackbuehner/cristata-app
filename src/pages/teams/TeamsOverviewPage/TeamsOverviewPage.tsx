@@ -217,7 +217,9 @@ function TeamsOverviewPage() {
               <Heading theme={theme}>Teams</Heading>
               <TeamsGrid>
                 {teams?.map((team, index) => {
-                  const members = Array.from(new Set([...team.members, ...team.organizers])); // merge unique members and organizers
+                  const members = Array.from(
+                    new Set([...team.members, ...team.organizers].map((m) => JSON.stringify(m)))
+                  ).map((m) => JSON.parse(m)); // merge unique members and organizers
                   return (
                     <TeamCard
                       key={index}
