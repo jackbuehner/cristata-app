@@ -20,6 +20,7 @@ const PROFILES_BASIC = gql(
           limit: new VariableType('limit'),
           page: new VariableType('page'),
           _ids: new VariableType('_ids'),
+          filter: JSON.stringify({ hidden: { $ne: true } }), // don't get hidden users
           sort: JSON.stringify({ group: 1, name: 1 }), // sort descending by group, then by name
         },
         ...paged({
