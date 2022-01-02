@@ -205,6 +205,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                         width: 36px;
                         height: 36px;
                         border-radius: ${theme.radius};
+                        ${profile.retired ? `filter: grayscale(1); opacity: 0.7;` : ``}
                       `}
                     />
                   }
@@ -216,6 +217,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                       gap: 6px;
                       justify-content: space-between;
                       width: 100%;
+                      ${profile.retired ? `filter: grayscale(1); opacity: 0.7;` : ``}
                     `}
                   >
                     <div

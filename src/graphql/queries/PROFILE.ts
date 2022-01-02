@@ -37,6 +37,7 @@ const PROFILE = gql(
             name: true,
           },
         },
+        retired: true,
       },
     },
   })
@@ -71,6 +72,7 @@ type PROFILE__DOC_TYPE = {
     left_at: string;
     last_login_at: string;
   };
+  retired?: boolean;
 };
 
 export { PROFILE };

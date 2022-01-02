@@ -162,10 +162,17 @@ function ProfilePage() {
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
           <TopBox>
-            <Photo src={data.profile.photo || genAvatar(data.profile._id)} alt={``} theme={theme} />
+            <Photo
+              src={data.profile.photo || genAvatar(data.profile._id)}
+              alt={``}
+              theme={theme}
+              retired={!!data.profile.retired}
+            />
             <div>
               <Name theme={theme}>{data.profile.name}</Name>
-              <Title theme={theme}>{data.profile.current_title || 'Employee'}</Title>
+              <Title theme={theme}>
+                {data.profile.retired ? 'RETIRED' : data.profile.current_title || 'Employee'}
+              </Title>
               <ButtonRow>
                 {data.profile.email ? (
                   <Button
@@ -202,7 +209,7 @@ function ProfilePage() {
           <ItemGrid>
             <ItemLabel theme={theme}>Biography</ItemLabel>
             <Item theme={theme}>{data.profile.biography}</Item>
-            <ItemLabel theme={theme}>Current title</ItemLabel>
+            <ItemLabel theme={theme}>{data.profile.retired ? 'Last title' : 'Current title'}</ItemLabel>
             <Item theme={theme}>{data.profile.current_title || `Employee`}</Item>
             <ItemLabel theme={theme}>Join date</ItemLabel>
             <Item theme={theme}>
@@ -248,11 +255,15 @@ const TopBox = styled.div`
   align-items: center;
 `;
 
-const Photo = styled.img<{ theme: themeType }>`
+const Photo = styled.img<{ theme: themeType; retired: boolean }>`
   width: 92px;
   height: 92px;
   border: 0px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
   border-radius: ${({ theme }) => theme.radius};
+  ${({ retired }) => (retired ? `filter: grayscale(1); opacity: 0.7;` : ``)}
+  &:hover {
+    ${({ retired }) => (retired ? `filter: grayscale(0); opacity: 1;` : ``)}
+  }
 `;
 
 const Name = styled.h1<{ theme: themeType }>`
