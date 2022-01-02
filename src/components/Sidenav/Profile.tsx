@@ -117,14 +117,7 @@ function Profile() {
         background: transparent;
         margin: 6px 6px 0 6px;
         @media (max-width: 600px) {
-          height: 55px;
-          width: unset;
-          min-width: 70px;
-          max-width: 168px;
-          border-bottom-color: transparent;
-          background: none;
-          flex-grow: 1;
-          flex-basis: 0;
+          display: none;
         }
       `}
       colorShade={600}
