@@ -219,9 +219,17 @@ function ProfilePage() {
             </Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Teams &amp; Groups</SectionTitle>
-          {data.profile.teams.docs.map((team) => {
-            return <Chip key={team._id} label={team.slug} color={`neutral`} />;
-          })}
+          {
+            // if this person is part of at least one team, show the teams as a list of chips
+            data.profile.teams.docs.length > 0 ? (
+              data.profile.teams.docs.map((team) => {
+                return <Chip key={team._id} label={team.slug} color={`neutral`} />;
+              })
+            ) : (
+              // otherwise, show a message stating that the person has no teams
+              <Item theme={theme}>This person is not part of any teams or groups.</Item>
+            )
+          }
           <LastEdited theme={theme}>
             Last edited on{' '}
             {DateTime.fromISO(data.profile.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
