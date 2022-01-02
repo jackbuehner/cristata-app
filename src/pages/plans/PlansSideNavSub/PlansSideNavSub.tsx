@@ -1,10 +1,12 @@
-import useAxios from 'axios-hooks';
-import { SideNavSubButton } from '../../../components/Button';
+import { useTheme } from '@emotion/react';
 import { TaskListLtr20Regular } from '@fluentui/react-icons';
-import { APIProject } from '../../../interfaces/github/plans';
-import { useHistory, useLocation } from 'react-router';
-import { SideNavHeading } from '../../../components/Heading';
+import useAxios from 'axios-hooks';
 import { Dispatch, SetStateAction, useEffect } from 'react';
+import { useHistory, useLocation } from 'react-router';
+import { Button, SideNavSubButton } from '../../../components/Button';
+import { SideNavHeading } from '../../../components/Heading';
+import { APIProject } from '../../../interfaces/github/plans';
+import { themeType } from '../../../utils/theme/theme';
 
 interface IPlansSideNavSub {
   setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
@@ -12,8 +14,9 @@ interface IPlansSideNavSub {
 
 function PlansSideNavSub(props: IPlansSideNavSub) {
   const history = useHistory();
+  const theme = useTheme() as themeType;
   const { pathname } = useLocation();
-  const [{ data, loading, error }] = useAxios<APIProject[]>('/gh/org/projects');
+  const [{ data, loading, error }, refetch] = useAxios<APIProject[]>('/gh/org/projects');
 
   useEffect(() => {
     // navigate to the first project in the navigation
@@ -27,7 +30,15 @@ function PlansSideNavSub(props: IPlansSideNavSub) {
   if (loading) return <SideNavHeading isLoading>Plans</SideNavHeading>;
   if (error) {
     console.error(error);
-    return <span>Error: {error.code}</span>;
+    return (
+      <>
+        <SideNavHeading>Plans</SideNavHeading>
+        <div style={{ fontFamily: theme.font.detail, padding: 10 }}>
+          <div style={{ marginBottom: 10 }}>Error: {error.response?.data?.message || error.message}</div>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </div>
+      </>
+    );
   }
   if (data) {
     return (
