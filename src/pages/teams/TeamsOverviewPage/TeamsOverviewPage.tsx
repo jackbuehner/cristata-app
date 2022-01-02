@@ -1,6 +1,7 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { PeopleAdd16Regular } from '@fluentui/react-icons';
 import mongoose from 'mongoose';
 import { Fragment, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -181,7 +182,9 @@ function TeamsOverviewPage() {
         description={`Group users to give access to features and manage team members.`}
         buttons={
           <>
-            <Button onClick={showCreateModal}>New team</Button>
+            <Button onClick={showCreateModal} icon={<PeopleAdd16Regular />}>
+              New team
+            </Button>
           </>
         }
         isLoading={isLoading}
