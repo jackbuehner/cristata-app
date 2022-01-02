@@ -17,9 +17,12 @@ const BUTTON = styled.button<StyledButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: ${({ width }) => (width ? width : '80px')};
-  width: ${({ width }) => (width ? width + 'px' : 'unset')};
-  height: ${({ height }) => (height ? height : '30px')};
+  min-width: ${({ width }) =>
+    width ? (typeof width === 'number' || width.indexOf('px') === -1 ? `${width}px` : width) : '80px'};
+  width: ${({ width }) =>
+    width ? (typeof width === 'number' || width.indexOf('px') === -1 ? `${width}px` : width) : 'unset'};
+  height: ${({ height }) =>
+    height ? (typeof height === 'number' || height.indexOf('px') === -1 ? `${height}px` : height) : '30px'};
   padding: 0 10px;
   font-family: ${({ theme }) => theme.font.detail};
   font-size: 14px;
@@ -77,8 +80,8 @@ const ChevronWrapper = styled.span<{ theme: themeType; disabled?: boolean; size?
 export interface ButtonProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onAuxClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  height?: string;
-  width?: string;
+  height?: string | number;
+  width?: string | number;
   border?: {
     base?: string;
     hover?: string;
