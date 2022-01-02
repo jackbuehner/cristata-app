@@ -19,6 +19,7 @@ const DEACTIVATE_USER = gql(
           deactivate: new VariableType('deactivate'),
         },
         _id: true,
+        retired: true,
       },
     },
   })
