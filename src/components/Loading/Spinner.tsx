@@ -12,18 +12,21 @@ const Component = styled(CircularProgress)<{
   width: ${({ size }) => size}px !important;
   height: ${({ size }) => size}px !important;
   color: ${({ theme, col }) =>
-    col === 'neutral' ? theme.color.neutral[theme.mode][900] : theme.color[col][900]} !important;
+    col === 'neutral' ? theme.color.neutral[theme.mode][100] : theme.color[col][900]} !important;
   ${({ style }) => style}
 `;
 
 interface ISpinner {
   size?: number;
   style?: CSSObject;
+  color?: colorType;
 }
 
 function Spinner(props: ISpinner) {
   const theme = useTheme() as themeType;
-  return <Component theme={theme} col={'primary'} size={props.size || 20} style={css(props.style)} />;
+  return (
+    <Component theme={theme} col={props.color || 'primary'} size={props.size || 20} style={css(props.style)} />
+  );
 }
 
 export { Spinner };

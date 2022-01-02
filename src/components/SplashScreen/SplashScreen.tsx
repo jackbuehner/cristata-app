@@ -104,7 +104,13 @@ function SplashScreen(props: ISplashScreen) {
       `}
       </style>
       <span className={`splash-app-name`}>Cristata</span>
-      {props.error ? <ErrorBlock theme={theme}>Failed to connect to the server.</ErrorBlock> : null}
+      {props.error ? (
+        <ErrorBlock theme={theme}>Failed to connect to the server.</ErrorBlock>
+      ) : (
+        <ErrorBlock theme={theme}>
+          <Spinner size={32} color={'neutral'} />
+        </ErrorBlock>
+      )}
     </div>
   );
 }
