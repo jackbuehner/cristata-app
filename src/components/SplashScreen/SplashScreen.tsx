@@ -91,6 +91,7 @@ function SplashScreen(props: ISplashScreen) {
             };
             animation-fill-mode: forwards;
             animation-delay: 0.14s;
+            -webkit-app-region: drag;
           }
           .splash-app-name {
             height: 40px;
