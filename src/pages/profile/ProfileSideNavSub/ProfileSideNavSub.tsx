@@ -167,7 +167,6 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
           style={{
             overflow: 'auto',
             flexGrow: 1,
-            borderTop: `1px solid ${theme.color.neutral[theme.mode][200]}`,
           }}
           ref={SideNavRef}
         >

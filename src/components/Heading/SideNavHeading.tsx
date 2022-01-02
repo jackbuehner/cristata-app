@@ -7,22 +7,31 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.font.detail};
   font-weight: 600;
   font-size: 16px;
-  margin: 20px 10px 10px 10px;
+  padding: 20px 10px 10px 10px;
   position: relative;
+  &:first-child {
+    border-bottom: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
+    margin-bottom: 10px;
+    position: sticky;
+    top: 0;
+    background: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+    z-index: 10;
+    font-size: 20px;
+    height: 48px;
+    display: flex;
+    align-items: flex-end;
+  }
 `;
 
 const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   width: 20px !important;
   height: 20px !important;
-  right: 0;
+  right: 12px;
   position: absolute;
   font-family: ${({ theme }) => theme.color.primary[900]} !important;
 `;
 
-function SideNavHeading(props: {
-  children: React.ReactNode;
-  isLoading?: boolean;
-}) {
+function SideNavHeading(props: { children: React.ReactNode; isLoading?: boolean }) {
   const theme = useTheme() as themeType;
 
   return (

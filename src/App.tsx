@@ -150,10 +150,8 @@ function App() {
             <Route>
               {isCustomTitlebarVisible ? <Titlebar /> : null}
               <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
-                <SidenavHeader gridCols={gridCols} homeOnly isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]} />
                 <Wrapper>
                   <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
-                    <SidenavHeader gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]} />
                     <SideNavs>
                       <Sidenav
                         gridCols={gridCols}
@@ -163,6 +161,7 @@ function App() {
                       <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
                         <Switch>
                           <Route path={`/cms`}>
+                            <SideNavHeading>Content Management System</SideNavHeading>
                             {navigation.cms.map((group, index) => {
                               // store the group items that are not hidden
                               const enabledGroupItems = group.items.filter((item) => item.isHidden !== true);
@@ -231,6 +230,11 @@ function App() {
                         <TeamsOverviewPage />
                       </Route>
                       <Route path={`/`}>
+                        <SidenavHeader
+                          gridCols={gridCols}
+                          homeOnly
+                          isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
+                        />
                         <HomePage />
                       </Route>
                     </Switch>
@@ -289,7 +293,7 @@ const SideNavs = styled.div`
   @media (max-width: 600px) {
     flex-direction: column-reverse;
   }
-  height: calc(100% - 42px);
+  height: calc(100%);
 `;
 
 const Content = styled.div<{ theme: themeType }>`

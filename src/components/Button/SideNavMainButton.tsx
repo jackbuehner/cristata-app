@@ -25,15 +25,14 @@ function SideNavMainButton(props: {
 
   return (
     <Button
-      height={`79px`}
-      width={`79px`}
+      height={67}
+      width={67}
       cssExtra={css`
         flex-direction: column;
         font-weight: 500;
-        border-bottom: 1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()};
-        max-width: 79px;
         color: ${isActive ? theme.color.primary[900] : ''};
         background: ${isActive ? Color(theme.color.neutral[theme.mode][800]).alpha(0.12).string() : 'unset'};
+        margin: 6px 6px 0 6px;
         @media (max-width: 600px) {
           height: 55px;
           width: unset;
@@ -48,7 +47,6 @@ function SideNavMainButton(props: {
       `}
       colorShade={600}
       backgroundColor={{ base: 'white' }}
-      borderRadius={{ base: 0 }}
       border={{ base: '1px solid transparent' }}
       onClick={() => {
         if (props.onClick) {
