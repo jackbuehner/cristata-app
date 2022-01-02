@@ -18,11 +18,15 @@ const BUTTON = styled.button<StyledButtonProps>`
   align-items: center;
   justify-content: center;
   min-width: ${({ width }) =>
-    width ? (typeof width === 'number' || width.indexOf('px') === -1 ? `${width}px` : width) : '80px'};
+    width ? (typeof width === 'number' || `${parseFloat(width)}` === width ? `${width}px` : width) : '80px'};
   width: ${({ width }) =>
-    width ? (typeof width === 'number' || width.indexOf('px') === -1 ? `${width}px` : width) : 'unset'};
+    width ? (typeof width === 'number' || `${parseFloat(width)}` === width ? `${width}px` : width) : 'unset'};
   height: ${({ height }) =>
-    height ? (typeof height === 'number' || height.indexOf('px') === -1 ? `${height}px` : height) : '30px'};
+    height
+      ? typeof height === 'number' || `${parseFloat(height)}` === height
+        ? `${height}px`
+        : height
+      : '30px'};
   padding: 0 10px;
   font-family: ${({ theme }) => theme.font.detail};
   font-size: 14px;
