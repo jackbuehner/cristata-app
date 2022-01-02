@@ -1,27 +1,28 @@
-import styled from '@emotion/styled/macro';
+import { ApolloError, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import { themeType } from '../../../utils/theme/theme';
-import { Button, IconButton } from '../../../components/Button';
-import { useParams } from 'react-router';
-import { PageHead } from '../../../components/PageHead';
-import { Chip } from '../../../components/Chip';
-import { DateTime } from 'luxon';
+import styled from '@emotion/styled/macro';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import { DateTime } from 'luxon';
+import { useEffect, useState } from 'react';
 import { useModal } from 'react-modal-hook';
-import { PlainModal } from '../../../components/Modal';
+import { useHistory, useParams } from 'react-router';
+import { toast } from 'react-toastify';
+import { Button, IconButton } from '../../../components/Button';
+import { Chip } from '../../../components/Chip';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
-import { TextInput } from '../../../components/TextInput';
+import { PlainModal } from '../../../components/Modal';
+import { PageHead } from '../../../components/PageHead';
 import { TextArea } from '../../../components/TextArea';
-import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import { genAvatar } from '../../../utils/genAvatar';
-import { ApolloError, useQuery } from '@apollo/client';
-import { MUTATE_PROFILE, MUTATE_PROFILE__TYPE, PROFILE, PROFILE__TYPE } from '../../../graphql/queries';
+import { TextInput } from '../../../components/TextInput';
 import { client } from '../../../graphql/client';
+import { MUTATE_PROFILE, MUTATE_PROFILE__TYPE, PROFILE, PROFILE__TYPE } from '../../../graphql/queries';
+import { genAvatar } from '../../../utils/genAvatar';
+import { themeType } from '../../../utils/theme/theme';
 
 function ProfilePage() {
   const theme = useTheme() as themeType;
+  const history = useHistory();
 
   // get the url parameters from the route
   let { profile_id } = useParams<{
@@ -223,7 +224,14 @@ function ProfilePage() {
             // if this person is part of at least one team, show the teams as a list of chips
             data.profile.teams.docs.length > 0 ? (
               data.profile.teams.docs.map((team) => {
-                return <Chip key={team._id} label={team.slug} color={`neutral`} />;
+                return (
+                  <Chip
+                    key={team._id}
+                    label={team.slug}
+                    color={`neutral`}
+                    onClick={() => history.push(`/teams/${team._id}`)}
+                  />
+                );
               })
             ) : (
               // otherwise, show a message stating that the person has no teams
