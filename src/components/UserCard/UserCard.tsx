@@ -64,6 +64,7 @@ const Name = styled.h2<{ theme: themeType }>`
   font-weight: 600;
   line-height: 1.2;
   margin: 6px 0;
+  text-align: center;
 `;
 
 const Info = styled.div<{ theme: themeType }>`
@@ -72,6 +73,7 @@ const Info = styled.div<{ theme: themeType }>`
   font-weight: 400;
   line-height: 1;
   margin: 2px 0;
+  text-align: center;
 `;
 
 export { UserCard };
