@@ -1,5 +1,7 @@
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
+import { Paged } from '../../interfaces/cristata/paged';
+import { paged } from '../paged';
 
 /**
  * Gets a full user profile.
@@ -31,11 +33,15 @@ const PROFILE = gql(
         },
         photo: true,
         teams: {
-          docs: {
+          __args: {
+            _id: new VariableType('_id'),
+            limit: 100, // TODO: determine how to handle when a user has more than 100 teams
+          },
+          ...paged({
             _id: true,
             slug: true,
             name: true,
-          },
+          }),
         },
         retired: true,
       },
@@ -58,13 +64,11 @@ type PROFILE__DOC_TYPE = {
   biography?: string;
   current_title?: string;
   photo?: string;
-  teams: {
-    docs: Array<{
-      _id: string;
-      slug: string;
-      name: string;
-    }>;
-  };
+  teams: Paged<{
+    _id: string;
+    slug: string;
+    name: string;
+  }>;
   timestamps: {
     created_at: string;
     modified_at: string;
