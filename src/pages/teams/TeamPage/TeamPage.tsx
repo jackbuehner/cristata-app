@@ -10,7 +10,7 @@ import {
   Settings24Regular,
 } from '@fluentui/react-icons';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
 import { useHistory, useParams } from 'react-router-dom';
@@ -526,21 +526,25 @@ function TeamPage() {
       {[[]].map(() => {
         if (loading && !data) {
           // initial load only
-          return <p key={0}>Loading teams...</p>;
+          return (
+            <ContentWrapper theme={theme} key={0}>
+              <p>Loading teams...</p>
+            </ContentWrapper>
+          );
         }
 
         if (error) {
           return (
-            <div key={0}>
+            <ContentWrapper theme={theme} key={0}>
               <h2>Error loading teams.</h2>
               <pre>{error.name}</pre>
               <pre>{error.message}</pre>
-            </div>
+            </ContentWrapper>
           );
         }
 
         return (
-          <Fragment key={0}>
+          <ContentWrapper theme={theme} key={0}>
             <UsersGrid>
               {allMembers.map((user, index) => {
                 const isOrganizer = team?.organizers.findIndex((u) => u._id === user._id) !== -1;
@@ -588,12 +592,23 @@ function TeamPage() {
                 );
               })}
             </UsersGrid>
-          </Fragment>
+          </ContentWrapper>
         );
       })}
     </>
   );
 }
+
+const ContentWrapper = styled.div<{ theme: themeType }>`
+  padding: 20px;
+  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  @media (max-width: 600px) {
+    height: ${({ theme }) =>
+      `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
+  }
+  box-sizing: border-box;
+  overflow: auto;
+`;
 
 const UserButtons = styled.div`
   display: flex;
