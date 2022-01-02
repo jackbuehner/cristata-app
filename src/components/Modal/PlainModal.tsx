@@ -198,9 +198,13 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
           <ReactModal
             isOpen
             preventScroll
-            shouldCloseOnEsc // TODO: determine why this does not work
-            shouldCloseOnOverlayClick // TODO: determine why this does not work
-            shouldReturnFocusAfterClose // TODO: determine if this is actually doing anything
+            shouldCloseOnEsc
+            shouldCloseOnOverlayClick
+            onRequestClose={() => {
+              // treat close request the same as clicking the cancel button
+              handleCancelButtonClick();
+            }}
+            shouldReturnFocusAfterClose
             className={css`
               position: absolute;
               top: calc(50% + (${theme.dimensions.titlebar.height} / 2));
