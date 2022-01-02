@@ -7,22 +7,30 @@ import { DropdownContext } from './_DropdownContext';
  * @param deps (optional) dependencies for the functional component
  * @returns [showDropdown, hideDropdown]
  */
-function useDropdown(
-  component: (triggerRect: DOMRect, dropdownRef: (el: HTMLOListElement) => void) => React.ReactElement,
+function useDropdown<T extends Record<string, unknown> = Record<string, unknown>>(
+  component: (
+    triggerRect: DOMRect,
+    dropdownRef: (el: HTMLOListElement) => void,
+    props: T
+  ) => React.ReactElement,
   deps?: any[],
   hideOnClick?: boolean,
   hideOnScroll?: boolean
-) {
+): [(e: React.MouseEvent<HTMLElement, MouseEvent>, dropdownProps?: T) => void, () => void] {
   const { setDropdown, setIsOpen } = useContext(DropdownContext)!; // end with `!` to tell typescipt that the context is not undefined
 
   // store the position and size information of the last element that executed `showDropdown()`
   const [triggerRect, setTriggerRect] = useState<DOMRect>(new DOMRect());
 
+  // store the props to provide to the dropdown
+  const [dropdownProps, setDropdownProps] = useState<T>({} as T);
+
   /**
    * Shows the dropdown.
    */
-  const showDropdown = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+  const showDropdown = (e: React.MouseEvent<HTMLElement, MouseEvent>, dropdownProps?: T) => {
     setTriggerRect(e.currentTarget.getBoundingClientRect());
+    if (dropdownProps) setDropdownProps(dropdownProps);
     setIsOpen(true);
   };
 
@@ -75,10 +83,10 @@ function useDropdown(
   // (only trigger `setDropdown` when `deps` has changed)
   const DropdownComponent = useMemo(
     () => {
-      return component(triggerRect, dropdownRef);
+      return component(triggerRect, dropdownRef, dropdownProps);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    deps ? [triggerRect, ...deps] : [triggerRect]
+    deps ? [triggerRect, dropdownProps, ...deps] : [triggerRect]
   );
 
   // when provided `DropdownComponent` changes, update the dropdown in the dropdown portal
