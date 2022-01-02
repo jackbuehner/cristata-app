@@ -273,7 +273,7 @@ function TeamPage() {
         )}
       </PlainModal>
     );
-  }, [theme, permissions]);
+  }, [theme, permissions, team?._id]);
 
   /**
    * Sets user role.
