@@ -32,6 +32,7 @@ import { db } from './utils/axios/db';
 import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
 import { TeamsNav } from './pages/teams/TeamsNav';
 import { TeamPage } from './pages/teams/TeamPage';
+import { PageHead } from './components/PageHead';
 
 // configure axios global settings
 configure({ axios: db });
@@ -216,12 +217,20 @@ function App() {
                       <Route path={`/cms/item/:collection/:item_id`}>
                         <ItemDetailsPage />
                       </Route>
-                      <Route path={`/cms`}>CMS</Route>
+                      <Route path={`/cms`}>
+                        <PageHead title={`CMS`} />
+                      </Route>
                       <Route path={`/plans/org/:id`}>
                         <PlansPage />
                       </Route>
+                      <Route path={`/plans`}>
+                        <PageHead title={`Plans`} />
+                      </Route>
                       <Route path={`/profile/:profile_id`}>
                         <ProfilePage />
+                      </Route>
+                      <Route path={`/profile`}>
+                        <PageHead title={`Profiles`} />
                       </Route>
                       <Route path={`/teams/:team_id`} exact>
                         <TeamPage />
