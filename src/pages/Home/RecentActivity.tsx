@@ -121,7 +121,7 @@ function RecentActivity() {
             if (item.in === 'photos') locHref = `/cms/photos/library/${item._id}`;
             else if (hrefSuffixKey === '_id') locHref = `${href}/${item._id}${hrefSearch || ''}`;
             else locHref = `${href.replace('item', 'collection')}`;
-          }
+          } else if (item.in === 'teams') locHref = `/teams/${item._id}`;
 
           return (
             <ItemWrapper theme={theme} key={index}>
