@@ -117,9 +117,12 @@ const SidenavComponent = styled.div<{ theme: themeType; gridCols: IGridCols }>`
   width: ${({ gridCols }) => gridCols.side}px;
   height: 100%;
   background: ${({ theme }) => Color(theme.color.neutral[theme.mode][100]).alpha(0.5).string()};
-  border-right: 0px solid;
-  border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+  border-right: 1px solid;
+  transition: border-color 200ms;
+  border-color: ${({ theme, gridCols }) =>
+    Color(theme.color.neutral[theme.mode][300])
+      .alpha(gridCols.sideSub > 0 ? 0.5 : 0)
+      .string()};
   @media (max-width: 600px) {
     flex-direction: row;
     justify-content: center;
