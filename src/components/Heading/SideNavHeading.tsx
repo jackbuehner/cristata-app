@@ -22,6 +22,7 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
     height: 48px;
     display: flex;
     align-items: flex-end;
+    flex-shrink: 0;
 
     /* blurred/acrylic background if supported */
     @supports (backdrop-filter: blur(0)) or (-webkit-backdrop-filter: blur(0)) {
