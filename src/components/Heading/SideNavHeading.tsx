@@ -1,6 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { CircularProgress } from '@material-ui/core';
+import Color from 'color';
 import { themeType } from '../../utils/theme/theme';
 
 const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
@@ -10,7 +11,8 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
   padding: 20px 10px 10px 10px;
   position: relative;
   &:first-child {
-    border-bottom: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
+    border-bottom: 1px solid;
+    border-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][300]).alpha(0.5).string()};
     margin-bottom: 10px;
     position: sticky;
     top: 0;
@@ -20,6 +22,17 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
     height: 48px;
     display: flex;
     align-items: flex-end;
+
+    /* blurred/acrylic background if supported */
+    @supports (backdrop-filter: blur(0)) or (-webkit-backdrop-filter: blur(0)) {
+      background: ${({ theme }) =>
+        Color(theme.mode === 'light' ? 'white' : 'black')
+          .alpha(0.5)
+          .string()};
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background-blend-mode: exclusion;
+    }
   }
 `;
 
