@@ -57,6 +57,14 @@ function SplashScreen(props: ISplashScreen) {
     }
   }, [props.user, history]);
 
+  // if the user needs to change password, set it to localstorage but redirect to page to change password
+  useEffect(() => {
+    if (props.user && props.user.next_step === 'change_password') {
+      localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
+      history.push('/sign-in', { username: props.user.email, step: 'change_password' }); // redirect
+    }
+  }, [props.user, history]);
+
   // set the session id
   useEffect(() => {
     const sessionIdIsSet = !!sessionStorage.getItem('sessionId');

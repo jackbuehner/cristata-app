@@ -1,14 +1,24 @@
 /** @jsxImportSource @emotion/react */
+import { ApolloError } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { Checkmark28Regular } from '@fluentui/react-icons';
 import { LinearProgress } from '@rmwc/linear-progress';
+import useAxios from 'axios-hooks';
 import { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
 import { Titlebar } from '../../components/Titlebar';
 import { client } from '../../graphql/client';
-import { USER_EXISTS, USER_EXISTS__TYPE, USER_METHODS, USER_METHODS__TYPE } from '../../graphql/queries';
+import {
+  CHANGE_USER_PASSWORD,
+  CHANGE_USER_PASSWORD__TYPE,
+  USER_EXISTS,
+  USER_EXISTS__TYPE,
+  USER_METHODS,
+  USER_METHODS__TYPE,
+} from '../../graphql/queries';
 import useScript from '../../hooks/useScript';
 import { themeType } from '../../utils/theme/theme';
 
@@ -24,6 +34,22 @@ function SignIn(props: ISignIn) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null); // error message
   const [cred, setCred] = useState<{ username?: string; password?: string }>(); // collection credentials
+  const [newPassCred, setNewPassCred] =
+    useState<{ old?: string; new?: string; newConfirm?: string; hideOld?: true }>();
+
+  // check if the user is currently authenticated
+  const [{ data: user, loading: loadingUser }] = useAxios({
+    url: '/auth',
+    baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`,
+    withCredentials: true,
+    method: 'GET',
+  });
+
+  // always reset locState undefined if username is missing in cred AND the user is not signed in
+  // (this component might be loaded to enable 2fa or change a password)
+  useEffect(() => {
+    if (!cred?.username && !user && !loadingUser) history.push(pathname + search + hash, {});
+  }, [cred?.username, hash, history, loadingUser, pathname, search, user]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
@@ -39,6 +65,13 @@ function SignIn(props: ISignIn) {
   const signInWithGitHubAction = () => {
     setIsLoading(true);
     document.location.href = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/github`;
+  };
+
+  /**
+   * Refresh the page to reload the app with new credentials.
+   */
+  const done = () => {
+    window.location.reload();
   };
 
   /**
@@ -118,13 +151,59 @@ function SignIn(props: ISignIn) {
         const json = await res.json();
         if (json.error) setError(json.error);
         else if (json.data) {
+          // need to change password
+          if (json.data.next_step === 'change_password') {
+            setNewPassCred({ ...newPassCred, old: cred?.password, hideOld: true });
+            history.push(pathname + search + hash, {
+              ...locState,
+              step: 'change_password',
+            });
+          }
           // TODO: read whether two_factor_authentication is enabled and require the user to enable it
-          window.location.reload();
+          // reload to continue to app
+          else {
+            done();
+          }
         } else setError('Failed to authenticate successfully');
       })
       .catch((error) => {
         console.error(error);
         setError('An unexpected error occured');
+      });
+  };
+
+  /**
+   * Changes the password for the user
+   */
+  const changePassword = () => {
+    setError(null);
+    setIsLoading(true);
+
+    if (newPassCred?.new !== newPassCred?.newConfirm) {
+      setError('New passwords do not match');
+    }
+
+    client
+      .mutate<CHANGE_USER_PASSWORD__TYPE>({
+        mutation: CHANGE_USER_PASSWORD,
+        variables: {
+          oldPassword: newPassCred?.old,
+          newPassword: newPassCred?.new,
+        },
+      })
+      .then(() => {
+        history.push(pathname + search + hash, {
+          ...locState,
+          step: 'change_password_success',
+        });
+      })
+      .catch((error: ApolloError) => {
+        console.error(error);
+        if (error.message === 'Password or username is incorrect') setError('Incorrect old password');
+        else setError(error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -257,6 +336,81 @@ function SignIn(props: ISignIn) {
           Forgot password?
         </HelpLink>
         <Button onClick={nextFunction}>Next</Button>
+      </>
+    );
+    below = <></>;
+  }
+
+  // set the template variables for the change_password step
+  if (locState?.step === 'change_password') {
+    title = 'Change password';
+    if (locState?.username && typeof locState.username === 'string') reason = locState.username;
+    nextFunction = () =>
+      !newPassCred?.old || newPassCred.old.length === 0
+        ? setError('Enter your existing password')
+        : !newPassCred?.new ||
+          !newPassCred?.newConfirm ||
+          newPassCred.new.length === 0 ||
+          newPassCred.newConfirm.length === 0
+        ? setError('Enter your new password in both inputs')
+        : changePassword();
+    form = (
+      <>
+        {newPassCred?.hideOld ? null : (
+          <TextInput
+            lineHeight={'24px'}
+            placeholder={'Current password'}
+            value={newPassCred?.old || ''}
+            onChange={(e) => setNewPassCred({ ...newPassCred, old: e.currentTarget.value })}
+            onKeyPress={nextOnEnter}
+            type={'password'}
+          />
+        )}
+        <TextInput
+          lineHeight={'24px'}
+          placeholder={'New password'}
+          value={newPassCred?.new || ''}
+          onChange={(e) => setNewPassCred({ ...newPassCred, new: e.currentTarget.value })}
+          onKeyPress={nextOnEnter}
+          type={'password'}
+        />
+        <TextInput
+          lineHeight={'24px'}
+          placeholder={'Re-type new password'}
+          value={newPassCred?.newConfirm || ''}
+          onChange={(e) => setNewPassCred({ ...newPassCred, newConfirm: e.currentTarget.value })}
+          onKeyPress={nextOnEnter}
+          type={'password'}
+        />
+        {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
+      </>
+    );
+    note = <></>;
+    buttons = (
+      <>
+        <Button onClick={nextFunction}>Change</Button>
+      </>
+    );
+    below = <></>;
+  }
+
+  // template for change_password_success step
+  if (locState?.step === 'change_password_success') {
+    title = 'Change password';
+    if (locState?.username && typeof locState.username === 'string') reason = locState.username;
+    nextFunction = () => done();
+    form = (
+      <>
+        <div style={{ marginTop: 44, textAlign: 'center' }}>
+          <Checkmark28Regular />
+          <p>Your password has been changed.</p>
+        </div>
+      </>
+    );
+    note = <></>;
+    buttons = (
+      <>
+        <Button onClick={nextFunction}>Finish</Button>
       </>
     );
     below = <></>;
