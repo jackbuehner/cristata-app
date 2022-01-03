@@ -53,7 +53,7 @@ const PROFILE = gql(
 
 type PROFILE__TYPE =
   | {
-      profile: PROFILE__DOC_TYPE;
+      profile?: PROFILE__DOC_TYPE;
     }
   | undefined;
 

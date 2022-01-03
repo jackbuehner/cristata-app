@@ -33,18 +33,19 @@ function ProfilePage() {
     fetchPolicy: 'no-cache',
     variables: { _id: profile_id },
   });
+  const profile = data?.profile;
 
   // set document title
   useEffect(() => {
-    document.title = `${data ? data.profile.name + ' - ' : ''} Profile - Cristata`;
-  }, [data]);
+    document.title = `${profile?.name ? profile.name + ' - ' : ''} Profile - Cristata`;
+  }, [profile?.name]);
 
   const [showEditModal, hideEditModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [fieldData, setFieldData] = useState({
-      phone: data?.profile.phone,
-      twitter: data?.profile.twitter,
-      biography: data?.profile.biography,
+      phone: profile?.phone,
+      twitter: profile?.twitter,
+      biography: profile?.biography,
     });
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -70,7 +71,7 @@ function ProfilePage() {
         .mutate<MUTATE_PROFILE__TYPE>({
           mutation: MUTATE_PROFILE,
           variables: {
-            _id: data?.profile._id,
+            _id: profile?._id,
             input: fieldData,
           },
         })
@@ -91,7 +92,7 @@ function ProfilePage() {
       return (
         <PlainModal
           hideModal={hideEditModal}
-          title={data ? data.profile.name : `Edit profile`}
+          title={profile?.name || `Edit profile`}
           continueButton={{
             text: 'Save',
             onClick: async () => {
@@ -148,8 +149,8 @@ function ProfilePage() {
   return (
     <>
       <PageHead
-        title={data ? `Profile: ${data.profile.name}` : `Profile viewer`}
-        description={data ? data.profile.email || `contact@thepaladin.news` : undefined}
+        title={`Profile: ${profile?.name || `Profile viewer`}`}
+        description={profile?.email || `contact@thepaladin.news`}
         isLoading={loading}
         buttons={
           <>
@@ -164,23 +165,21 @@ function ProfilePage() {
         <ContentWrapper theme={theme}>
           <TopBox>
             <Photo
-              src={data.profile.photo || genAvatar(data.profile._id)}
+              src={profile?.photo || genAvatar(profile?._id || Math.random().toString())}
               alt={``}
               theme={theme}
-              retired={!!data.profile.retired}
+              retired={!!profile?.retired}
             />
             <div>
-              <Name theme={theme}>{data.profile.name}</Name>
-              <Title theme={theme}>
-                {data.profile.retired ? 'RETIRED' : data.profile.current_title || 'Employee'}
-              </Title>
+              <Name theme={theme}>{profile?.name}</Name>
+              <Title theme={theme}>{profile?.retired ? 'RETIRED' : profile?.current_title || 'Employee'}</Title>
               <ButtonRow>
-                {data.profile.email ? (
+                {profile?.email ? (
                   <Button
                     onClick={() =>
                       window.open(
                         `https://teams.microsoft.com/l/chat/0/0?users=${
-                          data.profile.email!.split('@')[0]
+                          profile.email!.split('@')[0]
                         }@furman.edu`
                       )
                     }
@@ -188,11 +187,11 @@ function ProfilePage() {
                     Message
                   </Button>
                 ) : null}
-                {data.profile.email ? (
-                  <Button onClick={() => (window.location.href = `mailto:${data.profile.email}`)}>Email</Button>
+                {profile?.email ? (
+                  <Button onClick={() => (window.location.href = `mailto:${profile.email}`)}>Email</Button>
                 ) : null}
-                {data.profile.phone ? (
-                  <Button onClick={() => (window.location.href = `tel:${data.profile.phone}`)}>Phone</Button>
+                {profile?.phone ? (
+                  <Button onClick={() => (window.location.href = `tel:${profile.phone}`)}>Phone</Button>
                 ) : null}
               </ButtonRow>
             </div>
@@ -200,37 +199,37 @@ function ProfilePage() {
           <SectionTitle theme={theme}>Contact Information</SectionTitle>
           <ItemGrid>
             <ItemLabel theme={theme}>Phone</ItemLabel>
-            <Item theme={theme}>{data.profile.phone}</Item>
+            <Item theme={theme}>{profile?.phone}</Item>
             <ItemLabel theme={theme}>Email</ItemLabel>
-            <Item theme={theme}>{data.profile.email}</Item>
+            <Item theme={theme}>{profile?.email}</Item>
             <ItemLabel theme={theme}>Twitter</ItemLabel>
-            <Item theme={theme}>{data.profile.twitter ? `@${data.profile.twitter}` : ``}</Item>
+            <Item theme={theme}>{profile?.twitter ? `@${profile.twitter}` : ``}</Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Work Information</SectionTitle>
           <ItemGrid>
             <ItemLabel theme={theme}>Biography</ItemLabel>
-            <Item theme={theme}>{data.profile.biography}</Item>
-            <ItemLabel theme={theme}>{data.profile.retired ? 'Last title' : 'Current title'}</ItemLabel>
-            <Item theme={theme}>{data.profile.current_title || `Employee`}</Item>
+            <Item theme={theme}>{profile?.biography}</Item>
+            <ItemLabel theme={theme}>{profile?.retired ? 'Last title' : 'Current title'}</ItemLabel>
+            <Item theme={theme}>{profile?.current_title || `Employee`}</Item>
             <ItemLabel theme={theme}>Join date</ItemLabel>
             <Item theme={theme}>
-              {data.profile.timestamps.joined_at
-                ? DateTime.fromISO(data.profile.timestamps.joined_at).toFormat(`dd LLLL yyyy`)
+              {profile?.timestamps.joined_at
+                ? DateTime.fromISO(profile.timestamps.joined_at).toFormat(`dd LLLL yyyy`)
                 : ``}
             </Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Account Information</SectionTitle>
           <ItemGrid>
             <ItemLabel theme={theme}>Username</ItemLabel>
-            <Item theme={theme}>{data.profile.username}</Item>
+            <Item theme={theme}>{profile?.username}</Item>
             <ItemLabel theme={theme}>Slug</ItemLabel>
-            <Item theme={theme}>{data.profile.slug}</Item>
+            <Item theme={theme}>{profile?.slug}</Item>
           </ItemGrid>
           <SectionTitle theme={theme}>Teams &amp; Groups</SectionTitle>
           {
             // if this person is part of at least one team, show the teams as a list of chips
-            data.profile.teams.docs.length > 0 ? (
-              data.profile.teams.docs.map((team) => {
+            profile && profile.teams.docs.length > 0 ? (
+              profile.teams.docs.map((team) => {
                 return (
                   <Chip
                     key={team._id}
@@ -245,10 +244,12 @@ function ProfilePage() {
               <Item theme={theme}>This person is not part of any teams or groups.</Item>
             )
           }
-          <LastEdited theme={theme}>
-            Last edited on{' '}
-            {DateTime.fromISO(data.profile.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
-          </LastEdited>
+          {profile?.timestamps.modified_at ? (
+            <LastEdited theme={theme}>
+              Last edited on{' '}
+              {DateTime.fromISO(profile.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
+            </LastEdited>
+          ) : null}
         </ContentWrapper>
       ) : (
         <div>
