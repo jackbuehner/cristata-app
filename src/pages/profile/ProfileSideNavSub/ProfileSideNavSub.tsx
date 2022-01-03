@@ -190,7 +190,10 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
           },
         })
         .then((res) => {
-          if (res.data?.userCreate._id) return false;
+          if (res.data?.userCreate._id) {
+            toast.success(`Sent the user an invitation.`);
+            return true;
+          }
           return false;
         })
         .catch((error) => {
