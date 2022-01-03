@@ -219,6 +219,13 @@ function ProfilePage() {
                 : ``}
             </Item>
           </ItemGrid>
+          <SectionTitle theme={theme}>Account Information</SectionTitle>
+          <ItemGrid>
+            <ItemLabel theme={theme}>Username</ItemLabel>
+            <Item theme={theme}>{data.profile.username}</Item>
+            <ItemLabel theme={theme}>Slug</ItemLabel>
+            <Item theme={theme}>{data.profile.slug}</Item>
+          </ItemGrid>
           <SectionTitle theme={theme}>Teams &amp; Groups</SectionTitle>
           {
             // if this person is part of at least one team, show the teams as a list of chips

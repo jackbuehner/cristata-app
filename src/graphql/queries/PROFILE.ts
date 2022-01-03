@@ -44,6 +44,8 @@ const PROFILE = gql(
           }),
         },
         retired: true,
+        slug: true,
+        username: true,
       },
     },
   })
@@ -77,6 +79,8 @@ type PROFILE__DOC_TYPE = {
     last_login_at: string;
   };
   retired?: boolean;
+  slug: string;
+  username?: string;
 };
 
 export { PROFILE };
