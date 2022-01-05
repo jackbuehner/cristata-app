@@ -15,6 +15,7 @@ const TEAM_UNASSIGNED_USERS = gql(
         current_title: true,
         email: true,
         photo: true,
+        flags: true,
       },
     },
   })
@@ -32,6 +33,7 @@ type TEAM_UNASSIGNED_USERS__DOC_TYPE = {
   current_title: string;
   email: string;
   photo: string;
+  flags: string[];
 };
 
 export { TEAM_UNASSIGNED_USERS };

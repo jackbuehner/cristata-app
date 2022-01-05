@@ -31,6 +31,7 @@ const PROFILES_BASIC = gql(
           current_title: true,
           photo: true,
           retired: true,
+          flags: true,
         }),
       },
     },
@@ -51,6 +52,7 @@ type PROFILES_BASIC__DOC_TYPE = {
   current_title?: string;
   photo?: string;
   retired?: string;
+  flags: string[];
 };
 
 export { PROFILES_BASIC };

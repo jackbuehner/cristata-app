@@ -23,6 +23,8 @@ const TEAM = gql(
           current_title: true,
           email: true,
           photo: true,
+          flags: true,
+          retired: true,
         },
         organizers: {
           _id: true,
@@ -30,6 +32,8 @@ const TEAM = gql(
           current_title: true,
           email: true,
           photo: true,
+          flags: true,
+          retired: true,
         },
       },
     },
@@ -56,6 +60,8 @@ type TEAM_USER__DOC_TYPE = {
   current_title: string;
   email: string;
   photo: string;
+  flags: string[];
+  retired?: boolean;
 };
 
 export { TEAM };

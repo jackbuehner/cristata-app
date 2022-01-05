@@ -34,9 +34,11 @@ import {
   MODIFY_TEAM,
   MODIFY_TEAM__TYPE,
   TEAM,
+  TEAM__DOC_TYPE,
   TEAM__TYPE,
 } from '../../../graphql/queries';
 import { useDropdown } from '../../../hooks/useDropdown';
+import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 import { UsersGrid } from '../TeamsOverviewPage/TeamsOverviewPage';
@@ -57,7 +59,7 @@ function TeamPage() {
     variables: { _id: team_id },
   });
   const team = data?.team;
-  const allMembers = Array.from(
+  const allMembers: TEAM__DOC_TYPE['members'] = Array.from(
     new Set(
       [...(team?.members || []), ...(team?.organizers || [])]
         .sort((a, b) => a.name.localeCompare(b.name))
@@ -550,6 +552,7 @@ function TeamPage() {
             <UsersGrid>
               {allMembers.map((user, index) => {
                 const isOrganizer = team?.organizers.findIndex((u) => u._id === user._id) !== -1;
+                const { temporary, expired } = getPasswordStatus(user.flags);
 
                 return (
                   <UserCard
@@ -558,6 +561,15 @@ function TeamPage() {
                     position={`${user.current_title + ' ' || ''}${isOrganizer ? `(organizer)` : `(member)`}`}
                     email={user.email}
                     photo={user.photo || genAvatar(user._id)}
+                    status={
+                      user.retired
+                        ? 'deactivated'
+                        : expired
+                        ? 'invite_ignored'
+                        : temporary
+                        ? 'invited'
+                        : 'active'
+                    }
                   >
                     <UserButtons>
                       {permissions?.modify && canManage ? (

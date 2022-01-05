@@ -11,6 +11,7 @@ interface IUserCard {
   position: string;
   email: string;
   photo?: string;
+  status?: 'invited' | 'active' | 'deactivated' | 'invite_ignored';
   children?: React.ReactNode;
 }
 
@@ -31,6 +32,17 @@ function UserCard(props: IUserCard) {
       <Name theme={theme}>{props.name}</Name>
       <Info theme={theme}>{props.position}</Info>
       <Info theme={theme}>{props.email}</Info>
+      {props.status !== 'active' ? (
+        <Info theme={theme} italic moreMargin danger>
+          {props.status === 'invited'
+            ? 'Pending invitation acceptance'
+            : props.status === 'deactivated'
+            ? 'Account deactivated'
+            : props.status === 'invite_ignored'
+            ? 'Invitation expired'
+            : ''}
+        </Info>
+      ) : null}
       {props.children}
     </Component>
   );
@@ -67,13 +79,15 @@ const Name = styled.h2<{ theme: themeType }>`
   text-align: center;
 `;
 
-const Info = styled.div<{ theme: themeType }>`
+const Info = styled.div<{ theme: themeType; italic?: boolean; moreMargin?: boolean; danger?: boolean }>`
   font-family: ${({ theme }) => theme.font.detail};
+  font-style: ${({ italic }) => (italic ? 'italic' : 'regular')};
   font-size: 14px;
   font-weight: 400;
   line-height: 1;
-  margin: 2px 0;
+  margin: ${({ moreMargin }) => (moreMargin ? '6px' : '2px')} 0 2px 0;
   text-align: center;
+  color: ${({ theme, danger }) => (danger ? theme.color.danger[800] : theme.color.neutral[theme.mode][1400])};
 `;
 
 export { UserCard };

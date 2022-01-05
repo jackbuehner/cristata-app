@@ -27,6 +27,7 @@ import {
   TEAM_UNASSIGNED_USERS,
   TEAM_UNASSIGNED_USERS__TYPE,
 } from '../../../graphql/queries';
+import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { slugify } from '../../../utils/slugify';
 import { themeType } from '../../../utils/theme/theme';
@@ -240,6 +241,8 @@ function TeamsOverviewPage() {
                 <Heading theme={theme}>Active users without teams</Heading>
                 <UsersGrid>
                   {unassignedUsers?.map((user, index) => {
+                    const { temporary, expired } = getPasswordStatus(user.flags);
+
                     return (
                       <UserCard
                         key={index}
@@ -248,6 +251,7 @@ function TeamsOverviewPage() {
                         email={user.email}
                         photo={user.photo || genAvatar(user._id)}
                         href={`/profile/${user._id}`}
+                        status={expired ? 'invite_ignored' : temporary ? 'invited' : 'active'}
                       />
                     );
                   })}

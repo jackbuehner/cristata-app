@@ -28,6 +28,8 @@ import { TextInput } from '../../../components/TextInput';
 import { slugify } from '../../../utils/slugify';
 import { client } from '../../../graphql/client';
 import { toast } from 'react-toastify';
+import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
+import { useInviteUserModal } from '../../../hooks/useCustomModal';
 
 interface IProfileSideNavSub {
   setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
@@ -329,6 +331,8 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
           ref={SideNavRef}
         >
           {data.profiles.docs.map((profile, index: number) => {
+            const { temporary, expired } = getPasswordStatus(profile.flags);
+
             return (
               <div style={{ position: 'relative', width: '100%' }} key={index}>
                 <Button
@@ -388,9 +392,18 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                       <span
                         css={css`
                           font-size: 12px;
+                          ${temporary || (expired && !profile.retired)
+                            ? `color: ${theme.color.danger[800]};`
+                            : ``}
                         `}
                       >
-                        {profile.email || 'contact@thepaladin.news'}
+                        {profile.retired
+                          ? 'RETIRED'
+                          : expired
+                          ? 'INVITATION EXPIRED'
+                          : temporary
+                          ? 'PENDING INVITATION'
+                          : profile.email || 'contact@thepaladin.news'}
                       </span>
                     </div>
                   </div>
