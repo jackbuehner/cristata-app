@@ -1,7 +1,6 @@
 import { ApolloError, gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
@@ -9,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useHistory, useParams } from 'react-router';
 import { toast } from 'react-toastify';
-import { Button, IconButton } from '../../../components/Button';
+import { Button } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
@@ -166,14 +165,7 @@ function ProfilePage() {
         title={`Profile: ${profile?.name || `Profile viewer`}`}
         description={profile?.email || `contact@thepaladin.news`}
         isLoading={loading}
-        buttons={
-          <>
-            <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
-              Refetch
-            </IconButton>
-            {canEdit ? <Button onClick={showEditModal}>Edit</Button> : null}
-          </>
-        }
+        buttons={<>{canEdit ? <Button onClick={showEditModal}>Edit</Button> : null}</>}
       />
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
