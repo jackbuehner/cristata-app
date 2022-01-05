@@ -623,6 +623,12 @@ function TeamPage() {
                               setIsDeactivateChecked(false);
                               showRemoveUserModal();
                             }}
+                            onAuxClick={() => {
+                              setModalUser(user._id);
+                              if (canDeactivate) setIsDeactivateChecked(true);
+                              else setIsDeactivateChecked(false);
+                              showRemoveUserModal();
+                            }}
                           >
                             Remove
                           </Button>
