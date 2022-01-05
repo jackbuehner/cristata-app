@@ -80,6 +80,9 @@ function TeamPage() {
             modify: true,
             hide: true,
           },
+          userActionAccess: {
+            deactivate: true,
+          },
         },
       })
     )
@@ -92,6 +95,7 @@ function TeamPage() {
         ?.map((user) => user._id)
         .includes(JSON.parse(localStorage.getItem('auth.user') as string)?._id) ||
         false));
+  const canDeactivate = permissionsData?.userActionAccess?.deactivate || false;
 
   // modal for managing the team
   const [showManageModal, hideManageModal] = useModal(() => {
@@ -502,7 +506,7 @@ function TeamPage() {
           color: 'danger',
           onClick: async () => {
             if (modalUser && modalUser.length > 0) {
-              deactivate(modalUser); // don't wait for deactivation
+              if (isDeactivateChecked) deactivate(modalUser); // don't wait for deactivation
               const removed = await remove(modalUser); // wait for removal
               return removed; // return whether it worked
             }
@@ -510,24 +514,26 @@ function TeamPage() {
           },
         }}
       >
-        <>
-          <InputGroup type={`checkbox`}>
-            <Label
-              htmlFor={'deactivate'}
-              description={`Deactivate an account if this person no longer needs to access Cristata.`}
-              disabled={isLoading}
-            >
-              Also deactivate this account.
-            </Label>
-            <Checkbox
-              name={'deactivate'}
-              id={'deactivate'}
-              isChecked={isDeactivateChecked}
-              isDisabled={isLoading}
-              onChange={() => setIsDeactivateChecked(!isDeactivateChecked)}
-            />
-          </InputGroup>
-        </>
+        {canDeactivate ? (
+          <>
+            <InputGroup type={`checkbox`}>
+              <Label
+                htmlFor={'deactivate'}
+                description={`Deactivate an account if this person no longer needs to access Cristata.`}
+                disabled={isLoading}
+              >
+                Also deactivate this account.
+              </Label>
+              <Checkbox
+                name={'deactivate'}
+                id={'deactivate'}
+                isChecked={isDeactivateChecked}
+                isDisabled={isLoading}
+                onChange={() => setIsDeactivateChecked(!isDeactivateChecked)}
+              />
+            </InputGroup>
+          </>
+        ) : null}
       </PlainModal>
     );
   }, [isDeactivateChecked, modalUser, team]);
@@ -614,6 +620,7 @@ function TeamPage() {
                             icon={<Dismiss16Regular />}
                             onClick={() => {
                               setModalUser(user._id);
+                              setIsDeactivateChecked(false);
                               showRemoveUserModal();
                             }}
                           >
