@@ -9,6 +9,7 @@ import { useModal } from 'react-modal-hook';
 import { useHistory, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
+import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
@@ -17,7 +18,14 @@ import { PageHead } from '../../../components/PageHead';
 import { TextArea } from '../../../components/TextArea';
 import { TextInput } from '../../../components/TextInput';
 import { client } from '../../../graphql/client';
-import { MUTATE_PROFILE, MUTATE_PROFILE__TYPE, PROFILE, PROFILE__TYPE } from '../../../graphql/queries';
+import {
+  DEACTIVATE_USER,
+  DEACTIVATE_USER__TYPE,
+  MUTATE_PROFILE,
+  MUTATE_PROFILE__TYPE,
+  PROFILE,
+  PROFILE__TYPE,
+} from '../../../graphql/queries';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
@@ -39,7 +47,7 @@ function ProfilePage() {
   const { temporary, expired, expiresAt } = getPasswordStatus(profile?.flags || []);
 
   const { data: permissionsData } = useQuery(
-    gql(jsonToGraphQLQuery({ query: { userActionAccess: { modify: true } } })),
+    gql(jsonToGraphQLQuery({ query: { userActionAccess: { modify: true, deactivate: true } } })),
     {
       fetchPolicy: 'no-cache',
     }
@@ -47,6 +55,7 @@ function ProfilePage() {
   const permissions: Record<string, boolean> | undefined = permissionsData?.userActionAccess;
   const canEdit =
     permissions?.modify || profile_id === JSON.parse(localStorage.getItem('auth.user') as string)?._id;
+  const canManage = (permissions?.modify && permissions?.deactivate) || false;
 
   // set document title
   useEffect(() => {
@@ -56,9 +65,12 @@ function ProfilePage() {
   const [showEditModal, hideEditModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [fieldData, setFieldData] = useState({
+      name: profile?.name,
       phone: profile?.phone,
       twitter: profile?.twitter,
       biography: profile?.biography,
+      current_title: profile?.current_title,
+      retired: profile?.retired,
     });
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -67,7 +79,7 @@ function ProfilePage() {
     /**
      * When the user types in the field, update `fieldData` in state
      */
-    const handleFieldChange = (newValue: string, field: string) => {
+    const handleFieldChange = (newValue: string | boolean, field: string) => {
       setFieldData({
         ...fieldData,
         [field]: newValue,
@@ -85,19 +97,45 @@ function ProfilePage() {
           mutation: MUTATE_PROFILE,
           variables: {
             _id: profile?._id,
-            input: fieldData,
+            input: { ...fieldData, retired: undefined },
           },
         })
         .then(async (): Promise<true> => {
           if (refetch) await refetch(); // refetch the profile so that it includes the new data
-          setIsLoading(false);
           return true;
         })
         .catch((err: ApolloError): ApolloError => {
           console.error(err);
           toast.error(`Failed to update profile. \n ${err.message}`);
-          setIsLoading(false);
           return err;
+        });
+    };
+
+    /**
+     * Deactivate a given user.
+     * @param userId
+     * @returns whether the user was successfully deactivated
+     */
+    const deactivate = async (userId: string) => {
+      return await client
+        .mutate<DEACTIVATE_USER__TYPE>({
+          mutation: DEACTIVATE_USER,
+          variables: { _id: userId, deactivate: fieldData.retired || false },
+        })
+        .then((res) => {
+          if (res.errors?.[0]) {
+            console.error(res.errors[0]);
+            toast.error(`Failed to deactivate user. \n ${res.errors[0].message}`);
+          } else if (res.data?.userDeactivate.retired === true) {
+            return true;
+          }
+          toast.error(`Failed to deactivate user.`);
+          return false;
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error(`Failed to deactivate user. \n ${error.message}`);
+          return false;
         });
     };
 
@@ -111,6 +149,8 @@ function ProfilePage() {
             onClick: async () => {
               setIsLoading(true);
               const updateStatus = await updateProfileData();
+              if (profile && profile.retired !== fieldData.retired) await deactivate(profile._id);
+              setIsLoading(false);
               // return whether the action was successful
               if (updateStatus === true) return true;
               return false;
@@ -118,8 +158,29 @@ function ProfilePage() {
           }}
           isLoading={isLoading}
         >
+          {canManage ? (
+            <InputGroup type={`text`}>
+              <Label
+                htmlFor={`name-field`}
+                description={`The name of this user. This does not change the username or slug.`}
+              >
+                Name
+              </Label>
+              <TextInput
+                name={`name-field`}
+                id={`name-field`}
+                value={fieldData.name}
+                onChange={(e) => handleFieldChange(e.currentTarget.value, `name`)}
+              />
+            </InputGroup>
+          ) : null}
           <InputGroup type={`text`}>
-            <Label htmlFor={`phone-field`}>Phone</Label>
+            <Label
+              htmlFor={`phone-field`}
+              description={`Add your number so managing editors of the newspaper can contact you about your work. It is only available to users with Cristata accounts.`}
+            >
+              Phone
+            </Label>
             <TextInput
               name={`phone-field`}
               id={`phone-field`}
@@ -129,7 +190,9 @@ function ProfilePage() {
             />
           </InputGroup>
           <InputGroup type={`text`}>
-            <Label htmlFor={`twitter-field`}>Twitter</Label>
+            <Label htmlFor={`twitter-field`} description={`Let everyone know where to follow you.`}>
+              Twitter
+            </Label>
             <TextInput
               name={`twitter-field`}
               id={`twitter-field`}
@@ -140,7 +203,12 @@ function ProfilePage() {
             />
           </InputGroup>
           <InputGroup type={`text`}>
-            <Label htmlFor={`bio-field`}>Biography</Label>
+            <Label
+              htmlFor={`bio-field`}
+              description={`A short biography highlighting accomplishments and qualifications. It should be in paragraph form and written in the third person.`}
+            >
+              Biography
+            </Label>
             <TextArea
               name={`bio-field`}
               id={`bio-field`}
@@ -150,7 +218,33 @@ function ProfilePage() {
               onChange={(e) => handleFieldChange(e.currentTarget.value, `biography`)}
             />
           </InputGroup>
-          <Note theme={theme}>To change other fields, contact a Web Editor.</Note>
+          {canManage ? (
+            <>
+              <InputGroup type={`text`}>
+                <Label htmlFor={`title-field`} description={`The position or job title for the user.`}>
+                  Title
+                </Label>
+                <TextInput
+                  name={`title-field`}
+                  id={`title-field`}
+                  value={fieldData.current_title}
+                  onChange={(e) => handleFieldChange(e.currentTarget.value, `current_title`)}
+                />
+              </InputGroup>
+              <InputGroup type={`checkbox`}>
+                <Label htmlFor={`deactivate-field`} description={`Whether this user can sign in to Cristata.`}>
+                  Deactivated
+                </Label>
+                <Checkbox
+                  name={'deactivate-field'}
+                  id={'deactivate-field'}
+                  isChecked={fieldData.retired}
+                  onChange={() => handleFieldChange(!fieldData.retired, `retired`)}
+                />
+              </InputGroup>
+            </>
+          ) : null}
+          <Note theme={theme}>To change other fields, contact a Managing Editor.</Note>
           <Note theme={theme}>
             Team memberships can be managed on <a href={`https://github.com/orgs/paladin-news/teams`}>GitHub</a>
             .
