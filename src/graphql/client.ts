@@ -13,7 +13,7 @@ const collectionPluralNames = [
   'shorturls',
 ];
 
-const collectionQueryTypePolicies = [...collectionPluralNames, 'users'].map((query) => {
+const collectionQueryTypePolicies = [...collectionPluralNames, 'users', 'teams'].map((query) => {
   return {
     [query]: {
       // Don't cache separate results based on

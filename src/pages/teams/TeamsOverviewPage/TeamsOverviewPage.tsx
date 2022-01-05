@@ -151,7 +151,7 @@ function TeamsOverviewPage() {
     networkStatus: networkStatusTeams,
   } = useQuery<TEAMS__TYPE>(TEAMS, {
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-only',
     variables: { limit: 100 },
   });
   const teams = dataTeams?.teams.docs;
