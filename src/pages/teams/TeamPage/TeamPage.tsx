@@ -9,6 +9,7 @@ import {
   Person16Regular,
   Settings24Regular,
 } from '@fluentui/react-icons';
+import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -37,6 +38,7 @@ import {
   TEAM__DOC_TYPE,
   TEAM__TYPE,
 } from '../../../graphql/queries';
+import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
@@ -162,6 +164,10 @@ function TeamPage() {
         });
     };
 
+    // modal to invite new user
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [showNewUserModal] = useInviteUserModal();
+
     return (
       <PlainModal
         hideModal={hideManageModal}
@@ -250,6 +256,26 @@ function TeamPage() {
                     }}
                     isDisabled={isLoading}
                   />
+                  <div
+                    style={{
+                      fontFamily: theme.font.detail,
+                      fontSize: 13,
+                      color: theme.color.neutral[theme.mode][1200],
+                      marginTop: 6,
+                    }}
+                  >
+                    Don't see the member you want to add?{' '}
+                    <span
+                      style={{
+                        color: theme.color.primary[800],
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
+                      }}
+                      onClick={showNewUserModal}
+                    >
+                      Invite a new user
+                    </span>
+                  </div>
                 </InputGroup>
               </ErrorBoundary>
             ) : null}
