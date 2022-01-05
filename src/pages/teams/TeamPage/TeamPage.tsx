@@ -9,7 +9,6 @@ import {
   Person16Regular,
   Settings24Regular,
 } from '@fluentui/react-icons';
-import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
