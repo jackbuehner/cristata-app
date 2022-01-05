@@ -34,8 +34,10 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   const history = useHistory();
   const location = useLocation();
   const theme = useTheme() as themeType;
-  const { data, loading, error, networkStatus, refetch, fetchMore } =
-    useQuery<PROFILES_BASIC__TYPE>(PROFILES_BASIC);
+  const { data, loading, error, networkStatus, refetch, fetchMore } = useQuery<PROFILES_BASIC__TYPE>(
+    PROFILES_BASIC,
+    { notifyOnNetworkStatusChange: true }
+  );
 
   // dropdown/three-dot menu
   const [dropdownProfile, setDropdownProfile] = useState<PROFILES_BASIC__DOC_TYPE>(); // the profile of the menu that triggered the dropdown
@@ -197,7 +199,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   // create/invite new user modal
   const [showNewUserModal] = useInviteUserModal();
 
-  if (loading)
+  if (loading && !data)
     return (
       <>
         <SideNavHeading isLoading>Profiles</SideNavHeading>
@@ -228,7 +230,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
 
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <SideNavHeading>
+        <SideNavHeading isLoading={networkStatus === NetworkStatus.refetch}>
           Profiles
           <Button
             cssExtra={css`
