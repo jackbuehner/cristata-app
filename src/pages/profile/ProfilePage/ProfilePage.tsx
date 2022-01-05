@@ -39,6 +39,15 @@ function ProfilePage() {
   const profile = data?.profile;
   const { temporary, expired, expiresAt } = getPasswordStatus(profile?.flags || []);
 
+  const { data: permissionsData } = useQuery(
+    gql(jsonToGraphQLQuery({ query: { userActionAccess: { modify: true } } })),
+    {
+      fetchPolicy: 'no-cache',
+    }
+  );
+  const permissions: Record<string, boolean> | undefined = permissionsData?.userActionAccess;
+  const canEdit =
+    permissions?.modify || profile_id === JSON.parse(localStorage.getItem('auth.user') as string)?._id;
 
   // set document title
   useEffect(() => {
@@ -162,7 +171,7 @@ function ProfilePage() {
             <IconButton onClick={() => refetch()} icon={<ArrowClockwise24Regular />}>
               Refetch
             </IconButton>
-            <Button onClick={showEditModal}>Edit</Button>
+            {canEdit ? <Button onClick={showEditModal}>Edit</Button> : null}
           </>
         }
       />
