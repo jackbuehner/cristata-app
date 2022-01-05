@@ -46,6 +46,7 @@ const PROFILE = gql(
         retired: true,
         slug: true,
         username: true,
+        flags: true,
       },
     },
   })
@@ -81,6 +82,7 @@ type PROFILE__DOC_TYPE = {
   retired?: boolean;
   slug: string;
   username?: string;
+  flags: string[];
 };
 
 export { PROFILE };

@@ -1,7 +1,9 @@
-import { ApolloError, useQuery } from '@apollo/client';
+import { ApolloError, gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import Color from 'color';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -17,6 +19,7 @@ import { TextArea } from '../../../components/TextArea';
 import { TextInput } from '../../../components/TextInput';
 import { client } from '../../../graphql/client';
 import { MUTATE_PROFILE, MUTATE_PROFILE__TYPE, PROFILE, PROFILE__TYPE } from '../../../graphql/queries';
+import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 
@@ -34,6 +37,8 @@ function ProfilePage() {
     variables: { _id: profile_id },
   });
   const profile = data?.profile;
+  const { temporary, expired, expiresAt } = getPasswordStatus(profile?.flags || []);
+
 
   // set document title
   useEffect(() => {
@@ -163,6 +168,27 @@ function ProfilePage() {
       />
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
+          {profile?.retired ? (
+            <Notice theme={theme}>
+              This account is deactivated. This user will not be able to sign in to Cristata.
+            </Notice>
+          ) : expired ? (
+            <Notice theme={theme}>
+              This user never accepted their invitation and will not be able to sign in to Cristata.{' '}
+              {expiresAt
+                ? `It expired on ${DateTime.fromISO(expiresAt.toISOString()).toFormat(`LLL. dd, yyyy 'at' t`)}.`
+                : null}
+            </Notice>
+          ) : temporary ? (
+            <Notice theme={theme}>
+              This user has not accepted their invitation.{' '}
+              {expiresAt
+                ? `It will expire on ${DateTime.fromISO(expiresAt.toISOString()).toFormat(
+                    `LLL. dd, yyyy 'at' t`
+                  )}.`
+                : null}
+            </Notice>
+          ) : null}
           <TopBox>
             <Photo
               src={profile?.photo || genAvatar(profile?._id || Math.random().toString())}
@@ -368,6 +394,18 @@ const Note = styled.div<{ theme: themeType }>`
   text-decoration: none;
   line-height: 20px;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
+`;
+
+const Notice = styled.div<{ theme: themeType }>`
+  font-family: ${({ theme }) => theme.font.detail};
+  background-color: ${({ theme }) => Color(theme.color.orange[800]).lighten(0.64).hex()};
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
+  padding: 10px 20px;
+  position: sticky;
+  top: -20px;
+  margin: -20px 0 20px -20px;
+  width: 100%;
+  z-index: 99;
 `;
 
 export { ProfilePage };
