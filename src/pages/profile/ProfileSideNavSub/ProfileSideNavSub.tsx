@@ -2,7 +2,16 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Call24Regular, Chat24Regular, Mail24Regular, MoreHorizontal20Regular } from '@fluentui/react-icons';
+import {
+  ArrowClockwise20Regular,
+  Call24Regular,
+  Chat24Regular,
+  CheckboxChecked20Regular,
+  CheckboxUnchecked20Regular,
+  Mail24Regular,
+  MoreHorizontal20Regular,
+  PersonAdd20Regular,
+} from '@fluentui/react-icons';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Color from 'color';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
@@ -146,6 +155,45 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     SideNavRef,
   ]);
 
+  // whether inactive users should be hidden
+  const [hideInactive, setHideInactive] = useState<boolean>(true);
+
+  // sidenav header dropdown
+  const [showMainDropdown] = useDropdown(
+    (triggerRect, dropdownRef) => {
+      return (
+        <Menu
+          ref={dropdownRef}
+          pos={{
+            top: triggerRect.bottom,
+            left: triggerRect.left + triggerRect.width - 240,
+            width: 240,
+          }}
+          items={[
+            {
+              label: 'Refresh',
+              icon: <ArrowClockwise20Regular />,
+              onClick: () => refetch(),
+            },
+            {
+              label: 'Invite new user',
+              icon: <PersonAdd20Regular />,
+              onClick: () => showNewUserModal(),
+            },
+            {
+              label: 'Hide inactive users',
+              icon: hideInactive ? <CheckboxChecked20Regular /> : <CheckboxUnchecked20Regular />,
+              onClick: () => setHideInactive(!hideInactive),
+            },
+          ]}
+        />
+      );
+    },
+    [dropdownProfile],
+    true,
+    true
+  );
+
   // create/invite new user modal
   const [showNewUserModal] = useInviteUserModal();
 
@@ -174,6 +222,10 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     if (currentUser_id && location.pathname === ('/profile' || '/profile/')) {
       history.push(`/profile/${currentUser_id}`);
     }
+
+    // sort out in active users
+    const filteredProfiles = data.profiles.docs.filter((profile) => (hideInactive ? !profile.retired : true));
+
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <SideNavHeading>
@@ -184,9 +236,11 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
               top: 10px;
               right: 10px;
             `}
-            onClick={showNewUserModal}
+            onClick={showMainDropdown}
+            onAuxClick={() => refetch()}
+            showChevron
           >
-            Invite
+            Options
           </Button>
         </SideNavHeading>
         <div
@@ -196,7 +250,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
           }}
           ref={SideNavRef}
         >
-          {data.profiles.docs.map((profile, index: number) => {
+          {filteredProfiles.map((profile, index: number) => {
             const { temporary, expired } = getPasswordStatus(profile.flags);
 
             return (
