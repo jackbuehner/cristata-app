@@ -67,7 +67,6 @@ function TeamPage() {
         .map((user) => JSON.stringify(user))
     )
   ).map((userJson) => JSON.parse(userJson));
-  console.log(allMembers);
 
   // track loading state
   const isLoading = loading || networkStatus === NetworkStatus.refetch;
