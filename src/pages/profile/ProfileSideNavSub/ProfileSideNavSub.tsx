@@ -281,6 +281,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                     right: 15px;
                     top: 9px;
                   `}
+                  backgroundColor={{ base: 'transparent' }}
                   onClick={(e) => {
                     setDropdownProfile(profile);
                     showDropdown(e);
