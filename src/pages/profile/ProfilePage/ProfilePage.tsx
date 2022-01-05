@@ -246,7 +246,16 @@ function ProfilePage() {
           ) : null}
           <Note theme={theme}>To change other fields, contact a Managing Editor.</Note>
           <Note theme={theme}>
-            Team memberships can be managed on <a href={`https://github.com/orgs/paladin-news/teams`}>GitHub</a>
+            Team memberships can be managed with the{' '}
+            <a
+              href={`/teams`}
+              onClick={(e) => {
+                e.preventDefault();
+                history.push(`/teams`);
+              }}
+            >
+              teams manager
+            </a>
             .
           </Note>
         </PlainModal>
