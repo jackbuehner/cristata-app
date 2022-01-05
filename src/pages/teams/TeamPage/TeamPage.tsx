@@ -530,7 +530,7 @@ function TeamPage() {
         </>
       </PlainModal>
     );
-  }, [isDeactivateChecked, modalUser]);
+  }, [isDeactivateChecked, modalUser, team]);
 
   return (
     <>
