@@ -25,7 +25,8 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   const history = useHistory();
   const location = useLocation();
   const theme = useTheme() as themeType;
-  const { data, loading, error, networkStatus, fetchMore } = useQuery<PROFILES_BASIC__TYPE>(PROFILES_BASIC);
+  const { data, loading, error, networkStatus, refetch, fetchMore } =
+    useQuery<PROFILES_BASIC__TYPE>(PROFILES_BASIC);
 
   // dropdown/three-dot menu
   const [dropdownProfile, setDropdownProfile] = useState<PROFILES_BASIC__DOC_TYPE>(); // the profile of the menu that triggered the dropdown
@@ -156,7 +157,15 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     );
   if (error) {
     console.error(error);
-    return <span>Error: {error.name}</span>;
+    return (
+      <>
+        <SideNavHeading>Plans</SideNavHeading>
+        <div style={{ fontFamily: theme.font.detail, padding: 10 }}>
+          <div style={{ marginBottom: 10 }}>Error: {error.clientErrors[0].message || error.message}</div>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </div>
+      </>
+    );
   }
   if (data) {
     // if the current user ID is available, navigate to that profile ifno other profile is selected
