@@ -133,7 +133,9 @@ function ProfilePage() {
             <TextInput
               name={`twitter-field`}
               id={`twitter-field`}
-              value={fieldData.twitter === undefined ? '' : `@${fieldData.twitter}`}
+              value={
+                fieldData.twitter === undefined || fieldData.twitter === null ? '' : `@${fieldData.twitter}`
+              }
               onChange={(e) => handleFieldChange(e.currentTarget.value.replace(`@`, ``), `twitter`)}
             />
           </InputGroup>
