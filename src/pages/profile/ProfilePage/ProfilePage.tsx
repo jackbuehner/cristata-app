@@ -1,6 +1,7 @@
 import { ApolloError, gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { Edit20Regular, Key20Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
@@ -55,8 +56,8 @@ function ProfilePage() {
     }
   );
   const permissions: Record<string, boolean> | undefined = permissionsData?.userActionAccess;
-  const canEdit =
-    permissions?.modify || profile_id === JSON.parse(localStorage.getItem('auth.user') as string)?._id;
+  const isSelf = profile_id === JSON.parse(localStorage.getItem('auth.user') as string)?._id;
+  const canEdit = permissions?.modify || isSelf;
   const canManage = (permissions?.modify && permissions?.deactivate) || false;
 
   // set document title
@@ -303,7 +304,28 @@ function ProfilePage() {
         title={`Profile: ${profile?.name || `Profile viewer`}`}
         description={profile?.email || `contact@thepaladin.news`}
         isLoading={loading}
-        buttons={<>{canEdit ? <Button onClick={showEditModal}>Edit</Button> : null}</>}
+        buttons={
+          <>
+            {canEdit ? (
+              <Button onClick={showEditModal} icon={<Edit20Regular />}>
+                Edit
+              </Button>
+            ) : null}
+            {isSelf ? (
+              <Button
+                onClick={() => {
+                  history.push('/sign-in', {
+                    step: 'change_password',
+                    username: profile?.email,
+                  });
+                }}
+                icon={<Key20Regular />}
+              >
+                Change pasword
+              </Button>
+            ) : null}
+          </>
+        }
       />
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
