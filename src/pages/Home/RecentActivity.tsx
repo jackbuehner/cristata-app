@@ -8,6 +8,7 @@ import { useHistory } from 'react-router-dom';
 import { collections } from '../../config';
 import { collection as collectionType } from '../../config/collections';
 import { HISTORY, HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
+import { genAvatar } from '../../utils/genAvatar';
 import { themeType } from '../../utils/theme/theme';
 
 /**
@@ -133,7 +134,7 @@ function RecentActivity() {
                   names={users.map((user) => ({
                     name: user.name,
                     onClick: () => history.push(`/profile/${user._id}`),
-                    photo: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/v3/user-photo/${user._id}`,
+                    photo: user.photo || genAvatar(user._id),
                   }))}
                   appendText={
                     <>

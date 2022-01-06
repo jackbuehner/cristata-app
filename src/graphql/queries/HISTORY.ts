@@ -29,6 +29,7 @@ const HISTORY = gql(
           user: {
             _id: true,
             name: true,
+            photo: true,
           },
           action: true,
           at: true,
@@ -51,6 +52,7 @@ type HISTORY__DOC_TYPE = {
   user: {
     _id: string;
     name: string;
+    photo?: string;
   };
   action: string;
   at: string; // ISO date
