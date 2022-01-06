@@ -5,7 +5,7 @@ import styled from '@emotion/styled/macro';
 import { Checkmark28Regular } from '@fluentui/react-icons';
 import { LinearProgress } from '@rmwc/linear-progress';
 import useAxios from 'axios-hooks';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
@@ -85,46 +85,51 @@ function SignIn(props: ISignIn) {
    * - Could not confirm username status (unknown error checking login methods)
    * @param username
    */
-  const checkUsername = (username: string) => {
-    (async () => {
-      setError(null);
-      setIsLoading(true);
+  const checkUsername = useCallback(
+    (username: string) => {
+      (async () => {
+        setError(null);
+        setIsLoading(true);
 
-      // check that the user exists
-      const res = await client.query<USER_EXISTS__TYPE>({
-        query: USER_EXISTS,
-        variables: { username },
-        fetchPolicy: 'network-only',
-      });
-
-      // the user exists
-      if (res.data?.userExists.exists) {
-        const user = res.data.userExists.doc;
-        // check the login methods
-        const methodsRes = await client.query<USER_METHODS__TYPE>({
-          query: USER_METHODS,
+        // check that the user exists
+        const res = await client.query<USER_EXISTS__TYPE>({
+          query: USER_EXISTS,
           variables: { username },
           fetchPolicy: 'network-only',
         });
-        // the user can sign in with a password
-        if (methodsRes.data?.userMethods.includes('local')) {
-          history.push(pathname + search + hash, {
-            username: user ? user.email || user.slug + '@thepaladin.news' : username,
-            step: 'password',
+
+        // the user exists
+        if (res.data?.userExists.exists) {
+          const user = res.data.userExists.doc;
+          // check the login methods
+          const methodsRes = await client.query<USER_METHODS__TYPE>({
+            query: USER_METHODS,
+            variables: { username },
+            fetchPolicy: 'network-only',
           });
+          // the user can sign in with a password
+          if (methodsRes.data?.userMethods.includes('local')) {
+            history.push({
+              state: {
+                username: user ? user.email || user.slug + '@thepaladin.news' : username,
+                step: 'password',
+              },
+            });
+          }
+          // unknown error
+          else if (methodsRes.error) setError('Could not confirm username status');
+          // local password method not enabled (need to use GitHub sign-in)
+          else setError(`Your account cannot sign in with a password. Try a different sign-in method.`);
         }
+        // user does not exist
+        else if (res.data) setError('Username does not exist');
         // unknown error
-        else if (methodsRes.error) setError('Could not confirm username status');
-        // local password method not enabled (need to use GitHub sign-in)
-        else setError(`Your account cannot sign in with a password. Try a different sign-in method.`);
-      }
-      // user does not exist
-      else if (res.data) setError('Username does not exist');
-      // unknown error
-      else if (res.error) setError('Could not find username');
-      setIsLoading(false);
-    })();
-  };
+        else if (res.error) setError('Could not find username');
+        setIsLoading(false);
+      })();
+    },
+    [history]
+  );
 
   /**
    * Signs in by submitting the credentials to the server.
@@ -132,7 +137,7 @@ function SignIn(props: ISignIn) {
    * If failure, display message.
    * If 2fa code requested, move to 2fa step.
    */
-  const signInWithCredentials = () => {
+  const signInWithCredentials = useCallback(() => {
     fetch(`${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/local`, {
       method: 'post',
       credentials: 'include',
@@ -154,9 +159,11 @@ function SignIn(props: ISignIn) {
           // need to change password
           if (json.data.next_step === 'change_password') {
             setNewPassCred({ ...newPassCred, old: cred?.password, hideOld: true });
-            history.push(pathname + search + hash, {
-              ...locState,
-              step: 'change_password',
+            history.push({
+              state: {
+                ...locState,
+                step: 'change_password',
+              },
             });
           }
           // TODO: read whether two_factor_authentication is enabled and require the user to enable it
@@ -170,7 +177,7 @@ function SignIn(props: ISignIn) {
         console.error(error);
         setError('An unexpected error occured');
       });
-  };
+  }, [cred?.password, cred?.username, history, locState, newPassCred]);
 
   /**
    * Changes the password for the user
@@ -192,9 +199,11 @@ function SignIn(props: ISignIn) {
         },
       })
       .then(() => {
-        history.push(pathname + search + hash, {
-          ...locState,
-          step: 'change_password_success',
+        history.push({
+          state: {
+            ...locState,
+            step: 'change_password_success',
+          },
         });
       })
       .catch((error: ApolloError) => {
@@ -206,6 +215,38 @@ function SignIn(props: ISignIn) {
         setIsLoading(false);
       });
   };
+
+  // If the username [ue] and password [pe] (optional) are included in the url
+  // params, move them to state and remove them from the url
+  // and attempt to sign in.
+  // NOTE: Username and password must be b64 encoded.
+  useEffect(() => {
+    if (search !== '') {
+      const searchParams = new URLSearchParams(search);
+
+      const username = searchParams.get('ue') || undefined;
+      const password = searchParams.get('pe') || undefined;
+
+      searchParams.delete('ue');
+      searchParams.delete('pe');
+      history.push({ search: searchParams.toString() });
+
+      // if username and password are present, attempt to sign in
+      if (username && password) {
+        setCred({ username: atob(username), password: atob(password) });
+        if (cred?.username && cred.password) signInWithCredentials();
+      }
+
+      // if only username is present, only set the username
+      else if (username) {
+        setCred({ username: atob(username) });
+      }
+
+      // always execute checkUsername in case the username is invalid
+      // (but prefer to attempt to sign in first)
+      if (username) checkUsername(atob(username));
+    }
+  }, [checkUsername, cred, history, locState, search, signInWithCredentials]);
 
   // set document title
   useEffect(() => {
