@@ -66,6 +66,7 @@ function ProfilePage() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [fieldData, setFieldData] = useState({
       name: profile?.name,
+      email: profile?.email,
       phone: profile?.phone,
       twitter: profile?.twitter,
       biography: profile?.biography,
@@ -159,20 +160,36 @@ function ProfilePage() {
           isLoading={isLoading}
         >
           {canManage ? (
-            <InputGroup type={`text`}>
-              <Label
-                htmlFor={`name-field`}
-                description={`The name of this user. This does not change the username or slug.`}
-              >
-                Name
-              </Label>
-              <TextInput
-                name={`name-field`}
-                id={`name-field`}
-                value={fieldData.name}
-                onChange={(e) => handleFieldChange(e.currentTarget.value, `name`)}
-              />
-            </InputGroup>
+            <>
+              <InputGroup type={`text`}>
+                <Label
+                  htmlFor={`name-field`}
+                  description={`The name of this user. This does not change the username or slug.`}
+                >
+                  Name
+                </Label>
+                <TextInput
+                  name={`name-field`}
+                  id={`name-field`}
+                  value={fieldData.name}
+                  onChange={(e) => handleFieldChange(e.currentTarget.value, `name`)}
+                />
+              </InputGroup>
+              <InputGroup type={`text`}>
+                <Label
+                  htmlFor={`email-field`}
+                  description={`The user's email. Try to use an @furman or @thepaladin.news email address.`}
+                >
+                  Email
+                </Label>
+                <TextInput
+                  name={`email-field`}
+                  id={`email-field`}
+                  value={fieldData.email}
+                  onChange={(e) => handleFieldChange(e.currentTarget.value, `email`)}
+                />
+              </InputGroup>
+            </>
           ) : null}
           <InputGroup type={`text`}>
             <Label
