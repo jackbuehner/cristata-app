@@ -25,6 +25,8 @@ import {
   MUTATE_PROFILE__TYPE,
   PROFILE,
   PROFILE__TYPE,
+  REINVITE_USER,
+  REINVITE_USER__TYPE,
 } from '../../../graphql/queries';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
@@ -281,6 +283,20 @@ function ProfilePage() {
     return null;
   }, [data]);
 
+  const reinvite = () => {
+    client
+      .mutate<REINVITE_USER__TYPE>({ mutation: REINVITE_USER, variables: { _id: profile?._id } })
+      .then(() => {
+        toast.success(`Re-sent invite to ${profile?.email}`);
+        refetch();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error(`Failed to re-send the invitation. \n ${error.message}`);
+        refetch();
+      });
+  };
+
   return (
     <>
       <PageHead
@@ -299,8 +315,15 @@ function ProfilePage() {
             <Notice theme={theme}>
               This user never accepted their invitation and will not be able to sign in to Cristata.{' '}
               {expiresAt
-                ? `It expired on ${DateTime.fromISO(expiresAt.toISOString()).toFormat(`LLL. dd, yyyy 'at' t`)}.`
+                ? `It expired on ${DateTime.fromISO(expiresAt.toISOString()).toFormat(
+                    `LLL. dd, yyyy 'at' t`
+                  )}. `
                 : null}
+              {canManage ? (
+                <span onClick={reinvite} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                  Reinvite user
+                </span>
+              ) : null}
             </Notice>
           ) : temporary ? (
             <Notice theme={theme}>
@@ -308,8 +331,13 @@ function ProfilePage() {
               {expiresAt
                 ? `It will expire on ${DateTime.fromISO(expiresAt.toISOString()).toFormat(
                     `LLL. dd, yyyy 'at' t`
-                  )}.`
+                  )}. `
                 : null}
+              {canManage ? (
+                <span onClick={reinvite} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                  Reinvite user
+                </span>
+              ) : null}
             </Notice>
           ) : null}
           <TopBox>
