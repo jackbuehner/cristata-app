@@ -34,6 +34,11 @@ function SideNavSubButton(props: {
         background: ${isSameLocation && isSameSearch
           ? Color(theme.color.neutral[theme.mode][800]).alpha(0.12).string()
           : 'unset'};
+        > span:nth-of-type(2) {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       `}
       colorShade={600}
       backgroundColor={{ base: 'white' }}
