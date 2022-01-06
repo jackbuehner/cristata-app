@@ -24,6 +24,7 @@ import {
 } from '../../graphql/queries';
 import useScript from '../../hooks/useScript';
 import { themeType } from '../../utils/theme/theme';
+import { PasswordMeter } from 'password-meter';
 
 interface ISignIn {
   view?: 'sign-in';
@@ -194,6 +195,8 @@ function SignIn(props: ISignIn) {
 
     if (newPassCred?.new !== newPassCred?.newConfirm) {
       setError('New passwords do not match');
+      setIsLoading(false);
+      return;
     }
 
     client
@@ -440,6 +443,7 @@ function SignIn(props: ISignIn) {
 
   // set the template variables for the change_password step
   if (locState?.step === 'change_password') {
+    const { percent } = new PasswordMeter().getResult(newPassCred?.new || '');
     title = 'Change password';
     if (locState?.username && typeof locState.username === 'string') reason = locState.username;
     nextFunction = () =>
@@ -477,6 +481,7 @@ function SignIn(props: ISignIn) {
           id={`new-password`}
           autocomplete={`new-password`}
         />
+        <Meter percent={percent} />
         <TextInput
           lineHeight={'24px'}
           placeholder={'Re-type new password'}
@@ -488,6 +493,11 @@ function SignIn(props: ISignIn) {
           id={`new-password-again`}
           autocomplete={`new-password`}
         />
+        {percent < 70 && percent > 0 ? (
+          <ErrorMessage theme={theme}>
+            Password is too weak. Try adding some numbers, symbols, or uppercase letters.
+          </ErrorMessage>
+        ) : null}
         {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
       </>
     );
@@ -765,6 +775,29 @@ const IndeterminateProgress = styled(LinearProgress)<{
   border-radius: ${({ theme }) => `${theme.radius} ${theme.radius} 0 0`};
   @media (max-width: 460px) {
     border-radius: 0;
+  }
+`;
+
+const Meter = styled.div<{ percent: number }>`
+  margin-top: -8px;
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 2.1px;
+    background: ${({ percent }) =>
+      percent === 0
+        ? 'none'
+        : percent < 50
+        ? Color(`rgb(255, ${Math.round(5.1 * percent)}, 0)`)
+            .darken(0.1)
+            .string()
+        : Color(`rgb(${Math.round(510 - 5.1 * percent)}, 255, 0)`)
+            .darken(0.3)
+            .string()};
+    border-radius: 2px;
   }
 `;
 
