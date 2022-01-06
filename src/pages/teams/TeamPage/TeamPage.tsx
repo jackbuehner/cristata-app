@@ -4,6 +4,7 @@ import styled from '@emotion/styled/macro';
 import {
   ArrowClockwise16Regular,
   Briefcase16Regular,
+  Delete16Regular,
   Dismiss16Regular,
   MoreHorizontal24Regular,
   Person16Regular,
@@ -31,6 +32,8 @@ import { client } from '../../../graphql/client';
 import {
   DEACTIVATE_USER,
   DEACTIVATE_USER__TYPE,
+  DELETE_TEAM,
+  DELETE_TEAM__TYPE,
   MODIFY_TEAM,
   MODIFY_TEAM__TYPE,
   TEAM,
@@ -305,6 +308,66 @@ function TeamPage() {
     );
   }, [theme, permissions, team?._id]);
 
+  // modal for deleting the team
+  const [showDeleteModal, hideDeleteModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [confirmText, setConfirmText] = useState<string>('');
+    const textMatches = confirmText === `Delete ${team?.slug}`;
+
+    const deleteTeam = async () => {
+      setIsLoading(true);
+      return await client
+        .mutate<DELETE_TEAM__TYPE>({ mutation: DELETE_TEAM, variables: { _id: team?._id } })
+        .then(() => {
+          toast.success(`Successfully deleted team.`);
+          history.push(`/teams`);
+          return true;
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error(`Failed to delete team. \n ${error.message}`);
+          return false;
+        })
+        .finally(() => setIsLoading(false));
+    };
+
+    return (
+      <PlainModal
+        title={'Delete team?'}
+        isLoading={isLoading}
+        hideModal={hideDeleteModal}
+        continueButton={{
+          text: 'Yes, Delete',
+          color: 'danger',
+          disabled: !textMatches,
+          onClick: deleteTeam,
+        }}
+      >
+        <div style={{ fontSize: 14, marginBottom: 16 }}>
+          Danger! <strong>This cannot be undone.</strong> Users in the team will not be deleted, but users will
+          not longer be able to access documents via this team.
+        </div>
+        <InputGroup type={`text`}>
+          <Label
+            htmlFor={'confirm-field'}
+            description={`Type "Delete ${team?.slug}" to delete this team.`}
+            disabled={isLoading}
+          >
+            Confirm delete
+          </Label>
+          <TextInput
+            name={'name'}
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.currentTarget.value)}
+            isDisabled={isLoading}
+          />
+        </InputGroup>
+      </PlainModal>
+    );
+  }, [team]);
+
   /**
    * Sets user role.
    */
@@ -376,6 +439,11 @@ function TeamPage() {
               label: 'Refresh data',
               icon: <ArrowClockwise16Regular />,
               onClick: () => refetch(),
+            },
+            {
+              label: 'Delete team',
+              icon: <Delete16Regular />,
+              onClick: () => showDeleteModal(),
             },
           ]}
         />
