@@ -1,5 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { InputHTMLAttributes } from 'react';
 import { themeType } from '../../utils/theme/theme';
 
 interface ITextInputBase {
@@ -26,6 +27,7 @@ interface ITextInput extends ITextInputBase {
   id?: string;
   placeholder?: string;
   type?: 'text' | 'number' | 'password';
+  autocomplete?: InputHTMLAttributes<HTMLInputElement>['autoComplete'];
 }
 
 const TextInputComponent = styled.input<ITextInputComponent>`
@@ -78,6 +80,7 @@ function TextInput(props: ITextInput) {
       textColor={props.textColor}
       backgroundColor={props.backgroundColor}
       borderColor={props.borderColor}
+      autoComplete={props.autocomplete}
     />
   );
 }

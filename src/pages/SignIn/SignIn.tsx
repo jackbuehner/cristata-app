@@ -313,7 +313,24 @@ function SignIn(props: ISignIn) {
         value={cred?.username}
         onChange={(e) => setCred({ ...cred, username: e.currentTarget.value })}
         onKeyPress={nextOnEnter}
+        id={`username`}
+        name={`username`}
+        autocomplete={`username`}
       />
+      {/* hidden password field makes some browser autofill the username */}
+      <div style={{ display: 'none' }}>
+        <TextInput
+          lineHeight={'24px'}
+          placeholder={'Password'}
+          value={cred?.password || ''}
+          onChange={(e) => setCred({ ...cred, password: e.currentTarget.value })}
+          onKeyPress={nextOnEnter}
+          type={'password'}
+          id={`password`}
+          name={`password`}
+          autocomplete={`current-password`}
+        />
+      </div>
       {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
       <HelpLink theme={theme} href={`mailto:jack.buehner@thepaladin.news`}>
         Need account?
@@ -402,6 +419,9 @@ function SignIn(props: ISignIn) {
           onChange={(e) => setCred({ ...cred, password: e.currentTarget.value })}
           onKeyPress={nextOnEnter}
           type={'password'}
+          id={`password`}
+          name={`password`}
+          autocomplete={`current-password`}
         />
         {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
       </>
@@ -441,6 +461,9 @@ function SignIn(props: ISignIn) {
             onChange={(e) => setNewPassCred({ ...newPassCred, old: e.currentTarget.value })}
             onKeyPress={nextOnEnter}
             type={'password'}
+            name={`password`}
+            id={`password`}
+            autocomplete={`current-password`}
           />
         )}
         <TextInput
@@ -450,6 +473,9 @@ function SignIn(props: ISignIn) {
           onChange={(e) => setNewPassCred({ ...newPassCred, new: e.currentTarget.value })}
           onKeyPress={nextOnEnter}
           type={'password'}
+          name={`new-password`}
+          id={`new-password`}
+          autocomplete={`new-password`}
         />
         <TextInput
           lineHeight={'24px'}
@@ -458,6 +484,9 @@ function SignIn(props: ISignIn) {
           onChange={(e) => setNewPassCred({ ...newPassCred, newConfirm: e.currentTarget.value })}
           onKeyPress={nextOnEnter}
           type={'password'}
+          name={`new-password-again`}
+          id={`new-password-again`}
+          autocomplete={`new-password`}
         />
         {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
       </>
@@ -682,7 +711,7 @@ const Reason = styled.p<{ theme: themeType }>`
   padding-top: 8px;
 `;
 
-const Form = styled.div`
+const Form = styled.form`
   padding: 24px 0px;
   > *:not(:last-child) {
     margin-bottom: 8px;
