@@ -23,6 +23,7 @@ import {
   CREATE_TEAM,
   CREATE_TEAM__TYPE,
   TEAMS,
+  TEAMS__DOC_TYPE,
   TEAMS__TYPE,
   TEAM_UNASSIGNED_USERS,
   TEAM_UNASSIGNED_USERS__TYPE,
@@ -221,8 +222,10 @@ function TeamsOverviewPage() {
               <Heading theme={theme}>Teams</Heading>
               <TeamsGrid>
                 {teams?.map((team, index) => {
-                  const members = Array.from(
-                    new Set([...team.members, ...team.organizers].map((m) => JSON.stringify(m)))
+                  const members: TEAMS__DOC_TYPE['members'] = Array.from(
+                    new Set(
+                      [...team.members, ...team.organizers].filter((m) => !!m).map((m) => JSON.stringify(m))
+                    )
                   ).map((m) => JSON.parse(m)); // merge unique members and organizers
                   return (
                     <TeamCard
