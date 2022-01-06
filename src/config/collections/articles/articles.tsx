@@ -178,7 +178,7 @@ const articles: collection<IArticle> = {
       label: 'Team access control',
       type: 'multiselect_async',
       description: 'Control which teams (user groups) can see this article.',
-      async_options: (val) => selectTeam(val),
+      async_options: (val, client) => selectTeam(val, client),
     },
     { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
     { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },

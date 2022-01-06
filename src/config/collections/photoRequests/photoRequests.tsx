@@ -62,7 +62,7 @@ const photoRequests: collection<IPhotoRequest> = {
       label: 'Team access control',
       type: 'multiselect_async',
       description: 'Control which teams can see this photo request.',
-      async_options: (val) => selectTeam(val),
+      async_options: (val, client) => selectTeam(val, client),
     },
     { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
     { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
