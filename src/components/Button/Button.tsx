@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { InputHTMLAttributes } from 'react';
 import styled from '@emotion/styled/macro';
 import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType, colorShade, colorType } from '../../utils/theme/theme';
@@ -111,6 +111,7 @@ export interface ButtonProps {
   disableLabelAlignmentFix?: boolean;
   className?: string;
   showChevron?: boolean;
+  autoFocus?: InputHTMLAttributes<HTMLInputElement>['autoFocus'];
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
@@ -132,6 +133,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       colorShade={props.colorShade ? props.colorShade : 700}
       theme={theme}
       className={props.className}
+      autoFocus={props.autoFocus}
     >
       {props.customIcon ? (
         props.customIcon

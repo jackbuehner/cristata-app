@@ -319,6 +319,7 @@ function SignIn(props: ISignIn) {
         id={`username`}
         name={`username`}
         autocomplete={`username`}
+        autoFocus
       />
       {/* hidden password field makes some browser autofill the username */}
       <div style={{ display: 'none' }}>
@@ -425,6 +426,7 @@ function SignIn(props: ISignIn) {
           id={`password`}
           name={`password`}
           autocomplete={`current-password`}
+          autoFocus
         />
         {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
       </>
@@ -468,6 +470,7 @@ function SignIn(props: ISignIn) {
             name={`password`}
             id={`password`}
             autocomplete={`current-password`}
+            autoFocus
           />
         )}
         <TextInput
@@ -480,6 +483,7 @@ function SignIn(props: ISignIn) {
           name={`new-password`}
           id={`new-password`}
           autocomplete={`new-password`}
+          autoFocus={!newPassCred?.hideOld}
         />
         <Meter percent={percent} />
         <TextInput
@@ -526,7 +530,9 @@ function SignIn(props: ISignIn) {
     note = <></>;
     buttons = (
       <>
-        <Button onClick={nextFunction}>Finish</Button>
+        <Button onClick={nextFunction} autoFocus>
+          Finish
+        </Button>
       </>
     );
     below = <></>;
@@ -567,7 +573,9 @@ function SignIn(props: ISignIn) {
     note = <></>;
     buttons = (
       <>
-        <Button onClick={nextFunction}>Next</Button>
+        <Button onClick={nextFunction} autoFocus>
+          Next
+        </Button>
       </>
     );
     below = <></>;

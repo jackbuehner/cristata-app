@@ -28,6 +28,7 @@ interface ITextInput extends ITextInputBase {
   placeholder?: string;
   type?: 'text' | 'number' | 'password';
   autocomplete?: InputHTMLAttributes<HTMLInputElement>['autoComplete'];
+  autoFocus?: InputHTMLAttributes<HTMLInputElement>['autoFocus'];
 }
 
 const TextInputComponent = styled.input<ITextInputComponent>`
@@ -81,6 +82,7 @@ function TextInput(props: ITextInput) {
       backgroundColor={props.backgroundColor}
       borderColor={props.borderColor}
       autoComplete={props.autocomplete}
+      autoFocus={props.autoFocus}
     />
   );
 }
