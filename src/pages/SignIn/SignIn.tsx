@@ -247,13 +247,11 @@ function SignIn(props: ISignIn) {
       }
 
       // if only username is present, only set the username
+      // and proceed to the password step
       else if (username) {
         setCred({ username: atob(username) });
+        checkUsername(atob(username));
       }
-
-      // always execute checkUsername in case the username is invalid
-      // (but prefer to attempt to sign in first)
-      if (username) checkUsername(atob(username));
     }
   }, [checkUsername, cred, history, locState, search, signInWithCredentials]);
 
