@@ -16,6 +16,8 @@ export { HISTORY } from './HISTORY';
 export type { HISTORY__DOC_TYPE, HISTORY__TYPE } from './HISTORY';
 export { ME_BASIC } from './ME_BASIC';
 export type { ME_BASIC__TYPE } from './ME_BASIC';
+export { MIGRATE_USER_ACCOUNT } from './MIGRATE_USER_ACCOUNT';
+export type { MIGRATE_USER_ACCOUNT__DOC_TYPE, MIGRATE_USER_ACCOUNT__TYPE } from './MIGRATE_USER_ACCOUNT';
 export { MODIFY_PHOTO } from './MODIFY_PHOTO';
 export type { MODIFY_PHOTO__DOC_TYPE, MODIFY_PHOTO__TYPE } from './MODIFY_PHOTO';
 export { MODIFY_TEAM } from './MODIFY_TEAM';

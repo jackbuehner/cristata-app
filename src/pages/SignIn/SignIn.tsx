@@ -2,9 +2,10 @@
 import { ApolloError } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Checkmark28Regular } from '@fluentui/react-icons';
+import { Checkmark28Regular, Mail48Regular } from '@fluentui/react-icons';
 import { LinearProgress } from '@rmwc/linear-progress';
 import useAxios from 'axios-hooks';
+import Color from 'color';
 import { useCallback, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
@@ -14,6 +15,8 @@ import { client } from '../../graphql/client';
 import {
   CHANGE_USER_PASSWORD,
   CHANGE_USER_PASSWORD__TYPE,
+  MIGRATE_USER_ACCOUNT,
+  MIGRATE_USER_ACCOUNT__TYPE,
   USER_EXISTS,
   USER_EXISTS__TYPE,
   USER_METHODS,
@@ -137,47 +140,50 @@ function SignIn(props: ISignIn) {
    * If failure, display message.
    * If 2fa code requested, move to 2fa step.
    */
-  const signInWithCredentials = useCallback(() => {
-    fetch(`${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/local`, {
-      method: 'post',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: cred?.username,
-        password: cred?.password,
-        redirect: false,
-      }),
-      redirect: 'follow',
-      cache: 'no-cache',
-    })
-      .then(async (res) => {
-        const json = await res.json();
-        if (json.error) setError(json.error);
-        else if (json.data) {
-          // need to change password
-          if (json.data.next_step === 'change_password') {
-            setNewPassCred({ ...newPassCred, old: cred?.password, hideOld: true });
-            history.push({
-              state: {
-                ...locState,
-                step: 'change_password',
-              },
-            });
-          }
-          // TODO: read whether two_factor_authentication is enabled and require the user to enable it
-          // reload to continue to app
-          else {
-            done();
-          }
-        } else setError('Failed to authenticate successfully');
+  const signInWithCredentials = useCallback(
+    (pcred: typeof cred = cred) => {
+      fetch(`${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/local`, {
+        method: 'post',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: pcred?.username,
+          password: pcred?.password,
+          redirect: false,
+        }),
+        redirect: 'follow',
+        cache: 'no-cache',
       })
-      .catch((error) => {
-        console.error(error);
-        setError('An unexpected error occured');
-      });
-  }, [cred?.password, cred?.username, history, locState, newPassCred]);
+        .then(async (res) => {
+          const json = await res.json();
+          if (json.error) setError(json.error);
+          else if (json.data) {
+            // need to change password
+            if (json.data.next_step === 'change_password') {
+              setNewPassCred({ ...newPassCred, old: pcred?.password, hideOld: true });
+              history.push({
+                state: {
+                  ...locState,
+                  step: 'change_password',
+                },
+              });
+            }
+            // TODO: read whether two_factor_authentication is enabled and require the user to enable it
+            // reload to continue to app
+            else {
+              done();
+            }
+          } else setError('Failed to authenticate successfully');
+        })
+        .catch((error) => {
+          console.error(error);
+          setError('An unexpected error occured');
+        });
+    },
+    [cred, history, locState, newPassCred]
+  );
 
   /**
    * Changes the password for the user
@@ -234,7 +240,7 @@ function SignIn(props: ISignIn) {
       // if username and password are present, attempt to sign in
       if (username && password) {
         setCred({ username: atob(username), password: atob(password) });
-        if (cred?.username && cred.password) signInWithCredentials();
+        signInWithCredentials({ username: atob(username), password: atob(password) });
       }
 
       // if only username is present, only set the username
@@ -252,6 +258,36 @@ function SignIn(props: ISignIn) {
   useEffect(() => {
     document.title = `Cristata`;
   }, []);
+
+  /**
+   * Migrates a user's account to a local account. Social sign on will still
+   * work after the migration.
+   */
+  const migrateAccount = (_id: string) => {
+    setError(null);
+    setIsLoading(true);
+
+    client
+      .mutate<MIGRATE_USER_ACCOUNT__TYPE>({
+        mutation: MIGRATE_USER_ACCOUNT,
+        variables: { _id },
+      })
+      .then(() => {
+        history.push({
+          state: {
+            ...locState,
+            step: 'migrate_email_sent',
+          },
+        });
+      })
+      .catch((error: ApolloError) => {
+        console.error(error);
+        setError(error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   /**
    * Execute `nextFunction()` when the `Enter` key is pressed.
@@ -454,6 +490,71 @@ function SignIn(props: ISignIn) {
         <Button onClick={nextFunction}>Finish</Button>
       </>
     );
+    below = <></>;
+  }
+
+  // template for migrate_to_local step
+  if (locState?.step === 'migrate_to_local') {
+    title = 'Hey!';
+    reason = '';
+    nextFunction = () => {
+      if (user?._id) migrateAccount(user._id);
+      else setError('_id or user is not defined');
+    };
+    form = (
+      <>
+        <div style={{ textAlign: 'center' }}>
+          {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
+          <p>You haven't created a password for your account!</p>
+          <p>To continue using Cristata, you need to set a password.</p>
+          <p>You will receive an email at {user?.email || 'null'} with a link to create a new password.</p>
+          <p
+            style={{
+              fontWeight: 600,
+              margin: 0,
+              padding: 10,
+              borderRadius: theme.radius,
+              backgroundColor: Color(theme.color.danger[800]).alpha(0.1).string(),
+            }}
+          >
+            If you do not click the link in the email within 48 hours, you will lose access to your account.
+          </p>
+          <p>
+            Click <span style={{ fontWeight: 500 }}>Next</span> to receive the email.
+          </p>
+        </div>
+      </>
+    );
+    note = <></>;
+    buttons = (
+      <>
+        <Button onClick={nextFunction}>Next</Button>
+      </>
+    );
+    below = <></>;
+  }
+
+  console.log(locState);
+
+  // template for migrate_email_sent step (after migrate_to_local email is sent)
+  if (locState?.step === 'migrate_email_sent') {
+    title = '';
+    reason = '';
+    nextFunction = () => null;
+    form = (
+      <>
+        <div style={{ marginTop: 58, textAlign: 'center' }}>
+          <Mail48Regular />
+          <p>
+            An email has been sent.
+            <br />
+            Check your inbox.
+          </p>
+        </div>
+      </>
+    );
+    note = <></>;
+    buttons = <></>;
     below = <></>;
   }
 

@@ -38,30 +38,28 @@ function SplashScreen(props: ISplashScreen) {
     }
   }, [props.error, history]);
 
-  // set the user to localstorage if the user is authenticated and requires no
-  // other login steps
   useEffect(() => {
-    if (props.user && !props.user.next_step) {
+    if (props.user) {
       localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
-      const redirect = localStorage.getItem('auth.redirect_after') || '/';
-      history.push(redirect !== '/sign-in' ? redirect : '/'); // redirect
-      localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
-    }
-  }, [props.user, history]);
 
-  // if the user is not a member, set it to localstorage but redirect to page to help them become members
-  useEffect(() => {
-    if (props.user && props.user.next_step === 'join_gh_org') {
-      localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
-      history.push('/sign-in-legacy?isMember=false'); // redirect
-    }
-  }, [props.user, history]);
-
-  // if the user needs to change password, set it to localstorage but redirect to page to change password
-  useEffect(() => {
-    if (props.user && props.user.next_step === 'change_password') {
-      localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
-      history.push('/sign-in', { username: props.user.email, step: 'change_password' }); // redirect
+      // user needs to change password
+      if (props.user.next_step === 'change_password') {
+        history.push('/sign-in', { username: props.user.email, step: 'change_password' });
+      }
+      // user needs to create a password
+      else if (!props.user.methods.includes('local')) {
+        history.push('/sign-in', { step: 'migrate_to_local' });
+      }
+      // users needs to join gh org
+      else if (props.user.next_step === 'join_gh_org') {
+        history.push('/sign-in-legacy?isMember=false');
+      }
+      // redirect to user's desired page if there are not other login steps
+      else if (!props.user.next_step) {
+        const redirect = localStorage.getItem('auth.redirect_after') || '/';
+        history.push(!redirect.includes('/sign-in') ? redirect : '/'); // redirect
+        localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
+      }
     }
   }, [props.user, history]);
 
