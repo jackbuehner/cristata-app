@@ -293,7 +293,7 @@ const navigation: Inavigation = {
           label: `(T)Issues`,
           icon: <Document24Regular />,
           to: `/cms/collection/flush`,
-          isHidden: !['T_kwDOBCVTT84AUIJM', 'MDQ6VGVhbTQ2NDI0MTc='].some((team) =>
+          isHidden: !['000000000000000000000001', '000000000000000000000009'].some((team) =>
             JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(team)
           ),
         },
@@ -306,8 +306,8 @@ const navigation: Inavigation = {
           label: `flusher.page`,
           icon: <BookGlobe24Regular />,
           to: `/cms/collection/shorturl`,
-          isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
-            'MDQ6VGVhbTQ2NDI0MTc='
+          isHidden: !['000000000000000000000001', '000000000000000000000008'].some((team) =>
+            JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(team)
           ),
         },
       ],
@@ -320,15 +320,15 @@ const navigation: Inavigation = {
           icon: <StarEmphasis24Regular />,
           to: `/cms/item/featured-settings/6101da4a5386ae9ea3147f17`,
           isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
-            'MDQ6VGVhbTQ2NDI0MTc='
+            '000000000000000000000001'
           ),
         },
         {
           label: `Social media articles (LIFT)`,
           icon: <LinkSquare24Regular />,
           to: `/cms/item/social-articles/615ff1210e3e31a22a3c5746`,
-          isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
-            'MDQ6VGVhbTQ2NDI0MTc='
+          isHidden: !['000000000000000000000001', '000000000000000000000007'].some((team) =>
+            JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(team)
           ),
         },
       ],
