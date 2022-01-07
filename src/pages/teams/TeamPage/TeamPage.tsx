@@ -66,6 +66,7 @@ function TeamPage() {
   const allMembers: TEAM__DOC_TYPE['members'] = Array.from(
     new Set(
       [...(team?.members || []), ...(team?.organizers || [])]
+        .filter((m) => !!m)
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((user) => JSON.stringify(user))
     )
@@ -126,8 +127,8 @@ function TeamPage() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [membersToAdd, setMembersToAdd] = useState<string[]>([]);
 
-    const members = data?.team.members.map((user) => user._id) || [];
-    const organizers = data?.team.organizers || [];
+    const members = data?.team.members.filter((m) => !!m).map((user) => user._id) || [];
+    const organizers = data?.team.organizers.filter((m) => !!m) || [];
 
     const isLoading = isMutating || loading || networkStatus === NetworkStatus.refetch;
 
