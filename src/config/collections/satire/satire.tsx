@@ -51,7 +51,7 @@ const satire: collection<ISatire> = {
     },
     {
       key: 'photo_path',
-      label: 'Photo',
+      label: 'Lead image',
       type: 'select_async',
       description: 'The photo that appears at the top of the piece.',
       async_options: (val, client) => selectPhotoPath(val, client),
