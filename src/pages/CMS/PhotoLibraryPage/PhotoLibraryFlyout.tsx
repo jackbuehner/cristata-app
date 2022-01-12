@@ -107,7 +107,10 @@ const Wrapper = styled.div<{ theme: themeType }>`
     position: fixed;
     height: 100vh;
     width: 100vw;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
   }
   overflow-y: auto;
   overflow-x: hidden;

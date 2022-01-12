@@ -81,7 +81,10 @@ function SplashScreen(props: ISplashScreen) {
       <style>
         {`
           .splash-wrapper {
-            inset: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
             position: fixed;
             z-index: 9999;
             background: ${isFullEditorPage ? theme.color.blue[800] : theme.color.primary[800]};
