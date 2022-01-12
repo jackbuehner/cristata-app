@@ -5,7 +5,12 @@ import { Paged } from '../../../interfaces/cristata/paged';
 
 async function selectPhotoPath(inputValue: string, client: ApolloClient<NormalizedCacheObject>) {
   // get the photos that best match the current input
-  type QueryDocType = { _id: mongoose.Types.ObjectId; photo_url: string; name: string };
+  type QueryDocType = {
+    _id: mongoose.Types.ObjectId;
+    photo_url: string;
+    name: string;
+    people: { photo_created_by?: string };
+  };
   const QUERY = (input: string) =>
     gql(
       jsonToGraphQLQuery({
@@ -21,6 +26,9 @@ async function selectPhotoPath(inputValue: string, client: ApolloClient<Normaliz
               _id: true,
               photo_url: true,
               name: true,
+              people: {
+                photo_created_by: true,
+              },
             },
           },
         },
@@ -32,7 +40,14 @@ async function selectPhotoPath(inputValue: string, client: ApolloClient<Normaliz
   });
 
   // with the photo data, create the options array
-  const options = data.photos.docs.map((photo) => ({ value: photo.photo_url, label: photo.name }));
+  const options = data.photos.docs.map((photo) => {
+    const isDisabled = !photo.people.photo_created_by;
+    return {
+      value: photo.photo_url,
+      label: `${photo.name} ${isDisabled ? `[MISSING PHOTOGRAPHER]` : ``}`,
+      isDisabled: isDisabled,
+    };
+  });
 
   // return the options array
   return options;
