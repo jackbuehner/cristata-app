@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { ClassName } from './extension-class-name';
 import Underline from '@tiptap/extension-underline';
 import TextStyle from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
@@ -142,6 +143,7 @@ const Tiptap = (props: ITiptap) => {
       FontFamily,
       FontSize,
       Comment,
+      ClassName.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({
         HTMLAttributes: {
           target: '_self',
