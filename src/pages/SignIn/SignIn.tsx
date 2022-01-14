@@ -297,7 +297,7 @@ function SignIn(props: ISignIn) {
    */
   const nextOnEnter = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === 'Enter') {
-      nextFunction();
+      //nextFunction();
     }
   };
 
