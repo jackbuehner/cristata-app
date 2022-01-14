@@ -28,9 +28,14 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
 
   // get the photo from the database using the photoId attribute
   const PHOTO_QUERY = useQuery<PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE>(
-    PHOTOS_BASIC_BY_REGEXNAME_OR_URL(props.node.attrs.photoId)
+    PHOTOS_BASIC_BY_REGEXNAME_OR_URL(props.node.attrs.photoId),
+    {
+      fetchPolicy: 'no-cache',
+    }
   );
   const photo = PHOTO_QUERY.data?.photos.docs?.[0];
+
+  console.log(props.node.attrs.photoId);
 
   // set the photo url and credit attributes
   useEffect(() => {
