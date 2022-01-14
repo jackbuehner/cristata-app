@@ -14,7 +14,7 @@ import Color from 'color';
 import { useHistory, useParams } from 'react-router-dom';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 import ReactTooltip from 'react-tooltip';
-import { NetworkStatus, useQuery } from '@apollo/client';
+import { ApolloError, NetworkStatus, useQuery } from '@apollo/client';
 import {
   CREATE_PHOTO,
   CREATE_PHOTO__TYPE,
@@ -253,6 +253,17 @@ function PhotoLibraryPage() {
 
                   // open the photo metadata
                   history.push(`/cms/photos/library/${_id}`);
+                })
+                .catch((error: ApolloError) => {
+                  setIsLoading(false);
+                  setUploadStatus(null);
+
+                  // refresh the page of photos with the new photo
+                  refetch();
+
+                  // log and toast errors
+                  console.error(error.graphQLErrors?.[0]?.message || error.message);
+                  toast.error(error.graphQLErrors?.[0]?.message || error.message);
                 });
             }
           })
