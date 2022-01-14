@@ -527,7 +527,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     // if the field has a `modifyValue` function, execute it now
     if (field.modifyValue) val = field.modifyValue(val, state.fields, client);
     // ensure that values are strings
-    return val.toString();
+    return val?.toString() || '';
   };
 
   return (
