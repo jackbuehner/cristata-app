@@ -65,6 +65,15 @@ const PhotoWidget = Node.create<PhotoWidgetOptions>({
           showCaption: element.getAttribute('data-show-caption') || false,
         }),
       },
+      position: {
+        default: 'center',
+        renderHTML: (attributes) => ({
+          'data-wrap-position': attributes.position,
+        }),
+        parseHTML: (element) => ({
+          position: element.getAttribute('data-wrap-position') || 'center',
+        }),
+      },
     };
   },
 

@@ -43,7 +43,9 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
   // insert photo widget
   const [showPhotoWidgetModal, hidePhotoWidgetModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [photoId, setPhotoId] = useState<HTMLTextAreaElement['value']>(``);
+    const [photoId, setPhotoId] = useState<HTMLTextAreaElement['value']>(props.node.attrs.photoId);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [photoPos, setPhotoPos] = useState<string>(props.node.attrs.position);
 
     return (
       <PlainModal
@@ -52,7 +54,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
         continueButton={{
           text: 'Insert',
           onClick: () => {
-            updateAttributes({ photoId: photoId });
+            updateAttributes({ photoId: photoId, position: photoPos });
             return true;
           },
           disabled: photoId.length < 1,
@@ -93,18 +95,52 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             </ClientConsumer>
           </InputGroup>
         </ErrorBoundary>
+        <ErrorBoundary fallback={<div>Error loading photo position field</div>}>
+          <InputGroup type={`text`}>
+            <Label
+              description={`Choose whether the photo is right aligned, left aligned, or full width. On small devices, photos will always be full width.`}
+            >
+              Select photo position
+            </Label>
+            <ClientConsumer>
+              {(client) => (
+                <Select
+                  client={client}
+                  options={[
+                    { label: 'Left-aligned', value: 'left' },
+                    { label: 'Right-aligned', value: 'right' },
+                    { label: 'Full width', value: 'center' },
+                  ]}
+                  val={photoPos}
+                  onChange={(valueObj) => (valueObj ? setPhotoPos(valueObj.value) : null)}
+                />
+              )}
+            </ClientConsumer>
+          </InputGroup>
+        </ErrorBoundary>
       </PlainModal>
     );
-  }, []);
+  }, [props.node.attrs.photoId, props.node.attrs.position]);
 
   return (
     <NodeViewWrapper>
       <WidgetWrapper
+        position={props.node.attrs.position}
         ref={widgetRef}
         onMouseOver={() => setIsMouseOver(true)}
         onMouseOut={() => setIsMouseOver(false)}
       >
-        <img style={{ margin: '20px 0' }} contentEditable={false} src={photo?.photo_url} alt={''} />
+        <img
+          style={{
+            margin:
+              props.node.attrs.position === 'left' || props.node.attrs.position === 'right'
+                ? '0 0 20px 0'
+                : '20px 0',
+          }}
+          contentEditable={false}
+          src={photo?.photo_url}
+          alt={''}
+        />
         <WidgetLabel
           isVisible={isMouseOver}
           contentEditable={false}
@@ -155,6 +191,7 @@ const Caption = styled.div<{ show: boolean }>`
   display: block;
   text-align: ${({ show }) => (show ? 'center' : 'right')};
   margin: ${({ show }) => (show ? `-10px 0 10px 0` : `-26px 0 10px 0`)};
+  line-height: 1.3;
 `;
 
 const Source = styled.span`
