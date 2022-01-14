@@ -13,7 +13,7 @@ function Titlebar(props: ITitlebar) {
   const theme = useTheme() as themeType;
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
-  const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect().x;
+  const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect?.().x || 0;
 
   return (
     <Wrapper>
