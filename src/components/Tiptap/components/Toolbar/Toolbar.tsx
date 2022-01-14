@@ -176,19 +176,85 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
           }}
           items={[
             {
-              onClick: () => editor?.chain().focus().toggleHeading({ level: 1 }).run(),
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.headline)
+                  .setHeading({ level: 1 })
+                  .setClassName('title')
+                  .setBold()
+                  .selectParentNode()
+                  .run(),
+              label: <h1 className={'title'}>Title</h1>,
+            },
+            {
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.body)
+                  .setParagraph()
+                  .setClassName('subtitle')
+                  .setItalic()
+                  .run(),
+              label: <p className={'subtitle'}>Subtitle</p>,
+            },
+            {
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.headline)
+                  .setHeading({ level: 1 })
+                  .setClassName('')
+                  .setBold()
+                  .selectParentNode()
+                  .run(),
               label: <h1>Heading 1</h1>,
             },
             {
-              onClick: () => editor?.chain().focus().toggleHeading({ level: 2 }).run(),
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.headline)
+                  .toggleHeading({ level: 2 })
+                  .setClassName('')
+                  .setBold()
+                  .selectParentNode()
+                  .run(),
               label: <h2>Heading 2</h2>,
             },
             {
-              onClick: () => editor?.chain().focus().toggleHeading({ level: 3 }).run(),
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.headline)
+                  .toggleHeading({ level: 3 })
+                  .setClassName('')
+                  .setBold()
+                  .selectParentNode()
+                  .run(),
               label: <h3>Heading 3</h3>,
             },
             {
-              onClick: () => editor?.chain().focus().toggleBlockquote().run(),
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.body)
+                  .toggleBlockquote()
+                  .setClassName('')
+                  .selectParentNode()
+                  .run(),
               label: (
                 <blockquote>
                   <p>Blockquote</p>
@@ -196,7 +262,16 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               ),
             },
             {
-              onClick: () => editor?.chain().focus().toggleCodeBlock().run(),
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.body)
+                  .toggleCodeBlock()
+                  .setClassName('')
+                  .selectParentNode()
+                  .run(),
               label: (
                 <pre>
                   <code>Code Block</code>
@@ -204,7 +279,29 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               ),
             },
             {
-              onClick: () => editor?.chain().focus().setParagraph().run(),
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.body)
+                  .setParagraph()
+                  .setClassName('hanging')
+                  .selectParentNode()
+                  .run(),
+              label: <p>Hanging Indent</p>,
+            },
+            {
+              onClick: () =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .selectParentNode()
+                  .setFontFamily(theme.font.body)
+                  .setParagraph()
+                  .setClassName('')
+                  .selectParentNode()
+                  .run(),
               label: <p>Paragraph</p>,
             },
           ]}

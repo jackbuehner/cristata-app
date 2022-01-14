@@ -555,6 +555,48 @@ const Tiptap = (props: ITiptap) => {
                     color: #d0021b;
                     border-bottom: 1px solid #d0021b;
                   }
+
+                  // headings
+                  h1 {
+                    font-size: 24px;
+                    font-weight: 400;
+                    margin: 10px 0;
+                  }
+                  h2 {
+                    font-size: 20px;
+                    font-weight: 400;
+                    margin: 10px 0;
+                  }
+                  h3 {
+                    font-size: 17px;
+                    font-weight: 400;
+                    margin: 10px 0;
+                  }
+
+                  // title and subtitle
+                  h1.title {
+                    font-size: 48px;
+                    font-weight: 400;
+                    margin: 15px 0;
+                    text-align: center;
+                    line-height: 1.3;
+                  }
+                  p.subtitle {
+                    font-size: 18px;
+                    text-align: center;
+                    margin: 15px 0;
+                  }
+                  h1.title + p.subtitle {
+                    font-size: 18px;
+                    text-align: center;
+                    margin-top: -15px;
+                  }
+
+                  // hanging indent paragraph
+                  p.hanging {
+                    padding-left: 20px;
+                    text-indent: -20px;
+                  }
                 }
               `}
             >
