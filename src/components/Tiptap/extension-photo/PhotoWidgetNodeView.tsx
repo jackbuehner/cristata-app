@@ -2,15 +2,13 @@ import { useQuery } from '@apollo/client';
 import styled from '@emotion/styled/macro';
 import { Delete16Regular, Edit16Regular, TextDescription20Regular } from '@fluentui/react-icons';
 import { NodeViewWrapper, NodeViewProps, Node, NodeViewContent } from '@tiptap/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
 import { ClientConsumer } from '../../../graphql/client';
 import {
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
-  PHOTO_BASIC,
-  PHOTO_BASIC__TYPE,
 } from '../../../graphql/queries';
 import { InputGroup } from '../../InputGroup';
 import { Label } from '../../Label';
@@ -25,19 +23,22 @@ interface IPhotoWidgetNodeView extends NodeViewProps {
 
 function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
   const widgetRef = useRef<HTMLDivElement>(null);
+  const { updateAttributes } = props;
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
 
   // get the photo from the database using the photoId attribute
-  const PHOTO_QUERY = useQuery<PHOTO_BASIC__TYPE>(PHOTO_BASIC, {
-    variables: { _id: props.node.attrs.photoId },
-  });
-  const photo = PHOTO_QUERY.data?.photo;
+  const PHOTO_QUERY = useQuery<PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE>(
+    PHOTOS_BASIC_BY_REGEXNAME_OR_URL(props.node.attrs.photoId)
+  );
+  const photo = PHOTO_QUERY.data?.photos.docs?.[0];
 
   // set the photo url and credit attributes
-  if (photo) {
-    if (photo.photo_url) props.updateAttributes({ photoUrl: photo.photo_url });
-    if (photo.people?.photo_created_by) props.updateAttributes({ photoCredit: photo.people.photo_created_by });
-  }
+  useEffect(() => {
+    if (photo) {
+      if (photo.photo_url) updateAttributes({ photoUrl: photo.photo_url });
+      if (photo.people?.photo_created_by) updateAttributes({ photoCredit: photo.people.photo_created_by });
+    }
+  }, [photo, updateAttributes]);
 
   // insert photo widget
   const [showPhotoWidgetModal, hidePhotoWidgetModal] = useModal(() => {
@@ -51,7 +52,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
         continueButton={{
           text: 'Insert',
           onClick: () => {
-            props.updateAttributes({ photoId: photoId });
+            updateAttributes({ photoId: photoId });
             return true;
           },
           disabled: photoId.length < 1,
@@ -77,7 +78,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
 
                     // with the photo data, create the options array
                     const options = data?.photos.docs.map((photo) => ({
-                      value: photo.photo_url,
+                      value: photo._id,
                       label: photo.name,
                     }));
 
@@ -120,7 +121,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
               active: props.node.attrs.showCaption,
               icon: <TextDescription20Regular />,
               label: 'Toggle caption',
-              onClick: () => props.updateAttributes({ showCaption: !props.node.attrs.showCaption }),
+              onClick: () => updateAttributes({ showCaption: !props.node.attrs.showCaption }),
             },
             {
               icon: <Edit16Regular />,

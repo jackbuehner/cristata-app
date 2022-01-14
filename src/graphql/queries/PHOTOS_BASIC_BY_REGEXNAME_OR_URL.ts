@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { Paged } from '../../interfaces/cristata/paged';
+import { isObjectId } from '../../utils/isObjectId';
 import { paged } from '../paged';
 
 /**
@@ -8,8 +9,9 @@ import { paged } from '../paged';
  *
  * This query exlcudes photos without photo credit
  */
-const PHOTOS_BASIC_BY_REGEXNAME_OR_URL = (input: string) =>
-  gql(
+const PHOTOS_BASIC_BY_REGEXNAME_OR_URL = (input: string) => {
+  const isId = isObjectId(input);
+  return gql(
     jsonToGraphQLQuery({
       query: {
         __variables: {
@@ -27,9 +29,12 @@ const PHOTOS_BASIC_BY_REGEXNAME_OR_URL = (input: string) =>
                 { 'people.photo_created_by': { $ne: null } },
                 { 'people.photo_created_by': { $ne: '' } },
               ],
-              // match by string included in name OR exact same URL
-              $or: [{ name: { $regex: input, $options: 'i' } }, { photo_url: input }],
+              // match by string included in name OR exact same URL (only if not an object Id [use _id arg instead])
+              ...(isId
+                ? undefined
+                : { $or: [{ name: { $regex: input, $options: 'i' } }, { photo_url: input }] }),
             }),
+            ...(isId ? { _ids: [input] } : undefined),
           },
           ...paged({
             _id: true,
@@ -44,6 +49,7 @@ const PHOTOS_BASIC_BY_REGEXNAME_OR_URL = (input: string) =>
       },
     })
   );
+};
 
 type PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE =
   | {
