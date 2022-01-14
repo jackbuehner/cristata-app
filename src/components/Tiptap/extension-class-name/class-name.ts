@@ -30,14 +30,14 @@ const ClassName = Extension.create<ClassNameOptions>({
       {
         types: this.options.types,
         attributes: {
-          className: {
+          class: {
             default: null,
             // Customize the HTML parsing (for example, to load the initial content)
             parseHTML: (element) => element.getAttribute('class'),
             // … and customize the HTML rendering.
             renderHTML: (attributes) => {
               return {
-                class: attributes.className,
+                class: attributes.class,
               };
             },
           },
@@ -51,7 +51,7 @@ const ClassName = Extension.create<ClassNameOptions>({
       setClassName:
         (className: string) =>
         ({ commands }) => {
-          return this.options.types.every((type) => commands.updateAttributes(type, { className }));
+          return this.options.types.every((type) => commands.updateAttributes(type, { class: className }));
         },
     };
   },
