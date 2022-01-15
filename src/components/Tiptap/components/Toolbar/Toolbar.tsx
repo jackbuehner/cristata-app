@@ -48,7 +48,7 @@ import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
 import { Iaction } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { tiptapOptions } from '../../../../config';
 import { Select } from '../../../Select';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -99,6 +99,8 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -709,15 +711,13 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 if (props.isSidebarOpen && props.sidebarTitle === 'Document properties') {
                   props.setIsSidebarOpen(false);
                   props.setSidebarTitle('');
-                  history.replace({
-                    search: `?fs=${props.forceMax ? 'force' : Number(isMax)}&props=0`,
-                  });
+                  params.set('props', '0');
+                  history.replace({ search: params.toString() });
                 } else {
                   props.setIsSidebarOpen(true);
                   props.setSidebarTitle('Document properties');
-                  history.replace({
-                    search: `?fs=${props.forceMax ? 'force' : Number(isMax)}&props=1`,
-                  });
+                  params.set('props', '1');
+                  history.replace({ search: params.toString() });
                 }
               }}
               isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
@@ -727,11 +727,8 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
               <ToolbarMetaIconButton
                 onClick={() => {
                   setIsMax(!isMax);
-                  history.replace({
-                    search: `?fs=${Number(!isMax)}&props=${Number(
-                      props.sidebarTitle === 'Document properties'
-                    )}`,
-                  });
+                  params.set('fs', `${Number(!isMax)}`);
+                  history.replace({ search: params.toString() });
                 }}
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
                 color={'neutral'}

@@ -1,5 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { useHistory, useLocation } from 'react-router-dom';
 import { themeType } from '../../../../utils/theme/theme';
 import { SidebarHeader } from './SidebarHeader';
 
@@ -13,8 +14,8 @@ const SIDEBAR = styled.div<I_SIDEBAR>`
   width: ${({ isOpen }) => (isOpen ? 330 : 0)}px;
   height: 100%;
   flex-shrink: 0;
-  border-left: 1px solid ${({ theme, isOpen }) =>
-    isOpen ? theme.color.neutral[theme.mode][500] : 'transparent'};
+  border-left: 1px solid
+    ${({ theme, isOpen }) => (isOpen ? theme.color.neutral[theme.mode][500] : 'transparent')};
   transition: width 160ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s, opacity 40ms ease;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -32,20 +33,30 @@ const Container = styled.div`
 `;
 
 interface ISidebar {
-  closeFunction?: () => void;
+  closeFunction?: (params: URLSearchParams) => void;
   isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   children?: React.ReactNode;
   header: string;
+  setHeader: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function Sidebar(props: ISidebar) {
   const theme = useTheme() as themeType;
+  const { search } = useLocation();
+  const history = useHistory();
+
+  const closeFunction = () => {
+    const params = new URLSearchParams(search);
+    props.closeFunction?.(params);
+    props.setIsOpen(false);
+    props.setHeader('');
+    history.replace({ search: params.toString() });
+  };
 
   return (
     <SIDEBAR theme={theme} isOpen={props.isOpen}>
-      <SidebarHeader closeFunction={props.closeFunction}>
-        {props.header}
-      </SidebarHeader>
+      <SidebarHeader closeFunction={closeFunction}>{props.header}</SidebarHeader>
       <Container>
         <div>{props.children}</div>
       </Container>

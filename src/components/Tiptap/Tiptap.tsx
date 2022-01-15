@@ -30,7 +30,7 @@ import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
 import { Iaction, ItemDetailsPage } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Noticebar } from './components/Noticebar';
 import { Titlebar } from './components/Titlebar';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
@@ -67,7 +67,6 @@ const Tiptap = (props: ITiptap) => {
   const state = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
-  const history = useHistory();
   const location = useLocation();
 
   // A new Y document
@@ -607,14 +606,9 @@ const Tiptap = (props: ITiptap) => {
         <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
           <Sidebar
             isOpen={isSidebarOpen}
-            closeFunction={() => {
-              setIsSidebarOpen(false);
-              setSidebarTitle('');
-              history.replace({
-                search: `?fs=${Number(isMax)}&props=0`,
-              });
-            }}
+            setIsOpen={setIsSidebarOpen}
             header={sidebarTitle}
+            setHeader={setSidebarTitle}
           >
             {sidebarTitle === 'Document properties' ? <ItemDetailsPage isEmbedded /> : sidebarContent}
           </Sidebar>
