@@ -18,7 +18,6 @@ import { TextInput } from '../../../components/TextInput';
 import { InputGroup } from '../../../components/InputGroup';
 import { collections as collectionsConfig } from '../../../config';
 import styled from '@emotion/styled/macro';
-import { db } from '../../../utils/axios/db';
 import { unflattenObject } from '../../../utils/unflattenObject';
 import { toast } from 'react-toastify';
 import { Tiptap } from '../../../components/Tiptap';
@@ -38,7 +37,15 @@ import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import ReactTooltip from 'react-tooltip';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { ApolloClient, gql, NetworkStatus, NormalizedCacheObject, useMutation, useQuery } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloError,
+  gql,
+  NetworkStatus,
+  NormalizedCacheObject,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
 import { merge } from 'merge-anything';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { buildFullKey } from '../../../utils/buildFullKey';
@@ -96,14 +103,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   }>();
 
   const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
-
-  // collection name in the database (fall back to collection from url)
-  let collectionName: string = `${collection}`;
-  if (collectionConfig) {
-    if (collectionConfig.collectionName) {
-      collectionName = collectionConfig.collectionName;
-    }
-  }
 
   const requiredFields = [
     '_id',
@@ -226,21 +225,46 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const saveChanges = async (extraData: { [key: string]: any } = {}) => {
     setIsLoading(true);
 
-    // patch to database
-    return await db
-      .patch(
-        `/${collectionName}/${item_id}`,
+    // create the mutation
+    const MODIFY_ITEM = (id: string, input: Record<string, unknown>) => {
+      const colName = collectionConfig?.query.name.singular;
+      const identifier = collectionConfig?.query.identifier || '_id';
+      return gql(
+        jsonToGraphQLQuery({
+          mutation: {
+            [`${colName}Modify`]: {
+              __args: {
+                [identifier]: id,
+                input: input,
+              },
+              _id: true,
+            },
+          },
+        })
+      );
+    };
+
+    // modify the item in the database
+    const config = {
+      mutation: MODIFY_ITEM(
+        item_id,
         unflattenObject({ ...state.unsavedFields, ...state.tipTapFields, ...extraData })
-      )
-      .then(() => {
+      ),
+    };
+    return await client
+      .mutate(config)
+      .finally(() => {
         setIsLoading(false);
+      })
+      .then(() => {
         toast.success(`Changes successfully saved.`);
         refetch();
         return true;
       })
-      .catch((err) => {
-        console.error(err);
-        toast.error(`Failed to save changes. \n ${err.message}`);
+      .catch((error: ApolloError) => {
+        console.error(error);
+        const message = error.clientErrors?.[0]?.message || error.message;
+        toast.error(`Failed to save changes. \n ${message}`);
         return false;
       });
   };
