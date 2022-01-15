@@ -119,141 +119,153 @@ function App() {
 
   return (
     <>
-      <CristataWebSocket>
-        <StyledToastContainer
-          theme={theme}
-          closeButton={
-            <span style={{ margin: '8px 8px 0 0' }}>
-              <Dismiss16Regular />
-            </span>
-          }
-        />
-        <Router>
-          <SplashScreen loading={loadingUser} error={errorUser} user={user} />
-          <Switch>
-            <Route path={`/proto`}>
-              <ProtocolHandlerPage />
-            </Route>
-            <Route path={`/sign-in`} exact>
-              <SignIn />
-            </Route>
-            <Route path={`/sign-in-legacy`} exact>
-              <LegacySignIn />
-            </Route>
-            <Route
-              path={`/sign-out`}
-              exact
-              component={() => {
-                window.location.href = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/clear`;
-                return null;
-              }}
-            />
-            <Route>
-              {isCustomTitlebarVisible ? <Titlebar /> : null}
-              <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
-                <Wrapper>
-                  <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
-                    <SideNavs>
-                      <Sidenav
-                        gridCols={gridCols}
-                        toggleSideNavSub={toggleSideNavSub}
-                        isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                      />
-                      <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
+      <StyledToastContainer
+        theme={theme}
+        closeButton={
+          <span style={{ margin: '8px 8px 0 0' }}>
+            <Dismiss16Regular />
+          </span>
+        }
+      />
+      <Router>
+        <Switch>
+          <SplashScreen
+            loading={loadingUser}
+            error={errorUser}
+            user={user}
+            persistentChildren={
+              <>
+                <Route path={`/proto`}>
+                  <ProtocolHandlerPage />
+                </Route>
+                <Route path={`/sign-in`} exact>
+                  <SignIn user={user} loadingUser={loadingUser} />
+                </Route>
+                <Route path={`/sign-in-legacy`} exact>
+                  <LegacySignIn />
+                </Route>
+              </>
+            }
+            protectedChildren={
+              <CristataWebSocket>
+                <Route
+                  path={`/sign-out`}
+                  exact
+                  component={() => {
+                    window.location.href = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/clear`;
+                    return null;
+                  }}
+                />
+                <Route>
+                  {isCustomTitlebarVisible ? <Titlebar /> : null}
+                  <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
+                    <Wrapper>
+                      <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
+                        <SideNavs>
+                          <Sidenav
+                            gridCols={gridCols}
+                            toggleSideNavSub={toggleSideNavSub}
+                            isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
+                          />
+                          <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
+                            <Switch>
+                              <Route path={`/cms`}>
+                                <SideNavHeading>Content Management System</SideNavHeading>
+                                {navigation.cms.map((group, index) => {
+                                  // store the group items that are not hidden
+                                  const enabledGroupItems = group.items.filter(
+                                    (item) => item.isHidden !== true
+                                  );
+
+                                  // if there are no visible items, do not show the group
+                                  if (enabledGroupItems.length === 0) return null;
+
+                                  // create the group and its items
+                                  return (
+                                    <Fragment key={index}>
+                                      <SideNavHeading>{group.label}</SideNavHeading>
+                                      {enabledGroupItems.map((item, index) => {
+                                        return (
+                                          <SideNavSubButton
+                                            key={index}
+                                            Icon={item.icon}
+                                            to={item.to}
+                                            setIsNavVisibleM={setIsNavVisibleM}
+                                          >
+                                            {item.label}
+                                          </SideNavSubButton>
+                                        );
+                                      })}
+                                    </Fragment>
+                                  );
+                                })}
+                              </Route>
+                              <Route path={`/plans`}>
+                                <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
+                              </Route>
+                              <Route path={`/profile`}>
+                                <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
+                              </Route>
+                              <Route path={`/teams`}>
+                                <TeamsNav setIsNavVisibleM={setIsNavVisibleM} />
+                              </Route>
+                            </Switch>
+                          </SidenavSub>
+                        </SideNavs>
+                      </SideNavWrapper>
+                      <Content theme={theme}>
                         <Switch>
+                          <Route path={`/cms/photos/library/:photo_id?`}>
+                            <PhotoLibraryPage />
+                          </Route>
+                          <Route path={`/cms/collection/:collection/:progress`}>
+                            <CollectionPage />
+                          </Route>
+                          <Route path={`/cms/collection/:collection`}>
+                            <CollectionPage />
+                          </Route>
+                          <Route path={`/cms/item/:collection/:item_id`}>
+                            <ItemDetailsPage />
+                          </Route>
                           <Route path={`/cms`}>
-                            <SideNavHeading>Content Management System</SideNavHeading>
-                            {navigation.cms.map((group, index) => {
-                              // store the group items that are not hidden
-                              const enabledGroupItems = group.items.filter((item) => item.isHidden !== true);
-
-                              // if there are no visible items, do not show the group
-                              if (enabledGroupItems.length === 0) return null;
-
-                              // create the group and its items
-                              return (
-                                <Fragment key={index}>
-                                  <SideNavHeading>{group.label}</SideNavHeading>
-                                  {enabledGroupItems.map((item, index) => {
-                                    return (
-                                      <SideNavSubButton
-                                        key={index}
-                                        Icon={item.icon}
-                                        to={item.to}
-                                        setIsNavVisibleM={setIsNavVisibleM}
-                                      >
-                                        {item.label}
-                                      </SideNavSubButton>
-                                    );
-                                  })}
-                                </Fragment>
-                              );
-                            })}
+                            <PageHead title={`CMS`} />
+                          </Route>
+                          <Route path={`/plans/org/:id`}>
+                            <PlansPage />
                           </Route>
                           <Route path={`/plans`}>
-                            <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
+                            <PageHead title={`Plans`} />
+                          </Route>
+                          <Route path={`/profile/:profile_id`}>
+                            <ProfilePage />
                           </Route>
                           <Route path={`/profile`}>
-                            <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
+                            <PageHead title={`Profiles`} />
+                          </Route>
+                          <Route path={`/teams/:team_id`} exact>
+                            <TeamPage />
                           </Route>
                           <Route path={`/teams`}>
-                            <TeamsNav setIsNavVisibleM={setIsNavVisibleM} />
+                            <TeamsOverviewPage />
+                          </Route>
+                          <Route path={`/`}>
+                            <SidenavHeader
+                              gridCols={gridCols}
+                              homeOnly
+                              isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
+                            />
+                            <HomePage />
                           </Route>
                         </Switch>
-                      </SidenavSub>
-                    </SideNavs>
-                  </SideNavWrapper>
-                  <Content theme={theme}>
-                    <Switch>
-                      <Route path={`/cms/photos/library/:photo_id?`}>
-                        <PhotoLibraryPage />
-                      </Route>
-                      <Route path={`/cms/collection/:collection/:progress`}>
-                        <CollectionPage />
-                      </Route>
-                      <Route path={`/cms/collection/:collection`}>
-                        <CollectionPage />
-                      </Route>
-                      <Route path={`/cms/item/:collection/:item_id`}>
-                        <ItemDetailsPage />
-                      </Route>
-                      <Route path={`/cms`}>
-                        <PageHead title={`CMS`} />
-                      </Route>
-                      <Route path={`/plans/org/:id`}>
-                        <PlansPage />
-                      </Route>
-                      <Route path={`/plans`}>
-                        <PageHead title={`Plans`} />
-                      </Route>
-                      <Route path={`/profile/:profile_id`}>
-                        <ProfilePage />
-                      </Route>
-                      <Route path={`/profile`}>
-                        <PageHead title={`Profiles`} />
-                      </Route>
-                      <Route path={`/teams/:team_id`} exact>
-                        <TeamPage />
-                      </Route>
-                      <Route path={`/teams`}>
-                        <TeamsOverviewPage />
-                      </Route>
-                      <Route path={`/`}>
-                        <SidenavHeader
-                          gridCols={gridCols}
-                          homeOnly
-                          isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                        />
-                        <HomePage />
-                      </Route>
-                    </Switch>
-                  </Content>
-                </Wrapper>
-              </PageWrapper>
-            </Route>
-          </Switch>
-        </Router>
-      </CristataWebSocket>
+                      </Content>
+                    </Wrapper>
+                  </PageWrapper>
+                </Route>
+              </CristataWebSocket>
+            }
+          ></SplashScreen>
+        </Switch>
+      </Router>
     </>
   );
 }
