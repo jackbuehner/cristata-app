@@ -43,6 +43,8 @@ export { PROFILE_BASIC } from './PROFILE_BASIC';
 export type { PROFILE_BASIC__DOC_TYPE, PROFILE_BASIC__TYPE } from './PROFILE_BASIC';
 export { REINVITE_USER } from './REINVITE_USER';
 export type { REINVITE_USER__DOC_TYPE, REINVITE_USER__TYPE } from './REINVITE_USER';
+export { SIGN_S3 } from './SIGN_S3';
+export type { SIGN_S3__DOC_TYPE, SIGN_S3__TYPE } from './SIGN_S3';
 export { STAGE_COUNTS } from './STAGE_COUNTS';
 export type { STAGE_COUNTS__TYPE } from './STAGE_COUNTS';
 export { TEAM } from './TEAM';

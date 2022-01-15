@@ -1,6 +1,5 @@
 import { toast } from 'react-toastify';
 import { PageHead } from '../../../components/PageHead';
-import { db } from '../../../utils/axios/db';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { useRef, useState } from 'react';
@@ -22,6 +21,9 @@ import {
   MODIFY_PHOTO__TYPE,
   PHOTOS_BASIC,
   PHOTOS_BASIC__TYPE,
+  SIGN_S3,
+  SIGN_S3__DOC_TYPE,
+  SIGN_S3__TYPE,
 } from '../../../graphql/queries';
 import { CircularProgress } from '@material-ui/core';
 import { client } from '../../../graphql/client';
@@ -121,21 +123,27 @@ function PhotoLibraryPage() {
    * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
    */
   const getSignedRequest = async (file: File) => {
-    return db
-      .get(
-        `/sign-s3?file-name=${uuidv4()}&file-type=${file.type}&s3-bucket=${
-          process.env.NODE_ENV === 'production' ? 'paladin-photo-library' : 'paladin-photo-library-test'
-        }`
-      )
-      .then(({ data }: { data: { signedRequest: string; url: string } }) => {
-        return data;
+    return client
+      .mutate<SIGN_S3__TYPE>({
+        mutation: SIGN_S3,
+        variables: {
+          fileName: uuidv4(),
+          fileType: file.type,
+          s3Bucket:
+            process.env.NODE_ENV === 'production' ? 'paladin-photo-library' : 'paladin-photo-library-test',
+        },
       })
+      .then((data) => {
+        if (!data.errors && !data.data) throw new Error('signed url was not sent by the server');
+        return data.data?.s3Sign as SIGN_S3__DOC_TYPE;
+      })
+      .then((data) => data)
       .catch((error) => {
         console.error(error);
         setIsLoading(false);
         setUploadStatus(null);
-        toast.error(`Failed to get signed s3 url: ${error}`);
-        return { signedRequest: undefined, url: undefined };
+        toast.error(`Failed to get signed s3 url: ${error.message}`);
+        return { signedRequest: undefined, location: undefined };
       });
   };
 
@@ -206,13 +214,13 @@ function PhotoLibraryPage() {
 
     // get the signed request url and the target url for the file
     setUploadStatus('Preparing to upload...');
-    const { signedRequest, url } = await getSignedRequest(file);
+    const { signedRequest, location: photoUrl } = await getSignedRequest(file);
 
     // get the image dimensions
     setUploadStatus('Calculating photo information...');
     const imageDimensions = getImageDimensions(file);
 
-    if (signedRequest && url) {
+    if (signedRequest && photoUrl) {
       // upload the file to s3
       const isUploaded = await uploadFile(file, signedRequest);
 
@@ -235,7 +243,7 @@ function PhotoLibraryPage() {
                     _id,
                     input: {
                       file_type: file.type,
-                      photo_url: url,
+                      photo_url: photoUrl,
                       dimensions: {
                         x: imageDimensions?.x,
                         y: imageDimensions?.y,
