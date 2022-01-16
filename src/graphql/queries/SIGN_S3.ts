@@ -19,7 +19,7 @@ const SIGN_S3 = gql(
           s3Bucket: new VariableType('s3Bucket'),
         },
         signedRequest: true,
-        url: true,
+        location: true,
       },
     },
   })
