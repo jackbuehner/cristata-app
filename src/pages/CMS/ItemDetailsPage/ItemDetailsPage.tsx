@@ -226,9 +226,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     setIsLoading(true);
 
     // create the mutation
-    const MODIFY_ITEM = (id: string, input: Record<string, unknown>) => {
+    const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
       const colName = collectionConfig?.query.name.singular;
       const identifier = collectionConfig?.query.identifier || '_id';
+      if (colName === 'setting') input = JSON.stringify(input);
       return gql(
         jsonToGraphQLQuery({
           mutation: {
