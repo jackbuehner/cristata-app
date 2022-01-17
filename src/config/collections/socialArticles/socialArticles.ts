@@ -10,6 +10,7 @@ const socialArticles: collection<ISocialArticles> = {
       plural: 'settings',
     },
     identifier: '_id',
+    force: ['name'],
   },
   fields: [
     {

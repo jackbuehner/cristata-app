@@ -10,6 +10,7 @@ const featuredSettings: collection<IFeaturedSettings> = {
       plural: 'settings',
     },
     identifier: '_id',
+    force: ['name'],
   },
   fields: [
     {
