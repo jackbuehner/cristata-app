@@ -3,7 +3,7 @@ import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { PanelLeft24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
@@ -16,7 +16,7 @@ interface IPhotoLibraryFlyout {
 
 function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -40,7 +40,7 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
             float: right;
             margin-top: 15px;
           `}
-          onClick={() => history.push(`/cms/photos/library`)}
+          onClick={() => navigate(`/cms/photos/library`)}
           data-tip={'Close panel'}
         />
         <Name theme={theme}>
@@ -76,7 +76,7 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
           })}
           {photo.tags === undefined || photo.tags.length < 1 ? 'No tags could be found for this photo' : null}
           <Footer theme={theme}>
-            <Button icon={<Edit24Regular />} onClick={() => history.push(`/cms/item/photos/${photo._id}`)}>
+            <Button icon={<Edit24Regular />} onClick={() => navigate(`/cms/item/photos/${photo._id}`)}>
               Edit details
             </Button>
           </Footer>

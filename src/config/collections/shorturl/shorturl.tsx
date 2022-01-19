@@ -61,7 +61,7 @@ const shorturl: collection<IShortURL> = {
   canWatch: false,
   pageTitle: () => 'Short URLs',
   pageDescription: () => 'Generate short URLs that redirect to other pages.',
-  createNew: ([loading, setIsLoading], client, toast, history, { state: modalState, modal }) => {
+  createNew: ([loading, setIsLoading], client, toast, navigate, { state: modalState, modal }) => {
     const setModal = modalState[1];
     const showModal = modal[0];
 
@@ -110,7 +110,7 @@ const shorturl: collection<IShortURL> = {
               // stop loading
               setIsLoading(false);
               // navigate to the new document upon successful creation
-              history.push(`/cms/item/shorturl/${data?.shorturlCreate?.code}`);
+              navigate(`/cms/item/shorturl/${data?.shorturlCreate?.code}`);
             })
             .catch((err) => {
               // stop loading

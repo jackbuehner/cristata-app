@@ -15,7 +15,7 @@ import {
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Color from 'color';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { Button, IconButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
 import { Menu } from '../../../components/Menu';
@@ -32,7 +32,7 @@ interface IProfileSideNavSub {
 }
 
 function ProfileSideNavSub(props: IProfileSideNavSub) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
@@ -222,7 +222,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   if (data) {
     // navigate to the current user's profile if no other profile is selected
     if (location.pathname === ('/profile' || '/profile/')) {
-      history.push(`/profile/${authUserState._id.toHexString()}`);
+      navigate(`/profile/${authUserState._id.toHexString()}`);
     }
 
     // sort out in active users
@@ -277,7 +277,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                   backgroundColor={{ base: 'white' }}
                   border={{ base: '1px solid transparent' }}
                   onClick={() => {
-                    history.push(`/profile/${profile._id}`);
+                    navigate(`/profile/${profile._id}`);
                     if (props.setIsNavVisibleM) props.setIsNavVisibleM(false);
                   }}
                   customIcon={

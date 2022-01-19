@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Person24Regular, SignOut24Regular } from '@fluentui/react-icons';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
 import { useDropdown } from '../../hooks/useDropdown';
 import { genAvatar } from '../../utils/genAvatar';
@@ -12,7 +12,7 @@ import { Menu } from '../Menu';
 
 function Profile() {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { data: profiles } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'no-cache' });
 
@@ -75,7 +75,7 @@ function Profile() {
                         background-color: transparent;
                       `}
                       onClick={() => {
-                        history.push(`/profile/${profiles?.me._id}`);
+                        navigate(`/profile/${profiles?.me._id}`);
                       }}
                     >
                       View profile
@@ -87,7 +87,7 @@ function Profile() {
                         background-color: transparent;
                       `}
                       color={'red'}
-                      onClick={() => history.push(`/sign-out`)}
+                      onClick={() => navigate(`/sign-out`)}
                     >
                       Sign out
                     </Button>

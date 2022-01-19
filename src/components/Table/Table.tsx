@@ -9,7 +9,7 @@ import { themeType } from '../../utils/theme/theme';
 import { ChevronDown16Regular, ChevronUp16Regular } from '@fluentui/react-icons';
 import { buttonEffect } from '../Button';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useEffect, useRef } from 'react';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import Skeleton from 'react-skeleton-loader';
 import { ApolloError } from '@apollo/client';
 import { merge } from 'merge-anything';
@@ -41,7 +41,7 @@ interface ITable {
 
 const Table = forwardRef(
   ({ sort, setSort, setPrevSort, ...props }: ITable, ref?: React.ForwardedRef<HTMLDivElement>) => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     // get the current theme
     const theme = useTheme() as themeType;
@@ -214,7 +214,7 @@ const Table = forwardRef(
                                     props.row.windowName,
                                     'location=no'
                                   )
-                                : history.push(
+                                : navigate(
                                     `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
                                       props.row.hrefSearch || ''
                                     }`

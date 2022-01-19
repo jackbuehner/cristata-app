@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import mongoose from 'mongoose';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { genAvatar } from '../../utils/genAvatar';
 import { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
@@ -16,7 +16,7 @@ interface ITeamCard {
 
 function TeamCard(props: ITeamCard) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <Component
@@ -24,7 +24,7 @@ function TeamCard(props: ITeamCard) {
       href={props.href}
       onClick={(e) => {
         e.preventDefault();
-        history.push(props.href);
+        navigate(props.href);
       }}
     >
       <div>

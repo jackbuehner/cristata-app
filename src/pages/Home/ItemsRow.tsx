@@ -4,7 +4,7 @@ import Color from 'color';
 import { DateTime } from 'luxon';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { flattenObject } from '../../utils/flattenObject';
 import { themeType } from '../../utils/theme/theme';
 
@@ -33,7 +33,7 @@ interface IItemsRow {
 
 function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [data, setData] = useState<Record<string, any>[]>();
   useEffect(() => {
@@ -54,7 +54,7 @@ function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
             <Card
               theme={theme}
               key={index}
-              onClick={() => history.push(props.toPrefix + item[props.keys.toSuffix])}
+              onClick={() => navigate(props.toPrefix + item[props.keys.toSuffix])}
             >
               <Name theme={theme}>{item[props.keys.name]}</Name>
               <History theme={theme}>Last signed in at {lastSignIn}</History>
@@ -88,11 +88,7 @@ function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
         const lastModifiedAt = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
 
         return (
-          <Card
-            theme={theme}
-            key={index}
-            onClick={() => history.push(props.toPrefix + item[props.keys.toSuffix])}
-          >
+          <Card theme={theme} key={index} onClick={() => navigate(props.toPrefix + item[props.keys.toSuffix])}>
             {props.keys.photo ? <Photo src={item[props.keys.photo]} theme={theme} /> : null}
             <Name theme={theme}>{item[props.keys.name]}</Name>
             {props.keys.description ? (

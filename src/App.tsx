@@ -6,13 +6,13 @@ import useAxios, { configure } from 'axios-hooks';
 import { SideNavSubButton } from './components/Button';
 import { PlansSideNavSub } from './pages/plans/PlansSideNavSub';
 import { Dismiss16Regular } from '@fluentui/react-icons';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { SplashScreen } from './components/SplashScreen';
-import { LegacySignIn, SignIn } from './pages/SignIn';
+import { LegacySignIn, SignIn, SignOut } from './pages/SignIn';
 import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { SideNavHeading } from './components/Heading';
@@ -130,38 +130,25 @@ function App() {
         }
       />
       <Router>
-        <Switch>
-          <SplashScreen
-            loading={loadingUser}
-            error={errorUser}
-            user={user}
-            persistentChildren={
-              <>
-                <Route path={`/proto`}>
-                  <ProtocolHandlerPage />
-                </Route>
-                <Route path={`/sign-in`} exact>
-                  <SignIn user={user} loadingUser={loadingUser} />
-                </Route>
-                <Route path={`/sign-in-legacy`} exact>
-                  <LegacySignIn />
-                </Route>
-              </>
-            }
-            protectedChildren={
-              <CristataWebSocket>
-                <Route
-                  path={`/sign-out`}
-                  exact
-                  component={() => {
-                    window.location.href = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/clear`;
-                    return null;
-                  }}
-                />
-                <Route>
-                  {isCustomTitlebarVisible ? <Titlebar /> : null}
-                  <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
-                    <Wrapper>
+        <SplashScreen
+          loading={loadingUser}
+          error={errorUser}
+          user={user}
+          persistentChildren={
+            <Routes>
+              <Route path={`/proto*`} element={<ProtocolHandlerPage />} />
+              <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
+              <Route path={`/sign-in-legacy`} element={<LegacySignIn />} />
+            </Routes>
+          }
+          protectedChildren={
+            <CristataWebSocket>
+              {isCustomTitlebarVisible ? <Titlebar /> : null}
+              <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
+                <Wrapper>
+                  <Routes>
+                    <Route path={`/sign-out`} element={<SignOut />} />
+                    <Route>
                       <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
                         <SideNavs>
                           <Sidenav
@@ -170,7 +157,7 @@ function App() {
                             isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
                           />
                           <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
-                            <Switch>
+                            <Routes>
                               <Route path={`/cms`}>
                                 <SideNavHeading>Content Management System</SideNavHeading>
                                 {getNavigationConfig(state).cms.map((group, index) => {
@@ -211,12 +198,12 @@ function App() {
                               <Route path={`/teams`}>
                                 <TeamsNav setIsNavVisibleM={setIsNavVisibleM} />
                               </Route>
-                            </Switch>
+                            </Routes>
                           </SidenavSub>
                         </SideNavs>
                       </SideNavWrapper>
                       <Content theme={theme}>
-                        <Switch>
+                        <Routes>
                           <Route path={`/cms/photos/library/:photo_id?`}>
                             <PhotoLibraryPage />
                           </Route>
@@ -244,7 +231,7 @@ function App() {
                           <Route path={`/profile`}>
                             <PageHead title={`Profiles`} />
                           </Route>
-                          <Route path={`/teams/:team_id`} exact>
+                          <Route path={`/teams/:team_id`}>
                             <TeamPage />
                           </Route>
                           <Route path={`/teams`}>
@@ -258,15 +245,15 @@ function App() {
                             />
                             <HomePage />
                           </Route>
-                        </Switch>
+                        </Routes>
                       </Content>
-                    </Wrapper>
-                  </PageWrapper>
-                </Route>
-              </CristataWebSocket>
-            }
-          ></SplashScreen>
-        </Switch>
+                    </Route>
+                  </Routes>
+                </Wrapper>
+              </PageWrapper>
+            </CristataWebSocket>
+          }
+        ></SplashScreen>
       </Router>
     </>
   );

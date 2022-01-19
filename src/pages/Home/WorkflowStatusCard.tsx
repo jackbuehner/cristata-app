@@ -3,7 +3,7 @@ import styled from '@emotion/styled/macro';
 import Color from 'color';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { useTheme } from '@emotion/react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface IWorkflowStatusCard {
   color: colorType;
@@ -15,14 +15,14 @@ interface IWorkflowStatusCard {
 
 function WorkflowStatusCard(props: IWorkflowStatusCard) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <WorkflowStatusCardContainer
       theme={theme}
       color={props.color}
       onClick={() => {
-        if (props.to) history.push(props.to);
+        if (props.to) navigate(props.to);
       }}
     >
       <IconWrapper>{props.icon}</IconWrapper>

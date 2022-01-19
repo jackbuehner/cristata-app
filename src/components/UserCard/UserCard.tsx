@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import Color from 'color';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
@@ -17,7 +17,7 @@ interface IUserCard {
 
 function UserCard(props: IUserCard) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <Component
@@ -25,7 +25,7 @@ function UserCard(props: IUserCard) {
       href={props.href}
       onClick={(e) => {
         e.preventDefault();
-        if (props.href) history.push(props.href);
+        if (props.href) navigate(props.href);
       }}
     >
       <ProfilePhoto theme={theme} src={props.photo || ''} />

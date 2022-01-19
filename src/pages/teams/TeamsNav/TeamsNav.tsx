@@ -4,7 +4,7 @@ import { SideNavHeading } from '../../../components/Heading';
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import { TEAMS, TEAMS__TYPE } from '../../../graphql/queries';
 import { NetworkStatus, useQuery } from '@apollo/client';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Spinner } from '../../../components/Loading';
 
 interface ITeamsNav {
@@ -12,7 +12,7 @@ interface ITeamsNav {
 }
 
 function TeamsNav(props: ITeamsNav) {
-  const history = useHistory();
+  const { pathname } = useLocation();
 
   const { data, error, loading, refetch, fetchMore, networkStatus } = useQuery<TEAMS__TYPE>(TEAMS, {
     notifyOnNetworkStatusChange: true,
@@ -22,9 +22,9 @@ function TeamsNav(props: ITeamsNav) {
   const isLoading = loading || networkStatus === NetworkStatus.refetch;
 
   // refetch teams list if location changes (always have updated list)
-  history.listen((location) => {
-    if (location.pathname.includes('/teams')) refetch();
-  });
+  useEffect(() => {
+    if (pathname.includes('/teams')) refetch();
+  }, [pathname, refetch]);
 
   // create a ref for the spinner that appears when more items can be loaded
   const SpinnerRef = useRef<HTMLDivElement>(null);

@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { themeType } from '../../../../utils/theme/theme';
 import { SidebarHeader } from './SidebarHeader';
 
@@ -43,15 +43,15 @@ interface ISidebar {
 
 function Sidebar(props: ISidebar) {
   const theme = useTheme() as themeType;
-  const { search } = useLocation();
-  const history = useHistory();
+  const { pathname, search, hash } = useLocation();
+  const navigate = useNavigate();
 
   const closeFunction = () => {
     const params = new URLSearchParams(search);
     props.closeFunction?.(params);
     props.setIsOpen(false);
     props.setHeader('');
-    history.replace({ search: params.toString() });
+    navigate(pathname + '?' + params.toString() + hash, { replace: true });
   };
 
   return (

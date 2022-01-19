@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function ProtocolHandlerPage() {
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const search = new URLSearchParams(location.search);
 
@@ -12,8 +12,8 @@ function ProtocolHandlerPage() {
   const targetLocation = decodeURIComponent(encodedTargetLocation).split('://')[1];
 
   useEffect(() => {
-    history.replace(targetLocation);
-  }, [history, targetLocation]);
+    navigate(targetLocation, { replace: true });
+  }, [navigate, targetLocation]);
 
   return (
     <p>

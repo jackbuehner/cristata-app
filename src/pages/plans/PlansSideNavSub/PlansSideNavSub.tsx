@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import { TaskListLtr20Regular } from '@fluentui/react-icons';
 import useAxios from 'axios-hooks';
 import { Dispatch, SetStateAction, useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { Button, SideNavSubButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
 import { APIProject } from '../../../interfaces/github/plans';
@@ -13,7 +13,7 @@ interface IPlansSideNavSub {
 }
 
 function PlansSideNavSub(props: IPlansSideNavSub) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const theme = useTheme() as themeType;
   const { pathname } = useLocation();
   const [{ data, loading, error }, refetch] = useAxios<APIProject[]>('/gh/org/projects');
@@ -22,10 +22,10 @@ function PlansSideNavSub(props: IPlansSideNavSub) {
     // navigate to the first project in the navigation
     if (data && data[0]) {
       if (pathname === '/plans') {
-        history.push(`/plans/org/${data[0].id}`);
+        navigate(`/plans/org/${data[0].id}`);
       }
     }
-  }, [data, pathname, history]);
+  }, [data, pathname, navigate]);
 
   if (loading) return <SideNavHeading isLoading>Plans</SideNavHeading>;
   if (error) {

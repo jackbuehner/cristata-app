@@ -10,7 +10,7 @@ import styled from '@emotion/styled/macro';
 import { Button, IconButton } from '../../../components/Button';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import Color from 'color';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 import ReactTooltip from 'react-tooltip';
 import { ApolloError, NetworkStatus, useQuery } from '@apollo/client';
@@ -30,7 +30,7 @@ import { client } from '../../../graphql/client';
 
 function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // get the photos
   const { data, loading, error, refetch, networkStatus, fetchMore } = useQuery<PHOTOS_BASIC__TYPE>(
@@ -260,7 +260,7 @@ function PhotoLibraryPage() {
                   refetch();
 
                   // open the photo metadata
-                  history.push(`/cms/photos/library/${_id}`);
+                  navigate(`/cms/photos/library/${_id}`);
                 })
                 .catch((error: ApolloError) => {
                   setIsLoading(false);
@@ -344,7 +344,7 @@ function PhotoLibraryPage() {
                       theme={theme}
                       isSelected={photo_id === photo._id}
                       onClick={() => {
-                        if (photo_id !== photo._id) history.push(`/cms/photos/library/${photo._id}`);
+                        if (photo_id !== photo._id) navigate(`/cms/photos/library/${photo._id}`);
                       }}
                     >
                       <ImageBG src={photo.photo_url} theme={theme} />

@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { Fragment, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
 import { InputGroup } from '../../../components/InputGroup';
@@ -36,7 +36,7 @@ import { themeType } from '../../../utils/theme/theme';
 
 function TeamsOverviewPage() {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [showCreateModal, hideCreateModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -59,7 +59,7 @@ function TeamsOverviewPage() {
           // stop loading
           setIsLoading(false);
           // navigate to the new document upon successful creation
-          history.push(`/teams/${data?.teamCreate._id}`);
+          navigate(`/teams/${data?.teamCreate._id}`);
         })
         .catch((err) => {
           // stop loading

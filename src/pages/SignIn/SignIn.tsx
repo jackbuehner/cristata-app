@@ -6,7 +6,7 @@ import { Checkmark28Regular, Mail48Regular } from '@fluentui/react-icons';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Color from 'color';
 import { useCallback, useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
 import { Titlebar } from '../../components/Titlebar';
@@ -35,7 +35,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
   const theme = useTheme() as themeType;
   const { pathname, search, hash, ...location } = useLocation();
   const locState = location.state as { username?: string; step?: string };
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null); // error message
   const [cred, setCred] = useState<{ username?: string; password?: string }>(); // collection credentials
@@ -45,8 +45,8 @@ function SignIn({ user, loadingUser }: ISignIn) {
   // always reset locState undefined if username is missing in cred AND the user is not signed in
   // (this component might be loaded to enable 2fa or change a password)
   useEffect(() => {
-    if (!cred?.username && !user && !loadingUser) history.push(pathname + search + hash, {});
-  }, [cred?.username, hash, history, loadingUser, pathname, search, user]);
+    if (!cred?.username && !user && !loadingUser) navigate(pathname + search + hash, { state: {} });
+  }, [cred?.username, hash, navigate, loadingUser, pathname, search, user]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
@@ -106,7 +106,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
           });
           // the user can sign in with a password
           if (methodsRes.data?.userMethods.includes('local')) {
-            history.push({
+            navigate(pathname + search + hash, {
               state: {
                 username: user ? user.email || user.slug + '@thepaladin.news' : username,
                 step: 'password',
@@ -125,7 +125,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
         setIsLoading(false);
       })();
     },
-    [history]
+    [hash, navigate, pathname, search]
   );
 
   /**
@@ -157,7 +157,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
             // need to change password
             if (json.data.next_step === 'change_password') {
               setNewPassCred({ ...newPassCred, old: pcred?.password, hideOld: true });
-              history.push({
+              navigate(pathname + search + hash, {
                 state: {
                   ...locState,
                   step: 'change_password',
@@ -176,7 +176,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
           setError('An unexpected error occured');
         });
     },
-    [cred, history, locState, newPassCred]
+    [cred, newPassCred, navigate, pathname, search, hash, locState]
   );
 
   /**
@@ -201,7 +201,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
         },
       })
       .then(() => {
-        history.push({
+        navigate(pathname + search + hash, {
           state: {
             ...locState,
             step: 'change_password_success',
@@ -231,7 +231,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
 
       searchParams.delete('ue');
       searchParams.delete('pe');
-      history.push({ search: searchParams.toString() });
+      navigate(pathname + searchParams.toString() + hash);
 
       // if username and password are present, attempt to sign in
       if (username && password) {
@@ -246,7 +246,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
         checkUsername(atob(username));
       }
     }
-  }, [checkUsername, cred, history, locState, search, signInWithCredentials]);
+  }, [checkUsername, cred, navigate, locState, search, signInWithCredentials, pathname, hash]);
 
   // set document title
   useEffect(() => {
@@ -267,7 +267,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
         variables: { _id },
       })
       .then(() => {
-        history.push({
+        navigate(pathname + search + hash, {
           state: {
             ...locState,
             step: 'migrate_email_sent',

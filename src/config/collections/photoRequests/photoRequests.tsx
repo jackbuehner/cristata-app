@@ -131,7 +131,7 @@ const photoRequests: collection<IPhotoRequest> = {
 
     return filter;
   },
-  createNew: ([loading, setIsLoading], client, toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
 
     const CREATE_NEW_PHOTO_REQUEST = gql(
@@ -163,7 +163,7 @@ const photoRequests: collection<IPhotoRequest> = {
       })
       .then(({ data }) => {
         setIsLoading(false);
-        history.push(`/cms/item/photo-requests/${data.photoRequestCreate._id}`);
+        navigate(`/cms/item/photo-requests/${data.photoRequestCreate._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

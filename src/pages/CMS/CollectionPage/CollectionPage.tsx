@@ -7,7 +7,7 @@ import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from
 import { Button } from '../../../components/Button';
 import { collections as collectionsConfig } from '../../../config';
 import { useEffect, useRef, useState } from 'react';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { collection } from '../../../config/collections';
@@ -74,7 +74,7 @@ interface IStore {
 
 function CollectionPage() {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -89,10 +89,7 @@ function CollectionPage() {
   };
 
   // get the url parameters from the route
-  let { collection, progress = '' } = useParams<{
-    collection: string;
-    progress: string;
-  }>();
+  let { collection = '', progress = '' } = useParams();
 
   // build a filter for the table based on url search params
   const defaultFilter: mongoFilterType = { hidden: { $ne: true } };
@@ -135,7 +132,7 @@ function CollectionPage() {
     store.mongoDataFilter = store.collection.tableDataFilter?.(progress, location.search, defaultFilter);
     // set the createNew function
     store.createNew = () =>
-      store.collection.createNew?.([isLoading, setIsLoading], client, toast, history, {
+      store.collection.createNew?.([isLoading, setIsLoading], client, toast, navigate, {
         state: [createNewState, setCreateNewState],
         modal: [showCreateNewModal, hideCreateNewModal],
       });
@@ -265,7 +262,11 @@ function CollectionPage() {
                       id={field.key}
                       value={value}
                       onChange={(e) => searchParams.set(field.key, e.currentTarget.value)}
-                      onBlur={() => history.replace(location.pathname + '?' + searchParams.toString())}
+                      onBlur={() =>
+                        navigate(location.pathname + '?' + searchParams.toString() + location.hash, {
+                          replace: true,
+                        })
+                      }
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -300,7 +301,9 @@ function CollectionPage() {
                             )
                           );
                         }
-                        history.replace(location.pathname + '?' + searchParams.toString());
+                        navigate(location.pathname + '?' + searchParams.toString() + location.hash, {
+                          replace: true,
+                        });
                       }}
                     />
                   </InputGroup>
@@ -344,7 +347,7 @@ function CollectionPage() {
             {
               label: 'Clear filter',
               icon: <FilterDismiss16Regular />,
-              onClick: () => history.push(location.pathname),
+              onClick: () => navigate(location.pathname),
             },
           ]}
         />

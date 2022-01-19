@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { themeType } from '../../../../utils/theme/theme';
 
@@ -19,7 +19,7 @@ interface ITitlebar {
 }
 
 function Titlebar(props: ITitlebar) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const theme = useTheme() as themeType;
 
   // update tooltip listener when component changes
@@ -56,7 +56,7 @@ function Titlebar(props: ITitlebar) {
             navigator.windowControlsOverlay?.visible ? (
               <>
                 <TitlebarButton
-                  onClick={() => history.goBack()}
+                  onClick={() => navigate(-1)}
                   data-tip={'Go back'}
                   iconSize={16}
                   width={customTitlebarOffsetX !== 0 ? 33 : undefined}
@@ -64,7 +64,7 @@ function Titlebar(props: ITitlebar) {
                   <ArrowLeft20Regular />
                 </TitlebarButton>
                 <TitlebarButton
-                  onClick={() => history.goForward()}
+                  onClick={() => navigate(1)}
                   data-tip={'Go forward'}
                   iconSize={16}
                   width={customTitlebarOffsetX !== 0 ? 33 : undefined}

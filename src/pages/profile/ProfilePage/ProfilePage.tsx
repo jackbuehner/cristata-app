@@ -7,7 +7,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 import { useModal } from 'react-modal-hook';
-import { useHistory, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
@@ -36,7 +36,7 @@ import { themeType } from '../../../utils/theme/theme';
 
 function ProfilePage() {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
   const authUserState = useAppSelector((state) => state.authUser);
 
   // get the url parameters from the route
@@ -273,7 +273,7 @@ function ProfilePage() {
               href={`/teams`}
               onClick={(e) => {
                 e.preventDefault();
-                history.push(`/teams`);
+                navigate(`/teams`);
               }}
             >
               teams manager
@@ -316,9 +316,11 @@ function ProfilePage() {
             {isSelf ? (
               <Button
                 onClick={() => {
-                  history.push('/sign-in', {
-                    step: 'change_password',
-                    username: profile?.email,
+                  navigate('/sign-in', {
+                    state: {
+                      step: 'change_password',
+                      username: profile?.email,
+                    },
                   });
                 }}
                 icon={<Key20Regular />}
@@ -436,7 +438,7 @@ function ProfilePage() {
                     key={team._id}
                     label={team.slug}
                     color={`neutral`}
-                    onClick={() => history.push(`/teams/${team._id}`)}
+                    onClick={() => navigate(`/teams/${team._id}`)}
                   />
                 );
               })

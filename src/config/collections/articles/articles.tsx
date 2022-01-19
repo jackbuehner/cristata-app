@@ -499,7 +499,7 @@ const articles: collection<IArticle> = {
     }
     return {};
   },
-  createNew: ([loading, setIsLoading], client, toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
     client
       .mutate<{ articleCreate?: { _id: string } }>({
@@ -521,7 +521,7 @@ const articles: collection<IArticle> = {
       .then(({ data }) => {
         setIsLoading(false);
         // navigate to the new document upon successful creation
-        history.push(`/cms/item/articles/${data?.articleCreate?._id}`);
+        navigate(`/cms/item/articles/${data?.articleCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

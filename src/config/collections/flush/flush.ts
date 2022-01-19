@@ -49,7 +49,7 @@ const flush: collection<IFlush> = {
       !isNaN(parseInt(fields['volume'])) ? roman.romanize(parseInt(fields['volume'])) : '??'
     }, Iss. ${fields.issue || '??'}`,
   tableDataFilter: (_, __, filter) => ({ ...filter, hidden: { $ne: true } }),
-  createNew: ([loading, setIsLoading], client, toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
     client
       .mutate<{ flushCreate?: { _id: string } }>({
@@ -68,7 +68,7 @@ const flush: collection<IFlush> = {
       .then(({ data }) => {
         setIsLoading(false);
         // navigate to the new document upon successful creation
-        history.push(`/cms/item/flush/${data?.flushCreate?._id}`);
+        navigate(`/cms/item/flush/${data?.flushCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

@@ -3,7 +3,7 @@ import { Person24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu } from '../Menu';
 import { useDropdown } from '../../hooks/useDropdown';
 import { IGridCols } from '../../App';
@@ -22,7 +22,7 @@ function SidenavHeader({
   isNavVisibleM: [boolean, Dispatch<SetStateAction<boolean>>];
 }) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const [isNavVisible, setIsNavVisible] = props.isNavVisibleM;
 
@@ -87,7 +87,7 @@ function SidenavHeader({
                         background-color: transparent;
                       `}
                       onClick={() => {
-                        history.push(`/profile/${profiles?.me._id}`);
+                        navigate(`/profile/${profiles?.me._id}`);
                         setIsNavVisible(false);
                       }}
                     >
@@ -100,7 +100,7 @@ function SidenavHeader({
                         background-color: transparent;
                       `}
                       color={'red'}
-                      onClick={() => history.push(`/sign-out`)}
+                      onClick={() => navigate(`/sign-out`)}
                     >
                       Sign out
                     </Button>

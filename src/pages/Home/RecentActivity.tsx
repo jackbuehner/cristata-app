@@ -4,7 +4,7 @@ import styled from '@emotion/styled/macro';
 import ColorHash from 'color-hash';
 import { DateTime } from 'luxon';
 import { MouseEventHandler } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { collections } from '../../config';
 import { collection as collectionType } from '../../config/collections';
 import { HISTORY, HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
@@ -18,7 +18,7 @@ import { themeType } from '../../utils/theme/theme';
  */
 function RecentActivity() {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { data } = useQuery<HISTORY__TYPE>(HISTORY, {
     variables: { limit: 25, exclude: ['User'] },
@@ -133,13 +133,13 @@ function RecentActivity() {
                   TextWrapperComponent={Text}
                   names={users.map((user) => ({
                     name: user.name,
-                    onClick: () => history.push(`/profile/${user._id}`),
+                    onClick: () => navigate(`/profile/${user._id}`),
                     photo: user.photo || genAvatar(user._id),
                   }))}
                   appendText={
                     <>
                       <span> {type} </span>
-                      <Bold theme={theme} onClick={() => history.push(locHref)}>
+                      <Bold theme={theme} onClick={() => navigate(locHref)}>
                         {item.name}
                       </Bold>
                       <span> in </span>

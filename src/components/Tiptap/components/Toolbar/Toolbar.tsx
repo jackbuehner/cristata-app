@@ -48,7 +48,7 @@ import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
 import { Iaction } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { tiptapOptions } from '../../../../config';
 import { Select } from '../../../Select';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -97,9 +97,9 @@ interface IToolbar {
 
 function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
-  const { search } = useLocation();
+  const { pathname, search, hash } = useLocation();
   const params = new URLSearchParams(search);
 
   // update tooltip listener when component changes
@@ -712,12 +712,12 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                   props.setIsSidebarOpen(false);
                   props.setSidebarTitle('');
                   params.set('props', '0');
-                  history.replace({ search: params.toString() });
+                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
                 } else {
                   props.setIsSidebarOpen(true);
                   props.setSidebarTitle('Document properties');
                   params.set('props', '1');
-                  history.replace({ search: params.toString() });
+                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
                 }
               }}
               isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
@@ -728,7 +728,7 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
                 onClick={() => {
                   setIsMax(!isMax);
                   params.set('fs', `${Number(!isMax)}`);
-                  history.replace({ search: params.toString() });
+                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
                 }}
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
                 color={'neutral'}

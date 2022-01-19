@@ -14,7 +14,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Button, IconButton } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
@@ -49,7 +49,7 @@ import { themeType } from '../../../utils/theme/theme';
 import { UsersGrid } from '../TeamsOverviewPage/TeamsOverviewPage';
 
 function TeamPage() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
 
@@ -298,7 +298,7 @@ function TeamPage() {
                     href={`/profile/${organizer._id}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      history.push(`/profile/${organizer._id}`);
+                      navigate(`/profile/${organizer._id}`);
                     }}
                   >
                     <ProfilePhoto src={organizer.photo || genAvatar(organizer._id)} />
@@ -327,7 +327,7 @@ function TeamPage() {
         .mutate<DELETE_TEAM__TYPE>({ mutation: DELETE_TEAM, variables: { _id: team?._id } })
         .then(() => {
           toast.success(`Successfully deleted team.`);
-          history.push(`/teams`);
+          navigate(`/teams`);
           return true;
         })
         .catch((error) => {
@@ -721,7 +721,7 @@ function TeamPage() {
                         </>
                       ) : null}
 
-                      <Button icon={<Person16Regular />} onClick={() => history.push(`/profile/${user._id}`)}>
+                      <Button icon={<Person16Regular />} onClick={() => navigate(`/profile/${user._id}`)}>
                         Profile
                       </Button>
                     </UserButtons>

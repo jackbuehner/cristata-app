@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { AxiosError } from 'axios';
 import { useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
 import {
   setAuthProvider,
@@ -41,7 +41,7 @@ interface ISplashScreen {
  */
 function SplashScreen(props: ISplashScreen) {
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
 
@@ -56,10 +56,10 @@ function SplashScreen(props: ISplashScreen) {
       const is403 = props.error.message.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
       if (is403) {
-        history.push(`/sign-in`);
+        navigate(`/sign-in`);
       }
     }
-  }, [props.error, history]);
+  }, [props.error, navigate]);
 
   useEffect(() => {
     if (props.user) {
@@ -73,24 +73,24 @@ function SplashScreen(props: ISplashScreen) {
 
       // user needs to change password
       if (props.user.next_step === 'change_password') {
-        history.push('/sign-in', { username: props.user.email, step: 'change_password' });
+        navigate('/sign-in', { state: { username: props.user.email, step: 'change_password' } });
       }
       // user needs to create a password
       else if (!props.user.methods.includes('local')) {
-        history.push('/sign-in', { step: 'migrate_to_local' });
+        navigate('/sign-in', { state: { step: 'migrate_to_local' } });
       }
       // users needs to join gh org
       else if (props.user.next_step === 'join_gh_org') {
-        history.push('/sign-in-legacy?isMember=false');
+        navigate('/sign-in-legacy?isMember=false');
       }
       // redirect to user's desired page if there are not other login steps
       else if (!props.user.next_step) {
         const redirect = localStorage.getItem('auth.redirect_after') || '/';
-        history.push(!redirect.includes('/sign-in') ? redirect : '/'); // redirect
+        navigate(!redirect.includes('/sign-in') ? redirect : '/'); // redirect
         localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
       }
     }
-  }, [props.user, history, dispatch]);
+  }, [props.user, navigate, dispatch]);
 
   // set the session id
   useEffect(() => {

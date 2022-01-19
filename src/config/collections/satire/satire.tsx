@@ -358,7 +358,7 @@ const satire: collection<ISatire> = {
     }
     return {};
   },
-  createNew: ([loading, setIsLoading], client, toast, history) => {
+  createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
     client
       .mutate<{ satireCreate?: { _id: string } }>({
@@ -380,7 +380,7 @@ const satire: collection<ISatire> = {
       .then(({ data }) => {
         setIsLoading(false);
         // navigate to the new document upon successful creation
-        history.push(`/cms/item/satire/${data?.satireCreate?._id}`);
+        navigate(`/cms/item/satire/${data?.satireCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

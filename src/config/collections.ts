@@ -6,7 +6,6 @@ import { satire } from './collections/satire';
 import { shorturl } from './collections/shorturl';
 import { featuredSettings } from './collections/featuredSettings';
 import { socialArticles } from './collections/socialArticles';
-import { History } from 'history';
 import { toast as toastify } from 'react-toastify';
 import React, { Dispatch, SetStateAction } from 'react';
 import { CmsItemState } from '../redux/slices/cmsItemSlice';
@@ -15,6 +14,7 @@ import { CustomFieldProps } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { mongoFilterType, mongoSortType } from '../graphql/client';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { CreateNewStateType } from '../pages/CMS/CollectionPage/CollectionPage';
+import { NavigateFunction } from 'react-router-dom';
 
 const collections: collectionsType = {
   articles,
@@ -76,7 +76,7 @@ interface collection<I> {
     loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
     client: ApolloClient<NormalizedCacheObject>,
     toast: typeof toastify,
-    history: History,
+    history: NavigateFunction,
     createNewModal: {
       state: [CreateNewStateType, Dispatch<SetStateAction<CreateNewStateType>>];
       modal: [() => void, () => void];

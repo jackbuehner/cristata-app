@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { PageHead } from '../../../components/PageHead';
 import { Button, IconButton } from '../../../components/Button';
@@ -85,7 +85,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
-  const history = useHistory();
+  const navigate = useNavigate();
   const { search } = useLocation();
 
   // update tooltip listener when component changes
@@ -94,12 +94,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   });
 
   // get the url parameters from the route
-  let { collection, item_id } = useParams<{
-    collection: string;
-    item_id: string;
-  }>();
+  let { collection, item_id } = useParams();
 
-  const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
+  const collectionConfig = collectionsConfig[dashToCamelCase(collection || '')];
 
   const requiredFields = [
     '_id',
@@ -220,51 +217,55 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // save changes to the databse
   const saveChanges = async (extraData: { [key: string]: any } = {}) => {
-    setIsLoading(true);
+    if (collection && item_id) {
+      setIsLoading(true);
 
-    // create the mutation
-    const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
-      const colName = collectionConfig?.query.name.singular;
-      const identifier = collectionConfig?.query.identifier || '_id';
-      if (colName === 'setting') input = JSON.stringify(input);
-      return gql(
-        jsonToGraphQLQuery({
-          mutation: {
-            [`${colName}Modify`]: {
-              __args: {
-                [identifier]: id,
-                input: input,
+      // create the mutation
+      const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
+        const colName = collectionConfig?.query.name.singular;
+        const identifier = collectionConfig?.query.identifier || '_id';
+        if (colName === 'setting') input = JSON.stringify(input);
+        return gql(
+          jsonToGraphQLQuery({
+            mutation: {
+              [`${colName}Modify`]: {
+                __args: {
+                  [identifier]: id,
+                  input: input,
+                },
+                _id: true,
               },
-              _id: true,
             },
-          },
-        })
-      );
-    };
+          })
+        );
+      };
 
-    // modify the item in the database
-    const config = {
-      mutation: MODIFY_ITEM(
-        item_id,
-        unflattenObject({ ...state.unsavedFields, ...state.tipTapFields, ...extraData })
-      ),
-    };
-    return await client
-      .mutate(config)
-      .finally(() => {
-        setIsLoading(false);
-      })
-      .then(() => {
-        toast.success(`Changes successfully saved.`);
-        refetch();
-        return true;
-      })
-      .catch((error: ApolloError) => {
-        console.error(error);
-        const message = error.clientErrors?.[0]?.message || error.message;
-        toast.error(`Failed to save changes. \n ${message}`);
-        return false;
-      });
+      // modify the item in the database
+      const config = {
+        mutation: MODIFY_ITEM(
+          item_id,
+          unflattenObject({ ...state.unsavedFields, ...state.tipTapFields, ...extraData })
+        ),
+      };
+      return await client
+        .mutate(config)
+        .finally(() => {
+          setIsLoading(false);
+        })
+        .then(() => {
+          toast.success(`Changes successfully saved.`);
+          refetch();
+          return true;
+        })
+        .catch((error: ApolloError) => {
+          console.error(error);
+          const message = error.clientErrors?.[0]?.message || error.message;
+          toast.error(`Failed to save changes. \n ${message}`);
+          return false;
+        });
+    } else {
+      toast.error(`Cannot save changes because the collection and document ID is unknown.`);
+    }
   };
 
   // set the item to hidden
@@ -284,7 +285,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       .then(() => {
         setIsLoading(false);
         toast.success(`Item successfully hidden.`);
-        history.push(collectionConfig?.home || '/');
+        navigate(collectionConfig?.home || '/');
       })
       .catch((err) => {
         setIsLoading(false);
@@ -562,9 +563,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               ? data.name
               : item_id
           }
-          description={`${collection.slice(0, 1).toLocaleUpperCase()}${collection
-            .slice(1)
-            .replace('-', ' ')} collection ${state.isUnsaved ? ' | Unsaved changes' : ''}`}
+          description={`${
+            collection
+              ? collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ')
+              : 'Unknown'
+          } collection ${state.isUnsaved ? ' | Unsaved changes' : ''}`}
           buttons={
             <>
               {actions.map((action, index) => {
