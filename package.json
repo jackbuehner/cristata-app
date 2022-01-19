@@ -60,7 +60,7 @@
     "react-modal-hook": "^3.0.0",
     "react-redux": "^7.2.5",
     "react-router-dom": "^6.2.1",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^5.0.0",
     "react-select": "^4.3.1",
     "react-skeleton-loader": "^1.0.4",
     "react-table": "^7.6.3",
@@ -79,9 +79,9 @@
     "yjs": "^13.5.8"
   },
   "scripts": {
-    "dev:react": "react-scripts start",
+    "dev:react": "react-scripts --max_old_space_size=4096 start",
     "dev:tunnel": "./bin/pktriot-0.10.8/pktriot start --config ./bin/pktriot-0.10.8/config.json",
-    "build": "react-scripts build",
+    "build": "react-scripts --max_old_space_size=4096 build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "patch-package",
