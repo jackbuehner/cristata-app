@@ -51,7 +51,6 @@ import { buildFullKey } from '../../../utils/buildFullKey';
 import { isJSON } from '../../../utils/isJSON';
 import { flattenObject } from '../../../utils/flattenObject';
 import { client } from '../../../graphql/client';
-import { ME_BASIC, ME_BASIC__TYPE } from '../../../graphql/queries';
 import { isObject } from '../../../utils/isObject';
 import { IField } from '../../../config/collections';
 
@@ -93,8 +92,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   useEffect(() => {
     ReactTooltip.rebuild();
   });
-
-  const { data: profiles } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'no-cache' });
 
   // get the url parameters from the route
   let { collection, item_id } = useParams<{
@@ -751,11 +748,13 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       <Tiptap
                         docName={`${collection}.${item_id}`}
                         user={{
-                          name: profiles?.me.name || authUserState.name,
-                          color: colorHash.hex(profiles?.me._id || authUserState._id.toHexString()),
-                          photo: profiles?.me.photo
-                            ? profiles.me.photo
-                            : genAvatar(profiles?.me._id || authUserState._id.toHexString()),
+                          name: authUserState.name,
+                          color: colorHash.hex(authUserState._id.toHexString()),
+                          photo:
+                            `${process.env.REACT_APP_API_PROTOCOL}://${
+                              process.env.REACT_APP_API_BASE_URL
+                            }/v3/user-photo/${authUserState._id.toHexString()}` ||
+                            genAvatar(authUserState._id.toHexString()),
                         }}
                         options={field.tiptap}
                         isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}
