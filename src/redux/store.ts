@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import cmsItemReducer from './slices/cmsItemSlice';
+import authUserReducer from './slices/authUserSlice';
 
 const store = configureStore({
   reducer: {
     cmsItem: cmsItemReducer,
+    authUser: authUserReducer,
   },
 });
 

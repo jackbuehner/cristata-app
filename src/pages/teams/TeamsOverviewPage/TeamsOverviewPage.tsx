@@ -28,6 +28,7 @@ import {
   TEAM_UNASSIGNED_USERS,
   TEAM_UNASSIGNED_USERS__TYPE,
 } from '../../../graphql/queries';
+import { useAppSelector } from '../../../redux/hooks';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { slugify } from '../../../utils/slugify';
@@ -37,15 +38,15 @@ function TeamsOverviewPage() {
   const theme = useTheme() as themeType;
   const history = useHistory();
 
-  const userId = JSON.parse(localStorage.getItem('auth.user') || '')?._id;
-
   const [showCreateModal, hideCreateModal] = useModal(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const authUserState = useAppSelector((state) => state.authUser);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState(false);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [name, setName] = useState('');
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [organizers, setOrganizers] = useState<string[]>([userId]);
+    const [organizers, setOrganizers] = useState<string[]>([authUserState._id.toHexString()]);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [members, setMembers] = useState<string[]>([]);
     const slug = slugify(name);

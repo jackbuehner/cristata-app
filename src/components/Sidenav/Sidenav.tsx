@@ -15,9 +15,10 @@ import { IGridCols } from '../../App';
 import { themeType } from '../../utils/theme/theme';
 import { SideNavMainButton } from '../Button';
 import { features as featuresConfig } from '../../config';
-import { navigation as navigationConfig } from '../../config';
+import { getNavigationConfig } from '../../config';
 import Color from 'color';
 import { Profile } from './Profile';
+import { useAppSelector } from '../../redux/hooks';
 
 interface ISidenav {
   gridCols: IGridCols;
@@ -28,6 +29,7 @@ interface ISidenav {
 function Sidenav(props: ISidenav) {
   const theme = useTheme() as themeType;
   const location = useLocation();
+  const state = useAppSelector((state) => state);
   const [, setIsNavVisibleM] = props.isNavVisibleM;
 
   return (
@@ -50,8 +52,8 @@ function Sidenav(props: ISidenav) {
           Icon={<ContentView32Regular />}
           to={
             // use `to` from first CMS page that is not hidden
-            navigationConfig.cms
-              .filter((group) => {
+            getNavigationConfig(state)
+              .cms.filter((group) => {
                 const enabledGroupItems = group.items.filter((item) => item.isHidden !== true);
                 return enabledGroupItems.length !== 0;
               })[0]

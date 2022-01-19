@@ -24,7 +24,7 @@ import { SidenavSub } from './components/SidenavSub';
 import { Sidenav } from './components/Sidenav/Sidenav';
 import Color from 'color';
 import { HomePage } from './pages/Home';
-import { navigation } from './config';
+import { getNavigationConfig } from './config';
 import { Titlebar } from './components/Titlebar';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { CollectionPage } from './pages/CMS/CollectionPage';
@@ -33,6 +33,7 @@ import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
 import { TeamsNav } from './pages/teams/TeamsNav';
 import { TeamPage } from './pages/teams/TeamPage';
 import { PageHead } from './components/PageHead';
+import { useAppSelector } from './redux/hooks';
 
 // configure axios global settings
 configure({ axios: db });
@@ -43,6 +44,7 @@ export interface IGridCols {
 }
 
 function App() {
+  const state = useAppSelector((state) => state);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
     baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`,
@@ -171,7 +173,7 @@ function App() {
                             <Switch>
                               <Route path={`/cms`}>
                                 <SideNavHeading>Content Management System</SideNavHeading>
-                                {navigation.cms.map((group, index) => {
+                                {getNavigationConfig(state).cms.map((group, index) => {
                                   // store the group items that are not hidden
                                   const enabledGroupItems = group.items.filter(
                                     (item) => item.isHidden !== true

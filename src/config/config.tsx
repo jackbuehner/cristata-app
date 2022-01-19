@@ -21,6 +21,7 @@ import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { Paged } from '../interfaces/cristata/paged';
 import { paged } from '../graphql/paged';
+import { RootState, store } from '../redux/store';
 
 interface Ifeatures {
   [key: string]: boolean | { [key: string]: boolean };
@@ -208,7 +209,7 @@ interface INavItem {
   isHidden?: boolean;
 }
 
-const navigation: Inavigation = {
+const getNavigationConfig: (state: RootState) => Inavigation = () => ({
   cms: [
     {
       label: `Articles`,
@@ -294,7 +295,7 @@ const navigation: Inavigation = {
           icon: <Document24Regular />,
           to: `/cms/collection/flush`,
           isHidden: !['000000000000000000000001', '000000000000000000000009'].some((team) =>
-            JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(team)
+            store.getState().authUser.teams.includes(team)
           ),
         },
       ],
@@ -307,7 +308,7 @@ const navigation: Inavigation = {
           icon: <BookGlobe24Regular />,
           to: `/cms/collection/shorturl`,
           isHidden: !['000000000000000000000001', '000000000000000000000008'].some((team) =>
-            JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(team)
+            store.getState().authUser.teams.includes(team)
           ),
         },
       ],
@@ -319,8 +320,8 @@ const navigation: Inavigation = {
           label: `Featured articles`,
           icon: <StarEmphasis24Regular />,
           to: `/cms/item/featured-settings/6101da4a5386ae9ea3147f17`,
-          isHidden: !JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(
-            '000000000000000000000001'
+          isHidden: !['000000000000000000000001'].some((team) =>
+            store.getState().authUser.teams.includes(team)
           ),
         },
         {
@@ -328,14 +329,14 @@ const navigation: Inavigation = {
           icon: <LinkSquare24Regular />,
           to: `/cms/item/social-articles/615ff1210e3e31a22a3c5746`,
           isHidden: !['000000000000000000000001', '000000000000000000000007'].some((team) =>
-            JSON.parse(localStorage.getItem('auth.user') as string)?.teams.includes(team)
+            store.getState().authUser.teams.includes(team)
           ),
         },
       ],
     },
   ],
-};
+});
 
 export { collections } from './collections';
-export { features, home, navigation };
+export { features, home, getNavigationConfig };
 export type { tiptapOptions } from './collections';

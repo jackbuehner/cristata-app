@@ -24,7 +24,6 @@ import { Tiptap } from '../../../components/Tiptap';
 import ColorHash from 'color-hash';
 import { MultiSelect, Select } from '../../../components/Select';
 import { DateTime } from '../../../components/DateTime';
-import { IAuthUser } from '../../../interfaces/cristata/authuser';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../components/Modal';
@@ -84,6 +83,7 @@ interface IItemDetailsPage {
 
 function ItemDetailsPage(props: IItemDetailsPage) {
   const state = useAppSelector((state) => state.cmsItem);
+  const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const history = useHistory();
@@ -345,23 +345,18 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       });
   };
 
-  // get the user data from localstorage
-  const [user, setUser] = useState<IAuthUser>();
-  useEffect(() => {
-    const userJson = localStorage.getItem('auth.user');
-    if (userJson) {
-      setUser(JSON.parse(userJson));
-    }
-  }, []);
-
   // store whether user is watching the item
   const [isWatching, setIsWatching] = useState<boolean>();
   useEffect(() => {
-    if (user && data?.people?.watching && JSON.stringify(data.people.watching).includes(user.id))
+    if (
+      authUserState &&
+      data?.people?.watching &&
+      JSON.stringify(data.people.watching).includes(authUserState._id.toHexString())
+    )
       // stringify it since it can be either a profile id or a profile object
       setIsWatching(true);
     else setIsWatching(false);
-  }, [user, data]);
+  }, [authUserState, data]);
 
   // store whether the user is a mandatory watcher
   const [isMadatoryWatcher, setIsMandatoryWatcher] = useState<boolean>();
@@ -373,10 +368,14 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       .filter((watcher) => watcher !== undefined); // stringify it since it can be either a profile id or a profile object
 
     // set if current user is a mandatory watcher by checking if the user is inside `mandatoryWatchers`
-    if (user && mandatoryWatchers && JSON.stringify(mandatoryWatchers).includes(user.id))
+    if (
+      authUserState &&
+      mandatoryWatchers &&
+      JSON.stringify(mandatoryWatchers).includes(authUserState._id.toHexString())
+    )
       setIsMandatoryWatcher(true);
     else setIsMandatoryWatcher(false);
-  }, [collection, user, state.fields, collectionConfig?.mandatoryWatchers]);
+  }, [collection, authUserState, state.fields, collectionConfig?.mandatoryWatchers]);
 
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
@@ -621,7 +620,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             </pre>
           </div>
         ) : // waiting for user info
-        user === undefined || sessionId === null ? null : (
+        sessionId === null ? null : (
           // data loaded
           collectionConfig?.fields.map((field, index) => {
             // if a field is from a JSON object, unstringify the JSON in the source data
@@ -752,11 +751,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       <Tiptap
                         docName={`${collection}.${item_id}`}
                         user={{
-                          name: profiles?.me.name || user.displayName,
-                          color: colorHash.hex(profiles?.me._id || user._id || user.id),
+                          name: profiles?.me.name || authUserState.name,
+                          color: colorHash.hex(profiles?.me._id || authUserState._id.toHexString()),
                           photo: profiles?.me.photo
                             ? profiles.me.photo
-                            : genAvatar(profiles?.me._id || user._id || user.id),
+                            : genAvatar(profiles?.me._id || authUserState._id.toHexString()),
                         }}
                         options={field.tiptap}
                         isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}

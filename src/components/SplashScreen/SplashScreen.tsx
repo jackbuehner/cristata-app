@@ -3,13 +3,33 @@ import styled from '@emotion/styled/macro';
 import { AxiosError } from 'axios';
 import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useAppDispatch } from '../../redux/hooks';
+import {
+  setAuthProvider,
+  setEmail,
+  setHas2fa,
+  setName,
+  setObjectId,
+  setTeams,
+  setUsername,
+} from '../../redux/slices/authUserSlice';
 import { themeType } from '../../utils/theme/theme';
 import { Spinner } from '../Loading';
 
 interface ISplashScreen {
   loading: boolean; // loading status of api request for user
   error?: AxiosError<any>; // error for api request
-  user: any; // the user from the api request
+  user: {
+    email: string;
+    methods: string[];
+    name: string;
+    provider: string;
+    teams: string[];
+    two_factor_authentication: boolean;
+    username?: string;
+    _id: string;
+    next_step?: string;
+  }; // the user from the api request
   persistentChildren?: React.ReactNode;
   protectedChildren?: React.ReactNode;
 }
@@ -23,6 +43,7 @@ function SplashScreen(props: ISplashScreen) {
   const theme = useTheme() as themeType;
   const history = useHistory();
   const location = useLocation();
+  const dispatch = useAppDispatch();
 
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
@@ -42,7 +63,13 @@ function SplashScreen(props: ISplashScreen) {
 
   useEffect(() => {
     if (props.user) {
-      localStorage.setItem('auth.user', JSON.stringify(props.user)); // set user
+      dispatch(setEmail(props.user.email));
+      dispatch(setAuthProvider(props.user.provider));
+      dispatch(setName(props.user.name));
+      dispatch(setUsername(props.user.username || 'unknown.user'));
+      dispatch(setTeams(props.user.teams));
+      dispatch(setHas2fa(props.user.two_factor_authentication));
+      dispatch(setObjectId(props.user._id));
 
       // user needs to change password
       if (props.user.next_step === 'change_password') {
@@ -63,7 +90,7 @@ function SplashScreen(props: ISplashScreen) {
         localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
       }
     }
-  }, [props.user, history]);
+  }, [props.user, history, dispatch]);
 
   // set the session id
   useEffect(() => {

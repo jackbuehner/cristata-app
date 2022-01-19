@@ -42,6 +42,7 @@ import {
 } from '../../../graphql/queries';
 import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
+import { useAppSelector } from '../../../redux/hooks';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
@@ -50,6 +51,7 @@ import { UsersGrid } from '../TeamsOverviewPage/TeamsOverviewPage';
 function TeamPage() {
   const history = useHistory();
   const theme = useTheme() as themeType;
+  const authUserState = useAppSelector((state) => state.authUser);
 
   // get the url parameters from the route
   let { team_id } = useParams<{
@@ -94,9 +96,7 @@ function TeamPage() {
   const permissions: { modify: boolean; hide: boolean } | undefined = permissionsData?.teamActionAccess;
   const canManage =
     permissions?.modify ||
-    team?.organizers
-      ?.map((user) => user._id)
-      .includes(JSON.parse(localStorage.getItem('auth.user') as string)?._id) ||
+    team?.organizers?.map((user) => user._id).includes(authUserState._id.toHexString()) ||
     false;
   const canDeactivate = permissionsData?.userActionAccess?.deactivate || false;
 
@@ -134,9 +134,7 @@ function TeamPage() {
 
     const canManage =
       permissions?.modify ||
-      data?.team.organizers
-        ?.map((user) => user._id)
-        .includes(JSON.parse(localStorage.getItem('auth.user') as string)?._id) ||
+      data?.team.organizers?.map((user) => user._id).includes(authUserState._id.toHexString()) ||
       false;
 
     const modifyTeam = async (): Promise<boolean> => {

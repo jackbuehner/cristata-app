@@ -22,6 +22,7 @@ import { Menu } from '../../../components/Menu';
 import { PROFILES_BASIC, PROFILES_BASIC__DOC_TYPE, PROFILES_BASIC__TYPE } from '../../../graphql/queries';
 import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
+import { useAppSelector } from '../../../redux/hooks';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorShade, colorType, themeType } from '../../../utils/theme/theme';
@@ -34,6 +35,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   const history = useHistory();
   const location = useLocation();
   const theme = useTheme() as themeType;
+  const authUserState = useAppSelector((state) => state.authUser);
   const { data, loading, error, networkStatus, refetch, fetchMore } = useQuery<PROFILES_BASIC__TYPE>(
     PROFILES_BASIC,
     { notifyOnNetworkStatusChange: true }
@@ -218,11 +220,9 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     );
   }
   if (data) {
-    // if the current user ID is available, navigate to that profile ifno other profile is selected
-    const currentUser = localStorage.getItem('auth.user');
-    const currentUser_id: string | undefined = currentUser ? JSON.parse(currentUser)._id : undefined;
-    if (currentUser_id && location.pathname === ('/profile' || '/profile/')) {
-      history.push(`/profile/${currentUser_id}`);
+    // navigate to the current user's profile if no other profile is selected
+    if (location.pathname === ('/profile' || '/profile/')) {
+      history.push(`/profile/${authUserState._id.toHexString()}`);
     }
 
     // sort out in active users

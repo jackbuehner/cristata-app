@@ -29,6 +29,7 @@ import {
   REINVITE_USER,
   REINVITE_USER__TYPE,
 } from '../../../graphql/queries';
+import { useAppSelector } from '../../../redux/hooks';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
@@ -36,6 +37,7 @@ import { themeType } from '../../../utils/theme/theme';
 function ProfilePage() {
   const theme = useTheme() as themeType;
   const history = useHistory();
+  const authUserState = useAppSelector((state) => state.authUser);
 
   // get the url parameters from the route
   let { profile_id } = useParams<{
@@ -56,7 +58,7 @@ function ProfilePage() {
     }
   );
   const permissions: Record<string, boolean> | undefined = permissionsData?.userActionAccess;
-  const isSelf = profile_id === JSON.parse(localStorage.getItem('auth.user') as string)?._id;
+  const isSelf = profile_id === authUserState._id.toHexString();
   const canEdit = permissions?.modify || isSelf;
   const canManage = (permissions?.modify && permissions?.deactivate) || false;
 
