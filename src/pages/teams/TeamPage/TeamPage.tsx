@@ -96,7 +96,10 @@ function TeamPage() {
   const permissions: { modify: boolean; hide: boolean } | undefined = permissionsData?.teamActionAccess;
   const canManage =
     permissions?.modify ||
-    team?.organizers?.map((user) => user._id).includes(authUserState._id.toHexString()) ||
+    team?.organizers
+      ?.filter((m) => !!m)
+      .map((user) => user._id)
+      .includes(authUserState._id.toHexString()) ||
     false;
   const canDeactivate = permissionsData?.userActionAccess?.deactivate || false;
 
@@ -134,7 +137,10 @@ function TeamPage() {
 
     const canManage =
       permissions?.modify ||
-      data?.team.organizers?.map((user) => user._id).includes(authUserState._id.toHexString()) ||
+      data?.team.organizers
+        ?.filter((m) => !!m)
+        .map((user) => user._id)
+        .includes(authUserState._id.toHexString()) ||
       false;
 
     const modifyTeam = async (): Promise<boolean> => {
@@ -381,8 +387,11 @@ function TeamPage() {
             variables: {
               _id: team_id,
               input: {
-                organizers: team.organizers.filter((user) => user._id !== _id).map((user) => user._id), // remove user from organizers
-                members: Array.from(new Set([...team.members.map((user) => user._id), _id])),
+                organizers: team.organizers
+                  .filter((m) => !!m)
+                  .filter((user) => user._id !== _id)
+                  .map((user) => user._id), // remove user from organizers
+                members: Array.from(new Set([...team.members.filter((m) => !!m).map((user) => user._id), _id])),
               },
             },
           })
@@ -405,8 +414,13 @@ function TeamPage() {
             variables: {
               _id: team_id,
               input: {
-                organizers: Array.from(new Set([...team.organizers.map((user) => user._id), _id])),
-                members: team.members.filter((user) => user._id !== _id).map((user) => user._id), // remove user from members
+                organizers: Array.from(
+                  new Set([...team.organizers.filter((m) => !!m).map((user) => user._id), _id])
+                ),
+                members: team.members
+                  .filter((m) => !!m)
+                  .filter((user) => user._id !== _id)
+                  .map((user) => user._id), // remove user from members
               },
             },
           })
@@ -542,8 +556,14 @@ function TeamPage() {
           variables: {
             _id: team_id,
             input: {
-              organizers: team?.organizers.filter((user) => user._id !== userId).map((user) => user._id), // remove user from organizers
-              members: team?.members.filter((user) => user._id !== userId).map((user) => user._id), // remove user from organizers
+              organizers: team?.organizers
+                .filter((m) => !!m)
+                .filter((user) => user._id !== userId)
+                .map((user) => user._id), // remove user from organizers
+              members: team?.members
+                .filter((m) => !!m)
+                .filter((user) => user._id !== userId)
+                .map((user) => user._id), // remove user from organizers
             },
           },
         })
@@ -646,7 +666,8 @@ function TeamPage() {
           <ContentWrapper theme={theme} key={0}>
             <UsersGrid>
               {allMembers.map((user, index) => {
-                const isOrganizer = team?.organizers.findIndex((u) => u._id === user._id) !== -1;
+                const isOrganizer =
+                  team?.organizers.filter((m) => !!m).findIndex((u) => u._id === user._id) !== -1;
                 const { temporary, expired } = getPasswordStatus(user.flags);
 
                 return (
