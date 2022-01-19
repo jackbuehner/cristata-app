@@ -1,22 +1,21 @@
 import { Mark } from '@tiptap/core';
-import { Command } from '@tiptap/react';
 import { v4 as uuidv4 } from 'uuid';
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     addition: {
       /**
        * Toggle the addition mark for the selected range
        */
-      toggleAddition: (color: string, user: string) => Command;
+      toggleAddition: (color: string, user: string) => ReturnType;
       /**
        * Add the addition mark to the provided range.
        */
-      setAddition: (color: string, user: string) => Command;
+      setAddition: (color: string, user: string) => ReturnType;
       /**
        * Remove the addition mark from the provided range.
        */
-      unsetAddition: () => Command;
+      unsetAddition: () => ReturnType;
     };
   }
 }

@@ -1,5 +1,5 @@
 import { Mark } from '@tiptap/core';
-import { Command, markInputRule, markPasteRule, Range } from '@tiptap/react';
+import { markInputRule, markPasteRule, Range } from '@tiptap/react';
 import { v4 as uuidv4 } from 'uuid';
 import { MarkType } from 'prosemirror-model';
 import { Transaction, EditorState, TextSelection } from 'prosemirror-state';
@@ -16,7 +16,7 @@ type DispatchFunction = ((args?: any) => any) | undefined;
 const LEAF_NODE_REPLACING_CHARACTER = '\uFFFC';
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     deletion: {
       /**
        * Toggle the deletion mark for the selected range.
@@ -27,19 +27,19 @@ declare module '@tiptap/core' {
        * nodes with addition marks can be deleted instead of converted into
        * deletion marks._
        */
-      toggleDeletion: (color: string, user: string) => Command;
+      toggleDeletion: (color: string, user: string) => ReturnType;
       /**
        * Add the deletion mark to the provided range.
        *
        * _Any node with an addition mark inside the range will be deleted._
        */
-      setDeletion: (color: string, user: string) => Command;
+      setDeletion: (color: string, user: string) => ReturnType;
       /**
        * Remove the deletion mark from the provided range.
        *
        * _Any node with an addition mark inside the range will be deleted._
        */
-      unsetDeletion: () => Command;
+      unsetDeletion: () => ReturnType;
     };
   }
 }
@@ -122,11 +122,16 @@ const Deletion = Mark.create<DeletionOptions>({
   },
 
   addPasteRules() {
-    return [markPasteRule(/`([^`]+)`/g, this.type)];
+    return [markPasteRule({ find: /`([^`]+)`/g, type: this.type })];
   },
 
   addInputRule() {
-    return [markInputRule(new RegExp(`(?:\`)([^\`${LEAF_NODE_REPLACING_CHARACTER}]+)(?:\`)$`), this.type)];
+    return [
+      markInputRule({
+        find: new RegExp(`(?:\`)([^\`${LEAF_NODE_REPLACING_CHARACTER}]+)(?:\`)$`),
+        type: this.type,
+      }),
+    ];
   },
 
   /**

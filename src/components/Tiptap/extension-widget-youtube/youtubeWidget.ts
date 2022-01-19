@@ -1,11 +1,11 @@
 import { Node } from '@tiptap/core';
-import { Command, ReactNodeViewRenderer } from '@tiptap/react';
+import { ReactNodeViewRenderer } from '@tiptap/react';
 import { YoutubeVideoEmbed } from './YoutubeVideoEmbed';
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     youtubeWidget: {
-      insertYoutubeWidget: (videoId: string) => Command;
+      insertYoutubeWidget: (videoId: string) => ReturnType;
     };
   }
 }

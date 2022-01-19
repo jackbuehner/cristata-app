@@ -1,7 +1,7 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { PaneClose24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
+import { PanelLeft24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
@@ -35,7 +35,7 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
     <Wrapper theme={theme}>
       <Header theme={theme}>
         <IconButton
-          icon={window.innerWidth <= 600 ? <Dismiss24Regular /> : <PaneClose24Regular />}
+          icon={window.innerWidth <= 600 ? <Dismiss24Regular /> : <PanelLeft24Regular />}
           cssExtra={css`
             float: right;
             margin-top: 15px;

@@ -1,6 +1,5 @@
 import { Node } from '@tiptap/core';
 import { JSONContent, ReactNodeViewRenderer } from '@tiptap/react';
-import { Command } from '@tiptap/react';
 import { Node as ProsemirrorNode, Slice } from 'prosemirror-model';
 import { TextSelection } from 'prosemirror-state';
 import { CommentContainer } from './CommentContainer';
@@ -8,12 +7,12 @@ import { v4 as uuidv4 } from 'uuid';
 import Color from 'color';
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     comment: {
       /**
        * Wrap text nodes in a comment node.
        */
-      setComment: (color: string, commenter: { name: string; photo: string }) => Command;
+      setComment: (color: string, commenter: { name: string; photo: string }) => ReturnType;
       /**
        * Remove the comment node included in the selection.
        *
@@ -21,7 +20,7 @@ declare module '@tiptap/core' {
        *
        * This command will expand the selection to include the entiere comment node.
        */
-      unsetComment: (position?: number) => Command;
+      unsetComment: (position?: number) => ReturnType;
     };
   }
 }

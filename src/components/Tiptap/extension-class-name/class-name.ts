@@ -1,17 +1,16 @@
 import { Extension } from '@tiptap/core';
-import { Command } from '@tiptap/react';
 
 interface ClassNameOptions {
   types: string[];
 }
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     className: {
       /**
        * Set the class of the element.
        */
-      setClassName: (className: string) => Command;
+      setClassName: (className: string) => ReturnType;
     };
   }
 }

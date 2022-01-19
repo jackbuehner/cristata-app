@@ -1,11 +1,11 @@
 import { Node } from '@tiptap/core';
-import { Command, ReactNodeViewRenderer } from '@tiptap/react';
+import { ReactNodeViewRenderer } from '@tiptap/react';
 import { PhotoWidgetNodeView } from './PhotoWidgetNodeView';
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     photoWidget: {
-      insertPhotoWidget: (photoId: string) => Command;
+      insertPhotoWidget: (photoId: string) => ReturnType;
     };
   }
 }

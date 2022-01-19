@@ -1,10 +1,9 @@
 import { Extension, Range } from '@tiptap/core';
-import { Command } from '@tiptap/react';
 import { Transaction, TextSelection } from 'prosemirror-state';
 import { Node as ProsemirrorNode } from 'prosemirror-model';
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     manageChanges: {
       /**
        * Approve the changes in the selection.
@@ -12,19 +11,19 @@ declare module '@tiptap/core' {
        * _This command will ONLY look at the first node in the selection._
        *
        */
-      approveChange: (range?: Range) => Command;
+      approveChange: (range?: Range) => ReturnType;
       /**
        * Reject the changes in the selection.
        */
-      rejectChange: (range?: Range) => Command;
+      rejectChange: (range?: Range) => ReturnType;
       /**
        * Find the next change in the document
        */
-      nextChange: (range?: Range) => Command;
+      nextChange: (range?: Range) => ReturnType;
       /**
        * Find the previous change in the document
        */
-      previousChange: (range?: Range) => Command;
+      previousChange: (range?: Range) => ReturnType;
     };
   }
 }

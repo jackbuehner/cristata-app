@@ -72,7 +72,10 @@ const Tiptap = (props: ITiptap) => {
   // A new Y document
   const ydoc = useMemo(() => new Y.Doc(), []);
   // create a setting map for this document (used to sync settings accross all editors)
-  const ySettingsMap = useMemo(() => ydoc.getMap('settings'), [ydoc]);
+  interface IYSettingsMap {
+    trackChanges?: boolean;
+  }
+  const ySettingsMap = useMemo(() => ydoc.getMap<IYSettingsMap>('settings'), [ydoc]);
   // register with a WebSocket provider
   const providerWebsocket = useMemo(
     () =>
@@ -215,7 +218,7 @@ const Tiptap = (props: ITiptap) => {
   };
 
   // manage whether track changes is on
-  const [trackChanges, setTrackChanges] = useState<boolean>(editor?.state.doc.attrs.trackChanges);
+  const [trackChanges, setTrackChanges] = useState<boolean>(editor?.state.doc.attrs.trackChanges || false);
 
   /**
    * Toggle whether track changes is enabled. Sets the change to react state
@@ -269,13 +272,13 @@ const Tiptap = (props: ITiptap) => {
   // manage the sidebar title
   const [sidebarTitle, setSidebarTitle] = useState<string>('');
 
-  type content = { type: string; text?: string; content?: content[] };
+  type JSONContent = { type?: string; text?: string; content?: JSONContent[] };
   /**
    * Calculate the word count of the the content found in prosemirror JSON.
    * @param content content value from prosemirror JSON
    * @returns number of words
    */
-  async function getWordCount(content: content[]) {
+  async function getWordCount(content: JSONContent[]) {
     let wordCount = 0;
 
     // loop through array of content
@@ -302,12 +305,13 @@ const Tiptap = (props: ITiptap) => {
   const [wordCount, setWordCount] = useState<number>(0);
 
   // keep the editor word count up to date (debounce with 5 second delay)
-  const updateWordCount = AwesomeDebouncePromise(async (content: content[]) => {
+  const updateWordCount = AwesomeDebouncePromise(async (content: JSONContent[]) => {
     const count = await getWordCount(content);
     setWordCount(count);
   }, 5000);
-  editor?.on('update', ({ editor }: { editor: Editor }) => {
-    updateWordCount(editor.getJSON().content);
+  editor?.on('update', ({ editor }) => {
+    const jsonContent = editor.getJSON().content;
+    if (jsonContent) updateWordCount(jsonContent);
   });
 
   // open the sidebar to document properties if the url contains the correct search param

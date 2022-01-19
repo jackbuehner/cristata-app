@@ -1,11 +1,11 @@
 import { Node } from '@tiptap/core';
-import { Command, ReactNodeViewRenderer } from '@tiptap/react';
+import { ReactNodeViewRenderer } from '@tiptap/react';
 import { Sweepwidget } from './Sweepwidget';
 
 declare module '@tiptap/core' {
-  interface Commands {
+  interface Commands<ReturnType> {
     sweepwidgetWidget: {
-      insertSweepwidgetWidget: (id: string) => Command;
+      insertSweepwidgetWidget: (id: string) => ReturnType;
     };
   }
 }
