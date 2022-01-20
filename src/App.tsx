@@ -144,6 +144,7 @@ function App() {
               <Route path={`/proto*`} element={<ProtocolHandlerPage />} />
               <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
               <Route path={`/sign-in-legacy`} element={<LegacySignIn />} />
+              <Route path={`/sign-out`} element={<SignOut />} />
             </Routes>
           }
           protectedChildren={
@@ -151,19 +152,19 @@ function App() {
               {isCustomTitlebarVisible ? <Titlebar /> : null}
               <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
                 <Wrapper>
-                  <Routes>
-                    <Route path={`/sign-out`} element={<SignOut />} />
-                    <Route>
-                      <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
-                        <SideNavs>
-                          <Sidenav
-                            gridCols={gridCols}
-                            toggleSideNavSub={toggleSideNavSub}
-                            isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                          />
-                          <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
-                            <Routes>
-                              <Route path={`/cms`}>
+                  <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
+                    <SideNavs>
+                      <Sidenav
+                        gridCols={gridCols}
+                        toggleSideNavSub={toggleSideNavSub}
+                        isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
+                      />
+                      <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
+                        <Routes>
+                          <Route
+                            path={`/cms*`}
+                            element={
+                              <>
                                 <SideNavHeading>Content Management System</SideNavHeading>
                                 {getNavigationConfig(state).cms.map((group, index) => {
                                   // store the group items that are not hidden
@@ -193,67 +194,50 @@ function App() {
                                     </Fragment>
                                   );
                                 })}
-                              </Route>
-                              <Route path={`/plans`}>
-                                <PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
-                              </Route>
-                              <Route path={`/profile`}>
-                                <ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />
-                              </Route>
-                              <Route path={`/teams`}>
-                                <TeamsNav setIsNavVisibleM={setIsNavVisibleM} />
-                              </Route>
-                            </Routes>
-                          </SidenavSub>
-                        </SideNavs>
-                      </SideNavWrapper>
-                      <Content theme={theme}>
-                        <Routes>
-                          <Route path={`/cms/photos/library/:photo_id?`}>
-                            <PhotoLibraryPage />
-                          </Route>
-                          <Route path={`/cms/collection/:collection/:progress`}>
-                            <CollectionPage />
-                          </Route>
-                          <Route path={`/cms/collection/:collection`}>
-                            <CollectionPage />
-                          </Route>
-                          <Route path={`/cms/item/:collection/:item_id`}>
-                            <ItemDetailsPage />
-                          </Route>
-                          <Route path={`/cms`}>
-                            <PageHead title={`CMS`} />
-                          </Route>
-                          <Route path={`/plans/org/:id`}>
-                            <PlansPage />
-                          </Route>
-                          <Route path={`/plans`}>
-                            <PageHead title={`Plans`} />
-                          </Route>
-                          <Route path={`/profile/:profile_id`}>
-                            <ProfilePage />
-                          </Route>
-                          <Route path={`/profile`}>
-                            <PageHead title={`Profiles`} />
-                          </Route>
-                          <Route path={`/teams/:team_id`}>
-                            <TeamPage />
-                          </Route>
-                          <Route path={`/teams`}>
-                            <TeamsOverviewPage />
-                          </Route>
-                          <Route path={`/`}>
+                              </>
+                            }
+                          />
+                          <Route
+                            path={`/plans*`}
+                            element={<PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
+                          />
+                          <Route
+                            path={`/profile*`}
+                            element={<ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
+                          />
+                          <Route path={`/teams*`} element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />} />
+                        </Routes>
+                      </SidenavSub>
+                    </SideNavs>
+                  </SideNavWrapper>
+                  <Content theme={theme}>
+                    <Routes>
+                      <Route path={`/cms/photos/library/:photo_id?`} element={<PhotoLibraryPage />} />
+                      <Route path={`/cms/collection/:collection/:progress`} element={<CollectionPage />} />
+                      <Route path={`/cms/collection/:collection`} element={<CollectionPage />} />
+                      <Route path={`/cms/item/:collection/:item_id`} element={<ItemDetailsPage />} />
+                      <Route path={`/cms`} element={<PageHead title={`CMS`} />} />
+                      <Route path={`/plans/org/:id`} element={<PlansPage />} />
+                      <Route path={`/plans`} element={<PageHead title={`Plans`} />} />
+                      <Route path={`/profile/:profile_id`} element={<ProfilePage />} />
+                      <Route path={`/profile`} element={<PageHead title={`Profiles`} />} />
+                      <Route path={`/teams/:team_id`} element={<TeamPage />} />
+                      <Route path={`/teams`} element={<TeamsOverviewPage />} />
+                      <Route
+                        path={`/`}
+                        element={
+                          <>
                             <SidenavHeader
                               gridCols={gridCols}
                               homeOnly
                               isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
                             />
                             <HomePage />
-                          </Route>
-                        </Routes>
-                      </Content>
-                    </Route>
-                  </Routes>
+                          </>
+                        }
+                      />
+                    </Routes>
+                  </Content>
                 </Wrapper>
               </PageWrapper>
             </CristataWebSocket>
