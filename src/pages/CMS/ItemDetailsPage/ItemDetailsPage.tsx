@@ -1020,7 +1020,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'custom' && field.Component) {
+            if (field.type === 'custom' && field.Component && JSON.stringify(state.fields) !== '{}') {
               return (
                 <ErrorBoundary
                   key={index}
