@@ -212,7 +212,8 @@ function App() {
                   </SideNavWrapper>
                   <Content theme={theme}>
                     <Routes>
-                      <Route path={`/cms/photos/library/:photo_id?`} element={<PhotoLibraryPage />} />
+                      <Route path={`/cms/photos/library`} element={<PhotoLibraryPage />} />
+                      <Route path={`/cms/photos/library/:photo_id`} element={<PhotoLibraryPage />} />
                       <Route path={`/cms/collection/:collection/:progress`} element={<CollectionPage />} />
                       <Route path={`/cms/collection/:collection`} element={<CollectionPage />} />
                       <Route path={`/cms/item/:collection/:item_id`} element={<ItemDetailsPage />} />
