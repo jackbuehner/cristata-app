@@ -195,8 +195,6 @@ function CollectionPage() {
           }
           return null;
         })}
-        <div>{JSON.stringify(createNewState.fields)}</div>
-        <div>{JSON.stringify(createNewState.state)}</div>
       </PlainModal>
     );
   }, [createNewState, isLoading]);
