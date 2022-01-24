@@ -28,11 +28,15 @@ type CreateNewStateType = {
   /**
    * The fields that should appear in the modal.
    *
+   * A field marked as required will display an indicator that it is required.
+   * The `create` function is responsible for ensuring that the field has an
+   * acceptable value.
+   *
    * **Options**
    *
    * text: text field
    */
-  fields: { type: 'text'; label: string; key: string }[];
+  fields: { type: 'text'; label: string; key: string; required?: true }[];
   /**
    * The state of the fields (the field values).
    *
@@ -170,7 +174,7 @@ function CollectionPage() {
             return (
               <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
                 <InputGroup type={`text`}>
-                  <Label htmlFor={field.key}>{field.label}</Label>
+                  <Label htmlFor={field.key}>{`${field.label}${field.required ? '*' : ''}`}</Label>
                   <TextInput
                     name={field.label}
                     id={field.key}
