@@ -33,6 +33,7 @@ const collectionQueryTypePolicies = [...collectionPluralNames, 'users', 'teams']
 });
 
 const cache = new InMemoryCache({
+  addTypename: false,
   typePolicies: {
     Query: {
       fields: merge({}, ...collectionQueryTypePolicies),
