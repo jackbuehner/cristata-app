@@ -61,6 +61,7 @@ const articles: collection<IArticle> = {
         { value: 'arts', label: 'Arts' },
         { value: 'campus-culture', label: 'Campus & Culture' },
         { value: 'giveaway', label: 'Giveaway' },
+        { value: 'newsletter', label: 'Newsletter' },
       ],
     },
     {
@@ -264,6 +265,7 @@ const articles: collection<IArticle> = {
           arts: 'Arts',
           'campus-culture': 'Campus & Culture',
           giveaway: 'Giveaway',
+          newsletter: 'Newsletter',
         };
         return (
           <div>
