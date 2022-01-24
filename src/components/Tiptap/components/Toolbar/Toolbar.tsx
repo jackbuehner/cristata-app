@@ -69,7 +69,6 @@ const TOOLBAR = styled.div`
 interface IToolbar {
   editor: Editor | null;
   isMax: boolean;
-  setIsMax: React.Dispatch<React.SetStateAction<boolean>>;
   isDisabled?: boolean;
   layouts?: {
     layout?: string;
@@ -726,7 +725,6 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
             {!props.forceMax ? (
               <ToolbarMetaIconButton
                 onClick={() => {
-                  setIsMax(!isMax);
                   params.set('fs', `${Number(!isMax)}`);
                   navigate(pathname + '?' + params.toString() + hash, { replace: true });
                 }}
