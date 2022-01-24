@@ -79,6 +79,7 @@ const shorturl: collection<IShortURL> = {
           type: 'text',
           key: 'original_url',
           label: 'Destination',
+          required: true,
         },
       ],
 
