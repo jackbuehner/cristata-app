@@ -760,7 +760,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         html={html}
                         isMaximized={fs === '1' || fs === 'force'}
                         forceMax={fs === 'force'}
-                        onChange={(editorJson: string) => {
+                        onDebouncedChange={(editorJson: string) => {
                           if (editorJson !== state.fields[buildFullKey(field.key, field.from, undefined)]) {
                             dispatch(
                               setField(editorJson, buildFullKey(field.key, field.from, undefined), 'tiptap')

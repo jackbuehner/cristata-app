@@ -47,6 +47,7 @@ import {
   useWordCount,
   useY,
 } from './hooks';
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
 
 interface ITiptap {
   docName: string;
@@ -59,7 +60,7 @@ interface ITiptap {
   options?: tiptapOptions;
   isDisabled?: boolean;
   sessionId: string;
-  onChange?: (editorJson: string) => void;
+  onDebouncedChange?: (editorJson: string) => void;
   html?: string;
   actions?: Array<Iaction | null>;
   isMaximized?: boolean;
@@ -89,6 +90,15 @@ const Tiptap = (props: ITiptap) => {
       content: <ItemDetailsPage isEmbedded />,
     },
   });
+
+  // create a debounced update function
+  const onUpdateDelayed = AwesomeDebouncePromise(async (editor: Editor) => {
+    if (props.onDebouncedChange) {
+      // get the json for the editor and send it to the parent component via `onChange()`
+      const json = JSON.stringify(editor.getJSON().content);
+      props.onDebouncedChange(json);
+    }
+  }, 1000);
 
   // create the editor
   const editor = useTipTapEditor({
@@ -136,11 +146,7 @@ const Tiptap = (props: ITiptap) => {
     onUpdate() {
       const editor = this as unknown as Editor;
       if (props.html) editor.commands.setContent(props.html);
-      if (props.onChange) {
-        // get the json for the editor and send it to the parent component via `onChange()`
-        const json = JSON.stringify(editor.getJSON().content);
-        props.onChange(json);
-      }
+      onUpdateDelayed(editor);
     },
   });
 
