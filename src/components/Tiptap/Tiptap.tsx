@@ -335,7 +335,7 @@ const Tiptap = (props: ITiptap) => {
                 </>
               ) : null
             }
-            <Content editor={editor} theme={theme} tiptapWidth={tiptapWidth} />
+            <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} />
           </div>
         </ErrorBoundary>
         <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
@@ -386,14 +386,14 @@ const Container = styled.div<{ theme: themeType; isMaximized: boolean }>`
     isMaximized ? `position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1000` : 'z-index: 1'};
 `;
 
-const Content = styled(EditorContent)<{ tiptapWidth: number; theme: themeType }>`
-  max-width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `unset` : `768px`)};
-  width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `100%` : `calc(100% - 40px)`)};
+const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>`
+  max-width: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `unset` : `768px`)};
+  width: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `100%` : `calc(100% - 40px)`)};
   box-sizing: border-box;
   background-color: white;
-  border: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`)};
-  padding: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `24px 20px` : `68px 88px`)};
-  margin: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `0` : `20px`)};
+  border: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`)};
+  padding: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `24px 20px` : `68px 88px`)};
+  margin: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `0` : `20px`)};
   .ProseMirror {
     font-family: Georgia, Times, 'Times New Roman', serif;
     color: #3a3a3a;
@@ -410,7 +410,7 @@ const Content = styled(EditorContent)<{ tiptapWidth: number; theme: themeType }>
       margin-bottom: 10px;
     }
     // show placeholder message when the editor is empty
-    p.is-empty:first-child::before {
+    p.is-empty:first-of-type::before {
       content: attr(data-placeholder);
       float: left;
       color: ${({ theme }) => theme.color.neutral[theme.mode][600]};

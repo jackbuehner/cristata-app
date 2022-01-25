@@ -9,7 +9,7 @@ interface DateTimeI {
   onChange: (date: MaterialUiPickersDate) => void;
   isDisabled?: boolean;
   placeholder?: string;
-  cssExtra?: SerializedStyles;
+  style?: SerializedStyles;
 }
 
 interface DateTimeComponentI extends DateTimeI {
@@ -48,7 +48,7 @@ const DateTimeComponent = styled(DateTimePicker)<DateTimeComponentI>`
       font-weight: 500;
     }
   }
-  ${({ cssExtra }) => cssExtra}
+  ${({ style }) => style}
 `;
 
 function DateTime(props: DateTimeI) {
@@ -60,7 +60,7 @@ function DateTime(props: DateTimeI) {
       theme={theme}
       disabled={props.isDisabled}
       placeholder={props.placeholder}
-      cssExtra={props.cssExtra}
+      style={props.style}
     />
   );
 }

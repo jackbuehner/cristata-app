@@ -235,7 +235,7 @@ const articles: collection<IArticle> = {
                 (author: { name: string; photo?: string; _id: string }, index: number) => {
                   const { name, photo, _id } = author;
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} key={index}>
                       <img
                         src={photo ? photo : _id ? genAvatar(_id) : ''}
                         alt={``}
@@ -339,7 +339,7 @@ const articles: collection<IArticle> = {
                 (editor: { name: string; photo?: string; _id: string }, index: number) => {
                   const { name, photo, _id } = editor;
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} key={index}>
                       <img
                         src={photo ? photo : _id ? genAvatar(_id) : ''}
                         alt={``}

@@ -10,7 +10,7 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
   font-size: 16px;
   padding: 20px 10px 10px 10px;
   position: relative;
-  &:first-child {
+  &:first-of-type {
     border-bottom: 1px solid;
     border-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][300]).alpha(0.5).string()};
     margin-bottom: 10px;

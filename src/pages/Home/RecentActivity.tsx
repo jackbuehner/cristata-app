@@ -3,7 +3,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import ColorHash from 'color-hash';
 import { DateTime } from 'luxon';
-import { MouseEventHandler } from 'react';
+import { Fragment, MouseEventHandler } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collections } from '../../config';
 import { collection as collectionType } from '../../config/collections';
@@ -218,8 +218,8 @@ function ListNames(props: IListNames) {
           photoWidth={props.photos.photoWidth}
           ids={props.names.map((n) => n.name)}
         >
-          {props.names.slice(0, props.photos.maxPhotos || 3).map(({ photo, onClick }) => {
-            return <props.PhotoComponent src={photo} theme={theme} onClick={onClick} />;
+          {props.names.slice(0, props.photos.maxPhotos || 3).map(({ photo, onClick }, index) => {
+            return <props.PhotoComponent src={photo} theme={theme} onClick={onClick} key={index} />;
           })}
         </PhotosWrapper>
       ) : null}
@@ -242,12 +242,12 @@ function ListNames(props: IListNames) {
           <>
             {props.names.slice(0, props.names.length - 1).map((name, index: number) => {
               return (
-                <>
+                <Fragment key={index}>
                   <props.NameComponent theme={theme} onClick={name.onClick}>
                     <span key={index}>{name.name}</span>
                   </props.NameComponent>
                   <span>, </span>
-                </>
+                </Fragment>
               );
             })}
             <span>and </span>

@@ -201,6 +201,13 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   // create/invite new user modal
   const [showNewUserModal] = useInviteUserModal();
 
+  // navigate to the current user's profile if no other profile is selected
+  useEffect(() => {
+    if (location.pathname === ('/profile' || '/profile/')) {
+      navigate(`/profile/${authUserState._id}`);
+    }
+  }, [authUserState._id, location, navigate]);
+
   if (loading && !data)
     return (
       <>
@@ -220,11 +227,6 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     );
   }
   if (data) {
-    // navigate to the current user's profile if no other profile is selected
-    if (location.pathname === ('/profile' || '/profile/')) {
-      navigate(`/profile/${authUserState._id}`);
-    }
-
     // sort out in active users
     const filteredProfiles = data.profiles.docs.filter((profile) => (hideInactive ? !profile.retired : true));
 

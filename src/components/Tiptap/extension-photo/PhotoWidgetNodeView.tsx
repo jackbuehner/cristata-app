@@ -176,8 +176,8 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             },
           ]}
         ></WidgetActions>
-        <Caption show={props.node.attrs.showCaption}>
-          <EditableContent show={props.node.attrs.showCaption} />
+        <Caption show={props.node.attrs.showCaption?.toString()}>
+          <EditableContent show={props.node.attrs.showCaption?.toString()} />
           <Source contentEditable={false}>{photo?.people.photo_created_by}</Source>
         </Caption>
       </WidgetWrapper>
@@ -185,17 +185,17 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
   );
 }
 
-const EditableContent = styled(NodeViewContent)<{ show: boolean }>`
-  display: ${({ show }) => (show ? 'inline-block' : 'none')};
+const EditableContent = styled(NodeViewContent)<{ show: string }>`
+  display: ${({ show }) => (show === 'true' ? 'inline-block' : 'none')};
   color: #666;
   font-size: 90%;
   text-align: center;
 `;
 
-const Caption = styled.div<{ show: boolean }>`
+const Caption = styled.div<{ show: string }>`
   display: block;
-  text-align: ${({ show }) => (show ? 'center' : 'right')};
-  margin: ${({ show }) => (show ? `-10px 0 10px 0` : `-26px 0 10px 0`)};
+  text-align: ${({ show }) => (show === 'true' ? 'center' : 'right')};
+  margin: ${({ show }) => (show === 'true' ? `-10px 0 10px 0` : `-26px 0 10px 0`)};
   line-height: 1.3;
 `;
 

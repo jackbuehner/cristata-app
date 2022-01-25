@@ -203,7 +203,7 @@ const satire: collection<ISatire> = {
                 (author: { name: string; photo?: string; _id: string }, index: number) => {
                   const { name, photo, _id } = author;
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} key={index}>
                       <img
                         src={photo ? photo : _id ? genAvatar(_id) : ''}
                         alt={``}
