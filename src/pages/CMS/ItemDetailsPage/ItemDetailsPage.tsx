@@ -535,9 +535,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // variable with the fs search param
   const fs = new URLSearchParams(search).get('fs');
+  console.log(fs);
 
   // content to only show in fulscreen, unembedded mode once all data has loaded
-  const fsWait = !(!props.isEmbedded && fs && state.isLoading && !data);
+  const fsWait = !(!props.isEmbedded && fs === 'force' && state.isLoading && !data);
 
   /**
    * Process values for selects
@@ -602,7 +603,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
         />
       )}
 
-      {!props.isEmbedded && fs ? <FullScreenSplash isLoading={state.isLoading} /> : null}
+      {!props.isEmbedded && fs === 'force' ? <FullScreenSplash isLoading={state.isLoading} /> : null}
       <PageWrapper theme={theme} isEmbedded={props.isEmbedded}>
         {publishLocked && !props.isEmbedded && !fs ? (
           <Notice theme={theme}>
@@ -637,7 +638,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               }
             }
 
-            if (field.type === 'text' && (props.isEmbedded || !fs)) {
+            if (field.type === 'text' && (props.isEmbedded || !fs || fs === '0')) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -671,7 +672,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'boolean' && (props.isEmbedded || !fs)) {
+            if (field.type === 'boolean' && (props.isEmbedded || !fs || fs === '0')) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -787,7 +788,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'select' && (props.isEmbedded || !fs)) {
+            if (field.type === 'select' && (props.isEmbedded || !fs || fs === '0')) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -831,7 +832,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'select_async' && (props.isEmbedded || !fs)) {
+            if (field.type === 'select_async' && (props.isEmbedded || !fs || fs === '0')) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -876,7 +877,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'multiselect' && (props.isEmbedded || !fs)) {
+            if (field.type === 'multiselect' && (props.isEmbedded || !fs || fs === '0')) {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
               )?.map((val) => processValue(val, field));
@@ -910,7 +911,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'multiselect_async' && (props.isEmbedded || !fs)) {
+            if (field.type === 'multiselect_async' && (props.isEmbedded || !fs || fs === '0')) {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
               )?.map((val) => processValue(val, field));
@@ -945,7 +946,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'multiselect_creatable' && (props.isEmbedded || !fs)) {
+            if (field.type === 'multiselect_creatable' && (props.isEmbedded || !fs || fs === '0')) {
               const val = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
               )?.map((val) => processValue(val, field));
@@ -980,7 +981,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'datetime' && (props.isEmbedded || !fs)) {
+            if (field.type === 'datetime' && (props.isEmbedded || !fs || fs === '0')) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -1025,7 +1026,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               field.type === 'custom' &&
               field.Component &&
               JSON.stringify(state.fields) !== '{}' &&
-              (props.isEmbedded || !fs)
+              (props.isEmbedded || !fs || fs === '0')
             ) {
               return (
                 <ErrorBoundary
@@ -1045,7 +1046,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (props.isEmbedded || !fs) {
+            if (props.isEmbedded || !fs || fs === '0') {
               return (
                 <ErrorBoundary
                   key={index}
@@ -1073,7 +1074,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
           // in case fullscreen mode is enabled, but an error has caused
           // it to not actually be fullscreen (fullscreen mode tiptap
           // always includes an embedded version of this component)
-          fsWait ? (
+          !props.isEmbedded && (fs === '1' || fs === 'force') ? (
             <Button
               onClick={() => {
                 const params = new URLSearchParams(search);
