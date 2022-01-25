@@ -167,13 +167,14 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   }, [data, dispatch]);
 
   // set document title
+  const title = `${state.isUnsaved ? '*' : ''}${
+    collectionConfig?.itemPageTitle
+      ? collectionConfig.itemPageTitle(state.fields)
+      : state.fields.name || item_id
+  } - Cristata`;
   useEffect(() => {
-    document.title = `${state.isUnsaved ? '*' : ''}${
-      collectionConfig?.itemPageTitle
-        ? collectionConfig.itemPageTitle(state.fields)
-        : state.fields.name || item_id
-    } - Cristata`;
-  }, [collectionConfig, data, item_id, state.fields, state.fields.name, state.isUnsaved]);
+    document.title = title;
+  }, [collectionConfig, data, item_id, state.fields, state.fields.name, state.isUnsaved, title]);
 
   //
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
@@ -751,6 +752,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     >
                       <Tiptap
                         docName={`${collection}.${item_id}`}
+                        title={title}
                         user={{
                           name: authUserState.name,
                           color: colorHash.hex(authUserState._id),
