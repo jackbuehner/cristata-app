@@ -58,6 +58,7 @@ import {
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
 } from '../../../../graphql/queries';
+import { useFontFamilyDropdown } from './useCustomDropdown';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -94,7 +95,7 @@ interface IToolbar {
   options?: tiptapOptions;
 }
 
-function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
+function Toolbar({ editor, isMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
@@ -107,35 +108,11 @@ function Toolbar({ editor, isMax, setIsMax, ...props }: IToolbar) {
   });
 
   // DROPDOWNS
-  // font family
-  const [showFontFamilyDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
-      return (
-        <Menu
-          ref={dropdownRef}
-          pos={{
-            top: triggerRect.bottom,
-            left: triggerRect.left,
-            width: 240,
-          }}
-          items={
-            props.options?.features.fontFamilies?.map((family) => {
-              return {
-                onClick: () => editor?.chain().focus().setFontFamily(family.name).run(),
-                label: family.label || family.name,
-                color: 'neutral',
-                disabled: family.disabled,
-              };
-            }) || []
-          }
-          noIcons
-        />
-      );
-    },
-    [],
-    true,
-    true
-  );
+  const [showFontFamilyDropdown] = useFontFamilyDropdown({
+    editor,
+    fontFamilies: props.options?.features.fontFamilies,
+  });
+
   // font size
   const [showFontSizeDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
