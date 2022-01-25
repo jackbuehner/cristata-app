@@ -35,8 +35,6 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
   );
   const photo = PHOTO_QUERY.data?.photos.docs?.[0];
 
-  console.log(props.node.attrs.photoId);
-
   // set the photo url and credit attributes
   useEffect(() => {
     if (photo) {
