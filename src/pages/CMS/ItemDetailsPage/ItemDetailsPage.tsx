@@ -53,6 +53,7 @@ import { flattenObject } from '../../../utils/flattenObject';
 import { client } from '../../../graphql/client';
 import { isObject } from '../../../utils/isObject';
 import { IField } from '../../../config/collections';
+import { FullScreenSplash } from './FullScreenSplash';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -600,6 +601,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
         />
       )}
 
+      {!props.isEmbedded && fs ? <FullScreenSplash isLoading={state.isLoading} /> : null}
       <PageWrapper theme={theme} isEmbedded={props.isEmbedded}>
         {publishLocked && !props.isEmbedded && !fs ? (
           <Notice theme={theme}>
