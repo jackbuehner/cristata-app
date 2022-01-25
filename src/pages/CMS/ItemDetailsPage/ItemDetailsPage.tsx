@@ -405,7 +405,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   // publish confirmation modal
   const [showPublishModal, hidePublishModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [confirm, setConfirm] = useState<string>();
+    const [confirm, setConfirm] = useState<string>('');
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [timestamp, setTimestamp] = useState<string>(state.fields['timestamps.published_at'] as string);
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -655,7 +655,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                               state.fields,
                               client
                             )
-                          : (state.fields[buildFullKey(field.key, field.from, undefined)] as string)
+                          : (state.fields[buildFullKey(field.key, field.from, undefined)] as string) || ''
                       }
                       onChange={(e) => handleTextChange(e, buildFullKey(field.key, field.from, undefined))}
                       isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
