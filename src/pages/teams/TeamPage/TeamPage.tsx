@@ -99,7 +99,7 @@ function TeamPage() {
     team?.organizers
       ?.filter((m) => !!m)
       .map((user) => user._id)
-      .includes(authUserState._id.toHexString()) ||
+      .includes(authUserState._id) ||
     false;
   const canDeactivate = permissionsData?.userActionAccess?.deactivate || false;
 
@@ -140,7 +140,7 @@ function TeamPage() {
       data?.team.organizers
         ?.filter((m) => !!m)
         .map((user) => user._id)
-        .includes(authUserState._id.toHexString()) ||
+        .includes(authUserState._id) ||
       false;
 
     const modifyTeam = async (): Promise<boolean> => {
