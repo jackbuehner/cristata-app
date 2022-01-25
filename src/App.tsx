@@ -82,7 +82,7 @@ function App() {
           user={user}
           persistentChildren={
             <Routes>
-              <Route path={`/proto*`} element={<ProtocolHandlerPage />} />
+              <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
               <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
               <Route path={`/sign-in-legacy`} element={<LegacySignIn />} />
               <Route path={`/sign-out`} element={<SignOut />} />
@@ -103,7 +103,7 @@ function App() {
                       <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
                         <Routes>
                           <Route
-                            path={`/cms*`}
+                            path={`/cms/*`}
                             element={
                               <>
                                 <SideNavHeading>Content Management System</SideNavHeading>
@@ -139,14 +139,14 @@ function App() {
                             }
                           />
                           <Route
-                            path={`/plans*`}
+                            path={`/plans/*`}
                             element={<PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
                           />
                           <Route
-                            path={`/profile*`}
+                            path={`/profile/*`}
                             element={<ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
                           />
-                          <Route path={`/teams*`} element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />} />
+                          <Route path={`/teams/*`} element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />} />
                         </Routes>
                       </SidenavSub>
                     </SideNavs>
