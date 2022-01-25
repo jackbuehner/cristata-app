@@ -145,7 +145,7 @@ const Tiptap = (props: ITiptap) => {
   });
 
   const [trackChanges, toggleTrackChanges] = useTrackChanges({ editor, ydoc, ySettingsMap }); // enable track changes management for the document
-  useDevTools({ editor }); // show prosemirror developer tools when in development mode
+  useDevTools({ editor }); // show prosemirror developer tools when url query has dev=1
   const wordCount = useWordCount({ editor }); // gets the word count of the editor (debounced by five seconds)
 
   // store width minus sidebar width
