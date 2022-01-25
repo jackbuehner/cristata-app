@@ -58,7 +58,7 @@ function ProfilePage() {
     }
   );
   const permissions: Record<string, boolean> | undefined = permissionsData?.userActionAccess;
-  const isSelf = profile_id === authUserState._id.toHexString();
+  const isSelf = profile_id === authUserState._id;
   const canEdit = permissions?.modify || isSelf;
   const canManage = (permissions?.modify && permissions?.deactivate) || false;
 

@@ -9,7 +9,7 @@ export interface AuthUserState {
   hasTwoFactorAuthentication: boolean;
   name: string;
   username: string;
-  _id: mongoose.Types.ObjectId;
+  _id: string; // hex respresentations of ObjectIds
 }
 
 const initialState: AuthUserState = {
@@ -19,7 +19,7 @@ const initialState: AuthUserState = {
   hasTwoFactorAuthentication: false,
   name: '',
   username: '',
-  _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+  _id: '000000000000000000000000',
 };
 
 export const authUserSlice = createSlice({
@@ -67,7 +67,7 @@ export const authUserSlice = createSlice({
      */
     setObjectId: (state, action: PayloadAction<string | mongoose.Types.ObjectId>) => {
       if (isObjectId(action.payload)) {
-        state._id = new mongoose.Types.ObjectId(action.payload);
+        state._id = new mongoose.Types.ObjectId(action.payload).toHexString();
       } else {
         console.error('invalid id', action.payload);
         throw new Error(`cannot use invalid object id for auth user id`);

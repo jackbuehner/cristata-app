@@ -222,7 +222,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   if (data) {
     // navigate to the current user's profile if no other profile is selected
     if (location.pathname === ('/profile' || '/profile/')) {
-      navigate(`/profile/${authUserState._id.toHexString()}`);
+      navigate(`/profile/${authUserState._id}`);
     }
 
     // sort out in active users

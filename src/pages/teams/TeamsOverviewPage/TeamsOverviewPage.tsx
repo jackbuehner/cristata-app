@@ -46,7 +46,7 @@ function TeamsOverviewPage() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [name, setName] = useState('');
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [organizers, setOrganizers] = useState<string[]>([authUserState._id.toHexString()]);
+    const [organizers, setOrganizers] = useState<string[]>([authUserState._id]);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [members, setMembers] = useState<string[]>([]);
     const slug = slugify(name);

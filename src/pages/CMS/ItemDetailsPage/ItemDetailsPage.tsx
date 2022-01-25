@@ -349,7 +349,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     if (
       authUserState &&
       data?.people?.watching &&
-      JSON.stringify(data.people.watching).includes(authUserState._id.toHexString())
+      JSON.stringify(data.people.watching).includes(authUserState._id)
     )
       // stringify it since it can be either a profile id or a profile object
       setIsWatching(true);
@@ -366,11 +366,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       .filter((watcher) => watcher !== undefined); // stringify it since it can be either a profile id or a profile object
 
     // set if current user is a mandatory watcher by checking if the user is inside `mandatoryWatchers`
-    if (
-      authUserState &&
-      mandatoryWatchers &&
-      JSON.stringify(mandatoryWatchers).includes(authUserState._id.toHexString())
-    )
+    if (authUserState && mandatoryWatchers && JSON.stringify(mandatoryWatchers).includes(authUserState._id))
       setIsMandatoryWatcher(true);
     else setIsMandatoryWatcher(false);
   }, [collection, authUserState, state.fields, collectionConfig?.mandatoryWatchers]);
@@ -752,12 +748,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         docName={`${collection}.${item_id}`}
                         user={{
                           name: authUserState.name,
-                          color: colorHash.hex(authUserState._id.toHexString()),
+                          color: colorHash.hex(authUserState._id),
                           photo:
-                            `${process.env.REACT_APP_API_PROTOCOL}://${
-                              process.env.REACT_APP_API_BASE_URL
-                            }/v3/user-photo/${authUserState._id.toHexString()}` ||
-                            genAvatar(authUserState._id.toHexString()),
+                            `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/v3/user-photo/${authUserState._id}` ||
+                            genAvatar(authUserState._id),
                         }}
                         options={field.tiptap}
                         isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}
