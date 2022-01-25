@@ -86,7 +86,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
-  const { search } = useLocation();
+  const { pathname, search, hash } = useLocation();
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -534,6 +534,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   // variable with the fs search param
   const fs = new URLSearchParams(search).get('fs');
 
+  // content to only show in fulscreen, unembedded mode once all data has loaded
+  const fsWait = !(!props.isEmbedded && fs && state.isLoading && !data);
+
   /**
    * Process values for selects
    */
@@ -550,7 +553,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   return (
     <>
-      {props.isEmbedded ? null : (
+      {props.isEmbedded || !fsWait ? null : (
         <PageHead
           title={
             collectionConfig && collectionConfig.itemPageTitle
@@ -598,7 +601,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       )}
 
       <PageWrapper theme={theme} isEmbedded={props.isEmbedded}>
-        {publishLocked && !props.isEmbedded ? (
+        {publishLocked && !props.isEmbedded && !fs ? (
           <Notice theme={theme}>
             This document is opened in read-only mode because it has been published and you do not have publish
             permissions.
@@ -631,7 +634,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               }
             }
 
-            if (field.type === 'text') {
+            if (field.type === 'text' && (props.isEmbedded || !fs)) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -665,7 +668,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'boolean') {
+            if (field.type === 'boolean' && (props.isEmbedded || !fs)) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -780,7 +783,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'select') {
+            if (field.type === 'select' && (props.isEmbedded || !fs)) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -824,7 +827,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'select_async') {
+            if (field.type === 'select_async' && (props.isEmbedded || !fs)) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -869,7 +872,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'multiselect') {
+            if (field.type === 'multiselect' && (props.isEmbedded || !fs)) {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
               )?.map((val) => processValue(val, field));
@@ -903,7 +906,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'multiselect_async') {
+            if (field.type === 'multiselect_async' && (props.isEmbedded || !fs)) {
               const vals = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
               )?.map((val) => processValue(val, field));
@@ -938,7 +941,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'multiselect_creatable') {
+            if (field.type === 'multiselect_creatable' && (props.isEmbedded || !fs)) {
               const val = (
                 state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
               )?.map((val) => processValue(val, field));
@@ -973,7 +976,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'datetime') {
+            if (field.type === 'datetime' && (props.isEmbedded || !fs)) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -1014,7 +1017,12 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            if (field.type === 'custom' && field.Component && JSON.stringify(state.fields) !== '{}') {
+            if (
+              field.type === 'custom' &&
+              field.Component &&
+              JSON.stringify(state.fields) !== '{}' &&
+              (props.isEmbedded || !fs)
+            ) {
               return (
                 <ErrorBoundary
                   key={index}
@@ -1033,25 +1041,46 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               );
             }
 
-            return (
-              <ErrorBoundary
-                key={index}
-                fallback={<div>Error loading field '{buildFullKey(field.key, field.from, undefined)}'</div>}
-              >
-                <InputGroup type={`text`}>
-                  <Label
-                    htmlFor={buildFullKey(field.key, field.from, undefined)}
-                    description={field.description}
-                    disabled={state.isLoading || publishLocked ? true : field.isDisabled}
-                  >
-                    {field.label}
-                  </Label>
-                  <pre>{JSON.stringify(field)}</pre>
-                </InputGroup>
-              </ErrorBoundary>
-            );
+            if (props.isEmbedded || !fs) {
+              return (
+                <ErrorBoundary
+                  key={index}
+                  fallback={<div>Error loading field '{buildFullKey(field.key, field.from, undefined)}'</div>}
+                >
+                  <InputGroup type={`text`}>
+                    <Label
+                      htmlFor={buildFullKey(field.key, field.from, undefined)}
+                      description={field.description}
+                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                    >
+                      {field.label}
+                    </Label>
+                    <pre>{JSON.stringify(field)}</pre>
+                  </InputGroup>
+                </ErrorBoundary>
+              );
+            }
+
+            return null;
           })
         )}
+        {
+          // show button to exit fullscreen mode to show all fields
+          // in case fullscreen mode is enabled, but an error has caused
+          // it to not actually be fullscreen (fullscreen mode tiptap
+          // always includes an embedded version of this component)
+          fsWait ? (
+            <Button
+              onClick={() => {
+                const params = new URLSearchParams(search);
+                params.set('fs', '0');
+                navigate(pathname + '?' + params.toString() + hash, { replace: true });
+              }}
+            >
+              Show more fields
+            </Button>
+          ) : null
+        }
       </PageWrapper>
     </>
   );
