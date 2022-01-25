@@ -356,7 +356,7 @@ const Tiptap = (props: ITiptap) => {
               <StatusbarBlock>
                 {wordCount} word{wordCount !== 1 ? 's' : ''}
               </StatusbarBlock>
-              <StatusbarBlock>{editor?.getCharacterCount()} characters</StatusbarBlock>
+              <StatusbarBlock>{editor?.storage.characterCount?.characters()} characters</StatusbarBlock>
             </>
           ) : null}
           <StatusbarBlock>
