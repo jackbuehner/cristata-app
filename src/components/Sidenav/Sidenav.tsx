@@ -29,7 +29,7 @@ interface ISidenav {
 function Sidenav(props: ISidenav) {
   const theme = useTheme() as themeType;
   const location = useLocation();
-  const state = useAppSelector((state) => state);
+  const authUserState = useAppSelector((state) => state.authUser);
   const [, setIsNavVisibleM] = props.isNavVisibleM;
 
   return (
@@ -52,7 +52,7 @@ function Sidenav(props: ISidenav) {
           Icon={<ContentView32Regular />}
           to={
             // use `to` from first CMS page that is not hidden
-            getNavigationConfig(state)
+            getNavigationConfig(authUserState)
               .cms.filter((group) => {
                 const enabledGroupItems = group.items.filter((item) => item.isHidden !== true);
                 return enabledGroupItems.length !== 0;

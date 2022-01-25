@@ -42,7 +42,7 @@ export interface IGridCols {
 }
 
 function App() {
-  const state = useAppSelector((state) => state);
+  const authUserState = useAppSelector((state) => state.authUser);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
     baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`,
@@ -107,7 +107,7 @@ function App() {
                             element={
                               <>
                                 <SideNavHeading>Content Management System</SideNavHeading>
-                                {getNavigationConfig(state).cms.map((group, index) => {
+                                {getNavigationConfig(authUserState).cms.map((group, index) => {
                                   // store the group items that are not hidden
                                   const enabledGroupItems = group.items.filter(
                                     (item) => item.isHidden !== true

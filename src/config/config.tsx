@@ -21,7 +21,8 @@ import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { Paged } from '../interfaces/cristata/paged';
 import { paged } from '../graphql/paged';
-import { RootState, store } from '../redux/store';
+import { store } from '../redux/store';
+import { AuthUserState } from '../redux/slices/authUserSlice';
 
 interface Ifeatures {
   [key: string]: boolean | { [key: string]: boolean };
@@ -209,7 +210,7 @@ interface INavItem {
   isHidden?: boolean;
 }
 
-const getNavigationConfig: (state: RootState) => Inavigation = () => ({
+const getNavigationConfig: (state: AuthUserState) => Inavigation = () => ({
   cms: [
     {
       label: `Articles`,
