@@ -44,7 +44,7 @@ function Header({ state, dispatch, ...props }: CustomFieldProps) {
                 onChange={(date) => {
                   if (date) dispatch(setField(date.toUTC().toISO(), 'timestamps.week'));
                 }}
-                cssExtra={css`
+                style={css`
                   height: 24px;
                   padding: 3px 8px !important;
                 `}
