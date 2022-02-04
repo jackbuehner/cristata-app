@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { ArrowLeft20Regular, ArrowRight20Regular } from '@fluentui/react-icons';
+import { ArrowLeft20Regular, ArrowRight20Regular, Home16Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
@@ -78,6 +78,9 @@ function Titlebar(props: ITitlebar) {
               </>
             ) : null
           }
+          <TitlebarButton onClick={() => navigate('/')} data-tip={'Navigate home'} iconSize={16} width={33}>
+            <Home16Regular />
+          </TitlebarButton>
           {props.actions?.map((action, index) => {
             return (
               <TitlebarButton
