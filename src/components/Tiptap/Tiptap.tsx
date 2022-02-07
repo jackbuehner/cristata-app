@@ -493,6 +493,18 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
       padding-left: 20px;
       text-indent: -20px;
     }
+
+    // divider
+    hr::before {
+      content: '•  •  •';
+      display: flex;
+      justify-content: center;
+      white-space: pre;
+      margin: 10px;
+    }
+    hr {
+      border: none;
+    }
   }
 `;
 
