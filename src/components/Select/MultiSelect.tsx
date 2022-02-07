@@ -2,10 +2,11 @@ import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
 import { OptionsType, OptionTypeBase, GroupTypeBase } from 'react-select';
 import Creatable from 'react-select/creatable';
-import { SelectComponent } from './Select';
+import { SelectComponent, Option } from './Select';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { ClientConsumer } from '../../graphql/client';
 import { SelectAsync } from './SelectAsync';
+import { CSSProperties } from 'react';
 
 interface IMultiSelect<
   OptionType extends OptionTypeBase = { label: string; value: string },
@@ -81,6 +82,7 @@ function MultiSelect(props: IMultiSelect) {
         isMulti
         isDisabled={props.isDisabled}
         cssExtra={props.cssExtra}
+        components={{ MultiValueLabel, Option }}
       />
     );
   }
@@ -101,6 +103,7 @@ function MultiSelect(props: IMultiSelect) {
         isMulti
         isDisabled={props.isDisabled}
         cssExtra={props.cssExtra}
+        components={{ MultiValueLabel, Option }}
         cacheOptions
       />
     );
@@ -121,12 +124,64 @@ function MultiSelect(props: IMultiSelect) {
       isMulti
       isDisabled={props.isDisabled}
       cssExtra={props.cssExtra}
+      components={{ MultiValueLabel, Option }}
     />
   );
 }
 
 function MultiSelectParent(props: Omit<IMultiSelect, 'client'>) {
   return <ClientConsumer>{(client) => <MultiSelect {...props} client={client} />}</ClientConsumer>;
+}
+
+/**
+ * Custom label component for the multiselect.
+ * @param props
+ * @returns
+ */
+function MultiValueLabel(props: any) {
+  const standardStyles: CSSProperties = {
+    borderRadius: 2,
+    color: 'hsl(0, 0%, 20%)',
+    fontSize: '85%',
+    overflow: 'hidden',
+    padding: 3,
+    paddingLeft: 6,
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+  };
+
+  const { value, label: typedLabel }: { value: string; label: string } = props.data;
+
+  const [label, type] = typedLabel.split('::').slice(0, 2).reverse() as [string, string | undefined];
+
+  if (type) {
+    return (
+      <div
+        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, ...standardStyles }}
+        title={value}
+      >
+        <div
+          style={{
+            border: '1px solid hsl(0, 0%, 90%)',
+            backgroundColor: 'white',
+            padding: '0 6px',
+            marginLeft: -3,
+            borderRadius: 2,
+          }}
+        >
+          {type}
+        </div>
+        <div>{label}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div title={value} style={standardStyles}>
+      {label}
+    </div>
+  );
 }
 
 export { MultiSelectParent as MultiSelect };

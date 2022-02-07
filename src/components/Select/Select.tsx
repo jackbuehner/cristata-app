@@ -1,7 +1,7 @@
 import { SerializedStyles, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { themeType } from '../../utils/theme/theme';
-import ReactSelect, { OptionTypeBase, GroupTypeBase } from 'react-select';
+import ReactSelect, { OptionTypeBase, GroupTypeBase, components } from 'react-select';
 import { buttonEffect } from '../Button';
 import Color from 'color';
 import Creatable from 'react-select/creatable';
@@ -181,4 +181,12 @@ function Select(props: ISelect) {
   );
 }
 
-export { Select, SelectComponent };
+/**
+ * Custom option component that filters out hidden options.
+ */
+function Option(props: any) {
+  if (props.data.hidden) return null;
+  return <components.Option {...props} />;
+}
+
+export { Select, SelectComponent, Option };

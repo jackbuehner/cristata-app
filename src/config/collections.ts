@@ -138,7 +138,8 @@ interface IField {
   options?: Array<{
     value: string;
     label: string;
-    isDisabled?: boolean;
+    isDisabled?: boolean | ((currentValues: string[]) => boolean);
+    hidden?: boolean;
   }>;
   isDisabled?: boolean;
   dataType?: string;

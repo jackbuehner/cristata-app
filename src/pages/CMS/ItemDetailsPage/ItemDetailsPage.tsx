@@ -803,7 +803,19 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       {field.label}
                     </Label>
                     <Select
-                      options={field.options}
+                      options={field.options?.map((option) => {
+                        if (typeof option.isDisabled === 'function') {
+                          return {
+                            ...option,
+                            isDisabled: option.isDisabled([
+                              `${
+                                state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
+                              }`,
+                            ]),
+                          };
+                        }
+                        return option;
+                      })}
                       client={client}
                       val={
                         field.modifyValue
@@ -895,7 +907,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       {field.label}
                     </Label>
                     <MultiSelect
-                      options={field.options}
+                      options={field.options?.map((option) => {
+                        if (typeof option.isDisabled === 'function') {
+                          return {
+                            ...option,
+                            isDisabled: option.isDisabled(vals || []),
+                          };
+                        }
+                        return option;
+                      })}
                       val={vals}
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
@@ -964,7 +984,15 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       {field.label}
                     </Label>
                     <MultiSelect
-                      options={field.options}
+                      options={field.options?.map((option) => {
+                        if (typeof option.isDisabled === 'function') {
+                          return {
+                            ...option,
+                            isDisabled: option.isDisabled(val || []),
+                          };
+                        }
+                        return option;
+                      })}
                       val={val}
                       onChange={(valueObjs) =>
                         handleMultiselectChange(
