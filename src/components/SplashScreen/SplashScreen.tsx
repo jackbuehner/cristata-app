@@ -72,7 +72,10 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setObjectId(props.user._id));
 
       // user needs to change password
-      if (props.user.next_step === 'change_password') {
+      if (
+        props.user.next_step === 'change_password' ||
+        (location.state as { step?: string })?.step === 'change_password'
+      ) {
         navigate('/sign-in', { state: { username: props.user.email, step: 'change_password' } });
       }
       // user needs to create a password
