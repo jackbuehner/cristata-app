@@ -10,7 +10,7 @@ import {
   Person16Regular,
   Settings24Regular,
 } from '@fluentui/react-icons';
-import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
@@ -82,7 +82,13 @@ function TeamPage() {
     gql(
       jsonToGraphQLQuery({
         query: {
+          __variables: {
+            team_id: 'ObjectID',
+          },
           teamActionAccess: {
+            __args: {
+              _id: new VariableType('team_id'),
+            },
             modify: true,
             hide: true,
           },
@@ -91,7 +97,8 @@ function TeamPage() {
           },
         },
       })
-    )
+    ),
+    { variables: { team_id: team_id }, fetchPolicy: 'cache-and-network' }
   );
   const permissions: { modify: boolean; hide: boolean } | undefined = permissionsData?.teamActionAccess;
   const canManage =
