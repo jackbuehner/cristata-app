@@ -93,7 +93,7 @@ function SplashScreen(props: ISplashScreen) {
         localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
       }
     }
-  }, [props.user, navigate, dispatch]);
+  }, [props.user, navigate, dispatch, location.state]);
 
   // set the session id
   useEffect(() => {

@@ -32,6 +32,7 @@ import { TeamPage } from './pages/teams/TeamPage';
 import { PageHead } from './components/PageHead';
 import { useAppSelector } from './redux/hooks';
 import { ToastContainer } from './components/ToastContainer';
+import { FathomEmbed } from './pages/embeds';
 
 // configure axios global settings
 configure({ axios: db });
@@ -165,6 +166,10 @@ function App() {
                       <Route path={`/profile`} element={<PageHead title={`Profiles`} />} />
                       <Route path={`/teams/:team_id`} element={<TeamPage />} />
                       <Route path={`/teams`} element={<TeamsOverviewPage />} />
+                      <Route
+                        path={`/embed/fathom`}
+                        element={<FathomEmbed gridCols={gridCols} setGridCols={setGridCols} />}
+                      />
                       <Route
                         path={`/`}
                         element={

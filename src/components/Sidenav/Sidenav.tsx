@@ -8,6 +8,7 @@ import {
   Person32Regular,
   ChevronLeft24Regular,
   PeopleTeam28Regular,
+  DataUsage24Regular,
 } from '@fluentui/react-icons';
 import { Dispatch, SetStateAction } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -82,6 +83,15 @@ function Sidenav(props: ISidenav) {
       {featuresConfig['profiles'] ? (
         <SideNavMainButton Icon={<Person32Regular />} to={`/profile`} setIsNavVisibleM={setIsNavVisibleM}>
           Profiles
+        </SideNavMainButton>
+      ) : null}
+      {['000000000000000000000001'].some((team) => authUserState.teams.includes(team)) ? (
+        <SideNavMainButton
+          Icon={<DataUsage24Regular />}
+          to={`/embed/fathom`}
+          setIsNavVisibleM={setIsNavVisibleM}
+        >
+          Analytics
         </SideNavMainButton>
       ) : null}
       <div

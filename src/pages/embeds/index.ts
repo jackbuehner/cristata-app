@@ -1,0 +1,1 @@
+export { FathomEmbed } from './FathomEmbed';
