@@ -1,6 +1,8 @@
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { themeType } from '../../../../utils/theme/theme';
 
-const Statusbar = styled.div`
+const StatusbarComponenet = styled.div<{ theme: themeType }>`
   display: flex;
   flex-shrink: 0;
   position: relative;
@@ -11,7 +13,16 @@ const Statusbar = styled.div`
   border-top: 1px solid rgb(225, 223, 221);
   box-sizing: border-box;
   overflow: hidden;
-  background-color: rgb(243, 242, 241);
+  background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
 `;
+
+interface IStatusbar {
+  children: React.ReactChild;
+}
+
+function Statusbar(props: IStatusbar) {
+  const theme = useTheme() as themeType;
+  return <StatusbarComponenet theme={theme}>{props.children}</StatusbarComponenet>;
+}
 
 export { Statusbar };

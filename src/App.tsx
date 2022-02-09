@@ -1,5 +1,4 @@
 import { PlansPage } from './pages/plans/PlansPage/PlansPage';
-import { theme } from './utils/theme';
 import './App.css';
 import styled from '@emotion/styled/macro';
 import useAxios, { configure } from 'axios-hooks';
@@ -33,6 +32,8 @@ import { PageHead } from './components/PageHead';
 import { useAppSelector } from './redux/hooks';
 import { ToastContainer } from './components/ToastContainer';
 import { FathomEmbed } from './pages/embeds';
+import Color from 'color';
+import { useTheme } from '@emotion/react';
 
 // configure axios global settings
 configure({ axios: db });
@@ -43,6 +44,7 @@ export interface IGridCols {
 }
 
 function App() {
+  const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
@@ -244,9 +246,20 @@ const SideNavs = styled.div`
 
 const Content = styled.div<{ theme: themeType }>`
   overflow: auto;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   width: 100%;
   height: 100%;
+
+  /* skeleton loader */
+  .react-skeleton-load.animated::before {
+    background-image: ${({ theme }) =>
+      `linear-gradient(90deg, ${Color(theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]).alpha(
+        0
+      )}, ${Color(theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]).alpha(0.6)}, ${Color(
+        theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]
+      ).alpha(0)})`};
+  }
 `;
 
 export default App;

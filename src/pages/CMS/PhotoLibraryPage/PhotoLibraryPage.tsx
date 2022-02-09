@@ -397,22 +397,38 @@ const Card = styled.div<{ theme: themeType; isSelected: boolean }>`
   height: 144px;
   box-shadow: ${({ theme, isSelected }) =>
     `0 0 0 1px ${
-      isSelected ? theme.color.primary[800] : Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()
+      isSelected
+        ? theme.color.primary[theme.mode === 'light' ? 800 : 300]
+        : Color(theme.color.neutral[theme.mode][theme.mode === 'light' ? 800 : 300])
+            .alpha(0.2)
+            .string()
     }`};
   border-radius: ${({ theme }) => theme.radius};
   ${({ theme, isSelected }) => `
     &:hover, &:focus, &:active {
-      background-color: ${Color(theme.color.primary[800]).alpha(0.2).string()};
+      background-color: ${Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+        .alpha(0.2)
+        .string()};
       box-shadow: 0 0 0 1px ${
-        isSelected ? theme.color.primary[800] : Color(theme.color.primary[800]).alpha(0.2).string()
+        isSelected
+          ? theme.color.primary[theme.mode === 'light' ? 800 : 300]
+          : Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+              .alpha(0.2)
+              .string()
       }, 0 3.6px 7.2px 0 ${Color(theme.color.neutral[theme.mode][1500])
     .alpha(0.13)
     .string()}, 0 0.6px 1.8px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
     }
     &:hover:active {
-      background-color: ${Color(theme.color.primary[800]).alpha(0.25).string()};
+      background-color: ${Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+        .alpha(0.25)
+        .string()};
       box-shadow: 0 0 0 1px ${
-        isSelected ? theme.color.primary[800] : Color(theme.color.primary[800]).alpha(0.25).string()
+        isSelected
+          ? theme.color.primary[theme.mode === 'light' ? 800 : 300]
+          : Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+              .alpha(0.25)
+              .string()
       } 0 1.8px 3.6px 0 ${Color(theme.color.neutral[theme.mode][1500])
     .alpha(0.13)
     .string()}, 0 0.3px 0.9px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
@@ -446,7 +462,7 @@ const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   width: 20px !important;
   height: 20px !important;
   margin: 10px;
-  font-family: ${({ theme }) => theme.color.primary[900]} !important;
+  color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 900 : 300]} !important;
 `;
 
 export { PhotoLibraryPage };

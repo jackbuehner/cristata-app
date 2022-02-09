@@ -94,6 +94,7 @@ const Available = styled.div<{ photo?: string }>`
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
+  color: black;
 `;
 
 const AvailableMessage = styled.div`

@@ -1,6 +1,6 @@
 import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
-import { OptionsType, OptionTypeBase, GroupTypeBase } from 'react-select';
+import { OptionsType, OptionTypeBase, GroupTypeBase, Styles } from 'react-select';
 import Creatable from 'react-select/creatable';
 import { SelectComponent, Option } from './Select';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
@@ -38,6 +38,13 @@ interface IMultiSelect<
 function MultiSelect(props: IMultiSelect) {
   const theme = useTheme() as themeType;
 
+  const selectStyles: Partial<Styles<OptionTypeBase, boolean, GroupTypeBase<OptionTypeBase>>> = {
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: theme.mode === 'light' ? theme.color.neutral.light[100] : theme.color.neutral.dark[200],
+    }),
+  };
+
   /**
    * Converts the values to value objects (for the async select)
    */
@@ -74,8 +81,7 @@ function MultiSelect(props: IMultiSelect) {
         classNamePrefix={`react-select`}
         appTheme={theme}
         color={`primary`}
-        colorShade={600}
-        backgroundColor={{ base: 'white' }}
+        colorShade={theme.mode === 'light' ? 600 : 300}
         border={{ base: '1px solid transparent' }}
         value={getValueObjects(true, props.val)}
         onChange={props.onChange}
@@ -83,6 +89,7 @@ function MultiSelect(props: IMultiSelect) {
         isDisabled={props.isDisabled}
         cssExtra={props.cssExtra}
         components={{ MultiValueLabel, Option }}
+        styles={selectStyles}
       />
     );
   }
@@ -97,13 +104,14 @@ function MultiSelect(props: IMultiSelect) {
         classNamePrefix={`react-select`}
         appTheme={theme}
         color={`primary`}
-        colorShade={600}
+        colorShade={theme.mode === 'light' ? 600 : 300}
         valueStrings={props.val}
         onChange={props.onChange}
         isMulti
         isDisabled={props.isDisabled}
         cssExtra={props.cssExtra}
         components={{ MultiValueLabel, Option }}
+        styles={selectStyles}
         cacheOptions
       />
     );
@@ -116,8 +124,7 @@ function MultiSelect(props: IMultiSelect) {
       classNamePrefix={`react-select`}
       appTheme={theme}
       color={`primary`}
-      colorShade={600}
-      backgroundColor={{ base: 'white' }}
+      colorShade={theme.mode === 'light' ? 600 : 300}
       border={{ base: '1px solid transparent' }}
       value={getValueObjects(false, props.val)}
       onChange={props.onChange}
@@ -125,6 +132,7 @@ function MultiSelect(props: IMultiSelect) {
       isDisabled={props.isDisabled}
       cssExtra={props.cssExtra}
       components={{ MultiValueLabel, Option }}
+      styles={selectStyles}
     />
   );
 }
@@ -139,9 +147,11 @@ function MultiSelectParent(props: Omit<IMultiSelect, 'client'>) {
  * @returns
  */
 function MultiValueLabel(props: any) {
+  const theme = useTheme() as themeType;
+
   const standardStyles: CSSProperties = {
     borderRadius: 2,
-    color: 'hsl(0, 0%, 20%)',
+    color: theme.color.neutral[theme.mode][1400],
     fontSize: '85%',
     overflow: 'hidden',
     padding: 3,
@@ -158,7 +168,13 @@ function MultiValueLabel(props: any) {
   if (type) {
     return (
       <div
-        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, ...standardStyles }}
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          ...standardStyles,
+        }}
         title={value}
       >
         <div
@@ -184,4 +200,8 @@ function MultiValueLabel(props: any) {
   );
 }
 
-export { MultiSelectParent as MultiSelect };
+export {
+  MultiSelectParent as MultiSelect,
+  MultiValueLabel as MultiValueLabelComponent,
+  Option as OptionComponent,
+};

@@ -30,7 +30,7 @@ function SideNavMainButton(props: {
       cssExtra={css`
         flex-direction: column;
         font-weight: 500;
-        color: ${isActive ? theme.color.primary[900] : ''};
+        color: ${isActive ? theme.color.primary[theme.mode === 'light' ? 900 : 300] : ''};
         background: ${isActive ? Color(theme.color.neutral[theme.mode][800]).alpha(0.12).string() : 'unset'};
         margin: 6px 6px 0 6px;
         @media (max-width: 600px) {
@@ -46,7 +46,7 @@ function SideNavMainButton(props: {
         }
         ${props.cssExtra}
       `}
-      colorShade={600}
+      colorShade={theme.mode === 'light' ? 600 : 300}
       backgroundColor={{ base: 'white' }}
       border={{ base: '1px solid transparent' }}
       onClick={() => {
@@ -66,7 +66,9 @@ function SideNavMainButton(props: {
             svg {
               width: 24px;
               height: 24px;
-              fill: ${isActive ? theme.color.primary[900] : theme.color.neutral[theme.mode][1400]};
+              fill: ${isActive
+                ? theme.color.primary[theme.mode === 'light' ? 900 : 300]
+                : theme.color.neutral[theme.mode][1400]};
             }
           `}
         >

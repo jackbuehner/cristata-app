@@ -40,6 +40,8 @@ const BUTTON = styled.button<StyledButtonProps>`
   svg {
     width: 20px;
     height: 20px;
+    fill: ${({ theme, disabled }) =>
+      disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
     opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
   }
 `;
@@ -51,9 +53,13 @@ export interface ButtonProps {
   width?: string;
   border?: {
     base?: string;
+    hover?: string;
+    active?: string;
   };
   backgroundColor?: {
     base?: string;
+    hover?: string;
+    active?: string;
   };
   cssExtra?: SerializedStyles;
   borderRadius?: {
@@ -86,7 +92,7 @@ const IconButton: React.FC<ButtonProps> = (props) => {
       cssExtra={props.cssExtra}
       disabled={props.disabled}
       color={props.color ? props.color : 'primary'}
-      colorShade={props.colorShade ? props.colorShade : 700}
+      colorShade={props.colorShade ? props.colorShade : theme.mode === 'light' ? 700 : 300}
       theme={theme}
       icon={props.icon}
       className={props.className}

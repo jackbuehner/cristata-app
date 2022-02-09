@@ -49,7 +49,8 @@ const Component = styled.a<{ theme: themeType }>`
   border-radius: ${({ theme }) => theme.radius};
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   text-decoration: none;
-  ${({ theme }) => buttonEffect('primary', 800, theme, false, { base: 'transparent' })}
+  ${({ theme }) =>
+    buttonEffect('primary', theme.mode === 'light' ? 800 : 300, theme, false, { base: 'transparent' })}
 `;
 
 const TeamPhoto = styled.div<{ theme: themeType; src?: string }>`

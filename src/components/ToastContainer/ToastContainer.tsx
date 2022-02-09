@@ -29,7 +29,8 @@ const StyledToastContainer = styled(ReactToastContainer)<{
   .Toastify__toast {
     border-radius: ${({ appTheme }) => appTheme.radius};
     padding: 0;
-    background-color: ${({ appTheme }) => (appTheme.mode === 'light' ? 'white' : 'black')};
+    background-color: ${({ appTheme }) =>
+      appTheme.mode === 'light' ? 'white' : appTheme.color.neutral.dark[200]};
     color: ${({ appTheme }) => appTheme.color.neutral[appTheme.mode][1400]};
     font-family: ${({ appTheme }) => appTheme.font.detail};
     font-size: 15px;
@@ -38,7 +39,8 @@ const StyledToastContainer = styled(ReactToastContainer)<{
       align-items: center;
       justify-content: center;
       width: 50px;
-      background-color: ${({ appTheme }) => (appTheme.mode === 'light' ? 'white' : 'black')};
+      background-color: ${({ appTheme }) =>
+        appTheme.mode === 'light' ? 'white' : appTheme.color.neutral.dark[200]};
     }
   }
   .Toastify__toast--error {

@@ -179,6 +179,7 @@ const Container = styled.div<{ height?: string }>`
   flex-wrap: nowrap;
   box-sizing: border-box;
   position: relative;
+  color: black;
 `;
 
 const Categories = styled.div`

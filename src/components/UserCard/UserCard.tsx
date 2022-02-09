@@ -57,7 +57,10 @@ const Component = styled.a<{ theme: themeType }>`
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   text-decoration: none;
   border: ${({ theme }) => `1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
-  ${({ theme, href }) => (href ? buttonEffect('primary', 800, theme, false, { base: 'transparent' }) : null)}
+  ${({ theme, href }) =>
+    href
+      ? buttonEffect('primary', theme.mode === 'light' ? 800 : 300, theme, false, { base: 'transparent' })
+      : null}
 `;
 
 const ProfilePhoto = styled.div<{ theme: themeType; src?: string }>`
@@ -87,7 +90,8 @@ const Info = styled.div<{ theme: themeType; italic?: boolean; moreMargin?: boole
   line-height: 1;
   margin: ${({ moreMargin }) => (moreMargin ? '6px' : '2px')} 0 2px 0;
   text-align: center;
-  color: ${({ theme, danger }) => (danger ? theme.color.danger[800] : theme.color.neutral[theme.mode][1400])};
+  color: ${({ theme, danger }) =>
+    danger ? theme.color.danger[theme.mode === 'light' ? 800 : 300] : theme.color.neutral[theme.mode][1400]};
 `;
 
 export { UserCard };

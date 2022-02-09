@@ -13,9 +13,7 @@ const LabelComponent = styled.div<{
   margin: ${({ hasDescription }) => (hasDescription ? `0` : `0 0 4px 0`)};
   display: block;
   color: ${({ disabled, theme }) =>
-    disabled
-      ? theme.color.neutral[theme.mode][800]
-      : theme.color.neutral[theme.mode][1400]};
+    disabled ? theme.color.neutral[theme.mode][800] : theme.color.neutral[theme.mode][1400]};
 `;
 
 const DescriptionComponent = styled.div<{
@@ -29,9 +27,13 @@ const DescriptionComponent = styled.div<{
   display: block;
   white-space: pre-line;
   color: ${({ disabled, theme }) =>
-    disabled
-      ? theme.color.neutral[theme.mode][600]
-      : theme.color.neutral[theme.mode][1200]};
+    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1200]};
+  a {
+    color: ${({ disabled, theme }) =>
+      disabled
+        ? theme.color.neutral[theme.mode][600]
+        : theme.color.primary[theme.mode === 'light' ? 800 : 300]};
+  }
 `;
 
 interface ILabel {
@@ -45,19 +47,13 @@ function Label(props: ILabel) {
   const theme = useTheme() as themeType;
   return (
     <label htmlFor={props.htmlFor}>
-      <LabelComponent
-        theme={theme}
-        hasDescription={!!props.description}
-        disabled={props.disabled}
-      >
+      <LabelComponent theme={theme} hasDescription={!!props.description} disabled={props.disabled}>
         {props.children}
       </LabelComponent>
       <DescriptionComponent
         theme={theme}
         disabled={props.disabled}
-        dangerouslySetInnerHTML={
-          props.description ? { __html: props.description } : { __html: '' }
-        }
+        dangerouslySetInnerHTML={props.description ? { __html: props.description } : { __html: '' }}
       ></DescriptionComponent>
     </label>
   );

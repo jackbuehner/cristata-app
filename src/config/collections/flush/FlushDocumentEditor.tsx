@@ -116,7 +116,8 @@ const Page = styled.div`
   height: 11in;
   padding: 0.25in 0.2in 0.2in 0.2in;
   box-sizing: border-box;
-  border: 1px solid black;
+  box-shadow: 0px 0 0 1px black;
+  background: white;
 `;
 
 const Columns = styled.div`

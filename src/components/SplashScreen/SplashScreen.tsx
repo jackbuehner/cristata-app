@@ -184,7 +184,7 @@ function SplashScreen(props: ISplashScreen) {
           <ErrorBlock theme={theme}>Failed to connect to the server.</ErrorBlock>
         ) : (
           <ErrorBlock theme={theme}>
-            <Spinner size={32} color={'neutral'} />
+            <Spinner size={32} color={'neutral'} colorShade={theme.mode === 'light' ? 100 : 1500} />
           </ErrorBlock>
         )}
       </div>

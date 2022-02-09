@@ -33,8 +33,8 @@ const Component = styled.input<{ theme: themeType }>`
   border-radius: ${({ theme }) => theme.radius};
   &::before {
     content: '';
-    box-shadow: inset 0 0 0 1px #b5b5b5;
-    background-color: #fff;
+    box-shadow: inset 0 0 0 1px ${({ theme }) => theme.color.neutral[theme.mode][800]};
+    background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
     height: 18px;
     width: 18px;
     margin: 0;
@@ -43,19 +43,19 @@ const Component = styled.input<{ theme: themeType }>`
   }
   &:hover::before,
   &:checked:hover::before {
-    box-shadow: inset 0 0 0 1px #121212;
+    box-shadow: inset 0 0 0 1px ${({ theme }) => theme.color.neutral[theme.mode][1000]};
   }
   &:checked:hover::before {
-    box-shadow: inset 0 0 0 2px #121212;
+    box-shadow: inset 0 0 0 2px ${({ theme }) => theme.color.neutral[theme.mode][1500]};
   }
   &:active::before,
   &:checked:active::before {
-    box-shadow: inset 0 0 0 2px #787878;
-    background-color: #787878;
+    box-shadow: inset 0 0 0 2px ${({ theme }) => theme.color.neutral[theme.mode][800]};
+    background-color: ${({ theme }) => theme.color.neutral[theme.mode][800]};
   }
   &:checked::before {
-    box-shadow: inset 0 0 0 2px ${({ theme }) => theme.color.primary[800]};
-    background-color: ${({ theme }) => theme.color.primary[800]};
+    box-shadow: inset 0 0 0 2px ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
+    background-color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
     background-image: url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIGZpbGw9IiNmZmYiPjx0aXRsZS8+PGcgaWQ9Imljb21vb24taWdub3JlIi8+PHBhdGggZD0iTTg3My41IDIzMy41bDQ1IDQ1LTUzNC41IDUzNS0yNzguNS0yNzkgNDUtNDUgMjMzLjUgMjMzIDQ4OS41LTQ4OXoiLz48L3N2Zz4=);
     background-size: 18px;
   }

@@ -14,7 +14,7 @@ const TableGroup = styled.div<ITableGroup>`
       ? `
           position: sticky;
           top: 0;
-          background-color: ${theme.mode === 'light' ? 'white' : 'black'};
+          background-color: ${theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100]};
           z-index: 1;
         `
       : ``}

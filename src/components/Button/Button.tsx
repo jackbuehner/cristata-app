@@ -130,7 +130,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       cssExtra={props.cssExtra}
       disabled={props.disabled}
       color={props.color ? props.color : 'primary'}
-      colorShade={props.colorShade ? props.colorShade : 700}
+      colorShade={props.colorShade ? props.colorShade : theme.mode === 'light' ? 700 : 300}
       theme={theme}
       className={props.className}
       autoFocus={props.autoFocus}

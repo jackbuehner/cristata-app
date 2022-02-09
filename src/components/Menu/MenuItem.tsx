@@ -34,7 +34,7 @@ const MenuItemComponent = styled.li<IMenuItemComponent>`
       ? ''
       : buttonEffect(
           color || 'primary',
-          colorShade || 700,
+          colorShade || theme.mode === 'light' ? 700 : 300,
           theme,
           false,
           { base: 'transparent' },

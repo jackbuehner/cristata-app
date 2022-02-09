@@ -54,7 +54,7 @@ function FullScreenSplash(props: IFullScreenSplash) {
       </svg>
       <span className={`splash-app-name2`}>Editor</span>
       <Block theme={theme}>
-        <Spinner size={32} color={'neutral'} />
+        <Spinner size={32} color={'neutral'} colorShade={theme.mode === 'light' ? 100 : 1500} />
       </Block>
     </div>
   );

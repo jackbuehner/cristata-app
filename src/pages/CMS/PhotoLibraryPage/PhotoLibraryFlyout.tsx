@@ -102,7 +102,7 @@ const Wrapper = styled.div<{ theme: themeType }>`
   padding: 20px 20px 0 20px;
   flex-shrink: 0;
   box-sizing: border-box;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
   @media (max-width: 600px) {
     position: fixed;
     height: 100vh;
@@ -123,7 +123,7 @@ const Wrapper = styled.div<{ theme: themeType }>`
 const Header = styled.div<{ theme: themeType }>`
   position: sticky;
   top: -20px;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
     theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
@@ -149,6 +149,7 @@ const Photo = styled.img`
 const Url = styled.a<{ theme: themeType }>`
   font-size: 13px;
   font-family: ${({ theme }) => theme.font.detail};
+  color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 900 : 300]};
   word-break: break-all;
   margin: 6px 0 10px 0;
   display: block;
@@ -192,7 +193,7 @@ const SectionTitle = styled.h2<{ theme: themeType }>`
 const Footer = styled.div<{ theme: themeType }>`
   position: sticky;
   bottom: 0;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
   border-top: 1px solid;
   border-color: ${({ theme }) =>
     theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};

@@ -654,7 +654,7 @@ const Wrapper = styled.div<{ theme: themeType }>`
   position: absolute;
   left: 0px;
   z-index: 999;
-  background-color: ${({ theme }) => theme.color.primary[800]};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? theme.color.primary[800] : 'black')};
   font-family: ${({ theme }) => theme.font.detail};
   font-size: 14px;
 `;
@@ -689,7 +689,7 @@ const Wordmark = styled.div<{ theme: themeType }>`
   font-weight: 600;
   font-size: 2rem;
   line-height: 1.5rem;
-  color: ${({ theme }) => theme.color.primary[800]};
+  color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   margin: 0px;
   text-align: center;
   letter-spacing: 0.03125em;
@@ -741,7 +741,7 @@ const HelpLink = styled.a<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.font.detail};
   font-weight: 600;
   font-size: 14px;
-  color: ${({ theme }) => theme.color.primary[800]};
+  color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
 `;
 
 const ButtonRow = styled.div`
@@ -765,13 +765,19 @@ const ButtonRow = styled.div`
 const IndeterminateProgress = styled(LinearProgress)<{
   theme: themeType;
 }>`
-  --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
+  --mdc-theme-primary: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   position: absolute !important;
   left: 0;
   top: 0;
   border-radius: ${({ theme }) => `${theme.radius} ${theme.radius} 0 0`};
   @media (max-width: 460px) {
     border-radius: 0;
+  }
+  .mdc-linear-progress__buffer {
+    background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
+  }
+  .mdc-linear-progress__buffering-dots {
+    filter: ${({ theme }) => `invert(${theme.mode === 'light' ? 0 : 1})`};
   }
 `;
 

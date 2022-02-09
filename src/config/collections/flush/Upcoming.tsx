@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
@@ -11,6 +11,7 @@ import { SectionHead } from './SectionHead';
 import { Checkbox as RmwcCheckbox } from '@rmwc/checkbox';
 import '@material/checkbox/dist/mdc.checkbox.css';
 import { CalendarAdd20Regular, Delete20Regular, Dismiss20Regular } from '@fluentui/react-icons';
+import { themeType } from '../../../utils/theme/theme';
 
 const Checkbox = styled(RmwcCheckbox)<{ label?: string; checked?: boolean; onChange?: () => void }>`
   --mdc-theme-secondary: black;
@@ -21,6 +22,8 @@ interface IUpcoming extends CustomFieldProps {
 }
 
 function Upcoming({ state, dispatch, ...props }: IUpcoming) {
+  const theme = useTheme() as themeType;
+
   const { setField } = props.setStateFunctions;
 
   const events = state.fields['events'] as IFlush['events'];
@@ -76,6 +79,12 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
     ReactTooltip.rebuild();
   });
 
+  const backgroundColor = {
+    base: theme.mode === 'light' ? undefined : theme.color.neutral.dark[200],
+    hover: theme.mode === 'light' ? undefined : theme.color.neutral.dark[300],
+    active: theme.mode === 'light' ? undefined : theme.color.neutral.dark[100],
+  };
+
   return (
     <Container
       height={props.height}
@@ -100,6 +109,7 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
             isRemoveMode ? (
               <>
                 <Button
+                  backgroundColor={backgroundColor}
                   onClick={() => {
                     removeEvents(toRemove);
                     setIsRemoveMode(false);
@@ -112,6 +122,7 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
                 </Button>
                 <IconButton
                   icon={<Dismiss20Regular />}
+                  backgroundColor={backgroundColor}
                   onClick={() => setIsRemoveMode(false)}
                   data-tip={'Cancel'}
                 />
@@ -119,10 +130,16 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
             ) : (
               <>
                 {events.length < 14 ? (
-                  <IconButton icon={<CalendarAdd20Regular />} onClick={addEvent} data-tip={'Add event'} />
+                  <IconButton
+                    icon={<CalendarAdd20Regular />}
+                    backgroundColor={backgroundColor}
+                    onClick={addEvent}
+                    data-tip={'Add event'}
+                  />
                 ) : null}
                 <IconButton
                   icon={<Delete20Regular />}
+                  backgroundColor={backgroundColor}
                   onClick={() => setIsRemoveMode(true)}
                   data-tip={'Remove events'}
                 />

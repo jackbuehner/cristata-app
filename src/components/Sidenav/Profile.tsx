@@ -113,7 +113,7 @@ function Profile() {
       cssExtra={css`
         flex-direction: column;
         font-weight: 500;
-        color: ${theme.color.primary[900]};
+        color: ${theme.color.primary[theme.mode === 'light' ? 900 : 300]};
         background: transparent;
         margin: 6px 6px 0 6px;
         @media (max-width: 600px) {
@@ -144,7 +144,7 @@ const Icon = styled.div<{ photo: string; theme: themeType }>`
   height: 36px;
   border-radius: 50%;
   border: none !important;
-  box-shadow: inset 0 0 0 1.5px ${({ theme }) => theme.color.primary[800]};
+  box-shadow: inset 0 0 0 1.5px ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
 `;
 
 export { Profile };

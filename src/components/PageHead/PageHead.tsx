@@ -14,11 +14,8 @@ const Wrapper = styled.div<{ theme?: themeType }>`
   box-sizing: border-box;
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light'
-      ? theme.color.neutral.light[300]
-      : theme.color.neutral.dark[300]};
-  background-color: ${({ theme }) =>
-    theme.mode === 'light' ? 'white' : 'black'};
+    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
 `;
 
 const TextWrapper = styled.div`
@@ -40,9 +37,7 @@ const Title = styled.span<{ theme?: themeType }>`
   font-weight: 600;
   line-height: 22px;
   color: ${({ theme }) =>
-    theme.mode === 'light'
-      ? theme.color.neutral.light[1200]
-      : theme.color.neutral.dark[1200]};
+    theme.mode === 'light' ? theme.color.neutral.light[1200] : theme.color.neutral.dark[1200]};
 `;
 
 const Description = styled.span<{ theme?: themeType }>`
@@ -50,9 +45,7 @@ const Description = styled.span<{ theme?: themeType }>`
   font-size: 13px;
   font-weight: 400;
   color: ${({ theme }) =>
-    theme.mode === 'light'
-      ? theme.color.neutral.light[1000]
-      : theme.color.neutral.dark[1000]};
+    theme.mode === 'light' ? theme.color.neutral.light[1000] : theme.color.neutral.dark[1000]};
 `;
 
 /**
@@ -65,10 +58,16 @@ const IndeterminateProgress = styled(LinearProgress)<{
   theme: themeType;
   progress?: number;
 }>`
-  --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
+  --mdc-theme-primary: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   position: absolute !important;
   left: 0;
   bottom: 0;
+  .mdc-linear-progress__buffer {
+    background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
+  }
+  .mdc-linear-progress__buffering-dots {
+    filter: ${({ theme }) => `invert(${theme.mode === 'light' ? 0 : 1})`};
+  }
 `;
 
 interface IPageHead {
@@ -91,9 +90,7 @@ function PageHead(props: IPageHead) {
       {props.isLoading ? (
         <IndeterminateProgress
           theme={theme}
-          progress={
-            typeof props.isLoading === 'number' ? props.isLoading : undefined
-          }
+          progress={typeof props.isLoading === 'number' ? props.isLoading : undefined}
         />
       ) : null}
     </Wrapper>

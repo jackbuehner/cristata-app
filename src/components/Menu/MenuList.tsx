@@ -21,7 +21,7 @@ const MenuListComponent = styled.ul<IMenuListComponent>`
   left: ${({ left }) => left}px;
   width: ${({ width }) => width}px;
   z-index: 100;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200])};
   box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);
   padding: 4px 0;
   margin: 0;

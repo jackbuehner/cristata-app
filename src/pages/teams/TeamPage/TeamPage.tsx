@@ -282,7 +282,7 @@ function TeamPage() {
                     Don't see the member you want to add?{' '}
                     <span
                       style={{
-                        color: theme.color.primary[800],
+                        color: theme.color.primary[theme.mode === 'light' ? 800 : 300],
                         textDecoration: 'underline',
                         cursor: 'pointer',
                       }}

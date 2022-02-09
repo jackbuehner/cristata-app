@@ -5,10 +5,7 @@ import { useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
 import { Chip } from '../../../components/Chip';
 import { useDrag } from 'react-dnd';
-import {
-  Card as ICard,
-  FullAPIProject,
-} from '../../../interfaces/github/plans';
+import { Card as ICard, FullAPIProject } from '../../../interfaces/github/plans';
 import useDimensions from 'react-use-dimensions';
 import { useMemo, useState } from 'react';
 import { IconButton } from '../../../components/Button';
@@ -36,8 +33,7 @@ import { TextArea } from '../../../components/TextArea';
 const CardContainer = styled.div<{ theme: themeType; isDragging: boolean }>`
   display: block;
   border: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
-  background-color: ${({ theme }) =>
-    theme.mode === 'light' ? 'white' : 'black'};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200])};
   border-radius: ${({ theme }) => theme.radius};
   padding: 10px;
   opacity: ${({ isDragging }) => (isDragging ? 0.5 : 1)};
@@ -52,11 +48,9 @@ const CardContainer = styled.div<{ theme: themeType; isDragging: boolean }>`
  * like a hyperlink.
  */
 const Note = styled.p<{ theme: themeType; href?: string }>`
-  font-family: ${({ theme, href }) =>
-    href ? theme.font.headline : theme.font.body};
+  font-family: ${({ theme, href }) => (href ? theme.font.headline : theme.font.body)};
   font-size: ${({ href }) => (href ? 14.25 : 15)}px;
-  color: ${({ href, theme }) =>
-    href ? theme.color.primary[800] : theme.color.neutral[theme.mode][1500]};
+  color: ${({ href, theme }) => (href ? theme.color.primary[800] : theme.color.neutral[theme.mode][1500])};
   font-weight: ${({ href }) => (href ? 400 : 400)};
   &:hover {
     ${({ href }) => (href ? `text-decoration: underline; cursor: pointer` : '')}
@@ -153,9 +147,7 @@ function Card(props: ICardE) {
       },
       content: function () {
         if (this.isIssue) {
-          return `${this.repoName()}#${
-            props.issue!.number
-          } opened by ${this.username()}`;
+          return `${this.repoName()}#${props.issue!.number} opened by ${this.username()}`;
         }
         return `Added by ${this.username()}`;
       },
@@ -182,9 +174,7 @@ function Card(props: ICardE) {
   // edit card note modal
   const [showEditCardNoteModal, hideEditCardNoteModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [noteValue, setNoteValue] = useState<HTMLTextAreaElement['value']>(
-      props.note ? props.note : ''
-    );
+    const [noteValue, setNoteValue] = useState<HTMLTextAreaElement['value']>(props.note ? props.note : '');
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -200,9 +190,7 @@ function Card(props: ICardE) {
      *
      * @returns `true` if there were no errors; An `AxiosError` type if there was an error
      */
-    const editNote = async (
-      note: HTMLTextAreaElement['value']
-    ): Promise<true | AxiosError<any>> => {
+    const editNote = async (note: HTMLTextAreaElement['value']): Promise<true | AxiosError<any>> => {
       return await axios
         .patch(
           `/gh/projects/columns/cards/${props.id}`,

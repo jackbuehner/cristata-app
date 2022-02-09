@@ -13,10 +13,15 @@ interface IStyledChip {
 }
 
 const StyledChip = styled.span<IStyledChip>`
-  ${({ color, theme, isClickable }) => (isClickable ? buttonEffect(color, 800, theme) : null)};
+  ${({ color, theme, isClickable }) =>
+    isClickable ? buttonEffect(color, theme.mode === 'light' ? 800 : 200, theme) : null};
   border: none !important;
   background: ${({ theme, color }) =>
-    color === 'neutral' ? 'transparent' : Color(theme.color[color][800]).alpha(0.05).string()};
+    color === 'neutral'
+      ? 'transparent'
+      : Color(theme.color[color][theme.mode === 'light' ? 800 : 300])
+          .alpha(0.05)
+          .string()};
   display: inline-flex;
   height: 1.25rem;
   align-items: center;
@@ -31,13 +36,15 @@ const StyledChip = styled.span<IStyledChip>`
   box-shadow: ${({ theme, color }) =>
       color === 'neutral'
         ? Color(theme.color[color][theme.mode][1200]).alpha(0.25).string()
-        : Color(theme.color[color][800]).alpha(0.1).string()}
+        : Color(theme.color[color][theme.mode === 'light' ? 800 : 300])
+            .alpha(0.1)
+            .string()}
     0px 0px 0px 1.25px inset !important;
   border-radius: ${({ theme }) => theme.radius};
   color: ${({ theme, color }) =>
     color === 'neutral'
       ? Color(theme.color[color][theme.mode][1200]).string()
-      : Color(theme.color[color][800]).string()};
+      : Color(theme.color[color][theme.mode === 'light' ? 800 : 300]).string()};
   ${({ cssExtra }) => (cssExtra ? cssExtra : null)};
 `;
 

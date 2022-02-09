@@ -1,4 +1,5 @@
 import styled from '@emotion/styled/macro';
+import Color from 'color';
 import { themeType } from '../../../../utils/theme/theme';
 
 interface IToolbarTabRow {
@@ -7,7 +8,10 @@ interface IToolbarTabRow {
 }
 
 const ToolbarTabRow = styled.div<IToolbarTabRow>`
-  background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light'
+      ? theme.color.neutral.light[100]
+      : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
   display: flex;
   justify-content: flex-start;
   white-space: nowrap;

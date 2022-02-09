@@ -128,7 +128,7 @@ const Table = forwardRef(
                               column.isSortable !== false
                                 ? buttonEffect(
                                     'primary',
-                                    600,
+                                    theme.mode === 'light' ? 600 : 300,
                                     theme,
                                     false,
                                     { base: 'transparent' },

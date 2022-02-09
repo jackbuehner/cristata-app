@@ -129,18 +129,22 @@ const Card = styled.div<{ theme: themeType }>`
   flex-shrink: 0;
   ${({ theme }) => `
     &:hover, &:focus, &:active {
-      background-color: ${Color(theme.color.primary[800]).alpha(0.2).string()};
-      box-shadow: 0 0 0 1px ${Color(theme.color.primary[800]).alpha(0.2).string()}, 0 3.6px 7.2px 0 ${Color(
-    theme.color.neutral[theme.mode][1500]
-  )
+      background-color: ${Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+        .alpha(0.2)
+        .string()};
+      box-shadow: 0 0 0 1px ${Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+        .alpha(0.2)
+        .string()}, 0 3.6px 7.2px 0 ${Color(theme.color.neutral[theme.mode][1500])
     .alpha(0.13)
     .string()}, 0 0.6px 1.8px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
     }
     &:hover:active {
-      background-color: ${Color(theme.color.primary[800]).alpha(0.25).string()};
-      box-shadow: 0 0 0 1px ${Color(theme.color.primary[800]).alpha(0.25).string()} 0 1.8px 3.6px 0 ${Color(
-    theme.color.neutral[theme.mode][1500]
-  )
+      background-color: ${Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+        .alpha(0.25)
+        .string()};
+      box-shadow: 0 0 0 1px ${Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])
+        .alpha(0.25)
+        .string()} 0 1.8px 3.6px 0 ${Color(theme.color.neutral[theme.mode][1500])
     .alpha(0.13)
     .string()}, 0 0.3px 0.9px 0 ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.13).string()};
     }

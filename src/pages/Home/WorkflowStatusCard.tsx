@@ -36,7 +36,11 @@ function WorkflowStatusCard(props: IWorkflowStatusCard) {
 
 const WorkflowStatusCardContainer = styled.div<{ theme: themeType; color: colorType }>`
   background: ${({ theme, color }) =>
-    Color(color === 'neutral' ? theme.color.neutral[theme.mode][600] : theme.color[color][900])
+    Color(
+      color === 'neutral'
+        ? theme.color.neutral[theme.mode][600]
+        : theme.color[color][theme.mode === 'light' ? 900 : 300]
+    )
       .alpha(0.15)
       .string()};
   display: inline-flex;
@@ -52,11 +56,15 @@ const WorkflowStatusCardContainer = styled.div<{ theme: themeType; color: colorT
   font-weight: 500;
   white-space: nowrap;
   box-shadow: ${({ theme, color }) =>
-      color === 'neutral' ? theme.color.neutral[theme.mode][900] : theme.color[color][900]}
+      color === 'neutral'
+        ? theme.color.neutral[theme.mode][900]
+        : theme.color[color][theme.mode === 'light' ? 900 : 300]}
     0px 0px 0px 1.25px inset;
   border-radius: ${({ theme }) => theme.radius};
   color: ${({ theme, color }) =>
-    color === 'neutral' ? theme.color.neutral[theme.mode][900] : theme.color[color][900]};
+    color === 'neutral'
+      ? theme.color.neutral[theme.mode][900]
+      : theme.color[color][theme.mode === 'light' ? 900 : 300]};
   transition: all 200ms ease 0s;
   cursor: default;
   user-select: none;
@@ -65,20 +73,32 @@ const WorkflowStatusCardContainer = styled.div<{ theme: themeType; color: colorT
   &:hover,
   &:focus {
     background: ${({ theme, color }) =>
-      Color(color === 'neutral' ? theme.color.neutral[theme.mode][600] : theme.color[color][900])
+      Color(
+        color === 'neutral'
+          ? theme.color.neutral[theme.mode][600]
+          : theme.color[color][theme.mode === 'light' ? 900 : 300]
+      )
         .alpha(0.2)
         .string()};
     box-shadow: ${({ theme, color }) =>
-        color === 'neutral' ? theme.color.neutral[theme.mode][800] : theme.color[color][800]}
+        color === 'neutral'
+          ? theme.color.neutral[theme.mode][800]
+          : theme.color[color][theme.mode === 'light' ? 800 : 300]}
       0px 0px 0px 1.25px inset;
   }
   &:active {
     background: ${({ theme, color }) =>
-      Color(color === 'neutral' ? theme.color.neutral[theme.mode][600] : theme.color[color][900])
+      Color(
+        color === 'neutral'
+          ? theme.color.neutral[theme.mode][600]
+          : theme.color[color][theme.mode === 'light' ? 900 : 300]
+      )
         .alpha(0.3)
         .string()};
     box-shadow: ${({ theme, color }) =>
-        color === 'neutral' ? theme.color.neutral[theme.mode][800] : theme.color[color][800]}
+        color === 'neutral'
+          ? theme.color.neutral[theme.mode][800]
+          : theme.color[color][theme.mode === 'light' ? 800 : 300]}
       0px 0px 0px 1.25px inset;
   }
   @media (max-width: 1200px) {
@@ -109,7 +129,11 @@ const Caption = styled.span<{ theme: themeType; color: colorType }>`
   font-size: 12px;
   font-weight: 500;
   color: ${({ theme, color }) =>
-    Color(color === 'neutral' ? theme.color.neutral[theme.mode][1200] : theme.color[color][1400])
+    Color(
+      color === 'neutral'
+        ? theme.color.neutral[theme.mode][1200]
+        : theme.color[color][theme.mode === 'light' ? 1400 : 100]
+    )
       .alpha(0.85)
       .string()};
 `;

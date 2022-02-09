@@ -1121,7 +1121,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
 const Notice = styled.div<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.font.detail};
-  background-color: ${({ theme }) => Color(theme.color.orange[800]).lighten(0.64).hex()};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light' ? Color(theme.color.orange[800]).lighten(0.64).hex() : theme.color.orange[1400]};
   color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
   padding: 10px 20px;
   position: sticky;

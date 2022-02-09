@@ -46,13 +46,17 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
         },
         elements: {
           line: {
-            borderColor: this.props.theme.color.primary[800],
+            borderColor: this.props.theme.color.primary[this.props.theme.mode === 'light' ? 800 : 300],
             tension: 0.4,
             fill: 'origin',
-            backgroundColor: Color(this.props.theme.color.primary[800]).alpha(0.09).string(),
+            backgroundColor: Color(
+              this.props.theme.color.primary[this.props.theme.mode === 'light' ? 800 : 300]
+            )
+              .alpha(0.09)
+              .string(),
           },
           point: {
-            backgroundColor: this.props.theme.color.primary[800],
+            backgroundColor: this.props.theme.color.primary[this.props.theme.mode === 'light' ? 800 : 300],
           },
         },
         scales: {

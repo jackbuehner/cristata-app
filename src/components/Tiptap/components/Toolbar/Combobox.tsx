@@ -20,7 +20,7 @@ function Combobox(props: ICombobox) {
     width: string;
     side: 'left' | 'right';
   }>`
-    background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+    background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
     height: 28px;
     min-width: 40px;
     box-shadow: none !important;

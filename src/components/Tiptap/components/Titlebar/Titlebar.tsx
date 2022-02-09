@@ -1,6 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular, Home16Regular } from '@fluentui/react-icons';
+import Color from 'color';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
@@ -119,7 +120,10 @@ const TITLEBAR = styled.div<{ theme: themeType; offsetX: number }>`
   top: env(titlebar-area-y, 0);
   width: env(titlebar-area-width, 100%);
   height: env(titlebar-area-height, 33px);
-  background-color: ${({ theme }) => theme.color.blue[800]};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light'
+      ? theme.color.blue[800]
+      : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
   -webkit-app-region: drag;
   app-region: drag;
 `;

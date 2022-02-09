@@ -15,9 +15,7 @@ const TableRow = styled.div<ITableRow>`
   width: 100%;
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light'
-      ? theme.color.neutral.light[300]
-      : theme.color.neutral.dark[300]};
+    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
   ${({ isHeader }) =>
     isHeader
       ? `
@@ -30,7 +28,7 @@ const TableRow = styled.div<ITableRow>`
     onClick
       ? buttonEffect(
           'primary',
-          600,
+          theme.mode === 'light' ? 600 : 300,
           theme,
           false,
           { base: 'transparent' },

@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { ChevronDown12Regular, ChevronUp12Regular } from '@fluentui/react-icons';
 import { DateTimePicker } from '@material-ui/pickers';
@@ -7,6 +7,7 @@ import { useRef, useState } from 'react';
 import { buttonEffect, IconButton } from '../../../components/Button';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { DateTime } from 'luxon';
+import { themeType } from '../../../utils/theme/theme';
 
 type eventType = {
   name: string;
@@ -25,6 +26,13 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
   const { setField } = props.setStateFunctions;
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
+
+  const theme = useTheme() as themeType;
+  const backgroundColor = {
+    base: theme.mode === 'light' ? undefined : theme.color.neutral.dark[200],
+    hover: theme.mode === 'light' ? undefined : theme.color.neutral.dark[300],
+    active: theme.mode === 'light' ? undefined : theme.color.neutral.dark[100],
+  };
 
   /**
    * Prevent new lines in fields.
@@ -76,6 +84,7 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
           <Dir direction={-1}>
             <IconButton
               data-tip={'Move up'}
+              backgroundColor={backgroundColor}
               icon={<ChevronUp12Regular />}
               width={'20px'}
               height={'21px'}
@@ -91,6 +100,7 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
           <Dir direction={1}>
             <IconButton
               data-tip={'Move down'}
+              backgroundColor={backgroundColor}
               icon={<ChevronDown12Regular />}
               width={'20px'}
               height={'21px'}
@@ -121,7 +131,7 @@ function EventGroup({ event, events, index, dispatch, ...props }: IEventGroup) {
             white-space: nowrap;
             ${buttonEffect(
               'primary',
-              800,
+              props.theme.mode === 'light' ? 800 : 300,
               props.theme,
               false,
               { base: 'transparent' },

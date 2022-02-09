@@ -1,6 +1,8 @@
+import { useTheme } from '@emotion/react';
 import { ReactJSXElementChildrenAttribute } from '@emotion/react/types/jsx-namespace';
 import styled from '@emotion/styled/macro';
 import { useEffect, useState } from 'react';
+import { themeType } from '../../../utils/theme/theme';
 
 interface ISelectionOverlay extends ReactJSXElementChildrenAttribute {
   isShown: boolean;
@@ -8,6 +10,8 @@ interface ISelectionOverlay extends ReactJSXElementChildrenAttribute {
 }
 
 function SelectionOverlay(props: ISelectionOverlay) {
+  const theme = useTheme() as themeType;
+
   // whether the element should be visible
   const isVisible = props.isShown;
 
@@ -26,7 +30,7 @@ function SelectionOverlay(props: ISelectionOverlay) {
   return (
     <Container isShown={isShown}>
       <Scrim isVisible={isVisible} />
-      <Content isVisible={isVisible} isCompact={props.isCompact}>
+      <Content isVisible={isVisible} isCompact={props.isCompact} theme={theme}>
         {props.children}
       </Content>
     </Container>
@@ -61,7 +65,7 @@ const Scrim = styled.div<{ isVisible: boolean }>`
   border-radius: 2px;
 `;
 
-const Content = styled.div<{ isVisible: boolean; isCompact?: boolean }>`
+const Content = styled.div<{ isVisible: boolean; isCompact?: boolean; theme: themeType }>`
   margin: 0;
   opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
   transition: opacity 200ms;
@@ -77,7 +81,7 @@ const Content = styled.div<{ isVisible: boolean; isCompact?: boolean }>`
     2.5px 2.5px 10px rgba(0, 0, 0, 0.035), 4.5px 4.5px 17.9px rgba(0, 0, 0, 0.042),
     8.4px 8.4px 33.4px rgba(0, 0, 0, 0.05), 20px 20px 80px rgba(0, 0, 0, 0.07);
 
-  background-color: white;
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
   border-radius: 2px;
 `;
 

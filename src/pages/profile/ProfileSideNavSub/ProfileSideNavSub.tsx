@@ -364,7 +364,7 @@ const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   width: 20px !important;
   height: 20px !important;
   margin: 10px;
-  font-family: ${({ theme }) => theme.color.primary[900]} !important;
+  color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 900 : 300]} !important;
 `;
 
 export { ProfileSideNavSub };

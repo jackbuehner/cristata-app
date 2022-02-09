@@ -1,4 +1,5 @@
 import styled from '@emotion/styled/macro';
+import Color from 'color';
 import { themeType } from '../../../../utils/theme/theme';
 
 interface IToolbarActionRowContainer {
@@ -10,7 +11,10 @@ const ToolbarActionRowContainer = styled.div<IToolbarActionRowContainer>`
   box-sizing: border-box;
   height: fit-content;
   min-height: 40px;
-  background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light'
+      ? theme.color.neutral.light[100]
+      : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
   padding: 0px 8px;
   display: flex;
 `;

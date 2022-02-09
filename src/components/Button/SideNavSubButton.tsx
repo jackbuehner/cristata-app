@@ -28,7 +28,7 @@ function SideNavSubButton(props: {
       cssExtra={css`
         flex-direction: row;
         font-weight: 500;
-        color: ${isSameLocation && isSameSearch ? theme.color.primary[900] : ''};
+        color: ${isSameLocation && isSameSearch ? theme.color.primary[theme.mode === 'light' ? 900 : 300] : ''};
         margin: 0 6px 2px 6px;
         justify-content: flex-start;
         background: ${isSameLocation && isSameSearch
@@ -40,7 +40,7 @@ function SideNavSubButton(props: {
           text-overflow: ellipsis;
         }
       `}
-      colorShade={600}
+      colorShade={theme.mode === 'light' ? 600 : 300}
       backgroundColor={{ base: 'white' }}
       border={{ base: '1px solid transparent' }}
       onClick={() => {
@@ -57,7 +57,7 @@ function SideNavSubButton(props: {
               width: 24px;
               height: 24px;
               fill: ${isSameLocation && isSameSearch
-                ? theme.color.primary[900]
+                ? theme.color.primary[theme.mode === 'light' ? 900 : 300]
                 : theme.color.neutral[theme.mode][1400]};
             }
           `}

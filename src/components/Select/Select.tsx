@@ -33,6 +33,7 @@ interface ISelect<
 
 interface ISelectComponent extends ISelect {
   appTheme: themeType;
+  textColor?: { default: string; focused: string };
 }
 
 const SelectComponent = styled(ReactSelect)<ISelectComponent>`
@@ -45,6 +46,8 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
     box-sizing: border-box;
     border-radius: ${({ appTheme: theme }) => theme.radius};
     border: none;
+    background-color: transparent;
+    color: ${({ textColor, appTheme: theme }) => textColor?.default || theme.color.neutral[theme.mode][1400]};
     box-shadow: ${({ appTheme: theme }) => theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
     transition: box-shadow 240ms;
     font-family: ${({ appTheme: theme }) => theme.font['detail']};
@@ -58,11 +61,18 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
       box-shadow: ${({ appTheme: theme }) => theme.color.primary[800]} 0px 0px 0px 2px inset;
     }
   }
+  .react-select__control--is-focused {
+    background-color: white;
+  }
   // container with values (only one is is visible with single selects)
   .react-select__value-container {
     padding: 3.5px 8px;
     line-height: 1.2;
     font-size: 14px;
+  }
+  // value
+  .react-select__single-value {
+    color: ${({ textColor, appTheme: theme }) => textColor?.default || theme.color.neutral[theme.mode][1400]};
   }
   // indicator icons, displayed to the right of the value container
   .react-select__indicators {
@@ -73,11 +83,16 @@ const SelectComponent = styled(ReactSelect)<ISelectComponent>`
     margin: 0;
     border-radius: ${({ appTheme: theme }) => theme.radius};
     z-index: 12;
+    background: ${({ appTheme: theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[300])};
   }
   // options in menu
   .react-select__option {
     font-family: ${({ appTheme: theme }) => theme.font['detail']};
     font-size: 14px;
+    color: ${({ appTheme: theme }) => theme.color.neutral[theme.mode][1400]};
+  }
+  .react-select__option--is-disabled {
+    color: ${({ appTheme: theme }) => theme.color.neutral[theme.mode][1000]};
   }
   .react-select__option:not(.react-select__option--is-disabled) {
     ${({ color, colorShade, appTheme: theme, isDisabled, backgroundColor, border }) =>
@@ -130,8 +145,12 @@ function Select(props: ISelect) {
         classNamePrefix={`react-select`}
         appTheme={theme}
         color={`primary`}
-        colorShade={600}
-        backgroundColor={{ base: 'white' }}
+        colorShade={theme.mode === 'light' ? 600 : 300}
+        backgroundColor={{ base: 'transparent' }}
+        textColor={{
+          default: theme.color.neutral[theme.mode][1400],
+          focused: theme.color.neutral[theme.mode][100],
+        }}
         border={{ base: '1px solid transparent' }}
         value={getValueObject(props.val)}
         onChange={props.onChange}
@@ -151,8 +170,8 @@ function Select(props: ISelect) {
         classNamePrefix={`react-select`}
         appTheme={theme}
         color={`primary`}
-        colorShade={600}
-        backgroundColor={{ base: 'white' }}
+        colorShade={theme.mode === 'light' ? 600 : 300}
+        backgroundColor={{ base: 'transparent' }}
         border={{ base: '1px solid transparent' }}
         valueStrings={props.val && props.val !== 'undefined' ? [props.val] : undefined}
         onChange={props.onChange}
@@ -170,8 +189,8 @@ function Select(props: ISelect) {
       classNamePrefix={`react-select`}
       appTheme={theme}
       color={`primary`}
-      colorShade={600}
-      backgroundColor={{ base: 'white' }}
+      colorShade={theme.mode === 'light' ? 600 : 300}
+      backgroundColor={{ base: 'transparent' }}
       border={{ base: '1px solid transparent' }}
       value={getValueObject(props.val)}
       onChange={props.onChange}

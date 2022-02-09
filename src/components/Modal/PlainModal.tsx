@@ -97,10 +97,16 @@ const IndeterminateProgress = styled(LinearProgress)<{
   modalHasChildren: boolean;
   theme: themeType;
 }>`
-  --mdc-theme-primary: ${({ theme }) => theme.color.primary[800]};
+  --mdc-theme-primary: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   position: absolute !important;
   left: 0;
   ${({ modalHasChildren }) => (modalHasChildren ? `bottom: 0;` : `top: 0;`)};
+  .mdc-linear-progress__buffer {
+    background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
+  }
+  .mdc-linear-progress__buffering-dots {
+    filter: ${({ theme }) => `invert(${theme.mode === 'light' ? 0 : 1})`};
+  }
 `;
 
 interface IPlainModal {
@@ -216,7 +222,8 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               max-height: calc(100vh - 40px - ${theme.dimensions.titlebar.height});
               border: none;
               background: none;
-              background-color: ${theme.mode === 'light' ? 'white' : 'black'};
+              color: ${theme.color.neutral[theme.mode][1400]};
+              background-color: ${theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]};
               overflow: auto;
               border-radius: ${theme.radius};
               padding: 0;
@@ -230,7 +237,7 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               right: 0;
               bottom: 0;
               left: 0;
-              background-color: ${Color(theme.color.neutral[theme.mode][1500]).alpha(0.6).string()};
+              background-color: ${Color(theme.color.neutral.light[1500]).alpha(0.6).string()};
             `}
           >
             <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>

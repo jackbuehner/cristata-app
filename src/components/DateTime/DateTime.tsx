@@ -39,6 +39,7 @@ const DateTimeComponent = styled(DateTimePicker)<DateTimeComponentI>`
     }
   }
   .MuiInputBase-input.MuiInput-input {
+    color: ${({ theme, disabled }) => theme.color.neutral[theme.mode][disabled ? 800 : 1400]};
     font-family: ${({ theme }) => theme.font['detail']};
     font-size: 14px;
     font-variant-numeric: lining-nums;

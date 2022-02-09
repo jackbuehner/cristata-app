@@ -128,7 +128,10 @@ const SidenavComponent = styled.div<{ theme: themeType; gridCols: IGridCols }>`
   flex-direction: column;
   width: ${({ gridCols }) => gridCols.side}px;
   height: 100%;
-  background: ${({ theme }) => Color(theme.color.neutral[theme.mode][100]).alpha(0.5).string()};
+  background: ${({ theme }) =>
+    theme.mode === 'light'
+      ? Color(theme.color.neutral[theme.mode][100]).lighten(0.5).string()
+      : Color(theme.color.neutral[theme.mode][100]).string()};
   border-right: 1px solid;
   transition: border-color 200ms;
   border-color: ${({ theme, gridCols }) =>
@@ -148,7 +151,7 @@ const SidenavComponent = styled.div<{ theme: themeType; gridCols: IGridCols }>`
 `;
 
 const LogoSvg = styled.svg<{ theme: themeType }>`
-  fill: ${({ theme }) => theme.color.primary[800]};
+  fill: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   width: 100%;
   height: 36px;
   padding: 38px 0 17px 0;

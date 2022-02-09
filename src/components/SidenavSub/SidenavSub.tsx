@@ -12,7 +12,7 @@ const SidenavSubComponent = styled.div<{
   isNavVisible: boolean;
 }>`
   width: ${({ gridCols, isHome }) => (isHome ? 0 : gridCols.sideSub)}px;
-  background: ${({ theme }) => (theme.mode === 'light' ? 'white' : 'black')};
+  background: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
   border-right: 1px solid
     ${({ theme }) => (theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300])};
   overflow-x: hidden;

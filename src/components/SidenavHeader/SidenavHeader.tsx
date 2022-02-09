@@ -135,6 +135,7 @@ function SidenavHeader({
         <IconButton
           icon={<span></span>}
           cssExtra={css`
+            color: ${theme.color.neutral[theme.mode][1400]};
             background: url(${profiles?.me.photo
               ? profiles.me.photo
               : profiles?.me
@@ -146,14 +147,14 @@ function SidenavHeader({
             height: 30px;
             border-radius: 50%;
             border: none !important;
-            box-shadow: inset 0 0 0 1.5px ${theme.color.primary[800]};
+            box-shadow: inset 0 0 0 1.5px ${theme.color.primary[theme.mode === 'light' ? 800 : 300]};
             &:hover {
               box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 23%), 0 0.3px 0.9px 0 rgb(0 0 0 / 21%),
-                inset 0 0 0 1.5px ${theme.color.primary[800]};
+                inset 0 0 0 1.5px ${theme.color.primary[theme.mode === 'light' ? 800 : 300]};
             }
             &:active {
               box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 6%), 0 0.3px 0.9px 0 rgb(0 0 0 / 5%),
-                inset 0 0 0 1.5px ${theme.color.primary[800]};
+                inset 0 0 0 1.5px ${theme.color.primary[theme.mode === 'light' ? 800 : 300]};
             }
           `}
           onClick={showDropdown}

@@ -357,24 +357,26 @@ const Tiptap = (props: ITiptap) => {
       </div>
       <ErrorBoundary fallback={<div>Error loading statusbar</div>}>
         <Statusbar>
-          {providerWebsocket.wsconnected ? (
-            <>
-              <StatusbarBlock>
-                {wordCount} word{wordCount !== 1 ? 's' : ''}
-              </StatusbarBlock>
-              <StatusbarBlock>{editor?.storage.characterCount?.characters()} characters</StatusbarBlock>
-            </>
-          ) : null}
-          <StatusbarBlock>
-            {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
-          </StatusbarBlock>
-          <StatusbarBlock>
-            {providerWebsocket.wsconnected
-              ? 'Connected'
-              : providerWebsocket.wsconnecting
-              ? 'Connecting...'
-              : 'Failed to connect'}
-          </StatusbarBlock>
+          <>
+            {providerWebsocket.wsconnected ? (
+              <>
+                <StatusbarBlock>
+                  {wordCount} word{wordCount !== 1 ? 's' : ''}
+                </StatusbarBlock>
+                <StatusbarBlock>{editor?.storage.characterCount?.characters()} characters</StatusbarBlock>
+              </>
+            ) : null}
+            <StatusbarBlock>
+              {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
+            </StatusbarBlock>
+            <StatusbarBlock>
+              {providerWebsocket.wsconnected
+                ? 'Connected'
+                : providerWebsocket.wsconnecting
+                ? 'Connecting...'
+                : 'Failed to connect'}
+            </StatusbarBlock>
+          </>
         </Statusbar>
       </ErrorBoundary>
     </Container>
@@ -383,6 +385,7 @@ const Tiptap = (props: ITiptap) => {
 
 const Container = styled.div<{ theme: themeType; isMaximized: boolean }>`
   background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};
+  color: black;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -509,7 +512,7 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
 `;
 
 const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType }>`
-  --mdc-theme-primary: ${({ theme }) => theme.color.blue[800]};
+  --mdc-theme-primary: ${({ theme }) => theme.color.blue[theme.mode === 'light' ? 800 : 300]};
   left: 0;
   bottom: 0;
   position: absolute;

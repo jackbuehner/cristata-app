@@ -54,13 +54,11 @@ const themeFonts = {
   wordmark: 'Adobe Thai',
 };
 
-const mode = 'light' as 'light' | 'dark';
-
-const theme = {
+const theme = (mode: 'light' | 'dark' = 'light') => ({
   color: {
     ...themeColors,
     primary: themeColors.violet,
-    danger: themeColors.red,
+    danger: mode === 'light' ? themeColors.red : themeColors.yellow,
     success: themeColors.green,
     neutral: {
       light: {
@@ -81,20 +79,20 @@ const theme = {
         1500: darken('#ffffff', 0.95),
       },
       dark: {
-        100: lighten('#000000', 0.05),
-        200: lighten('#000000', 0.1),
-        300: lighten('#000000', 0.15),
-        400: lighten('#000000', 0.2),
-        500: lighten('#000000', 0.28),
-        600: lighten('#000000', 0.36),
-        700: lighten('#000000', 0.42),
-        800: lighten('#000000', 0.5),
-        900: lighten('#000000', 0.58),
-        1000: lighten('#000000', 0.66),
-        1100: lighten('#000000', 0.72),
-        1200: lighten('#000000', 0.8),
-        1300: lighten('#000000', 0.85),
-        1400: lighten('#000000', 0.9),
+        100: lighten('#000000', 0.14),
+        200: lighten('#000000', 0.23),
+        300: lighten('#000000', 0.31),
+        400: lighten('#000000', 0.36),
+        500: lighten('#000000', 0.42),
+        600: lighten('#000000', 0.46),
+        700: lighten('#000000', 0.52),
+        800: lighten('#000000', 0.57),
+        900: lighten('#000000', 0.64),
+        1000: lighten('#000000', 0.7),
+        1100: lighten('#000000', 0.76),
+        1200: lighten('#000000', 0.82),
+        1300: lighten('#000000', 0.87),
+        1400: lighten('#000000', 0.91),
         1500: lighten('#000000', 0.95),
       },
     },
@@ -115,7 +113,7 @@ const theme = {
       width: '100%',
     },
   },
-};
+});
 
 export type colorType =
   | 'primary'
@@ -131,6 +129,6 @@ export type colorType =
   | 'violet'
   | 'neutral';
 
-export type themeType = typeof theme;
+export type themeType = ReturnType<typeof theme>;
 
 export { theme };

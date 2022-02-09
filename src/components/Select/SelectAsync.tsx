@@ -4,6 +4,8 @@ import { OptionTypeBase } from 'react-select';
 import { colorShade, colorType, themeType } from '../../utils/theme/theme';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { useEffect, useState } from 'react';
+import { useTheme } from '@emotion/react';
+import { MultiValueLabelComponent, OptionComponent } from './MultiSelect';
 
 interface ISelectAsync extends Omit<Props<OptionTypeBase, false>, 'isMulti'> {
   appTheme: themeType;
@@ -25,6 +27,8 @@ interface ISelectAsync extends Omit<Props<OptionTypeBase, false>, 'isMulti'> {
 }
 
 function SelectAsync({ asyncOptions, client, valueStrings, isMulti, ...props }: ISelectAsync) {
+  const theme = useTheme() as themeType;
+
   // use the styles of the normal select component for the async select component
   const AsyncSelectComponent = SelectComponent.withComponent(AsyncSelect);
 
@@ -75,7 +79,6 @@ function SelectAsync({ asyncOptions, client, valueStrings, isMulti, ...props }: 
       appTheme={props.appTheme}
       color={props.color}
       colorShade={props.colorShade}
-      backgroundColor={{ base: 'white' }}
       border={{ base: '1px solid transparent' }}
       value={valueObjs}
       onChange={props.onChange}
@@ -87,6 +90,14 @@ function SelectAsync({ asyncOptions, client, valueStrings, isMulti, ...props }: 
         inputValue.length === 0 ? 'Type to view options' : 'No matching options'
       }
       isMulti={isMulti ? true : false} // defaults to false
+      components={{ MultiValueLabel: MultiValueLabelComponent, Option: OptionComponent }}
+      styles={{
+        multiValue: (base) => ({
+          ...base,
+          backgroundColor:
+            theme.mode === 'light' ? theme.color.neutral.light[100] : theme.color.neutral.dark[200],
+        }),
+      }}
     />
   );
 }
