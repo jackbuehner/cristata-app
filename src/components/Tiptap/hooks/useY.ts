@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { DependencyList, useMemo } from 'react';
+import { DependencyList, useMemo, useState } from 'react';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import packageJson from '../../../../package.json';
@@ -24,7 +24,20 @@ function useY({ name, ws }: UseYProps, deps: DependencyList = []): ReturnType {
     [ws, name, doc, params, ...deps]
   );
 
-  return [doc, settingsMap, hocuspocus];
+  // check that the doc has received the server data first
+  const [updated, setUpdated] = useState<boolean>(false);
+  doc.once('update', () => {
+    if (!updated) setUpdated(true);
+  });
+
+  // whether the doc is connected to the server and is up-to-date
+  let isConnected = undefined;
+  if (hocuspocus.wsconnecting) isConnected = undefined;
+  else if (hocuspocus.wsconnected && !updated) isConnected = undefined;
+  else if (hocuspocus.wsconnected && updated) isConnected = true;
+  else isConnected = false;
+
+  return [doc, settingsMap, hocuspocus, isConnected];
 }
 
 interface UseYProps {
@@ -36,7 +49,7 @@ interface IYSettingsMap {
   trackChanges?: boolean;
 }
 
-type ReturnType = [Y.Doc, Y.Map<IYSettingsMap>, WebsocketProvider];
+type ReturnType = [Y.Doc, Y.Map<IYSettingsMap>, WebsocketProvider, boolean | undefined];
 
 export type { IYSettingsMap };
 export { useY };

@@ -48,6 +48,7 @@ import {
   useY,
 } from './hooks';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
+import { Spinner } from '../Loading';
 
 interface ITiptap {
   docName: string;
@@ -74,7 +75,10 @@ const Tiptap = (props: ITiptap) => {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { search } = useLocation();
-  const [ydoc, ySettingsMap, providerWebsocket] = useY({ ws: `${api}/hocuspocus/`, name: props.docName }); // create a doc and connect it to the server
+  const [ydoc, ySettingsMap, providerWebsocket, isConnected] = useY({
+    ws: `${api}/hocuspocus/`,
+    name: props.docName,
+  }); // create a doc and connect it to the server
   const awarenessProfiles = useAwareness({ hocuspocus: providerWebsocket }); // get list of who is editing the doc
   const { observe, width: thisWidth, height: tiptapHieght } = useDimensions(); // monitor the dimensions of the editor
 
@@ -102,7 +106,7 @@ const Tiptap = (props: ITiptap) => {
 
   // create the editor
   const editor = useTipTapEditor({
-    editable: providerWebsocket.wsconnected && !props.isDisabled,
+    editable: isConnected === true && !props.isDisabled,
     content: props.html,
     extensions: [
       StarterKit.configure({ history: false }),
@@ -314,16 +318,38 @@ const Tiptap = (props: ITiptap) => {
               overflow: auto;
               width: 100%;
               display: flex;
-              height: ${providerWebsocket.wsconnected ? '100%' : '0'};
+              height: 100%;
               flex-direction: column;
               align-items: center;
+              justify-content: ${isConnected !== true ? 'center' : 'unset'};
               flex-grow: 1;
             `}
           >
             {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
+            {isConnected !== true ? (
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  color: theme.color.neutral[theme.mode][1500],
+                  fontFamily: theme.font.detail,
+                }}
+              >
+                {isConnected === undefined ? (
+                  <>
+                    <Spinner color={'neutral'} colorShade={1500} size={30} />
+                    <div>Connecting...</div>
+                  </>
+                ) : (
+                  <div>Failed to connect</div>
+                )}
+              </div>
+            ) : null}
             {
               // if it is an article type, show article metadata and photo
-              props.options?.type === 'article' && props.options.keys_article ? (
+              props.options?.type === 'article' && props.options.keys_article && isConnected === true ? (
                 <>
                   {layout === 'standard' ? (
                     <StandardLayout
@@ -341,7 +367,7 @@ const Tiptap = (props: ITiptap) => {
                 </>
               ) : null
             }
-            <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} />
+            {isConnected === true ? <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} /> : null}
           </div>
         </ErrorBoundary>
         <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
@@ -358,7 +384,7 @@ const Tiptap = (props: ITiptap) => {
       <ErrorBoundary fallback={<div>Error loading statusbar</div>}>
         <Statusbar>
           <>
-            {providerWebsocket.wsconnected ? (
+            {isConnected === true ? (
               <>
                 <StatusbarBlock>
                   {wordCount} word{wordCount !== 1 ? 's' : ''}
@@ -370,9 +396,9 @@ const Tiptap = (props: ITiptap) => {
               {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
             </StatusbarBlock>
             <StatusbarBlock>
-              {providerWebsocket.wsconnected
+              {isConnected === true
                 ? 'Connected'
-                : providerWebsocket.wsconnecting
+                : isConnected === undefined
                 ? 'Connecting...'
                 : 'Failed to connect'}
             </StatusbarBlock>
