@@ -776,6 +776,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           }
                         }}
                         actions={actions}
+                        layout={state.fields.layout}
                         message={
                           publishLocked
                             ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'

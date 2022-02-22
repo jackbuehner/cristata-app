@@ -68,6 +68,7 @@ interface ITiptap {
   forceMax?: boolean;
   message?: string;
   showLoading?: boolean;
+  layout?: string;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -166,7 +167,7 @@ const Tiptap = (props: ITiptap) => {
   }, [thisWidth, isSidebarOpen]);
 
   // layout picker
-  const layout: string | undefined = 'standard';
+  const layout: string | undefined = props.layout || 'standard';
   const layoutOptions = props.options?.layouts?.options || [];
   const setLayout = (layout: string) => {
     if (props.options?.layouts) {
