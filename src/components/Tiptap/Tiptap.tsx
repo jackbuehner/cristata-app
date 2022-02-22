@@ -445,6 +445,9 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
       margin-top: 0;
       margin-bottom: 10px;
     }
+    li > p {
+      margin-bottom: 0;
+    }
     // show placeholder message when the editor is empty
     p.is-empty:first-of-type::before {
       content: attr(data-placeholder);
