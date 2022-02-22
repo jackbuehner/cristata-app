@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { DependencyList, useMemo } from 'react';
+import { DependencyList, useMemo, useState } from 'react';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import packageJson from '../../../../package.json';
@@ -24,11 +24,19 @@ function useY({ name, ws }: UseYProps, deps: DependencyList = []): ReturnType {
     [ws, name, doc, params, ...deps]
   );
 
+  const [synced, setSynced] = useState<boolean>(false);
+  doc.once('update', () => {
+    // server will always send an update on first connect
+    // after it merges the database version into the
+    // client version
+    if (!synced) setSynced(true);
+  });
+
   // whether the doc is connected to the server and is up-to-date
   let isConnected = undefined;
   if (hocuspocus.wsconnecting) isConnected = undefined;
-  else if (hocuspocus.wsconnected && !hocuspocus.synced) isConnected = undefined;
-  else if (hocuspocus.wsconnected && hocuspocus.synced) isConnected = true;
+  else if (hocuspocus.wsconnected && !synced) isConnected = undefined;
+  else if (hocuspocus.wsconnected && synced) isConnected = true;
   else isConnected = false;
 
   return [doc, settingsMap, hocuspocus, isConnected];
