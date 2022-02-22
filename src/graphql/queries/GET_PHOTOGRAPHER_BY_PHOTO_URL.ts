@@ -1,8 +1,10 @@
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
-const GET_PHOTOGRAPHER_BY_PHOTO_URL = (url: string) =>
-  gql(
+const GET_PHOTOGRAPHER_BY_PHOTO_URL = (url: string) => {
+  if (url === '' || !url) url = 'NO_PHOTO';
+
+  return gql(
     jsonToGraphQLQuery({
       query: {
         photos: {
@@ -22,6 +24,7 @@ const GET_PHOTOGRAPHER_BY_PHOTO_URL = (url: string) =>
       },
     })
   );
+};
 
 type GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE =
   | {
