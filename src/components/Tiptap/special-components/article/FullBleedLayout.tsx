@@ -115,7 +115,7 @@ function FullBleedLayout(props: IFullBleedLayout) {
     return (
       <Container tiptapWidth={props.tiptapSize.width}>
         <PhotoContainer tiptapWidth={props.tiptapSize.width} photoUrl={photoUrl}>
-          <div>
+          <div style={{ width: '100%' }}>
             <Categories>
               {(categories as string[])?.map((cat, index) => (
                 <Category key={index}>
@@ -191,7 +191,9 @@ function FullBleedLayout(props: IFullBleedLayout) {
 }
 
 const Container = styled.div<{ tiptapWidth: number }>`
-  max-width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `590px`)};
+  max-width: 768px;
+  width: calc(100% - 40px);
+  box-sizing: border-box;
   background-color: white;
   border: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`)};
   border-bottom: none;
@@ -272,7 +274,7 @@ const PhotoContainer = styled.div<{ tiptapWidth: number; photoUrl?: string }>`
   background-image: ${({ photoUrl }) =>
     photoUrl
       ? `url('${photoUrl}')`
-      : `url('https://uploads-ssl.webflow.com/5f37fcdc1b6edd6760ad912f/60817ebfaf5a0475f56c5461_pres.jpeg')`};
+      : `linear-gradient(135deg, rgba(84,56,185,1) 0%, rgba(59,64,172,1) 60%, rgba(56,65,170,1) 80%, rgba(28,73,155,1) 100%);`};
   background-size: cover;
   background-position: center;
   padding: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `0 20px 0` : `0 88px 0`)};

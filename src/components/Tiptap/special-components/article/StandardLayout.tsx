@@ -190,7 +190,9 @@ function StandardLayout(props: IStandardLayout) {
 }
 
 const Container = styled.div<{ tiptapWidth: number }>`
-  max-width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `590px`)};
+  max-width: 768px;
+  width: calc(100% - 40px);
+  box-sizing: border-box;
   background-color: white;
   border: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`)};
   border-bottom: none;
@@ -260,6 +262,13 @@ const PhotoContainer = styled.div<{ tiptapWidth: number }>`
   margin-right: unset;
   margin-bottom: 4px;
   left: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `-20px` : `unset`)};
+  background-image: linear-gradient(
+    135deg,
+    rgba(84, 56, 185, 1) 0%,
+    rgba(59, 64, 172, 1) 60%,
+    rgba(56, 65, 170, 1) 80%,
+    rgba(28, 73, 155, 1) 100%
+  );
 `;
 
 const Photo = styled.img`
