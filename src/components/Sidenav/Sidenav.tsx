@@ -4,7 +4,6 @@ import {
   Home32Regular,
   ContentView32Regular,
   Send28Regular,
-  Board28Regular,
   Person32Regular,
   ChevronLeft24Regular,
   PeopleTeam28Regular,
@@ -68,11 +67,6 @@ function Sidenav(props: ISidenav) {
       {featuresConfig['messages'] ? (
         <SideNavMainButton Icon={<Send28Regular />} to={`/chat`} setIsNavVisibleM={setIsNavVisibleM}>
           Messages
-        </SideNavMainButton>
-      ) : null}
-      {featuresConfig['plans'] ? (
-        <SideNavMainButton Icon={<Board28Regular />} to={`/plans`} setIsNavVisibleM={setIsNavVisibleM}>
-          Plans
         </SideNavMainButton>
       ) : null}
       {featuresConfig['teams'] ? (

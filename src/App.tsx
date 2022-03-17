@@ -1,9 +1,7 @@
-import { PlansPage } from './pages/plans/PlansPage/PlansPage';
 import './App.css';
 import styled from '@emotion/styled/macro';
 import useAxios, { configure } from 'axios-hooks';
 import { SideNavSubButton } from './components/Button';
-import { PlansSideNavSub } from './pages/plans/PlansSideNavSub';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
@@ -142,10 +140,6 @@ function App() {
                             }
                           />
                           <Route
-                            path={`/plans/*`}
-                            element={<PlansSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
-                          />
-                          <Route
                             path={`/profile/*`}
                             element={<ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
                           />
@@ -162,8 +156,6 @@ function App() {
                       <Route path={`/cms/collection/:collection`} element={<CollectionPage />} />
                       <Route path={`/cms/item/:collection/:item_id`} element={<ItemDetailsPage />} />
                       <Route path={`/cms`} element={<PageHead title={`CMS`} />} />
-                      <Route path={`/plans/org/:id`} element={<PlansPage />} />
-                      <Route path={`/plans`} element={<PageHead title={`Plans`} />} />
                       <Route path={`/profile/:profile_id`} element={<ProfilePage />} />
                       <Route path={`/profile`} element={<PageHead title={`Profiles`} />} />
                       <Route path={`/teams/:team_id`} element={<TeamPage />} />

@@ -218,7 +218,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     console.error(error);
     return (
       <>
-        <SideNavHeading>Plans</SideNavHeading>
+        <SideNavHeading>Profiles</SideNavHeading>
         <div style={{ fontFamily: theme.font.detail, padding: 10 }}>
           <div style={{ marginBottom: 10 }}>Error: {error.clientErrors[0].message || error.message}</div>
           <Button onClick={() => refetch()}>Retry</Button>

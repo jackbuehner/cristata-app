@@ -31,7 +31,6 @@ interface Ifeatures {
 const features: Ifeatures = {
   cms: true,
   messages: false,
-  plans: true,
   profiles: true,
   teams: true,
 };

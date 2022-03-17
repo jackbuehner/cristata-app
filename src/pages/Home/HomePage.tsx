@@ -118,7 +118,7 @@ function HomePage() {
       <div style={{ gridArea: 'announcement' }}>
         <HomeSectionHeading icon={<Megaphone24Regular />}>Welcome to Cristata (Beta)</HomeSectionHeading>
         <p>
-          The dashboard is still under construction, but the Content Manager (CMS), Plans, and Profiles are
+          The dashboard is still under construction, but the Content Manager (CMS), Teams, and Profiles are
           already available. Access these tools by using the sidebar on the left.
         </p>
       </div>
