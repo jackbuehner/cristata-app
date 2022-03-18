@@ -1,6 +1,5 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { merge } from 'merge-anything';
-import { Decimal128 } from 'mongoose';
 import { Paged } from '../interfaces/cristata/paged';
 import { ClientConsumer } from './ClientConsumer';
 import mongoose from 'mongoose';
