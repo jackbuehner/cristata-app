@@ -82,10 +82,6 @@ function SplashScreen(props: ISplashScreen) {
       else if (!props.user.methods.includes('local')) {
         navigate('/sign-in', { state: { step: 'migrate_to_local' } });
       }
-      // users needs to join gh org
-      else if (props.user.next_step === 'join_gh_org') {
-        navigate('/sign-in-legacy?isMember=false');
-      }
       // redirect to user's desired page if there are not other login steps
       else if (!props.user.next_step) {
         const redirect = localStorage.getItem('auth.redirect_after') || '/';
