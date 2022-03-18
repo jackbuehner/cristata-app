@@ -26,7 +26,7 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
 
   const { setField } = props.setStateFunctions;
 
-  const events = state.fields['events'] as IFlush['events'];
+  const events = (state.fields['events'] as IFlush['events']) || [];
 
   const [isRemoveMode, setIsRemoveMode] = useState<boolean>(false);
   const [toRemove, setToRemove] = useState<number[]>([]);
