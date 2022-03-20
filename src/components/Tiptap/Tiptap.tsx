@@ -72,7 +72,7 @@ interface ITiptap {
 }
 
 const Tiptap = (props: ITiptap) => {
-  const api = `${process.env.REACT_APP_WS_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`;
+  const api = `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}`;
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { search } = useLocation();
