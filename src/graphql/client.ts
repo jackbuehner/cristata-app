@@ -43,7 +43,7 @@ const cache = new InMemoryCache({
 });
 
 const client = new ApolloClient({
-  uri: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/v3`,
+  uri: `${process.env.PUBLIC_URL}/api/v3`,
   //uri: `https://api.thepaladin.dev.cristata.app/v3`,
   cache,
   credentials: 'include',

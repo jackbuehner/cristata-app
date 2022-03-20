@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 
 function SignOut() {
-  fetch(`${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/auth/clear`, {
+  fetch(`${process.env.PUBLIC_URL}/api/auth/clear`, {
     method: 'post',
     credentials: 'include',
     headers: {

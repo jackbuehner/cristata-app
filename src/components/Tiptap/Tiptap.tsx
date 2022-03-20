@@ -49,6 +49,7 @@ import {
 } from './hooks';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { Spinner } from '../Loading';
+import { getHost } from '../../utils/getHost';
 
 interface ITiptap {
   docName: string;
@@ -72,7 +73,7 @@ interface ITiptap {
 }
 
 const Tiptap = (props: ITiptap) => {
-  const api = `${process.env.REACT_APP_WS_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`;
+  const api = `wss://${getHost()}${process.env.PUBLIC_URL}/api`;
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { search } = useLocation();

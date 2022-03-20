@@ -46,7 +46,6 @@ function App() {
   const authUserState = useAppSelector((state) => state.authUser);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
-    baseURL: `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`,
     withCredentials: true,
     method: 'GET',
   });
