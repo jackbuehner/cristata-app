@@ -76,7 +76,7 @@ function App() {
   return (
     <>
       <ToastContainer />
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <SplashScreen
           loading={loadingUser}
           error={errorUser || undefined}

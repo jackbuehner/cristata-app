@@ -52,7 +52,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
   // nodegarden
-  useScript('/scripts/nodegarden.js', 'nodegardenscript', () => null);
+  useScript('./scripts/nodegarden.js', 'nodegardenscript', () => null);
 
   /**
    * Redirect client to the github authentication URL (on the server).

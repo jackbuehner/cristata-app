@@ -66,7 +66,7 @@ function Sweepwidget(props: ISweepwidget) {
           contentEditable={false}
           srcDoc={`
             <head>
-              <script type="text/javascript" src="/scripts/iframeResizer.contentWindow.min.js"></script>
+              <script type="text/javascript" src="./scripts/iframeResizer.contentWindow.min.js"></script>
             </head>
             <body>
               <div id="${props.node.attrs.id}" class="sw_container"></div>
