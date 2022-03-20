@@ -46,6 +46,7 @@ function App() {
   const authUserState = useAppSelector((state) => state.authUser);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
+    baseURL: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}`,
     withCredentials: true,
     method: 'GET',
   });
@@ -72,10 +73,12 @@ function App() {
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
+  console.log(user, loadingUser, errorUser);
+
   return (
     <>
       <ToastContainer />
-      <Router basename={process.env.PUBLIC_URL}>
+      <Router basename={process.env.PUBLIC_URL || undefined}>
         <SplashScreen
           loading={loadingUser}
           error={errorUser || undefined}

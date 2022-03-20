@@ -758,7 +758,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           name: authUserState.name,
                           color: colorHash.hex(authUserState._id),
                           photo:
-                            `${process.env.PUBLIC_URL}/api/v3/user-photo/${authUserState._id}` ||
+                            `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/user-photo/${authUserState._id}` ||
                             genAvatar(authUserState._id),
                         }}
                         options={field.tiptap}

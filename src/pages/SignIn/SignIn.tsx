@@ -61,7 +61,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
    */
   const signInWithGitHubAction = () => {
     setIsLoading(true);
-    document.location.href = `${process.env.PUBLIC_URL}/api/auth/github`;
+    document.location.href = `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/auth/github`;
   };
 
   /**
@@ -136,7 +136,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
    */
   const signInWithCredentials = useCallback(
     (pcred: typeof cred = cred) => {
-      fetch(`${process.env.PUBLIC_URL}/api/auth/local`, {
+      fetch(`${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/auth/local`, {
         method: 'post',
         credentials: 'include',
         headers: {

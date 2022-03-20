@@ -19,7 +19,9 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
   const [photoUrl, setPhotoUrl] = useState<string>();
   useEffect(() => {
     if (state.fields[key]) {
-      fetch(`${process.env.PUBLIC_URL}/api/proxy/${state.fields[key]}`).then((res) => {
+      fetch(
+        `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/proxy/${state.fields[key]}`
+      ).then((res) => {
         res.blob().then((blob) => {
           setPhotoUrl(URL.createObjectURL(blob));
         });

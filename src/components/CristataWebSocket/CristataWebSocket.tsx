@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
-import { getHost } from '../../utils/getHost';
 import { handleSocketEvent } from './handleSocketEvent';
 
 export interface IGitHubDataFreshness {
@@ -56,7 +55,7 @@ function CristataWebSocket(props: { children: React.ReactNode }) {
    */
   useEffect(() => {
     const connectWS = () => {
-      const ws = new WebSocket(`wss://${getHost()}${process.env.PUBLIC_URL}/api/websocket`);
+      const ws = new WebSocket(`${process.env.REACT_APP_WS_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}/websocket`);
       ws.addEventListener('message', ({ data }) => {
         if (isJSON(data)) {
           const JSONData: { event: string; [key: string]: any } = JSON.parse(data);

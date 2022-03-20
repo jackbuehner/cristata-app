@@ -2,7 +2,6 @@
   "name": "cristata-app",
   "version": "0.7.0",
   "private": true,
-  "homepage": "/paladin-news",
   "dependencies": {
     "@apollo/client": "^3.4.17",
     "@cristata/prosemirror-to-html-js": "^2.0.1",
@@ -42,7 +41,6 @@
     "file-saver": "^2.0.5",
     "graphql": "^16.0.1",
     "html2pdf.js": "^0.10.1",
-    "http-proxy-middleware": "^2.0.4",
     "iframe-resizer-react": "^1.1.0",
     "install": "^0.13.0",
     "json-to-graphql-query": "^2.1.0",
@@ -125,7 +123,6 @@
     "fs-extra": "^10.0.1",
     "npm-check": "^5.9.2",
     "patch-package": "^6.4.7",
-    "prosemirror-dev-tools": "^3.1.0",
-    "vercel": "^24.0.0"
+    "prosemirror-dev-tools": "^3.1.0"
   }
 }

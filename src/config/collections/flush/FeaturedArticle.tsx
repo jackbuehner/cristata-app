@@ -70,7 +70,9 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
   const [photoUrl, setPhotoUrl] = useState<string>();
   useEffect(() => {
     if (article?.photo_path) {
-      fetch(`${process.env.PUBLIC_URL}/api/proxy/${article.photo_path}`).then((res) => {
+      fetch(
+        `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/proxy/${article.photo_path}`
+      ).then((res) => {
         res.blob().then((blob) => {
           setPhotoUrl(URL.createObjectURL(blob));
         });

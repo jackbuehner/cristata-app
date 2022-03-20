@@ -28,7 +28,9 @@ function FathomEmbed(props: IFathomEmbed) {
     }
   }, [gridCols, setGridCols]);
 
-  const [{ data }] = useAxios<{ url: string }>(`/analytics/dashboard`);
+  const [{ data }] = useAxios<{ url: string }>(
+    `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/analytics/dashboard`
+  );
 
   return (
     <div style={{ overflow: 'hidden', height: '100%' }}>
