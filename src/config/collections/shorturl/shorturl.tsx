@@ -6,8 +6,8 @@ const shorturl: collection<IShortURL> = {
   home: '/cms/collection/shorturls',
   query: {
     name: {
-      singular: 'shorturl',
-      plural: 'shorturls',
+      singular: 'shortURL',
+      plural: 'shortURLS',
     },
     identifier: 'code',
   },
