@@ -961,7 +961,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   Track changes (text only)
                 </ToolbarRowButton>
                 <ToolbarRowButton
-                  onClick={() => editor.chain().focus().approveChange().run()}
+                  onClick={() => editor.chain().focus().approveChange().nextChange().run()}
                   isActive={false}
                   icon={<AcceptRevision20Icon />}
                   disabled={props.isDisabled || !editor}
@@ -969,7 +969,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   Accept
                 </ToolbarRowButton>
                 <ToolbarRowButton
-                  onClick={() => editor.chain().focus().rejectChange().run()}
+                  onClick={() => editor.chain().focus().rejectChange().nextChange().run()}
                   isActive={false}
                   icon={<RejectRevision20Icon />}
                   disabled={props.isDisabled || !editor}
