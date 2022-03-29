@@ -157,19 +157,14 @@ const ManageChanges = Extension.create({
               nextChangeNode = null;
             }
             const closeTextNodes = getTextNodes(
-              { from: range.to + 1, to: range.to + 10 > docSize ? docSize : range.to + 10 },
+              { from: range.to, to: range.to + 10 > docSize ? docSize : range.to + 10 },
               tr
             );
-            for (let i = 0; i < closeTextNodes.length; i++) {
-              for (let j = 0; j < closeTextNodes[i].node.marks.length; j++) {
-                if (
-                  closeTextNodes[i].node.marks[j].type.name === 'addition' ||
-                  closeTextNodes[i].node.marks[j].type.name === 'deletion'
-                ) {
-                  nextChangeNode = closeTextNodes[i];
-                }
-              }
-            }
+            // identify the nearest text node that contains a change
+            nextChangeNode = closeTextNodes.filter(({ node }) => {
+              // true if the text node contains an addition or deletion mark
+              return !!node.marks.find(({ type }) => type.name === 'addition' || type.name === 'deletion');
+            })[0];
             range.to += 10;
           }
 
