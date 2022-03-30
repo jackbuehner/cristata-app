@@ -1,37 +1,38 @@
-import './App.css';
+import { ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import useAxios, { configure } from 'axios-hooks';
-import { SideNavSubButton } from './components/Button';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'react-toastify/dist/ReactToastify.css';
-import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
-import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
-import { SplashScreen } from './components/SplashScreen';
-import { SignIn, SignOut } from './pages/SignIn';
-import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
-import { ProfilePage } from './pages/profile/ProfilePage';
-import { SideNavHeading } from './components/Heading';
-import { SidenavHeader } from './components/SidenavHeader';
-import { Fragment, useState } from 'react';
-import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
-import { themeType } from './utils/theme/theme';
-import { SidenavSub } from './components/SidenavSub';
-import { Sidenav } from './components/Sidenav/Sidenav';
-import { HomePage } from './pages/Home';
-import { getNavigationConfig } from './config';
-import { Titlebar } from './components/Titlebar';
-import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
-import { CollectionPage } from './pages/CMS/CollectionPage';
-import { db } from './utils/axios/db';
-import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
-import { TeamsNav } from './pages/teams/TeamsNav';
-import { TeamPage } from './pages/teams/TeamPage';
-import { PageHead } from './components/PageHead';
-import { useAppSelector } from './redux/hooks';
-import { ToastContainer } from './components/ToastContainer';
-import { FathomEmbed } from './pages/embeds';
 import Color from 'color';
-import { useTheme } from '@emotion/react';
+import { Fragment, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
+import './App.css';
+import { SideNavSubButton } from './components/Button';
+import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
+import { SideNavHeading } from './components/Heading';
+import { PageHead } from './components/PageHead';
+import { Sidenav } from './components/Sidenav/Sidenav';
+import { SidenavHeader } from './components/SidenavHeader';
+import { SidenavSub } from './components/SidenavSub';
+import { SplashScreen } from './components/SplashScreen';
+import { Titlebar } from './components/Titlebar';
+import { ToastContainer } from './components/ToastContainer';
+import { getNavigationConfig } from './config';
+import { CollectionPage } from './pages/CMS/CollectionPage';
+import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
+import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
+import { FathomEmbed } from './pages/embeds';
+import { HomePage } from './pages/Home';
+import { Playground, PlaygroundNavigation } from './pages/playground';
+import { ProfilePage } from './pages/profile/ProfilePage';
+import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
+import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
+import { SignIn, SignOut } from './pages/SignIn';
+import { TeamPage } from './pages/teams/TeamPage';
+import { TeamsNav } from './pages/teams/TeamsNav';
+import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
+import { useAppSelector } from './redux/hooks';
+import { db } from './utils/axios/db';
+import { theme as themeC, themeType } from './utils/theme/theme';
 
 // configure axios global settings
 configure({ axios: db });
@@ -42,7 +43,6 @@ export interface IGridCols {
 }
 
 function App() {
-  const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
@@ -50,6 +50,12 @@ function App() {
     withCredentials: true,
     method: 'GET',
   });
+
+  const [theme, setTheme] = useState(
+    themeC(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  );
+
+  console.log(theme);
 
   const [gridCols, setGridCols] = useState({ side: 79, sideSub: 300 });
 
@@ -73,10 +79,8 @@ function App() {
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
-  console.log(user, loadingUser, errorUser);
-
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <ToastContainer />
       <Router basename={process.env.PUBLIC_URL || undefined}>
         <SplashScreen
@@ -145,6 +149,7 @@ function App() {
                             element={<ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
                           />
                           <Route path={`/teams/*`} element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />} />
+                          <Route path={`/playground`} element={<PlaygroundNavigation />} />
                         </Routes>
                       </SidenavSub>
                     </SideNavs>
@@ -161,6 +166,7 @@ function App() {
                       <Route path={`/profile`} element={<PageHead title={`Profiles`} />} />
                       <Route path={`/teams/:team_id`} element={<TeamPage />} />
                       <Route path={`/teams`} element={<TeamsOverviewPage />} />
+                      <Route path={`/playground`} element={<Playground setTheme={setTheme} />} />
                       <Route
                         path={`/embed/fathom`}
                         element={<FathomEmbed gridCols={gridCols} setGridCols={setGridCols} />}
@@ -186,7 +192,7 @@ function App() {
           }
         ></SplashScreen>
       </Router>
-    </>
+    </ThemeProvider>
   );
 }
 

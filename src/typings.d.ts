@@ -11,3 +11,8 @@ declare module 'html2pdf.js' {
   const html2pdf;
   export = html2pdf;
 }
+
+declare module 'graphiql-explorer' {
+  var GraphiQLExplorer: any;
+  export = GraphiQLExplorer;
+}
