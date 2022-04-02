@@ -39,7 +39,6 @@ const ManageChanges = Extension.create({
           if (!range) {
             range = { from: state.selection.from, to: state.selection.to };
           }
-          let newRangeTo = range.to;
 
           // get the nodes inside the range, and store needed info inside the nodes array
           let evaluatedPosition = range.from;
@@ -65,18 +64,15 @@ const ManageChanges = Extension.create({
                   node.from + (node.pilcrowPosition || 0) + rangeChange,
                   node.from + (node.pilcrowPosition || 0) + 1 + rangeChange
                 ); // delete pilcrow
-                newRangeTo--;
                 rangeChange--;
               }
               if (node.marks[i].type.name === 'deletion' && node.pilcrowPosition !== (-1 || undefined)) {
                 tr.join(node.from + (node.pilcrowPosition || 0) + 2 + rangeChange); // join the two paragraphs
-                newRangeTo -= 2;
                 rangeChange -= 2;
                 tr.delete(
                   node.from + (node.pilcrowPosition || 0) + rangeChange + 2,
                   node.from + (node.pilcrowPosition || 0) + 1 + rangeChange + 2
                 ); // delete pilcrow
-                newRangeTo--;
                 rangeChange--;
               }
             }
@@ -86,8 +82,7 @@ const ManageChanges = Extension.create({
           nodes.forEach((node) => {
             for (let i = 0; i < node.marks.length; i++) {
               if (node.marks[i].type.name === 'addition') {
-                // @ts-expect-error (ts doesn't like range.from for some reason)
-                tr.removeMark(range.from, newRangeTo, node.marks[i].type);
+                tr.removeMark(node.from, node.to, node.marks[i].type);
               } else if (node.marks[i].type.name === 'deletion') {
                 tr.deleteRange(node.from, node.to);
               }
