@@ -155,7 +155,9 @@ const ManageChanges = Extension.create({
           while (nextChangeNode === undefined) {
             if (range.to + 10 >= docSize) {
               nextChangeNode = null;
+              return false;
             }
+
             const closeTextNodes = getTextNodes(
               { from: range.to, to: range.to + 10 > docSize ? docSize : range.to + 10 },
               tr
