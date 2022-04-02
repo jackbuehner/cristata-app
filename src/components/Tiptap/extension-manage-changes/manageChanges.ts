@@ -56,35 +56,37 @@ const ManageChanges = Extension.create({
           }
 
           // convert pilcrows
-          let rangeChange = 0;
+          let rangeDisplacement = 0; // keep track of the displacement of nodes after deleting nodes
           nodes.forEach((node) => {
             for (let i = 0; i < node.marks.length; i++) {
               if (node.marks[i].type.name === 'addition' && node.pilcrowPosition !== (-1 || undefined)) {
                 tr.delete(
-                  node.from + (node.pilcrowPosition || 0) + rangeChange,
-                  node.from + (node.pilcrowPosition || 0) + 1 + rangeChange
+                  node.from + (node.pilcrowPosition || 0) + rangeDisplacement,
+                  node.from + (node.pilcrowPosition || 0) + 1 + rangeDisplacement
                 ); // delete pilcrow
-                rangeChange--;
+                rangeDisplacement--;
               }
               if (node.marks[i].type.name === 'deletion' && node.pilcrowPosition !== (-1 || undefined)) {
-                tr.join(node.from + (node.pilcrowPosition || 0) + 2 + rangeChange); // join the two paragraphs
-                rangeChange -= 2;
+                tr.join(node.from + (node.pilcrowPosition || 0) + 2 + rangeDisplacement); // join the two paragraphs
+                rangeDisplacement -= 2;
                 tr.delete(
-                  node.from + (node.pilcrowPosition || 0) + rangeChange + 2,
-                  node.from + (node.pilcrowPosition || 0) + 1 + rangeChange + 2
+                  node.from + (node.pilcrowPosition || 0) + rangeDisplacement + 2,
+                  node.from + (node.pilcrowPosition || 0) + 1 + rangeDisplacement + 2
                 ); // delete pilcrow
-                rangeChange--;
+                rangeDisplacement--;
               }
             }
           });
 
           // remove marks
           nodes.forEach((node) => {
+            console.log(node);
             for (let i = 0; i < node.marks.length; i++) {
               if (node.marks[i].type.name === 'addition') {
-                tr.removeMark(node.from, node.to, node.marks[i].type);
+                tr.removeMark(node.from + rangeDisplacement, node.to + rangeDisplacement, node.marks[i].type);
               } else if (node.marks[i].type.name === 'deletion') {
-                tr.deleteRange(node.from, node.to);
+                tr.deleteRange(node.from + rangeDisplacement, node.to + rangeDisplacement);
+                rangeDisplacement -= node.to - node.from;
               }
             }
           });
