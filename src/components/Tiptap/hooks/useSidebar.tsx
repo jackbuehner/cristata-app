@@ -9,7 +9,9 @@ function useSidebar(props?: SidebarProps): ReturnType {
   const [isOpen, setIsOpen] = useState<boolean>(props?.defaults?.isOpen || false);
 
   // manage the content of the sidebar
-  const [content, setContent] = useState<React.ReactNode>(props?.defaults?.content || <p>Sidebar content</p>);
+  const [content, setContent] = useState<React.ReactElement>(
+    props?.defaults?.content || <p>Sidebar content</p>
+  );
 
   // manage the sidebar title
   const [title, setTitle] = useState<string>(props?.defaults?.title || 'Sidebar title');
@@ -24,15 +26,15 @@ interface SidebarProps {
   defaults?: {
     isOpen?: boolean;
     title?: string;
-    content?: React.ReactNode;
+    content?: React.ReactElement;
   };
 }
 
 type ReturnType = [
-  { isOpen: boolean; content: React.ReactNode; title: string },
+  { isOpen: boolean; content: React.ReactElement; title: string },
   {
     setIsOpen: Dispatch<SetStateAction<boolean>>;
-    setContent: Dispatch<SetStateAction<React.ReactNode>>;
+    setContent: Dispatch<SetStateAction<React.ReactElement>>;
     setTitle: Dispatch<SetStateAction<string>>;
   }
 ];

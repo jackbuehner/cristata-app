@@ -1,8 +1,10 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { Editor } from '@tiptap/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { themeType } from '../../../../utils/theme/theme';
 import { SidebarHeader } from './SidebarHeader';
+import { Children, cloneElement } from 'react';
 
 interface I_SIDEBAR {
   theme: themeType;
@@ -36,9 +38,10 @@ interface ISidebar {
   closeFunction?: (params: URLSearchParams) => void;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  children?: React.ReactNode;
+  children?: React.ReactElement;
   header: string;
   setHeader: React.Dispatch<React.SetStateAction<string>>;
+  editor: Editor | null;
 }
 
 function Sidebar(props: ISidebar) {
@@ -58,7 +61,15 @@ function Sidebar(props: ISidebar) {
     <SIDEBAR theme={theme} isOpen={props.isOpen}>
       <SidebarHeader closeFunction={closeFunction}>{props.header}</SidebarHeader>
       <Container>
-        <div>{props.children}</div>
+        <div>
+          {props.children
+            ? Children.map(props.children, (child) => {
+                return cloneElement(child, {
+                  editor: props.editor,
+                });
+              })
+            : null}
+        </div>
       </Container>
     </SIDEBAR>
   );

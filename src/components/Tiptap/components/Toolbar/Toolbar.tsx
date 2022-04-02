@@ -87,7 +87,7 @@ interface IToolbar {
   trackChanges: boolean;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setSidebarContent: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+  setSidebarContent: React.Dispatch<React.SetStateAction<React.ReactElement>>;
   sidebarTitle: string;
   setSidebarTitle: React.Dispatch<React.SetStateAction<string>>;
   actions?: Array<Iaction | null>;

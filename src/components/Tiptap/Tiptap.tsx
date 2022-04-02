@@ -377,6 +377,7 @@ const Tiptap = (props: ITiptap) => {
             setIsOpen={setIsSidebarOpen}
             header={sidebarTitle}
             setHeader={setSidebarTitle}
+            editor={editor}
           >
             {sidebarContent}
           </Sidebar>
