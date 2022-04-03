@@ -1,3 +1,2 @@
-import { Comment } from './comment';
-
-export { Comment };
+export { Comment } from './comment';
+export { CommentPanel } from './CommentPanel';

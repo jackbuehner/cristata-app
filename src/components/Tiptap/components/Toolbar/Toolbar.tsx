@@ -17,6 +17,7 @@ import {
   CommentOff20Regular,
   Database20Regular,
   Apps20Regular,
+  CommentMultiple20Regular,
 } from '@fluentui/react-icons';
 import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
@@ -47,7 +48,7 @@ import { ToolbarRow } from './ToolbarRow';
 import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
-import { Iaction } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { Iaction, ItemDetailsPage } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { tiptapOptions } from '../../../../config';
 import { Select } from '../../../Select';
@@ -59,6 +60,7 @@ import {
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
 } from '../../../../graphql/queries';
 import { useFontFamilyDropdown } from './useCustomDropdown';
+import { CommentPanel } from '../../extension-comment';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -692,12 +694,39 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 } else {
                   props.setIsSidebarOpen(true);
                   props.setSidebarTitle('Document properties');
+                  props.setSidebarContent(<ItemDetailsPage isEmbedded />);
                   params.set('props', '1');
+                  params.set('comments', '0');
                   navigate(pathname + '?' + params.toString() + hash, { replace: true });
                 }
               }}
               isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
-              data-tip={`${props.isSidebarOpen && props.sidebarTitle ? 'Hide' : 'Show'} document properties`}
+              data-tip={`${
+                props.isSidebarOpen && props.sidebarTitle === 'Document properties' ? 'Hide' : 'Show'
+              } document properties`}
+            />
+            <ToolbarMetaIconButton
+              icon={<CommentMultiple20Regular />}
+              color={'neutral'}
+              onClick={() => {
+                if (props.isSidebarOpen && props.sidebarTitle === 'Comments') {
+                  props.setIsSidebarOpen(false);
+                  props.setSidebarTitle('');
+                  params.set('comments', '0');
+                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                } else {
+                  props.setIsSidebarOpen(true);
+                  props.setSidebarTitle('Comments');
+                  props.setSidebarContent(<CommentPanel />);
+                  params.set('props', '0');
+                  params.set('comments', '1');
+                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                }
+              }}
+              isActive={props.isSidebarOpen && props.sidebarTitle === 'Comments'}
+              data-tip={`${
+                props.isSidebarOpen && props.sidebarTitle === 'Comments' ? 'Hide' : 'Show'
+              } comments`}
             />
             {!props.forceMax ? (
               <ToolbarMetaIconButton
@@ -898,15 +927,27 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   editor
                     .chain()
                     .focus()
-                    .setComment(props.user.color, {
-                      name: props.user.name,
-                      photo: props.user.photo,
+                    .setComment({
+                      color: props.user.color,
+                      commenter: {
+                        name: props.user.name,
+                        photo: props.user.photo,
+                      },
                     })
                     .run()
                 }
                 isActive={false}
                 icon={<CommentAdd20Regular />}
-                disabled={props.isDisabled || !editor.can().setComment('', { name: '', photo: '' })}
+                disabled={
+                  props.isDisabled ||
+                  !editor.can().setComment({
+                    color: '',
+                    commenter: {
+                      name: '',
+                      photo: '',
+                    },
+                  })
+                }
               >
                 Comment
               </ToolbarRowButton>
@@ -1000,15 +1041,27 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     editor
                       .chain()
                       .focus()
-                      .setComment(props.user.color, {
-                        name: props.user.name,
-                        photo: props.user.photo,
+                      .setComment({
+                        color: props.user.color,
+                        commenter: {
+                          name: props.user.name,
+                          photo: props.user.photo,
+                        },
                       })
                       .run()
                   }
                   isActive={false}
                   icon={<CommentAdd20Regular />}
-                  disabled={props.isDisabled || !editor.can().setComment('', { name: '', photo: '' })}
+                  disabled={
+                    props.isDisabled ||
+                    !editor.can().setComment({
+                      color: '',
+                      commenter: {
+                        name: '',
+                        photo: '',
+                      },
+                    })
+                  }
                 >
                   Insert Comment
                 </ToolbarRowButton>

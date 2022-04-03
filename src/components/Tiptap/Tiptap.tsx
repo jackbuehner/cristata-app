@@ -10,12 +10,12 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { css, useTheme } from '@emotion/react';
 import { themeType } from '../../utils/theme/theme';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import packageJson from '../../../package.json';
 import { tiptapOptions } from '../../config';
 import { StandardLayout } from './special-components/article/StandardLayout';
-import { Comment } from './extension-comment';
+import { Comment, CommentPanel } from './extension-comment';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import { FullBleedLayout } from './special-components/article/FullBleedLayout';
@@ -26,7 +26,7 @@ import { Toolbar } from './components/Toolbar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
 import { Iaction, ItemDetailsPage } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Noticebar } from './components/Noticebar';
 import { Titlebar } from './components/Titlebar';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
@@ -75,7 +75,8 @@ const Tiptap = (props: ITiptap) => {
   const api = `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}`;
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
-  const { search } = useLocation();
+  const { pathname, search, hash } = useLocation();
+  const navigate = useNavigate();
   const [ydoc, ySettingsMap, providerWebsocket, isConnected] = useY({
     ws: `${api}/hocuspocus/`,
     name: props.docName,
@@ -84,13 +85,14 @@ const Tiptap = (props: ITiptap) => {
   const { observe, width: thisWidth, height: tiptapHieght } = useDimensions(); // monitor the dimensions of the editor
 
   // manage sidebar content
+  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
   const [
     { isOpen: isSidebarOpen, content: sidebarContent, title: sidebarTitle },
     { setIsOpen: setIsSidebarOpen, setContent: setSidebarContent, setTitle: setSidebarTitle },
   ] = useSidebar({
     defaults: {
       // open the sidebar to document properties if the url contains the correct search param
-      isOpen: new URLSearchParams(search).get('props') === '1',
+      isOpen: searchParams.get('props') === '1',
       title: 'Document properties',
       content: <ItemDetailsPage isEmbedded />,
     },
@@ -152,6 +154,19 @@ const Tiptap = (props: ITiptap) => {
       const editor = this as unknown as Editor;
       if (props.html) editor.commands.setContent(props.html);
       onUpdateDelayed(editor);
+    },
+    onSelectionUpdate({ editor }) {
+      const anchorIsInComment = editor.state.selection.$anchor
+        .marks()
+        .some((mark) => mark.type.name === 'comment');
+      if (anchorIsInComment) {
+        setSidebarTitle('Comments');
+        setSidebarContent(<CommentPanel />);
+        setIsSidebarOpen(true);
+        searchParams.set('props', '0');
+        searchParams.set('comments', '1');
+        navigate(pathname + '?' + searchParams.toString() + hash, { replace: true });
+      }
     },
   });
 
