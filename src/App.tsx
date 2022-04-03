@@ -33,6 +33,8 @@ import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
 import { useAppSelector } from './redux/hooks';
 import { db } from './utils/axios/db';
 import { theme as themeC, themeType } from './utils/theme/theme';
+import * as fluentIcons from '@fluentui/react-icons';
+import { isFluentIconComponent } from './utils/isFluentIconComponent';
 
 // configure axios global settings
 configure({ axios: db });
@@ -111,24 +113,16 @@ function App() {
                             element={
                               <>
                                 <SideNavHeading>Content Management System</SideNavHeading>
-                                {getNavigationConfig(authUserState).cms.map((group, index) => {
-                                  // store the group items that are not hidden
-                                  const enabledGroupItems = group.items.filter(
-                                    (item) => item.isHidden !== true
-                                  );
-
-                                  // if there are no visible items, do not show the group
-                                  if (enabledGroupItems.length === 0) return null;
-
-                                  // create the group and its items
+                                {getNavigationConfig('cms', authUserState).map((group, index) => {
                                   return (
                                     <Fragment key={index}>
                                       <SideNavHeading>{group.label}</SideNavHeading>
-                                      {enabledGroupItems.map((item, index) => {
+                                      {group.items.map((item, index) => {
+                                        const Icon = fluentIcons[item.icon];
                                         return (
                                           <SideNavSubButton
                                             key={index}
-                                            Icon={item.icon}
+                                            Icon={isFluentIconComponent(Icon) ? <Icon /> : <span />}
                                             to={item.to}
                                             setIsNavVisibleM={setIsNavVisibleM}
                                           >
@@ -165,10 +159,7 @@ function App() {
                       <Route path={`/teams/:team_id`} element={<TeamPage />} />
                       <Route path={`/teams`} element={<TeamsOverviewPage />} />
                       <Route path={`/playground`} element={<Playground setTheme={setTheme} />} />
-                      <Route
-                        path={`/embed/fathom`}
-                        element={<FathomEmbed gridCols={gridCols} setGridCols={setGridCols} />}
-                      />
+                      <Route path={`/embed/fathom`} element={<FathomEmbed />} />
                       <Route
                         path={`/`}
                         element={

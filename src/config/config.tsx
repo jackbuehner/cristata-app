@@ -1,39 +1,12 @@
-import {
-  Balloon16Regular,
-  BookGlobe24Regular,
-  Chat24Regular,
-  Cookies24Regular,
-  Document24Regular,
-  DocumentOnePage24Regular,
-  DocumentPageBottomRight24Regular,
-  Image24Regular,
-  ImageSearch24Regular,
-  LinkSquare24Regular,
-  News24Regular,
-  PaintBrush24Regular,
-  PersonBoard24Regular,
-  Sport24Regular,
-  Star24Regular,
-  StarEmphasis24Regular,
-} from '@fluentui/react-icons';
+import * as fluentIcons from '@fluentui/react-icons';
 import { client } from '../graphql/client';
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { Paged } from '../interfaces/cristata/paged';
 import { paged } from '../graphql/paged';
-import { store } from '../redux/store';
+import { ImageSearch24Regular, News24Regular, PersonBoard24Regular } from '@fluentui/react-icons';
+import { isObject } from '../utils/isObject';
 import { AuthUserState } from '../redux/slices/authUserSlice';
-
-interface Ifeatures {
-  [key: string]: boolean | { [key: string]: boolean };
-}
-
-const features: Ifeatures = {
-  cms: true,
-  messages: false,
-  profiles: true,
-  teams: true,
-};
 
 interface Ihome {
   recentItems: Array<{
@@ -194,7 +167,7 @@ const home: Ihome = {
 };
 
 interface Inavigation {
-  cms: INavGroup[];
+  [key: string]: INavGroup[];
 }
 
 interface INavGroup {
@@ -204,139 +177,221 @@ interface INavGroup {
 
 interface INavItem {
   label: string;
-  icon: JSX.Element;
+  icon: keyof typeof fluentIcons;
   to: string;
-  isHidden?: boolean;
+  isHidden?: boolean | { notInTeam: string | string[] };
 }
 
-const getNavigationConfig: (state: AuthUserState) => Inavigation = () => ({
-  cms: [
-    {
-      label: `Articles`,
-      items: [
+interface MainNavItem {
+  label: string;
+  icon: keyof typeof fluentIcons;
+  to: string | { first: keyof Inavigation };
+  isHidden?: boolean | { notInTeam: string | string[] };
+  subNav?: 'forceCollapseForRoute' | 'hideMobile';
+}
+
+interface ReturnedMainNavItem extends MainNavItem {
+  icon: keyof typeof fluentIcons;
+  to: string;
+}
+
+function getNavigationConfig(key: 'main', user: AuthUserState): ReturnedMainNavItem[];
+function getNavigationConfig(key: keyof Inavigation, user: AuthUserState): INavGroup[];
+function getNavigationConfig(
+  key: keyof Inavigation | 'main',
+  user: AuthUserState
+): INavGroup[] | ReturnedMainNavItem[] {
+  const navigation: { main: MainNavItem[]; sub: Inavigation } = {
+    main: [
+      { label: 'Home', icon: 'Home32Regular', to: '/', subNav: 'forceCollapseForRoute' },
+      { label: 'CMS', icon: 'ContentView32Regular', to: { first: 'cms' } },
+      { label: 'Teams', icon: 'PeopleTeam28Regular', to: '/teams', subNav: 'hideMobile' },
+      { label: 'Profiles', icon: 'Person32Regular', to: '/profile' },
+      {
+        label: 'API',
+        icon: 'Play24Regular',
+        to: '/playground',
+        isHidden: { notInTeam: '000000000000000000000001' },
+        subNav: 'hideMobile',
+      },
+      {
+        label: 'Analytics',
+        icon: 'DataUsage24Regular',
+        to: '/embed/fathom',
+        isHidden: { notInTeam: '000000000000000000000001' },
+        subNav: 'forceCollapseForRoute',
+      },
+    ],
+    sub: {
+      cms: [
         {
-          label: `In-progress articles`,
-          icon: <DocumentPageBottomRight24Regular />,
-          to: `/cms/collection/articles/in-progress`,
+          label: `Articles`,
+          items: [
+            {
+              label: `In-progress articles`,
+              icon: 'DocumentPageBottomRight24Regular',
+              to: `/cms/collection/articles/in-progress`,
+            },
+            { label: `All articles`, icon: 'DocumentOnePage24Regular', to: `/cms/collection/articles/all` },
+            {
+              label: `News articles (in-progress)`,
+              icon: 'News24Regular',
+              to: `/cms/collection/articles/in-progress?categories=%5B"news"%5D`,
+            },
+            {
+              label: `Opinions (in-progress)`,
+              icon: 'Chat24Regular',
+              to: `/cms/collection/articles/in-progress?categories=%5B"opinion"%5D`,
+            },
+            {
+              label: `Sports articles (in-progress)`,
+              icon: 'Sport24Regular',
+              to: `/cms/collection/articles/in-progress?categories=%5B"sports"%5D`,
+            },
+            {
+              label: `Diversity matters articles (in-progress)`,
+              icon: 'Star24Regular',
+              to: `/cms/collection/articles/in-progress?categories=%5B"diversity"%5D`,
+            },
+            {
+              label: `Arts articles (in-progress)`,
+              icon: 'PaintBrush24Regular',
+              to: `/cms/collection/articles/in-progress?categories=%5B"arts"%5D`,
+            },
+            {
+              label: `Campus & culture articles (in-progress)`,
+              icon: 'Balloon16Regular',
+              to: `/cms/collection/articles/in-progress?categories=%5B"campus-culture"%5D`,
+            },
+          ],
         },
-        { label: `All articles`, icon: <DocumentOnePage24Regular />, to: `/cms/collection/articles/all` },
         {
-          label: `News articles (in-progress)`,
-          icon: <News24Regular />,
-          to: `/cms/collection/articles/in-progress?categories=%5B"news"%5D`,
+          label: `Photos`,
+          items: [
+            {
+              label: `Unfulfilled photo requests`,
+              icon: 'ImageSearch24Regular',
+              to: `/cms/collection/photo-requests/unfulfilled`,
+            },
+            {
+              label: `All photo requests`,
+              icon: 'ImageSearch24Regular',
+              to: `/cms/collection/photo-requests/all`,
+            },
+            {
+              label: `Photo library`,
+              icon: 'Image24Regular',
+              to: `/cms/photos/library`,
+            },
+          ],
         },
         {
-          label: `Opinions (in-progress)`,
-          icon: <Chat24Regular />,
-          to: `/cms/collection/articles/in-progress?categories=%5B"opinion"%5D`,
+          label: `Satire`,
+          items: [
+            {
+              label: `In-progress satire`,
+              icon: 'DocumentPageBottomRight24Regular',
+              to: `/cms/collection/satire/in-progress`,
+            },
+            {
+              label: `All satire`,
+              icon: 'Cookies24Regular',
+              to: `/cms/collection/satire/all`,
+            },
+          ],
         },
         {
-          label: `Sports articles (in-progress)`,
-          icon: <Sport24Regular />,
-          to: `/cms/collection/articles/in-progress?categories=%5B"sports"%5D`,
+          label: `The Royal Flush`,
+          items: [
+            {
+              label: `(T)Issues`,
+              icon: 'Document24Regular',
+              to: `/cms/collection/flush`,
+              isHidden: { notInTeam: ['000000000000000000000001', '000000000000000000000009'] },
+            },
+          ],
         },
         {
-          label: `Diversity matters articles (in-progress)`,
-          icon: <Star24Regular />,
-          to: `/cms/collection/articles/in-progress?categories=%5B"diversity"%5D`,
+          label: `Short URLs`,
+          items: [
+            {
+              label: `flusher.page`,
+              icon: 'BookGlobe24Regular',
+              to: `/cms/collection/shorturl`,
+              isHidden: { notInTeam: ['000000000000000000000001', '000000000000000000000008'] },
+            },
+          ],
         },
         {
-          label: `Arts articles (in-progress)`,
-          icon: <PaintBrush24Regular />,
-          to: `/cms/collection/articles/in-progress?categories=%5B"arts"%5D`,
-        },
-        {
-          label: `Campus & culture articles (in-progress)`,
-          icon: <Balloon16Regular />,
-          to: `/cms/collection/articles/in-progress?categories=%5B"campus-culture"%5D`,
+          label: `Configuration`,
+          items: [
+            {
+              label: `Featured articles`,
+              icon: 'StarEmphasis24Regular',
+              to: `/cms/item/featured-settings/6101da4a5386ae9ea3147f17`,
+              isHidden: { notInTeam: '000000000000000000000001' },
+            },
+            {
+              label: `Social media articles (LIFT)`,
+              icon: 'LinkSquare24Regular',
+              to: `/cms/item/social-articles/615ff1210e3e31a22a3c5746`,
+              isHidden: { notInTeam: ['000000000000000000000001', '000000000000000000000007'] },
+            },
+          ],
         },
       ],
     },
-    {
-      label: `Photos`,
-      items: [
-        {
-          label: `Unfulfilled photo requests`,
-          icon: <ImageSearch24Regular />,
-          to: `/cms/collection/photo-requests/unfulfilled`,
-        },
-        {
-          label: `All photo requests`,
-          icon: <ImageSearch24Regular />,
-          to: `/cms/collection/photo-requests/all`,
-        },
-        {
-          label: `Photo library`,
-          icon: <Image24Regular />,
-          to: `/cms/photos/library`,
-        },
-      ],
-    },
-    {
-      label: `Satire`,
-      items: [
-        {
-          label: `In-progress satire`,
-          icon: <DocumentPageBottomRight24Regular />,
-          to: `/cms/collection/satire/in-progress`,
-        },
-        {
-          label: `All satire`,
-          icon: <Cookies24Regular />,
-          to: `/cms/collection/satire/all`,
-        },
-      ],
-    },
-    {
-      label: `The Royal Flush`,
-      items: [
-        {
-          label: `(T)Issues`,
-          icon: <Document24Regular />,
-          to: `/cms/collection/flush`,
-          isHidden: !['000000000000000000000001', '000000000000000000000009'].some((team) =>
-            store.getState().authUser.teams.includes(team)
-          ),
-        },
-      ],
-    },
-    {
-      label: `Short URLs`,
-      items: [
-        {
-          label: `flusher.page`,
-          icon: <BookGlobe24Regular />,
-          to: `/cms/collection/shorturl`,
-          isHidden: !['000000000000000000000001', '000000000000000000000008'].some((team) =>
-            store.getState().authUser.teams.includes(team)
-          ),
-        },
-      ],
-    },
-    {
-      label: `Configuration`,
-      items: [
-        {
-          label: `Featured articles`,
-          icon: <StarEmphasis24Regular />,
-          to: `/cms/item/featured-settings/6101da4a5386ae9ea3147f17`,
-          isHidden: !['000000000000000000000001'].some((team) =>
-            store.getState().authUser.teams.includes(team)
-          ),
-        },
-        {
-          label: `Social media articles (LIFT)`,
-          icon: <LinkSquare24Regular />,
-          to: `/cms/item/social-articles/615ff1210e3e31a22a3c5746`,
-          isHidden: !['000000000000000000000001', '000000000000000000000007'].some((team) =>
-            store.getState().authUser.teams.includes(team)
-          ),
-        },
-      ],
-    },
-  ],
-});
+  };
+
+  // filter out hidden group items
+  const filterHidden = (groups: INavGroup[] | undefined): INavGroup[] => {
+    if (!groups) return [];
+    return groups
+      .map((group) => {
+        // store the group items that are not hidden
+        const enabledGroupItems = group.items.filter((item) => {
+          if (isObject(item.isHidden)) {
+            if (typeof item.isHidden.notInTeam === 'string') {
+              return user.teams.includes(item.isHidden.notInTeam);
+            }
+            return item.isHidden.notInTeam.some((team) => user.teams.includes(team));
+          }
+          return item.isHidden !== true;
+        });
+
+        // if there are no visible items, do not show the group
+        if (enabledGroupItems.length === 0) return null;
+
+        // otherwise, return the group
+        return { ...group, items: enabledGroupItems };
+      })
+      .filter((group): group is INavGroup => !!group);
+  };
+
+  // if the key is main, return the items for the main navigation
+  if (key === 'main') {
+    return navigation.main
+      .filter((item): item is Omit<MainNavItem, 'isHidden'> & Pick<ReturnedMainNavItem, 'isHidden'> => {
+        if (isObject(item.isHidden)) {
+          if (typeof item.isHidden.notInTeam === 'string') {
+            return user.teams.includes(item.isHidden.notInTeam);
+          }
+          return item.isHidden.notInTeam.some((team) => user.teams.includes(team));
+        }
+        return item.isHidden !== true;
+      })
+      .map((item): ReturnedMainNavItem => {
+        if (isObject(item.to)) {
+          return { ...item, to: filterHidden(navigation.sub[item.to.first])[0]?.items?.[0]?.to || '/' };
+        }
+        return { ...item, to: item.to };
+      });
+  }
+
+  // return the filtered navigation group
+  return filterHidden(navigation.sub[key]);
+}
 
 export { collections } from './collections';
-export { features, home, getNavigationConfig };
+export { home, getNavigationConfig };
 export type { tiptapOptions } from './collections';

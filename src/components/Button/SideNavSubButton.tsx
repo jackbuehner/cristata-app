@@ -8,7 +8,7 @@ import { themeType } from '../../utils/theme/theme';
 
 function SideNavSubButton(props: {
   children: ReactText;
-  Icon: JSX.Element;
+  Icon: React.ReactElement;
   to?: string;
   setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
 }) {

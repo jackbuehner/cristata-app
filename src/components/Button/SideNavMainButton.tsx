@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css, SerializedStyles, useTheme } from '@emotion/react';
 import Color from 'color';
-import { Dispatch, ReactText, SetStateAction } from 'react';
+import { ReactText } from 'react';
 import { useNavigate } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { Button } from '.';
@@ -13,7 +13,6 @@ function SideNavMainButton(props: {
   to?: string;
   onClick?: () => void;
   cssExtra?: SerializedStyles;
-  setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
 }) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
@@ -55,9 +54,6 @@ function SideNavMainButton(props: {
         }
         if (props.to) {
           navigate(props.to);
-        }
-        if (props.setIsNavVisibleM) {
-          props.setIsNavVisibleM(true);
         }
       }}
       customIcon={

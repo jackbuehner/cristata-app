@@ -3,6 +3,8 @@ import styled from '@emotion/styled/macro';
 import { Dispatch, SetStateAction } from 'react';
 import { useLocation } from 'react-router-dom';
 import { IGridCols } from '../../App';
+import { getNavigationConfig } from '../../config';
+import { useAppSelector } from '../../redux/hooks';
 import { themeType } from '../../utils/theme/theme';
 
 const SidenavSubComponent = styled.div<{
@@ -32,15 +34,20 @@ interface ISubnavSub {
 }
 
 function SidenavSub({ gridCols, children, ...props }: ISubnavSub) {
+  const authUserState = useAppSelector((state) => state.authUser);
   const theme = useTheme() as themeType;
   const location = useLocation();
   const [isNavVisibleM] = props.isNavVisibleM;
+
+  const isCollapsedAtPath: boolean | undefined =
+    getNavigationConfig('main', authUserState).find((item) => item.to === location.pathname)?.subNav ===
+    'forceCollapseForRoute';
 
   return (
     <SidenavSubComponent
       theme={theme}
       gridCols={gridCols}
-      isHome={location.pathname === '/'}
+      isHome={isCollapsedAtPath}
       isNavVisible={isNavVisibleM}
     >
       {children}
