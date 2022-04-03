@@ -262,6 +262,18 @@ function CommentContainer(props: ICommentContainer) {
               </Timestamp>
             </>
           )}
+          <div
+            contentEditable={false}
+            style={{
+              color: theme.color.danger[800],
+              fontFamily: theme.font.detail,
+              fontSize: 13,
+              lineHeight: 1.1,
+              marginTop: 10,
+            }}
+          >
+            This a legacy comment. It is no longer supported. This comment may behave unexpectedly.
+          </div>
         </Card>
       ) : null}
     </NodeViewWrapper>
@@ -291,7 +303,7 @@ const ToggleCardButton = styled(IconButton)`
 
 const Card = styled.div<{ theme: themeType; triggerRect: DOMRect }>`
   position: fixed;
-  background: white;
+  background: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral[theme.mode][200])};
   box-sizing: border-box;
   padding: 12px 16px;
   margin: 0;
@@ -307,6 +319,7 @@ const Card = styled.div<{ theme: themeType; triggerRect: DOMRect }>`
   *::selection {
     background-color: transparent !important;
   }
+  z-index: 99999999;
 `;
 
 const ProfilePhoto = styled.img<{ theme: themeType }>`
