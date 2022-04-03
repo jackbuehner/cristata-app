@@ -93,9 +93,9 @@ const Tiptap = (props: ITiptap) => {
   ] = useSidebar({
     defaults: {
       // open the sidebar to document properties if the url contains the correct search param
-      isOpen: searchParams.get('props') === '1',
-      title: 'Document properties',
-      content: <ItemDetailsPage isEmbedded />,
+      isOpen: searchParams.get('props') === '1' || searchParams.get('comments') === '1',
+      title: searchParams.get('comments') === '1' ? 'Comments' : 'Document properties',
+      content: searchParams.get('comments') === '1' ? <CommentPanel /> : <ItemDetailsPage isEmbedded />,
     },
   });
 
