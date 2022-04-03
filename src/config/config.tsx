@@ -166,26 +166,33 @@ const home: Ihome = {
   ],
 };
 
-interface Inavigation {
-  [key: string]: INavGroup[];
+interface Navigation {
+  main: MainNav;
+  sub: SubNavs;
 }
 
-interface INavGroup {
+interface SubNavs {
+  [key: string]: SubNavGroup[];
+}
+
+interface SubNavGroup {
   label: string;
-  items: INavItem[];
+  items: SubNavItem[];
 }
 
-interface INavItem {
+interface SubNavItem {
   label: string;
   icon: keyof typeof fluentIcons;
   to: string;
   isHidden?: boolean | { notInTeam: string | string[] };
 }
 
+type MainNav = MainNavItem[];
+
 interface MainNavItem {
   label: string;
   icon: keyof typeof fluentIcons;
-  to: string | { first: keyof Inavigation };
+  to: string | { first: keyof SubNavs };
   isHidden?: boolean | { notInTeam: string | string[] };
   subNav?: 'forceCollapseForRoute' | 'hideMobile';
 }
@@ -195,13 +202,13 @@ interface ReturnedMainNavItem extends MainNavItem {
   to: string;
 }
 
-function getNavigationConfig(key: 'main', user: AuthUserState): ReturnedMainNavItem[];
-function getNavigationConfig(key: keyof Inavigation, user: AuthUserState): INavGroup[];
-function getNavigationConfig(
-  key: keyof Inavigation | 'main',
+async function getNavigationConfig(key: 'main', user: AuthUserState): Promise<ReturnedMainNavItem[]>;
+async function getNavigationConfig(key: keyof SubNavs, user: AuthUserState): Promise<SubNavGroup[]>;
+async function getNavigationConfig(
+  key: keyof SubNavs | 'main',
   user: AuthUserState
-): INavGroup[] | ReturnedMainNavItem[] {
-  const navigation: { main: MainNavItem[]; sub: Inavigation } = {
+): Promise<ReturnedMainNavItem[] | SubNavGroup[]> {
+  const navigation: Navigation = {
     main: [
       { label: 'Home', icon: 'Home32Regular', to: '/', subNav: 'forceCollapseForRoute' },
       { label: 'CMS', icon: 'ContentView32Regular', to: { first: 'cms' } },
@@ -344,7 +351,7 @@ function getNavigationConfig(
   };
 
   // filter out hidden group items
-  const filterHidden = (groups: INavGroup[] | undefined): INavGroup[] => {
+  const filterHidden = (groups: SubNavGroup[] | undefined): SubNavGroup[] => {
     if (!groups) return [];
     return groups
       .map((group) => {
@@ -365,7 +372,7 @@ function getNavigationConfig(
         // otherwise, return the group
         return { ...group, items: enabledGroupItems };
       })
-      .filter((group): group is INavGroup => !!group);
+      .filter((group): group is SubNavGroup => !!group);
   };
 
   // if the key is main, return the items for the main navigation
@@ -394,4 +401,5 @@ function getNavigationConfig(
 
 export { collections } from './collections';
 export { home, getNavigationConfig };
+export type { ReturnedMainNavItem, SubNavGroup };
 export type { tiptapOptions } from './collections';

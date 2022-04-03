@@ -16,7 +16,6 @@ import { SidenavSub } from './components/SidenavSub';
 import { SplashScreen } from './components/SplashScreen';
 import { Titlebar } from './components/Titlebar';
 import { ToastContainer } from './components/ToastContainer';
-import { getNavigationConfig } from './config';
 import { CollectionPage } from './pages/CMS/CollectionPage';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
@@ -30,11 +29,11 @@ import { SignIn, SignOut } from './pages/SignIn';
 import { TeamPage } from './pages/teams/TeamPage';
 import { TeamsNav } from './pages/teams/TeamsNav';
 import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
-import { useAppSelector } from './redux/hooks';
 import { db } from './utils/axios/db';
 import { theme as themeC, themeType } from './utils/theme/theme';
 import * as fluentIcons from '@fluentui/react-icons';
 import { isFluentIconComponent } from './utils/isFluentIconComponent';
+import { useNavigationConfig } from './hooks/useNavigationConfig';
 
 // configure axios global settings
 configure({ axios: db });
@@ -45,7 +44,6 @@ export interface IGridCols {
 }
 
 function App() {
-  const authUserState = useAppSelector((state) => state.authUser);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
     baseURL: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}`,
@@ -78,6 +76,9 @@ function App() {
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
+
+  // get the navigation for the cms
+  const [cmsNav] = useNavigationConfig('cms');
 
   return (
     <ThemeProvider theme={theme}>
@@ -113,7 +114,7 @@ function App() {
                             element={
                               <>
                                 <SideNavHeading>Content Management System</SideNavHeading>
-                                {getNavigationConfig('cms', authUserState).map((group, index) => {
+                                {cmsNav?.map((group, index) => {
                                   return (
                                     <Fragment key={index}>
                                       <SideNavHeading>{group.label}</SideNavHeading>

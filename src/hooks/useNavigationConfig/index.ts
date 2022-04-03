@@ -1,0 +1,1 @@
+export { useNavigationConfig } from './useNavigationConfig';
