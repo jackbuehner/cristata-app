@@ -535,7 +535,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // variable with the fs search param
   const fs = new URLSearchParams(search).get('fs');
-  console.log(fs);
 
   // content to only show in fulscreen, unembedded mode once all data has loaded
   const fsWait = !(!props.isEmbedded && fs === 'force' && state.isLoading && !data);

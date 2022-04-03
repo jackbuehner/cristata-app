@@ -55,8 +55,6 @@ function App() {
     themeC(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
   );
 
-  console.log(theme);
-
   const [gridCols, setGridCols] = useState({ side: 79, sideSub: 300 });
 
   /**

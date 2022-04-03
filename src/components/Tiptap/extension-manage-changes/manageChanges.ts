@@ -80,7 +80,6 @@ const ManageChanges = Extension.create({
 
           // remove marks
           nodes.forEach((node) => {
-            console.log(node);
             for (let i = 0; i < node.marks.length; i++) {
               if (node.marks[i].type.name === 'addition') {
                 tr.removeMark(node.from + rangeDisplacement, node.to + rangeDisplacement, node.marks[i].type);
