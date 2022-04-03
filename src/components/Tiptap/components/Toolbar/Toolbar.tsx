@@ -923,7 +923,8 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             ) : null}
             {props.options?.features.comment ? (
               <ToolbarRowButton
-                onClick={() =>
+                onClick={() => {
+                  // insert comment
                   editor
                     .chain()
                     .focus()
@@ -934,8 +935,16 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                         photo: props.user.photo,
                       },
                     })
-                    .run()
-                }
+                    .run();
+
+                  // open comment panel
+                  props.setIsSidebarOpen(true);
+                  props.setSidebarTitle('Comments');
+                  props.setSidebarContent(<CommentPanel />);
+                  params.set('props', '0');
+                  params.set('comments', '1');
+                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                }}
                 isActive={false}
                 icon={<CommentAdd20Regular />}
                 disabled={
@@ -1037,7 +1046,8 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             {props.options?.features.comment ? (
               <>
                 <ToolbarRowButton
-                  onClick={() =>
+                  onClick={() => {
+                    // insert comment
                     editor
                       .chain()
                       .focus()
@@ -1048,8 +1058,16 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                           photo: props.user.photo,
                         },
                       })
-                      .run()
-                  }
+                      .run();
+
+                    // open comment panel
+                    props.setIsSidebarOpen(true);
+                    props.setSidebarTitle('Comments');
+                    props.setSidebarContent(<CommentPanel />);
+                    params.set('props', '0');
+                    params.set('comments', '1');
+                    navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                  }}
                   isActive={false}
                   icon={<CommentAdd20Regular />}
                   disabled={
