@@ -70,6 +70,9 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
 
   priority: 10000, // default: 1000
 
+  // allow this mark to span multiple nodes
+  spanning: true,
+
   /**
    *
    */
@@ -165,38 +168,26 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
             // a slice containing the selected nodes
             const selectionSlice: Slice = state.selection.content();
 
-            // keep track of whether the selection includes the comment so that we do no insert
+            // keep track of whether the selection includes the comment so that we do not insert
             // overlapping comments
             let selectionIncludesComment = false;
             selectionSlice.content.descendants((node) => {
               if (node.marks.some((mark) => mark.type === this.type)) selectionIncludesComment = true;
             });
 
+            // dispatch is undefined when testing whether the command is possible with `can()`
             if (dispatch) {
-              // dispatch is undefined when testing whether the command is possible with `can()`
-
-              // only set the selection as a comment if it contains only one child node (typically a portion of a paragraph)
-              // NOTES:
-              // - only look in the first child node since comments cannot span
-              //   more than one block node)
-              // - only nodes that are children to the first child node will be
-              //   text nodes)
-              // - continuing when the slice contains more than one node would
-              //   cause two block nodes to collapse into one since the
-              //   `replaceSelectionWith` will remove and ends and starts to
-              //   block nodes
-              // - continuing when the slice contains an existing comment would
-              //   result in overlapping comments
-              if (selectionSlice && selectionSlice.content.childCount === 1 && !selectionIncludesComment) {
+              // only insert the comment when the selection does not already include a comment
+              if (selectionSlice && !selectionIncludesComment) {
                 return chain()
                   .setMark(this.type, { uuid: uuidv4(), timestamp: new Date().toISOString(), ...attrs })
                   .run();
               }
             }
 
-            // when the selection slice only contains one child,
+            // when the selection slice does not include another comment,
             // tell tiptap that this command is possible
-            return selectionSlice.content.childCount === 1 && !selectionIncludesComment;
+            return !selectionIncludesComment;
           } catch (error) {
             console.error(error);
             return false;
@@ -204,7 +195,7 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
         },
       unsetComment:
         (position) =>
-        ({ chain, commands, state, tr, dispatch }) => {
+        ({ chain, state }) => {
           const originalPosition = { from: state.selection.from, to: state.selection.to };
           return chain()
             .command(({ tr }) => {
@@ -219,7 +210,7 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
                 return false;
               }
             })
-            .command(({ tr }) => {
+            .command(({ tr, dispatch }) => {
               try {
                 const $anchor = tr.selection.$anchor;
 
@@ -246,7 +237,7 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
                 return false;
               }
             })
-            .command(({ chain }) => {
+            .command(({ chain, dispatch }) => {
               try {
                 if (dispatch) {
                   chain().unsetMark(this.type).setTextSelection(originalPosition).run();
