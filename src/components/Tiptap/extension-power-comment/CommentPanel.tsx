@@ -380,6 +380,7 @@ const Message = styled.div<{ theme: themeType }>`
   color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
   margin: 8px 0 6px 0;
   white-space: break-spaces;
+  word-break: break-word;
 `;
 
 export { CommentPanel };
