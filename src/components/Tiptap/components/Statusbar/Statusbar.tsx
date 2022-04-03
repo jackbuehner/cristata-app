@@ -10,7 +10,7 @@ const StatusbarComponenet = styled.div<{ theme: themeType }>`
   max-width: 100vw;
   padding: 0px 12px;
   height: 24px;
-  border-top: 1px solid rgb(225, 223, 221);
+  border-top: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][theme.mode === 'light' ? 400 : 200]};
   box-sizing: border-box;
   overflow: hidden;
   background-color: ${({ theme }) => theme.color.neutral[theme.mode][100]};

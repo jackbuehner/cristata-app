@@ -17,7 +17,8 @@ const SIDEBAR = styled.div<I_SIDEBAR>`
   height: 100%;
   flex-shrink: 0;
   border-left: 1px solid
-    ${({ theme, isOpen }) => (isOpen ? theme.color.neutral[theme.mode][500] : 'transparent')};
+    ${({ theme, isOpen }) =>
+      isOpen ? theme.color.neutral[theme.mode][theme.mode === 'light' ? 400 : 200] : 'transparent'};
   transition: width 160ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s, opacity 40ms ease;
   overflow-x: hidden;
   overflow-y: hidden;
