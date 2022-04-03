@@ -1,15 +1,10 @@
-import { Mark } from '@tiptap/core';
-import { Editor } from '@tiptap/react';
-import Color from 'color';
-import {
-  Node as ProseMirrorNode,
-  MarkType,
-  Slice,
-  ResolvedPos,
-  Mark as ProseMirrorMark,
-} from 'prosemirror-model';
+import { Node } from '@tiptap/core';
+import { JSONContent, ReactNodeViewRenderer } from '@tiptap/react';
+import { Node as ProsemirrorNode, Slice } from 'prosemirror-model';
 import { TextSelection } from 'prosemirror-state';
+import { CommentContainer } from './CommentContainer';
 import { v4 as uuidv4 } from 'uuid';
+import Color from 'color';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -17,9 +12,7 @@ declare module '@tiptap/core' {
       /**
        * Wrap text nodes in a comment node.
        */
-      setComment: (
-        attrs: Partial<CommentAttrs> & Pick<CommentAttrs, 'color'> & Pick<CommentAttrs, 'commenter'>
-      ) => ReturnType;
+      setLegacyComment: (color: string, commenter: { name: string; photo: string }) => ReturnType;
       /**
        * Remove the comment node included in the selection.
        *
@@ -27,51 +20,24 @@ declare module '@tiptap/core' {
        *
        * This command will expand the selection to include the entiere comment node.
        */
-      unsetComment: (position?: number) => ReturnType;
+      unsetLegacyComment: (position?: number) => ReturnType;
     };
   }
 }
 
-interface CommentStorage {
-  /**
-   * Get the comments in the current document.
-   */
-  comments: Array<{ nodes: ProseMirrorNodeWithComment[]; attrs: CommentAttrs; type: MarkType }>;
-}
-
-interface CommentAttrs {
-  color: string;
-  alpha: number;
-  message: string;
-  timestamp: string;
-  commenter: {
-    name: string;
-    photo: string;
-  };
-  uuid: string;
-}
-
 interface CommentOptions {}
 
-const Comment = Mark.create<CommentOptions, CommentStorage>({
+const Comment = Node.create<CommentOptions>({
   name: 'comment',
 
   // add to 'inline' group
   group: 'inline',
 
-  // renders comments in line with the text
+  // renders comment nodes in line with the text
   inline: true,
-
-  // the cursor at the edges of the mark should be considered within the mark
-  inclusive: true,
 
   // only allow zero or more inline nodes
   content: 'text*',
-
-  priority: 10000, // default: 1000
-
-  // allow this mark to span multiple nodes
-  spanning: true,
 
   /**
    *
@@ -105,6 +71,7 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
         }),
       },
       timestamp: {
+        default: new Date().toISOString(),
         renderHTML: (attributes) => ({
           'data-timestamp': attributes.timestamp,
         }),
@@ -132,6 +99,7 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
         },
       },
       uuid: {
+        default: uuidv4(),
         renderHTML: (attributes) => ({
           'data-uuid': attributes.uuid,
         }),
@@ -161,48 +129,68 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
    */
   addCommands() {
     return {
-      setComment:
-        (attrs: Partial<CommentAttrs> & Pick<CommentAttrs, 'color'> & Pick<CommentAttrs, 'commenter'>) =>
+      setLegacyComment:
+        (color: string, commenter: { name: string; photo: string }) =>
         ({ state, dispatch, chain }) => {
           try {
             // a slice containing the selected nodes
-            const selectionSlice: Slice = state.selection.content();
+            const selectionSlice = state.selection.content();
 
-            // keep track of whether the selection includes the comment so that we do not insert
+            // keep track of whether the selection includes the comment so that we do no insert
             // overlapping comments
             let selectionIncludesComment = false;
             selectionSlice.content.descendants((node) => {
-              if (node.marks.some((mark) => mark.type === this.type)) selectionIncludesComment = true;
+              if (node.type === this.type) selectionIncludesComment = true;
             });
 
-            // dispatch is undefined when testing whether the command is possible with `can()`
             if (dispatch) {
-              // only insert the comment when the selection does not already include a comment
-              if (selectionSlice && !selectionIncludesComment) {
-                return chain()
-                  .setMark(this.type, { uuid: uuidv4(), timestamp: new Date().toISOString(), ...attrs })
-                  .run();
+              // dispatch is undefined when testing whether the command is possible with `can()`
+
+              if (selectionSlice && selectionSlice.content.childCount === 1 && !selectionIncludesComment) {
+                // obtain all text nodes located in the first child node of the slice
+                // NOTES:
+                // - only look in the first child node since comments cannot span
+                //   more than one block node)
+                // - only nodes that are children to the first child node will be
+                //   text nodes)
+                // - continuing when the slice contains more than one node would
+                //   cause two block nodes to collapse into one since the
+                //   `replaceSelectionWith` will remove and ends and starts to
+                //   block nodes
+                // - continuing when the slice contains an existing comment would
+                //   result in overlapping comments
+                const selectionTextNodes = textNodesFromSliceFirstChild(selectionSlice);
+                if (selectionTextNodes) {
+                  // convert text nodes to JSON so they can be inserted into the editor
+                  const textNodeJSON = selectionTextNodes.map((node) =>
+                    node.toJSON()
+                  ) as unknown as JSONContent[];
+                  // delete the current selection and then insert the text nodes
+                  return chain()
+                    .deleteSelection()
+                    .insertContent([{ content: textNodeJSON, type: 'comment', attrs: { color, commenter } }])
+                    .run();
+                }
               }
             }
 
-            // when the selection slice does not include another comment,
+            // when the selection slice only contains one child,
             // tell tiptap that this command is possible
-            return !selectionIncludesComment;
+            return selectionSlice.content.childCount === 1 && !selectionIncludesComment;
           } catch (error) {
             console.error(error);
             return false;
           }
         },
-      unsetComment:
+      unsetLegacyComment:
         (position) =>
-        ({ chain, state }) => {
-          const originalPosition = { from: state.selection.from, to: state.selection.to };
+        ({ chain, commands, state, tr, dispatch }) => {
           return chain()
             .command(({ tr }) => {
               try {
                 // if position is defined, change the the positon (move the cursor)
                 if (position) {
-                  tr.setSelection(TextSelection.create(tr.doc, position));
+                  tr.setSelection(TextSelection.create(state.doc, position));
                 }
                 return true;
               } catch (error) {
@@ -210,37 +198,52 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
                 return false;
               }
             })
-            .command(({ tr, dispatch }) => {
+            .command(({ tr }) => {
               try {
-                const $anchor = tr.selection.$anchor;
-
-                // determine if the selection is contained to a single comment
-                const anchorMarks = $anchor.marks().map((mark) => mark.type);
-                if (anchorMarks.includes(this.type)) {
-                  // ensure the selection only contains the comment
-                  const commentRange = markExtend(
-                    $anchor,
-                    $anchor.marks().find((mark) => mark.type === this.type)!
-                  );
-                  if (commentRange.from <= tr.selection.from && commentRange.to >= tr.selection.to) {
-                    // expand the selection to entire comment
-                    if (dispatch) {
-                      tr.setSelection(TextSelection.create(tr.doc, commentRange.from, commentRange.to));
-                    }
-
-                    return true;
-                  }
-                }
-                return false;
+                // get the parent node, which is the entire comment node if the anchor is inside the comment
+                const parent = tr.selection.$anchor;
+                // check whether the node is a comment node
+                const isComment = parent.node().type.name === this.type.name;
+                return isComment;
               } catch (error) {
                 console.error(error);
                 return false;
               }
             })
-            .command(({ chain, dispatch }) => {
+            .command(({ tr, chain }) => {
               try {
                 if (dispatch) {
-                  chain().unsetMark(this.type).setTextSelection(originalPosition).run();
+                  // dispatch is undefined when testing whether the command is possible with `can()`
+                  // get the entire comment node
+                  const comment = tr.selection.$anchor.parent;
+
+                  // also store the start position of the comment
+                  const start = tr.selection.$anchor.start();
+
+                  // get the text nodes in the comment node
+                  const textNodes: ProsemirrorNode<any>[] = [];
+                  comment.content.descendants((textNode) => {
+                    textNodes.push(textNode);
+                  });
+
+                  // get the type of the node that is the parent of the comment node
+                  // (usually a paragraph)
+                  const parentNodeType = tr.doc.resolve(start).parent.type;
+
+                  // create a new node that matches the new parent type
+                  const newNode = parentNodeType.createAndFill({}, textNodes);
+
+                  // select the entire comment node and delete it
+                  tr.setSelection(TextSelection.near(tr.selection.$anchor));
+                  chain().selectParentNode().deleteSelection().run();
+
+                  if (newNode) {
+                    // replace the empty space left after removing the comment and
+                    // replace it with the slice, which has the text nodes inside
+                    // of the comment node
+                    const slice = new Slice(newNode.content, 0, 0);
+                    tr.replace(start - 1, start - 1, slice);
+                  }
                 }
                 return true;
               } catch (error) {
@@ -253,79 +256,55 @@ const Comment = Mark.create<CommentOptions, CommentStorage>({
     };
   },
 
-  addStorage() {
-    return {
-      comments: [],
-    };
-  },
-
-  onUpdate() {
-    this.storage.comments = getAllComments(this.editor as Editor, this.type);
+  addNodeView() {
+    return ReactNodeViewRenderer(CommentContainer);
   },
 });
 
 /**
- * Get all comments.
+ * Get text nodes (recursively) from a slice.
+ * @returns array of TextNodes; null if no nodes in slice
  */
-function getAllComments(editor: Editor, type: MarkType) {
-  const commentMarks: Array<{ nodes: ProseMirrorNodeWithComment[]; attrs: CommentAttrs; type: MarkType }> = [];
-  editor.state.doc.content.descendants((node: ProseMirrorNode, pos: number) => {
-    const containsComment = node.marks.some((mark) => mark.type.name === 'comment');
-    if (containsComment) {
-      const commentAttrs = node.marks.find((mark) => mark.type.name === 'comment')!.attrs;
+function textNodesFromSliceFirstChild(slice: Slice<any>) {
+  /**
+   * Find the text nodes in a slice.
+   */
+  const findTextNodes = (node: ProsemirrorNode<any>) => {
+    const descendants: ProsemirrorNode<any>[] = [];
+    node.descendants((childNode) => {
+      descendants.push(childNode);
+    });
 
-      const linkedCommentIndex = commentMarks.findIndex(({ attrs }) => attrs.uuid === commentAttrs.uuid); // they share same uuid
-      if (linkedCommentIndex !== -1) {
-        commentMarks[linkedCommentIndex] = {
-          attrs: commentAttrs as CommentAttrs,
-          nodes: [...commentMarks[linkedCommentIndex].nodes, Object.assign(node, { pos })],
-          type,
-        };
-      } else {
-        commentMarks.push({ attrs: commentAttrs as CommentAttrs, nodes: [Object.assign(node, { pos })], type });
+    // store any text noted that have been found
+    const TextNodes = descendants.map((childNode) => {
+      // if it is a text node, return it to the TextNodes constant
+      if (childNode.isText) return childNode;
+
+      // if the child is not text and it has children, find the children's text nodes
+      if (childNode.childCount !== 0) {
+        const childDescendants: ProsemirrorNode<any>[] = [];
+        childNode.descendants((childNodeChildren) => {
+          descendants.push(childNodeChildren);
+        });
+        childDescendants.map((child) => findTextNodes(child));
       }
-    }
-  });
-  return commentMarks;
-}
 
-/**
- * Extend the range to include the entire mark.
- *
- * _Adapted from https://discuss.prosemirror.net/t/find-extents-of-a-mark-given-a-selection/344/7_
- */
-function markExtend($start: ResolvedPos, mark: ProseMirrorMark) {
-  let startIndex = $start.index();
-  let endIndex = $start.indexAfter();
-  while (
-    startIndex > 0 &&
-    // must be the same mark type
-    mark.type.isInSet($start.parent.child(startIndex - 1).marks) &&
-    // must have the same attributes
-    $start.parent.child(startIndex - 1).marks.every((m) => m.eq(mark))
-  )
-    startIndex--;
-  while (
-    endIndex < $start.parent.childCount &&
-    // must be the same mark type
-    mark.type.isInSet($start.parent.child(endIndex).marks) &&
-    // must have the same attributes
-    $start.parent.child(endIndex).marks.every((m) => m.eq(mark))
-  )
-    endIndex++;
-  let startPos = $start.start(),
-    endPos = startPos;
-  for (let i = 0; i < endIndex; i++) {
-    let size = $start.parent.child(i).nodeSize;
-    if (i < startIndex) startPos += size;
-    endPos += size;
+      // otherwise return undefined
+      return undefined;
+    });
+
+    return TextNodes.filter((x) => {
+      // filter out undefined values
+      return x !== undefined;
+    }) as unknown as ProsemirrorNode<any>[];
+  };
+
+  // start the function that recursively looks for text nodes
+  if (slice.content.firstChild) {
+    return findTextNodes(slice.content.firstChild);
   }
-  return { from: startPos, to: endPos };
-}
-
-class ProseMirrorNodeWithComment extends ProseMirrorNode {
-  pos!: number;
+  return null;
 }
 
 export { Comment };
-export type { CommentOptions, CommentStorage };
+export type { CommentOptions };

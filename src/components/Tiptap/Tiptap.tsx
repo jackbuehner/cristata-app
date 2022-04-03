@@ -15,7 +15,8 @@ import useDimensions from 'react-cool-dimensions';
 import packageJson from '../../../package.json';
 import { tiptapOptions } from '../../config';
 import { StandardLayout } from './special-components/article/StandardLayout';
-import { Comment, CommentPanel } from './extension-comment';
+import { PowerComment, CommentPanel } from './extension-power-comment';
+import { Comment } from './extension-comment';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import { FullBleedLayout } from './special-components/article/FullBleedLayout';
@@ -118,6 +119,7 @@ const Tiptap = (props: ITiptap) => {
       TextStyle,
       FontFamily,
       FontSize,
+      PowerComment,
       Comment,
       ClassName.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({
@@ -158,7 +160,7 @@ const Tiptap = (props: ITiptap) => {
     onSelectionUpdate({ editor }) {
       const anchorIsInComment = editor.state.selection.$anchor
         .marks()
-        .some((mark) => mark.type.name === 'comment');
+        .some((mark) => mark.type.name === 'powerComment');
       if (anchorIsInComment) {
         setSidebarTitle('Comments');
         setSidebarContent(<CommentPanel />);

@@ -60,7 +60,7 @@ import {
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
 } from '../../../../graphql/queries';
 import { useFontFamilyDropdown } from './useCustomDropdown';
-import { CommentPanel } from '../../extension-comment';
+import { CommentPanel } from '../../extension-power-comment';
 
 const TOOLBAR = styled.div`
   position: relative;

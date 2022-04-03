@@ -9,14 +9,14 @@ import scrollIntoView from 'scroll-into-view-if-needed';
 import { themeType } from '../../../utils/theme/theme';
 import { IconButton } from '../../Button';
 import { TextArea } from '../../TextArea';
-import { CommentStorage } from './comment';
+import { CommentStorage } from './powerComment';
 
 interface CommentPanelProps {
   editor?: Editor | null;
 }
 
 function CommentPanel({ editor }: CommentPanelProps) {
-  const { comments } = editor?.storage.comment as CommentStorage;
+  const { comments } = editor?.storage.powerComment as CommentStorage;
 
   if (editor) {
     return (
@@ -128,7 +128,7 @@ function Comment({ comment, tr, dispatch, state, editor }: CommentProps) {
           return false;
         }
       })
-      .unsetMark('comment')
+      .unsetMark('powerComment')
       .setComment({ ...comment.attrs, message })
       .focus()
       .scrollIntoView()
