@@ -316,6 +316,7 @@ const Tiptap = (props: ITiptap) => {
         <ErrorBoundary fallback={<div>Error loading document content</div>}>
           <div
             css={css`
+              scroll-behavior: smooth;
               overflow: auto;
               width: 100%;
               display: flex;
