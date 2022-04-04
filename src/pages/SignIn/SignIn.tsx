@@ -605,7 +605,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
             <Title theme={theme}>{title}</Title>
             <Reason theme={theme}>{reason}</Reason>
           </div>
-          <Form>{form}</Form>
+          <Form theme={theme}>{form}</Form>
           <Help>{note}</Help>
           <ButtonRow>{buttons}</ButtonRow>
           <Below>{below}</Below>
@@ -718,7 +718,8 @@ const Reason = styled.p<{ theme: themeType }>`
   padding-top: 8px;
 `;
 
-const Form = styled.form`
+const Form = styled.form<{ theme: themeType }>`
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   padding: 24px 0px;
   > *:not(:last-child) {
     margin-bottom: 8px;
