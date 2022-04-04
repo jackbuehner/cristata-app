@@ -15,12 +15,11 @@ function genAvatar(
   size = 120,
   type: 'beam' | 'bauhaus' | 'pixel' | 'marble' | 'ring' | 'sunset' = 'beam'
 ) {
-  const colorHash = new ColorHash({ saturation: 0.6, lightness: 0.8 }); // note that this config is different than the one that picks the user accent color
+  const colorHash = new ColorHash({ saturation: 0.6, lightness: 0.7 }); // note that this config is different than the one that picks the user accent color
 
   const colors = [
     colorHash.hex(id),
     colorHash.hex(id.substr(4, id.length / 2)),
-    colorHash.hex(`${Math.random()}`),
     colorHash.hex(id.substr(id.length / 2, id.length)),
     colorHash.hex(id.split('').reverse().join('')),
   ];
