@@ -39,8 +39,12 @@ function SignIn({ user, loadingUser }: ISignIn) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null); // error message
   const [cred, setCred] = useState<{ username?: string; password?: string }>(); // collection credentials
-  const [newPassCred, setNewPassCred] =
-    useState<{ old?: string; new?: string; newConfirm?: string; hideOld?: true }>();
+  const [newPassCred, setNewPassCred] = useState<{
+    old?: string;
+    new?: string;
+    newConfirm?: string;
+    hideOld?: true;
+  }>();
 
   // always reset locState undefined if username is missing in cred AND the user is not signed in
   // (this component might be loaded to enable 2fa or change a password)
@@ -541,8 +545,8 @@ function SignIn({ user, loadingUser }: ISignIn) {
       <>
         <div style={{ textAlign: 'center' }}>
           {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
-          <p>You haven't created a password for your account!</p>
-          <p>To continue using Cristata, you need to set a password.</p>
+          <p>We migrated to a new account system, but you haven't created a password for your account!</p>
+          <p>To continue using Cristata, we need you to set a password.</p>
           <p>You will receive an email at {user?.email || 'null'} with a link to create a new password.</p>
           <p
             style={{
