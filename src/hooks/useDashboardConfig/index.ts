@@ -1,0 +1,1 @@
+export { useDashboardConfig } from './useDashboardConfig';

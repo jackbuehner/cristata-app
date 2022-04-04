@@ -1,2 +1,2 @@
-export { collections, home } from './config';
+export { collections } from './config';
 export type { tiptapOptions } from './config';

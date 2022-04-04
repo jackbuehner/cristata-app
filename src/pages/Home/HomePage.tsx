@@ -14,13 +14,15 @@ import {
   Checkmark24Regular,
   Document24Regular,
 } from '@fluentui/react-icons';
+import * as fluentIcons from '@fluentui/react-icons';
 import { ItemsRow } from './ItemsRow';
-import { home as homeConfig } from '../../config';
 import { WorkflowStatusCard } from './WorkflowStatusCard';
 import { RecentActivity } from './RecentActivity';
 import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
+import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
+import { useDashboardConfig } from '../../hooks/useDashboardConfig';
 
 function HomePage() {
   const theme = useTheme() as themeType;
@@ -40,6 +42,8 @@ function HomePage() {
   useEffect(() => {
     document.title = `Cristata`;
   }, []);
+
+  const [collectionRowsConfig] = useDashboardConfig('collectionRows');
 
   return (
     <Grid theme={theme}>
@@ -122,7 +126,8 @@ function HomePage() {
           already available. Access these tools by using the sidebar on the left.
         </p>
       </div>
-      {homeConfig.recentItems.map((item, index: number) => {
+      {collectionRowsConfig?.map((item, index: number) => {
+        const Icon = fluentIcons[item.header.icon];
         return (
           <div
             style={{
@@ -132,8 +137,10 @@ function HomePage() {
             }}
             key={index}
           >
-            <HomeSectionHeading icon={item.icon}>{item.label}</HomeSectionHeading>
-            <ItemsRow data={item.data} keys={item.keys} toPrefix={item.toPrefix} isProfile={item.isProfile} />
+            <HomeSectionHeading icon={isFluentIconComponent(Icon) ? <Icon /> : <span />}>
+              {item.header.label}
+            </HomeSectionHeading>
+            <ItemsRow query={item.query} dataKeys={item.dataKeys} arrPath={item.arrPath} to={item.to} />
           </div>
         );
       })}

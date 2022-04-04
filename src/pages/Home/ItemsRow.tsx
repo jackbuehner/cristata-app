@@ -1,63 +1,63 @@
+import { gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import Color from 'color';
 import { DateTime } from 'luxon';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { get as getProperty } from 'object-path';
 import { useNavigate } from 'react-router-dom';
-import { flattenObject } from '../../utils/flattenObject';
+import { Home } from '../../hooks/useDashboardConfig/useDashboardConfig';
+import { genAvatar } from '../../utils/genAvatar';
 import { themeType } from '../../utils/theme/theme';
 
-interface IBaseKeys {
-  name: string;
-  lastModified: string;
-  photo?: string;
-  description?: string;
-  toSuffix: string;
+interface ItemsRowProps {
+  query: Home['collectionRows'][0]['query'];
+  arrPath: Home['collectionRows'][0]['arrPath'];
+  dataKeys: Home['collectionRows'][0]['dataKeys'];
+  to: Home['collectionRows'][0]['to'];
 }
 
-interface IHistoryKeys extends IBaseKeys {
-  history: string;
+function timeToString(timestamp: DateTime): string | null {
+  if (Math.abs(timestamp.diffNow('minutes').minutes) < 1) return 'just now';
+  if (Math.abs(timestamp.diffNow('minutes').minutes) < 3) return 'a few minutes ago';
+  if (Math.abs(timestamp.diffNow('minutes').minutes) < 60) return timestamp.toRelative({ unit: 'minutes' });
+  if (Math.abs(timestamp.diffNow('hours').hours) < 24) return timestamp.toRelative({ unit: 'hours' });
+  if (Math.abs(timestamp.diffNow('days').days) < 30) return timestamp.toRelative({ unit: 'days' });
+  if (Math.abs(timestamp.diffNow('weeks').weeks) < 24) return timestamp.toRelative({ unit: 'weeks' });
+  if (Math.abs(timestamp.diffNow('months').months) < 12) return timestamp.toRelative({ unit: 'months' });
+  if (Math.abs(timestamp.diffNow('months').months) >= 12) return timestamp.toRelative({ unit: 'years' });
+
+  return timestamp.toRelative();
 }
 
-interface IModifiedByKeys extends IBaseKeys {
-  lastModifiedBy: string;
-}
-
-interface IItemsRow {
-  data: () => Promise<Record<string, unknown>[] | undefined>;
-  keys: IHistoryKeys | IModifiedByKeys;
-  toPrefix: string;
-  isProfile?: boolean;
-}
-
-function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
+function ItemsRow(props: ItemsRowProps) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
 
-  const [data, setData] = useState<Record<string, any>[]>();
-  useEffect(() => {
-    dataPromise().then((data) => (data ? setData(data) : null));
-  }, [dataPromise]);
+  const res = useQuery(gql(props.query));
+  const docs = getProperty(res, props.arrPath);
 
-  if (props.isProfile) {
+  if (props.to.idPrefix === '/profile/') {
     return (
       <Row>
-        {data?.map((item: Record<string, any>, index: number) => {
-          // flatten the object
-          item = flattenObject(item);
-
-          // format the date for which this user last signed in
-          const lastSignIn = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
+        {docs?.map((doc: Record<string, any>, index: number) => {
+          const _id = getProperty(doc, props.dataKeys._id);
+          const name = getProperty(doc, props.dataKeys.name)?.replace(' (Provisional)', '');
+          const photo = props.dataKeys.photo ? getProperty(doc, props.dataKeys.photo) : undefined;
+          const lastActiveAt = timeToString(DateTime.fromISO(getProperty(doc, props.dataKeys.lastModifiedAt)));
 
           return (
             <Card
               theme={theme}
               key={index}
-              onClick={() => navigate(props.toPrefix + item[props.keys.toSuffix])}
+              onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
             >
-              <Name theme={theme}>{item[props.keys.name]}</Name>
-              <History theme={theme}>Last signed in at {lastSignIn}</History>
+              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <ProfilePhoto theme={theme} src={photo || genAvatar(_id, 44)} />
+                <div>
+                  <Name theme={theme}>{name}</Name>
+                  <History theme={theme}>Last active {lastActiveAt}</History>
+                </div>
+              </div>
             </Card>
           );
         })}
@@ -67,33 +67,21 @@ function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
 
   return (
     <Row>
-      {data?.map((item: Record<string, any>, index: number) => {
-        // flatten the object
-        item = flattenObject(item);
-
-        // get the user id of the last user who modified this item
-        let lastModifiedBy: { name: string } = { name: 'Unknown' };
-        // @ts-expect-error props.keys.history might exist
-        if (props.keys.history) {
-          lastModifiedBy.name =
-            // @ts-expect-error props.keys.history might exist
-            item[props.keys.history]?.[item[props.keys.history]?.length - 1]?.user?.name || 'Unknown';
-        }
-        // @ts-expect-error props.keys.lastModifiedBy might exist
-        else if (props.keys.lastModifiedBy)
-          // @ts-expect-error props.keys.lastModifiedBy might exist
-          lastModifiedBy.name = item[props.keys.lastModifiedBy];
-
-        // format the date for which this item was last modified
-        const lastModifiedAt = DateTime.fromISO(item[props.keys.lastModified]).toFormat(`LLL. dd, yyyy`);
+      {docs?.map((doc: Record<string, any>, index: number) => {
+        const _id = getProperty(doc, props.dataKeys._id);
+        const name = getProperty(doc, props.dataKeys.name);
+        const description = props.dataKeys.description
+          ? getProperty(doc, props.dataKeys.description)
+          : undefined;
+        const photo = props.dataKeys.photo ? getProperty(doc, props.dataKeys.photo) : undefined;
+        const lastModifiedBy = getProperty(doc, props.dataKeys.lastModifiedBy);
+        const lastModifiedAt = timeToString(DateTime.fromISO(getProperty(doc, props.dataKeys.lastModifiedAt)));
 
         return (
-          <Card theme={theme} key={index} onClick={() => navigate(props.toPrefix + item[props.keys.toSuffix])}>
-            {props.keys.photo ? <Photo src={item[props.keys.photo]} theme={theme} /> : null}
-            <Name theme={theme}>{item[props.keys.name]}</Name>
-            {props.keys.description ? (
-              <Description theme={theme}>{item[props.keys.description]}</Description>
-            ) : null}
+          <Card theme={theme} key={index} onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}>
+            {props.dataKeys.photo ? <Photo src={photo} theme={theme} /> : null}
+            <Name theme={theme}>{name}</Name>
+            {description ? <Description theme={theme}>{description}</Description> : null}
             <div
               style={{
                 margin: '10px 10px -4px 10px',
@@ -105,7 +93,7 @@ function ItemsRow({ data: dataPromise, ...props }: IItemsRow) {
               Updated by
             </div>
             <History theme={theme}>
-              {lastModifiedBy.name} • {lastModifiedAt}
+              {lastModifiedBy} • {lastModifiedAt}
             </History>
           </Card>
         );
@@ -123,7 +111,7 @@ const Row = styled.div`
 `;
 
 const Card = styled.div<{ theme: themeType }>`
-  width: 200px;
+  width: 250px;
   box-shadow: ${({ theme }) => `0 0 0 1px ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
   border-radius: ${({ theme }) => theme.radius};
   flex-shrink: 0;
@@ -155,13 +143,41 @@ const Card = styled.div<{ theme: themeType }>`
 `;
 
 const Photo = styled.div<{ src: string; theme: themeType }>`
-  height: 130px;
+  height: 164px;
   width: 100%;
-  background-image: ${({ src }) => `url('${src}')`};
+  background-image: ${({ src }) =>
+    src
+      ? `url('${src}')`
+      : `linear-gradient(
+    135deg,
+    rgba(84, 56, 185, 1) 0%,
+    rgba(59, 64, 172, 1) 60%,
+    rgba(56, 65, 170, 1) 80%,
+    rgba(28, 73, 155, 1) 100%
+  )`};
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   border-radius: ${({ theme }) => `${theme.radius} ${theme.radius} 0 0`};
+`;
+
+const ProfilePhoto = styled.div<{ theme: themeType; src?: string }>`
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-image: ${({ src }) =>
+    src
+      ? `url('${src}')`
+      : `linear-gradient(
+    135deg,
+    rgba(84, 56, 185, 1) 0%,
+    rgba(59, 64, 172, 1) 60%,
+    rgba(56, 65, 170, 1) 80%,
+    rgba(28, 73, 155, 1) 100%
+  )`};
+  background-position: center;
+  background-size: cover;
+  margin: 12px 2px 12px 12px;
 `;
 
 const Name = styled.h3<{ theme: themeType }>`
