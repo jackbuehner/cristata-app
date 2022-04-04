@@ -112,6 +112,8 @@ function RecentActivity() {
               ? 'created'
               : type === 'hidden'
               ? 'removed'
+              : type === 'published'
+              ? 'published'
               : 'modified';
 
           // construct the link to the collection item page
