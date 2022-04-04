@@ -1,9 +1,7 @@
 function isFluentIconComponent(toCheck: unknown): toCheck is React.ComponentType {
   return (
-    (typeof toCheck === 'function' &&
-      (String(toCheck).includes('return react') || String(toCheck).includes('return React')) &&
-      String(toCheck).includes('createElement')) ||
-    String(toCheck).includes('.createElement("svg"')
+    typeof toCheck === 'function' &&
+    (toCheck.name === 'Component' || toCheck.toString().includes('.createElement("span"'))
   );
 }
 
