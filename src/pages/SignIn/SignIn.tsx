@@ -49,7 +49,9 @@ function SignIn({ user, loadingUser }: ISignIn) {
   // always reset locState undefined if username is missing in cred AND the user is not signed in
   // (this component might be loaded to enable 2fa or change a password)
   useEffect(() => {
-    if (!cred?.username && !user && !loadingUser) navigate(pathname + search + hash, { state: {} });
+    if (!cred?.username && !user && !loadingUser) {
+      navigate(pathname + search + hash, { state: {} });
+    }
   }, [cred?.username, hash, navigate, loadingUser, pathname, search, user]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
@@ -87,7 +89,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
    * @param username
    */
   const checkUsername = useCallback(
-    (username: string) => {
+    (username: string, searchParams?: URLSearchParams) => {
       (async () => {
         setError(null);
         setIsLoading(true);
@@ -110,7 +112,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
           });
           // the user can sign in with a password
           if (methodsRes.data?.userMethods.includes('local')) {
-            navigate(pathname + search + hash, {
+            navigate(pathname + (searchParams || search) + hash, {
               state: {
                 username: user ? user.email || user.slug + '@thepaladin.news' : username,
                 step: 'password',
@@ -139,7 +141,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
    * If 2fa code requested, move to 2fa step.
    */
   const signInWithCredentials = useCallback(
-    (pcred: typeof cred = cred) => {
+    (pcred: typeof cred = cred, searchParams?: URLSearchParams) => {
       fetch(`${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/auth/local`, {
         method: 'post',
         credentials: 'include',
@@ -158,10 +160,11 @@ function SignIn({ user, loadingUser }: ISignIn) {
           const json = await res.json();
           if (json.error) setError(json.error);
           else if (json.data) {
+            setError(null);
             // need to change password
             if (json.data.next_step === 'change_password') {
               setNewPassCred({ ...newPassCred, old: pcred?.password, hideOld: true });
-              navigate(pathname + search + hash, {
+              navigate(pathname + (searchParams || search) + hash, {
                 state: {
                   ...locState,
                   step: 'change_password',
@@ -205,6 +208,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
         },
       })
       .then(() => {
+        setError(null);
         navigate(pathname + search + hash, {
           state: {
             ...locState,
@@ -227,7 +231,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
   // and attempt to sign in.
   // NOTE: Username and password must be b64 encoded.
   useEffect(() => {
-    if (search !== '') {
+    if (search !== '' && search !== '?' && locState === null) {
       const searchParams = new URLSearchParams(search);
 
       const username = searchParams.get('ue') || undefined;
@@ -235,22 +239,21 @@ function SignIn({ user, loadingUser }: ISignIn) {
 
       searchParams.delete('ue');
       searchParams.delete('pe');
-      navigate(pathname + searchParams.toString() + hash);
 
       // if username and password are present, attempt to sign in
       if (username && password) {
         setCred({ username: atob(username), password: atob(password) });
-        signInWithCredentials({ username: atob(username), password: atob(password) });
+        signInWithCredentials({ username: atob(username), password: atob(password) }, searchParams);
       }
 
       // if only username is present, only set the username
       // and proceed to the password step
       else if (username) {
         setCred({ username: atob(username) });
-        checkUsername(atob(username));
+        checkUsername(atob(username), searchParams);
       }
     }
-  }, [checkUsername, cred, navigate, locState, search, signInWithCredentials, pathname, hash]);
+  }, [checkUsername, locState, search, signInWithCredentials]);
 
   // set document title
   useEffect(() => {
@@ -411,6 +414,21 @@ function SignIn({ user, loadingUser }: ISignIn) {
       !cred?.password || cred.password.length === 0 ? setError('Enter your password') : signInWithCredentials();
     form = (
       <>
+        {/* hidden username field for accessiblity */}
+        <div style={{ display: 'none' }}>
+          <TextInput
+            lineHeight={'24px'}
+            placeholder={'Username'}
+            value={cred?.username}
+            onChange={(e) => setCred({ ...cred, username: e.currentTarget.value })}
+            onKeyPress={nextOnEnter}
+            id={`username`}
+            name={`username`}
+            autocomplete={`username`}
+            autoFocus
+          />
+        </div>
+        {/* password field */}
         <TextInput
           lineHeight={'24px'}
           placeholder={'Password'}
@@ -454,6 +472,21 @@ function SignIn({ user, loadingUser }: ISignIn) {
         : changePassword();
     form = (
       <>
+        {/* hidden username field for accessiblity */}
+        <div style={{ display: 'none' }}>
+          <TextInput
+            lineHeight={'24px'}
+            placeholder={'Username'}
+            value={cred?.username}
+            onChange={(e) => setCred({ ...cred, username: e.currentTarget.value })}
+            onKeyPress={nextOnEnter}
+            id={`username`}
+            name={`username`}
+            autocomplete={`username`}
+            autoFocus
+          />
+        </div>
+        {/* old password */}
         {newPassCred?.hideOld ? null : (
           <TextInput
             lineHeight={'24px'}
@@ -468,6 +501,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
             autoFocus
           />
         )}
+        {/* new password */}
         <TextInput
           lineHeight={'24px'}
           placeholder={'New password'}
@@ -481,6 +515,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
           autoFocus={!newPassCred?.hideOld}
         />
         <Meter percent={percent} />
+        {/* confirm password */}
         <TextInput
           lineHeight={'24px'}
           placeholder={'Re-type new password'}

@@ -52,7 +52,7 @@ function SplashScreen(props: ISplashScreen) {
     if (props.error) {
       const is403 = props.error.message.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
-      if (is403) {
+      if (is403 && location.pathname.indexOf(`/sign-in`) !== 0) {
         navigate(`/sign-in`);
       }
     }
@@ -68,17 +68,16 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setHas2fa(props.user.two_factor_authentication));
       dispatch(setObjectId(props.user._id));
 
+      // get the location state
+      const locState = location.state as { step?: string } | undefined;
+
       // user needs to change password
-      if (
-        props.user.next_step === 'change_password' ||
-        (location.state as { step?: string })?.step === 'change_password'
-      ) {
+      if (props.user.next_step === 'change_password' && (!locState || locState.step !== 'change_password')) {
         navigate('/sign-in', { state: { username: props.user.email, step: 'change_password' } });
       }
       // user needs to create a password
       else if (!props.user.methods.includes('local')) {
-        const locState = location.state as { step?: string };
-        if (locState.step !== 'migrate_email_sent' && locState.step !== 'migrate_to_local') {
+        if (!locState || (locState.step !== 'migrate_email_sent' && locState.step !== 'migrate_to_local')) {
           navigate('/sign-in', { state: { step: 'migrate_to_local' } });
         }
       }
