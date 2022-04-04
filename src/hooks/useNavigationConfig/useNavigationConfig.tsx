@@ -1,24 +1,93 @@
-import { useEffect, useState } from 'react';
-import { getNavigationConfig } from '../../config';
-import { ReturnedMainNavItem, SubNavGroup } from '../../config/config';
-import { useAppSelector } from '../../redux/hooks';
+import { ApolloError, ApolloQueryResult, DocumentNode, gql, useQuery } from '@apollo/client';
+import { default as fluentIcons } from '@fluentui/react-icons';
 
-function useNavigationConfig(key: 'main'): [ReturnedMainNavItem[] | undefined];
-function useNavigationConfig(key: string): [SubNavGroup[] | undefined];
-function useNavigationConfig(key: string): [SubNavGroup[] | ReturnedMainNavItem[] | undefined] {
-  const authUserState = useAppSelector((state) => state.authUser);
+/**
+ * Gets the navigation config for the specified navigation.
+ *
+ * Specify 'main' to get the main navigation.
+ *
+ * @returns [nav, error, refetch()]
+ */
+function useNavigationConfig(
+  key: 'main'
+): [MainNavItem[] | undefined, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>];
+function useNavigationConfig(
+  key: string
+): [SubNavGroup[] | undefined, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>];
+function useNavigationConfig(
+  key: string
+): [
+  SubNavGroup[] | MainNavItem[] | undefined,
+  ApolloError | undefined,
+  () => Promise<ApolloQueryResult<QueryType>>
+] {
+  const res = useQuery<QueryType>(queryString(key), { fetchPolicy: 'no-cache' });
 
-  const [config, storeConfig] = useState<SubNavGroup[] | ReturnedMainNavItem[] | undefined>();
+  if (key === 'main') {
+    return [res.data?.configuration.navigation.main, res.error, res.refetch];
+  }
 
-  useEffect(() => {
-    async function get() {
-      const res = await getNavigationConfig(key, authUserState);
-      storeConfig(res);
+  return [res.data?.configuration.navigation.sub, res.error, res.refetch];
+}
+
+interface QueryType {
+  configuration: {
+    navigation: {
+      main?: MainNavItem[];
+      sub?: SubNavGroup[];
+    };
+  };
+}
+
+interface MainNavItem {
+  label: string;
+  icon: keyof typeof fluentIcons;
+  to: string;
+  subNav?: 'forceCollapseForRoute' | 'hideMobile';
+}
+
+interface SubNavGroup {
+  label: string;
+  items: Array<{
+    label: string;
+    icon: keyof typeof fluentIcons;
+    to: string;
+  }>;
+}
+
+function queryString(key: string): DocumentNode {
+  if (key === 'main') {
+    return gql`
+      query navigationConfiguration {
+        configuration {
+          navigation {
+            main {
+              label
+              icon
+              to
+              subNav
+            }
+          }
+        }
+      }
+    `;
+  }
+  return gql`
+    query navigationConfiguration {
+      configuration {
+        navigation {
+          sub(key: "${key}") {
+            label
+            items {
+              label
+              icon
+              to
+            }
+          }
+        }
+      }
     }
-    get();
-  }, [authUserState, key]);
-
-  return [config];
+  `;
 }
 
 export { useNavigationConfig };
