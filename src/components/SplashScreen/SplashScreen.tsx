@@ -77,7 +77,10 @@ function SplashScreen(props: ISplashScreen) {
       }
       // user needs to create a password
       else if (!props.user.methods.includes('local')) {
-        navigate('/sign-in', { state: { step: 'migrate_to_local' } });
+        const locState = location.state as { step?: string };
+        if (locState.step !== 'migrate_email_sent' && locState.step !== 'migrate_to_local') {
+          navigate('/sign-in', { state: { step: 'migrate_to_local' } });
+        }
       }
       // redirect to user's desired page if there are not other login steps
       else if (!props.user.next_step) {
