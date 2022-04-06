@@ -47,6 +47,7 @@ interface ISidebar {
   user: {
     name: string;
     color: string;
+    sessionId: string;
     photo: string;
   };
 }

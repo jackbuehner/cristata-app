@@ -18,7 +18,10 @@ declare module '@tiptap/core' {
        * Wrap text nodes in a comment node.
        */
       setComment: (
-        attrs: Partial<CommentAttrs> & Pick<CommentAttrs, 'color'> & Pick<CommentAttrs, 'commenter'>
+        attrs: Partial<CommentAttrs> &
+          Pick<CommentAttrs, 'color'> &
+          Pick<CommentAttrs, 'commenter'> &
+          Pick<CommentAttrs, 'sessionId'>
       ) => ReturnType;
       /**
        * Remove the comment node included in the selection.
@@ -49,6 +52,8 @@ interface CommentAttrs {
     photo: string;
   };
   uuid: string;
+  // the sessionId of the person who created this comment (not synced or saved)
+  sessionId?: string;
   replies: Array<{
     message: string;
     timestamp: string;
@@ -162,6 +167,7 @@ const PowerComment = Mark.create<CommentOptions, CommentStorage>({
           return { replies };
         },
       },
+      sessionId: { default: undefined },
     };
   },
 

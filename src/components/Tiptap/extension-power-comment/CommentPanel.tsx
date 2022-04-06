@@ -27,6 +27,7 @@ interface CommentPanelProps {
   user?: {
     name: string;
     color: string;
+    sessionId: string;
     photo: string;
   };
 }
@@ -46,7 +47,7 @@ function CommentPanel({ editor, user }: CommentPanelProps) {
               state={editor.state}
               editor={editor}
               user={user}
-              key={index}
+              key={comment.attrs.uuid}
             />
           );
         })}
@@ -66,6 +67,7 @@ interface CommentProps {
   user: {
     name: string;
     color: string;
+    sessionId: string;
     photo: string;
   };
 }
@@ -74,9 +76,10 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
   const theme = useTheme() as themeType;
   const cardRef = useRef<HTMLDivElement>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
-
   // control whether in edit mode
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const thisUserJustCreatedThisComment =
+    comment.attrs.sessionId === user.sessionId && comment.attrs.message === '';
+  const [isEditMode, setIsEditMode] = useState<boolean>(thisUserJustCreatedThisComment);
   const [hideReplyButton, setHideReplyButton] = useState<boolean>(false);
 
   // track when the comment is focused
@@ -132,7 +135,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
    * Save the comment message changes to the node attributes
    */
   const saveCommentMessage = () => {
-    editor
+    const saved = editor
       .chain()
       .command((cp) => selectCommentText(cp))
       .unsetMark('powerComment')
@@ -140,6 +143,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
       .focus()
       .scrollIntoView()
       .run();
+    if (saved && message === '' && comment.attrs.replies.length === 0) deleteThread();
   };
 
   /**
@@ -212,6 +216,16 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
     setNewReplyUuid('');
   };
 
+  const deleteThread = () => {
+    editor
+      .chain()
+      .unsetComment(comment.nodes[0].pos + 1)
+      .setTextSelection(state.selection.anchor)
+      .focus()
+      .scrollIntoView()
+      .run();
+  };
+
   // the dropdown for the comment menu
   const [showCommentDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
@@ -237,14 +251,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
               label: 'Delete thread',
               color: 'red',
               icon: <Delete16Regular />,
-              onClick: () =>
-                editor
-                  .chain()
-                  .unsetComment(comment.nodes[0].pos + 1)
-                  .setTextSelection(state.selection.anchor)
-                  .focus()
-                  .scrollIntoView()
-                  .run(),
+              onClick: () => deleteThread(),
             },
           ]}
         />
@@ -296,6 +303,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
               color={'blue'}
               icon={<Dismiss16Regular />}
               onClick={() => {
+                if (message === '' && comment.attrs.replies.length === 0) deleteThread();
                 setIsEditMode(false);
               }}
             />
@@ -348,7 +356,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
           );
         })}
 
-      {hideReplyButton ? (
+      {hideReplyButton || (isEditMode && comment.attrs.replies.length === 0) ? (
         <></>
       ) : (
         <div style={{ marginTop: 10, display: 'flex', justifyContent: 'right', marginRight: -2 }}>

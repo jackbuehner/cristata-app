@@ -83,6 +83,7 @@ interface IToolbar {
   user: {
     name: string;
     color: string;
+    sessionId: string;
     photo: string;
   };
   toggleTrackChanges: () => void;
@@ -934,6 +935,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                         name: props.user.name,
                         photo: props.user.photo,
                       },
+                      sessionId: props.user.sessionId,
                     })
                     .run();
 
@@ -955,6 +957,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                       name: '',
                       photo: '',
                     },
+                    sessionId: props.user.sessionId,
                   })
                 }
               >
@@ -1057,6 +1060,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                           name: props.user.name,
                           photo: props.user.photo,
                         },
+                        sessionId: props.user.sessionId,
                       })
                       .run();
 
@@ -1078,6 +1082,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                         name: '',
                         photo: '',
                       },
+                      sessionId: props.user.sessionId,
                     })
                   }
                 >

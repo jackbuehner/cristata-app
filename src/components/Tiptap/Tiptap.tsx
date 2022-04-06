@@ -306,7 +306,7 @@ const Tiptap = (props: ITiptap) => {
             layouts={{ layout, options: layoutOptions, setLayout }}
             awarenessProfiles={awarenessProfiles}
             tiptapWidth={tiptapWidth}
-            user={props.user}
+            user={{ ...props.user, sessionId: props.sessionId }}
             toggleTrackChanges={toggleTrackChanges}
             trackChanges={trackChanges}
             isSidebarOpen={isSidebarOpen}
@@ -396,7 +396,7 @@ const Tiptap = (props: ITiptap) => {
             header={sidebarTitle}
             setHeader={setSidebarTitle}
             editor={editor}
-            user={props.user}
+            user={{ ...props.user, sessionId: props.sessionId }}
           >
             {sidebarContent}
           </Sidebar>
