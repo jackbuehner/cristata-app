@@ -396,6 +396,7 @@ const Tiptap = (props: ITiptap) => {
             header={sidebarTitle}
             setHeader={setSidebarTitle}
             editor={editor}
+            user={props.user}
           >
             {sidebarContent}
           </Sidebar>

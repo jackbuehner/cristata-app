@@ -44,6 +44,11 @@ interface ISidebar {
   header: string;
   setHeader: React.Dispatch<React.SetStateAction<string>>;
   editor: Editor | null;
+  user: {
+    name: string;
+    color: string;
+    photo: string;
+  };
 }
 
 function Sidebar(props: ISidebar) {
@@ -68,6 +73,7 @@ function Sidebar(props: ISidebar) {
             ? Children.map(props.children, (child) => {
                 return cloneElement(child, {
                   editor: props.editor,
+                  user: props.user,
                 });
               })
             : null}
