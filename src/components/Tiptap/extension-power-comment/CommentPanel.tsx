@@ -1,12 +1,12 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import {
+  ArrowReplyDown16Regular,
   Checkmark16Regular,
   Delete16Regular,
   Dismiss16Regular,
   Edit16Regular,
   MoreHorizontal16Regular,
-  Send16Regular,
 } from '@fluentui/react-icons';
 import { CommandProps, Editor } from '@tiptap/react';
 import { DateTime } from 'luxon';
@@ -360,7 +360,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
         <></>
       ) : (
         <div style={{ marginTop: 10, display: 'flex', justifyContent: 'right', marginRight: -2 }}>
-          <Button height={28} color={'blue'} icon={<Send16Regular />} onClick={() => addNewReply()}>
+          <Button height={28} color={'blue'} icon={<ArrowReplyDown16Regular />} onClick={() => addNewReply()}>
             Reply
           </Button>
         </div>
