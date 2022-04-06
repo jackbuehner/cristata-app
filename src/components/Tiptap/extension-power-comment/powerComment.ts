@@ -56,6 +56,7 @@ interface CommentAttrs {
       name: string;
       photo: string;
     };
+    uuid: string;
   }>;
 }
 
@@ -154,7 +155,10 @@ const PowerComment = Mark.create<CommentOptions, CommentStorage>({
         }),
         parseHTML: (element) => {
           const attr = element.getAttribute('data-replies');
-          const replies = JSON.parse(attr || '[]');
+          const replies = JSON.parse(attr || '[]').filter(
+            (reply: CommentAttrs['replies'][0]) =>
+              !!reply.commenter && !reply.message && !!reply.timestamp && !!reply.uuid
+          );
           return { replies };
         },
       },
