@@ -47,7 +47,7 @@ function CommentPanel({ editor, user }: CommentPanelProps) {
               state={editor.state}
               editor={editor}
               user={user}
-              key={comment.attrs.uuid}
+              key={comment.attrs.uuid + comment.attrs.message}
             />
           );
         })}
@@ -219,7 +219,13 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
   const deleteThread = () => {
     editor
       .chain()
-      .unsetComment(comment.nodes[0].pos + 1)
+      .command(({ commands }) => {
+        const deleted = [];
+        for (let i = 0; i < comment.nodes.length; i++) {
+          deleted.push(commands.unsetComment(comment.nodes[i].pos + 1));
+        }
+        return deleted.every((elem) => elem === true);
+      })
       .setTextSelection(state.selection.anchor)
       .focus()
       .scrollIntoView()
