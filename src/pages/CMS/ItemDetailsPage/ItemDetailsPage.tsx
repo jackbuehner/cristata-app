@@ -49,11 +49,11 @@ import { merge } from 'merge-anything';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { buildFullKey } from '../../../utils/buildFullKey';
 import { isJSON } from '../../../utils/isJSON';
-import { flattenObject } from '../../../utils/flattenObject';
 import { client } from '../../../graphql/client';
 import { isObject } from '../../../utils/isObject';
 import { IField } from '../../../config/collections';
 import { FullScreenSplash } from './FullScreenSplash';
+import { get as getProperty, set as setProperty } from 'object-path';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -170,7 +170,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const title = `${state.isUnsaved ? '*' : ''}${
     collectionConfig?.itemPageTitle
       ? collectionConfig.itemPageTitle(state.fields)
-      : state.fields.name || item_id
+      : getProperty(state.fields, 'name') || item_id
   } - Cristata`;
   useEffect(() => {
     document.title = title;
@@ -244,10 +244,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
       // modify the item in the database
       const config = {
-        mutation: MODIFY_ITEM(
-          item_id,
-          unflattenObject({ ...state.unsavedFields, ...state.tipTapFields, ...extraData })
-        ),
+        mutation: MODIFY_ITEM(item_id, { ...state.unsavedFields, ...state.tipTapFields, ...extraData }),
       };
       return await client
         .mutate(config)
@@ -364,7 +361,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     // get the mandatory watchers
     const mandatoryWatchersKeys = collectionConfig?.mandatoryWatchers;
     const mandatoryWatchers = mandatoryWatchersKeys
-      ?.map((key) => JSON.stringify(state.fields[key]))
+      ?.map((key) => JSON.stringify(getProperty(state.fields, key)))
       .filter((watcher) => watcher !== undefined); // stringify it since it can be either a profile id or a profile object
 
     // set if current user is a mandatory watcher by checking if the user is inside `mandatoryWatchers`
@@ -402,14 +399,16 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const publishStage: number | undefined = collectionConfig?.publishStage;
   const isPublishable = collectionConfig?.isPublishable; // true only if set in config
   const publishLocked =
-    cannotPublish !== false && state.fields.stage === publishStage && isPublishable === true; // if true, lock the publishing capability
+    cannotPublish !== false && getProperty(state.fields, 'stage') === publishStage && isPublishable === true; // if true, lock the publishing capability
 
   // publish confirmation modal
   const [showPublishModal, hidePublishModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [confirm, setConfirm] = useState<string>('');
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [timestamp, setTimestamp] = useState<string>(state.fields['timestamps.published_at'] as string);
+    const [timestamp, setTimestamp] = useState<string>(
+      getProperty(state.fields, 'timestamps.published_at') as string
+    );
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -614,7 +613,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
           // loading
           'Loading...'
         ) : //error
-        error || state.fields.hidden ? (
+        error || getProperty(state.fields, 'hidden') ? (
           <div>
             Error loading.
             <pre>
@@ -628,12 +627,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             // if a field is from a JSON object, unstringify the JSON in the source data
             if (field.from) {
               // check if it is JSON since it may have alreadt been converted
-              if (isJSON(state.fields[field.from])) {
-                const parsed = JSON.parse(state.fields[field.from]);
-                const flatData = flattenObject(data);
-                flatData[field.from] = parsed;
-                const updatedData = unflattenObject(flatData);
-                dispatch(setFields(updatedData));
+              if (isJSON(getProperty(state.fields, field.from))) {
+                const parsed = JSON.parse(getProperty(state.fields, field.from));
+                const copy = { ...data };
+                setProperty(copy, field.from, parsed);
+                dispatch(setFields(copy));
               }
             }
 
@@ -657,11 +655,17 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       value={
                         field.modifyValue
                           ? field.modifyValue(
-                              state.fields[buildFullKey(field.key, field.from, undefined)] as string,
+                              getProperty(
+                                state.fields,
+                                buildFullKey(field.key, field.from, undefined)
+                              ) as string,
                               state.fields,
                               client
                             )
-                          : (state.fields[buildFullKey(field.key, field.from, undefined)] as string) || ''
+                          : (getProperty(
+                              state.fields,
+                              buildFullKey(field.key, field.from, undefined)
+                            ) as string) || ''
                       }
                       onChange={(e) => handleTextChange(e, buildFullKey(field.key, field.from, undefined))}
                       isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
@@ -689,7 +693,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                       type={'checkbox'}
                       name={field.label}
                       id={buildFullKey(field.key, field.from, undefined)}
-                      checked={!!state.fields[buildFullKey(field.key, field.from, undefined)]}
+                      checked={!!getProperty(state.fields, buildFullKey(field.key, field.from, undefined))}
                       onChange={(e) =>
                         handleBooleanChange(
                           e.currentTarget.checked,
@@ -707,9 +711,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
               if (props.isEmbedded) {
                 return null;
               }
-              const isHTML = field.tiptap && field.tiptap.isHTMLkey && state.fields[field.tiptap.isHTMLkey];
+              const isHTML =
+                field.tiptap && field.tiptap.isHTMLkey && getProperty(state.fields, field.tiptap.isHTMLkey);
               const html = isHTML
-                ? (state.fields[buildFullKey(field.key, field.from, undefined)] as string)
+                ? (getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) as string)
                 : undefined;
               return (
                 <ErrorBoundary
@@ -768,14 +773,17 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         isMaximized={fs === '1' || fs === 'force'}
                         forceMax={fs === 'force'}
                         onDebouncedChange={(editorJson: string) => {
-                          if (editorJson !== state.fields[buildFullKey(field.key, field.from, undefined)]) {
+                          if (
+                            editorJson !==
+                            getProperty(state.fields, buildFullKey(field.key, field.from, undefined))
+                          ) {
                             dispatch(
                               setField(editorJson, buildFullKey(field.key, field.from, undefined), 'tiptap')
                             );
                           }
                         }}
                         actions={actions}
-                        layout={state.fields.layout}
+                        layout={getProperty(state.fields, 'layout')}
                         message={
                           publishLocked
                             ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
@@ -809,7 +817,9 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                             ...option,
                             isDisabled: option.isDisabled([
                               `${
-                                state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
+                                getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) as
+                                  | string
+                                  | number
                               }`,
                             ]),
                           };
@@ -821,18 +831,25 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         field.modifyValue
                           ? field.modifyValue(
                               `${
-                                state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
+                                getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) as
+                                  | string
+                                  | number
                               }`,
                               state.fields,
                               client
                             )
-                          : `${state.fields[buildFullKey(field.key, field.from, undefined)] as string | number}`
+                          : `${
+                              getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) as
+                                | string
+                                | number
+                            }`
                       }
                       onChange={(valueObj) =>
                         handleSelectChange(
                           valueObj ? valueObj.value : '',
                           buildFullKey(field.key, field.from, undefined),
-                          typeof state.fields[buildFullKey(field.key, field.from, undefined)] === 'number'
+                          typeof getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) ===
+                            'number'
                             ? 'number'
                             : 'string'
                         )
@@ -866,18 +883,25 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         field.modifyValue
                           ? field.modifyValue(
                               `${
-                                state.fields[buildFullKey(field.key, field.from, undefined)] as string | number
+                                getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) as
+                                  | string
+                                  | number
                               }`,
                               state.fields,
                               client
                             )
-                          : `${state.fields[buildFullKey(field.key, field.from, undefined)] as string | number}`
+                          : `${
+                              getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) as
+                                | string
+                                | number
+                            }`
                       }
                       onChange={(valueObj) =>
                         handleSelectChange(
                           valueObj ? valueObj.value : '',
                           buildFullKey(field.key, field.from, undefined),
-                          typeof state.fields[buildFullKey(field.key, field.from, undefined)] === 'number'
+                          typeof getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) ===
+                            'number'
                             ? 'number'
                             : 'string'
                         )
@@ -891,7 +915,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'multiselect' && (props.isEmbedded || !fs || fs === '0')) {
               const vals = (
-                state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
+                getProperty(
+                  state.fields,
+                  buildFullKey(field.key, field.from, undefined)
+                ) as multiselectValType[]
               )?.map((val) => processValue(val, field));
               return (
                 <ErrorBoundary
@@ -933,7 +960,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'multiselect_async' && (props.isEmbedded || !fs || fs === '0')) {
               const vals = (
-                state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
+                getProperty(
+                  state.fields,
+                  buildFullKey(field.key, field.from, undefined)
+                ) as multiselectValType[]
               )?.map((val) => processValue(val, field));
               return (
                 <ErrorBoundary
@@ -968,7 +998,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
             if (field.type === 'multiselect_creatable' && (props.isEmbedded || !fs || fs === '0')) {
               const val = (
-                state.fields[buildFullKey(field.key, field.from, undefined)] as multiselectValType[]
+                getProperty(
+                  state.fields,
+                  buildFullKey(field.key, field.from, undefined)
+                ) as multiselectValType[]
               )?.map((val) => processValue(val, field));
               return (
                 <ErrorBoundary
@@ -1025,16 +1058,22 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     </Label>
                     <DateTime
                       value={
-                        state.fields[buildFullKey(field.key, field.from, undefined)] ===
+                        getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) ===
                         '0001-01-01T01:00:00.000Z'
                           ? null
                           : field.modifyValue
                           ? field.modifyValue(
-                              state.fields[buildFullKey(field.key, field.from, undefined)] as string,
+                              getProperty(
+                                state.fields,
+                                buildFullKey(field.key, field.from, undefined)
+                              ) as string,
                               state.fields,
                               client
                             )
-                          : (state.fields[buildFullKey(field.key, field.from, undefined)] as string)
+                          : (getProperty(
+                              state.fields,
+                              buildFullKey(field.key, field.from, undefined)
+                            ) as string)
                       }
                       onChange={(date) => {
                         if (date)

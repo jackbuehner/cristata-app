@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { flattenObject } from '../../utils/flattenObject';
+import { set as setProperty } from 'object-path';
 
 type field = any;
 type fields = { [key: string]: field };
@@ -30,7 +30,7 @@ export const cmsItemSlice = createSlice({
      * _This payload is always flattened._
      */
     setFields: (state, action: PayloadAction<fields>) => {
-      state.fields = flattenObject(action.payload);
+      state.fields = action.payload;
       state.unsavedFields = {};
       state.tipTapFields = {};
       state.isUnsaved = false;
@@ -43,8 +43,8 @@ export const cmsItemSlice = createSlice({
       reducer: (state, action: PayloadAction<field, string, { key: string }>) => {
         if (action.type === 'tiptap') state.tipTapFields[action.meta.key] = action.payload;
         else {
-          state.fields[action.meta.key] = action.payload;
-          state.unsavedFields[action.meta.key] = action.payload;
+          setProperty(state.fields, action.meta.key, action.payload);
+          setProperty(state.unsavedFields, action.meta.key, action.payload);
           state.isUnsaved = true;
         }
       },
