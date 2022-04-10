@@ -62,7 +62,8 @@ interface ITiptap {
   options?: tiptapOptions;
   isDisabled?: boolean;
   sessionId: string;
-  onDebouncedChange?: (editorJson: string) => void;
+  onDebouncedChange?: (editorJson: string, currentJsonInState?: string | null) => void;
+  currentJsonInState?: string | null;
   html?: string;
   actions?: Array<Iaction | null>;
   isMaximized?: boolean;
@@ -104,7 +105,7 @@ const Tiptap = (props: ITiptap) => {
     if (props.onDebouncedChange) {
       // get the json for the editor and send it to the parent component via `onChange()`
       const json = JSON.stringify(editor.getJSON().content);
-      props.onDebouncedChange(json);
+      props.onDebouncedChange(json, editor.storage.currentJson);
     }
   }, 1000);
 
@@ -171,6 +172,8 @@ const Tiptap = (props: ITiptap) => {
       }
     },
   });
+
+  if (editor) editor.storage.currentJson = props.currentJsonInState;
 
   const [trackChanges, toggleTrackChanges] = useTrackChanges({ editor, ydoc, ySettingsMap }); // enable track changes management for the document
   useDevTools({ editor }); // show prosemirror developer tools when url query has dev=1

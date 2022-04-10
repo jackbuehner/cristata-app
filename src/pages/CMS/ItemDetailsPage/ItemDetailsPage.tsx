@@ -772,16 +772,19 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         html={html}
                         isMaximized={fs === '1' || fs === 'force'}
                         forceMax={fs === 'force'}
-                        onDebouncedChange={(editorJson: string) => {
-                          if (
-                            editorJson !==
-                            getProperty(state.fields, buildFullKey(field.key, field.from, undefined))
-                          ) {
+                        onDebouncedChange={(editorJson, storedJson) => {
+                          const isDefaultJson = editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
+                          if (!isDefaultJson && storedJson !== null && editorJson !== storedJson) {
                             dispatch(
                               setField(editorJson, buildFullKey(field.key, field.from, undefined), 'tiptap')
                             );
                           }
                         }}
+                        currentJsonInState={
+                          JSON.stringify(state.fields) === '{}'
+                            ? null
+                            : getProperty(state.fields, buildFullKey(field.key, field.from, undefined))
+                        }
                         actions={actions}
                         layout={getProperty(state.fields, 'layout')}
                         message={
