@@ -18,11 +18,20 @@ import {
 import Color from 'color';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
+import pluralize from 'pluralize';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
-import { Checkbox, DateTime, Number, SelectMany, SelectOne, Text } from '../../../components/ContentField';
+import {
+  Checkbox,
+  DateTime,
+  Number,
+  ReferenceMany,
+  SelectMany,
+  SelectOne,
+  Text,
+} from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
 import { Menu } from '../../../components/Menu';
 import { PageHead } from '../../../components/PageHead';
@@ -373,9 +382,55 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
                     // reference
                     if (def.field?.reference?.collection || isTypeTuple(def.type)) {
-                      //TODO: add property for specifying name field (when field is not 'name')
-
                       //TODO: add property for adding filter and sort to the query
+
+                      const isArrayType =
+                        (isTypeTuple(def.type) && Array.isArray(def.type[1])) ||
+                        (!isTypeTuple(def.type) && Array.isArray(def.type));
+
+                      const collection = isTypeTuple(def.type)
+                        ? def.type[0].replace('[', '').replace(']', '')
+                        : def.field!.reference!.collection!;
+
+                      if (isArrayType) {
+                        const rawValues: Record<string, string>[] = (
+                          getProperty(itemState.fields, key) &&
+                          Array.isArray(getProperty(itemState.fields, key))
+                            ? getProperty(itemState.fields, key)
+                            : []
+                        ).filter((s: Record<string, unknown>): s is Record<string, string> =>
+                          Object.keys(s).every(([, value]) => typeof value === 'string')
+                        );
+                        const values: { _id: string; label?: string }[] =
+                          rawValues.map((value) => {
+                            const _id = value?.[def.field?.reference?.fields._id || '_id'];
+                            const label = value?.[def.field?.reference?.fields.name || 'name'];
+                            return { _id, label };
+                          }) || [];
+
+                        return (
+                          <ReferenceMany
+                            label={fieldName}
+                            description={def.field?.description}
+                            values={values}
+                            disabled={loading || !!error}
+                            isEmbedded={props.isEmbedded}
+                            collection={pluralize.singular(collection)}
+                            fields={def.field?.reference?.fields}
+                            onChange={(newValues) => {
+                              if (newValues !== undefined && !readOnly) dispatch(setField(newValues, key));
+                            }}
+                          />
+                        );
+                      }
+
+                      // const value =
+                      //   getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
+                      //     ? (getProperty(itemState.fields, key) as { _id: string; label: string })
+                      //     : getProperty(itemState.fields, key)?._id ||
+                      //       typeof getProperty(itemState.fields, key) === 'string'
+                      //     ? { _id: getProperty(itemState.fields, key) }
+                      //     : undefined;
 
                       return (
                         <Field
@@ -384,6 +439,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                           isEmbedded={props.isEmbedded}
                         >
                           <>
+                            {def.type}
                             <code>{JSON.stringify(getProperty(itemState.fields, key))}</code>
                           </>
                         </Field>

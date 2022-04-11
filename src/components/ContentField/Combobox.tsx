@@ -15,7 +15,9 @@ interface ComboboxProps extends Omit<FieldProps, 'children'> {
   options: Values;
   values?: Values;
   onChange?: (values: Values) => void;
+  onTextChange?: (value: string) => void;
   many?: boolean;
+  notFoundContent?: string;
 }
 
 type Values = StringValue[] | NumberValue[];
@@ -83,7 +85,7 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
         disabled={props.disabled}
         onSelect={onSelect}
         virtual={false}
-        notFoundContent={'No match found. Try a different query.'}
+        notFoundContent={props.notFoundContent || 'No match found. Try a different query.'}
         options={(props.options as StringValue[]).filter((option) => {
           if (props.values) {
             return !props.values.some(({ value }) => value.toString() === option?.value.toString());
@@ -98,7 +100,10 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
               option.value.toString().toLowerCase().includes(lastSearchValue.toLowerCase()))
           );
         }}
-        onSearch={(value) => setLastSearchValue(value)}
+        onSearch={(value) => {
+          setLastSearchValue(value);
+          props.onTextChange?.(value);
+        }}
       />
       <Global
         styles={css`
