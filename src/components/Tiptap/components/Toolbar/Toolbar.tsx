@@ -61,6 +61,7 @@ import {
 } from '../../../../graphql/queries';
 import { useFontFamilyDropdown } from './useCustomDropdown';
 import { CommentPanel } from '../../extension-power-comment';
+import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -96,6 +97,8 @@ interface IToolbar {
   actions?: Array<Iaction | null>;
   forceMax?: boolean;
   options?: tiptapOptions;
+  useNewCollectionItemPage?: boolean;
+  compact?: boolean;
 }
 
 function Toolbar({ editor, isMax, ...props }: IToolbar) {
@@ -598,56 +601,58 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
   return (
     <>
       <TOOLBAR>
-        <ToolbarTabRow theme={theme} width={props.tiptapWidth}>
-          <ToolbarTabList width={props.tiptapWidth}>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'home'}
-              onClick={() => setActiveTab('home')}
-              disabled={props.isDisabled}
-            >
-              Home
-            </ToolbarTabButton>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'insert'}
-              onClick={() => setActiveTab('insert')}
-              disabled={props.isDisabled}
-            >
-              Insert
-            </ToolbarTabButton>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'layout'}
-              onClick={() => setActiveTab('layout')}
-              disabled={props.isDisabled}
-            >
-              Layout
-            </ToolbarTabButton>
-            <ToolbarTabButton
-              theme={theme}
-              color={'neutral'}
-              isActive={activeTab === 'review'}
-              onClick={() => setActiveTab('review')}
-              disabled={props.isDisabled}
-            >
-              Review
-            </ToolbarTabButton>
-            {props.actions ? (
+        <ToolbarTabRow theme={theme} width={props.tiptapWidth} compact={props.compact}>
+          {props.compact ? null : (
+            <ToolbarTabList width={props.tiptapWidth}>
               <ToolbarTabButton
                 theme={theme}
                 color={'neutral'}
-                isActive={activeTab === 'actions'}
-                onClick={() => setActiveTab('actions')}
+                isActive={activeTab === 'home'}
+                onClick={() => setActiveTab('home')}
                 disabled={props.isDisabled}
               >
-                Actions
+                Home
               </ToolbarTabButton>
-            ) : null}
-          </ToolbarTabList>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'insert'}
+                onClick={() => setActiveTab('insert')}
+                disabled={props.isDisabled}
+              >
+                Insert
+              </ToolbarTabButton>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'layout'}
+                onClick={() => setActiveTab('layout')}
+                disabled={props.isDisabled}
+              >
+                Layout
+              </ToolbarTabButton>
+              <ToolbarTabButton
+                theme={theme}
+                color={'neutral'}
+                isActive={activeTab === 'review'}
+                onClick={() => setActiveTab('review')}
+                disabled={props.isDisabled}
+              >
+                Review
+              </ToolbarTabButton>
+              {props.actions ? (
+                <ToolbarTabButton
+                  theme={theme}
+                  color={'neutral'}
+                  isActive={activeTab === 'actions'}
+                  onClick={() => setActiveTab('actions')}
+                  disabled={props.isDisabled}
+                >
+                  Actions
+                </ToolbarTabButton>
+              ) : null}
+            </ToolbarTabList>
+          )}
 
           <ToolbarMeta>
             <div
@@ -683,52 +688,62 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 );
               })}
             </div>
-            <ToolbarMetaIconButton
-              icon={<Database20Regular />}
-              color={'neutral'}
-              onClick={() => {
-                if (props.isSidebarOpen && props.sidebarTitle === 'Document properties') {
-                  props.setIsSidebarOpen(false);
-                  props.setSidebarTitle('');
-                  params.set('props', '0');
-                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
-                } else {
-                  props.setIsSidebarOpen(true);
-                  props.setSidebarTitle('Document properties');
-                  props.setSidebarContent(<ItemDetailsPage isEmbedded />);
-                  params.set('props', '1');
-                  params.set('comments', '0');
-                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
-                }
-              }}
-              isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
-              data-tip={`${
-                props.isSidebarOpen && props.sidebarTitle === 'Document properties' ? 'Hide' : 'Show'
-              } document properties`}
-            />
-            <ToolbarMetaIconButton
-              icon={<CommentMultiple20Regular />}
-              color={'neutral'}
-              onClick={() => {
-                if (props.isSidebarOpen && props.sidebarTitle === 'Comments') {
-                  props.setIsSidebarOpen(false);
-                  props.setSidebarTitle('');
-                  params.set('comments', '0');
-                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
-                } else {
-                  props.setIsSidebarOpen(true);
-                  props.setSidebarTitle('Comments');
-                  props.setSidebarContent(<CommentPanel />);
-                  params.set('props', '0');
-                  params.set('comments', '1');
-                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
-                }
-              }}
-              isActive={props.isSidebarOpen && props.sidebarTitle === 'Comments'}
-              data-tip={`${
-                props.isSidebarOpen && props.sidebarTitle === 'Comments' ? 'Hide' : 'Show'
-              } comments`}
-            />
+            {props.compact ? null : (
+              <>
+                <ToolbarMetaIconButton
+                  icon={<Database20Regular />}
+                  color={'neutral'}
+                  onClick={() => {
+                    if (props.isSidebarOpen && props.sidebarTitle === 'Document properties') {
+                      props.setIsSidebarOpen(false);
+                      props.setSidebarTitle('');
+                      params.set('props', '0');
+                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                    } else {
+                      props.setIsSidebarOpen(true);
+                      props.setSidebarTitle('Document properties');
+                      props.setSidebarContent(
+                        props.useNewCollectionItemPage ? (
+                          <CollectionItemPage isEmbedded />
+                        ) : (
+                          <ItemDetailsPage isEmbedded />
+                        )
+                      );
+                      params.set('props', '1');
+                      params.set('comments', '0');
+                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                    }
+                  }}
+                  isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
+                  data-tip={`${
+                    props.isSidebarOpen && props.sidebarTitle === 'Document properties' ? 'Hide' : 'Show'
+                  } document properties`}
+                />
+                <ToolbarMetaIconButton
+                  icon={<CommentMultiple20Regular />}
+                  color={'neutral'}
+                  onClick={() => {
+                    if (props.isSidebarOpen && props.sidebarTitle === 'Comments') {
+                      props.setIsSidebarOpen(false);
+                      props.setSidebarTitle('');
+                      params.set('comments', '0');
+                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                    } else {
+                      props.setIsSidebarOpen(true);
+                      props.setSidebarTitle('Comments');
+                      props.setSidebarContent(<CommentPanel />);
+                      params.set('props', '0');
+                      params.set('comments', '1');
+                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                    }
+                  }}
+                  isActive={props.isSidebarOpen && props.sidebarTitle === 'Comments'}
+                  data-tip={`${
+                    props.isSidebarOpen && props.sidebarTitle === 'Comments' ? 'Hide' : 'Show'
+                  } comments`}
+                />
+              </>
+            )}
             {!props.forceMax ? (
               <ToolbarMetaIconButton
                 onClick={() => {
@@ -742,312 +757,188 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             ) : null}
           </ToolbarMeta>
         </ToolbarTabRow>
-        <ToolbarActionRowContainer theme={theme}>
-          <ToolbarRow isActive={activeTab === 'home'}>
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().undo().run()}
-              icon={<BackIcon />}
-              disabled={props.isDisabled || !editor.can().undo()}
-              isActive={false}
-              data-tip={'Undo'}
-            />
-            <ToolbarRowIconButton
-              onClick={() => editor.chain().focus().redo().run()}
-              icon={<RedoIcon />}
-              disabled={props.isDisabled || !editor.can().redo()}
-              isActive={false}
-              data-tip={'Redo'}
-            />
-            <ToolbarDivider />
-            <Combobox
-              onClick={showFontFamilyDropdown}
-              color={'neutral'}
-              disabled={
-                props.isDisabled ||
-                !editor.can().setFontFamily('Georgia') ||
-                (props.options?.features.fontFamilies || []).length === 0
-              }
-              width={`128px`}
-              cssContainerExtra={css`
-                padding-right: 0;
-              `}
-              cssExtra={css`
-                border-top-right-radius: 0 !important;
-                border-bottom-right-radius: 0 !important;
-              `}
-            >
-              {editor.getAttributes('textStyle').fontFamily || 'Georgia'}
-            </Combobox>
-            <Combobox
-              onClick={showFontSizeDropdown}
-              color={'neutral'}
-              disabled={props.isDisabled || (props.options?.features.fontSizes || []).length === 0}
-              width={`52px`}
-              cssContainerExtra={css`
-                padding-left: 0;
-              `}
-              cssExtra={css`
-                border-top-left-radius: 0 !important;
-                border-bottom-left-radius: 0 !important;
-                margin-left: -1px;
-              `}
-            >
-              {editor.getAttributes('textStyle').fontSize || '17px'}
-            </Combobox>
-            {props.options?.features.bold ? (
+        {props.compact ? null : (
+          <ToolbarActionRowContainer theme={theme}>
+            <ToolbarRow isActive={activeTab === 'home'}>
               <ToolbarRowIconButton
-                onClick={() => editor.chain().toggleBold().run()}
-                isActive={editor.isActive('bold')}
-                icon={<BoldIcon />}
-                disabled={props.isDisabled || !editor.can().toggleBold()}
-                data-tip={'Bold'}
+                onClick={() => editor.chain().focus().undo().run()}
+                icon={<BackIcon />}
+                disabled={props.isDisabled || !editor.can().undo()}
+                isActive={false}
+                data-tip={'Undo'}
               />
-            ) : null}
-            {props.options?.features.italic ? (
               <ToolbarRowIconButton
-                onClick={() => editor.chain().focus().toggleItalic().run()}
-                isActive={editor.isActive('italic')}
-                icon={<ItalicsIcon />}
-                disabled={props.isDisabled || !editor.can().toggleItalic()}
-                data-tip={'Italic'}
+                onClick={() => editor.chain().focus().redo().run()}
+                icon={<RedoIcon />}
+                disabled={props.isDisabled || !editor.can().redo()}
+                isActive={false}
+                data-tip={'Redo'}
               />
-            ) : null}
-            {props.options?.features.underline ? (
-              <ToolbarRowIconButton
-                onClick={() => editor.chain().focus().toggleUnderline().run()}
-                isActive={editor.isActive('underline')}
-                icon={<UnderlineIcon />}
-                disabled={props.isDisabled || !editor.can().toggleUnderline()}
-                data-tip={'Underline'}
-              />
-            ) : null}
-            {props.options?.features.strike ? (
-              <ToolbarRowIconButton
-                onClick={() => editor.chain().focus().toggleStrike().run()}
-                isActive={editor.isActive('strike')}
-                icon={<StrikeIcon />}
-                disabled={props.isDisabled || !editor.can().toggleStrike()}
-                data-tip={'Strikethrough'}
-              />
-            ) : null}
-            {props.options?.features.code ? (
-              <ToolbarRowIconButton
-                onClick={() => editor.chain().focus().toggleCode().run()}
-                isActive={editor.isActive('code')}
-                icon={<Code20Regular />}
-                disabled={props.isDisabled || !editor.can().toggleCode()}
-                data-tip={'Code'}
-              />
-            ) : null}
-            <ToolbarDivider />
-            {props.options?.features.bulletList ? (
-              <ToolbarRowIconButton
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                isActive={editor.isActive('bulletList')}
-                icon={<TextBulletListLtr20Regular />}
-                disabled={props.isDisabled || !editor.can().toggleBulletList()}
-                data-tip={'Bullets'}
-              />
-            ) : null}
-            {props.options?.features.orderedList ? (
-              <ToolbarRowIconButton
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                isActive={editor.isActive('orderedList')}
-                icon={<TextNumberListLtr20Regular />}
-                disabled={props.isDisabled || !editor.can().toggleOrderedList()}
-                data-tip={'Numbering'}
-              />
-            ) : null}
-            <ToolbarDivider />
-            {props.options?.features.textStylePicker ? (
+              <ToolbarDivider />
               <Combobox
-                onClick={showTextStyleDropdown}
+                onClick={showFontFamilyDropdown}
                 color={'neutral'}
-                width={`128px`}
-                disabled={props.isDisabled}
-              >
-                {
-                  // show the correct style name
-                  editor.isActive('heading', { level: 1 }) ? (
-                    <h1>Heading 1</h1>
-                  ) : editor.isActive('heading', { level: 2 }) ? (
-                    <h2>Heading 2</h2>
-                  ) : editor.isActive('heading', { level: 3 }) ? (
-                    <h3>Heading 3</h3>
-                  ) : editor.isActive('blockquote') ? (
-                    <blockquote>
-                      <p>Blockquote</p>
-                    </blockquote>
-                  ) : editor.isActive('codeBlock') ? (
-                    <pre>
-                      <code>Code Block</code>
-                    </pre>
-                  ) : editor.isActive('paragraph') ? (
-                    <p>Paragraph</p>
-                  ) : (
-                    ''
-                  )
-                }
-              </Combobox>
-            ) : null}
-          </ToolbarRow>
-          <ToolbarRow isActive={activeTab === 'insert'}>
-            {props.options?.features.horizontalRule ? (
-              <ToolbarRowButton
-                onClick={() => editor.chain().focus().setHorizontalRule().run()}
-                isActive={false}
-                icon={<LineHorizontal120Regular />}
-                disabled={props.isDisabled || !editor.can().setHorizontalRule()}
-              >
-                Horizontal Line
-              </ToolbarRowButton>
-            ) : null}
-            {Object.values(props.options?.features.widgets || {}).includes(true) ? (
-              <ToolbarRowButton
-                onClick={showWidgetsDropdown}
-                icon={<Apps20Regular />}
-                showChevron
-                disabled={props.isDisabled}
-              >
-                Widgets
-              </ToolbarRowButton>
-            ) : null}
-            {props.options?.features.link ? (
-              <ToolbarRowButton
-                onClick={showLinkModal}
-                isActive={false}
-                icon={<Link20Regular />}
-                disabled={props.isDisabled || !editor.can().setTextSelection({ from: 0, to: 1 })}
-              >
-                Link
-              </ToolbarRowButton>
-            ) : null}
-            {props.options?.features.comment ? (
-              <ToolbarRowButton
-                onClick={() => {
-                  // insert comment
-                  editor
-                    .chain()
-                    .focus()
-                    .setComment({
-                      color: props.user.color,
-                      commenter: {
-                        name: props.user.name,
-                        photo: props.user.photo,
-                      },
-                      sessionId: props.user.sessionId,
-                    })
-                    .run();
-
-                  // open comment panel
-                  props.setIsSidebarOpen(true);
-                  props.setSidebarTitle('Comments');
-                  props.setSidebarContent(<CommentPanel />);
-                  params.set('props', '0');
-                  params.set('comments', '1');
-                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
-                }}
-                isActive={false}
-                icon={<CommentAdd20Regular />}
                 disabled={
                   props.isDisabled ||
-                  !editor.can().setComment({
-                    color: '',
-                    commenter: {
-                      name: '',
-                      photo: '',
-                    },
-                    sessionId: props.user.sessionId,
-                  })
+                  !editor.can().setFontFamily('Georgia') ||
+                  (props.options?.features.fontFamilies || []).length === 0
                 }
-              >
-                Comment
-              </ToolbarRowButton>
-            ) : null}
-            {props.options?.features.comment ? (
-              <ToolbarRowIconButton
-                onClick={() => editor.chain().focus().unsetComment().run()}
-                isActive={false}
-                icon={<CommentOff20Regular />}
-                disabled={props.isDisabled || !editor.can().unsetComment()}
-                data-tip={'Delete comment'}
-              />
-            ) : null}
-          </ToolbarRow>
-          {props.layouts && props.layouts.layout ? (
-            <ToolbarRow isActive={activeTab === 'layout'}>
-              <Combobox
-                onClick={showLayoutDropdown}
-                color={'neutral'}
                 width={`128px`}
-                disabled={props.isDisabled}
+                cssContainerExtra={css`
+                  padding-right: 0;
+                `}
+                cssExtra={css`
+                  border-top-right-radius: 0 !important;
+                  border-bottom-right-radius: 0 !important;
+                `}
               >
-                {props.layouts.options.find((option) => option.value === props.layouts!.layout)?.label}
+                {editor.getAttributes('textStyle').fontFamily || 'Georgia'}
               </Combobox>
+              <Combobox
+                onClick={showFontSizeDropdown}
+                color={'neutral'}
+                disabled={props.isDisabled || (props.options?.features.fontSizes || []).length === 0}
+                width={`52px`}
+                cssContainerExtra={css`
+                  padding-left: 0;
+                `}
+                cssExtra={css`
+                  border-top-left-radius: 0 !important;
+                  border-bottom-left-radius: 0 !important;
+                  margin-left: -1px;
+                `}
+              >
+                {editor.getAttributes('textStyle').fontSize || '17px'}
+              </Combobox>
+              {props.options?.features.bold ? (
+                <ToolbarRowIconButton
+                  onClick={() => editor.chain().toggleBold().run()}
+                  isActive={editor.isActive('bold')}
+                  icon={<BoldIcon />}
+                  disabled={props.isDisabled || !editor.can().toggleBold()}
+                  data-tip={'Bold'}
+                />
+              ) : null}
+              {props.options?.features.italic ? (
+                <ToolbarRowIconButton
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  isActive={editor.isActive('italic')}
+                  icon={<ItalicsIcon />}
+                  disabled={props.isDisabled || !editor.can().toggleItalic()}
+                  data-tip={'Italic'}
+                />
+              ) : null}
+              {props.options?.features.underline ? (
+                <ToolbarRowIconButton
+                  onClick={() => editor.chain().focus().toggleUnderline().run()}
+                  isActive={editor.isActive('underline')}
+                  icon={<UnderlineIcon />}
+                  disabled={props.isDisabled || !editor.can().toggleUnderline()}
+                  data-tip={'Underline'}
+                />
+              ) : null}
+              {props.options?.features.strike ? (
+                <ToolbarRowIconButton
+                  onClick={() => editor.chain().focus().toggleStrike().run()}
+                  isActive={editor.isActive('strike')}
+                  icon={<StrikeIcon />}
+                  disabled={props.isDisabled || !editor.can().toggleStrike()}
+                  data-tip={'Strikethrough'}
+                />
+              ) : null}
+              {props.options?.features.code ? (
+                <ToolbarRowIconButton
+                  onClick={() => editor.chain().focus().toggleCode().run()}
+                  isActive={editor.isActive('code')}
+                  icon={<Code20Regular />}
+                  disabled={props.isDisabled || !editor.can().toggleCode()}
+                  data-tip={'Code'}
+                />
+              ) : null}
+              <ToolbarDivider />
+              {props.options?.features.bulletList ? (
+                <ToolbarRowIconButton
+                  onClick={() => editor.chain().focus().toggleBulletList().run()}
+                  isActive={editor.isActive('bulletList')}
+                  icon={<TextBulletListLtr20Regular />}
+                  disabled={props.isDisabled || !editor.can().toggleBulletList()}
+                  data-tip={'Bullets'}
+                />
+              ) : null}
+              {props.options?.features.orderedList ? (
+                <ToolbarRowIconButton
+                  onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                  isActive={editor.isActive('orderedList')}
+                  icon={<TextNumberListLtr20Regular />}
+                  disabled={props.isDisabled || !editor.can().toggleOrderedList()}
+                  data-tip={'Numbering'}
+                />
+              ) : null}
+              <ToolbarDivider />
+              {props.options?.features.textStylePicker ? (
+                <Combobox
+                  onClick={showTextStyleDropdown}
+                  color={'neutral'}
+                  width={`128px`}
+                  disabled={props.isDisabled}
+                >
+                  {
+                    // show the correct style name
+                    editor.isActive('heading', { level: 1 }) ? (
+                      <h1>Heading 1</h1>
+                    ) : editor.isActive('heading', { level: 2 }) ? (
+                      <h2>Heading 2</h2>
+                    ) : editor.isActive('heading', { level: 3 }) ? (
+                      <h3>Heading 3</h3>
+                    ) : editor.isActive('blockquote') ? (
+                      <blockquote>
+                        <p>Blockquote</p>
+                      </blockquote>
+                    ) : editor.isActive('codeBlock') ? (
+                      <pre>
+                        <code>Code Block</code>
+                      </pre>
+                    ) : editor.isActive('paragraph') ? (
+                      <p>Paragraph</p>
+                    ) : (
+                      ''
+                    )
+                  }
+                </Combobox>
+              ) : null}
             </ToolbarRow>
-          ) : null}
-          <ToolbarRow isActive={activeTab === 'review'}>
-            <ToolbarRowButton
-              onClick={() => showMSFTEditorModal()}
-              isActive={false}
-              icon={<Editor20Icon />}
-              disabled={props.isDisabled || !editor}
-            >
-              Editor (spell check)
-            </ToolbarRowButton>
-            <ToolbarRowIconButton
-              onClick={() => null}
-              isActive={false}
-              icon={<WordCountList20Icon />}
-              disabled={props.isDisabled || true}
-              data-tip={'Word count'}
-            />
-            <ToolbarDivider />
-            {props.options?.features.trackChanges ? (
-              <>
+            <ToolbarRow isActive={activeTab === 'insert'}>
+              {props.options?.features.horizontalRule ? (
                 <ToolbarRowButton
-                  onClick={() => props.toggleTrackChanges()}
-                  isActive={props.trackChanges}
-                  icon={<TrackChanges20Icon />}
-                  disabled={props.isDisabled || !editor}
+                  onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                  isActive={false}
+                  icon={<LineHorizontal120Regular />}
+                  disabled={props.isDisabled || !editor.can().setHorizontalRule()}
                 >
-                  Track changes (text only)
+                  Horizontal Line
                 </ToolbarRowButton>
+              ) : null}
+              {Object.values(props.options?.features.widgets || {}).includes(true) ? (
                 <ToolbarRowButton
-                  onClick={() => editor.chain().focus().approveChange().nextChange().run()}
-                  isActive={false}
-                  icon={<AcceptRevision20Icon />}
-                  disabled={props.isDisabled || !editor}
+                  onClick={showWidgetsDropdown}
+                  icon={<Apps20Regular />}
+                  showChevron
+                  disabled={props.isDisabled}
                 >
-                  Accept
+                  Widgets
                 </ToolbarRowButton>
+              ) : null}
+              {props.options?.features.link ? (
                 <ToolbarRowButton
-                  onClick={() => editor.chain().focus().rejectChange().nextChange().run()}
+                  onClick={showLinkModal}
                   isActive={false}
-                  icon={<RejectRevision20Icon />}
-                  disabled={props.isDisabled || !editor}
+                  icon={<Link20Regular />}
+                  disabled={props.isDisabled || !editor.can().setTextSelection({ from: 0, to: 1 })}
                 >
-                  Reject
+                  Link
                 </ToolbarRowButton>
-                <ToolbarRowIconButton
-                  onClick={() => editor.chain().focus().previousChange().run()}
-                  isActive={false}
-                  icon={<PreviousRevision20Icon />}
-                  disabled={props.isDisabled || !editor}
-                  data-tip={'Previous change'}
-                />
-                <ToolbarRowIconButton
-                  onClick={() => editor.chain().focus().nextChange().run()}
-                  isActive={false}
-                  icon={<NextRevision20Icon />}
-                  disabled={props.isDisabled || !editor}
-                  data-tip={'Next change'}
-                />
-                <ToolbarDivider />
-              </>
-            ) : null}
-            {props.options?.features.comment ? (
-              <>
+              ) : null}
+              {props.options?.features.comment ? (
                 <ToolbarRowButton
                   onClick={() => {
                     // insert comment
@@ -1086,40 +977,166 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     })
                   }
                 >
-                  Insert Comment
+                  Comment
                 </ToolbarRowButton>
+              ) : null}
+              {props.options?.features.comment ? (
                 <ToolbarRowIconButton
                   onClick={() => editor.chain().focus().unsetComment().run()}
                   isActive={false}
                   icon={<CommentOff20Regular />}
                   disabled={props.isDisabled || !editor.can().unsetComment()}
                   data-tip={'Delete comment'}
-                />{' '}
-              </>
-            ) : null}
-          </ToolbarRow>
-          {props.actions ? (
-            <ToolbarRow isActive={activeTab === 'actions'}>
-              {props.actions.map((action, index) => {
-                if (action === null) {
-                  return null;
-                }
-                return (
-                  <ToolbarRowButton
-                    key={index}
-                    onClick={action.action}
-                    color={action.color}
-                    disabled={props.isDisabled || action.disabled}
-                    icon={action.icon}
-                    isActive={false}
-                  >
-                    {action.label}
-                  </ToolbarRowButton>
-                );
-              })}
+                />
+              ) : null}
             </ToolbarRow>
-          ) : null}
-        </ToolbarActionRowContainer>
+            {props.layouts && props.layouts.layout ? (
+              <ToolbarRow isActive={activeTab === 'layout'}>
+                <Combobox
+                  onClick={showLayoutDropdown}
+                  color={'neutral'}
+                  width={`128px`}
+                  disabled={props.isDisabled}
+                >
+                  {props.layouts.options.find((option) => option.value === props.layouts!.layout)?.label}
+                </Combobox>
+              </ToolbarRow>
+            ) : null}
+            <ToolbarRow isActive={activeTab === 'review'}>
+              <ToolbarRowButton
+                onClick={() => showMSFTEditorModal()}
+                isActive={false}
+                icon={<Editor20Icon />}
+                disabled={props.isDisabled || !editor}
+              >
+                Editor (spell check)
+              </ToolbarRowButton>
+              <ToolbarRowIconButton
+                onClick={() => null}
+                isActive={false}
+                icon={<WordCountList20Icon />}
+                disabled={props.isDisabled || true}
+                data-tip={'Word count'}
+              />
+              <ToolbarDivider />
+              {props.options?.features.trackChanges ? (
+                <>
+                  <ToolbarRowButton
+                    onClick={() => props.toggleTrackChanges()}
+                    isActive={props.trackChanges}
+                    icon={<TrackChanges20Icon />}
+                    disabled={props.isDisabled || !editor}
+                  >
+                    Track changes (text only)
+                  </ToolbarRowButton>
+                  <ToolbarRowButton
+                    onClick={() => editor.chain().focus().approveChange().nextChange().run()}
+                    isActive={false}
+                    icon={<AcceptRevision20Icon />}
+                    disabled={props.isDisabled || !editor}
+                  >
+                    Accept
+                  </ToolbarRowButton>
+                  <ToolbarRowButton
+                    onClick={() => editor.chain().focus().rejectChange().nextChange().run()}
+                    isActive={false}
+                    icon={<RejectRevision20Icon />}
+                    disabled={props.isDisabled || !editor}
+                  >
+                    Reject
+                  </ToolbarRowButton>
+                  <ToolbarRowIconButton
+                    onClick={() => editor.chain().focus().previousChange().run()}
+                    isActive={false}
+                    icon={<PreviousRevision20Icon />}
+                    disabled={props.isDisabled || !editor}
+                    data-tip={'Previous change'}
+                  />
+                  <ToolbarRowIconButton
+                    onClick={() => editor.chain().focus().nextChange().run()}
+                    isActive={false}
+                    icon={<NextRevision20Icon />}
+                    disabled={props.isDisabled || !editor}
+                    data-tip={'Next change'}
+                  />
+                  <ToolbarDivider />
+                </>
+              ) : null}
+              {props.options?.features.comment ? (
+                <>
+                  <ToolbarRowButton
+                    onClick={() => {
+                      // insert comment
+                      editor
+                        .chain()
+                        .focus()
+                        .setComment({
+                          color: props.user.color,
+                          commenter: {
+                            name: props.user.name,
+                            photo: props.user.photo,
+                          },
+                          sessionId: props.user.sessionId,
+                        })
+                        .run();
+
+                      // open comment panel
+                      props.setIsSidebarOpen(true);
+                      props.setSidebarTitle('Comments');
+                      props.setSidebarContent(<CommentPanel />);
+                      params.set('props', '0');
+                      params.set('comments', '1');
+                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                    }}
+                    isActive={false}
+                    icon={<CommentAdd20Regular />}
+                    disabled={
+                      props.isDisabled ||
+                      !editor.can().setComment({
+                        color: '',
+                        commenter: {
+                          name: '',
+                          photo: '',
+                        },
+                        sessionId: props.user.sessionId,
+                      })
+                    }
+                  >
+                    Insert Comment
+                  </ToolbarRowButton>
+                  <ToolbarRowIconButton
+                    onClick={() => editor.chain().focus().unsetComment().run()}
+                    isActive={false}
+                    icon={<CommentOff20Regular />}
+                    disabled={props.isDisabled || !editor.can().unsetComment()}
+                    data-tip={'Delete comment'}
+                  />{' '}
+                </>
+              ) : null}
+            </ToolbarRow>
+            {props.actions ? (
+              <ToolbarRow isActive={activeTab === 'actions'}>
+                {props.actions.map((action, index) => {
+                  if (action === null) {
+                    return null;
+                  }
+                  return (
+                    <ToolbarRowButton
+                      key={index}
+                      onClick={action.action}
+                      color={action.color}
+                      disabled={props.isDisabled || action.disabled}
+                      icon={action.icon}
+                      isActive={false}
+                    >
+                      {action.label}
+                    </ToolbarRowButton>
+                  );
+                })}
+              </ToolbarRow>
+            ) : null}
+          </ToolbarActionRowContainer>
+        )}
       </TOOLBAR>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}></div>
     </>

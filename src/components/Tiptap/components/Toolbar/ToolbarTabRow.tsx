@@ -5,6 +5,7 @@ import { themeType } from '../../../../utils/theme/theme';
 interface IToolbarTabRow {
   theme: themeType;
   width: number;
+  compact?: boolean;
 }
 
 const ToolbarTabRow = styled.div<IToolbarTabRow>`
@@ -15,7 +16,7 @@ const ToolbarTabRow = styled.div<IToolbarTabRow>`
   display: flex;
   justify-content: flex-start;
   white-space: nowrap;
-  height: ${({ width }) => (width < 450 ? 72 : 36)}px;
+  height: ${({ width, compact }) => (width < 450 && !compact ? 72 : 36)}px;
   flex-direction: ${({ width }) => (width < 450 ? 'column-reverse' : 'row')};
   position: relative;
 `;

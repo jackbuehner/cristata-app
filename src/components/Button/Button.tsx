@@ -9,6 +9,7 @@ interface StyledButtonProps extends ButtonProps {
   color: colorType;
   colorShade: colorShade;
   theme: themeType;
+  'data-tip'?: string;
 }
 
 const BUTTON = styled.button<StyledButtonProps>`
@@ -32,6 +33,7 @@ const BUTTON = styled.button<StyledButtonProps>`
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
+  cursor: ${({ disabled, 'data-tip': dataTip }) => (disabled && dataTip ? 'help' : 'default')};
   color: ${({ theme, disabled }) =>
     disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
   border-radius: ${({ borderRadius, theme }) =>

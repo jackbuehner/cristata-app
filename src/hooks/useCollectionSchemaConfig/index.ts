@@ -1,0 +1,1 @@
+export { useCollectionSchemaConfig } from './useCollectionSchemaConfig';

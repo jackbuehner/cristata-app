@@ -5,7 +5,7 @@ import { buttonEffect } from '../Button';
 interface ITableRow {
   isHeader?: boolean;
   theme?: themeType;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent) => void;
 }
 
 const TableRow = styled.div<ITableRow>`

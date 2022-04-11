@@ -17,6 +17,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { Titlebar } from './components/Titlebar';
 import { ToastContainer } from './components/ToastContainer';
 import { CollectionPage } from './pages/CMS/CollectionPage';
+import { CollectionItemPage } from './pages/CMS/CollectionItemPage';
 import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
 import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
 import { FathomEmbed } from './pages/embeds';
@@ -151,6 +152,10 @@ function App() {
                     <Routes>
                       <Route path={`/cms/photos/library`} element={<PhotoLibraryPage />} />
                       <Route path={`/cms/photos/library/:photo_id`} element={<PhotoLibraryPage />} />
+                      <Route
+                        path={`/cms/collection/:collection/item/:item_id`}
+                        element={<CollectionItemPage />}
+                      />
                       <Route path={`/cms/collection/:collection/:progress`} element={<CollectionPage />} />
                       <Route path={`/cms/collection/:collection`} element={<CollectionPage />} />
                       <Route path={`/cms/item/:collection/:item_id`} element={<ItemDetailsPage />} />

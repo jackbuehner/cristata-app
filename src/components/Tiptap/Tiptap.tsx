@@ -50,6 +50,7 @@ import {
 } from './hooks';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { Spinner } from '../Loading';
+import { CollectionItemPage } from '../../pages/CMS/CollectionItemPage';
 
 interface ITiptap {
   docName: string;
@@ -71,6 +72,8 @@ interface ITiptap {
   message?: string;
   showLoading?: boolean;
   layout?: string;
+  useNewCollectionItemPage?: boolean;
+  compact?: boolean;
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -96,7 +99,14 @@ const Tiptap = (props: ITiptap) => {
       // open the sidebar to document properties if the url contains the correct search param
       isOpen: searchParams.get('props') === '1' || searchParams.get('comments') === '1',
       title: searchParams.get('comments') === '1' ? 'Comments' : 'Document properties',
-      content: searchParams.get('comments') === '1' ? <CommentPanel /> : <ItemDetailsPage isEmbedded />,
+      content:
+        searchParams.get('comments') === '1' ? (
+          <CommentPanel />
+        ) : props.useNewCollectionItemPage ? (
+          <CollectionItemPage isEmbedded />
+        ) : (
+          <ItemDetailsPage isEmbedded />
+        ),
     },
   });
 
@@ -319,6 +329,8 @@ const Tiptap = (props: ITiptap) => {
             setSidebarTitle={setSidebarTitle}
             actions={props.actions}
             options={props.options}
+            useNewCollectionItemPage={props.useNewCollectionItemPage}
+            compact={props.compact}
           />
         </ErrorBoundary>
         {props.showLoading ? <IndeterminateProgress theme={theme} /> : null}
@@ -393,16 +405,18 @@ const Tiptap = (props: ITiptap) => {
           </div>
         </ErrorBoundary>
         <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
-          <Sidebar
-            isOpen={isSidebarOpen}
-            setIsOpen={setIsSidebarOpen}
-            header={sidebarTitle}
-            setHeader={setSidebarTitle}
-            editor={editor}
-            user={{ ...props.user, sessionId: props.sessionId }}
-          >
-            {sidebarContent}
-          </Sidebar>
+          {props.compact ? null : (
+            <Sidebar
+              isOpen={isSidebarOpen}
+              setIsOpen={setIsSidebarOpen}
+              header={sidebarTitle}
+              setHeader={setSidebarTitle}
+              editor={editor}
+              user={{ ...props.user, sessionId: props.sessionId }}
+            >
+              {sidebarContent}
+            </Sidebar>
+          )}
         </ErrorBoundary>
       </div>
       <ErrorBoundary fallback={<div>Error loading statusbar</div>}>

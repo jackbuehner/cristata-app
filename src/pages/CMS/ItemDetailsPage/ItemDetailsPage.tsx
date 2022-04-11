@@ -75,6 +75,7 @@ interface Iaction {
   action: () => void;
   color?: colorType;
   disabled?: boolean;
+  'data-tip'?: string;
 }
 
 interface IItemDetailsPage {

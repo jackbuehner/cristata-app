@@ -17,6 +17,7 @@ interface IMenu {
     noEffect?: boolean;
     height?: number;
     disabled?: boolean;
+    'data-tip'?: string;
   }>;
   noIcons?: boolean;
   showDisabledLast?: boolean;
@@ -47,6 +48,7 @@ const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>
               noEffect={item.noEffect}
               height={item.height}
               disabled={item.disabled}
+              data-tip={item['data-tip']}
             >
               {item.label}
             </MenuItem>

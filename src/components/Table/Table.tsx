@@ -204,22 +204,26 @@ const Table = forwardRef(
                       showSkeleton
                         ? undefined
                         : props.row
-                        ? () =>
-                            props.row
-                              ? props.row.windowName
-                                ? window.open(
-                                    `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
-                                      props.row.hrefSearch || ''
-                                    }`,
-                                    props.row.windowName,
-                                    'location=no'
-                                  )
-                                : navigate(
-                                    `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
-                                      props.row.hrefSearch || ''
-                                    }`
-                                  )
-                              : null
+                        ? (e) => {
+                            if (props.row) {
+                              let href = `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
+                                props.row.hrefSearch || ''
+                              }`;
+
+                              // go to beta url path if shift key is pressed
+                              if (e.shiftKey)
+                                href = href
+                                  .replace('/item', '/collection')
+                                  .replace(/([^/]+)$/, 'item/$1')
+                                  .replace('force', '0');
+
+                              if (props.row.windowName) {
+                                window.open(href, props.row.windowName, 'location=no');
+                              } else {
+                                navigate(href);
+                              }
+                            }
+                          }
                         : undefined
                     }
                   >

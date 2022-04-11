@@ -10,9 +10,9 @@ import { DateTime } from 'luxon';
  * @param date ISO date
  * @returns AP style formatted date
  */
-function formatISODate(date: string, showWeekday = false, showYear = true) {
+function formatISODate(date: string, showWeekday = false, showYear = true, showTime = false) {
   const formatted = DateTime.fromISO(date).toFormat(
-    `${showWeekday ? `cccc, ` : ``}LLLL dd${showYear ? `, yyyy` : ``}`
+    `${showWeekday ? `cccc, ` : ``}LLLL dd${showYear ? `, yyyy` : ``}${showTime ? ` 'at' h:mm a` : ``}`
   );
   const APFormatted = formatted
     .replace('January', 'Jan.')
@@ -21,7 +21,9 @@ function formatISODate(date: string, showWeekday = false, showYear = true) {
     .replace('September', 'Sept.')
     .replace('October', 'Oct.')
     .replace('November', 'Nov.')
-    .replace('December', 'Dec.');
+    .replace('December', 'Dec.')
+    .replace('AM', 'a.m.')
+    .replace('PM', 'p.m.');
   return APFormatted;
 }
 
