@@ -179,7 +179,11 @@ function Selected(props: SelectedProps) {
                             {label}
                           </SelectText>
                           <SelectText theme={theme} font={props.font}>
-                            {capitalize(props.collection)} ID: {_id}
+                            {capitalize(props.collection)} ID:{' '}
+                            {
+                              // if the ID is a URL, use everything after the first '/' in the URL (exlcuding the protocol)
+                              isURL(_id) ? _id.replace('://', '').split('/')[1] : _id
+                            }
                           </SelectText>
                         </SelectContent>
                         <OpenIcon
