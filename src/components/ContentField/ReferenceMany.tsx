@@ -10,6 +10,7 @@ import { DragDropContext, Draggable, Droppable, DropResult, ResponderProvided } 
 import { useNavigate } from 'react-router-dom';
 import { Combobox } from '.';
 import { client } from '../../graphql/client';
+import { capitalize } from '../../utils/capitalize';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { Field, FieldProps } from './Field';
@@ -178,7 +179,7 @@ function Selected(props: SelectedProps) {
                             {label}
                           </SelectText>
                           <SelectText theme={theme} font={props.font}>
-                            ID: {_id}
+                            {capitalize(props.collection)} ID: {_id}
                           </SelectText>
                         </SelectContent>
                         <OpenIcon
