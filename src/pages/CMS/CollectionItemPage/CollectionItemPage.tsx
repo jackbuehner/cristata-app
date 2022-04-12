@@ -28,6 +28,7 @@ import {
   DateTime,
   Number,
   ReferenceMany,
+  ReferenceOne,
   SelectMany,
   SelectOne,
   Text,
@@ -424,25 +425,27 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         );
                       }
 
-                      // const value =
-                      //   getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
-                      //     ? (getProperty(itemState.fields, key) as { _id: string; label: string })
-                      //     : getProperty(itemState.fields, key)?._id ||
-                      //       typeof getProperty(itemState.fields, key) === 'string'
-                      //     ? { _id: getProperty(itemState.fields, key) }
-                      //     : undefined;
+                      const value =
+                        getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
+                          ? (getProperty(itemState.fields, key) as { _id: string; label: string })
+                          : getProperty(itemState.fields, key)?._id ||
+                            typeof getProperty(itemState.fields, key) === 'string'
+                          ? { _id: getProperty(itemState.fields, key) }
+                          : undefined;
 
                       return (
-                        <Field
+                        <ReferenceOne
                           label={fieldName}
                           description={def.field?.description}
+                          value={value || null}
+                          disabled={loading || !!error}
                           isEmbedded={props.isEmbedded}
-                        >
-                          <>
-                            {def.type}
-                            <code>{JSON.stringify(getProperty(itemState.fields, key))}</code>
-                          </>
-                        </Field>
+                          collection={pluralize.singular(collection)}
+                          fields={def.field?.reference?.fields}
+                          onChange={(newValues) => {
+                            if (newValues !== undefined && !readOnly) dispatch(setField(newValues, key));
+                          }}
+                        />
                       );
                     }
 

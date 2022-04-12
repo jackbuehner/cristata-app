@@ -3,6 +3,7 @@ export { Combobox } from './Combobox';
 export { DateTime } from './DateTime';
 export { Number } from './Number';
 export { ReferenceMany } from './ReferenceMany';
+export { ReferenceOne } from './ReferenceOne';
 export { SelectMany } from './SelectMany';
 export { SelectOne } from './SelectOne';
 export { Text } from './Text';
