@@ -1,4 +1,10 @@
+import { css } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { Image20Regular } from '@fluentui/react-icons';
+import { elementToSVG, inlineResources } from 'dom-to-svg';
+import { saveAs } from 'file-saver';
+import { get as getProperty } from 'object-path';
+import roman from 'romans';
 import { Button } from '../../../components/Button';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { Advertisement } from './Advertisement';
@@ -7,18 +13,13 @@ import { Footer } from './Footer';
 import { Header } from './Header';
 import { MoreArticles } from './MoreArticles';
 import { Upcoming } from './Upcoming';
-import roman from 'romans';
-import { Image20Regular } from '@fluentui/react-icons';
-import { css } from '@emotion/react';
-import { elementToSVG, inlineResources } from 'dom-to-svg';
-import { saveAs } from 'file-saver';
 
 function FlushDocumentEditor(props: CustomFieldProps) {
   const fileName = `The Royal Flush Vol. ${
-    !isNaN(parseInt(props.state.fields['volume']))
-      ? roman.romanize(parseInt(props.state.fields['volume']))
+    !isNaN(parseInt(getProperty(props.state.fields, 'volume')))
+      ? roman.romanize(parseInt(getProperty(props.state.fields, 'volume')))
       : '??'
-  } Iss. ${props.state.fields['issue'] || '??'}`;
+  } Iss. ${getProperty(props.state.fields, 'issue') || '??'}`;
 
   /**
    * Create an SVG from the print area.
@@ -56,7 +57,7 @@ function FlushDocumentEditor(props: CustomFieldProps) {
     createSvg()
       .then((blob) => {
         const file = new File([blob], fileName + '.svg', {
-          lastModified: props.state.fields['timestamps.modified_at'],
+          lastModified: getProperty(props.state.fields, 'timestamps.modified_at'),
         });
         saveAs(file, fileName + '.svg');
       })

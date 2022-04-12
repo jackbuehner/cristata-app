@@ -1,16 +1,16 @@
 import styled from '@emotion/styled/macro';
-import { tiptapOptions } from '../../../../config';
-import { IconButton } from '../../../Button';
-import { collections as collectionsConfig } from '../../../../config';
 import { DateTime } from 'luxon';
-import { useState, useEffect } from 'react';
-import { setField } from '../../../../redux/slices/cmsItemSlice';
-import { useAppSelector, useAppDispatch } from '../../../../redux/hooks';
+import { get as getProperty } from 'object-path';
+import { useEffect, useState } from 'react';
+import { collections as collectionsConfig, tiptapOptions } from '../../../../config';
 import { client } from '../../../../graphql/client';
 import {
-  GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE,
   GET_PHOTOGRAPHER_BY_PHOTO_URL,
+  GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE,
 } from '../../../../graphql/queries';
+import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
+import { setField } from '../../../../redux/slices/cmsItemSlice';
+import { IconButton } from '../../../Button';
 
 interface IFullBleedLayout {
   options: tiptapOptions;
@@ -89,7 +89,9 @@ function FullBleedLayout(props: IFullBleedLayout) {
   useEffect(() => {
     (async () => {
       if (props.options.keys_article) {
-        const credit = await getPhotoSourceFromUrl(state.fields[props.options.keys_article.photo_url]);
+        const credit = await getPhotoSourceFromUrl(
+          getProperty(state.fields, props.options.keys_article.photo_url)
+        );
         if (credit) setPhotoCredit(credit);
       }
     })();
@@ -97,16 +99,17 @@ function FullBleedLayout(props: IFullBleedLayout) {
 
   // get the authors
   type authorObjsType = { name: string; photo: string }[];
-  const authors = (state.fields[props.options.keys_article?.authors || ''] || []) as authorObjsType;
+  const authors = (getProperty(state.fields, props.options.keys_article?.authors || '') ||
+    []) as authorObjsType;
 
   if (state.fields && props.options.keys_article) {
     const { keys_article } = props.options;
-    const headline = state.fields[keys_article.headline];
-    const description = state.fields[keys_article.description];
-    const categories = state.fields[keys_article.categories];
-    const caption = state.fields[keys_article.caption];
-    const photoUrl = state.fields[keys_article.photo_url];
-    const targetPublishAt = state.fields[keys_article.target_publish_at];
+    const headline = getProperty(state.fields, keys_article.headline);
+    const description = getProperty(state.fields, keys_article.description);
+    const categories = getProperty(state.fields, keys_article.categories);
+    const caption = getProperty(state.fields, keys_article.caption);
+    const photoUrl = getProperty(state.fields, keys_article.photo_url);
+    const targetPublishAt = getProperty(state.fields, keys_article.target_publish_at);
 
     const categoryLabels = collectionsConfig['articles']?.fields.find(
       (field) => field.key === 'categories'

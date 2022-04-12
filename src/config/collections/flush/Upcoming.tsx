@@ -1,17 +1,18 @@
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { CalendarAdd20Regular, Delete20Regular, Dismiss20Regular } from '@fluentui/react-icons';
+import '@material/checkbox/dist/mdc.checkbox.css';
+import { Checkbox as RmwcCheckbox } from '@rmwc/checkbox';
+import { get as getProperty } from 'object-path';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { themeType } from '../../../utils/theme/theme';
 import { EventGroup } from './EventGroup';
 import { IFlush } from './flush';
 import { SectionHead } from './SectionHead';
-import { Checkbox as RmwcCheckbox } from '@rmwc/checkbox';
-import '@material/checkbox/dist/mdc.checkbox.css';
-import { CalendarAdd20Regular, Delete20Regular, Dismiss20Regular } from '@fluentui/react-icons';
-import { themeType } from '../../../utils/theme/theme';
 
 const Checkbox = styled(RmwcCheckbox)<{ label?: string; checked?: boolean; onChange?: () => void }>`
   --mdc-theme-secondary: black;
@@ -26,7 +27,7 @@ function Upcoming({ state, dispatch, ...props }: IUpcoming) {
 
   const { setField } = props.setStateFunctions;
 
-  const events = (state.fields['events'] as IFlush['events']) || [];
+  const events = (getProperty(state.fields, 'events') as IFlush['events']) || [];
 
   const [isRemoveMode, setIsRemoveMode] = useState<boolean>(false);
   const [toRemove, setToRemove] = useState<number[]>([]);

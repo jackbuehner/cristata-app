@@ -1,15 +1,16 @@
+import { gql, useQuery } from '@apollo/client';
+import { css } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
+import { get as getProperty } from 'object-path';
 import { useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Label } from '../../../components/Label';
 import { MultiSelect } from '../../../components/Select';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { selectArticle } from '../featuredSettings/selectArticle';
-import { SelectionOverlay } from './SelectionOverlay';
 import { SectionHead } from './SectionHead';
-import { css } from '@emotion/react';
-import { gql, useQuery } from '@apollo/client';
-import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
+import { SelectionOverlay } from './SelectionOverlay';
 
 interface IMoreArticles extends CustomFieldProps {
   height?: string;
@@ -19,7 +20,7 @@ function MoreArticles({ state, dispatch, ...props }: IMoreArticles) {
   const { setField } = props.setStateFunctions;
   const key = 'articles.more';
   type moreArticleType = { name: string; categories: string[]; _id: string };
-  const articles = useRef<moreArticleType[] | undefined>(state.fields[key]);
+  const articles = useRef<moreArticleType[] | undefined>(getProperty(state.fields, key));
 
   const QUERY = gql(
     jsonToGraphQLQuery({
@@ -48,10 +49,16 @@ function MoreArticles({ state, dispatch, ...props }: IMoreArticles) {
     // if the state des not match the current articles, this means that either:
     // (1) the state is providing an array of _ids (as stirngs) OR
     // (2) the state is a valid array of objects
-    if (JSON.stringify(state.fields[key]) !== JSON.stringify(articles.current?.map((a) => a._id))) {
+    if (
+      JSON.stringify(getProperty(state.fields, key)) !== JSON.stringify(articles.current?.map((a) => a._id))
+    ) {
       // ensure that articles.current is always an array of objects
-      if (state.fields[key] && state.fields[key][0] && typeof state.fields[key][0] === 'string') {
-        res.refetch({ _ids: state.fields[key] }).then((res) => {
+      if (
+        getProperty(state.fields, key) &&
+        getProperty(state.fields, key)[0] &&
+        typeof getProperty(state.fields, key)[0] === 'string'
+      ) {
+        res.refetch({ _ids: getProperty(state.fields, key) }).then((res) => {
           if (res.data && res.data.articles && res.data.articles.docs) {
             // set the articles to match the resulting articles
             articles.current = res.data.articles.docs
@@ -59,12 +66,12 @@ function MoreArticles({ state, dispatch, ...props }: IMoreArticles) {
               // sort the docs so that is matches the input order of the _ids
               .sort(
                 (a: moreArticleType, b: moreArticleType) =>
-                  state.fields[key].indexOf(a._id) - state.fields[key].indexOf(b._id)
+                  getProperty(state.fields, key).indexOf(a._id) - getProperty(state.fields, key).indexOf(b._id)
               );
           }
         });
       } else {
-        articles.current = state.fields[key];
+        articles.current = getProperty(state.fields, key);
       }
     }
   }, [articles, res, state.fields]);

@@ -1,16 +1,17 @@
+import { Renderer } from '@cristata/prosemirror-to-html-js';
 import styled from '@emotion/styled/macro';
+import { get as getProperty } from 'object-path';
 import { useEffect, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { Select } from '../../../components/Select';
+import { collections as collectionsConfig } from '../../../config';
+import { ClientConsumer } from '../../../graphql/client';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
+import { isJSON } from '../../../utils/isJSON';
 import { selectArticle } from '../featuredSettings/selectArticle';
 import { SelectionOverlay } from './SelectionOverlay';
-import { collections as collectionsConfig } from '../../../config';
-import { Renderer } from '@cristata/prosemirror-to-html-js';
-import { isJSON } from '../../../utils/isJSON';
-import { ClientConsumer } from '../../../graphql/client';
 
 interface IFeaturedArticle extends CustomFieldProps {
   height?: string;
@@ -29,14 +30,14 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
 
   const article = useMemo(
     () => ({
-      _id: state.fields[key + '._id'] as string,
-      name: state.fields[key + '.name'] as string,
-      categories: state.fields[key + '.categories'] as string[],
-      description: state.fields[key + '.description'] as string,
-      photo_path: state.fields[key + '.photo_path'] as string,
-      body: state.fields[key + '.body'] as string,
+      _id: getProperty(state.fields, `${key}._id`) as string,
+      name: getProperty(state.fields, `${key}.name`) as string,
+      categories: getProperty(state.fields, `${key}.categories`) as string[],
+      description: getProperty(state.fields, `${key}.description`) as string,
+      photo_path: getProperty(state.fields, `${key}.photo_path`) as string,
+      body: getProperty(state.fields, `${key}.body`) as string,
       people: {
-        authors: state.fields[key + '.people.authors'] as { name: string }[],
+        authors: getProperty(state.fields, `${key}.people.authors`) as { name: string }[],
       },
     }),
     [state.fields]
@@ -94,12 +95,12 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
                   client={client}
                   loadOptions={selectArticle}
                   async
-                  val={`${state.fields[key]}`}
+                  val={getProperty(state.fields, key)}
                   onChange={(valueObj) =>
                     handleSelectChange(
                       valueObj?.value || '',
                       key,
-                      typeof state.fields[key] === 'number' ? 'number' : 'string'
+                      typeof getProperty(state.fields, key) === 'number' ? 'number' : 'string'
                     )
                   }
                   isDisabled={state.isLoading}

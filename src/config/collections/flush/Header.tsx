@@ -1,11 +1,12 @@
+import { css } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { get as getProperty } from 'object-path';
 import { ChangeEvent, useState } from 'react';
-import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { SelectionOverlay } from './SelectionOverlay';
 import roman from 'romans';
 import { DateTime } from '../../../components/DateTime';
-import { css } from '@emotion/react';
+import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { formatISODate } from '../../../utils/formatISODate';
+import { SelectionOverlay } from './SelectionOverlay';
 
 function Header({ state, dispatch, ...props }: CustomFieldProps) {
   const { setField } = props.setStateFunctions;
@@ -37,9 +38,9 @@ function Header({ state, dispatch, ...props }: CustomFieldProps) {
               Week of{' '}
               <DateTime
                 value={
-                  state.fields['timestamps.week'] === '0001-01-01T01:00:00.000Z'
+                  getProperty(state.fields, 'timestamps.week') === '0001-01-01T01:00:00.000Z'
                     ? null
-                    : (state.fields['timestamps.week'] as string)
+                    : (getProperty(state.fields, 'timestamps.week') as string)
                 }
                 onChange={(date) => {
                   if (date) dispatch(setField(date.toUTC().toISO(), 'timestamps.week'));
@@ -52,7 +53,7 @@ function Header({ state, dispatch, ...props }: CustomFieldProps) {
             </div>
           }
         >
-          Week of {formatISODate(state.fields['timestamps.week'])}
+          Week of {formatISODate(getProperty(state.fields, 'timestamps.week'))}
         </RowItem>
         <RowItem justify={'center'}>THEPALADIN.NEWS/FLUSHER</RowItem>
         <RowItem
@@ -73,21 +74,23 @@ function Header({ state, dispatch, ...props }: CustomFieldProps) {
                 type={'number'}
                 style={{ width: 30, borderRadius: 2, height: '10pt' }}
                 onChange={(e) => handleVolIssueChange(e, 'volume')}
-                value={state.fields['volume']}
+                value={getProperty(state.fields, 'volume')}
               />
               Issue{' '}
               <input
                 type={'number'}
                 style={{ width: 30, borderRadius: 2, height: '10pt' }}
                 onChange={(e) => handleVolIssueChange(e, 'issue')}
-                value={state.fields['issue']}
+                value={getProperty(state.fields, 'issue')}
               />
             </div>
           }
         >
           Volume{' '}
-          {!isNaN(parseInt(state.fields['volume'])) ? roman.romanize(parseInt(state.fields['volume'])) : '??'},
-          Issue {state.fields['issue'] || '??'}
+          {!isNaN(parseInt(getProperty(state.fields, 'volume')))
+            ? roman.romanize(parseInt(getProperty(state.fields, 'volume')))
+            : '??'}
+          , Issue {getProperty(state.fields, 'issue') || '??'}
         </RowItem>
       </Row>
     </>

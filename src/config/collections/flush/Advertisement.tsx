@@ -1,13 +1,14 @@
 import styled from '@emotion/styled/macro';
-import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { SelectionOverlay } from './SelectionOverlay';
+import { get as getProperty } from 'object-path';
+import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { Button } from '../../../components/Button';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { Select } from '../../../components/Select';
-import { useEffect, useState } from 'react';
+import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { selectPhotoPath } from '../articles/selectPhotoPath';
-import { Button } from '../../../components/Button';
+import { SelectionOverlay } from './SelectionOverlay';
 
 function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
   const { setField } = props.setStateFunctions;
@@ -18,9 +19,12 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
   // (this allows the photo to be used in svg with cors errors)
   const [photoUrl, setPhotoUrl] = useState<string>();
   useEffect(() => {
-    if (state.fields[key]) {
+    if (getProperty(state.fields, key)) {
       fetch(
-        `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/proxy/${state.fields[key]}`
+        `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/proxy/${getProperty(
+          state.fields,
+          key
+        )}`
       ).then((res) => {
         res.blob().then((blob) => {
           setPhotoUrl(URL.createObjectURL(blob));
@@ -37,7 +41,7 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
   return (
     <Wrapper onMouseEnter={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>
       <Available photo={photoUrl}>
-        {!state.fields[key] ? (
+        {!getProperty(state.fields, key) ? (
           <>
             <AvailableMessage>YOUR ADVERTISEMENT HERE</AvailableMessage>
             <AvailableSize>
@@ -60,12 +64,12 @@ function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {
               client={props.client}
               loadOptions={selectPhotoPath}
               async
-              val={`${state.fields[key]}`}
+              val={`${getProperty(state.fields, key)}`}
               onChange={(valueObj) =>
                 handleSelectChange(
                   valueObj?.value || '',
                   key,
-                  typeof state.fields[key] === 'number' ? 'number' : 'string'
+                  typeof getProperty(state.fields, key) === 'number' ? 'number' : 'string'
                 )
               }
               isDisabled={state.isLoading}
