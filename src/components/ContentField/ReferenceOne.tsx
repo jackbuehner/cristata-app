@@ -5,7 +5,6 @@ import { Dismiss24Regular, Open24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Combobox } from '.';
 import { client } from '../../graphql/client';
 import { capitalize } from '../../utils/capitalize';
@@ -30,7 +29,6 @@ type PopulatedValue = { _id: string; label: string };
 
 function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
   const theme = useTheme() as themeType;
-  const navigate = useNavigate();
 
   const [internalState, _setInternalState] = useState<PopulatedValue | null>(null);
   const setInternalState = (newState: PopulatedValue | null) => {

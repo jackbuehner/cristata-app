@@ -7,7 +7,6 @@ import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { useNavigate } from 'react-router-dom';
 import { Combobox } from '.';
 import { client } from '../../graphql/client';
 import { capitalize } from '../../utils/capitalize';
@@ -139,7 +138,6 @@ interface SelectedProps {
 
 function Selected(props: SelectedProps) {
   const theme = useTheme() as themeType;
-  const navigate = useNavigate();
   const [internalState, setInternalState] = props.internalState;
 
   return (
