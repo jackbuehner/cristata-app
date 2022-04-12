@@ -192,16 +192,18 @@ function Selected(props: SelectedProps) {
                           disabled={false}
                           onClick={() => {
                             if (isURL(_id)) {
-                              window.open(_id);
+                              window.open(_id, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'user') {
-                              navigate(`/profile/${_id}`);
+                              window.open(`/profile/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'team') {
-                              navigate(`/teams/${_id}`);
+                              window.open(`/teams/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'photo') {
-                              navigate(`/cms/photo/library/${_id}`);
+                              window.open(`/cms/photo/library/${_id}`, props.collection + _id, 'location=no');
                             } else {
-                              navigate(
-                                `/cms/collection/${pluralize(props.collection.toLowerCase())}/item/${_id}`
+                              window.open(
+                                `/cms/collection/${pluralize(props.collection.toLowerCase())}/item/${_id}`,
+                                props.collection + _id,
+                                'location=no'
                               );
                             }
                           }}
