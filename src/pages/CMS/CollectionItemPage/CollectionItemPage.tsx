@@ -41,6 +41,7 @@ import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaCon
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
+import { capitalize } from '../../../utils/capitalize';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { Iaction } from '../ItemDetailsPage/ItemDetailsPage';
@@ -61,7 +62,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const { search } = useLocation();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
   const [{ schemaDef, nameField, canPublish: isPublishable, options: collectionOptions }] =
-    useCollectionSchemaConfig(collection);
+    useCollectionSchemaConfig(capitalize(pluralize.singular(collection)));
   const { actionAccess, loading, error, refetch } = useFindDoc(collection, item_id, schemaDef);
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
 
