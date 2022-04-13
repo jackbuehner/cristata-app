@@ -383,7 +383,10 @@ const Tiptap = (props: ITiptap) => {
             ) : null}
             {
               // if it is an article type, show article metadata and photo
-              props.options?.type === 'article' && props.options.keys_article && isConnected === true ? (
+              props.options?.type === 'article' &&
+              props.options.keys_article &&
+              isConnected === true &&
+              !props.compact ? (
                 <>
                   {layout === 'standard' ? (
                     <StandardLayout
