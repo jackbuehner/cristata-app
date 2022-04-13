@@ -39,7 +39,7 @@ function useFontFamilyDropdown({ editor, ...props }: FontFamilyDropdownProps) {
         />
       );
     },
-    [editor, props.fontFamilies],
+    [],
     true,
     true
   );
