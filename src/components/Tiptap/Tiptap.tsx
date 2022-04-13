@@ -122,7 +122,6 @@ const Tiptap = (props: ITiptap) => {
   // create the editor
   const editor = useTipTapEditor({
     editable: isConnected === true && !props.isDisabled,
-    content: props.html,
     extensions: [
       StarterKit.configure({ history: false }),
       TrackChanges,
@@ -165,7 +164,6 @@ const Tiptap = (props: ITiptap) => {
     ],
     onUpdate() {
       const editor = this as unknown as Editor;
-      if (props.html) editor.commands.setContent(props.html);
       onUpdateDelayed(editor);
     },
     onSelectionUpdate({ editor }) {
