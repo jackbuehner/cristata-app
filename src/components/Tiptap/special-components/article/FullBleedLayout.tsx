@@ -174,7 +174,7 @@ function FullBleedLayout(props: IFullBleedLayout) {
                 })}
                 <Author>and </Author>
                 <AuthorLink>
-                  <Author>{authors.pop()?.name}</Author>
+                  <Author>{authors.slice(-1)?.[0].name}</Author>
                 </AuthorLink>
               </>
             ) : null}
