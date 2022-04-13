@@ -197,8 +197,8 @@ function FullBleedLayout(props: IFullBleedLayout) {
 }
 
 const Container = styled.div<{ tiptapWidth: number }>`
-  max-width: 768px;
-  width: calc(100% - 40px);
+  max-width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `unset` : `768px`)};
+  width: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `100%` : `calc(100% - 40px)`)};
   box-sizing: border-box;
   background-color: white;
   border: ${({ tiptapWidth }) => (tiptapWidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`)};
