@@ -10,6 +10,7 @@ import {
 } from '../../../../graphql/queries';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { setField } from '../../../../redux/slices/cmsItemSlice';
+import { genAvatar } from '../../../../utils/genAvatar';
 import { IconButton } from '../../../Button';
 
 interface IFullBleedLayout {
@@ -98,7 +99,7 @@ function FullBleedLayout(props: IFullBleedLayout) {
   }, [setPhotoCredit, props.options.keys_article, state.fields]);
 
   // get the authors
-  type authorObjsType = { name: string; photo: string }[];
+  type authorObjsType = { name: string; photo: string; _id: string }[];
   const authors = (getProperty(state.fields, props.options.keys_article?.authors || '') ||
     []) as authorObjsType;
 
@@ -142,7 +143,9 @@ function FullBleedLayout(props: IFullBleedLayout) {
           <Authors>
             <AuthorPhotos>
               {authors?.map((author, index: number) => {
-                return <AuthorPhoto key={index} draggable={'false'} src={author.photo} />;
+                return (
+                  <AuthorPhoto key={index} draggable={'false'} src={author.photo || genAvatar(author._id)} />
+                );
               })}
             </AuthorPhotos>
             <Author>By</Author>
