@@ -203,6 +203,10 @@ const PageWrapper = styled.div<{ isCustomTitlebarVisible?: boolean }>`
   height: ${({ isCustomTitlebarVisible }) =>
     isCustomTitlebarVisible ? 'calc(100% - env(titlebar-area-height, 33px))' : '100%'};
   position: fixed;
+
+  @media print {
+    height: 100%;
+  }
 `;
 
 const Wrapper = styled.div`

@@ -63,6 +63,10 @@ const Wrapper = styled.div`
   width: 100%;
   flex-grow: 0;
   flex-shrink: 0;
+
+  @media print {
+    display: none;
+  }
 `;
 
 const TITLEBAR = styled.div<{ theme: themeType; offsetX: number }>`
