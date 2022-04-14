@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import { client } from '../../graphql/client';
+import mongoose from 'mongoose';
 
 type UnpopulatedValue = { _id: string; label?: string };
 type PopulatedValue = { _id: string; label: string };
@@ -26,6 +27,7 @@ async function getMissingLabel(
   fields?: { _id?: string; name?: string }
 ): Promise<string> {
   try {
+    if (!mongoose.isValidObjectId(_id)) return _id;
     const res = await client.query<{ result: { name: string } }>({
       query: gql`{
         result: ${collection.toLowerCase()}(_id: "${_id}") {
