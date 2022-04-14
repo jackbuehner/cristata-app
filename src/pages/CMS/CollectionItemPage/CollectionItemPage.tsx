@@ -739,6 +739,23 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
                   key: 'stage',
                 }}
+                permissions={{
+                  users:
+                    getProperty(itemState.fields, 'permissions.users')?.map(
+                      (user: {
+                        _id: string;
+                        name: string;
+                        photo?: string;
+                      }): { _id: string; name: string; photo?: string; color: string } => ({
+                        ...user,
+                        color: colorHash.hex(user._id),
+                      })
+                    ) || [],
+                  teams:
+                    getProperty(itemState.fields, 'permissions.teams')
+                      ?.filter((_id: string) => !!_id)
+                      .map((_id: string) => ({ _id, color: colorHash.hex(_id) })) || [],
+                }}
               />
             )}
           </ContentWrapper>

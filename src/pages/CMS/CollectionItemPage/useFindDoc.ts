@@ -43,6 +43,8 @@ function useFindDoc(
                 permissions: {
                   users: {
                     _id: true,
+                    name: true,
+                    photo: true,
                   },
                   teams: true,
                 },

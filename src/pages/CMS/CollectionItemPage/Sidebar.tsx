@@ -1,11 +1,17 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { PeopleTeam16Regular } from '@fluentui/react-icons';
 import { NumberOption, StringOption } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { SelectOne } from '../../../components/ContentField';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { formatISODate } from '../../../utils/formatISODate';
+import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
+import { buttonEffect } from '../../../components/Button';
+import { useEffect, useState } from 'react';
+import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
+import Color from 'color';
 
 interface SidebarProps {
   docInfo: {
@@ -18,12 +24,37 @@ interface SidebarProps {
     options: StringOption[] | NumberOption[];
     key: string;
   };
+  permissions: {
+    users: { _id: string; name: string; photo?: string; color: string }[];
+    teams: { _id: string; name?: string; color: string }[];
+  };
   loading?: boolean;
 }
 
 function Sidebar(props: SidebarProps) {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
+
+  const [teams, setTeams] = useState<{ _id: string; name: string; color: string }[] | undefined>(undefined);
+  useEffect(() => {
+    (async () => {
+      const valuesAreLooselyDifferent = !props.permissions.teams.every(({ _id: propValue }) => {
+        const internalValues = teams?.map(({ _id }) => _id) || [];
+        return internalValues.includes(propValue);
+      });
+      if (valuesAreLooselyDifferent) {
+        setTeams(
+          (await populateReferenceValues(props.permissions.teams, 'Team')).map((t, i) => {
+            return {
+              _id: t._id,
+              name: t.label,
+              color: props.permissions.teams[i].color,
+            };
+          })
+        );
+      }
+    })();
+  }, [props.permissions.teams, teams]);
 
   return (
     <Container theme={theme}>
@@ -62,8 +93,35 @@ function Sidebar(props: SidebarProps) {
           disabled={props.loading}
         />
       )}
-      <SectionTitle theme={theme}>People</SectionTitle>
-      <SectionTitle theme={theme}>Share</SectionTitle>
+      <SectionTitle theme={theme}>Access</SectionTitle>
+      {props.permissions.users.map((user) => {
+        return (
+          <AccessRow
+            theme={theme}
+            key={user._id}
+            onClick={() => {
+              window.open(`/profile/${user._id}`, 'sidebar_user' + props.docInfo._id + user._id, 'location=no');
+            }}
+          >
+            <ProfilePhoto theme={theme} src={user.photo || genAvatar(user._id)} color={user.color} />
+            <div style={{ flexGrow: 1 }}>{user.name}</div>
+          </AccessRow>
+        );
+      })}
+      {teams?.map((team) => {
+        return (
+          <AccessRow
+            theme={theme}
+            key={team._id}
+            onClick={() => {
+              window.open(`/teams/${team._id}`, 'sidebar_team' + props.docInfo._id + team._id, 'location=no');
+            }}
+          >
+            <TeamIcon theme={theme} color={team.color} />
+            <div style={{ flexGrow: 1 }}>{team.name}</div>
+          </AccessRow>
+        );
+      })}
     </Container>
   );
 }
@@ -108,6 +166,61 @@ const DocInfoRow = styled.div<{ theme: themeType }>`
   }
   > div:nth-of-type(2) {
     color: ${({ theme }) => theme.color.neutral[theme.mode][1000]};
+  }
+`;
+
+const AccessRow = styled.div<{ theme: themeType; disabled?: boolean }>`
+  ${({ theme, disabled }) =>
+    buttonEffect(
+      'primary',
+      theme.mode === 'light' ? 700 : 300,
+      theme,
+      disabled,
+      { base: 'transparent' },
+      { base: '1px solid transparent' }
+    )}
+  font-family: ${({ theme }) => theme.font.detail};
+  font-size: 14px;
+  line-height: 24px;
+  margin: 0 0 4px 0;
+  font-weight: 400;
+  text-decoration: none;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: left;
+  gap: 6px;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1000]};
+  border-radius: ${({ theme }) => theme.radius};
+`;
+
+const ProfilePhoto = styled.div<{ theme: themeType; src?: string; color: string }>`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: ${({ src }) => `url(${src})`};
+  background-position: center;
+  background-size: cover;
+  box-shadow: inset 0 0 0 2px ${({ color }) => color};
+`;
+
+const TeamIcon = styled(PeopleTeam16Regular)<{ theme: themeType; color: string }>`
+  border: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  justify-content: center;
+  width: 24px;
+  min-height: 24px;
+  margin: 0 1px 0 0;
+  box-shadow: inset 0 0 0 2px ${({ color }) => color};
+  background-color: ${({ color }) => Color(color).lighten(0.5).hex()};
+  color: ${({ theme }) => theme.color.neutral['light'][1200]};
+  border-radius: ${({ theme }) => theme.radius};
+  > svg {
+    width: 16px;
+    height: 16px;
   }
 `;
 
