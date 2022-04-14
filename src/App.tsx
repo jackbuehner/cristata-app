@@ -101,53 +101,58 @@ function App() {
               {isCustomTitlebarVisible ? <Titlebar /> : null}
               <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
                 <Wrapper>
-                  <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
-                    <SideNavs>
-                      <Sidenav
-                        gridCols={gridCols}
-                        toggleSideNavSub={toggleSideNavSub}
-                        isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                      />
-                      <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
-                        <Routes>
-                          <Route
-                            path={`/cms/*`}
-                            element={
-                              <>
-                                <SideNavHeading>Content Management System</SideNavHeading>
-                                {cmsNav?.map((group, index) => {
-                                  return (
-                                    <Fragment key={index}>
-                                      <SideNavHeading>{group.label}</SideNavHeading>
-                                      {group.items.map((item, index) => {
-                                        const Icon = fluentIcons[item.icon];
-                                        return (
-                                          <SideNavSubButton
-                                            key={index}
-                                            Icon={isFluentIconComponent(Icon) ? <Icon /> : <span />}
-                                            to={item.to}
-                                            setIsNavVisibleM={setIsNavVisibleM}
-                                          >
-                                            {item.label}
-                                          </SideNavSubButton>
-                                        );
-                                      })}
-                                    </Fragment>
-                                  );
-                                })}
-                              </>
-                            }
-                          />
-                          <Route
-                            path={`/profile/*`}
-                            element={<ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
-                          />
-                          <Route path={`/teams/*`} element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />} />
-                          <Route path={`/playground`} element={<PlaygroundNavigation />} />
-                        </Routes>
-                      </SidenavSub>
-                    </SideNavs>
-                  </SideNavWrapper>
+                  {window.name === '' ? (
+                    <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
+                      <SideNavs>
+                        <Sidenav
+                          gridCols={gridCols}
+                          toggleSideNavSub={toggleSideNavSub}
+                          isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
+                        />
+                        <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
+                          <Routes>
+                            <Route
+                              path={`/cms/*`}
+                              element={
+                                <>
+                                  <SideNavHeading>Content Management System</SideNavHeading>
+                                  {cmsNav?.map((group, index) => {
+                                    return (
+                                      <Fragment key={index}>
+                                        <SideNavHeading>{group.label}</SideNavHeading>
+                                        {group.items.map((item, index) => {
+                                          const Icon = fluentIcons[item.icon];
+                                          return (
+                                            <SideNavSubButton
+                                              key={index}
+                                              Icon={isFluentIconComponent(Icon) ? <Icon /> : <span />}
+                                              to={item.to}
+                                              setIsNavVisibleM={setIsNavVisibleM}
+                                            >
+                                              {item.label}
+                                            </SideNavSubButton>
+                                          );
+                                        })}
+                                      </Fragment>
+                                    );
+                                  })}
+                                </>
+                              }
+                            />
+                            <Route
+                              path={`/profile/*`}
+                              element={<ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
+                            />
+                            <Route
+                              path={`/teams/*`}
+                              element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />}
+                            />
+                            <Route path={`/playground`} element={<PlaygroundNavigation />} />
+                          </Routes>
+                        </SidenavSub>
+                      </SideNavs>
+                    </SideNavWrapper>
+                  ) : null}
                   <Content theme={theme}>
                     <Routes>
                       <Route path={`/cms/photos/library`} element={<PhotoLibraryPage />} />
