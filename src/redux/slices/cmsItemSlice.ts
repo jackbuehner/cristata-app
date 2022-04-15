@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { set as setProperty } from 'object-path';
+import { isObject } from '../../utils/isObject';
 
 type field = any;
 type fields = { [key: string]: field };
@@ -40,18 +41,32 @@ export const cmsItemSlice = createSlice({
      *
      */
     setField: {
-      reducer: (state, action: PayloadAction<field, string, { key: string }>) => {
+      reducer: (state, action: PayloadAction<field, string, { key: string; type: string }>) => {
         if (action.type === 'tiptap') state.tipTapFields[action.meta.key] = action.payload;
-        else {
+        else if (action.meta.type === 'reference') {
+          const isMultiReference = Array.isArray(action.payload);
+          if (isMultiReference) {
+            const parsedPayload = action.payload.map((item: unknown) => {
+              if (isObject(item)) return item._id;
+              return item;
+            });
+            setProperty(state.unsavedFields, action.meta.key, parsedPayload);
+          } else {
+            if (isObject(action.payload)) setProperty(state.unsavedFields, action.meta.key, action.payload._id);
+            else setProperty(state.unsavedFields, action.meta.key, action.payload);
+          }
+          setProperty(state.fields, action.meta.key, action.payload);
+          state.isUnsaved = true;
+        } else {
           setProperty(state.fields, action.meta.key, action.payload);
           setProperty(state.unsavedFields, action.meta.key, action.payload);
           state.isUnsaved = true;
         }
       },
-      prepare: (payload: field, key: string, type: 'tiptap' | 'default' = 'default') => ({
+      prepare: (payload: field, key: string, type: 'tiptap' | 'reference' | 'default' = 'default') => ({
         payload,
         type,
-        meta: { key },
+        meta: { key, type },
       }),
     },
     /**

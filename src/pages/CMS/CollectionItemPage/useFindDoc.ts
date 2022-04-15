@@ -52,6 +52,11 @@ function useFindDoc(
                   created_at: true,
                   modified_at: true,
                 },
+                people: {
+                  watching: {
+                    _id: true,
+                  },
+                },
               },
               ...schemaDef.map(([key, def]): Record<string, never> => {
                 if (isTypeTuple(def.type)) {

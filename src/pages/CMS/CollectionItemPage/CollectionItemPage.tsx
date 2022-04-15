@@ -12,7 +12,7 @@ import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
 import {
@@ -52,9 +52,11 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { search } = useLocation();
+  const navigate = useNavigate();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
+  const collectionName = capitalize(pluralize.singular(collection));
   const [{ schemaDef, nameField, canPublish: isPublishableCollection, options: collectionOptions }] =
-    useCollectionSchemaConfig(capitalize(pluralize.singular(collection)));
+    useCollectionSchemaConfig(collectionName);
   const { actionAccess, loading, error, refetch } = useFindDoc(collection, item_id, schemaDef);
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
 
@@ -90,19 +92,22 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     mandatoryWatchersKeys: collectionOptions?.mandatoryWatchers || [],
   });
 
+  // determine the actions for this document
   const { actions, quickActions, showActionDropdown } = useActions({
     actionAccess,
     canPublish,
-    isUnsaved: itemState.isUnsaved,
+    state: itemState,
+    collectionName,
+    itemId: item_id,
+    dispatch,
     refetchData: refetch,
     watch: {
       isMandatoryWatcher: isMandatoryWatcher || false,
       isWatching: isWatching || false,
       mandatoryWatchersList,
     },
+    navigate,
   });
-
-  // determine the actions for this document
 
   if (schemaDef) {
     return (
@@ -274,7 +279,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                             collection={pluralize.singular(collection)}
                             fields={def.field?.reference?.fields}
                             onChange={(newValues) => {
-                              if (newValues !== undefined && !readOnly) dispatch(setField(newValues, key));
+                              if (newValues !== undefined && !readOnly)
+                                dispatch(setField(newValues, key, 'reference'));
                             }}
                           />
                         );
@@ -293,13 +299,17 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                           key={index}
                           label={fieldName}
                           description={def.field?.description}
-                          value={value || null}
-                          disabled={loading || !!error}
+                          // only show the value if it is not null, undefined, or an empty string
+                          value={value?._id ? value : null}
+                          // disable when the api requires the field to always have a value but a default
+                          // value for when no specific photo is selected is not defined
+                          disabled={loading || !!error || (def.required && def.default === undefined)}
                           isEmbedded={props.isEmbedded}
                           collection={pluralize.singular(collection)}
                           fields={def.field?.reference?.fields}
-                          onChange={(newValues) => {
-                            if (newValues !== undefined && !readOnly) dispatch(setField(newValues, key));
+                          onChange={(newValue) => {
+                            if (newValue !== undefined && !readOnly)
+                              dispatch(setField(newValue || def.default, key, 'reference'));
                           }}
                         />
                       );
