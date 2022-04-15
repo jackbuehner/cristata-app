@@ -107,6 +107,9 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
       />
       <Global
         styles={css`
+          .rc-select-dropdown {
+            z-index: 100;
+          }
           .rc-select-dropdown-hidden {
             display: none;
           }
