@@ -1,14 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import {
-  ArrowClockwise24Regular,
-  CloudArrowUp24Regular,
-  Delete24Regular,
-  EyeHide24Regular,
-  EyeShow24Regular,
-  MoreHorizontal24Regular,
-  Save24Regular,
-} from '@fluentui/react-icons';
+import { MoreHorizontal24Regular } from '@fluentui/react-icons';
 import {
   isTypeTuple,
   MongooseSchemaType,
@@ -19,7 +11,7 @@ import Color from 'color';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
@@ -34,19 +26,19 @@ import {
   Text,
 } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
-import { Menu } from '../../../components/Menu';
 import { PageHead } from '../../../components/PageHead';
 import { Tiptap } from '../../../components/Tiptap';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
-import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
-import { Iaction } from '../ItemDetailsPage/ItemDetailsPage';
 import { Sidebar } from './Sidebar';
+import { useActions } from './useActions';
 import { useFindDoc } from './useFindDoc';
+import { usePublishPermissions } from './usePublishPermissions';
+import { useWatching } from './useWatching';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -61,7 +53,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const theme = useTheme() as themeType;
   const { search } = useLocation();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
-  const [{ schemaDef, nameField, canPublish: isPublishable, options: collectionOptions }] =
+  const [{ schemaDef, nameField, canPublish: isPublishableCollection, options: collectionOptions }] =
     useCollectionSchemaConfig(capitalize(pluralize.singular(collection)));
   const { actionAccess, loading, error, refetch } = useFindDoc(collection, item_id, schemaDef);
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
@@ -81,170 +73,36 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const sessionId = sessionStorage.getItem('sessionId');
 
   // calculate publish permissions
-  const { canPublish, publishLocked } = useMemo<{
-    /**
-     * Whether the current user has permission to publish this document.
-     */
-    canPublish: boolean;
-    /**
-     * The last stage in the stage field options, which is considered the stage
-     * for documents that are published.
-     */
-    lastStage: number | undefined;
-    /**
-     * The current stage of the current document.
-     */
-    currentStage: number | undefined;
-    /**
-     * Lock the document to read-only mode because it is currently published
-     * and the current user does not have permission to edit publish documents.
-     */
-    publishLocked: boolean;
-  }>(() => {
-    const canPublish = actionAccess?.publish === true;
-    const cannotPublish = actionAccess?.publish !== true;
-
-    const stageSchemaDef = schemaDef.find(([key]) => key === 'stage')?.[1];
-    const stageFieldOptions = stageSchemaDef?.field?.options;
-    const stageFieldOptionsAscendingOrder = stageFieldOptions?.sort((a, b) => {
-      if (a.value.toString() > b.value.toString()) return 1;
-      return -1;
-    });
-
-    const lastStage = parseFloat(stageFieldOptionsAscendingOrder?.[0]?.value?.toString() || '0') || undefined;
-    const currentStage = parseFloat(getProperty(itemState.fields, 'stage')?.toString() || '0') || undefined;
-
-    // if true, lock the publishing capability because the current user does not have permission
-    const publishLocked = isPublishable && cannotPublish && currentStage === lastStage;
-
-    return { canPublish, lastStage, currentStage, publishLocked };
-  }, [actionAccess?.publish, isPublishable, itemState.fields, schemaDef]);
+  const { canPublish, publishLocked } = usePublishPermissions({
+    isPublishableCollection,
+    itemStateFields: itemState.fields,
+    schemaDef,
+    publishActionAccess: actionAccess?.publish,
+  });
 
   // fs search param
   const fs = new URLSearchParams(search).get('fs');
 
   // calculate user watching status
-  const { isWatching, isMandatoryWatcher, mandatoryWatchersKeys } = useMemo<{
-    isWatching?: boolean;
-    isMandatoryWatcher?: boolean;
-    mandatoryWatchersKeys: string;
-  }>(() => {
-    const watchers: string[] = (
-      (getProperty(itemState.fields, 'people.watching') as { _id: string }[]) || []
-    ).map(({ _id }) => _id);
+  const { isWatching, isMandatoryWatcher, mandatoryWatchersList } = useWatching({
+    authUserState,
+    itemStateFields: itemState.fields,
+    mandatoryWatchersKeys: collectionOptions?.mandatoryWatchers || [],
+  });
 
-    const mandatoryWatchersKeys: string[] = collectionOptions?.mandatoryWatchers || [];
-    const mandatoryWatchers = ([] as { _id: string }[]).concat
-      .apply(
-        [],
-        mandatoryWatchersKeys?.map((key): { _id: string }[] => getProperty(itemState.fields, key) || [])
-      )
-      .map(({ _id }) => _id);
-
-    const isWatching: boolean | undefined = authUserState && watchers?.includes(authUserState._id);
-    const isMandatoryWatcher: boolean | undefined =
-      authUserState && mandatoryWatchers?.includes(authUserState._id);
-
-    return { isWatching, isMandatoryWatcher, mandatoryWatchersKeys: mandatoryWatchersKeys.join(', ') };
-  }, [authUserState, collectionOptions?.mandatoryWatchers, itemState.fields]);
+  const { actions, quickActions, showActionDropdown } = useActions({
+    actionAccess,
+    canPublish,
+    isUnsaved: itemState.isUnsaved,
+    refetchData: refetch,
+    watch: {
+      isMandatoryWatcher: isMandatoryWatcher || false,
+      isWatching: isWatching || false,
+      mandatoryWatchersList,
+    },
+  });
 
   // determine the actions for this document
-  const actions: Array<Iaction | null> = useMemo(
-    () => [
-      {
-        label: 'Discard changes & refresh',
-        type: 'icon',
-        icon: <ArrowClockwise24Regular />,
-        action: () => refetch(),
-      },
-      {
-        label: isWatching || isMandatoryWatcher ? 'Stop Watching' : 'Watch',
-        type: 'button',
-        icon: isWatching || isMandatoryWatcher ? <EyeHide24Regular /> : <EyeShow24Regular />,
-        action: () => null,
-        disabled: isMandatoryWatcher || actionAccess?.watch !== true,
-        'data-tip': isMandatoryWatcher
-          ? `You cannot stop watching this document because you are in one of the following groups: ${mandatoryWatchersKeys}`
-          : undefined,
-      },
-      {
-        label: 'Delete',
-        type: 'button',
-        icon: <Delete24Regular />,
-        action: () => null,
-        color: 'red',
-        disabled: actionAccess?.hide !== true,
-      },
-      {
-        label: 'Save',
-        type: 'button',
-        icon: <Save24Regular />,
-        action: () => null,
-        disabled: !itemState.isUnsaved || actionAccess?.modify !== true,
-        'data-tip':
-          actionAccess?.modify !== true
-            ? `You cannot save this document because you do not have permission.`
-            : !itemState.isUnsaved
-            ? `There are no changes to save.`
-            : undefined,
-      },
-      {
-        label: 'Publish',
-        type: 'button',
-        icon: <CloudArrowUp24Regular />,
-        action: () => null,
-        disabled: canPublish !== true,
-        'data-tip':
-          canPublish !== true
-            ? `You cannot publish this document because you do not have permission.`
-            : undefined,
-      },
-    ],
-    [
-      actionAccess?.hide,
-      actionAccess?.modify,
-      actionAccess?.watch,
-      canPublish,
-      isMandatoryWatcher,
-      isWatching,
-      itemState.isUnsaved,
-      mandatoryWatchersKeys,
-      refetch,
-    ]
-  );
-
-  const [showActionDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
-      return (
-        <Menu
-          ref={dropdownRef}
-          pos={{
-            top: triggerRect.top + triggerRect.height,
-            left: triggerRect.right - 240,
-            width: 240,
-          }}
-          items={
-            actions
-              .filter((action): action is Iaction => !!action)
-              .filter((action) => action.label !== 'Save' && action.label !== 'Publish')
-              .map((action) => {
-                return {
-                  onClick: () => action.action(),
-                  label: action.label,
-                  color: action?.color || 'primary',
-                  disabled: action.disabled,
-                  icon: action.icon,
-                  'data-tip': action['data-tip'],
-                };
-              }) || []
-          }
-        />
-      );
-    },
-    [actions],
-    true,
-    true
-  );
 
   if (schemaDef) {
     return (
@@ -254,27 +112,22 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             title={title.replace(' - Cristata', '')}
             buttons={
               <>
-                {[
-                  actions.find((action) => action?.label === 'Save'),
-                  actions.find((action) => action?.label === 'Publish'),
-                ]
-                  .filter((action): action is Iaction => !!action)
-                  .map((action, index) => {
-                    return (
-                      <span data-tip={action['data-tip']}>
-                        <Button
-                          key={index}
-                          onClick={action.action}
-                          icon={action.icon}
-                          color={action.color}
-                          disabled={action.disabled}
-                          data-tip={action['data-tip']}
-                        >
-                          {action.label}
-                        </Button>
-                      </span>
-                    );
-                  })}
+                {quickActions.map((action, index) => {
+                  return (
+                    <span data-tip={action['data-tip']}>
+                      <Button
+                        key={index}
+                        onClick={action.action}
+                        icon={action.icon}
+                        color={action.color}
+                        disabled={action.disabled}
+                        data-tip={action['data-tip']}
+                      >
+                        {action.label}
+                      </Button>
+                    </span>
+                  );
+                })}
                 <IconButton
                   onClick={showActionDropdown}
                   onAuxClick={() => refetch()}
