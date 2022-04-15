@@ -54,10 +54,14 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const { search } = useLocation();
   const navigate = useNavigate();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
-  const collectionName = capitalize(pluralize.singular(collection));
+  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
   const [{ schemaDef, nameField, canPublish: isPublishableCollection, options: collectionOptions }] =
     useCollectionSchemaConfig(collectionName);
-  const { actionAccess, loading, error, refetch } = useFindDoc(collection, item_id, schemaDef);
+  const { actionAccess, loading, error, refetch } = useFindDoc(
+    uncapitalize(collectionName),
+    item_id,
+    schemaDef
+  );
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
 
   // update tooltip listener when component changes
