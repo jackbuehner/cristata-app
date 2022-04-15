@@ -15,8 +15,9 @@ async function saveChanges(
   collectionName: string,
   itemId: string,
   data: { dispatch: ReturnType<typeof useAppDispatch>; state: CmsItemState; refetch: () => void },
-  extraData: { [key: string]: any } = {}
-) {
+  extraData: { [key: string]: any } = {},
+  permissionsOnly: boolean = false
+): Promise<boolean> {
   if (collectionName && itemId) {
     data.dispatch(setIsLoading(true));
 
@@ -41,11 +42,16 @@ async function saveChanges(
 
     // modify the item in the database
     const config = {
-      mutation: MODIFY_ITEM(itemId, { ...data.state.unsavedFields, ...data.state.tipTapFields, ...extraData }),
+      mutation: MODIFY_ITEM(
+        itemId,
+        permissionsOnly
+          ? data.state.unsavedPermissions
+          : { ...data.state.unsavedFields, ...data.state.tipTapFields, ...extraData }
+      ),
     };
     return await client
       .mutate(config)
-      .finally(() => {
+      .then(() => {
         data.dispatch(setIsLoading(false));
       })
       .then(() => {
@@ -61,6 +67,7 @@ async function saveChanges(
       });
   } else {
     toast.error(`Cannot save changes because the collection and document ID are unknown.`);
+    return false;
   }
 }
 

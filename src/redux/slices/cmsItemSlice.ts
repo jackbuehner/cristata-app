@@ -9,6 +9,7 @@ export interface CmsItemState {
   fields: fields;
   unsavedFields: fields;
   tipTapFields: { [key: string]: string }; // JSON string of prosmirror content
+  unsavedPermissions: fields;
   isUnsaved: boolean;
   isLoading: boolean;
 }
@@ -17,6 +18,7 @@ const initialState: CmsItemState = {
   fields: {},
   unsavedFields: {},
   tipTapFields: {},
+  unsavedPermissions: {},
   isUnsaved: false,
   isLoading: false,
 };
@@ -41,7 +43,10 @@ export const cmsItemSlice = createSlice({
      *
      */
     setField: {
-      reducer: (state, action: PayloadAction<field, string, { key: string; type: string }>) => {
+      reducer: (
+        state,
+        action: PayloadAction<field, string, { key: string; type: string; markUnsaved: boolean }>
+      ) => {
         if (action.type === 'tiptap') state.tipTapFields[action.meta.key] = action.payload;
         else if (action.meta.type === 'reference') {
           const isMultiReference = Array.isArray(action.payload);
@@ -56,17 +61,22 @@ export const cmsItemSlice = createSlice({
             else setProperty(state.unsavedFields, action.meta.key, action.payload);
           }
           setProperty(state.fields, action.meta.key, action.payload);
-          state.isUnsaved = true;
+          if (action.meta.markUnsaved) state.isUnsaved = true;
         } else {
           setProperty(state.fields, action.meta.key, action.payload);
           setProperty(state.unsavedFields, action.meta.key, action.payload);
-          state.isUnsaved = true;
+          if (action.meta.markUnsaved) state.isUnsaved = true;
         }
       },
-      prepare: (payload: field, key: string, type: 'tiptap' | 'reference' | 'default' = 'default') => ({
+      prepare: (
+        payload: field,
+        key: string,
+        type: 'tiptap' | 'reference' | 'default' = 'default',
+        markUnsaved = true
+      ) => ({
         payload,
         type,
-        meta: { key, type },
+        meta: { key, type, markUnsaved },
       }),
     },
     /**
@@ -84,9 +94,20 @@ export const cmsItemSlice = createSlice({
     setIsLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
+    /**
+     * Sets the unsaved permissions fields, to be used when only saving
+     * changes to permissions.
+     */
+    setUnsavedPermissionField: {
+      reducer: (state, action: PayloadAction<field, string, { key: string }>) => {
+        setProperty(state.unsavedPermissions, action.meta.key, action.payload);
+      },
+      prepare: (payload: field, key: string) => ({ payload, meta: { key } }),
+    },
   },
 });
 
-export const { setFields, setField, clearUnsavedFields, setIsLoading } = cmsItemSlice.actions;
+export const { setFields, setField, clearUnsavedFields, setIsLoading, setUnsavedPermissionField } =
+  cmsItemSlice.actions;
 
 export default cmsItemSlice.reducer;

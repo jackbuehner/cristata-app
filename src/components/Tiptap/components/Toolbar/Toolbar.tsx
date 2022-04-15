@@ -18,6 +18,7 @@ import {
   Database20Regular,
   Apps20Regular,
   CommentMultiple20Regular,
+  Share20Regular,
 } from '@fluentui/react-icons';
 import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
@@ -49,7 +50,7 @@ import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
 import { Iaction, ItemDetailsPage } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { tiptapOptions } from '../../../../config';
 import { Select } from '../../../Select';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -62,6 +63,10 @@ import {
 import { useFontFamilyDropdown } from './useCustomDropdown';
 import { CommentPanel } from '../../extension-power-comment';
 import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
+import { useShareModal } from '../../../../pages/CMS/CollectionItemPage/useShareModal';
+import { capitalize } from '../../../../utils/capitalize';
+import { dashToCamelCase } from '../../../../utils/dashToCamelCase';
+import pluralize from 'pluralize';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -107,6 +112,9 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
   const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
   const { pathname, search, hash } = useLocation();
   const params = new URLSearchParams(search);
+  let { collection, item_id } = useParams() as { collection: string; item_id: string };
+  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
+  const [showShareModal] = useShareModal(collectionName, item_id);
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -744,6 +752,13 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 />
               </>
             )}
+            <ToolbarMetaIconButton
+              icon={<Share20Regular />}
+              color={'neutral'}
+              onClick={() => showShareModal()}
+              isActive={false}
+              data-tip={`Share this document`}
+            />
             {!props.forceMax ? (
               <ToolbarMetaIconButton
                 onClick={() => {
@@ -752,7 +767,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 }}
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
                 color={'neutral'}
-                data-tip={(isMax ? 'Maximize' : 'Minimize') + ' editor'}
+                data-tip={(isMax ? 'Minimize' : 'Maximize') + ' editor'}
               />
             ) : null}
           </ToolbarMeta>

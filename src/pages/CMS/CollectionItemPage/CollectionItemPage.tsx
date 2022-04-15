@@ -133,17 +133,24 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         getProperty(itemState.fields, 'permissions.users')?.map(
           (user: {
             _id: string;
-            name: string;
+            name?: string;
+            label?: string;
             photo?: string;
           }): { _id: string; name: string; photo?: string; color: string } => ({
             ...user,
+            name: user.name || user.label || 'User',
             color: colorHash.hex(user._id),
           })
         ) || [],
       teams:
         getProperty(itemState.fields, 'permissions.teams')
-          ?.filter((_id: string) => !!_id)
-          .map((_id: string) => ({ _id, color: colorHash.hex(_id) })) || [],
+          ?.filter((_id: string | { _id: string; label: string }) => !!_id)
+          .map((_id: string | { _id: string; label: string }) => {
+            if (typeof _id === 'string') {
+              return { _id, color: colorHash.hex(_id) };
+            }
+            return { _id: _id._id, label: _id.label, color: colorHash.hex(_id._id) };
+          }) || [],
     },
   };
 

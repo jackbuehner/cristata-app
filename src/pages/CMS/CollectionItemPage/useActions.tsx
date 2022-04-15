@@ -6,6 +6,7 @@ import {
   EyeHide24Regular,
   EyeShow24Regular,
   Save24Regular,
+  Share24Regular,
 } from '@fluentui/react-icons';
 import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types/config';
 import { useCallback } from 'react';
@@ -19,6 +20,7 @@ import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { Iaction } from '../ItemDetailsPage/ItemDetailsPage';
 import { saveChanges } from './saveChanges';
+import { useShareModal } from './useShareModal';
 
 interface UseActionsParams {
   actionAccess: Record<keyof CollectionPermissions, boolean | undefined> | undefined;
@@ -43,6 +45,8 @@ interface UseActionsReturn {
 }
 
 function useActions(params: UseActionsParams): UseActionsReturn {
+  const [showShareModal] = useShareModal(params.collectionName, params.itemId);
+
   const idKey = '_id';
 
   /**
@@ -160,6 +164,18 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           : undefined,
       },
       {
+        label: 'Publish',
+        type: 'button',
+        icon: <CloudArrowUp24Regular />,
+        action: () => null,
+        color: 'success',
+        disabled: params.canPublish !== true,
+        'data-tip':
+          params.canPublish !== true
+            ? `You cannot publish this document because you do not have permission.`
+            : undefined,
+      },
+      {
         label: 'Delete',
         type: 'button',
         icon: <Delete24Regular />,
@@ -186,19 +202,19 @@ function useActions(params: UseActionsParams): UseActionsReturn {
             : undefined,
       },
       {
-        label: 'Publish',
+        label: 'Share',
         type: 'button',
-        icon: <CloudArrowUp24Regular />,
-        action: () => null,
-        disabled: params.canPublish !== true,
+        icon: <Share24Regular />,
+        action: () => showShareModal(),
+        disabled: params.actionAccess?.modify !== true,
         'data-tip':
-          params.canPublish !== true
-            ? `You cannot publish this document because you do not have permission.`
+          params.actionAccess?.modify !== true
+            ? `You cannot share this document because you do not have permission to modify it.`
             : undefined,
       },
     ];
     return actions.filter((action): action is Iaction => !!actions);
-  }, [hideItem, params, toggleWatchItem])();
+  }, [hideItem, params, showShareModal, toggleWatchItem])();
 
   // create a dropdown with all actions except save and publish
   const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {
@@ -212,7 +228,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         }}
         items={
           actions
-            .filter((action) => action.label !== 'Save' && action.label !== 'Publish')
+            .filter((action) => action.label !== 'Save' && action.label !== 'Share')
             .map((action) => {
               return {
                 onClick: () => action.action(),
@@ -228,12 +244,12 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     );
   });
 
-  // create a list that only includes save and publish actions
+  // create a list that only includes save and share actions
   // so that these actions can be used in conjunction with
   // the dropdown
   const quickActions = [
     actions.find((action) => action?.label === 'Save'),
-    actions.find((action) => action?.label === 'Publish'),
+    actions.find((action) => action?.label === 'Share'),
   ].filter((action): action is Iaction => !!action);
 
   return { actions, quickActions, showActionDropdown };
