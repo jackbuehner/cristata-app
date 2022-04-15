@@ -114,9 +114,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               <>
                 {quickActions.map((action, index) => {
                   return (
-                    <span data-tip={action['data-tip']}>
+                    <span data-tip={action['data-tip']} key={index}>
                       <Button
-                        key={index}
                         onClick={action.action}
                         icon={action.icon}
                         color={action.color}
@@ -165,7 +164,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                     return true;
                   })
                   // return the correct input
-                  .map(([key, def]) => {
+                  .map(([key, def], index) => {
                     const type: MongooseSchemaType = isTypeTuple(def.type) ? def.type[1] : def.type;
                     const readOnly = def.field?.readonly === true;
                     let fieldName = def.field?.label || key;
@@ -184,6 +183,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
                       return (
                         <Field
+                          key={index}
                           label={fieldName}
                           description={def.field?.description}
                           isEmbedded={props.isEmbedded}
@@ -265,6 +265,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
                         return (
                           <ReferenceMany
+                            key={index}
                             label={fieldName}
                             description={def.field?.description}
                             values={values}
@@ -289,6 +290,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
                       return (
                         <ReferenceOne
+                          key={index}
                           label={fieldName}
                           description={def.field?.description}
                           value={value || null}
@@ -310,6 +312,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         const options = def.field.options as NumberOption[];
                         return (
                           <SelectOne
+                            key={index}
                             type={'String'}
                             options={options}
                             label={fieldName}
@@ -326,6 +329,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       }
                       return (
                         <Text
+                          key={index}
                           label={fieldName}
                           description={def.field?.description}
                           value={getProperty(itemState.fields, key)}
@@ -343,6 +347,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                     if (type === 'Boolean') {
                       return (
                         <Checkbox
+                          key={index}
                           label={fieldName}
                           description={def.field?.description}
                           checked={!!getProperty(itemState.fields, key)}
@@ -363,6 +368,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         const options = def.field.options as NumberOption[];
                         return (
                           <SelectOne
+                            key={index}
                             type={'Int'}
                             options={options}
                             label={fieldName}
@@ -379,6 +385,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       }
                       return (
                         <Number
+                          key={index}
                           type={'Int'}
                           label={fieldName}
                           description={def.field?.description}
@@ -400,6 +407,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         const options = def.field.options as NumberOption[];
                         return (
                           <SelectOne
+                            key={index}
                             type={'Float'}
                             options={options}
                             label={fieldName}
@@ -416,6 +424,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       }
                       return (
                         <Number
+                          key={index}
                           type={'Float'}
                           label={fieldName}
                           description={def.field?.description}
@@ -437,6 +446,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         const options = def.field.options as StringOption[];
                         return (
                           <SelectMany
+                            key={index}
                             type={'Float'}
                             options={options}
                             label={fieldName}
@@ -453,6 +463,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       }
                       return (
                         <SelectMany
+                          key={index}
                           type={'String'}
                           label={fieldName}
                           description={def.field?.description}
@@ -474,6 +485,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         const options = def.field.options as StringOption[];
                         return (
                           <SelectMany
+                            key={index}
                             type={'Int'}
                             options={options}
                             label={fieldName}
@@ -492,6 +504,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       }
                       return (
                         <SelectMany
+                          key={index}
                           type={'Int'}
                           label={fieldName}
                           description={def.field?.description}
@@ -513,6 +526,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         const options = def.field.options as StringOption[];
                         return (
                           <SelectMany
+                            key={index}
                             type={'Float'}
                             options={options}
                             label={fieldName}
@@ -531,6 +545,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       }
                       return (
                         <SelectMany
+                          key={index}
                           type={'Float'}
                           label={fieldName}
                           description={def.field?.description}
@@ -550,6 +565,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       const currentTimestamp: string | undefined = getProperty(itemState.fields, key);
                       return (
                         <DateTime
+                          key={index}
                           label={fieldName}
                           description={def.field?.description}
                           value={
@@ -570,6 +586,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                     // fallback
                     return (
                       <Field
+                        key={index}
                         label={fieldName}
                         description={def.field?.description}
                         isEmbedded={props.isEmbedded}
