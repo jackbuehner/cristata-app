@@ -2,6 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { CSSProperties } from 'react';
 import { colorType, themeType } from '../../utils/theme/theme';
+import { sanitize } from 'dompurify';
 
 interface FieldProps {
   children: React.ReactElement;
@@ -14,6 +15,7 @@ interface FieldProps {
   labelRowStyle?: CSSProperties;
   labelStyle?: CSSProperties;
   childWrapperStyle?: CSSProperties;
+  disabled?: boolean;
 }
 
 function Field(props: FieldProps) {
@@ -38,7 +40,13 @@ function Field(props: FieldProps) {
               {props.label}
             </Label>
           </LabelRow>
-          {props.description ? <Description theme={theme}>{props.description}</Description> : null}
+          {props.description ? (
+            <Description
+              theme={theme}
+              dangerouslySetInnerHTML={{ __html: sanitize(props.description) }}
+              disabled={props.disabled || false}
+            />
+          ) : null}
         </>
       ) : null}
       <div style={props.childWrapperStyle}>{props.children}</div>
@@ -76,14 +84,22 @@ const Label = styled.label<{ theme: themeType; font?: keyof themeType['font'] }>
   user-select: none;
 `;
 
-const Description = styled.div<{ theme: themeType; font?: keyof themeType['font'] }>`
+const Description = styled.div<{ theme: themeType; font?: keyof themeType['font']; disabled: boolean }>`
   line-height: 16px;
   font-family: ${({ theme, font }) => theme.font[font ? font : 'detail']};
   font-size: 13px;
   font-variant-numeric: lining-nums;
   font-weight: 400;
-  color: ${({ theme }) => theme.color.neutral[theme.mode][1100]};
+  color: ${({ disabled, theme }) =>
+    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1100]};
+  a {
+    color: ${({ disabled, theme }) =>
+      disabled
+        ? theme.color.neutral[theme.mode][600]
+        : theme.color.primary[theme.mode === 'light' ? 800 : 300]};
+  }
   margin: -6px 0 14px 0;
+  white-space: pre-line;
 `;
 
 const LabelRow = styled.div<{ theme: themeType }>`
