@@ -50,28 +50,32 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
   const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
-    setLoading(true);
-    setOptions([]);
-    const query = client.watchQuery<{ result: { docs: { value: string; label: string }[] } }>({
-      query: gql`{
+    if (textValue) {
+      setLoading(true);
+      setOptions([]);
+      const query = client.watchQuery<{ result: { docs: { value: string; label: string }[] } }>({
+        query: gql`{
             result: ${pluralize(props.collection).toLowerCase()}(limit: 6, filter: "{ \\\"${
-        props.fields?.name || 'name'
-      }\\\": { \\\"$regex\\\": \\\"${textValue}\\\", \\\"$options\\\": \\\"i\\\" } }") {
+          props.fields?.name || 'name'
+        }\\\": { \\\"$regex\\\": \\\"${textValue}\\\", \\\"$options\\\": \\\"i\\\" } }") {
               docs {
                 value: ${props.fields?._id || '_id'}
                 label: ${props.fields?.name || 'name'}
               }
             }
           }`,
-      fetchPolicy: 'no-cache',
-    });
+        fetchPolicy: 'no-cache',
+      });
 
-    const observable = query.subscribe(({ data }) => {
-      setOptions(data.result.docs);
-      setLoading(false);
-    });
+      const observable = query.subscribe(({ data }) => {
+        setOptions(data.result.docs);
+        setLoading(false);
+      });
 
-    return () => observable.unsubscribe();
+      return () => observable.unsubscribe();
+    } else {
+      setOptions([]);
+    }
   }, [props.collection, props.fields?._id, props.fields?.name, textValue]);
 
   return (
@@ -156,7 +160,9 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
               setInternalState({ _id: values[0].value.toString(), label: values[0].label });
             }}
             onTextChange={(value) => setTextValue(value)}
-            notFoundContent={loading && textValue ? 'Loading...' : undefined}
+            notFoundContent={
+              loading && textValue ? 'Loading...' : !textValue ? 'Start typing to search.' : undefined
+            }
           />
         )}
       </div>

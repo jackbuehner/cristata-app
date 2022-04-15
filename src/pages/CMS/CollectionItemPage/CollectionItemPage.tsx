@@ -62,7 +62,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const { actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
-    schemaDef
+    schemaDef,
+    props.isEmbedded || false
   );
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
 

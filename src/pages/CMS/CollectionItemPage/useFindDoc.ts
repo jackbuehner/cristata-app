@@ -19,6 +19,7 @@ function useFindDoc(
   collection: string,
   item_id: string,
   schemaDef: [string, SchemaDef][],
+  doNothing = false,
   accessor = '_id'
 ): {
   actionAccess?: Record<CollectionPermissionsActions, boolean | undefined>;
@@ -90,7 +91,7 @@ function useFindDoc(
     notifyOnNetworkStatusChange: true,
     onCompleted(data) {
       // save the item to redux
-      if (data?.[queryName]) {
+      if (data?.[queryName] && doNothing !== true) {
         dispatch(setFields(data[queryName]));
       }
     },
@@ -101,12 +102,12 @@ function useFindDoc(
 
   // if the query is loading or refetching, set `isLoading` in redux
   useEffect(() => {
-    if (loading || networkStatus === NetworkStatus.refetch) {
+    if ((loading || networkStatus === NetworkStatus.refetch) && doNothing !== true) {
       dispatch(setIsLoading(true));
     } else {
       dispatch(setIsLoading(false));
     }
-  }, [dispatch, loading, networkStatus]);
+  }, [dispatch, doNothing, loading, networkStatus]);
 
   return { actionAccess, loading, error, refetch };
 }
