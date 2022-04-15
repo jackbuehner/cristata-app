@@ -166,6 +166,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   // remove fields that are used in the sidebar
                   .filter(([key]) => {
                     if (key === 'stage') return false;
+                    if (key === 'permissions.users') return false;
+                    if (key === 'permissions.teams') return false;
                     return true;
                   })
                   // return the correct input
@@ -216,7 +218,12 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                               onDebouncedChange={(editorJson, storedJson) => {
                                 const isDefaultJson =
                                   editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
-                                if (!isDefaultJson && storedJson !== null && editorJson !== storedJson) {
+                                if (
+                                  !isDefaultJson &&
+                                  storedJson !== null &&
+                                  editorJson &&
+                                  editorJson !== storedJson
+                                ) {
                                   dispatch(setField(editorJson, key, 'tiptap'));
                                 }
                               }}
