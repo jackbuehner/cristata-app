@@ -29,6 +29,7 @@ interface SidebarProps {
     teams: { _id: string; name?: string; color: string }[];
   };
   loading?: boolean;
+  isEmbedded?: boolean;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -57,7 +58,7 @@ function Sidebar(props: SidebarProps) {
   }, [props.permissions.teams, teams]);
 
   return (
-    <Container theme={theme}>
+    <Container theme={theme} isEmbedded={props.isEmbedded}>
       <SectionTitle theme={theme}>Document Information</SectionTitle>
       <DocInfoRow theme={theme}>
         <div>Created</div>
@@ -126,14 +127,25 @@ function Sidebar(props: SidebarProps) {
   );
 }
 
-const Container = styled.div<{ theme: themeType }>`
+const Container = styled.div<{ theme: themeType; isEmbedded?: boolean }>`
   width: 300px;
-  background-color: ${({ theme }) =>
-    theme.mode === 'dark' ? theme.color.neutral[theme.mode][100] : '#ffffff'};
-  border-left: ${({ theme }) => `1px solid ${theme.color.neutral[theme.mode][200]}`};
+  background-color: ${({ theme, isEmbedded }) => {
+    if (isEmbedded) {
+      if (theme.mode === 'dark') return Color(theme.color.neutral[theme.mode][200]).alpha(0.3).string();
+      return '#ffffff';
+    } else {
+      if (theme.mode === 'dark') return theme.color.neutral[theme.mode][100];
+      return '#ffffff';
+    }
+  }};
+  border: ${({ isEmbedded }) => (isEmbedded ? `1px solid` : `none`)};
+  border-radius: ${({ theme, isEmbedded }) => (isEmbedded ? theme.radius : 0)};
+  border-left: 1px solid;
+  border-color: ${({ theme }) => theme.color.neutral[theme.mode][200]};
   flex-grow: 0;
   flex-shrink: 0;
-  padding: 20px;
+  padding: ${({ isEmbedded }) => (isEmbedded ? '4px 16px 14px 16px' : '20px')};
+  margin-bottom: ${({ isEmbedded }) => (isEmbedded ? '16px' : '0px')};
   box-sizing: border-box;
   overflow: auto;
 `;

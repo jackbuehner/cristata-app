@@ -116,6 +116,37 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     navigate,
   });
 
+  const sidebarProps = {
+    isEmbedded: props.isEmbedded,
+    docInfo: {
+      _id: getProperty(itemState.fields, '_id'),
+      createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
+      modifiedAt: getProperty(itemState.fields, 'timestamps.modified_at'),
+    },
+    stage: {
+      current: getProperty(itemState.fields, 'stage'),
+      options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
+      key: 'stage',
+    },
+    permissions: {
+      users:
+        getProperty(itemState.fields, 'permissions.users')?.map(
+          (user: {
+            _id: string;
+            name: string;
+            photo?: string;
+          }): { _id: string; name: string; photo?: string; color: string } => ({
+            ...user,
+            color: colorHash.hex(user._id),
+          })
+        ) || [],
+      teams:
+        getProperty(itemState.fields, 'permissions.teams')
+          ?.filter((_id: string) => !!_id)
+          .map((_id: string) => ({ _id, color: colorHash.hex(_id) })) || [],
+    },
+  };
+
   if (schemaDef) {
     return (
       <>
@@ -160,6 +191,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 </Notice>
               ) : null}
               <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
+                {props.isEmbedded ? <Sidebar {...sidebarProps} /> : null}
                 {schemaDef
                   // sort fields to match their order
                   .sort((a, b) => {
@@ -627,37 +659,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   })}
               </div>
             </div>
-            {props.isEmbedded ? null : (
-              <Sidebar
-                docInfo={{
-                  _id: getProperty(itemState.fields, '_id'),
-                  createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
-                  modifiedAt: getProperty(itemState.fields, 'timestamps.modified_at'),
-                }}
-                stage={{
-                  current: getProperty(itemState.fields, 'stage'),
-                  options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
-                  key: 'stage',
-                }}
-                permissions={{
-                  users:
-                    getProperty(itemState.fields, 'permissions.users')?.map(
-                      (user: {
-                        _id: string;
-                        name: string;
-                        photo?: string;
-                      }): { _id: string; name: string; photo?: string; color: string } => ({
-                        ...user,
-                        color: colorHash.hex(user._id),
-                      })
-                    ) || [],
-                  teams:
-                    getProperty(itemState.fields, 'permissions.teams')
-                      ?.filter((_id: string) => !!_id)
-                      .map((_id: string) => ({ _id, color: colorHash.hex(_id) })) || [],
-                }}
-              />
-            )}
+            {props.isEmbedded ? null : <Sidebar {...sidebarProps} />}
           </ContentWrapper>
         )}
       </>
