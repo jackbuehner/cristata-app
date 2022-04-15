@@ -66,8 +66,16 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       .mutate({ mutation: HIDE_ITEM })
       .then(() => {
         params.dispatch(setIsLoading(false));
-        toast.success(`Item successfully hidden.`);
-        params.navigate('/');
+        if (window.name === '') {
+          // redirect to home page if an unnamed window
+          toast.success(`Item successfully hidden.`);
+          params.navigate('/');
+        } else {
+          // otherwise, this window was opened by the unnamed window
+          // and should be closed once the item is hidden
+          window.alert(`Item successfully hidden. This window will close.`);
+          window.close();
+        }
       })
       .catch((err) => {
         params.dispatch(setIsLoading(false));
