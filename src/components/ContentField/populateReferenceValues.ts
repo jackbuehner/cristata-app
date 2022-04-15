@@ -27,7 +27,7 @@ async function getMissingLabel(
   fields?: { _id?: string; name?: string }
 ): Promise<string> {
   try {
-    if (!mongoose.isValidObjectId(_id)) return _id;
+    if (!mongoose.Types.ObjectId.isValid(_id)) return _id;
     const res = await client.query<{ result: { name: string } }>({
       query: gql`{
         result: ${collection.toLowerCase()}(_id: "${_id}") {
