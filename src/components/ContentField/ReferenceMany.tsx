@@ -24,6 +24,7 @@ interface ReferenceManyProps extends Omit<FieldProps, 'children'> {
    */
   collection: string;
   fields?: { _id?: string; name?: string };
+  noDrag?: boolean;
 }
 
 type UnpopulatedValue = { _id: string; label?: string };
@@ -124,6 +125,7 @@ function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
           internalState={[internalState, setInternalState]}
           color={props.color}
           collection={props.collection}
+          noDrag={props.noDrag}
         />
       </div>
     </Field>
@@ -140,6 +142,7 @@ interface SelectedProps {
    * Singular collection name.
    */
   collection: string;
+  noDrag?: boolean;
 }
 
 function Selected(props: SelectedProps) {
@@ -177,7 +180,7 @@ function Selected(props: SelectedProps) {
                   <Draggable draggableId={_id.toString()} index={index} key={index + _id.toString()}>
                     {(provided) => (
                       <SelectItem ref={provided.innerRef} {...provided.draggableProps} theme={theme}>
-                        <DragHandle {...provided.dragHandleProps} theme={theme} />
+                        {props.noDrag ? null : <DragHandle {...provided.dragHandleProps} theme={theme} />}
                         <SelectContent>
                           <SelectText theme={theme} font={props.font}>
                             {label}

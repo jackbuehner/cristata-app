@@ -18,6 +18,7 @@ interface SelectManyProps extends Omit<FieldProps, 'children'> {
   disabled?: boolean;
   onChange?: (values: Values) => void;
   options?: Values;
+  noDrag?: boolean;
 }
 
 type Values = StringValue[] | NumberValue[];
@@ -97,6 +98,7 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
             font={props.font}
             internalState={[internalState, setInternalState]}
             color={props.color}
+            noDrag={props.noDrag}
           />
         </div>
       </Field>
@@ -134,6 +136,7 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
             font={props.font}
             internalState={[internalState, setInternalState]}
             color={props.color}
+            noDrag={props.noDrag}
           />
         </div>
       </Field>
@@ -171,6 +174,7 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
             font={props.font}
             internalState={[internalState, setInternalState]}
             color={props.color}
+            noDrag={props.noDrag}
           />
         </div>
       </Field>
@@ -186,6 +190,7 @@ interface SelectedProps {
   font?: keyof themeType['font'];
   color?: colorType;
   internalState: [StringValue[] | NumberValue[], (newState: StringValue[] | NumberValue[]) => void];
+  noDrag?: boolean;
 }
 
 function Selected(props: SelectedProps) {
@@ -223,7 +228,7 @@ function Selected(props: SelectedProps) {
                   <Draggable draggableId={value.toString()} index={index} key={index + value.toString()}>
                     {(provided) => (
                       <SelectItem ref={provided.innerRef} {...provided.draggableProps} theme={theme}>
-                        <DragHandle {...provided.dragHandleProps} theme={theme} />
+                        {props.noDrag ? null : <DragHandle {...provided.dragHandleProps} theme={theme} />}
                         <SelectText theme={theme} font={props.font}>
                           {label}
                         </SelectText>
