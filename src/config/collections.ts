@@ -32,7 +32,7 @@ interface collectionsType {
 }
 
 interface collection<I> {
-  fields: IField[];
+  fields?: IField[];
   columns: Array<{
     key: string;
     isJSON?: boolean; // if the key is a JSON field

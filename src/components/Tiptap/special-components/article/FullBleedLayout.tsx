@@ -112,7 +112,7 @@ function FullBleedLayout(props: IFullBleedLayout) {
     const photoUrl = getProperty(state.fields, keys_article.photo_url);
     const targetPublishAt = getProperty(state.fields, keys_article.target_publish_at);
 
-    const categoryLabels = collectionsConfig['articles']?.fields.find(
+    const categoryLabels = collectionsConfig['articles']?.fields?.find(
       (field) => field.key === 'categories'
     )?.options;
 

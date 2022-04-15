@@ -133,10 +133,10 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     collectionConfig?.canWatch ? { 'people.watching._id': true } : {},
                     ...(collectionConfig?.query.force?.map((field) => ({ [field]: true })) || []),
                     ...(collectionConfig?.mandatoryWatchers?.map((field) => ({ [field]: true })) || []),
-                    ...collectionConfig?.fields.map((field) => ({
+                    ...(collectionConfig?.fields?.map((field) => ({
                       [field.from ? field.from : field.subfield ? field.key + '.' + field.subfield : field.key]:
                         true,
-                    }))
+                    })) || [])
                   )
                 ),
               },
@@ -624,7 +624,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
         ) : // waiting for user info
         sessionId === null ? null : (
           // data loaded
-          collectionConfig?.fields.map((field, index) => {
+          collectionConfig?.fields?.map((field, index) => {
             // if a field is from a JSON object, unstringify the JSON in the source data
             if (field.from) {
               // check if it is JSON since it may have alreadt been converted

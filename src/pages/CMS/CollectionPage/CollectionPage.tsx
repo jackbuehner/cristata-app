@@ -208,7 +208,7 @@ function CollectionPage() {
     } = {};
 
     const fields = collectionConfig?.fields
-      .filter(({ subfield }) => !subfield)
+      ?.filter(({ subfield }) => !subfield)
       .filter(({ from }) => !from)
       .filter(({ modifyValue }) => !modifyValue)
       .filter(({ type }) => type === 'text' || type === 'select' || type === 'multiselect');

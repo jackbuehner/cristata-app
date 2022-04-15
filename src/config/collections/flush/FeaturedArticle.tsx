@@ -43,7 +43,7 @@ function FeaturedArticle({ state, dispatch, ...props }: IFeaturedArticle) {
     [state.fields]
   );
 
-  const categoryLabels = collectionsConfig['articles']?.fields.find(
+  const categoryLabels = collectionsConfig['articles']?.fields?.find(
     (field) => field.key === 'categories'
   )?.options;
 
