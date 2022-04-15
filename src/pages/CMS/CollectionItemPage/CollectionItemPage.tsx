@@ -32,8 +32,10 @@ import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaCon
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
+import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
+import { uncapitalize } from '../../../utils/uncapitalize';
 import { Sidebar } from './Sidebar';
 import { useActions } from './useActions';
 import { useFindDoc } from './useFindDoc';
@@ -300,8 +302,14 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       const value =
                         getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
                           ? (getProperty(itemState.fields, key) as { _id: string; label: string })
-                          : getProperty(itemState.fields, key)?._id ||
-                            typeof getProperty(itemState.fields, key) === 'string'
+                          : getProperty(itemState.fields, key)?._id
+                          ? {
+                              _id: getProperty(itemState.fields, key)?._id,
+                              label: getProperty(itemState.fields, key)?.[
+                                def.field?.reference?.fields.name || 'name'
+                              ],
+                            }
+                          : typeof getProperty(itemState.fields, key) === 'string'
                           ? { _id: getProperty(itemState.fields, key) }
                           : undefined;
 
