@@ -20,6 +20,7 @@ import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { Iaction } from '../ItemDetailsPage/ItemDetailsPage';
 import { saveChanges } from './saveChanges';
+import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
 
 interface UseActionsParams {
@@ -36,6 +37,7 @@ interface UseActionsParams {
   state: CmsItemState;
   refetchData: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
   navigate: NavigateFunction;
+  publishStage?: number;
 }
 
 interface UseActionsReturn {
@@ -45,9 +47,16 @@ interface UseActionsReturn {
 }
 
 function useActions(params: UseActionsParams): UseActionsReturn {
-  const [showShareModal] = useShareModal(params.collectionName, params.itemId);
-
   const idKey = '_id';
+
+  const [showShareModal] = useShareModal(params.collectionName, params.itemId);
+  const [showPublishModal] = usePublishModal(
+    params.collectionName,
+    params.itemId,
+    params.refetchData,
+    params.publishStage,
+    idKey
+  );
 
   /**
    * Set the item to be hidden.
@@ -167,7 +176,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         label: 'Publish',
         type: 'button',
         icon: <CloudArrowUp24Regular />,
-        action: () => null,
+        action: () => showPublishModal(),
         color: 'success',
         disabled: params.canPublish !== true,
         'data-tip':
@@ -214,7 +223,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       },
     ];
     return actions.filter((action): action is Iaction => !!actions);
-  }, [hideItem, params, showShareModal, toggleWatchItem])();
+  }, [hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
 
   // create a dropdown with all actions except save and publish
   const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {

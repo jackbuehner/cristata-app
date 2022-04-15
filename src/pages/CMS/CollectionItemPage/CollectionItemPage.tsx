@@ -82,7 +82,11 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const sessionId = sessionStorage.getItem('sessionId');
 
   // calculate publish permissions
-  const { canPublish, publishLocked } = usePublishPermissions({
+  const {
+    canPublish,
+    publishLocked,
+    lastStage: publishStage,
+  } = usePublishPermissions({
     isPublishableCollection,
     itemStateFields: itemState.fields,
     schemaDef,
@@ -114,6 +118,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       mandatoryWatchersList,
     },
     navigate,
+    publishStage,
   });
 
   const sidebarProps = {
