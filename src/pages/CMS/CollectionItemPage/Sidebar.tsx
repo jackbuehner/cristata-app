@@ -23,11 +23,11 @@ interface SidebarProps {
     current: string | number;
     options: StringOption[] | NumberOption[];
     key: string;
-  };
+  } | null;
   permissions: {
     users: { _id: string; name: string; photo?: string; color: string }[];
     teams: { _id: string; name?: string; color: string }[];
-  };
+  } | null;
   loading?: boolean;
   isEmbedded?: boolean;
 }
@@ -39,23 +39,25 @@ function Sidebar(props: SidebarProps) {
   const [teams, setTeams] = useState<{ _id: string; name: string; color: string }[] | undefined>(undefined);
   useEffect(() => {
     (async () => {
-      const valuesAreLooselyDifferent = !props.permissions.teams.every(({ _id: propValue }) => {
-        const internalValues = teams?.map(({ _id }) => _id) || [];
-        return internalValues.includes(propValue);
-      });
-      if (valuesAreLooselyDifferent) {
-        setTeams(
-          (await populateReferenceValues(props.permissions.teams, 'Team')).map((t, i) => {
-            return {
-              _id: t._id,
-              name: t.label,
-              color: props.permissions.teams[i].color,
-            };
-          })
-        );
+      if (props.permissions) {
+        const valuesAreLooselyDifferent = !props.permissions.teams.every(({ _id: propValue }) => {
+          const internalValues = teams?.map(({ _id }) => _id) || [];
+          return internalValues.includes(propValue);
+        });
+        if (valuesAreLooselyDifferent) {
+          setTeams(
+            (await populateReferenceValues(props.permissions.teams, 'Team')).map((t, i) => {
+              return {
+                _id: t._id,
+                name: t.label,
+                color: props.permissions!.teams[i].color,
+              };
+            })
+          );
+        }
       }
     })();
-  }, [props.permissions.teams, teams]);
+  }, [props.permissions, teams]);
 
   return (
     <Container theme={theme} isEmbedded={props.isEmbedded}>
@@ -68,61 +70,81 @@ function Sidebar(props: SidebarProps) {
         <div>Last updated</div>
         <div>{formatISODate(props.docInfo.modifiedAt, undefined, undefined, true)}</div>
       </DocInfoRow>
-      <SectionTitle theme={theme}>Stage</SectionTitle>
-      {typeof props.stage.current === 'string' && typeof props.stage.options[0].value === 'string' ? (
-        <SelectOne
-          type={'String'}
-          options={props.stage.options}
-          label={'Stage'}
-          value={(props.stage.options as StringOption[]).find(({ value }) => value === props.stage.current)}
-          onChange={(value) => {
-            const newValue = value?.value;
-            if (newValue) dispatch(setField(newValue, props.stage.key));
-          }}
-          disabled={props.loading}
-        />
-      ) : (
-        <SelectOne
-          type={'Float'}
-          options={props.stage.options}
-          label={'__in-select'}
-          value={(props.stage.options as NumberOption[]).find(({ value }) => value === props.stage.current)}
-          onChange={(value) => {
-            const newValue = value?.value;
-            if (newValue) dispatch(setField(newValue, props.stage.key));
-          }}
-          disabled={props.loading}
-        />
-      )}
-      <SectionTitle theme={theme}>Access</SectionTitle>
-      {props.permissions.users.map((user) => {
-        return (
-          <AccessRow
-            theme={theme}
-            key={user._id}
-            onClick={() => {
-              window.open(`/profile/${user._id}`, 'sidebar_user' + props.docInfo._id + user._id, 'location=no');
-            }}
-          >
-            <ProfilePhoto theme={theme} src={user.photo || genAvatar(user._id)} color={user.color} />
-            <div style={{ flexGrow: 1 }}>{user.name}</div>
-          </AccessRow>
-        );
-      })}
-      {teams?.map((team) => {
-        return (
-          <AccessRow
-            theme={theme}
-            key={team._id}
-            onClick={() => {
-              window.open(`/teams/${team._id}`, 'sidebar_team' + props.docInfo._id + team._id, 'location=no');
-            }}
-          >
-            <TeamIcon theme={theme} color={team.color} />
-            <div style={{ flexGrow: 1 }}>{team.name}</div>
-          </AccessRow>
-        );
-      })}
+      {props.stage ? (
+        <>
+          <SectionTitle theme={theme}>Stage</SectionTitle>
+          {typeof props.stage.current === 'string' && typeof props.stage.options[0].value === 'string' ? (
+            <SelectOne
+              type={'String'}
+              options={props.stage.options}
+              label={'Stage'}
+              value={(props.stage.options as StringOption[]).find(
+                ({ value }) => value === props.stage!.current
+              )}
+              onChange={(value) => {
+                const newValue = value?.value;
+                if (newValue) dispatch(setField(newValue, props.stage!.key));
+              }}
+              disabled={props.loading}
+            />
+          ) : (
+            <SelectOne
+              type={'Float'}
+              options={props.stage.options}
+              label={'__in-select'}
+              value={(props.stage.options as NumberOption[]).find(
+                ({ value }) => value === props.stage!.current
+              )}
+              onChange={(value) => {
+                const newValue = value?.value;
+                if (newValue) dispatch(setField(newValue, props.stage!.key));
+              }}
+              disabled={props.loading}
+            />
+          )}
+        </>
+      ) : null}
+      {props.permissions ? (
+        <>
+          <SectionTitle theme={theme}>Access</SectionTitle>
+          {props.permissions.users.map((user) => {
+            return (
+              <AccessRow
+                theme={theme}
+                key={user._id}
+                onClick={() => {
+                  window.open(
+                    `/profile/${user._id}`,
+                    'sidebar_user' + props.docInfo._id + user._id,
+                    'location=no'
+                  );
+                }}
+              >
+                <ProfilePhoto theme={theme} src={user.photo || genAvatar(user._id)} color={user.color} />
+                <div style={{ flexGrow: 1 }}>{user.name}</div>
+              </AccessRow>
+            );
+          })}
+          {teams?.map((team) => {
+            return (
+              <AccessRow
+                theme={theme}
+                key={team._id}
+                onClick={() => {
+                  window.open(
+                    `/teams/${team._id}`,
+                    'sidebar_team' + props.docInfo._id + team._id,
+                    'location=no'
+                  );
+                }}
+              >
+                <TeamIcon theme={theme} color={team.color} />
+                <div style={{ flexGrow: 1 }}>{team.name}</div>
+              </AccessRow>
+            );
+          })}
+        </>
+      ) : null}
     </Container>
   );
 }

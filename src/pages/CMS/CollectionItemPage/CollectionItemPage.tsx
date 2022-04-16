@@ -58,8 +58,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const navigate = useNavigate();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
-  const [{ schemaDef, nameField, canPublish: isPublishableCollection, options: collectionOptions }] =
-    useCollectionSchemaConfig(collectionName);
+  const [
+    { schemaDef, nameField, canPublish: isPublishableCollection, options: collectionOptions, withPermissions },
+  ] = useCollectionSchemaConfig(collectionName);
   const { actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
@@ -129,35 +130,42 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
       modifiedAt: getProperty(itemState.fields, 'timestamps.modified_at'),
     },
-    stage: {
-      current: getProperty(itemState.fields, 'stage'),
-      options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
-      key: 'stage',
-    },
-    permissions: {
-      users:
-        getProperty(itemState.fields, 'permissions.users')?.map(
-          (user: {
-            _id: string;
-            name?: string;
-            label?: string;
-            photo?: string;
-          }): { _id: string; name: string; photo?: string; color: string } => ({
-            ...user,
-            name: user.name || user.label || 'User',
-            color: colorHash.hex(user._id),
-          })
-        ) || [],
-      teams:
-        getProperty(itemState.fields, 'permissions.teams')
-          ?.filter((_id: string | { _id: string; label: string }) => !!_id)
-          .map((_id: string | { _id: string; label: string }) => {
-            if (typeof _id === 'string') {
-              return { _id, color: colorHash.hex(_id) };
-            }
-            return { _id: _id._id, label: _id.label, color: colorHash.hex(_id._id) };
-          }) || [],
-    },
+    stage: !!getProperty(itemState.fields, 'stage')
+      ? {
+          current: getProperty(itemState.fields, 'stage'),
+          options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
+          key: 'stage',
+        }
+      : null,
+    permissions:
+      withPermissions === false ||
+      getProperty(itemState.fields, 'permissions.teams')?.includes('000000000000000000000000') ||
+      getProperty(itemState.fields, 'permissions.users')?.includes('000000000000000000000000')
+        ? null
+        : {
+            users:
+              getProperty(itemState.fields, 'permissions.users')?.map(
+                (user: {
+                  _id: string;
+                  name?: string;
+                  label?: string;
+                  photo?: string;
+                }): { _id: string; name: string; photo?: string; color: string } => ({
+                  ...user,
+                  name: user.name || user.label || 'User',
+                  color: colorHash.hex(user._id),
+                })
+              ) || [],
+            teams:
+              getProperty(itemState.fields, 'permissions.teams')
+                ?.filter((_id: string | { _id: string; label: string }) => !!_id)
+                .map((_id: string | { _id: string; label: string }) => {
+                  if (typeof _id === 'string') {
+                    return { _id, color: colorHash.hex(_id) };
+                  }
+                  return { _id: _id._id, label: _id.label, color: colorHash.hex(_id._id) };
+                }) || [],
+          },
   };
 
   if (schemaDef) {
