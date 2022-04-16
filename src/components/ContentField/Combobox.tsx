@@ -1,13 +1,17 @@
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ChevronDown20Regular } from '@fluentui/react-icons';
+import { ChevronDown20Regular, ErrorCircle20Regular } from '@fluentui/react-icons';
 import Color from 'color';
-import Select, { BaseSelectRef } from 'rc-select';
+import mongoose from 'mongoose';
+import Select, { BaseSelectRef, Option } from 'rc-select';
 import { BaseOptionType, LabelInValueType, RawValueType } from 'rc-select/lib/Select';
-import { useEffect, useRef, useState } from 'react';
+import { CSSProperties as CSS, useEffect, useRef, useState } from 'react';
+import ReactTooltip from 'react-tooltip';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 import { FieldProps } from './Field';
+
+const isValidObjectId = mongoose.Types.ObjectId.isValid;
 
 interface ComboboxProps extends Omit<FieldProps, 'children'> {
   disabled?: boolean;
@@ -22,8 +26,8 @@ interface ComboboxProps extends Omit<FieldProps, 'children'> {
 }
 
 type Values = StringValue[] | NumberValue[];
-type StringValue = { value: string; label: string; disabled?: boolean };
-type NumberValue = { value: number; label: string; disabled?: boolean };
+type StringValue = { value: string; label: string; disabled?: boolean; reason?: string };
+type NumberValue = { value: number; label: string; disabled?: boolean; reason?: string };
 
 function Combobox({ onChange, ...props }: ComboboxProps) {
   const theme = useTheme() as themeType;
@@ -64,12 +68,25 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
   // keep track of last search value in the combobox input field
   const [lastSearchValue, setLastSearchValue] = useState<string>('');
 
+  // filter the provided options to exclude currently selected options
+  // (unless showCurrentSelectionInOptions is true)
+  const options = (props.options as StringValue[]).filter((option) => {
+    if (props.showCurrentSelectionInOptions) {
+      return true;
+    } else if (props.values) {
+      return !props.values.some(({ value }) => value.toString() === option?.value.toString());
+    }
+    return !internalState.some(({ value }) => value.toString() === option?.value.toString());
+  });
+
   return (
     <div style={{ position: 'relative' }}>
       <SelectComponent
         theme={theme}
         ref={selectRef}
         dropdownRender={(menu) => {
+          ReactTooltip.rebuild();
+
           return (
             <DropdownMenu theme={theme} optionHeight={props.optionHeight} color={props.color}>
               {menu}
@@ -87,14 +104,6 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
         onSelect={onSelect}
         virtual={false}
         notFoundContent={props.notFoundContent || 'No match found. Try a different query.'}
-        options={(props.options as StringValue[]).filter((option) => {
-          if (props.showCurrentSelectionInOptions) {
-            return true;
-          } else if (props.values) {
-            return !props.values.some(({ value }) => value.toString() === option?.value.toString());
-          }
-          return !internalState.some(({ value }) => value.toString() === option?.value.toString());
-        })}
         filterOption={(value, option) => {
           return (
             option?.value &&
@@ -107,7 +116,24 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
           setLastSearchValue(value);
           props.onTextChange?.(value);
         }}
-      />
+      >
+        {options.map(({ label, value, disabled, reason }) => {
+          const optionProps = { value, label, disabled, 'data-tip': disabled && reason ? reason : label };
+          const labelStyle: CSS = { overflow: 'hidden', textOverflow: 'ellipsis' };
+          const metaStyle: CSS = { display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 };
+          const errorIconStyle: CSS = { display: 'flex', cursor: 'help', color: theme.color.danger[800] };
+          const idStyle: CSS = { color: theme.color.neutral[theme.mode][800] };
+          return (
+            <Option {...optionProps}>
+              <div style={labelStyle}>{label}</div>
+              <div style={metaStyle}>
+                {isValidObjectId(value) ? <code style={idStyle}>{value.toString().slice(-6)}</code> : null}
+                {disabled && reason ? <ErrorCircle20Regular style={errorIconStyle} /> : null}
+              </div>
+            </Option>
+          );
+        })}
+      </SelectComponent>
       <Global
         styles={css`
           .rc-select-dropdown {
@@ -197,8 +223,10 @@ const DropdownMenu = styled.div<{
   .rc-select-item-option,
   .rc-select-item-empty {
     list-style: none;
+    width: 100%;
     height: ${({ optionHeight }) => (optionHeight ? optionHeight : 30)}px;
-    padding: 0 36px 0 16px;
+    box-sizing: border-box;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     font-family: ${({ theme }) => theme.font.detail};
@@ -207,6 +235,16 @@ const DropdownMenu = styled.div<{
     white-space: nowrap;
     cursor: default;
     color: ${({ theme }) => theme.color.neutral[theme.mode][600]};
+  }
+
+  .rc-select-item-option-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
   }
 
   .rc-select-item-option:not(.rc-select-item-option-disabled) {
