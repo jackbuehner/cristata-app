@@ -121,6 +121,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     },
     navigate,
     publishStage,
+    withPermissions,
   });
 
   const sidebarProps = {

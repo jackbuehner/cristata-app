@@ -50,7 +50,7 @@ import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
 import { Iaction, ItemDetailsPage } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { tiptapOptions } from '../../../../config';
 import { Select } from '../../../Select';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -63,10 +63,6 @@ import {
 import { useFontFamilyDropdown } from './useCustomDropdown';
 import { CommentPanel } from '../../extension-power-comment';
 import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
-import { useShareModal } from '../../../../pages/CMS/CollectionItemPage/useShareModal';
-import { capitalize } from '../../../../utils/capitalize';
-import { dashToCamelCase } from '../../../../utils/dashToCamelCase';
-import pluralize from 'pluralize';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -112,9 +108,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
   const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
   const { pathname, search, hash } = useLocation();
   const params = new URLSearchParams(search);
-  let { collection, item_id } = useParams() as { collection: string; item_id: string };
-  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
-  const [showShareModal] = useShareModal(collectionName, item_id);
+  const shareAction = props.actions?.find((action) => action?.label === 'Share') || undefined;
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -750,15 +744,17 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     props.isSidebarOpen && props.sidebarTitle === 'Comments' ? 'Hide' : 'Show'
                   } comments`}
                 />
+                {shareAction ? (
+                  <ToolbarMetaIconButton
+                    icon={<Share20Regular />}
+                    color={'neutral'}
+                    onClick={() => shareAction.action()}
+                    isActive={false}
+                    data-tip={`Share this document`}
+                  />
+                ) : null}
               </>
             )}
-            <ToolbarMetaIconButton
-              icon={<Share20Regular />}
-              color={'neutral'}
-              onClick={() => showShareModal()}
-              isActive={false}
-              data-tip={`Share this document`}
-            />
             {!props.forceMax ? (
               <ToolbarMetaIconButton
                 onClick={() => {

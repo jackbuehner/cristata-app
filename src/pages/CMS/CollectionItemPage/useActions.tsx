@@ -22,6 +22,7 @@ import { Iaction } from '../ItemDetailsPage/ItemDetailsPage';
 import { saveChanges } from './saveChanges';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
+import { get as getProperty } from 'object-path';
 
 interface UseActionsParams {
   actionAccess: Record<keyof CollectionPermissions, boolean | undefined> | undefined;
@@ -38,6 +39,7 @@ interface UseActionsParams {
   refetchData: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
   navigate: NavigateFunction;
   publishStage?: number;
+  withPermissions: boolean;
 }
 
 interface UseActionsReturn {
@@ -147,6 +149,11 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     [params]
   );
 
+  const allHaveAccess =
+    params.withPermissions === false ||
+    getProperty(params.state.fields, 'permissions.teams')?.includes('000000000000000000000000') ||
+    getProperty(params.state.fields, 'permissions.users')?.includes('000000000000000000000000');
+
   // create the actions for this document based on the current user's
   // permissions status and the current doc's status
   const actions = useCallback(() => {
@@ -210,20 +217,22 @@ function useActions(params: UseActionsParams): UseActionsReturn {
             ? `There are no changes to save.`
             : undefined,
       },
-      {
-        label: 'Share',
-        type: 'button',
-        icon: <Share24Regular />,
-        action: () => showShareModal(),
-        disabled: params.actionAccess?.modify !== true,
-        'data-tip':
-          params.actionAccess?.modify !== true
-            ? `You cannot share this document because you do not have permission to modify it.`
-            : undefined,
-      },
+      allHaveAccess
+        ? null
+        : {
+            label: 'Share',
+            type: 'button',
+            icon: <Share24Regular />,
+            action: () => showShareModal(),
+            disabled: params.actionAccess?.modify !== true,
+            'data-tip':
+              params.actionAccess?.modify !== true
+                ? `You cannot share this document because you do not have permission to modify it.`
+                : undefined,
+          },
     ];
-    return actions.filter((action): action is Iaction => !!actions);
-  }, [hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
+    return actions.filter((action): action is Iaction => !!action);
+  }, [allHaveAccess, hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
 
   // create a dropdown with all actions except save and publish
   const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {
