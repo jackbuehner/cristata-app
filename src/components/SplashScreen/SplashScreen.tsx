@@ -48,11 +48,11 @@ function SplashScreen(props: ISplashScreen) {
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
     // store where the user should be redirected
-    localStorage.setItem('auth.redirect_after', `${location.pathname}${location.hash}${location.search}`);
     if (props.error) {
       const is403 = props.error.message.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
       if (is403 && location.pathname.indexOf(`/sign-in`) !== 0) {
+        localStorage.setItem('auth.redirect_after', `${location.pathname}${location.hash}${location.search}`);
         navigate(`/sign-in`);
       }
     }
@@ -82,13 +82,13 @@ function SplashScreen(props: ISplashScreen) {
         }
       }
       // redirect to user's desired page if there are not other login steps
-      else if (!props.user.next_step) {
+      else if (!props.user.next_step && location.pathname.indexOf(`/sign-in`) === 0) {
         const redirect = localStorage.getItem('auth.redirect_after') || '/';
         navigate(!redirect.includes('/sign-in') ? redirect : '/'); // redirect
         localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
       }
     }
-  }, [props.user, navigate, dispatch, location.state]);
+  }, [props.user, navigate, dispatch, location.state, location.pathname]);
 
   // set the session id
   useEffect(() => {
