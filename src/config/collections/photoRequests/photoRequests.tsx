@@ -7,9 +7,6 @@ import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
-import { selectProfile } from '../articles/selectProfile';
-import { selectTeam } from '../articles/selectTeam';
-import { selectArticle } from '../featuredSettings/selectArticle';
 
 const photoRequests: collection<IPhotoRequest> = {
   home: '/cms/collection/photo-requests',
@@ -21,52 +18,6 @@ const photoRequests: collection<IPhotoRequest> = {
     identifier: '_id',
     force: ['hidden'],
   },
-  fields: [
-    { key: 'name', label: 'Request', type: 'text', description: 'A description of the needed photo.' },
-    {
-      key: 'stage',
-      label: 'Stage',
-      type: 'select',
-      description: 'The current status of this request.',
-      options: [
-        { value: '1.1', label: 'New' },
-        { value: '2.1', label: 'In-progress' },
-        { value: '3.1', label: 'Fullfilled' },
-      ],
-    },
-    {
-      key: 'article_id',
-      label: 'Relevant article',
-      type: 'select_async',
-      description: 'The article in need of this photo.',
-      async_options: (val, client) => selectArticle(val, client),
-    },
-    {
-      key: 'people.requested_by',
-      subfield: '_id',
-      label: 'Requester',
-      type: 'select_async',
-      description: 'This person will be contacted if the photo team has questions about the request.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'permissions.users',
-      subfield: '_id',
-      label: 'User access control',
-      type: 'multiselect_async',
-      description: 'Control which users can see this photo request.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'permissions.teams',
-      label: 'Team access control',
-      type: 'multiselect_async',
-      description: 'Control which teams can see this photo request.',
-      async_options: (val, client) => selectTeam(val, client),
-    },
-    { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
-    { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
-  ],
   columns: [
     { key: 'name', label: 'Request', width: 350 },
     {
@@ -118,7 +69,7 @@ const photoRequests: collection<IPhotoRequest> = {
       isSortable: false,
     },
   ],
-  row: { href: '/cms/item/photo-requests', hrefSuffixKey: '_id' },
+  row: { href: '/cms/collection/photo-requests/item', hrefSuffixKey: '_id' },
   isPublishable: false,
   pageTitle: () => `Photo requests`,
   pageDescription: () => `If a photo you need is not in the photo library, make a request here.`,

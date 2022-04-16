@@ -5,9 +5,6 @@ import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
-import { selectPhotoPath } from './selectPhotoPath';
-import { selectProfile } from './selectProfile';
-import { selectTeam } from './selectTeam';
 import { isJSON } from '../../../utils/isJSON';
 import { gql } from '@apollo/client';
 
@@ -21,172 +18,6 @@ const articles: collection<IArticle> = {
     identifier: '_id',
     force: ['layout', 'hidden', 'people.authors.name', 'people.authors.photo'],
   },
-  fields: [
-    { key: 'name', label: 'Headline', type: 'text', description: 'The title of the article.' },
-    {
-      key: 'description',
-      label: 'Summary',
-      type: 'text',
-      description:
-        'A short summary or message related to the article that will draw in the reader. This appears on most article cards and on social media.',
-    },
-    {
-      key: 'stage',
-      label: 'Stage',
-      type: 'select',
-      description: 'The current status of this article.',
-      options: [
-        { value: '1.1', label: 'Planning' },
-        { value: '2.1', label: 'Draft' },
-        { value: '3.1', label: 'Pending Editor Review' },
-        { value: '3.2', label: 'Pending Writer Revision' },
-        { value: '3.3', label: 'Pending Copy Edit' },
-        { value: '3.5', label: 'Pending Writer/Editor Check' },
-        { value: '4.1', label: 'Pending Upload Approval' },
-        { value: '5.1', label: 'Uploaded/Scheduled', isDisabled: true },
-        { value: '5.2', label: 'Published', isDisabled: true },
-      ],
-      dataType: 'number',
-    },
-    {
-      key: 'categories',
-      label: 'Categories',
-      type: 'multiselect',
-      description: 'The sections or categories in which this article belongs.',
-      options: [
-        { value: 'news', label: 'News' },
-        { value: 'opinion', label: 'Opinions' },
-        { value: 'sports', label: 'Sports' },
-        { value: 'diversity', label: 'Diversity Matters' },
-        { value: 'arts', label: 'Arts' },
-        { value: 'campus-culture', label: 'Campus & Culture' },
-        { value: 'giveaway', label: 'Giveaway' },
-        { value: 'newsletter', label: 'Newsletter' },
-      ],
-    },
-    {
-      key: 'tags',
-      label: 'Tags',
-      type: 'multiselect_creatable',
-      description: 'Keywords and tags that apply to this article. Allows custom entries.',
-    },
-    {
-      key: 'photo_path',
-      label: 'Lead image',
-      type: 'select_async',
-      description: 'The photo that appears at the top of every article and in most article cards.',
-      async_options: (val, client) => selectPhotoPath(val, client),
-    },
-    {
-      key: 'photo_caption',
-      label: 'Photo caption',
-      type: 'text',
-      description:
-        'The caption for the photo. It should be relevant to the photo. Not every photo needs a caption.',
-    },
-    {
-      key: 'people.authors',
-      subfield: '_id',
-      label: 'Byline',
-      type: 'multiselect_async',
-      description: 'The authors that appear on the byline.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'people.editors.primary',
-      subfield: '_id',
-      label: 'Section editors',
-      type: 'multiselect_async',
-      description: 'The managing editors responsible for this article.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'people.editors.copy',
-      subfield: '_id',
-      label: 'Copy editors',
-      type: 'multiselect_async',
-      description: 'The copy editors who have made edits to this article.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'body',
-      label: 'Body',
-      type: 'tiptap',
-      tiptap: {
-        type: 'article',
-        isHTMLkey: 'legacy_html',
-        layouts: {
-          key: 'layout',
-          options: [
-            { value: 'standard', label: 'Standard' },
-            { value: 'full', label: 'Full' },
-          ],
-        },
-        keys_article: {
-          headline: 'name',
-          description: 'description',
-          categories: 'categories',
-          caption: 'photo_caption',
-          photo_url: 'photo_path',
-          authors: 'people.authors',
-          target_publish_at: 'timestamps.target_publish_at',
-        },
-        features: {
-          fontFamilies: [
-            { name: 'Adamant BG', label: 'Adamant BG (Headline)', disabled: true },
-            { name: 'Arial', disabled: true },
-            { name: 'Calibri', disabled: true },
-            { name: 'Consolas', disabled: true },
-            { name: 'Georgia', label: 'Georgia (Body)' },
-            { name: 'Times New Roman', disabled: true },
-          ],
-          fontSizes: [],
-          bold: true,
-          italic: true,
-          underline: true,
-          strike: true,
-          code: true,
-          bulletList: true,
-          orderedList: true,
-          textStylePicker: true,
-          horizontalRule: true,
-          widgets: {
-            photoWidget: true,
-            sweepwidget: true,
-            youtube: true,
-          },
-          link: true,
-          comment: true,
-          trackChanges: true,
-        },
-      },
-    },
-    {
-      key: 'show_comments',
-      label: 'Show comments',
-      type: 'boolean',
-      description: 'Control whether this article has the comments panel enabled on the website.',
-    },
-    {
-      key: 'permissions.users',
-      subfield: '_id',
-      label: 'User access control',
-      type: 'multiselect_async',
-      description: 'Control which users can see this article.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'permissions.teams',
-      label: 'Team access control',
-      type: 'multiselect_async',
-      description: 'Control which teams (user groups) can see this article.',
-      async_options: (val, client) => selectTeam(val, client),
-    },
-    { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
-    { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
-    { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
-    { key: 'timestamps.published_at', label: 'Published at', type: 'datetime', isDisabled: true },
-  ],
   columns: [
     { key: 'name', label: 'Headline', width: 350 },
     {
@@ -425,9 +256,9 @@ const articles: collection<IArticle> = {
     },
   ],
   row: {
-    href: '/cms/item/articles',
+    href: '/cms/collection/articles/item',
     hrefSuffixKey: '_id',
-    hrefSearch: '?fs=force&props=1',
+    hrefSearch: '?fs=1&props=1',
     windowName: window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
   },
   isPublishable: true,

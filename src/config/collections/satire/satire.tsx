@@ -6,9 +6,6 @@ import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
-import { selectPhotoPath } from '../articles/selectPhotoPath';
-import { selectProfile } from '../articles/selectProfile';
-import { selectTeam } from '../articles/selectTeam';
 
 const satire: collection<ISatire> = {
   home: '/cms/collection/satire/in-progress',
@@ -20,133 +17,6 @@ const satire: collection<ISatire> = {
     identifier: '_id',
     force: ['hidden', 'legacy_html'],
   },
-  fields: [
-    { key: 'name', label: 'Headline', type: 'text', description: 'The title of the satire.' },
-    {
-      key: 'description',
-      label: 'Summary',
-      type: 'text',
-      description:
-        'A short summary or message related to the piece of satire that will draw in the reader. This appears on most cards and on social media.',
-    },
-    {
-      key: 'stage',
-      label: 'Stage',
-      type: 'select',
-      description: 'The current status of this article.',
-      options: [
-        { value: '1.1', label: 'Planning' },
-        { value: '2.1', label: 'Draft' },
-        { value: '3.3', label: 'Pending Copy Edit' },
-        { value: '4.1', label: 'Pending Upload Approval' },
-        { value: '5.1', label: 'Uploaded/Scheduled', isDisabled: true },
-        { value: '5.2', label: 'Published', isDisabled: true },
-      ],
-    },
-    {
-      key: 'tags',
-      label: 'Tags',
-      type: 'multiselect_creatable',
-      description: 'Keywords and tags that apply to this piece. Allows custom entries.',
-    },
-    {
-      key: 'photo_path',
-      label: 'Lead image',
-      type: 'select_async',
-      description: 'The photo that appears at the top of the piece.',
-      async_options: (val, client) => selectPhotoPath(val, client),
-    },
-    {
-      key: 'photo_caption',
-      label: 'Photo caption',
-      type: 'text',
-      description: 'The caption for the photo. Not every photo needs a caption.',
-    },
-    {
-      key: 'photo_credit',
-      label: 'Photo credit',
-      type: 'text',
-      description: 'A funny photo credit.',
-    },
-    {
-      key: 'people.display_authors',
-      label: 'Display byline',
-      type: 'multiselect_creatable',
-      description:
-        'The names that should appear on the byline. For satire, these should be funny or clever names that fit the piece. Allows custom entries.',
-    },
-    {
-      key: 'people.authors',
-      subfield: '_id',
-      label: 'Authors',
-      type: 'multiselect_async',
-      description: 'The authors of this piece of satire. These names do not appear on the website.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'people.editors.copy',
-      subfield: '_id',
-      label: 'Copy editors',
-      type: 'multiselect_async',
-      description: 'The copy editors who have made edits to this article.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'body',
-      label: 'Body',
-      type: 'tiptap',
-      tiptap: {
-        type: 'satire',
-        isHTMLkey: 'legacy_html',
-        features: {
-          fontFamilies: [
-            { name: 'Adamant BG', label: 'Adamant BG (Headline)', disabled: true },
-            { name: 'Arial', disabled: true },
-            { name: 'Calibri', disabled: true },
-            { name: 'Consolas', disabled: true },
-            { name: 'Georgia', label: 'Georgia (Body)' },
-            { name: 'Times New Roman', disabled: true },
-          ],
-          fontSizes: [],
-          bold: true,
-          italic: true,
-          underline: true,
-          strike: true,
-          code: true,
-          bulletList: true,
-          orderedList: true,
-          textStylePicker: true,
-          horizontalRule: true,
-          widgets: {
-            sweepwidget: true,
-            youtube: true,
-          },
-          link: true,
-          comment: true,
-          trackChanges: true,
-        },
-      },
-    },
-    {
-      key: 'permissions.users',
-      subfield: '_id',
-      label: 'User access control',
-      type: 'multiselect_async',
-      description: 'Control which users can see this article.',
-      async_options: (val, client) => selectProfile(val, client),
-    },
-    {
-      key: 'permissions.teams',
-      label: 'Team access control',
-      type: 'multiselect_async',
-      description: 'Control which teams (user groups) can see this article.',
-      async_options: (val, client) => selectTeam(val, client),
-    },
-    { key: 'timestamps.target_publish_at', label: 'Target publish date and time', type: 'datetime' },
-    { key: 'timestamps.created_at', label: 'Created at', type: 'datetime', isDisabled: true },
-    { key: 'timestamps.modified_at', label: 'Modified at', type: 'datetime', isDisabled: true },
-    { key: 'timestamps.published_at', label: 'Published at', type: 'datetime', isDisabled: true },
-  ],
   columns: [
     { key: 'name', label: 'Headline', width: 350 },
     {
@@ -329,7 +199,7 @@ const satire: collection<ISatire> = {
       },
     },
   ],
-  row: { href: '/cms/item/satire', hrefSuffixKey: '_id' },
+  row: { href: '/cms/collection/satire/item', hrefSuffixKey: '_id' },
   isPublishable: true,
   publishStage: 5.2,
   defaultSortKey: 'timestamps.target_publish_at',
