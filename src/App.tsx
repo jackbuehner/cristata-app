@@ -94,6 +94,7 @@ function App() {
               <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
               <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
               <Route path={`/sign-out`} element={<SignOut />} />
+              <Route path={`*`} element={<></>} />
             </Routes>
           }
           protectedChildren={
@@ -148,6 +149,7 @@ function App() {
                               element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />}
                             />
                             <Route path={`/playground`} element={<PlaygroundNavigation />} />
+                            <Route path={`*`} element={<></>} />
                           </Routes>
                         </SidenavSub>
                       </SideNavs>
