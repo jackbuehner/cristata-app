@@ -18,6 +18,7 @@ interface ComboboxProps extends Omit<FieldProps, 'children'> {
   onTextChange?: (value: string) => void;
   many?: boolean;
   notFoundContent?: string;
+  showCurrentSelectionInOptions?: boolean;
 }
 
 type Values = StringValue[] | NumberValue[];
@@ -87,7 +88,9 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
         virtual={false}
         notFoundContent={props.notFoundContent || 'No match found. Try a different query.'}
         options={(props.options as StringValue[]).filter((option) => {
-          if (props.values) {
+          if (props.showCurrentSelectionInOptions) {
+            return true;
+          } else if (props.values) {
             return !props.values.some(({ value }) => value.toString() === option?.value.toString());
           }
           return !internalState.some(({ value }) => value.toString() === option?.value.toString());

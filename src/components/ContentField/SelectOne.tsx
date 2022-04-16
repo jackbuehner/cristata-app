@@ -68,6 +68,7 @@ function SelectOne({ onChange, ...props }: SelectOneProps) {
             color={props.color}
             font={props.font}
             onChange={(values) => setInternalState(values[0])}
+            showCurrentSelectionInOptions
           />
         </div>
       </Field>
