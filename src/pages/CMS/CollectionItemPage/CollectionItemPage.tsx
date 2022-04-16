@@ -339,7 +339,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                             disabled={loading || !!error}
                             isEmbedded={props.isEmbedded}
                             collection={pluralize.singular(collection)}
-                            fields={def.field?.reference?.fields}
+                            reference={def.field?.reference}
                             onChange={(newValues) => {
                               if (newValues !== undefined && !readOnly)
                                 dispatch(setField(newValues, key, 'reference'));
@@ -374,7 +374,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                           disabled={loading || !!error || (def.required && def.default === undefined)}
                           isEmbedded={props.isEmbedded}
                           collection={pluralize.singular(collection)}
-                          fields={def.field?.reference?.fields}
+                          reference={def.field?.reference}
                           onChange={(newValue) => {
                             if (newValue !== undefined && !readOnly)
                               dispatch(setField(newValue || def.default, key, 'reference'));

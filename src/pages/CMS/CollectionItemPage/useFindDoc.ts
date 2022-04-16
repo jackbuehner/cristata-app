@@ -112,7 +112,7 @@ function useFindDoc(
   return { actionAccess, loading, error, refetch };
 }
 
-function deepen(obj: Record<string, boolean>) {
+export function deepen(obj: Record<string, boolean | { __aliasFor: string }>) {
   const result: Record<string, never> = {};
 
   // For each object path (property key) in the object

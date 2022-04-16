@@ -1,17 +1,17 @@
-import { gql } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss24Regular, Open24Regular } from '@fluentui/react-icons';
+import { FieldDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
 import { Combobox } from '.';
-import { client } from '../../graphql/client';
 import { capitalize } from '../../utils/capitalize';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 import { Field, FieldProps } from './Field';
 import { populateReferenceValues } from './populateReferenceValues';
+import { useOptions } from './useOptions';
 
 interface ReferenceOneProps extends Omit<FieldProps, 'children'> {
   value: UnpopulatedValue | null;
@@ -21,13 +21,14 @@ interface ReferenceOneProps extends Omit<FieldProps, 'children'> {
    * Singular collection name.
    */
   collection: string;
-  fields?: { _id?: string; name?: string };
+  reference?: FieldDef['reference'];
 }
 
 type UnpopulatedValue = { _id: string; label?: string };
 type PopulatedValue = { _id: string; label: string };
 
 function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
+  const [textValue, setTextValue, { options, loading }] = useOptions(props.collection, props.reference);
   const theme = useTheme() as themeType;
 
   const [internalState, _setInternalState] = useState<PopulatedValue | null>(null);
@@ -41,42 +42,12 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
     (async () => {
       if (props.value === null) _setInternalState(null);
       else if (internalState === null || props.value._id !== internalState._id) {
-        _setInternalState((await populateReferenceValues([props.value], props.collection, props.fields))[0]);
+        _setInternalState(
+          (await populateReferenceValues([props.value], props.collection, props.reference?.fields))[0]
+        );
       }
     })();
-  }, [internalState, props.collection, props.fields, props.value]);
-
-  const [textValue, setTextValue] = useState<string>('');
-  const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  useEffect(() => {
-    if (textValue) {
-      setLoading(true);
-      setOptions([]);
-      const query = client.watchQuery<{ result: { docs: { value: string; label: string }[] } }>({
-        query: gql`{
-            result: ${pluralize(props.collection).toLowerCase()}(limit: 6, filter: "{ \\\"${
-          props.fields?.name || 'name'
-        }\\\": { \\\"$regex\\\": \\\"${textValue}\\\", \\\"$options\\\": \\\"i\\\" } }") {
-              docs {
-                value: ${props.fields?._id || '_id'}
-                label: ${props.fields?.name || 'name'}
-              }
-            }
-          }`,
-        fetchPolicy: 'no-cache',
-      });
-
-      const observable = query.subscribe(({ data }) => {
-        setOptions(data.result.docs);
-        setLoading(false);
-      });
-
-      return () => observable.unsubscribe();
-    } else {
-      setOptions([]);
-    }
-  }, [props.collection, props.fields?._id, props.fields?.name, textValue]);
+  }, [internalState, props.collection, props.reference?.fields, props.value]);
 
   return (
     <Field

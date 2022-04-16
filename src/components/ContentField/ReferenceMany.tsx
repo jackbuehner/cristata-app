@@ -1,19 +1,19 @@
-import { gql } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss24Regular, Open24Regular, ReOrderDotsHorizontal24Regular } from '@fluentui/react-icons';
+import { FieldDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { Combobox } from '.';
-import { client } from '../../graphql/client';
 import { capitalize } from '../../utils/capitalize';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { Field, FieldProps } from './Field';
 import { populateReferenceValues } from './populateReferenceValues';
+import { useOptions } from './useOptions';
 
 interface ReferenceManyProps extends Omit<FieldProps, 'children'> {
   values: UnpopulatedValue[];
@@ -23,7 +23,7 @@ interface ReferenceManyProps extends Omit<FieldProps, 'children'> {
    * Singular collection name.
    */
   collection: string;
-  fields?: { _id?: string; name?: string };
+  reference?: FieldDef['reference'];
   noDrag?: boolean;
 }
 
@@ -31,6 +31,8 @@ type UnpopulatedValue = { _id: string; label?: string };
 type PopulatedValue = { _id: string; label: string };
 
 function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
+  const [textValue, setTextValue, { options, loading }] = useOptions(props.collection, props.reference);
+
   const [internalState, _setInternalState] = useState<PopulatedValue[]>([]);
   const setInternalState = (newState: PopulatedValue[]) => {
     _setInternalState(newState);
@@ -46,11 +48,13 @@ function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
           return internalIds.includes(_id);
         });
         if (valuesAreLooselyDifferent) {
-          _setInternalState(await populateReferenceValues(props.values, props.collection, props.fields));
+          _setInternalState(
+            await populateReferenceValues(props.values, props.collection, props.reference?.fields)
+          );
         }
       }
     })();
-  }, [internalState, props.collection, props.fields, props.values]);
+  }, [internalState, props.collection, props.reference?.fields, props.values]);
 
   const onDragEnd = (result: DropResult, provided: ResponderProvided) => {
     const from = result.source.index;
@@ -59,38 +63,6 @@ function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
       setInternalState(arrayMove(internalState, from, to));
     }
   };
-
-  const [textValue, setTextValue] = useState<string>('');
-  const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  useEffect(() => {
-    if (textValue) {
-      setLoading(true);
-      setOptions([]);
-      const query = client.watchQuery<{ result: { docs: { value: string; label: string }[] } }>({
-        query: gql`{
-            result: ${pluralize(props.collection).toLowerCase()}(limit: 6, filter: "{ \\\"${
-          props.fields?.name || 'name'
-        }\\\": { \\\"$regex\\\": \\\"${textValue}\\\", \\\"$options\\\": \\\"i\\\" } }") {
-              docs {
-                value: ${props.fields?._id || '_id'}
-                label: ${props.fields?.name || 'name'}
-              }
-            }
-          }`,
-        fetchPolicy: 'no-cache',
-      });
-
-      const observable = query.subscribe(({ data }) => {
-        setOptions(data.result.docs);
-        setLoading(false);
-      });
-
-      return () => observable.unsubscribe();
-    } else {
-      setOptions([]);
-    }
-  }, [props.collection, props.fields?._id, props.fields?.name, textValue]);
 
   return (
     <Field
