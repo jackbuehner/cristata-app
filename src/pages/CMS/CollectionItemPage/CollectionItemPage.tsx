@@ -36,6 +36,7 @@ import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
+import { FullScreenSplash } from './FullScreenSplash';
 import { Sidebar } from './Sidebar';
 import { useActions } from './useActions';
 import { useFindDoc } from './useFindDoc';
@@ -162,6 +163,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   if (schemaDef) {
     return (
       <>
+        {!props.isEmbedded && (fs === 'force' || fs === '1') ? (
+          <FullScreenSplash isLoading={itemState.isLoading && !hasLoadedAtLeastOnce} />
+        ) : null}
         {props.isEmbedded ? null : (
           <PageHead
             title={title.replace(' - Cristata', '')}
