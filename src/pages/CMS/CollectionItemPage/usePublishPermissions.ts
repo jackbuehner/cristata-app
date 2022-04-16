@@ -39,8 +39,8 @@ function usePublishPermissions(params: UsePublishPermissionsParams): UsePublishP
     const stageSchemaDef = params.schemaDef.find(([key]) => key === 'stage')?.[1];
     const stageFieldOptions = stageSchemaDef?.field?.options;
     const stageFieldOptionsAscendingOrder = stageFieldOptions?.sort((a, b) => {
-      if (a.value.toString() > b.value.toString()) return 1;
-      return -1;
+      if (a.value.toString() > b.value.toString()) return -1;
+      return 1;
     });
 
     const lastStage = parseFloat(stageFieldOptionsAscendingOrder?.[0]?.value?.toString() || '0') || undefined;
