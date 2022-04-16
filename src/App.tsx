@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@emotion/react';
+import { css, Global, ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import useAxios, { configure } from 'axios-hooks';
 import Color from 'color';
@@ -192,6 +192,29 @@ function App() {
           }
         ></SplashScreen>
       </Router>
+      <Global
+        styles={css`
+          .ReactModal__Overlay {
+            opacity: 0;
+            transition: opacity 240ms;
+          }
+
+          .ReactModal__Overlay--after-open {
+            opacity: 1;
+          }
+
+          .ReactModal__Content {
+            opacity: 0;
+            transform: translateY(-40px) scale(0.9);
+            transition: transform 240ms, opacity 240ms;
+          }
+
+          .ReactModal__Content--after-open {
+            opacity: 1;
+            transform: translateY(0px) scale(1);
+          }
+        `}
+      />
     </ThemeProvider>
   );
 }

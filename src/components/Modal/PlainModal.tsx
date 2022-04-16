@@ -1,13 +1,13 @@
 /** @jsx-import-source @emotion/react */
 import { ClassNames, useTheme } from '@emotion/react';
+import styled from '@emotion/styled/macro';
+import '@material/linear-progress/dist/mdc.linear-progress.css';
+import { LinearProgress } from '@rmwc/linear-progress';
 import Color from 'color';
 import { useEffect, useRef, useState } from 'react';
 import ReactModal from 'react-modal';
-import { colorType, themeType } from '../../utils/theme/theme';
 import { Button } from '../../components/Button';
-import styled from '@emotion/styled/macro';
-import { LinearProgress } from '@rmwc/linear-progress';
-import '@material/linear-progress/dist/mdc.linear-progress.css';
+import { colorType, themeType } from '../../utils/theme/theme';
 
 /**
  * Title component for plain modal.
@@ -213,10 +213,6 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
             }}
             shouldReturnFocusAfterClose
             className={css`
-              position: absolute;
-              top: calc(50% + (${theme.dimensions.titlebar.height} / 2));
-              left: 50%;
-              transform: translate(-50%, -50%);
               width: 480px;
               box-sizing: border-box;
               height: fit-content;
@@ -240,6 +236,8 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               bottom: 0;
               left: 0;
               background-color: ${Color(theme.color.neutral.light[1500]).alpha(0.6).string()};
+              display: grid;
+              place-items: center;
             `}
           >
             <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>
