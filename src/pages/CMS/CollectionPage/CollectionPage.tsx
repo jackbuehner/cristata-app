@@ -91,7 +91,7 @@ function CollectionPage() {
   };
 
   // get the url parameters from the route
-  let { collection = '', progress = '' } = useParams();
+  let { collection = '' } = useParams();
 
   // get the search params so we can get filters and other page data
   const searchParams = new URLSearchParams(location.search);
@@ -277,7 +277,6 @@ function CollectionPage() {
       <TableWrapper theme={theme}>
         <CollectionTable
           collection={store.collectionName}
-          progress={progress}
           filters={store.tableFilters}
           filter={store.mongoDataFilter}
           ref={tableRef}

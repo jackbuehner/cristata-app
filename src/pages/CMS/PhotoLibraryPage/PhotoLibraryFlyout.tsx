@@ -76,10 +76,7 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
           })}
           {photo.tags === undefined || photo.tags.length < 1 ? 'No tags could be found for this photo' : null}
           <Footer theme={theme}>
-            <Button
-              icon={<Edit24Regular />}
-              onClick={() => navigate(`/cms/collection/photos/item/${photo._id}`)}
-            >
+            <Button icon={<Edit24Regular />} onClick={() => navigate(`/cms/collection/photos/${photo._id}`)}>
               Edit details
             </Button>
           </Footer>

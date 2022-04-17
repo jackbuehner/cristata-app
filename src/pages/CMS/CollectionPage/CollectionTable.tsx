@@ -17,7 +17,6 @@ import { useLocation } from 'react-router-dom';
 
 interface ICollectionTable {
   collection: string;
-  progress: string; // the progress (in-progress OR all)
   filters?: {
     // the filters to use for the table
     id: string;

@@ -198,7 +198,7 @@ const satire: collection = {
       },
     },
   ],
-  row: { href: '/cms/collection/satire/item', hrefSuffixKey: '_id' },
+  row: { href: '/cms/collection/satire', hrefSuffixKey: '_id' },
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
     client

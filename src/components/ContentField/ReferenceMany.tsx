@@ -180,7 +180,7 @@ function Selected(props: SelectedProps) {
                               window.open(`/cms/photo/library/${_id}`, props.collection + _id, 'location=no');
                             } else {
                               window.open(
-                                `/cms/collection/${pluralize(props.collection.toLowerCase())}/item/${_id}`,
+                                `/cms/collection/${pluralize(props.collection.toLowerCase())}/${_id}`,
                                 props.collection + _id,
                                 'location=no'
                               );

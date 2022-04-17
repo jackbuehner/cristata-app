@@ -66,7 +66,7 @@ const photoRequests: collection = {
       isSortable: false,
     },
   ],
-  row: { href: '/cms/collection/photo-requests/item', hrefSuffixKey: '_id' },
+  row: { href: '/cms/collection/photo-requests', hrefSuffixKey: '_id' },
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
 

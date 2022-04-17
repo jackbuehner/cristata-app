@@ -101,7 +101,7 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
                   );
                 } else {
                   window.open(
-                    `/cms/collection/${pluralize(props.collection.toLowerCase())}/item/${internalState._id}`,
+                    `/cms/collection/${pluralize(props.collection.toLowerCase())}/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );

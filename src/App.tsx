@@ -157,20 +157,26 @@ function App() {
                   ) : null}
                   <Content theme={theme}>
                     <Routes>
-                      <Route path={`/cms/photos/library`} element={<PhotoLibraryPage />} />
-                      <Route path={`/cms/photos/library/:photo_id`} element={<PhotoLibraryPage />} />
-                      <Route
-                        path={`/cms/collection/:collection/item/:item_id`}
-                        element={<CollectionItemPage />}
-                      />
-                      <Route path={`/cms/collection/:collection/:progress`} element={<CollectionPage />} />
-                      <Route path={`/cms/collection/:collection`} element={<CollectionPage />} />
-                      <Route path={`/cms/item/:collection/:item_id`} element={<ItemDetailsPage />} />
-                      <Route path={`/cms`} element={<PageHead title={`CMS`} />} />
-                      <Route path={`/profile/:profile_id`} element={<ProfilePage />} />
-                      <Route path={`/profile`} element={<PageHead title={`Profiles`} />} />
-                      <Route path={`/teams/:team_id`} element={<TeamPage />} />
-                      <Route path={`/teams`} element={<TeamsOverviewPage />} />
+                      <Route path={`/cms`}>
+                        <Route path={`collection/:collection`}>
+                          <Route index element={<CollectionPage />} />
+                          <Route path={`:item_id`} element={<CollectionItemPage />} />
+                        </Route>
+                        <Route path={`photos/library`}>
+                          <Route index element={<PhotoLibraryPage />} />
+                          <Route path={`:photo_id`} element={<PhotoLibraryPage />} />
+                        </Route>
+                        <Route path={`item/:collection/:item_id`} element={<ItemDetailsPage />} />
+                        <Route path={`*`} element={<PageHead title={`CMS`} />} />
+                      </Route>
+                      <Route path={`/profile`}>
+                        <Route index element={<PageHead title={`Profiles`} />} />
+                        <Route path={`:profile_id`} element={<ProfilePage />} />
+                      </Route>
+                      <Route path={`/teams`}>
+                        <Route index element={<TeamsOverviewPage />} />
+                        <Route path={`:team_id`} element={<TeamPage />} />
+                      </Route>
                       <Route path={`/playground`} element={<Playground setTheme={setTheme} />} />
                       <Route path={`/embed/fathom`} element={<FathomEmbed />} />
                       <Route

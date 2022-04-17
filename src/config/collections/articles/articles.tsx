@@ -254,7 +254,7 @@ const articles: collection = {
     },
   ],
   row: {
-    href: '/cms/collection/articles/item',
+    href: '/cms/collection/articles',
     hrefSuffixKey: '_id',
     hrefSearch: '?fs=1&props=1',
     windowName: window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
