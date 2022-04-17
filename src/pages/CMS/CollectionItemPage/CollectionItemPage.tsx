@@ -325,21 +325,28 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         : def.field!.reference!.collection!;
 
                       if (isArrayType) {
-                        const rawValues: Record<string, string>[] = (
-                          getProperty(itemState.fields, key) &&
-                          Array.isArray(getProperty(itemState.fields, key))
-                            ? getProperty(itemState.fields, key)
-                            : []
-                        ).filter((s: Record<string, unknown>): s is Record<string, string> =>
-                          Object.keys(s).every(([, value]) => typeof value === 'string')
-                        );
-                        const values: { _id: string; label?: string }[] =
-                          rawValues.map((value) => {
-                            const _id = value?.[def.field?.reference?.fields._id || '_id'];
-                            const label = value?.[def.field?.reference?.fields.name || 'name'];
-                            return { _id, label };
-                          }) || [];
+                        const stateValue = getProperty(itemState.fields, key);
+                        let rawValues: Record<string, string>[] = [];
 
+                        if (stateValue && Array.isArray(stateValue)) {
+                          rawValues = stateValue.map((val: string | number | Record<string, string>) => {
+                            if (typeof val === 'object') {
+                              return val;
+                            }
+                            return { _id: `${val}` };
+                          });
+                        }
+
+                        const values: { _id: string; label?: string }[] =
+                          rawValues
+                            .filter((s: Record<string, unknown>): s is Record<string, string> =>
+                              Object.keys(s).every(([, value]) => typeof value === 'string')
+                            )
+                            .map((value) => {
+                              const _id = value?.[def.field?.reference?.fields?._id || '_id'];
+                              const label = value?.[def.field?.reference?.fields?.name || 'name'];
+                              return { _id, label };
+                            }) || [];
                         return (
                           <ReferenceMany
                             key={index}
