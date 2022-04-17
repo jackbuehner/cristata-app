@@ -5,6 +5,7 @@ import {
   isTypeTuple,
   MongooseSchemaType,
   NumberOption,
+  SchemaDef,
   StringOption,
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
@@ -34,6 +35,7 @@ import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
+import { isJSON } from '../../../utils/isJSON';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { FullScreenSplash } from './FullScreenSplash';
@@ -171,6 +173,43 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   };
 
   if (schemaDef) {
+    // go through the schemaDef and convert JSON types with mutliple fields to individual fields
+    const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON');
+
+    // convert JSON data to POJO data in state
+    JSONFields.forEach(([key]) => {
+      if (isJSON(getProperty(itemState.fields, key))) {
+        const parsed = JSON.parse(getProperty(itemState.fields, key));
+        dispatch(setField(parsed, key, 'default', false));
+      }
+    });
+
+    // push subfields on JSON fields into the schemaDef array
+    // so they can appear as regular fields in the UI
+    // (subfields are schemaDefs for compatability)
+    JSONFields.forEach(([key, def]) => {
+      if (def.field?.custom && def.field.custom.length > 0) {
+        // find the set of fields that are meant for this specific document
+        // by finding a matching name or name === 'default'
+        const match =
+          def.field.custom.find(({ name }) => name === getProperty(itemState.fields, nameField || 'name')) ||
+          def.field.custom.find(({ name }) => name === 'default');
+
+        // push the matching subfields onto the schemaDef variable
+        // so that they can appear in the UI
+        if (match) {
+          const defs = Object.entries(match.fields).map(([subkey, subdef]): [string, SchemaDef] => [
+            `${key}.${subkey}`,
+            subdef,
+          ]);
+          schemaDef.push(...defs);
+        }
+
+        // and also hide the JSON field since it does not permit user interaction
+        def.field.hidden = true;
+      }
+    });
+
     return (
       <>
         {!props.isEmbedded && (fs === 'force' || fs === '1') ? (
