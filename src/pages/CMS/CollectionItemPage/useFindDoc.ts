@@ -19,6 +19,7 @@ function useFindDoc(
   collection: string,
   item_id: string,
   schemaDef: [string, SchemaDef][],
+  withPermissions: boolean,
   doNothing = false,
   accessor = '_id'
 ): {
@@ -41,14 +42,6 @@ function useFindDoc(
             },
             ...merge(
               {
-                permissions: {
-                  users: {
-                    _id: true,
-                    name: true,
-                    photo: true,
-                  },
-                  teams: true,
-                },
                 timestamps: {
                   created_at: true,
                   modified_at: true,
@@ -59,6 +52,18 @@ function useFindDoc(
                   },
                 },
               },
+              withPermissions
+                ? {
+                    permissions: {
+                      users: {
+                        _id: true,
+                        name: true,
+                        photo: true,
+                      },
+                      teams: true,
+                    },
+                  }
+                : {},
               ...schemaDef.map(([key, def]): Record<string, never> => {
                 if (isTypeTuple(def.type)) {
                   if (def.field?.reference) {

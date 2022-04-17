@@ -65,6 +65,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     uncapitalize(collectionName),
     item_id,
     schemaDef,
+    withPermissions,
     props.isEmbedded || false
   );
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
