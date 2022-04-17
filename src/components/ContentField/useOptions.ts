@@ -69,6 +69,7 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
                   // search for a character match in the name field, but not other fields
                   filter: JSON.stringify({
                     [reference?.fields?.name || 'name']: { $regex: textValue, $options: 'i' },
+                    ...(reference?.filter || {}),
                   }),
                 },
                 docs: merge(
@@ -132,7 +133,14 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
     } else {
       setOptions([]);
     }
-  }, [collection, reference?.fields?._id, reference?.fields?.name, reference?.require, textValue]);
+  }, [
+    collection,
+    reference?.fields?._id,
+    reference?.fields?.name,
+    reference?.filter,
+    reference?.require,
+    textValue,
+  ]);
 
   return [textValue, setTextValue, { options, loading }];
 }
