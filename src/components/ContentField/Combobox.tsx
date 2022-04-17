@@ -56,11 +56,25 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
   const onSelect = (value: RawValueType | LabelInValueType, option: BaseOptionType) => {
     if (option.value && option.label) {
       if ((typeof internalState[0]?.value === 'string' || true) && typeof option.value === 'string') {
-        if (props.many === false) setInternalState([option as StringValue]);
-        else setInternalState([...(internalState as StringValue[]), option as StringValue]);
+        if (props.many === false)
+          setInternalState([
+            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+          ]);
+        else
+          setInternalState([
+            ...(internalState as StringValue[]),
+            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+          ]);
       } else if ((typeof internalState[0]?.value === 'number' || true) && typeof option.value === 'number') {
-        if (props.many === false) setInternalState([option as NumberValue]);
-        else setInternalState([...(internalState as NumberValue[]), option as NumberValue]);
+        if (props.many === false)
+          setInternalState([
+            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+          ]);
+        else
+          setInternalState([
+            ...(internalState as NumberValue[]),
+            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+          ]);
       }
     }
   };
@@ -124,7 +138,7 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
           const errorIconStyle: CSS = { display: 'flex', cursor: 'help', color: theme.color.danger[800] };
           const idStyle: CSS = { color: theme.color.neutral[theme.mode][800] };
           return (
-            <Option {...optionProps}>
+            <Option {...optionProps} key={value}>
               <div style={labelStyle}>{label}</div>
               <div style={metaStyle}>
                 {isValidObjectId(value) ? <code style={idStyle}>{value.toString().slice(-6)}</code> : null}
