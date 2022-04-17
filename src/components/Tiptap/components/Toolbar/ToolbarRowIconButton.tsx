@@ -23,7 +23,7 @@ function ToolbarRowIconButton({ color, isActive, ...props }: IToolbarRowIconButt
       <ToolbarRowIconButtonComponent
         {...props}
         theme={theme}
-        color={color ? color : 'neutral'}
+        color={color ? color : 'blue'}
         isActive={isActive ? isActive : false}
       />
     </>

@@ -23,9 +23,15 @@ function WidgetActions({ isVisible, actions, ...props }: IWidgetActions) {
       {actions.map(({ color, disabled, icon, active, onClick }, index) => {
         return (
           <IconButton
-            backgroundColor={{ base: active ? 'rgba(128, 128, 128, 0.2)' : 'transparent' }}
+            backgroundColor={{
+              base: active
+                ? theme.mode === 'light'
+                  ? theme.color.neutral.light[200]
+                  : theme.color.neutral.dark[500]
+                : 'transparent',
+            }}
             border={{ base: '1px solid transparent' }}
-            color={color ? color : 'neutral'}
+            color={color ? color : 'blue'}
             disabled={disabled}
             height={`28px`}
             icon={icon}
@@ -46,7 +52,8 @@ interface IWidgetActionsComponent {
 
 const WidgetActionsComponent = styled.div<IWidgetActionsComponent>`
   width: fit-content;
-  background: white;
+  background: ${({ theme }) => (theme.mode === 'light' ? '#ffffff' : theme.color.neutral.dark[300])};
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   position: absolute;
   top: -18px;
   right: 10px;

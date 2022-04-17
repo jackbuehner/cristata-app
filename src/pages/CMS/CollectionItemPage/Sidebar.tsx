@@ -7,7 +7,7 @@ import { useAppDispatch } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
-import { themeType } from '../../../utils/theme/theme';
+import { colorType, themeType } from '../../../utils/theme/theme';
 import { buttonEffect } from '../../../components/Button';
 import { useEffect, useState } from 'react';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
@@ -75,6 +75,7 @@ function Sidebar(props: SidebarProps) {
           <SectionTitle theme={theme}>Stage</SectionTitle>
           {typeof props.stage.current === 'string' && typeof props.stage.options[0].value === 'string' ? (
             <SelectOne
+              color={props.isEmbedded ? 'blue' : 'primary'}
               type={'String'}
               options={props.stage.options}
               label={'Stage'}
@@ -89,6 +90,7 @@ function Sidebar(props: SidebarProps) {
             />
           ) : (
             <SelectOne
+              color={props.isEmbedded ? 'blue' : 'primary'}
               type={'Float'}
               options={props.stage.options}
               label={'__in-select'}
@@ -111,6 +113,7 @@ function Sidebar(props: SidebarProps) {
             return (
               <AccessRow
                 theme={theme}
+                color={props.isEmbedded ? 'blue' : 'primary'}
                 key={user._id}
                 onClick={() => {
                   window.open(
@@ -129,6 +132,7 @@ function Sidebar(props: SidebarProps) {
             return (
               <AccessRow
                 theme={theme}
+                color={props.isEmbedded ? 'blue' : 'primary'}
                 key={team._id}
                 onClick={() => {
                   window.open(
@@ -203,10 +207,10 @@ const DocInfoRow = styled.div<{ theme: themeType }>`
   }
 `;
 
-const AccessRow = styled.div<{ theme: themeType; disabled?: boolean }>`
-  ${({ theme, disabled }) =>
+const AccessRow = styled.div<{ theme: themeType; disabled?: boolean; color?: colorType }>`
+  ${({ theme, disabled, color }) =>
     buttonEffect(
-      'primary',
+      color || 'primary',
       theme.mode === 'light' ? 700 : 300,
       theme,
       disabled,

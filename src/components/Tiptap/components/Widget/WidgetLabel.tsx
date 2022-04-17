@@ -30,7 +30,8 @@ interface IWidgetLabelComponent {
 
 const WidgetLabelComponent = styled.div<IWidgetLabelComponent>`
   width: fit-content;
-  background: white;
+  background: ${({ theme }) => (theme.mode === 'light' ? '#ffffff' : theme.color.neutral.dark[300])};
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   position: absolute;
   top: -18px;
   left: 10px;

@@ -4,18 +4,23 @@ import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import { useRef } from 'react';
 import { useModal } from 'react-modal-hook';
+import { useLocation } from 'react-router-dom';
 import { Button } from '../../../components/Button';
 import { ReferenceMany } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField, setUnsavedPermissionField } from '../../../redux/slices/cmsItemSlice';
-import { themeType } from '../../../utils/theme/theme';
+import { colorType, themeType } from '../../../utils/theme/theme';
 import { saveChanges } from './saveChanges';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
-function useShareModal(collection?: string, itemId?: string) {
+function useShareModal(collection?: string, itemId?: string, color: colorType = 'primary') {
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+  const isFs = searchParams.get('fs') === '1' || searchParams.get('fs') === 'force';
+
   // create the modal
   const [showModal, hideModal] = useModal(() => {
     const itemState = useAppSelector((state) => state.cmsItem);
@@ -57,8 +62,10 @@ function useShareModal(collection?: string, itemId?: string) {
           hideModal={hideModal}
           title={`Share`}
           isLoading={itemState.isLoading}
+          cancelButton={{ color: isFs ? 'blue' : color }}
           continueButton={{
             text: 'Save changes',
+            color: isFs ? 'blue' : color,
             onClick: async () => {
               return await saveChanges(
                 collection,
@@ -87,6 +94,7 @@ function useShareModal(collection?: string, itemId?: string) {
                   {window.location.href}
                 </textarea>
                 <Button
+                  color={isFs ? 'blue' : color}
                   onClick={() => {
                     linkRef.current?.select();
                     document.execCommand('copy');
@@ -99,6 +107,7 @@ function useShareModal(collection?: string, itemId?: string) {
 
             <ReferenceMany
               label={'Users'}
+              color={isFs ? 'blue' : color}
               values={current.users}
               disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
               isEmbedded={true}
@@ -118,6 +127,7 @@ function useShareModal(collection?: string, itemId?: string) {
             />
             <ReferenceMany
               label={'Teams'}
+              color={isFs ? 'blue' : color}
               values={current.teams}
               disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
               isEmbedded={true}
@@ -145,7 +155,7 @@ function useShareModal(collection?: string, itemId?: string) {
         <div>Improper context!</div>
       </PlainModal>
     );
-  }, []);
+  }, [isFs]);
 
   // return the modal
   return [showModal, hideModal];

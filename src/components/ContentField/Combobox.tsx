@@ -97,6 +97,7 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
     <div style={{ position: 'relative' }}>
       <SelectComponent
         theme={theme}
+        color={props.color}
         ref={selectRef}
         dropdownRender={(menu) => {
           ReactTooltip.rebuild();

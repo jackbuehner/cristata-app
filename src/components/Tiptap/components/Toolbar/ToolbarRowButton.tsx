@@ -31,7 +31,7 @@ function ToolbarRowButton({ children, color, isActive, ...props }: IToolbarRowBu
       <ToolbarRowButtonComponent
         {...props}
         theme={theme}
-        color={color ? color : 'neutral'}
+        color={color ? color : 'blue'}
         isActive={isActive ? isActive : false}
       >
         {children}

@@ -45,6 +45,7 @@ function Field(props: FieldProps) {
               theme={theme}
               dangerouslySetInnerHTML={{ __html: sanitize(props.description) }}
               disabled={props.disabled || false}
+              color={props.color}
             />
           ) : null}
         </>
@@ -84,7 +85,12 @@ const Label = styled.label<{ theme: themeType; font?: keyof themeType['font'] }>
   user-select: none;
 `;
 
-const Description = styled.div<{ theme: themeType; font?: keyof themeType['font']; disabled: boolean }>`
+const Description = styled.div<{
+  theme: themeType;
+  font?: keyof themeType['font'];
+  disabled: boolean;
+  color?: colorType;
+}>`
   line-height: 16px;
   font-family: ${({ theme, font }) => theme.font[font ? font : 'detail']};
   font-size: 13px;
@@ -93,10 +99,11 @@ const Description = styled.div<{ theme: themeType; font?: keyof themeType['font'
   color: ${({ disabled, theme }) =>
     disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1100]};
   a {
-    color: ${({ disabled, theme }) =>
-      disabled
-        ? theme.color.neutral[theme.mode][600]
-        : theme.color.primary[theme.mode === 'light' ? 800 : 300]};
+    color: ${({ disabled, theme, color }) => {
+      if (disabled) return theme.color.neutral[theme.mode][600];
+      if (color === 'neutral') color = undefined;
+      return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
+    }};
   }
   margin: -6px 0 14px 0;
   white-space: pre-line;

@@ -40,6 +40,7 @@ interface UseActionsParams {
   navigate: NavigateFunction;
   publishStage?: number;
   withPermissions: boolean;
+  isEmbedded?: boolean;
 }
 
 interface UseActionsReturn {

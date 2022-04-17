@@ -125,6 +125,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     navigate,
     publishStage,
     withPermissions,
+    isEmbedded: props.isEmbedded,
   });
 
   const sidebarProps = {
@@ -295,6 +296,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <Field
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           label={fieldName}
                           description={def.field?.description}
                           isEmbedded={props.isEmbedded}
@@ -389,6 +391,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         return (
                           <ReferenceMany
                             key={index}
+                            color={props.isEmbedded ? 'blue' : 'primary'}
                             label={fieldName}
                             description={def.field?.description}
                             values={values}
@@ -421,6 +424,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <ReferenceOne
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           label={fieldName}
                           description={def.field?.description}
                           // only show the value if it is not null, undefined, or an empty string
@@ -447,6 +451,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         return (
                           <SelectOne
                             key={index}
+                            color={props.isEmbedded ? 'blue' : 'primary'}
                             type={'String'}
                             options={options}
                             label={fieldName}
@@ -464,6 +469,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <Text
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           label={fieldName}
                           description={def.field?.description}
                           value={getProperty(itemState.fields, key)}
@@ -482,6 +488,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <Checkbox
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           label={fieldName}
                           description={def.field?.description}
                           checked={!!getProperty(itemState.fields, key)}
@@ -503,6 +510,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         return (
                           <SelectOne
                             key={index}
+                            color={props.isEmbedded ? 'blue' : 'primary'}
                             type={'Int'}
                             options={options}
                             label={fieldName}
@@ -520,6 +528,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <Number
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           type={'Int'}
                           label={fieldName}
                           description={def.field?.description}
@@ -542,6 +551,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         return (
                           <SelectOne
                             key={index}
+                            color={props.isEmbedded ? 'blue' : 'primary'}
                             type={'Float'}
                             options={options}
                             label={fieldName}
@@ -559,6 +569,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <Number
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           type={'Float'}
                           label={fieldName}
                           description={def.field?.description}
@@ -581,6 +592,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         return (
                           <SelectMany
                             key={index}
+                            color={props.isEmbedded ? 'blue' : 'primary'}
                             type={'Float'}
                             options={options}
                             label={fieldName}
@@ -598,6 +610,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <SelectMany
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           type={'String'}
                           label={fieldName}
                           description={def.field?.description}
@@ -620,6 +633,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         return (
                           <SelectMany
                             key={index}
+                            color={props.isEmbedded ? 'blue' : 'primary'}
                             type={'Int'}
                             options={options}
                             label={fieldName}
@@ -639,6 +653,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <SelectMany
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           type={'Int'}
                           label={fieldName}
                           description={def.field?.description}
@@ -661,6 +676,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                         return (
                           <SelectMany
                             key={index}
+                            color={props.isEmbedded ? 'blue' : 'primary'}
                             type={'Float'}
                             options={options}
                             label={fieldName}
@@ -680,6 +696,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <SelectMany
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           type={'Float'}
                           label={fieldName}
                           description={def.field?.description}
@@ -700,6 +717,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       return (
                         <DateTime
                           key={index}
+                          color={props.isEmbedded ? 'blue' : 'primary'}
                           label={fieldName}
                           description={def.field?.description}
                           value={
@@ -721,6 +739,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                     return (
                       <Field
                         key={index}
+                        color={props.isEmbedded ? 'blue' : 'primary'}
                         label={fieldName}
                         description={def.field?.description}
                         isEmbedded={props.isEmbedded}

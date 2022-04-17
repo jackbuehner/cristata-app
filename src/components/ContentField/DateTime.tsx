@@ -29,12 +29,17 @@ function DateTime(props: DateTimeProps) {
         theme={theme}
         disabled={props.disabled}
         placeholder={props.placeholder}
+        themeColor={props.color}
       />
     </Field>
   );
 }
 
-const DateTimeComponent = styled(DateTimePicker)<{ theme: themeType; color?: colorType; disabled?: boolean }>`
+const DateTimeComponent = styled(DateTimePicker)<{
+  theme: themeType;
+  themeColor?: colorType;
+  disabled?: boolean;
+}>`
   padding: 10px 8px !important;
   line-height: 1.2;
   width: 100%;
@@ -48,8 +53,8 @@ const DateTimeComponent = styled(DateTimePicker)<{ theme: themeType; color?: col
   }
   &:focus-within {
     outline: none;
-    box-shadow: ${({ theme, color }) => {
-        if ((color as colorType) === 'neutral') color = undefined;
+    box-shadow: ${({ theme, themeColor: color }) => {
+        if (color === 'neutral') color = undefined;
         return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
       }}
       0px 0px 0px 2px inset;

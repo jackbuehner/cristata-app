@@ -24,7 +24,6 @@ import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../Modal';
-import { TextInput } from '../../../TextInput';
 import { InputGroup } from '../../../InputGroup';
 import { Label } from '../../../Label';
 import Color from 'color';
@@ -63,6 +62,7 @@ import {
 import { useFontFamilyDropdown } from './useCustomDropdown';
 import { CommentPanel } from '../../extension-power-comment';
 import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
+import { Text } from '../../../ContentField';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -137,7 +137,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               return {
                 onClick: () => editor?.chain().focus().setFontSize(size).run(),
                 label: size,
-                color: 'neutral',
+                color: 'blue',
               };
             }) || []
           }
@@ -174,6 +174,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h1 className={'title'}>Title</h1>,
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -187,6 +188,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .setItalic()
                   .run(),
               label: <p className={'subtitle'}>Subtitle</p>,
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -201,6 +203,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h1>Heading 1</h1>,
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -215,6 +218,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h2>Heading 2</h2>,
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -229,6 +233,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h3>Heading 3</h3>,
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -246,6 +251,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   <p>Blockquote</p>
                 </blockquote>
               ),
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -263,6 +269,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   <code>Code Block</code>
                 </pre>
               ),
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -276,6 +283,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <p>Hanging Indent</p>,
+              color: 'blue',
             },
             {
               onClick: () =>
@@ -289,6 +297,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <p>Paragraph</p>,
+              color: 'blue',
             },
           ]}
           noIcons
@@ -316,6 +325,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               return {
                 onClick: () => props.layouts?.setLayout(option.value),
                 label: option.label,
+                color: 'blue',
               };
             }) || []
           }
@@ -337,7 +347,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
     /**
      * When the user types in the field, update `link` in state
      */
-    const handleLinkValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleLinkValueChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setLink(e.target.value);
     };
 
@@ -345,8 +355,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       <PlainModal
         hideModal={hideLinkModal}
         title={`Insert Link`}
+        cancelButton={{ color: 'blue' }}
         continueButton={{
           text: 'Insert',
+          color: 'blue',
           onClick: () => {
             const result = editor?.chain().focus().setLink({ href: link }).run();
             // return whether the action was successful
@@ -356,16 +368,16 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           disabled: link.length < 1,
         }}
       >
-        <InputGroup type={`text`}>
-          <Label htmlFor={'insert-link'}>Location</Label>
-          <TextInput
-            name={'insert-link'}
-            id={'insert-link'}
-            font={'detail'}
-            value={link}
-            onChange={handleLinkValueChange}
-          ></TextInput>
-        </InputGroup>
+        <Text
+          label={'Location'}
+          color={'blue'}
+          name={'insert-link'}
+          id={'insert-link'}
+          font={'detail'}
+          value={link}
+          isEmbedded
+          onChange={handleLinkValueChange}
+        />
       </PlainModal>
     );
   }, [editor]);
@@ -378,6 +390,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
         text={`Add the Microsoft Editor extension to your browser to recieve spelling, grammar, and refinement suggestions on the content of this document. You will need to sign in with your Microsoft 365 Account.`}
         continueButton={{
           text: 'Get Microsoft Editor',
+          color: 'blue',
           onClick: () => {
             window.open(`https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`);
             return true;
@@ -385,6 +398,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
         }}
         cancelButton={{
           text: 'Close',
+          color: 'blue',
           onClick: () => {
             hideMSFTEditorModal();
             return true;
@@ -401,7 +415,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
     /**
      * When the user types in the field, update `idValue` in state
      */
-    const handleIdFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleIdFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setIdValue(e.target.value);
     };
 
@@ -409,8 +423,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       <PlainModal
         hideModal={hideSweepwidgetModal}
         title={`SweepWidget Giveaway`}
+        cancelButton={{ color: 'blue' }}
         continueButton={{
           text: 'Insert',
+          color: 'blue',
           onClick: () => {
             if (editor) {
               editor.chain().focus().insertSweepwidgetWidget('34804-gfbwtdns').run();
@@ -421,27 +437,30 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           disabled: idValue.length < 1,
         }}
       >
-        <Label
+        <Text
+          label={'Giveaway Id'}
           description={`The giveaway ID can be found on your <a href="https://sweepwidget.com/user">SweepWidget user page</a>.
             
             <b>Instructions</b>
             <ol style="margin: 0; padding: 0 0 0 12px; display: flex; flex-direction: column;">
               <li>Go to your <a href="https://sweepwidget.com/user">SweepWidget user page</a></li>
               <li>Click "Embed into your blog or website"</a></li>
-              <li>Copy the ID from the code. For example: For <code style="background: #e0e0e0;">id="34804-gfbwtdns"</code>, the ID is <code style="background: #e0e0e0;">34804-gfbwtdns</code>.</li>
+              <li>Copy the ID from the code. For example: For <code style="background: ${
+                theme.mode === 'light' ? '#e0e0e0' : '#212121'
+              };">id="34804-gfbwtdns"</code>, the ID is <code style="background: ${
+            theme.mode === 'light' ? '#e0e0e0' : '#212121'
+          };">34804-gfbwtdns</code>.</li>
               <li>Paste the code into the field below these instructions.</a></li>
             </ol>
           `}
-        >
-          Giveaway ID
-        </Label>
-        <TextInput
           name={'sw-id'}
           id={'sw-id'}
           value={idValue}
           onChange={handleIdFieldChange}
           placeholder={`Type sweepwidget id...`}
-        ></TextInput>
+          color={'blue'}
+          isEmbedded
+        />
       </PlainModal>
     );
   }, [editor]);
@@ -455,7 +474,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
     /**
      * When the user types in the field, update `idValue` and `videoUrl` in state
      */
-    const handleVideoUrlFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleVideoUrlFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       try {
         setVideoUrl(e.target.value);
         const { search } = new URL(e.target.value);
@@ -472,8 +491,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       <PlainModal
         hideModal={hideYoutubeModal}
         title={`Insert YouTube video`}
+        cancelButton={{ color: 'blue' }}
         continueButton={{
           text: 'Insert',
+          color: 'blue',
           onClick: () => {
             if (editor) {
               editor.chain().focus().insertYoutubeWidget(idValue).run();
@@ -484,14 +505,17 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           disabled: idValue.length < 1,
         }}
       >
-        <Label description={`Use the full video url instead of the shortened one.`}>Video URL</Label>
-        <TextInput
+        <Text
+          label={'Video URL'}
+          description={`Use the full video url instead of the shortened one.`}
           name={'video-url'}
           id={'video-url'}
           value={videoUrl}
           onChange={handleVideoUrlFieldChange}
           placeholder={`Type youtube video url...`}
-        ></TextInput>
+          color={'blue'}
+          isEmbedded
+        />
       </PlainModal>
     );
   }, [editor]);
@@ -571,19 +595,19 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             {
               onClick: showPhotoWidgetModal,
               label: 'Photo',
-              color: 'neutral',
+              color: 'blue',
               disabled: !props.options?.features.widgets?.photoWidget,
             },
             {
               onClick: showSweepwidgetModal,
               label: 'SweepWidget Giveaway',
-              color: 'neutral',
+              color: 'blue',
               disabled: !props.options?.features.widgets?.sweepwidget,
             },
             {
               onClick: showYoutubeModal,
               label: 'Youtube Video',
-              color: 'neutral',
+              color: 'blue',
               disabled: !props.options?.features.widgets?.youtube,
             },
           ]}
@@ -608,7 +632,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             <ToolbarTabList width={props.tiptapWidth}>
               <ToolbarTabButton
                 theme={theme}
-                color={'neutral'}
+                color={'blue'}
                 isActive={activeTab === 'home'}
                 onClick={() => setActiveTab('home')}
                 disabled={props.isDisabled}
@@ -617,7 +641,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
-                color={'neutral'}
+                color={'blue'}
                 isActive={activeTab === 'insert'}
                 onClick={() => setActiveTab('insert')}
                 disabled={props.isDisabled}
@@ -626,7 +650,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
-                color={'neutral'}
+                color={'blue'}
                 isActive={activeTab === 'layout'}
                 onClick={() => setActiveTab('layout')}
                 disabled={props.isDisabled}
@@ -635,7 +659,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
-                color={'neutral'}
+                color={'blue'}
                 isActive={activeTab === 'review'}
                 onClick={() => setActiveTab('review')}
                 disabled={props.isDisabled}
@@ -645,7 +669,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               {props.actions ? (
                 <ToolbarTabButton
                   theme={theme}
-                  color={'neutral'}
+                  color={'blue'}
                   isActive={activeTab === 'actions'}
                   onClick={() => setActiveTab('actions')}
                   disabled={props.isDisabled}
@@ -694,7 +718,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               <>
                 <ToolbarMetaIconButton
                   icon={<Database20Regular />}
-                  color={'neutral'}
+                  color={'blue'}
                   onClick={() => {
                     if (props.isSidebarOpen && props.sidebarTitle === 'Document properties') {
                       props.setIsSidebarOpen(false);
@@ -723,7 +747,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 />
                 <ToolbarMetaIconButton
                   icon={<CommentMultiple20Regular />}
-                  color={'neutral'}
+                  color={'blue'}
                   onClick={() => {
                     if (props.isSidebarOpen && props.sidebarTitle === 'Comments') {
                       props.setIsSidebarOpen(false);
@@ -747,7 +771,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 {shareAction ? (
                   <ToolbarMetaIconButton
                     icon={<Share20Regular />}
-                    color={'neutral'}
+                    color={'blue'}
                     onClick={() => shareAction.action()}
                     isActive={false}
                     data-tip={`Share this document`}
@@ -762,7 +786,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   navigate(pathname + '?' + params.toString() + hash, { replace: true });
                 }}
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
-                color={'neutral'}
+                color={'blue'}
                 data-tip={(isMax ? 'Minimize' : 'Maximize') + ' editor'}
               />
             ) : null}
@@ -788,7 +812,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               <ToolbarDivider />
               <Combobox
                 onClick={showFontFamilyDropdown}
-                color={'neutral'}
+                color={'blue'}
                 disabled={
                   props.isDisabled ||
                   !editor.can().setFontFamily('Georgia') ||
@@ -807,7 +831,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </Combobox>
               <Combobox
                 onClick={showFontSizeDropdown}
-                color={'neutral'}
+                color={'blue'}
                 disabled={props.isDisabled || (props.options?.features.fontSizes || []).length === 0}
                 width={`52px`}
                 cssContainerExtra={css`
@@ -889,7 +913,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               {props.options?.features.textStylePicker ? (
                 <Combobox
                   onClick={showTextStyleDropdown}
-                  color={'neutral'}
+                  color={'blue'}
                   width={`128px`}
                   disabled={props.isDisabled}
                 >
@@ -1005,7 +1029,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               <ToolbarRow isActive={activeTab === 'layout'}>
                 <Combobox
                   onClick={showLayoutDropdown}
-                  color={'neutral'}
+                  color={'blue'}
                   width={`128px`}
                   disabled={props.isDisabled}
                 >

@@ -70,7 +70,10 @@ const CheckboxComponent = styled.input<{ theme: themeType; color?: colorType }>`
         if (color === 'neutral') color = undefined;
         return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
       }};
-    background-color: ${({ theme }) => theme.color.primary[theme.mode === 'dark' ? 300 : 800]};
+    background-color: ${({ theme, color }) => {
+      if (color === 'neutral') color = undefined;
+      return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
+    }};
     background-image: ${({ theme }) =>
       theme.mode === 'dark'
         ? `url(data:image/svg+xml;utf8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIGZpbGw9IiMwMDAwMDAiPjx0aXRsZS8+PGcgaWQ9Imljb21vb24taWdub3JlIi8+PHBhdGggZD0iTTg3My41IDIzMy41bDQ1IDQ1LTUzNC41IDUzNS0yNzguNS0yNzkgNDUtNDUgMjMzLjUgMjMzIDQ4OS41LTQ4OXoiLz48L3N2Zz4=)`
