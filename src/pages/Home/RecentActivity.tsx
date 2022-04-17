@@ -83,7 +83,7 @@ function RecentActivity() {
       : undefined;
 
   // determine collection locations (to be used for links to cms items)
-  const collectionLocations: Record<string, collectionType<any>['row']> = {};
+  const collectionLocations: Record<string, collectionType['row']> = {};
   Object.entries(collections).forEach(([key, value]) => {
     const colNameL = value!.query.name.plural.toLowerCase();
     if (value?.row) collectionLocations[colNameL] = value.row;

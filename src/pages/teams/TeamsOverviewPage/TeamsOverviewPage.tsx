@@ -17,7 +17,7 @@ import { MultiSelect } from '../../../components/Select';
 import { TeamCard } from '../../../components/TeamCard';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
-import { selectProfile } from '../../../config/collections/articles/selectProfile';
+import { selectProfile } from '../selectProfile';
 import { client } from '../../../graphql/client';
 import {
   CREATE_TEAM,

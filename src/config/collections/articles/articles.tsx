@@ -5,11 +5,9 @@ import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
-import { isJSON } from '../../../utils/isJSON';
 import { gql } from '@apollo/client';
 
-const articles: collection<IArticle> = {
-  home: '/cms/collection/articles/in-progress',
+const articles: collection = {
   query: {
     name: {
       singular: 'article',
@@ -260,77 +258,6 @@ const articles: collection<IArticle> = {
     hrefSuffixKey: '_id',
     hrefSearch: '?fs=1&props=1',
     windowName: window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
-  },
-  isPublishable: true,
-  canWatch: true,
-  mandatoryWatchers: ['people.authors._id', 'people.editors.primary._id'],
-  publishStage: 5.2,
-  defaultSortKey: 'timestamps.target_publish_at',
-  pageTitle: (progress, search) => {
-    const paramsLength = Array.from(new URLSearchParams(search).keys()).length;
-
-    // get the category of the page
-    const categoriesParam = new URLSearchParams(search).get('categories');
-    const categories: string[] = isJSON(categoriesParam || '') ? JSON.parse(categoriesParam || '') : undefined;
-
-    // function rename categories with different display names
-    const rename = (str: string) => {
-      if (str === 'diversity') return 'diversity matters';
-      if (str === 'campus-culture') return 'campus & culture';
-      if (str === 'opinion') return 'opinions';
-      return str;
-    };
-
-    // build a title string based on the progress and category
-    if (progress === 'in-progress' && categories?.length === 1) {
-      return `In-progress ${rename(categories[0])}${categories[0] === 'opinion' ? `` : ` articles`}`;
-    } else if (progress === 'in-progress' && paramsLength === 0) {
-      return 'In-progress articles';
-    } else if (progress === 'all' && paramsLength === 0) {
-      return 'All articles';
-    }
-    return 'Articles [custom view]';
-  },
-  pageDescription: (progress, search) => {
-    const paramsLength = Array.from(new URLSearchParams(search).keys()).length;
-
-    // get the category of the page
-    const categoriesParam = new URLSearchParams(search).get('categories');
-    const categories: string[] = isJSON(categoriesParam || '') ? JSON.parse(categoriesParam || '') : undefined;
-
-    // function rename categories with different display names
-    const rename = (str: string) => {
-      if (str === 'diversity') return 'diversity matters';
-      if (str === 'campus-culture') return 'campus & culture';
-      if (str === 'opinion') return 'opinions';
-      return str;
-    };
-
-    // build a description string based on the progress and category
-    if (progress === 'in-progress' && categories?.length === 1) {
-      return `The ${rename(categories[0])}${
-        categories[0] === 'opinion' ? `` : ` articles`
-      } we are planning, drafting, and editing.`;
-    } else if (progress === 'in-progress' && paramsLength === 0) {
-      return `The articles we are planning, drafting, and editing.`;
-    } else if (progress === 'all' && paramsLength === 0) {
-      return `Every article that is in-progress or published on the web.`;
-    } else {
-      return decodeURIComponent(search.slice(1)).split('&').join(' | ');
-    }
-  },
-  tableDataFilter: (progress, search, sourceFilter) => {
-    // modify filter based on the progress
-    const filter = { ...sourceFilter };
-    if (progress === 'in-progress' && !filter.stage) filter.stage = { $nin: [5.1, 5.2] };
-
-    return { ...filter, hidden: { $ne: true } };
-  },
-  prependSort: (sort) => {
-    if (sort['timestamps.target_publish_at']) {
-      return { 'timestamps.target_publish_at_is_baseline': 1 };
-    }
-    return {};
   },
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);

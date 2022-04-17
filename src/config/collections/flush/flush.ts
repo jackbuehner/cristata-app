@@ -4,8 +4,7 @@ import { FlushDocumentEditor } from './FlushDocumentEditor';
 import roman from 'romans';
 import { gql } from '@apollo/client';
 
-const flush: collection<IFlush> = {
-  home: '/cms/collection/flush',
+const flush: collection = {
   query: {
     name: {
       singular: 'flush',
@@ -40,15 +39,10 @@ const flush: collection<IFlush> = {
     hrefSuffixKey: '_id',
     windowName: window.matchMedia('(display-mode: standalone)').matches ? 'flusher' : undefined,
   },
-  isPublishable: true,
-  canWatch: true,
-  pageTitle: () => `The Royal Flush`,
-  pageDescription: () => `The Paladin Network's restroom newsletter`,
   itemPageTitle: (fields) =>
     `The Royal Flush – Vol. ${
       !isNaN(parseInt(fields['volume'])) ? roman.romanize(parseInt(fields['volume'])) : '??'
     }, Iss. ${fields.issue || '??'}`,
-  tableDataFilter: (_, __, filter) => ({ ...filter, hidden: { $ne: true } }),
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
     client

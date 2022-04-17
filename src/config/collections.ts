@@ -9,25 +9,27 @@ import React, { Dispatch, SetStateAction } from 'react';
 import { CmsItemState } from '../redux/slices/cmsItemSlice';
 import { flush } from './collections/flush';
 import { CustomFieldProps } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { mongoFilterType, mongoSortType } from '../graphql/client';
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { CreateNewStateType } from '../pages/CMS/CollectionPage/CollectionPage';
 import { NavigateFunction } from 'react-router-dom';
 
 const collections: collectionsType = {
-  articles,
-  photoRequests,
-  photos,
-  satire,
-  shorturl,
-  flush,
+  Article: articles,
+  PhotoRequest: photoRequests,
+  Photo: photos,
+  Satire: satire,
+  ShortUrl: shorturl,
+  Flush: flush,
 };
 
 interface collectionsType {
-  [key: string]: collection<any> | undefined;
+  [key: string]: collection | undefined;
 }
 
-interface collection<I> {
+interface collection {
+  /**
+   * @deprecated Specify in server config.
+   */
   fields?: IField[];
   columns: Array<{
     key: string;
@@ -46,12 +48,6 @@ interface collection<I> {
     hrefSearch?: string;
     windowName?: string;
   };
-  isPublishable?: boolean;
-  canWatch?: boolean;
-  mandatoryWatchers?: string[];
-  publishStage?: number;
-  home: string;
-  collectionName?: string;
   query: {
     name: {
       singular: string;
@@ -60,14 +56,10 @@ interface collection<I> {
     identifier: string;
     force?: string[];
   };
-  pageTitle?: (progress: string, search: string) => string;
-  pageDescription?: (progress: string, search: string) => string;
+  /**
+   * @deprecated Not used in new item page layout.
+   */
   itemPageTitle?: (data: CmsItemState['fields']) => string;
-  defaultSortKey?: string;
-  prependSort?: (sort: mongoSortType) => mongoSortType | {};
-  prependFilter?: (filter: mongoFilterType) => mongoFilterType | {};
-  onTableData?: (data: I[]) => I[];
-  tableDataFilter?: (progress: string, search: string, filter: mongoFilterType) => mongoFilterType;
   createNew?: (
     loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
     client: ApolloClient<NormalizedCacheObject>,

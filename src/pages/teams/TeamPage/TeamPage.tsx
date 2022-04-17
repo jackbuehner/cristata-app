@@ -27,7 +27,7 @@ import { PageHead } from '../../../components/PageHead';
 import { MultiSelect } from '../../../components/Select';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
-import { selectProfile } from '../../../config/collections/articles/selectProfile';
+import { selectProfile } from '../selectProfile';
 import { client } from '../../../graphql/client';
 import {
   DEACTIVATE_USER,

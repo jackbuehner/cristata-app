@@ -7,8 +7,7 @@ import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 
-const satire: collection<ISatire> = {
-  home: '/cms/collection/satire/in-progress',
+const satire: collection = {
   query: {
     name: {
       singular: 'satire',
@@ -200,34 +199,6 @@ const satire: collection<ISatire> = {
     },
   ],
   row: { href: '/cms/collection/satire/item', hrefSuffixKey: '_id' },
-  isPublishable: true,
-  publishStage: 5.2,
-  defaultSortKey: 'timestamps.target_publish_at',
-  pageTitle: (progress) => {
-    if (progress === 'in-progress') {
-      return 'In-progress satire';
-    }
-    return 'All satire';
-  },
-  pageDescription: (progress) => {
-    if (progress === 'in-progress') {
-      return `The satire we are planning, drafting, and editing.`;
-    }
-    return `Every piece of satire that is in-progress or published on the web.`;
-  },
-  tableDataFilter: (progress, search, sourceFilter) => {
-    // modify filter based on the progress
-    const filter = { ...sourceFilter };
-    if (progress === 'in-progress' && !filter.stage) filter.stage = { $nin: [5.1, 5.2] };
-
-    return { ...filter, hidden: { $ne: true } };
-  },
-  prependSort: (sort) => {
-    if (sort['timestamps.target_publish_at']) {
-      return { 'timestamps.target_publish_at_is_baseline': 1 };
-    }
-    return {};
-  },
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
     client

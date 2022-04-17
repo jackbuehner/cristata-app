@@ -10,10 +10,10 @@ import { Column } from 'react-table';
 import { Table } from '../../../components/Table';
 import { collections as collectionsConfig } from '../../../config';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
-import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { themeType } from '../../../utils/theme/theme';
 import styled from '@emotion/styled/macro';
 import { unflattenObject } from '../../../utils/unflattenObject';
+import { useLocation } from 'react-router-dom';
 
 interface ICollectionTable {
   collection: string;
@@ -44,7 +44,9 @@ interface ICollectionTableImperative {
 const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>(
   ({ setIsLoading, ...props }, ref) => {
     const theme = useTheme() as themeType;
-    const collection = collectionsConfig[dashToCamelCase(props.collection)];
+    const { search } = useLocation();
+    const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+    const collection = collectionsConfig[props.collection];
 
     // calculate the approximate number of rows that can be visible on the display
     const rowDisplayCountEstimate = Math.floor((window.innerHeight - 100) / 38);
@@ -53,9 +55,14 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     const previousSort = localStorage.getItem(`table.${props.collection}.sort`);
 
     // construct a default sort object based on the `defaultSortKey` found in the collection config
+    const parseSortOrder = (input: string | undefined | null): -1 | 1 => (input === '-1' ? -1 : 1);
     const defaultSort = useMemo<mongoSortType>(
-      () => ({ [collection?.defaultSortKey || '_id']: 1 }),
-      [collection?.defaultSortKey]
+      () => ({
+        [searchParams.get('__defaultSortKey') || '_id']: parseSortOrder(
+          searchParams.get('__defaultSortKeyOrder')
+        ),
+      }),
+      [searchParams]
     );
 
     // keep the sort object in state
@@ -78,18 +85,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
               query: {
                 __variables: {
                   limit: `Int! = 20`,
-                  filter: `JSON = ${JSON.stringify(
-                    JSON.stringify(
-                      merge(collection?.prependFilter?.(props.filter || {}) || {}, props.filter || {})
-                    )
-                  )}`,
+                  filter: `JSON = ${JSON.stringify(JSON.stringify(props.filter || {}))}`,
                   sort: `JSON = ${JSON.stringify(
-                    JSON.stringify(
-                      merge(
-                        collection?.prependSort?.(Object.keys(sort).length === 0 ? defaultSort : sort) || {},
-                        Object.keys(sort).length === 0 ? defaultSort : sort
-                      )
-                    )
+                    JSON.stringify(Object.keys(sort).length === 0 ? defaultSort : sort)
                   )}`,
                   offset: `Int`,
                 },
@@ -181,9 +179,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       else if (error) setIsLoading(false);
       else setIsLoading(false);
     }, [loading, error, networkStatus, setIsLoading]);
-
-    // modify the data as specified in the config
-    if (collection?.onTableData && docs) docs = collection.onTableData([...docs]);
 
     // make functions available to the parent element via a ref
     useImperativeHandle(ref, () => ({
@@ -300,7 +295,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           showSkeleton={!docs || networkStatus === NetworkStatus.refetch}
           columns={columns}
           row={collection.row}
-          defaultSort={collection?.defaultSortKey}
           sort={sort}
           setSort={setSort}
           setPrevSort={setPrevSort}

@@ -2,14 +2,11 @@ import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Chip } from '../../../components/Chip';
-import { mongoFilterType } from '../../../graphql/client';
-import { IPhotoRequest } from '../../../interfaces/cristata/photoRequests';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType } from '../../../utils/theme/theme';
 import { collection } from '../../collections';
 
-const photoRequests: collection<IPhotoRequest> = {
-  home: '/cms/collection/photo-requests',
+const photoRequests: collection = {
   query: {
     name: {
       singular: 'photoRequest',
@@ -70,18 +67,6 @@ const photoRequests: collection<IPhotoRequest> = {
     },
   ],
   row: { href: '/cms/collection/photo-requests/item', hrefSuffixKey: '_id' },
-  isPublishable: false,
-  pageTitle: () => `Photo requests`,
-  pageDescription: () => `If a photo you need is not in the photo library, make a request here.`,
-  tableDataFilter: (progress, _, srcFilter) => {
-    // set a filter object
-    const filter: mongoFilterType = { ...srcFilter, hidden: { $ne: true } };
-
-    // modify filter based on the progress
-    if (progress === 'unfulfilled') filter.stage = { $nin: [3.1] };
-
-    return filter;
-  },
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
 

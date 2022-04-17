@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client';
-import { IShortURL } from '../../../interfaces/cristata/shorturl';
 import { collection } from '../../collections';
 
-const shorturl: collection<IShortURL> = {
-  home: '/cms/collection/shorturls',
+const shorturl: collection = {
   query: {
     name: {
       singular: 'shortURL',
@@ -57,10 +55,6 @@ const shorturl: collection<IShortURL> = {
     { key: 'hidden', label: 'hidden', filter: 'excludes', width: 1 },
   ],
   row: { href: '/cms/item/shorturl', hrefSuffixKey: 'code' },
-  isPublishable: false,
-  canWatch: false,
-  pageTitle: () => 'Short URLs',
-  pageDescription: () => 'Generate short URLs that redirect to other pages.',
   createNew: ([loading, setIsLoading], client, toast, navigate, { state: modalState, modal }) => {
     const setModal = modalState[1];
     const showModal = modal[0];

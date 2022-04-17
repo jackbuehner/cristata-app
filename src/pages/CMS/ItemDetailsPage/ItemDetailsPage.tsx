@@ -1,41 +1,4 @@
 /** @jsxImportSource @emotion/react */
-import { css, useTheme } from '@emotion/react';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { colorType, themeType } from '../../../utils/theme/theme';
-import { PageHead } from '../../../components/PageHead';
-import { Button, IconButton } from '../../../components/Button';
-import {
-  ArrowClockwise24Regular,
-  CloudArrowUp24Regular,
-  Delete24Regular,
-  EyeHide24Regular,
-  EyeShow24Regular,
-  Save24Regular,
-} from '@fluentui/react-icons';
-import { Label } from '../../../components/Label';
-import { TextInput } from '../../../components/TextInput';
-import { InputGroup } from '../../../components/InputGroup';
-import { collections as collectionsConfig } from '../../../config';
-import styled from '@emotion/styled/macro';
-import { unflattenObject } from '../../../utils/unflattenObject';
-import { toast } from 'react-toastify';
-import { Tiptap } from '../../../components/Tiptap';
-import ColorHash from 'color-hash';
-import { MultiSelect, Select } from '../../../components/Select';
-import { DateTime } from '../../../components/DateTime';
-import { dashToCamelCase } from '../../../utils/dashToCamelCase';
-import { useModal } from 'react-modal-hook';
-import { PlainModal } from '../../../components/Modal';
-import LuxonUtils from '@date-io/luxon';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-import Color from 'color';
-import { ErrorBoundary } from 'react-error-boundary';
-import { genAvatar } from '../../../utils/genAvatar';
-import { setFields, setField, setIsLoading, CmsItemState } from '../../../redux/slices/cmsItemSlice';
-import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
-import ReactTooltip from 'react-tooltip';
-import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import {
   ApolloClient,
   ApolloError,
@@ -43,19 +6,43 @@ import {
   NetworkStatus,
   NormalizedCacheObject,
   useMutation,
-  useQuery,
+  useQuery
 } from '@apollo/client';
-import { merge } from 'merge-anything';
+import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled/macro';
+import {
+  ArrowClockwise24Regular, Delete24Regular, Save24Regular
+} from '@fluentui/react-icons';
+import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
-import { buildFullKey } from '../../../utils/buildFullKey';
-import { isJSON } from '../../../utils/isJSON';
-import { client } from '../../../graphql/client';
-import { isObject } from '../../../utils/isObject';
-import { IField } from '../../../config/collections';
-import { FullScreenSplash } from './FullScreenSplash';
+import { merge } from 'merge-anything';
 import { get as getProperty, set as setProperty } from 'object-path';
-
-const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
+import pluralize from 'pluralize';
+import React, { useEffect } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import ReactTooltip from 'react-tooltip';
+import { Button, IconButton } from '../../../components/Button';
+import { DateTime } from '../../../components/DateTime';
+import { InputGroup } from '../../../components/InputGroup';
+import { Label } from '../../../components/Label';
+import { PageHead } from '../../../components/PageHead';
+import { MultiSelect, Select } from '../../../components/Select';
+import { TextInput } from '../../../components/TextInput';
+import { collections as collectionsConfig } from '../../../config';
+import { IField } from '../../../config/collections';
+import { client } from '../../../graphql/client';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { CmsItemState, setField, setFields, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { buildFullKey } from '../../../utils/buildFullKey';
+import { capitalize } from '../../../utils/capitalize';
+import { dashToCamelCase } from '../../../utils/dashToCamelCase';
+import { isJSON } from '../../../utils/isJSON';
+import { isObject } from '../../../utils/isObject';
+import { colorType, themeType } from '../../../utils/theme/theme';
+import { unflattenObject } from '../../../utils/unflattenObject';
+import { FullScreenSplash } from './FullScreenSplash';
 
 const PageWrapper = styled.div<{ theme?: themeType; isEmbedded?: boolean }>`
   padding: ${({ isEmbedded }) => (isEmbedded ? 0 : 20)}px;
@@ -84,7 +71,6 @@ interface IItemDetailsPage {
 
 function ItemDetailsPage(props: IItemDetailsPage) {
   const state = useAppSelector((state) => state.cmsItem);
-  const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
@@ -98,7 +84,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   // get the url parameters from the route
   let { collection, item_id } = useParams();
 
-  const collectionConfig = collectionsConfig[dashToCamelCase(collection || '')];
+  const collectionConfig = collectionsConfig[capitalize(pluralize.singular(dashToCamelCase(collection || '')))];
 
   const requiredFields = [
     '_id',
@@ -110,7 +96,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     'timestamps.modified_at',
     'timestamps.created_at',
   ];
-  const publishableRequiredFields = ['timestamps.updated_at', 'timestamps.published_at'];
 
   const GENERATED_ITEM_QUERY = collectionConfig
     ? gql(
@@ -127,12 +112,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     ...(collectionConfig?.query.name.singular !== 'setting'
                       ? requiredFields.map((field) => ({ [field]: true }))
                       : []),
-                    ...(collectionConfig?.isPublishable
-                      ? publishableRequiredFields.map((field) => ({ [field]: true }))
-                      : []),
-                    collectionConfig?.canWatch ? { 'people.watching._id': true } : {},
                     ...(collectionConfig?.query.force?.map((field) => ({ [field]: true })) || []),
-                    ...(collectionConfig?.mandatoryWatchers?.map((field) => ({ [field]: true })) || []),
                     ...(collectionConfig?.fields?.map((field) => ({
                       [field.from ? field.from : field.subfield ? field.key + '.' + field.subfield : field.key]:
                         true,
@@ -285,7 +265,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       .then(() => {
         setIsLoading(false);
         toast.success(`Item successfully hidden.`);
-        navigate(collectionConfig?.home || '/');
+        navigate('/');
       })
       .catch((err) => {
         setIsLoading(false);
@@ -294,88 +274,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       });
   };
 
-  // watch the item
-  const WATCH_ITEM = gql`mutation {
-    ${collectionConfig?.query.name.singular}Watch(${
-    collectionConfig?.query.identifier || '_id'
-  }: "${item_id}") {
-      people {
-        watching {
-          _id
-        }
-      }
-    }
-  }`;
-  const UNWATCH_ITEM = gql`mutation {
-    ${collectionConfig?.query.name.singular}Watch(${
-    collectionConfig?.query.identifier || '_id'
-  }: "${item_id}", watch: false) {
-      people {
-        watching {
-          _id
-        }
-      }
-    }
-  }`;
-  const [watchItemMutation] = useMutation(WATCH_ITEM);
-  const [unwatchItemMutation] = useMutation(UNWATCH_ITEM);
-
-  /**
-   * Toggle whether the current user is watching this item
-   */
-  const watchItem = (mode: boolean) => {
-    setIsLoading(true);
-    (mode ? watchItemMutation() : unwatchItemMutation())
-      .then(() => {
-        setIsLoading(false);
-        if (mode) {
-          toast.success(`You are now watching this item.`);
-        } else {
-          toast.success(`You are no longer watching this item.`);
-        }
-        setIsWatching(mode);
-        refetch();
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        console.error(err);
-        toast.error(`Failed to watch item. \n ${err.message}`);
-      });
-  };
-
-  // store whether user is watching the item
-  const [isWatching, setIsWatching] = useState<boolean>();
-  useEffect(() => {
-    if (
-      authUserState &&
-      data?.people?.watching &&
-      JSON.stringify(data.people.watching).includes(authUserState._id)
-    )
-      // stringify it since it can be either a profile id or a profile object
-      setIsWatching(true);
-    else setIsWatching(false);
-  }, [authUserState, data]);
-
-  // store whether the user is a mandatory watcher
-  const [isMadatoryWatcher, setIsMandatoryWatcher] = useState<boolean>();
-  useEffect(() => {
-    // get the mandatory watchers
-    const mandatoryWatchersKeys = collectionConfig?.mandatoryWatchers;
-    const mandatoryWatchers = mandatoryWatchersKeys
-      ?.map((key) => JSON.stringify(getProperty(state.fields, key)))
-      .filter((watcher) => watcher !== undefined); // stringify it since it can be either a profile id or a profile object
-
-    // set if current user is a mandatory watcher by checking if the user is inside `mandatoryWatchers`
-    if (authUserState && mandatoryWatchers && JSON.stringify(mandatoryWatchers).includes(authUserState._id))
-      setIsMandatoryWatcher(true);
-    else setIsMandatoryWatcher(false);
-  }, [collection, authUserState, state.fields, collectionConfig?.mandatoryWatchers]);
-
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
 
   // determine whether the user can publish the item
-  const { data: permissionsData, loading: loadingPermissions } = useQuery(
+  const { data: permissionsData } = useQuery(
     collectionConfig
       ? gql(
           jsonToGraphQLQuery({
@@ -396,99 +299,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
     permissionsData?.[collectionConfig!.query.name.singular + 'ActionAccess'];
 
   // calculate publish permissions
-  const cannotPublish = permissions?.publish !== true;
-  const publishStage: number | undefined = collectionConfig?.publishStage;
-  const isPublishable = collectionConfig?.isPublishable; // true only if set in config
-  const publishLocked =
-    cannotPublish !== false && getProperty(state.fields, 'stage') === publishStage && isPublishable === true; // if true, lock the publishing capability
-
-  // publish confirmation modal
-  const [showPublishModal, hidePublishModal] = useModal(() => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [confirm, setConfirm] = useState<string>('');
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [timestamp, setTimestamp] = useState<string>(
-      getProperty(state.fields, 'timestamps.published_at') as string
-    );
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const PUBLISH_ITEM = gql`mutation {
-      ${collectionConfig?.query.name.singular}Publish(${
-      collectionConfig?.query.identifier || '_id'
-    }: "${item_id}", published_at: "${timestamp || new Date().toISOString()}", publish: true) {
-        timestamps {
-          published_at
-        }
-      }
-    }`;
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [publishItem] = useMutation(PUBLISH_ITEM);
-
-    return (
-      <MuiPickersUtilsProvider utils={LuxonUtils}>
-        <PlainModal
-          hideModal={hidePublishModal}
-          title={`Publish article`}
-          continueButton={{
-            text: 'Publish',
-            onClick: async () => {
-              setIsLoading(true);
-              const publishStage: number | undefined = collectionConfig?.publishStage;
-              if (publishStage) {
-                const isPublished = !!(await publishItem()).data;
-                const isStageSet = await saveChanges({
-                  stage: publishStage,
-                });
-                // return whether the action was successful
-                setIsLoading(false);
-                if (isStageSet === true && isPublished === true) return true;
-              }
-              return false;
-            },
-            disabled: confirm !== 'confirm',
-          }}
-          isLoading={isLoading}
-        >
-          <p style={{ marginTop: 0 }}>
-            Before continuing, please <b>check the article and its metadata for formatting issues and typos</b>.
-          </p>
-          <p>
-            Once you publish this article, it will be available for everyone to see. Only a few members of The
-            Paladin's Board will be able to unpublish this article.
-          </p>
-          <InputGroup type={`text`}>
-            <Label
-              htmlFor={'date'}
-              description={
-                'This data can be any time in the past or future. Content will not appear until the date has occured.'
-              }
-            >
-              Choose publish date and time
-            </Label>
-            <DateTime
-              value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestamp}
-              onChange={(date) => {
-                if (date) setTimestamp(date.toUTC().toISO());
-              }}
-              placeholder={'Pick a time'}
-            />
-          </InputGroup>
-          <InputGroup type={'text'}>
-            <Label htmlFor={'confirm'}>Confirm publish</Label>
-            <TextInput
-              name={'confirm'}
-              id={'confirm'}
-              title={'confirm'}
-              placeholder={`Type "confirm" to publish the article`}
-              value={confirm}
-              onChange={(e) => setConfirm(e.currentTarget.value)}
-            />
-          </InputGroup>
-        </PlainModal>
-      </MuiPickersUtilsProvider>
-    );
-  }, [state.fields]);
 
   const actions: Array<Iaction | null> = [
     {
@@ -497,15 +307,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       icon: <ArrowClockwise24Regular />,
       action: () => refetch(),
     },
-    collectionConfig?.canWatch
-      ? {
-          label: isWatching || isMadatoryWatcher ? 'Stop Watching' : 'Watch',
-          type: 'button',
-          icon: isWatching || isMadatoryWatcher ? <EyeHide24Regular /> : <EyeShow24Regular />,
-          disabled: isMadatoryWatcher || permissions?.watch !== true,
-          action: () => watchItem(!isWatching),
-        }
-      : null,
     {
       label: 'Delete',
       type: 'button',
@@ -521,16 +322,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       action: () => saveChanges(),
       disabled: !state.isUnsaved || permissions?.modify !== true,
     },
-    collectionConfig?.isPublishable
-      ? //only allow publishing if canPublish is true
-        {
-          label: 'Publish',
-          type: 'button',
-          icon: <CloudArrowUp24Regular />,
-          action: showPublishModal,
-          disabled: cannotPublish,
-        }
-      : null,
   ];
 
   // variable with the fs search param
@@ -604,13 +395,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
       {!props.isEmbedded && fs === 'force' ? <FullScreenSplash isLoading={state.isLoading} /> : null}
       <PageWrapper theme={theme} isEmbedded={props.isEmbedded}>
-        {publishLocked && !props.isEmbedded && !fs ? (
-          <Notice theme={theme}>
-            This document is opened in read-only mode because it has been published and you do not have publish
-            permissions.
-          </Notice>
-        ) : null}
-        {(state.isLoading && !data) || (isPublishable ? loadingPermissions : false) ? (
+        
+        {(state.isLoading && !data)  ? (
           // loading
           'Loading...'
         ) : //error
@@ -646,7 +432,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -669,7 +455,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                             ) as string) || ''
                       }
                       onChange={(e) => handleTextChange(e, buildFullKey(field.key, field.from, undefined))}
-                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -686,7 +472,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -701,100 +487,8 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           buildFullKey(field.key, field.from, undefined)
                         )
                       }
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     />
-                  </InputGroup>
-                </ErrorBoundary>
-              );
-            }
-
-            if (field.type === 'tiptap') {
-              if (props.isEmbedded) {
-                return null;
-              }
-              const isHTML =
-                field.tiptap && field.tiptap.isHTMLkey && getProperty(state.fields, field.tiptap.isHTMLkey);
-              const html = isHTML
-                ? (getProperty(state.fields, buildFullKey(field.key, field.from, undefined)) as string)
-                : undefined;
-              return (
-                <ErrorBoundary
-                  key={index}
-                  fallback={<div>Error loading field '{buildFullKey(field.key, field.from, undefined)}'</div>}
-                >
-                  <InputGroup type={`text`}>
-                    <Label
-                      htmlFor={buildFullKey(field.key, field.from, undefined)}
-                      description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
-                    >
-                      {field.label}
-                    </Label>
-                    <div
-                      id={buildFullKey(field.key, field.from, undefined)}
-                      css={css`
-                        width: 100%;
-                        box-sizing: border-box;
-                        border-radius: ${theme.radius};
-                        border: none;
-                        box-shadow: ${theme.color.neutral[theme.mode][800]} 0px 0px 0px 1px inset;
-                        transition: box-shadow 240ms;
-                        padding: 2px;
-                        height: 400px;
-                        overflow: auto;
-                        &:hover {
-                          box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
-                        }
-                        &:focus-within {
-                          outline: none;
-                          box-shadow: ${theme.color.primary[800]} 0px 0px 0px 2px inset;
-                        }
-                        .ProseMirror {
-                          &:focus {
-                            outline: none;
-                          }
-                        }
-                      `}
-                    >
-                      <Tiptap
-                        docName={`${collection}.${item_id}`}
-                        title={title}
-                        user={{
-                          name: authUserState.name,
-                          color: colorHash.hex(authUserState._id),
-                          photo:
-                            `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/user-photo/${authUserState._id}` ||
-                            genAvatar(authUserState._id),
-                        }}
-                        options={field.tiptap}
-                        isDisabled={state.isLoading || publishLocked ? true : isHTML ? true : field.isDisabled}
-                        showLoading={state.isLoading}
-                        sessionId={sessionId}
-                        html={html}
-                        isMaximized={fs === '1' || fs === 'force'}
-                        forceMax={fs === 'force'}
-                        onDebouncedChange={(editorJson, storedJson) => {
-                          const isDefaultJson = editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
-                          if (!isDefaultJson && storedJson !== null && editorJson !== storedJson) {
-                            dispatch(
-                              setField(editorJson, buildFullKey(field.key, field.from, undefined), 'tiptap')
-                            );
-                          }
-                        }}
-                        currentJsonInState={
-                          JSON.stringify(state.fields) === '{}'
-                            ? null
-                            : getProperty(state.fields, buildFullKey(field.key, field.from, undefined))
-                        }
-                        actions={actions}
-                        layout={getProperty(state.fields, 'layout')}
-                        message={
-                          publishLocked
-                            ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
-                            : undefined
-                        }
-                      />
-                    </div>
                   </InputGroup>
                 </ErrorBoundary>
               );
@@ -810,7 +504,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -858,7 +552,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                             : 'string'
                         )
                       }
-                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -875,7 +569,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -910,7 +604,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                             : 'string'
                         )
                       }
-                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -933,7 +627,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -955,7 +649,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           field.dataType || 'string'
                         )
                       }
-                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -978,7 +672,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -993,7 +687,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                           field.dataType || 'string'
                         );
                       }}
-                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -1016,7 +710,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -1039,7 +733,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                         )
                       }
                       isCreatable
-                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -1056,7 +750,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -1086,7 +780,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                             buildFullKey(field.key, field.from, undefined)
                           );
                       }}
-                      isDisabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      isDisabled={state.isLoading ? true : field.isDisabled}
                     />
                   </InputGroup>
                 </ErrorBoundary>
@@ -1127,7 +821,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
                     <Label
                       htmlFor={buildFullKey(field.key, field.from, undefined)}
                       description={field.description}
-                      disabled={state.isLoading || publishLocked ? true : field.isDisabled}
+                      disabled={state.isLoading ? true : field.isDisabled}
                     >
                       {field.label}
                     </Label>
@@ -1162,19 +856,6 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   );
 }
 
-const Notice = styled.div<{ theme: themeType }>`
-  font-family: ${({ theme }) => theme.font.detail};
-  background-color: ${({ theme }) =>
-    theme.mode === 'light' ? Color(theme.color.orange[800]).lighten(0.64).hex() : theme.color.orange[1400]};
-  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
-  padding: 10px 20px;
-  position: sticky;
-  top: -20px;
-  margin: -20px 0 20px -20px;
-  width: 100%;
-  z-index: 99;
-`;
-
 interface CustomFieldProps {
   state: CmsItemState;
   dispatch: Dispatch<AnyAction>;
@@ -1191,3 +872,4 @@ interface CustomFieldProps {
 
 export { ItemDetailsPage };
 export type { Iaction, CustomFieldProps };
+

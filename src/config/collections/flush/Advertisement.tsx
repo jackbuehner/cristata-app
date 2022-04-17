@@ -7,7 +7,7 @@ import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { Select } from '../../../components/Select';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { selectPhotoPath } from '../articles/selectPhotoPath';
+import { selectPhotoPath } from './selectPhotoPath';
 import { SelectionOverlay } from './SelectionOverlay';
 
 function Advertisement({ state, dispatch, ...props }: CustomFieldProps) {

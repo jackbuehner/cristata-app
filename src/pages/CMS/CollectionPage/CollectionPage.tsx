@@ -1,28 +1,28 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { PageHead } from '../../../components/PageHead';
-import { themeType } from '../../../utils/theme/theme';
-import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
 import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
-import { Button } from '../../../components/Button';
-import { collections as collectionsConfig } from '../../../config';
+import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { dashToCamelCase } from '../../../utils/dashToCamelCase';
-import { collection } from '../../../config/collections';
-import ReactTooltip from 'react-tooltip';
-import { client, mongoFilterType } from '../../../graphql/client';
-import { useDropdown } from '../../../hooks/useDropdown';
-import { Menu } from '../../../components/Menu';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
-import { PlainModal } from '../../../components/Modal';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import ReactTooltip from 'react-tooltip';
+import { Button } from '../../../components/Button';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
-import { ErrorBoundary } from 'react-error-boundary';
+import { Menu } from '../../../components/Menu';
+import { PlainModal } from '../../../components/Modal';
+import { PageHead } from '../../../components/PageHead';
 import { TextInput } from '../../../components/TextInput';
-import { MultiSelect } from '../../../components/Select';
+import { collections as collectionsConfig } from '../../../config';
+import { client, mongoFilterType } from '../../../graphql/client';
+import { useDropdown } from '../../../hooks/useDropdown';
+import { capitalize } from '../../../utils/capitalize';
+import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { isJSON } from '../../../utils/isJSON';
+import { themeType } from '../../../utils/theme/theme';
+import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
 
 type CreateNewStateType = {
   /**
@@ -67,7 +67,6 @@ const TableWrapper = styled.div<{ theme?: themeType }>`
 `;
 
 interface IStore {
-  collection: collection<any>;
   collectionName: string;
   pageTitle: string;
   pageDescription?: string;
@@ -84,7 +83,6 @@ function CollectionPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   let store: IStore = {
-    collection: collectionsConfig.articles!, // placeholder
     collectionName: '',
     pageTitle: '',
     pageDescription: undefined,
@@ -95,9 +93,16 @@ function CollectionPage() {
   // get the url parameters from the route
   let { collection = '', progress = '' } = useParams();
 
+  // get the search params so we can get filters and other page data
+  const searchParams = new URLSearchParams(location.search);
+
   // build a filter for the table based on url search params
   const defaultFilter: mongoFilterType = { hidden: { $ne: true } };
-  new URLSearchParams(location.search).forEach((value, param) => {
+  searchParams.forEach((value, param) => {
+    // ignore values that start with two underscores because these are
+    // parameters used in the page instead of filters
+    if (param.indexOf('__') === 0) return;
+
     const isNegated = param[0] === '!';
     const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
 
@@ -117,26 +122,26 @@ function CollectionPage() {
     create: () => true,
   });
 
-  const collectionConfig = collectionsConfig[dashToCamelCase(collection)];
+  const collectionConfig = collectionsConfig[capitalize(pluralize.singular(dashToCamelCase(collection)))];
 
   if (collectionConfig) {
-    // set the collection for this page
-    store.collection = collectionConfig;
     // set the collection name
-    store.collectionName = collectionConfig.collectionName || collection;
+    store.collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
     // set the page title
     store.pageTitle =
-      // if defined, use the page title from the config
-      store.collection.pageTitle?.(progress, location.search) ||
+      // if defined, attempt to use the page title in the query string
+      searchParams.get('__pageTitle') ||
       // otherwise, build a title using the collection string
       collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ') + ' collection';
     // set the page description
-    store.pageDescription = store.collection.pageDescription?.(progress, location.search);
+    store.pageDescription =
+      searchParams.get('__pageCaption') ||
+      decodeURIComponent(location.search.slice(1)).split('&').join(' AND ');
     // set the data filter for mongoDB
-    store.mongoDataFilter = store.collection.tableDataFilter?.(progress, location.search, defaultFilter);
+    store.mongoDataFilter = defaultFilter;
     // set the createNew function
     store.createNew = () =>
-      store.collection.createNew?.([isLoading, setIsLoading], client, toast, navigate, {
+      collectionConfig.createNew?.([isLoading, setIsLoading], client, toast, navigate, {
         state: [createNewState, setCreateNewState],
         modal: [showCreateNewModal, hideCreateNewModal],
       });
@@ -199,131 +204,6 @@ function CollectionPage() {
     );
   }, [createNewState, isLoading]);
 
-  // filter modal
-  const [showFilterModal, hideFilterModal] = useModal(() => {
-    const searchParams = new URLSearchParams(location.search);
-
-    const params: {
-      [key: string]: { value: string | undefined | string[] | number[]; isNegated: boolean };
-    } = {};
-
-    const fields = collectionConfig?.fields
-      ?.filter(({ subfield }) => !subfield)
-      .filter(({ from }) => !from)
-      .filter(({ modifyValue }) => !modifyValue)
-      .filter(({ type }) => type === 'text' || type === 'select' || type === 'multiselect');
-
-    fields?.forEach((field) => {
-      const searchParam = field.key;
-      const searchValue = searchParams.get(searchParam);
-
-      if (searchValue) {
-        const isNegated = searchValue[0] === '!';
-        const isArray = isJSON(searchValue) && Array.isArray(JSON.parse(searchValue));
-
-        if (isNegated && isArray) {
-          params[searchParam] = {
-            value: JSON.parse(searchValue.slice(1)).filter(
-              (elem: unknown) => typeof elem === 'string' || typeof elem === 'number'
-            ),
-            isNegated,
-          };
-        } else if (isNegated && !isArray) {
-          params[searchParam] = { value: searchValue.slice(1), isNegated };
-        } else if (!isNegated && isArray) {
-          params[searchParam] = {
-            value: JSON.parse(searchValue).filter(
-              (elem: unknown) => typeof elem === 'string' || typeof elem === 'number'
-            ),
-            isNegated,
-          };
-        } else if (!isNegated && !isArray) {
-          params[searchParam] = { value: searchValue, isNegated };
-        }
-      }
-    });
-
-    return (
-      <PlainModal
-        hideModal={hideFilterModal}
-        title={`Choose filters`}
-        continueButton={{ text: 'Close' }}
-        cancelButton={null}
-      >
-        <div>
-          {fields?.map((field, index) => {
-            const value = params[field.key]?.value;
-
-            if (field.type === 'text' && (typeof value === 'string' || typeof value === 'undefined')) {
-              return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
-                  <InputGroup type={`text`}>
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <TextInput
-                      name={field.label}
-                      id={field.key}
-                      value={value}
-                      onChange={(e) => searchParams.set(field.key, e.currentTarget.value)}
-                      onBlur={() =>
-                        navigate(location.pathname + '?' + searchParams.toString() + location.hash, {
-                          replace: true,
-                        })
-                      }
-                    />
-                  </InputGroup>
-                </ErrorBoundary>
-              );
-            }
-
-            if (field.type === 'select' || field.type === 'multiselect') {
-              const valueIsArray = Array.isArray(value);
-              const val = value
-                ? valueIsArray
-                  ? (value as unknown as string[] | number[])
-                  : [value as unknown as string]
-                : undefined;
-
-              return (
-                <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
-                  <InputGroup type={`text`}>
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <MultiSelect
-                      options={field.options?.map(({ value, label }) => ({ value, label }))}
-                      val={val?.map((v: string | number) => `${v}`)}
-                      onChange={(opts) => {
-                        if (opts?.length === 0) {
-                          searchParams.delete(field.key);
-                        } else {
-                          searchParams.set(
-                            field.key,
-                            JSON.stringify(
-                              opts?.map((opt: { label: string; value: string }) =>
-                                field.dataType === 'number' ? parseFloat(opt.value as string) : opt.value
-                              )
-                            )
-                          );
-                        }
-                        navigate(location.pathname + '?' + searchParams.toString() + location.hash, {
-                          replace: true,
-                        });
-                      }}
-                    />
-                  </InputGroup>
-                </ErrorBoundary>
-              );
-            }
-            return (
-              <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
-                <Label htmlFor={field.key}>{field.label}</Label>
-                <pre>{JSON.stringify(field)}</pre>
-              </ErrorBoundary>
-            );
-          })}
-        </div>
-      </PlainModal>
-    );
-  }, [location.search]);
-
   // tools dropdown
   const [showToolsDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
@@ -344,7 +224,9 @@ function CollectionPage() {
             {
               label: 'Filter',
               icon: <Filter16Regular />,
-              onClick: showFilterModal,
+              onClick: () => null,
+              disabled: true,
+              'data-tip': 'Filtering is currently unavailable.',
             },
             {
               label: 'Clear filter',

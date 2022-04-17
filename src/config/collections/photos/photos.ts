@@ -1,8 +1,6 @@
-import { IPhoto } from '../../../interfaces/cristata/photos';
 import { collection } from '../../collections';
 
-const photos: collection<IPhoto> = {
-  home: '/cms/photos/library',
+const photos: collection = {
   query: {
     name: {
       singular: 'photo',
