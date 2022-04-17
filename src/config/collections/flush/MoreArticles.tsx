@@ -8,7 +8,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Label } from '../../../components/Label';
 import { MultiSelect } from '../../../components/Select';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
-import { selectArticle } from '../featuredSettings/selectArticle';
+import { selectArticle } from './selectArticle';
 import { SectionHead } from './SectionHead';
 import { SelectionOverlay } from './SelectionOverlay';
 

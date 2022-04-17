@@ -10,7 +10,7 @@ import { collections as collectionsConfig } from '../../../config';
 import { ClientConsumer } from '../../../graphql/client';
 import { CustomFieldProps } from '../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { isJSON } from '../../../utils/isJSON';
-import { selectArticle } from '../featuredSettings/selectArticle';
+import { selectArticle } from './selectArticle';
 import { SelectionOverlay } from './SelectionOverlay';
 
 interface IFeaturedArticle extends CustomFieldProps {

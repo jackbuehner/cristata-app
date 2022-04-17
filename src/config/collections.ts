@@ -4,8 +4,6 @@ import { photoRequests } from './collections/photoRequests';
 import { photos } from './collections/photos';
 import { satire } from './collections/satire';
 import { shorturl } from './collections/shorturl';
-import { featuredSettings } from './collections/featuredSettings';
-import { socialArticles } from './collections/socialArticles';
 import { toast as toastify } from 'react-toastify';
 import React, { Dispatch, SetStateAction } from 'react';
 import { CmsItemState } from '../redux/slices/cmsItemSlice';
@@ -22,8 +20,6 @@ const collections: collectionsType = {
   photos,
   satire,
   shorturl,
-  featuredSettings,
-  socialArticles,
   flush,
 };
 
