@@ -22,9 +22,7 @@ interface ITable {
     error: AxiosError<any> | ApolloError | undefined;
   };
   showSkeleton?: boolean;
-  columns: Column<{
-    [key: string]: any;
-  }>[];
+  columns: Array<Column & { isSortable: boolean }>;
   row?: {
     href: string; // clicking a row will toke user to this location + the value of the hrefSuffixKey
     hrefSuffixKey: string; // key from the row's data object to append to href (most common usage would be _id)
@@ -53,7 +51,7 @@ const Table = forwardRef(
     // use the useTable hook to build the table with the columns and data
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
       {
-        columns: props.columns,
+        columns: props.columns as Column<{ [key: string]: any }>[],
         data: props.data.data,
         manualSortBy: true,
         initialState: {
