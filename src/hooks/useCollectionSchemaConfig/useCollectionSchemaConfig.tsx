@@ -18,6 +18,7 @@ function useCollectionSchemaConfig(name: string): [
     canPublish: boolean;
     withPermissions: boolean;
     options?: { mandatoryWatchers?: string[] };
+    by: { one: string; many: string };
   },
   ApolloError | undefined,
   () => Promise<ApolloQueryResult<QueryType>>
@@ -30,6 +31,7 @@ function useCollectionSchemaConfig(name: string): [
       canPublish,
       withPermissions,
       generationOptions,
+      by,
     } = res.data.configuration.collection;
     const schemaDef: SchemaDefType = JSON.parse(schemaDefJson);
     return [
@@ -38,13 +40,18 @@ function useCollectionSchemaConfig(name: string): [
         canPublish: canPublish || false,
         withPermissions: withPermissions || false,
         options: generationOptions,
+        by,
       },
       res.error,
       res.refetch,
     ];
   }
 
-  return [{ schemaDef: [], canPublish: false, withPermissions: false }, res.error, res.refetch];
+  return [
+    { schemaDef: [], canPublish: false, withPermissions: false, by: { one: '_id', many: '_id' } },
+    res.error,
+    res.refetch,
+  ];
 }
 
 interface QueryType {
@@ -56,6 +63,10 @@ interface QueryType {
       schemaDef: string; // JSON
       generationOptions?: {
         mandatoryWatchers?: string[];
+      };
+      by: {
+        one: string;
+        many: string;
       };
     };
   };
@@ -72,6 +83,10 @@ function queryString(name: string): DocumentNode {
           schemaDef
           generationOptions {
             mandatoryWatchers
+          }
+          by {
+            one
+            many
           }
         }
       }
