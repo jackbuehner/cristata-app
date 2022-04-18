@@ -99,7 +99,7 @@ const photoRequests: collection = {
       })
       .then(({ data }) => {
         setIsLoading(false);
-        navigate(`/cms/item/photo-requests/${data.photoRequestCreate._id}`);
+        navigate(`/cms/collection/photo-requests/${data.photoRequestCreate._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

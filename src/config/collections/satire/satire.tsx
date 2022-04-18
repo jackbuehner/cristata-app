@@ -221,7 +221,7 @@ const satire: collection = {
       .then(({ data }) => {
         setIsLoading(false);
         // navigate to the new document upon successful creation
-        navigate(`/cms/item/satire/${data?.satireCreate?._id}`);
+        navigate(`/cms/collection/satire/${data?.satireCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);

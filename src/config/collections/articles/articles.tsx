@@ -281,7 +281,7 @@ const articles: collection = {
       .then(({ data }) => {
         setIsLoading(false);
         // navigate to the new document upon successful creation
-        navigate(`/cms/item/articles/${data?.articleCreate?._id}`);
+        navigate(`/cms/collection/articles/${data?.articleCreate?._id}`);
       })
       .catch((err) => {
         setIsLoading(false);
