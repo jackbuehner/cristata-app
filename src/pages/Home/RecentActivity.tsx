@@ -1,15 +1,17 @@
 import { useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { capitalize } from '@material-ui/core';
 import ColorHash from 'color-hash';
 import { DateTime } from 'luxon';
+import pluralize from 'pluralize';
 import { Fragment, MouseEventHandler } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collections } from '../../config';
-import { collection as collectionType } from '../../config/collections';
 import { HISTORY, HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
+import { camelToDashCase } from '../../utils/camelToDashCase';
 import { genAvatar } from '../../utils/genAvatar';
 import { themeType } from '../../utils/theme/theme';
+import { uncapitalize } from '../../utils/uncapitalize';
 
 /**
  * Displays the recent actiivty in the CMS.
@@ -82,19 +84,6 @@ function RecentActivity() {
       ? activity.reduce((max, obj) => (obj.users.length > max.users.length ? obj : max)).users.length
       : undefined;
 
-  // determine collection locations (to be used for links to cms items)
-  const collectionLocations: Record<string, collectionType['row']> = {};
-  Object.entries(collections).forEach(([key, value]) => {
-    const colNameL = value!.query.name.plural.toLowerCase();
-    if (value?.row) collectionLocations[colNameL] = value.row;
-    else {
-      collectionLocations[colNameL] = {
-        href: value!.query.name.plural,
-        hrefSuffixKey: '_id',
-      };
-    }
-  });
-
   return (
     <>
       {
@@ -116,16 +105,6 @@ function RecentActivity() {
               ? 'published'
               : 'modified';
 
-          // construct the link to the collection item page
-          let locHref = '';
-          const colLoc = collectionLocations[item.in];
-          if (colLoc) {
-            const { href, hrefSuffixKey, hrefSearch } = colLoc;
-            if (item.in === 'photos') locHref = `/cms/photos/library/${item._id}`;
-            else if (hrefSuffixKey === '_id') locHref = `${href}/${item._id}${hrefSearch || ''}`;
-            else locHref = `${href.replace('item', 'collection')}`;
-          } else if (item.in === 'teams') locHref = `/teams/${item._id}`;
-
           return (
             <ItemWrapper theme={theme} key={index}>
               <Item>
@@ -141,9 +120,11 @@ function RecentActivity() {
                   appendText={
                     <>
                       <span> {type} </span>
-                      <Bold theme={theme} onClick={() => navigate(locHref)}>
-                        {item.name}
-                      </Bold>
+                      <ItemName
+                        collectionName={capitalize(pluralize.singular(item.in))}
+                        itemName={item.name}
+                        itemId={item._id}
+                      />
                       <span> in </span>
                       <span>{item.in}</span>
                     </>
@@ -161,6 +142,33 @@ function RecentActivity() {
         })
       }
     </>
+  );
+}
+
+function ItemName({
+  collectionName,
+  itemName,
+  itemId,
+}: {
+  collectionName: string;
+  itemName: string;
+  itemId?: string;
+}) {
+  const theme = useTheme() as themeType;
+  const navigate = useNavigate();
+
+  const pathCollectionName = camelToDashCase(uncapitalize(pluralize(collectionName)));
+
+  const handleClick = () => {
+    if (collectionName === 'Photo' && itemId) navigate(`/cms/photos/library/${itemId}`);
+    else if (itemId) navigate(`/cms/collection/${pathCollectionName}/${itemId}`);
+    else navigate(`/cms/collection/${pathCollectionName}`);
+  };
+
+  return (
+    <Bold theme={theme} onClick={handleClick}>
+      {itemName}
+    </Bold>
   );
 }
 
