@@ -107,7 +107,7 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
         options.forEach((option) => {
           // find the names of the fields that have falsy values
           const falsyFieldNames =
-            requiredFieldNames?.filter((requiredFieldName) => !!getProperty(option, requiredFieldName)) || [];
+            requiredFieldNames?.filter((requiredFieldName) => !getProperty(option, requiredFieldName)) || [];
 
           // if the option is missing some fields,
           // disable the option so it cannot be selected
