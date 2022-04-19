@@ -22,11 +22,17 @@ const collectionQueryTypePolicies = [...collectionPluralNames, 'users', 'teams']
       keyArgs: ['sort', 'filter'],
       // Concatenate the incoming list items with
       // the existing list items.
-      merge(existing = { docs: [] }, incoming: Paged<unknown>) {
+      merge(existing: { docs: { _id: string }[] } = { docs: [] }, incoming: Paged<{ _id: string }>) {
         // NOTE: this merge expects incoming data be sequentially after existing data
         return {
           ...incoming,
-          docs: [...existing.docs, ...incoming.docs],
+          docs: [
+            ...existing.docs,
+            ...incoming.docs.filter(({ _id }) => {
+              const idIsUnique = !existing.docs.map((doc) => doc._id).includes(_id);
+              return idIsUnique;
+            }),
+          ],
         };
       },
     },

@@ -118,7 +118,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
               totalDocs: true,
               docs: {
                 ...merge(
-                  {},
+                  { _id: true },
                   // field used for navigating to item editor
                   { [by.one]: true },
                   // standard people and timestamps shown at the end of every table
