@@ -4,19 +4,6 @@ import { GitHubUserID, IProfile } from '../../../interfaces/cristata/profiles';
 import { collection } from '../../collections';
 
 const articles: collection = {
-  query: {
-    name: {
-      singular: 'article',
-      plural: 'articles',
-    },
-    identifier: '_id',
-  },
-  row: {
-    href: '/cms/collection/articles',
-    hrefSuffixKey: '_id',
-    hrefSearch: '?fs=1&props=1',
-    windowName: window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
-  },
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
     client

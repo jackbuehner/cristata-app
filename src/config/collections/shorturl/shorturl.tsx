@@ -2,13 +2,6 @@ import { gql } from '@apollo/client';
 import { collection } from '../../collections';
 
 const shorturl: collection = {
-  query: {
-    name: {
-      singular: 'shortUrl',
-      plural: 'shortUrls',
-    },
-    identifier: 'code',
-  },
   createNew: ([loading, setIsLoading], client, toast, navigate, { state: modalState, modal }) => {
     const setModal = modalState[1];
     const showModal = modal[0];

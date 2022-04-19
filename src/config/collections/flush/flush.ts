@@ -5,33 +5,26 @@ import roman from 'romans';
 import { gql } from '@apollo/client';
 
 const flush: collection = {
-  query: {
-    name: {
-      singular: 'flush',
-      plural: 'flushes',
-    },
-    identifier: '_id',
-    force: [
-      'events.name',
-      'events.date',
-      'events.location',
-      'articles.featured._id',
-      'articles.featured.name',
-      'articles.featured.categories',
-      'articles.featured.description',
-      'articles.featured.photo_path',
-      'articles.featured.body',
-      'articles.featured.people.authors.name',
-      'articles.more._id',
-      'articles.more.name',
-      'articles.more.categories',
-      'timestamps.week',
-      'volume',
-      'issue',
-      'left_advert_photo_url',
-      'hidden',
-    ],
-  },
+  forceFields: [
+    'events.name',
+    'events.date',
+    'events.location',
+    'articles.featured._id',
+    'articles.featured.name',
+    'articles.featured.categories',
+    'articles.featured.description',
+    'articles.featured.photo_path',
+    'articles.featured.body',
+    'articles.featured.people.authors.name',
+    'articles.more._id',
+    'articles.more.name',
+    'articles.more.categories',
+    'timestamps.week',
+    'volume',
+    'issue',
+    'left_advert_photo_url',
+    'hidden',
+  ],
   fields: [{ key: 'events', type: 'custom', Component: FlushDocumentEditor }],
   itemPageTitle: (fields) =>
     `The Royal Flush – Vol. ${

@@ -4,13 +4,6 @@ import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-
 import { collection } from '../../collections';
 
 const photoRequests: collection = {
-  query: {
-    name: {
-      singular: 'photoRequest',
-      plural: 'photoRequests',
-    },
-    identifier: '_id',
-  },
   createNew: ([loading, setIsLoading], client, toast, navigate) => {
     setIsLoading(true);
 

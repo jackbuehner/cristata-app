@@ -6,13 +6,11 @@ import {
   NetworkStatus,
   NormalizedCacheObject,
   useMutation,
-  useQuery
+  useQuery,
 } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import {
-  ArrowClockwise24Regular, Delete24Regular, Save24Regular
-} from '@fluentui/react-icons';
+import { ArrowClockwise24Regular, Delete24Regular, Save24Regular } from '@fluentui/react-icons';
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
@@ -33,6 +31,7 @@ import { TextInput } from '../../../components/TextInput';
 import { collections as collectionsConfig } from '../../../config';
 import { IField } from '../../../config/collections';
 import { client } from '../../../graphql/client';
+import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { CmsItemState, setField, setFields, setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { buildFullKey } from '../../../utils/buildFullKey';
@@ -41,6 +40,7 @@ import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { isJSON } from '../../../utils/isJSON';
 import { isObject } from '../../../utils/isObject';
 import { colorType, themeType } from '../../../utils/theme/theme';
+import { uncapitalize } from '../../../utils/uncapitalize';
 import { unflattenObject } from '../../../utils/unflattenObject';
 import { FullScreenSplash } from './FullScreenSplash';
 
@@ -83,8 +83,11 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // get the url parameters from the route
   let { collection, item_id } = useParams();
+  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection || '')));
 
-  const collectionConfig = collectionsConfig[capitalize(pluralize.singular(dashToCamelCase(collection || '')))];
+  const collectionConfig = collectionsConfig[collectionName];
+
+  const [{ by }] = useCollectionSchemaConfig(collectionName);
 
   const requiredFields = [
     '_id',
@@ -102,17 +105,17 @@ function ItemDetailsPage(props: IItemDetailsPage) {
         jsonToGraphQLQuery(
           {
             query: {
-              [collectionConfig.query.name.singular]: {
+              [uncapitalize(collectionName)]: {
                 __args: {
-                  [collectionConfig.query.identifier]: item_id,
+                  [by.one]: item_id,
                 },
                 ...unflattenObject(
                   merge(
                     {},
-                    ...(collectionConfig?.query.name.singular !== 'setting'
+                    ...(uncapitalize(collectionName) !== 'setting'
                       ? requiredFields.map((field) => ({ [field]: true }))
                       : []),
-                    ...(collectionConfig?.query.force?.map((field) => ({ [field]: true })) || []),
+                    ...(collectionConfig?.forceFields?.map((field) => ({ [field]: true })) || []),
                     ...(collectionConfig?.fields?.map((field) => ({
                       [field.from ? field.from : field.subfield ? field.key + '.' + field.subfield : field.key]:
                         true,
@@ -131,7 +134,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
   const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
   });
-  let data = collectionConfig ? req.data?.[collectionConfig.query.name.singular] : undefined;
+  let data = collectionConfig ? req.data?.[uncapitalize(collectionName)] : undefined;
 
   // if the query is loading or refetching, set `isLoading` in redux
   useEffect(() => {
@@ -205,15 +208,14 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
       // create the mutation
       const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
-        const colName = collectionConfig?.query.name.singular;
-        const identifier = collectionConfig?.query.identifier || '_id';
+        const colName = uncapitalize(collectionName);
         if (colName === 'setting') input = JSON.stringify(input);
         return gql(
           jsonToGraphQLQuery({
             mutation: {
               [`${colName}Modify`]: {
                 __args: {
-                  [identifier]: id,
+                  [by.one]: id,
                   input: input,
                 },
                 _id: true,
@@ -250,7 +252,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // set the item to hidden
   const HIDE_ITEM = gql`mutation {
-    ${collectionConfig?.query.name.singular}Hide(${collectionConfig?.query.identifier || '_id'}: "${item_id}") {
+    ${uncapitalize(collectionName)}Hide(${by.one}: "${item_id}") {
       hidden
     }
   }`;
@@ -283,7 +285,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       ? gql(
           jsonToGraphQLQuery({
             query: {
-              [collectionConfig.query.name.singular + 'ActionAccess']: {
+              [uncapitalize(collectionName) + 'ActionAccess']: {
                 modify: true,
                 hide: true,
                 lock: true,
@@ -296,7 +298,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
       : gql``
   );
   const permissions: Record<string, boolean> | undefined =
-    permissionsData?.[collectionConfig!.query.name.singular + 'ActionAccess'];
+    permissionsData?.[uncapitalize(collectionName) + 'ActionAccess'];
 
   // calculate publish permissions
 
@@ -395,8 +397,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
       {!props.isEmbedded && fs === 'force' ? <FullScreenSplash isLoading={state.isLoading} /> : null}
       <PageWrapper theme={theme} isEmbedded={props.isEmbedded}>
-        
-        {(state.isLoading && !data)  ? (
+        {state.isLoading && !data ? (
           // loading
           'Loading...'
         ) : //error
@@ -872,4 +873,3 @@ interface CustomFieldProps {
 
 export { ItemDetailsPage };
 export type { Iaction, CustomFieldProps };
-
