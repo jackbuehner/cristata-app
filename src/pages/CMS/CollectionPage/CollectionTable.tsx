@@ -427,6 +427,11 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
               if ((a[1].column?.order || 1000) > (b[1].column?.order || 1000)) return 1;
               return -1;
             })
+            .filter(([key]) => {
+              if (key === 'permissions.users') return false;
+              if (key === 'permissions.teams') return false;
+              return true;
+            })
             .map(([key, def]): CustomColumn | null => {
               if (def.column?.hidden !== true) {
                 if (def.column) {
