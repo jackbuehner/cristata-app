@@ -1,4 +1,3 @@
-import { Row } from 'react-table';
 import { articles } from './collections/articles';
 import { photoRequests } from './collections/photoRequests';
 import { photos } from './collections/photos';
@@ -31,17 +30,6 @@ interface collection {
    * @deprecated Specify in server config.
    */
   fields?: IField[];
-  columns: Array<{
-    key: string;
-    isJSON?: boolean; // if the key is a JSON field
-    subfields?: string[]; // choose subfields for when the key is for a field with subfields
-    label?: string;
-    width?: number;
-    render?: (data: { [key: string]: any }) => React.ReactElement;
-    filter?: string;
-    isSortable?: false;
-    sortType?: string | ((rowA: Row, rowB: Row, columnId: string, desc: boolean) => -1 | 0 | 1);
-  }>;
   row?: {
     href: string;
     hrefSuffixKey: string;

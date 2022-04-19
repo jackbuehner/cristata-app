@@ -33,12 +33,6 @@ const flush: collection = {
     ],
   },
   fields: [{ key: 'events', type: 'custom', Component: FlushDocumentEditor }],
-  columns: [{ key: 'volume' }, { key: 'issue' }],
-  row: {
-    href: '/cms/item/flush',
-    hrefSuffixKey: '_id',
-    windowName: window.matchMedia('(display-mode: standalone)').matches ? 'flusher' : undefined,
-  },
   itemPageTitle: (fields) =>
     `The Royal Flush – Vol. ${
       !isNaN(parseInt(fields['volume'])) ? roman.romanize(parseInt(fields['volume'])) : '??'

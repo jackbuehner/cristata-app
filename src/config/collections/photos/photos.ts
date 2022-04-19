@@ -8,7 +8,6 @@ const photos: collection = {
     },
     identifier: '_id',
   },
-  columns: [],
 };
 
 export { photos };

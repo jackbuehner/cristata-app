@@ -23,14 +23,12 @@ import { useLocation } from 'react-router-dom';
 import { Column } from 'react-table';
 import { Chip } from '../../../components/Chip';
 import { Table } from '../../../components/Table';
-import { collections as collectionsConfig } from '../../../config';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { unflattenObject } from '../../../utils/unflattenObject';
 import { deepen } from '../CollectionItemPage/useFindDoc';
 
 interface ICollectionTable {
@@ -63,7 +61,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     const theme = useTheme() as themeType;
     const { search } = useLocation();
     const searchParams = useMemo(() => new URLSearchParams(search), [search]);
-    const collection = collectionsConfig[props.collection];
 
     // calculate the approximate number of rows that can be visible on the display
     const rowDisplayCountEstimate = Math.floor((window.innerHeight - 100) / 38);
@@ -98,131 +95,80 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     const [{ schemaDef, by }] = useCollectionSchemaConfig(props.collection);
 
     // generate a GraphQL API query based on the collection
-    const GENERATED_COLLECTION_QUERY =
-      collection && collection.columns.length > 0
-        ? gql(
-            jsonToGraphQLQuery(
-              {
-                query: {
-                  __variables: {
-                    limit: `Int! = 20`,
-                    filter: `JSON = ${JSON.stringify(JSON.stringify(props.filter || {}))}`,
-                    sort: `JSON = ${JSON.stringify(
-                      JSON.stringify(Object.keys(sort).length === 0 ? defaultSort : sort)
-                    )}`,
-                    offset: `Int`,
-                  },
-                  [collection.query.name.plural]: {
-                    __args: {
-                      limit: new VariableType('limit'),
-                      filter: new VariableType('filter'),
-                      sort: new VariableType('sort'),
-                      offset: new VariableType('offset'),
-                    },
-                    totalDocs: true,
-                    docs: {
-                      ...unflattenObject(
-                        merge(
-                          {},
-                          // field used for navigating to item editor
-                          { [by.one]: true },
-                          // fields that are forced by the collection config
-                          ...(collection?.query.force?.map((field) => ({ [field]: true })) || []),
-                          // fields used in the table columns
-                          ...collection?.columns.map((column) => {
-                            if (column.subfields && !column.isJSON) {
-                              return {
-                                [column.key]: merge(
-                                  {},
-                                  ...column.subfields.map((subfield) => ({ [subfield]: true }))
-                                ),
-                              };
-                            }
-                            return { [column.key]: true };
-                          })
-                        )
-                      ),
-                    },
-                  },
-                },
+    const GENERATED_COLLECTION_QUERY = gql(
+      jsonToGraphQLQuery(
+        {
+          query: {
+            __variables: {
+              limit: `Int! = 20`,
+              filter: `JSON = ${JSON.stringify(JSON.stringify(props.filter || {}))}`,
+              sort: `JSON = ${JSON.stringify(
+                JSON.stringify(Object.keys(sort).length === 0 ? defaultSort : sort)
+              )}`,
+              offset: `Int`,
+            },
+            [uncapitalize(pluralize(props.collection))]: {
+              __args: {
+                limit: new VariableType('limit'),
+                filter: new VariableType('filter'),
+                sort: new VariableType('sort'),
+                offset: new VariableType('offset'),
               },
-              { pretty: true }
-            )
-          )
-        : gql(
-            jsonToGraphQLQuery(
-              {
-                query: {
-                  __variables: {
-                    limit: `Int! = 20`,
-                    filter: `JSON = ${JSON.stringify(JSON.stringify(props.filter || {}))}`,
-                    sort: `JSON = ${JSON.stringify(
-                      JSON.stringify(Object.keys(sort).length === 0 ? defaultSort : sort)
-                    )}`,
-                    offset: `Int`,
-                  },
-                  [uncapitalize(pluralize(props.collection))]: {
-                    __args: {
-                      limit: new VariableType('limit'),
-                      filter: new VariableType('filter'),
-                      sort: new VariableType('sort'),
-                      offset: new VariableType('offset'),
+              totalDocs: true,
+              docs: {
+                ...merge(
+                  {},
+                  // field used for navigating to item editor
+                  { [by.one]: true },
+                  // standard people and timestamps shown at the end of every table
+                  {
+                    people: {
+                      created_by: {
+                        _id: true,
+                        name: true,
+                        photo: true,
+                      },
+                      last_modified_by: {
+                        _id: true,
+                        name: true,
+                        photo: true,
+                      },
                     },
-                    totalDocs: true,
-                    docs: {
-                      ...merge(
-                        {},
-                        // field used for navigating to item editor
-                        { [by.one]: true },
-                        // standard people and timestamps shown at the end of every table
-                        {
-                          people: {
-                            created_by: {
-                              _id: true,
-                              name: true,
-                              photo: true,
-                            },
-                            last_modified_by: {
-                              _id: true,
-                              name: true,
-                              photo: true,
-                            },
-                          },
-                          timestamps: {
-                            modified_at: true,
-                          },
-                        },
-                        // fields used in the table columns
-                        ...schemaDef.map(([key, def]): Record<string, never> => {
-                          if (def.column?.hidden !== true) {
-                            if (isTypeTuple(def.type) || def.column?.reference) {
-                              if (def.column?.reference) {
-                                const collection = isTypeTuple(def.type)
-                                  ? def.type[0].replace('[', '').replace(']', '')
-                                  : def.column.reference.collection;
+                    timestamps: {
+                      modified_at: true,
+                    },
+                  },
+                  // fields used in the table columns
+                  ...schemaDef.map(([key, def]): Record<string, never> => {
+                    if (def.column?.hidden !== true) {
+                      if (isTypeTuple(def.type) || def.column?.reference) {
+                        if (def.column?.reference) {
+                          const collection = isTypeTuple(def.type)
+                            ? def.type[0].replace('[', '').replace(']', '')
+                            : def.column.reference.collection;
 
-                                return merge(
-                                  deepen({ [key + '.' + (def.column.reference?.fields?._id || '_id')]: true }),
-                                  deepen({
-                                    [key + '.' + (def.column.reference?.fields?.name || 'name')]: true,
-                                  }),
-                                  collection === 'User' ? deepen({ [key + '.photo']: true }) : {}
-                                );
-                              }
-                              return deepen({ [key + '._id']: true });
-                            }
-                            return deepen({ [key]: true });
-                          }
-                          return {};
-                        })
-                      ),
-                    },
-                  },
-                },
+                          return merge(
+                            deepen({ [key + '.' + (def.column.reference?.fields?._id || '_id')]: true }),
+                            deepen({
+                              [key + '.' + (def.column.reference?.fields?.name || 'name')]: true,
+                            }),
+                            collection === 'User' ? deepen({ [key + '.photo']: true }) : {}
+                          );
+                        }
+                        return deepen({ [key + '._id']: true });
+                      }
+                      return deepen({ [key]: true });
+                    }
+                    return {};
+                  })
+                ),
               },
-              { pretty: true }
-            )
-          );
+            },
+          },
+        },
+        { pretty: true }
+      )
+    );
 
     const defaultLimit = rowDisplayCountEstimate + 20;
     const [limit, setLimit] = useState<number>(defaultLimit);
@@ -245,7 +191,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       notifyOnNetworkStatusChange: true,
       variables: { limit: queryLimit },
       onCompleted: (queryData) => {
-        const data = collection ? queryData?.[uncapitalize(pluralize(props.collection))] : undefined;
+        const data = queryData?.[uncapitalize(pluralize(props.collection))];
 
         // if the length of the data is less than it is supposed to be, find
         // the difference and fetch the missing amount of data
@@ -263,7 +209,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         }
       },
     });
-    let data = collection ? queryData?.[uncapitalize(pluralize(props.collection))] : undefined;
+    let data = queryData?.[uncapitalize(pluralize(props.collection))];
     let docs = data?.docs;
 
     // manage loading state
@@ -421,82 +367,62 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
     // build the columns based on the config
     const columns: CustomColumn[] = useMemo(() => {
-      if (!collection || !collection.columns || collection.columns.length === 0) {
-        return [
-          ...schemaDef
-            .sort((a, b) => {
-              if ((a[1].column?.order || 1000) > (b[1].column?.order || 1000)) return 1;
-              return -1;
-            })
-            .filter(([key]) => {
-              if (key === 'permissions.users') return false;
-              if (key === 'permissions.teams') return false;
-              return true;
-            })
-            .map(([key, def]): CustomColumn | null => {
-              if (def.column?.hidden !== true) {
-                if (def.column) {
-                  return {
-                    Header: def.column.label || key,
-                    id: key,
-                    accessor: (data) => accessor(data, key, def),
-                    width: def.column.width || 150,
-                    isSortable: def.column.sortable || false,
-                  };
-                }
+      return [
+        ...schemaDef
+          .sort((a, b) => {
+            if ((a[1].column?.order || 1000) > (b[1].column?.order || 1000)) return 1;
+            return -1;
+          })
+          .filter(([key]) => {
+            if (key === 'permissions.users') return false;
+            if (key === 'permissions.teams') return false;
+            return true;
+          })
+          .map(([key, def]): CustomColumn | null => {
+            if (def.column?.hidden !== true) {
+              if (def.column) {
                 return {
-                  Header: key,
+                  Header: def.column.label || key,
                   id: key,
                   accessor: (data) => accessor(data, key, def),
-                  width: 150,
-                  isSortable: false,
+                  width: def.column.width || 150,
+                  isSortable: def.column.sortable || false,
                 };
               }
-              return null;
-            })
-            .filter((x): x is CustomColumn => !!x),
-          {
-            Header: 'Created by',
-            id: 'people.created_by',
-            accessor: (data) => accessor(data, 'people.created_by', { type: ['User', 'ObjectId'] }),
-            width: 150,
-            isSortable: false,
-          },
-          {
-            Header: 'Last modified by',
-            id: 'people.last_modified_by',
-            accessor: (data) => accessor(data, 'people.last_modified_by', { type: ['User', 'ObjectId'] }),
-            width: 150,
-            isSortable: false,
-          },
-          {
-            Header: 'Last modified',
-            id: 'timestamps.modified_at',
-            accessor: (data) => accessor(data, 'timestamps.modified_at', { type: 'Date' }),
-            width: 150,
-            isSortable: true,
-          },
-        ];
-      }
-      return collection.columns.map((column): CustomColumn => {
-        if (column.render) {
-          return {
-            Header: column.label || column.key,
-            id: column.key,
-            accessor: column.render,
-            width: column.width || 150,
-            isSortable: column.isSortable || true,
-          };
-        }
-        return {
-          Header: column.label || column.key,
-          id: column.key,
-          accessor: column.key,
-          width: column.width || 150,
-          isSortable: column.isSortable || true,
-        };
-      });
-    }, [collection, schemaDef]);
+              return {
+                Header: key,
+                id: key,
+                accessor: (data) => accessor(data, key, def),
+                width: 150,
+                isSortable: false,
+              };
+            }
+            return null;
+          })
+          .filter((x): x is CustomColumn => !!x),
+        {
+          Header: 'Created by',
+          id: 'people.created_by',
+          accessor: (data) => accessor(data, 'people.created_by', { type: ['User', 'ObjectId'] }),
+          width: 150,
+          isSortable: false,
+        },
+        {
+          Header: 'Last modified by',
+          id: 'people.last_modified_by',
+          accessor: (data) => accessor(data, 'people.last_modified_by', { type: ['User', 'ObjectId'] }),
+          width: 150,
+          isSortable: false,
+        },
+        {
+          Header: 'Last modified',
+          id: 'timestamps.modified_at',
+          accessor: (data) => accessor(data, 'timestamps.modified_at', { type: 'Date' }),
+          width: 150,
+          isSortable: true,
+        },
+      ];
+    }, [schemaDef]);
 
     // create a ref for the spinner that appears when more rows can be loaded
     const SpinnerRef = useRef<HTMLDivElement>(null);
@@ -551,15 +477,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           <button onClick={() => refetch()}>Reload</button>
         </>
       );
-
-    // if collection is undefined, render an error message
-    if (!collection) {
-      return (
-        <span>
-          Failed to load table for '{props.collection}'. <code>collection</code> is undefined, null, or false.
-        </span>
-      );
-    }
 
     // if the field is a body field that is rendered as a tiptap editor,
     // we want to open it in maximized mode for easy access to the editor
