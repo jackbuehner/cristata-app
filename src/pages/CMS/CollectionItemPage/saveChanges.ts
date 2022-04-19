@@ -16,14 +16,14 @@ async function saveChanges(
   itemId: string,
   data: { dispatch: ReturnType<typeof useAppDispatch>; state: CmsItemState; refetch: () => void },
   extraData: { [key: string]: any } = {},
-  permissionsOnly: boolean = false
+  permissionsOnly: boolean = false,
+  idKey = '_id'
 ): Promise<boolean> {
   if (collectionName && itemId) {
     data.dispatch(setIsLoading(true));
 
     // create the mutation
     const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
-      const idKey = '_id';
       if (collectionName === 'Setting') input = JSON.stringify(input);
       return gql(
         jsonToGraphQLQuery({

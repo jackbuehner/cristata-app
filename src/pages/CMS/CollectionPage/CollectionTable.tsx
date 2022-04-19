@@ -95,7 +95,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     }, [defaultSort, props.collection, sort]);
 
     // get the schema for the collection so we can get the required fields and create the correct columns
-    const [{ schemaDef }] = useCollectionSchemaConfig(props.collection);
+    const [{ schemaDef, by }] = useCollectionSchemaConfig(props.collection);
 
     // generate a GraphQL API query based on the collection
     const GENERATED_COLLECTION_QUERY =
@@ -125,7 +125,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                         merge(
                           {},
                           // field used for navigating to item editor
-                          collection?.row?.hrefSuffixKey ? { [collection.row.hrefSuffixKey]: true } : {},
+                          { [by.one]: true },
                           // fields that are forced by the collection config
                           ...(collection?.query.force?.map((field) => ({ [field]: true })) || []),
                           // fields used in the table columns
@@ -173,7 +173,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                       ...merge(
                         {},
                         // field used for navigating to item editor
-                        collection?.row?.hrefSuffixKey ? { [collection.row.hrefSuffixKey]: true } : {},
+                        { [by.one]: true },
                         // standard people and timestamps shown at the end of every table
                         {
                           people: {
@@ -245,7 +245,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       notifyOnNetworkStatusChange: true,
       variables: { limit: queryLimit },
       onCompleted: (queryData) => {
-        const data = collection ? queryData?.[collection.query.name.plural] : undefined;
+        const data = collection ? queryData?.[uncapitalize(pluralize(props.collection))] : undefined;
 
         // if the length of the data is less than it is supposed to be, find
         // the difference and fetch the missing amount of data
@@ -263,7 +263,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         }
       },
     });
-    let data = collection ? queryData?.[collection.query.name.plural] : undefined;
+    let data = collection ? queryData?.[uncapitalize(pluralize(props.collection))] : undefined;
     let docs = data?.docs;
 
     // manage loading state

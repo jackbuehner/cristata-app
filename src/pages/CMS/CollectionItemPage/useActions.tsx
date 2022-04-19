@@ -41,6 +41,7 @@ interface UseActionsParams {
   publishStage?: number;
   withPermissions: boolean;
   isEmbedded?: boolean;
+  idKey?: string;
 }
 
 interface UseActionsReturn {
@@ -205,11 +206,18 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         type: 'button',
         icon: <Save24Regular />,
         action: () =>
-          saveChanges(params.collectionName, params.itemId, {
-            dispatch: params.dispatch,
-            refetch: params.refetchData,
-            state: params.state,
-          }),
+          saveChanges(
+            params.collectionName,
+            params.itemId,
+            {
+              dispatch: params.dispatch,
+              refetch: params.refetchData,
+              state: params.state,
+            },
+            undefined,
+            undefined,
+            params.idKey
+          ),
         disabled: !params.state.isUnsaved || params.actionAccess?.modify !== true,
         'data-tip':
           params.actionAccess?.modify !== true

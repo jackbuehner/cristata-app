@@ -61,14 +61,22 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
   const [
-    { schemaDef, nameField, canPublish: isPublishableCollection, options: collectionOptions, withPermissions },
+    {
+      schemaDef,
+      nameField,
+      canPublish: isPublishableCollection,
+      options: collectionOptions,
+      withPermissions,
+      by,
+    },
   ] = useCollectionSchemaConfig(collectionName);
   const { actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
     schemaDef,
     withPermissions,
-    props.isEmbedded || false
+    props.isEmbedded || false,
+    by.one
   );
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
 
@@ -126,12 +134,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     publishStage,
     withPermissions,
     isEmbedded: props.isEmbedded,
+    idKey: by.one,
   });
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
     docInfo: {
-      _id: getProperty(itemState.fields, '_id'),
+      _id: getProperty(itemState.fields, by.one),
       createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
       modifiedAt: getProperty(itemState.fields, 'timestamps.modified_at'),
     },
