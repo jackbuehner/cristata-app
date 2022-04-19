@@ -11,7 +11,7 @@ import { merge } from 'merge-anything';
 import { SchemaDef, isTypeTuple } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { useAppDispatch } from '../../../redux/hooks';
-import { setIsLoading, setFields } from '../../../redux/slices/cmsItemSlice';
+import { setIsLoading, setFields, clearUnsavedFields } from '../../../redux/slices/cmsItemSlice';
 import { useEffect } from 'react';
 import pluralize from 'pluralize';
 
@@ -94,6 +94,7 @@ function useFindDoc(
   // get the item
   const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'cache-and-network',
     onCompleted(data) {
       // save the item to redux
       if (data?.[queryName] && doNothing !== true) {
@@ -111,6 +112,14 @@ function useFindDoc(
       dispatch(setIsLoading(true));
     } else {
       dispatch(setIsLoading(false));
+    }
+  }, [dispatch, doNothing, loading, networkStatus]);
+
+  // on first load, clear the exist fields in redux
+  useEffect(() => {
+    if (loading && doNothing !== true) {
+      dispatch(clearUnsavedFields());
+      dispatch(setFields({}));
     }
   }, [dispatch, doNothing, loading, networkStatus]);
 
