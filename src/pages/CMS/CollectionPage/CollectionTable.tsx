@@ -190,6 +190,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       fetchMore,
     } = useQuery(GENERATED_COLLECTION_QUERY, {
       notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'cache-and-network',
       variables: { limit: queryLimit },
       onCompleted: (queryData) => {
         const data = queryData?.[uncapitalize(pluralize(props.collection))];
