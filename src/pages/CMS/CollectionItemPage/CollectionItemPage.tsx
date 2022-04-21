@@ -333,12 +333,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                               onDebouncedChange={(editorJson, storedJson) => {
                                 const isDefaultJson =
                                   editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
-                                if (
-                                  !isDefaultJson &&
-                                  storedJson !== null &&
-                                  editorJson &&
-                                  editorJson !== storedJson
-                                ) {
+                                if (!isDefaultJson && editorJson && editorJson !== storedJson) {
                                   dispatch(setField(editorJson, key, 'tiptap'));
                                 }
                               }}
