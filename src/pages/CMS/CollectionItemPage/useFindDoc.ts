@@ -10,10 +10,11 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { SchemaDef, isTypeTuple } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
-import { useAppDispatch } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIsLoading, setFields, clearUnsavedFields } from '../../../redux/slices/cmsItemSlice';
 import { useEffect } from 'react';
 import pluralize from 'pluralize';
+import { get as getProperty } from 'object-path';
 
 function useFindDoc(
   collection: string,
@@ -28,6 +29,7 @@ function useFindDoc(
   error: ApolloError | undefined;
   refetch: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
 } {
+  const itemState = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
 
   const queryName = pluralize.singular(collection);
@@ -42,6 +44,7 @@ function useFindDoc(
             },
             ...merge(
               {
+                [accessor]: true,
                 timestamps: {
                   created_at: true,
                   modified_at: true,
@@ -116,12 +119,13 @@ function useFindDoc(
   }, [dispatch, doNothing, loading, networkStatus]);
 
   // on first load, clear the exist fields in redux
+  const isSameDoc = getProperty(itemState.fields, accessor) === item_id;
   useEffect(() => {
-    if (loading && doNothing !== true) {
+    if (loading && doNothing !== true && !isSameDoc) {
       dispatch(clearUnsavedFields());
       dispatch(setFields({}));
     }
-  }, [dispatch, doNothing, loading, networkStatus]);
+  }, [accessor, dispatch, doNothing, isSameDoc, itemState.fields, item_id, loading, networkStatus]);
 
   return { actionAccess, loading, error, refetch };
 }
