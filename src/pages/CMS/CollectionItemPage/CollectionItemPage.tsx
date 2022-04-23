@@ -263,9 +263,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       const isSubDocArray = def.type === 'DocArray';
       if (isSubDocArray) {
+        const label = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.label || key;
+        const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field
+          ?.description;
         return (
           <DocArray
-            label={def.field?.label || key}
+            label={label}
+            description={description}
             disabled={loading || !!error}
             key={key}
             stateFieldKey={key}
