@@ -15,9 +15,9 @@ import { DragDropContext, Draggable, Droppable, DropResult, ResponderProvided } 
 import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
-import { Field } from './Field';
+import { Field, FieldProps } from './Field';
 
-interface DocArrayProps {
+interface DocArrayProps extends Omit<FieldProps, 'children'> {
   stateFieldKey: string;
   label: string;
   disabled?: boolean;
@@ -60,7 +60,13 @@ function DocArray(props: DocArrayProps) {
   });
 
   return (
-    <Field label={props.label} disabled={props.disabled}>
+    <Field
+      label={props.label}
+      disabled={props.disabled}
+      description={props.description}
+      font={props.font}
+      color={props.color}
+    >
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId={`subdocarray-${props.stateFieldKey}`} direction={'vertical'}>
           {(provided) => (
@@ -137,7 +143,7 @@ function DocArray(props: DocArrayProps) {
                             {isCollasped ? (
                               <ExpandIcon
                                 theme={theme}
-                                color={'primary'}
+                                color={props.color || 'primary'}
                                 disabled={props.disabled}
                                 onClick={() => {
                                   if (props.data && props.onChange) {
@@ -153,7 +159,7 @@ function DocArray(props: DocArrayProps) {
                             ) : (
                               <CollapseIcon
                                 theme={theme}
-                                color={'primary'}
+                                color={props.color || 'primary'}
                                 disabled={props.disabled}
                                 onClick={() => {
                                   if (props.data && props.onChange) {
