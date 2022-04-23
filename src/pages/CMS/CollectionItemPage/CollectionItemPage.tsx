@@ -5,7 +5,6 @@ import {
   isTypeTuple,
   MongooseSchemaType,
   NumberOption,
-  SchemaDef,
   StringOption,
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
@@ -30,6 +29,7 @@ import { Field } from '../../../components/ContentField/Field';
 import { PageHead } from '../../../components/PageHead';
 import { Tiptap } from '../../../components/Tiptap';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
+import { AppSchemaDef } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
@@ -210,9 +210,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         // push the matching subfields onto the schemaDef variable
         // so that they can appear in the UI
         if (match) {
-          const defs = Object.entries(match.fields).map(([subkey, subdef]): [string, SchemaDef] => [
+          const defs = Object.entries(match.fields).map(([subkey, subdef]): [string, AppSchemaDef] => [
             `${key}.${subkey}`,
-            subdef,
+            { ...subdef, docs: undefined },
           ]);
           schemaDef.push(...defs);
         }
@@ -288,6 +288,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   })
                   // return the correct input
                   .map(([key, def], index) => {
+                    const isSubDocArray = def.type === 'DocArray';
+                    if (isSubDocArray) return <></>;
+
                     const type: MongooseSchemaType = isTypeTuple(def.type) ? def.type[1] : def.type;
                     const readOnly = def.field?.readonly === true;
                     let fieldName = def.field?.label || key;

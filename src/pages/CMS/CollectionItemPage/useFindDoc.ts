@@ -8,18 +8,19 @@ import {
 } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { SchemaDef, isTypeTuple } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIsLoading, setFields, clearUnsavedFields } from '../../../redux/slices/cmsItemSlice';
 import { useEffect } from 'react';
 import pluralize from 'pluralize';
 import { get as getProperty } from 'object-path';
+import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
 function useFindDoc(
   collection: string,
   item_id: string,
-  schemaDef: [string, SchemaDef][],
+  schemaDef: DeconstructedSchemaDefType,
   withPermissions: boolean,
   doNothing = false,
   accessor = '_id'
@@ -67,24 +68,7 @@ function useFindDoc(
                     },
                   }
                 : {},
-              ...schemaDef.map(([key, def]): Record<string, never> => {
-                if (isTypeTuple(def.type)) {
-                  if (def.field?.reference) {
-                    return merge(
-                      deepen({ [key + '.' + (def.field.reference.fields?._id || '_id')]: true }),
-                      deepen({ [key + '.' + (def.field.reference.fields?.name || 'name')]: true }),
-
-                      // get the fields that are forced by the config
-                      ...(def.field.reference.forceLoadFields || []).map((field) =>
-                        deepen({ [key + '.' + field]: true })
-                      )
-                    );
-                  }
-                  return deepen({ [key + '._id']: true });
-                }
-
-                return deepen({ [key]: true });
-              })
+              ...schemaDef.map(docDefsToQueryObject)
             ),
           },
           [queryName + 'ActionAccess']: {
@@ -136,6 +120,44 @@ function useFindDoc(
   return { actionAccess, loading, error, refetch };
 }
 
+function docDefsToQueryObject(
+  input: DeconstructedSchemaDefType[0],
+  index: number,
+  arr: DeconstructedSchemaDefType
+): ReturnType<typeof deepen> {
+  const [key, def] = input;
+
+  const isSubDocArray = def.type === 'DocArray';
+  const isObjectType = isTypeTuple(def.type);
+
+  if (isObjectType) {
+    // if there is a reference definition, use the fields in the def
+    if (def.field?.reference) {
+      return merge(
+        deepen({ [key + '.' + (def.field.reference.fields?._id || '_id')]: true }),
+        deepen({ [key + '.' + (def.field.reference.fields?.name || 'name')]: true }),
+
+        // get the fields that are forced by the config
+        ...(def.field.reference.forceLoadFields || []).map((field) => deepen({ [key + '.' + field]: true }))
+      );
+    }
+
+    // otherwise, just get the id
+    return deepen({ [key + '._id']: true });
+  }
+
+  if (isSubDocArray) {
+    return merge<Record<string, never>, Record<string, never>[]>(
+      {},
+      ...def.docs.map(([key, def], index, arr) => {
+        return docDefsToQueryObject([key, def], index, arr);
+      })
+    );
+  }
+
+  return deepen({ [key]: true });
+}
+
 export function deepen(obj: Record<string, boolean | { __aliasFor: string }>) {
   const result: Record<string, never> = {};
 
@@ -158,4 +180,4 @@ export function deepen(obj: Record<string, boolean | { __aliasFor: string }>) {
   return result;
 }
 
-export { useFindDoc };
+export { useFindDoc, docDefsToQueryObject };

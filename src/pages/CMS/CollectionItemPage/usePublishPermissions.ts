@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { get as getProperty } from 'object-path';
 import { CmsItemState } from '../../../redux/slices/cmsItemSlice';
-import { SchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
 interface UsePublishPermissionsParams {
   publishActionAccess?: boolean;
   isPublishableCollection: boolean;
   itemStateFields: CmsItemState['fields'];
-  schemaDef: [string, SchemaDef][];
+  schemaDef: DeconstructedSchemaDefType;
 }
 
 interface UsePublishPermissionsReturn {

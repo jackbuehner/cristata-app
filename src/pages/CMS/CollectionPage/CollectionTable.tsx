@@ -30,7 +30,7 @@ import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { deepen } from '../CollectionItemPage/useFindDoc';
+import { docDefsToQueryObject } from '../CollectionItemPage/useFindDoc';
 
 interface ICollectionTable {
   collection: string;
@@ -140,28 +140,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                     },
                   },
                   // fields used in the table columns
-                  ...schemaDef.map(([key, def]): Record<string, never> => {
-                    if (def.column?.hidden !== true) {
-                      if (isTypeTuple(def.type) || def.column?.reference) {
-                        if (def.column?.reference) {
-                          const collection = isTypeTuple(def.type)
-                            ? def.type[0].replace('[', '').replace(']', '')
-                            : def.column.reference.collection;
-
-                          return merge(
-                            deepen({ [key + '.' + (def.column.reference?.fields?._id || '_id')]: true }),
-                            deepen({
-                              [key + '.' + (def.column.reference?.fields?.name || 'name')]: true,
-                            }),
-                            collection === 'User' ? deepen({ [key + '.photo']: true }) : {}
-                          );
-                        }
-                        return deepen({ [key + '._id']: true });
-                      }
-                      return deepen({ [key]: true });
-                    }
-                    return {};
-                  })
+                  ...schemaDef.map(docDefsToQueryObject)
                 ),
               },
             },
@@ -381,6 +360,10 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
             return true;
           })
           .map(([key, def]): CustomColumn | null => {
+            // an array of documents can not be represented by a column
+            const isSubDocArray = def.type === 'DocArray';
+            if (isSubDocArray) return null;
+
             if (def.column?.hidden !== true) {
               if (def.column) {
                 return {
