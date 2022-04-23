@@ -82,7 +82,9 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
                   ...(reference?.require?.map((requiredField, index) => {
                     // also receive the fields that are required so we can detect if they are present
                     return deepen({ [requiredField]: true });
-                  }) || [])
+                  }) || []),
+                  // get the fields that are forced by the config
+                  ...(reference?.forceLoadFields || []).map((field) => deepen({ [field]: true }))
                 ),
               },
             },
@@ -138,6 +140,7 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
     reference?.fields?._id,
     reference?.fields?.name,
     reference?.filter,
+    reference?.forceLoadFields,
     reference?.require,
     textValue,
   ]);

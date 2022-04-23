@@ -83,7 +83,9 @@ function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
           color={props.color}
           font={props.font}
           onChange={(values) => {
-            setInternalState(values.map(({ value, label }) => ({ _id: value.toString(), label })));
+            setInternalState(
+              values.map(({ value, label, children, ...rest }) => ({ _id: value.toString(), label, ...rest }))
+            );
           }}
           onTextChange={(value) => setTextValue(value)}
           notFoundContent={

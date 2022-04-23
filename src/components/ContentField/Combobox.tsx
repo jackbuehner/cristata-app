@@ -26,8 +26,22 @@ interface ComboboxProps extends Omit<FieldProps, 'children'> {
 }
 
 type Values = StringValue[] | NumberValue[];
-type StringValue = { value: string; label: string; disabled?: boolean; reason?: string };
-type NumberValue = { value: number; label: string; disabled?: boolean; reason?: string };
+type StringValue = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+  reason?: string;
+  children?: React.ReactChildren;
+  [key: string]: unknown;
+};
+type NumberValue = {
+  value: number;
+  label: string;
+  disabled?: boolean;
+  reason?: string;
+  children?: React.ReactChildren;
+  [key: string]: unknown;
+};
 
 function Combobox({ onChange, ...props }: ComboboxProps) {
   const theme = useTheme() as themeType;
@@ -58,22 +72,46 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
       if ((typeof internalState[0]?.value === 'string' || true) && typeof option.value === 'string') {
         if (props.many === false)
           setInternalState([
-            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+            {
+              ...option,
+              value: option.value,
+              label: option.label,
+              disabled: option.disabled,
+              reason: option.reason,
+            },
           ]);
         else
           setInternalState([
             ...(internalState as StringValue[]),
-            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+            {
+              ...option,
+              value: option.value,
+              label: option.label,
+              disabled: option.disabled,
+              reason: option.reason,
+            },
           ]);
       } else if ((typeof internalState[0]?.value === 'number' || true) && typeof option.value === 'number') {
         if (props.many === false)
           setInternalState([
-            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+            {
+              ...option,
+              value: option.value,
+              label: option.label,
+              disabled: option.disabled,
+              reason: option.reason,
+            },
           ]);
         else
           setInternalState([
             ...(internalState as NumberValue[]),
-            { value: option.value, label: option.label, disabled: option.disabled, reason: option.reason },
+            {
+              ...option,
+              value: option.value,
+              label: option.label,
+              disabled: option.disabled,
+              reason: option.reason,
+            },
           ]);
       }
     }
@@ -132,8 +170,14 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
           props.onTextChange?.(value);
         }}
       >
-        {options.map(({ label, value, disabled, reason }) => {
-          const optionProps = { value, label, disabled, 'data-tip': disabled && reason ? reason : label };
+        {options.map(({ label, value, disabled, reason, ...rest }) => {
+          const optionProps = {
+            value,
+            label,
+            disabled,
+            'data-tip': disabled && reason ? reason : label,
+            ...rest,
+          };
           const labelStyle: CSS = { overflow: 'hidden', textOverflow: 'ellipsis' };
           const metaStyle: CSS = { display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 };
           const errorIconStyle: CSS = { display: 'flex', cursor: 'help', color: theme.color.danger[800] };

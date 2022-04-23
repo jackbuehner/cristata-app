@@ -71,12 +71,18 @@ function useFindDoc(
                 if (isTypeTuple(def.type)) {
                   if (def.field?.reference) {
                     return merge(
-                      deepen({ [key + '.' + (def.field.reference.fields._id || '_id')]: true }),
-                      deepen({ [key + '.' + (def.field.reference.fields.name || 'name')]: true })
+                      deepen({ [key + '.' + (def.field.reference.fields?._id || '_id')]: true }),
+                      deepen({ [key + '.' + (def.field.reference.fields?.name || 'name')]: true }),
+
+                      // get the fields that are forced by the config
+                      ...(def.field.reference.forceLoadFields || []).map((field) =>
+                        deepen({ [key + '.' + field]: true })
+                      )
                     );
                   }
                   return deepen({ [key + '._id']: true });
                 }
+
                 return deepen({ [key]: true });
               })
             ),

@@ -128,7 +128,13 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
             color={props.color}
             font={props.font}
             onChange={(values) => {
-              setInternalState({ _id: values[0].value.toString(), label: values[0].label });
+              // get value without children because the children contain circular references
+              const { children, ...firstValue } = values[0];
+              setInternalState({
+                ...firstValue,
+                _id: firstValue.value.toString(),
+                label: firstValue.label,
+              });
             }}
             onTextChange={(value) => setTextValue(value)}
             notFoundContent={
