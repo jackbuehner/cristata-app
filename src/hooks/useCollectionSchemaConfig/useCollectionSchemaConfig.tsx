@@ -17,7 +17,7 @@ function useCollectionSchemaConfig(name: string): [
     nameField?: string;
     canPublish: boolean;
     withPermissions: boolean;
-    options?: { mandatoryWatchers?: string[] };
+    options?: { mandatoryWatchers?: string[]; previewUrl?: string };
     by: { one: string; many: string };
   },
   ApolloError | undefined,
@@ -83,6 +83,7 @@ function queryString(name: string): DocumentNode {
           schemaDef
           generationOptions {
             mandatoryWatchers
+            previewUrl
           }
           by {
             one

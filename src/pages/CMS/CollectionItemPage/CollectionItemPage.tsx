@@ -68,6 +68,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       options: collectionOptions,
       withPermissions,
       by,
+      options,
     },
   ] = useCollectionSchemaConfig(collectionName);
   const { actionAccess, loading, error, refetch } = useFindDoc(
@@ -180,6 +181,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   return { _id: _id._id, label: _id.label, color: colorHash.hex(_id._id) };
                 }) || [],
           },
+    previewUrl: options?.previewUrl,
   };
 
   if (schemaDef) {
@@ -418,7 +420,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                           ? {
                               _id: getProperty(itemState.fields, key)?._id,
                               label: getProperty(itemState.fields, key)?.[
-                                def.field?.reference?.fields.name || 'name'
+                                def.field?.reference?.fields?.name || 'name'
                               ],
                             }
                           : typeof getProperty(itemState.fields, key) === 'string'

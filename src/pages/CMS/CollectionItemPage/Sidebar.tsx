@@ -1,17 +1,18 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { PeopleTeam16Regular } from '@fluentui/react-icons';
+import { Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
 import { NumberOption, StringOption } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import Color from 'color';
+import JSONCrush from 'jsoncrush';
+import { useEffect, useState } from 'react';
+import { Button, buttonEffect } from '../../../components/Button';
 import { SelectOne } from '../../../components/ContentField';
-import { useAppDispatch } from '../../../redux/hooks';
+import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
-import { buttonEffect } from '../../../components/Button';
-import { useEffect, useState } from 'react';
-import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
-import Color from 'color';
 
 interface SidebarProps {
   docInfo: {
@@ -30,9 +31,11 @@ interface SidebarProps {
   } | null;
   loading?: boolean;
   isEmbedded?: boolean;
+  previewUrl?: string;
 }
 
 function Sidebar(props: SidebarProps) {
+  const itemState = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
 
@@ -104,6 +107,30 @@ function Sidebar(props: SidebarProps) {
               disabled={props.loading}
             />
           )}
+        </>
+      ) : null}
+      {props.previewUrl ? (
+        <>
+          <SectionTitle theme={theme}>Preview</SectionTitle>
+          <Button
+            width={'100%'}
+            icon={<Open24Regular />}
+            onClick={() =>
+              window.open(
+                props.previewUrl +
+                  `?data=${encodeURIComponent(JSONCrush.crush(JSON.stringify(itemState.fields)))}`,
+                `sidebar_preview` + props.docInfo._id,
+                'location=no'
+              )
+            }
+            onAuxClick={() => {
+              console.log(JSONCrush.crush(encodeURIComponent(JSON.stringify(itemState.fields))));
+              console.log(JSONCrush.crush(JSON.stringify(itemState.fields)));
+              console.log(JSON.stringify(itemState.fields));
+            }}
+          >
+            Open preview
+          </Button>
         </>
       ) : null}
       {props.permissions ? (
