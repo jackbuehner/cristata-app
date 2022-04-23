@@ -1,6 +1,7 @@
 export { Checkbox } from './Checkbox';
 export { Combobox } from './Combobox';
 export { DateTime } from './DateTime';
+export { DocArray } from './DocArray';
 export { Number } from './Number';
 export { ReferenceMany } from './ReferenceMany';
 export { ReferenceOne } from './ReferenceOne';

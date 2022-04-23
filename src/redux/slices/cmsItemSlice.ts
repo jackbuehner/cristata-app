@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { set as setProperty } from 'object-path';
+import { get as getProperty, set as setProperty } from 'object-path';
 import { isObject } from '../../utils/isObject';
 
 type field = any;
@@ -62,6 +62,22 @@ export const cmsItemSlice = createSlice({
           }
           setProperty(state.fields, action.meta.key, action.payload);
           if (action.meta.markUnsaved) state.isUnsaved = true;
+        } else if (action.meta.type === 'docarray') {
+          setProperty(state.fields, action.meta.key, action.payload);
+
+          const parsed = (payload: { __collapsed: boolean }[]) =>
+            payload.map((item: { __collapsed: boolean }) => {
+              const { __collapsed, ...rest } = item;
+              return rest;
+            });
+
+          const isDifferent =
+            JSON.stringify(parsed(getProperty(state.fields, action.meta.key))) !==
+            JSON.stringify(parsed(action.payload));
+          if (isDifferent) {
+            setProperty(state.unsavedFields, action.meta.key, parsed(action.payload));
+            if (action.meta.markUnsaved) state.isUnsaved = true;
+          }
         } else {
           setProperty(state.fields, action.meta.key, action.payload);
           setProperty(state.unsavedFields, action.meta.key, action.payload);
@@ -71,7 +87,7 @@ export const cmsItemSlice = createSlice({
       prepare: (
         payload: field,
         key: string,
-        type: 'tiptap' | 'reference' | 'default' = 'default',
+        type: 'tiptap' | 'reference' | 'docarray' | 'default' = 'default',
         markUnsaved = true
       ) => ({
         payload,

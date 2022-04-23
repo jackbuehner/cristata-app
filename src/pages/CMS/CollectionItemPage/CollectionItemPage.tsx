@@ -18,6 +18,7 @@ import { Button, IconButton } from '../../../components/Button';
 import {
   Checkbox,
   DateTime,
+  DocArray,
   Number,
   ReferenceMany,
   ReferenceOne,
@@ -29,7 +30,10 @@ import { Field } from '../../../components/ContentField/Field';
 import { PageHead } from '../../../components/PageHead';
 import { Tiptap } from '../../../components/Tiptap';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
-import { AppSchemaDef } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import {
+  AppSchemaDef,
+  DeconstructedSchemaDefType,
+} from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
@@ -222,6 +226,511 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       }
     });
 
+    const processSchemaDef = (schemaDef: DeconstructedSchemaDefType): DeconstructedSchemaDefType => {
+      return (
+        schemaDef
+          // sort fields to match their order
+          .sort((a, b) => {
+            if ((a[1].field?.order || 1000) > (b[1].field?.order || 1000)) return 1;
+            return -1;
+          })
+          // hide hidden fields
+          .filter(([, def]) => {
+            return def.field?.hidden !== true;
+          })
+          // remove fields that are used in the sidebar
+          .filter(([key]) => {
+            if (key === 'stage') return false;
+            if (key === 'permissions.users') return false;
+            if (key === 'permissions.teams') return false;
+            return true;
+          })
+      );
+    };
+
+    const renderFields = (
+      input: DeconstructedSchemaDefType[0],
+      index: number,
+      arr: DeconstructedSchemaDefType
+    ): JSX.Element => {
+      const [key, def] = input;
+
+      const readOnly = def.field?.readonly === true;
+      let fieldName = def.field?.label || key;
+
+      // if a field is readonly, add readonly to the field name
+      if (readOnly) fieldName += ' (read only)';
+
+      const isSubDocArray = def.type === 'DocArray';
+      if (isSubDocArray) {
+        return (
+          <DocArray
+            label={def.field?.label || key}
+            disabled={loading || !!error}
+            key={key}
+            stateFieldKey={key}
+            data={getProperty(itemState.fields, key)}
+            schemaDefs={processSchemaDef(def.docs)}
+            processSchemaDef={processSchemaDef}
+            renderFields={renderFields}
+            onChange={(newValues) => {
+              if (!readOnly) dispatch(setField(newValues, key, 'docarray'));
+            }}
+          />
+        );
+      }
+
+      const type: MongooseSchemaType = isTypeTuple(def.type) ? def.type[1] : def.type;
+
+      // body field as tiptap editor
+      if (key === 'body' && def.field?.tiptap) {
+        if (props.isEmbedded) return <></>;
+
+        // get the HTML
+        const isHTML = def.field.tiptap.isHTMLkey && getProperty(itemState.fields, def.field.tiptap.isHTMLkey);
+        const html = isHTML ? (getProperty(itemState.fields, key) as string) : undefined;
+
+        return (
+          <Field
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            label={fieldName}
+            description={def.field?.description}
+            isEmbedded={props.isEmbedded}
+          >
+            <EmbeddedFieldContainer theme={theme}>
+              <Tiptap
+                docName={`${collection}.${item_id}`}
+                title={title}
+                user={{
+                  name: authUserState.name,
+                  color: colorHash.hex(authUserState._id),
+                  photo:
+                    `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/user-photo/${authUserState._id}` ||
+                    genAvatar(authUserState._id),
+                }}
+                options={def.field.tiptap}
+                isDisabled={itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly}
+                showLoading={itemState.isLoading}
+                sessionId={sessionId || ''}
+                html={html}
+                isMaximized={fs === '1' || fs === 'force'}
+                forceMax={fs === 'force'}
+                onDebouncedChange={(editorJson, storedJson) => {
+                  const isDefaultJson = editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
+                  if (!isDefaultJson && editorJson && editorJson !== storedJson) {
+                    dispatch(setField(editorJson, key, 'tiptap'));
+                  }
+                }}
+                currentJsonInState={
+                  JSON.stringify(itemState.fields) === '{}' ? null : getProperty(itemState.fields, key)
+                }
+                actions={actions}
+                layout={itemState.fields.layout}
+                message={
+                  publishLocked
+                    ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
+                    : undefined
+                }
+                useNewCollectionItemPage
+                compact={fs !== '1' && fs !== 'force'}
+              />
+            </EmbeddedFieldContainer>
+          </Field>
+        );
+      }
+
+      // reference
+      if (def.field?.reference?.collection || isTypeTuple(def.type)) {
+        //TODO: add property for adding filter and sort to the query
+
+        const isArrayType =
+          (isTypeTuple(def.type) && Array.isArray(def.type[1])) ||
+          (!isTypeTuple(def.type) && Array.isArray(def.type));
+
+        const collection = isTypeTuple(def.type)
+          ? def.type[0].replace('[', '').replace(']', '')
+          : def.field!.reference!.collection!;
+
+        if (isArrayType) {
+          const stateValue = getProperty(itemState.fields, key);
+          let rawValues: Record<string, string>[] = [];
+
+          if (stateValue && Array.isArray(stateValue)) {
+            rawValues = stateValue.map((val: string | number | Record<string, string>) => {
+              if (typeof val === 'object') {
+                return val;
+              }
+              return { _id: `${val}` };
+            });
+          }
+
+          const values: { _id: string; label?: string }[] =
+            rawValues
+              .filter((s: Record<string, unknown>): s is Record<string, string> =>
+                Object.keys(s).every(([, value]) => typeof value === 'string')
+              )
+              .map((value) => {
+                const _id = value?.[def.field?.reference?.fields?._id || '_id'];
+                const label = value?.[def.field?.reference?.fields?.name || 'name'];
+                return { _id, label };
+              }) || [];
+          return (
+            <ReferenceMany
+              key={index}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              label={fieldName}
+              description={def.field?.description}
+              values={values}
+              disabled={loading || !!error}
+              isEmbedded={props.isEmbedded}
+              collection={pluralize.singular(collection)}
+              reference={def.field?.reference}
+              onChange={(newValues) => {
+                if (newValues !== undefined && !readOnly) dispatch(setField(newValues, key, 'reference'));
+              }}
+            />
+          );
+        }
+
+        const value =
+          getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
+            ? (getProperty(itemState.fields, key) as { _id: string; label: string })
+            : getProperty(itemState.fields, key)?._id
+            ? {
+                _id: getProperty(itemState.fields, key)?._id,
+                label: getProperty(itemState.fields, key)?.[def.field?.reference?.fields?.name || 'name'],
+              }
+            : typeof getProperty(itemState.fields, key) === 'string'
+            ? { _id: getProperty(itemState.fields, key) }
+            : undefined;
+
+        return (
+          <ReferenceOne
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            label={fieldName}
+            description={def.field?.description}
+            // only show the value if it is not null, undefined, or an empty string
+            value={value?._id ? value : null}
+            // disable when the api requires the field to always have a value but a default
+            // value for when no specific photo is selected is not defined
+            disabled={loading || !!error || (def.required && def.default === undefined)}
+            isEmbedded={props.isEmbedded}
+            collection={pluralize.singular(collection)}
+            reference={def.field?.reference}
+            onChange={(newValue) => {
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue || def.default, key, 'reference'));
+            }}
+          />
+        );
+      }
+
+      // plain text fields
+      if (type === 'String') {
+        if (def.field?.options) {
+          const currentPropertyValue = getProperty(itemState.fields, key);
+          const options = def.field.options as NumberOption[];
+          return (
+            <SelectOne
+              key={index}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              type={'String'}
+              options={options}
+              label={fieldName}
+              description={def.field.description}
+              value={options.find(({ value }) => value === currentPropertyValue)}
+              onChange={(value) => {
+                const newValue = value?.value;
+                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              }}
+              disabled={loading || !!error}
+              isEmbedded={props.isEmbedded}
+            />
+          );
+        }
+        return (
+          <Text
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            label={fieldName}
+            description={def.field?.description}
+            value={getProperty(itemState.fields, key)}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+            onChange={(e) => {
+              const newValue = e.currentTarget.value;
+              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+            }}
+          />
+        );
+      }
+
+      // checkbox
+      if (type === 'Boolean') {
+        return (
+          <Checkbox
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            label={fieldName}
+            description={def.field?.description}
+            checked={!!getProperty(itemState.fields, key)}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+            onChange={(e) => {
+              const newValue = e.currentTarget.checked;
+              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+            }}
+          />
+        );
+      }
+
+      // integer fields
+      if (type === 'Number') {
+        if (def.field?.options) {
+          const currentPropertyValue = getProperty(itemState.fields, key);
+          const options = def.field.options as NumberOption[];
+          return (
+            <SelectOne
+              key={index}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              type={'Int'}
+              options={options}
+              label={fieldName}
+              description={def.field?.description}
+              value={options.find(({ value }) => value === currentPropertyValue)}
+              onChange={(value) => {
+                const newValue = value?.value;
+                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              }}
+              disabled={loading || !!error}
+              isEmbedded={props.isEmbedded}
+            />
+          );
+        }
+        return (
+          <Number
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            type={'Int'}
+            label={fieldName}
+            description={def.field?.description}
+            value={getProperty(itemState.fields, key)}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+            onChange={(e) => {
+              const newValue = e.currentTarget.valueAsNumber;
+              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+            }}
+          />
+        );
+      }
+
+      // float fields
+      if (type === 'Float') {
+        if (def.field?.options) {
+          const currentPropertyValue = getProperty(itemState.fields, key);
+          const options = def.field.options as NumberOption[];
+          return (
+            <SelectOne
+              key={index}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              type={'Float'}
+              options={options}
+              label={fieldName}
+              description={def.field?.description}
+              value={options.find(({ value }) => value === currentPropertyValue)}
+              onChange={(value) => {
+                const newValue = value?.value;
+                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              }}
+              disabled={loading || !!error}
+              isEmbedded={props.isEmbedded}
+            />
+          );
+        }
+        return (
+          <Number
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            type={'Float'}
+            label={fieldName}
+            description={def.field?.description}
+            value={getProperty(itemState.fields, key)}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+            onChange={(e) => {
+              const newValue = e.currentTarget.valueAsNumber;
+              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+            }}
+          />
+        );
+      }
+
+      // array of strings
+      if (type?.[0] === 'String') {
+        const currentPropertyValues: string[] = getProperty(itemState.fields, key) || [];
+        if (def.field?.options) {
+          const options = def.field.options as StringOption[];
+          return (
+            <SelectMany
+              key={index}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              type={'Float'}
+              options={options}
+              label={fieldName}
+              description={def.field?.description}
+              values={options.filter(({ value }) => currentPropertyValues.includes(value))}
+              onChange={(values) => {
+                const newValue = values.map(({ value }) => value);
+                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              }}
+              disabled={loading || !!error}
+              isEmbedded={props.isEmbedded}
+            />
+          );
+        }
+        return (
+          <SelectMany
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            type={'String'}
+            label={fieldName}
+            description={def.field?.description}
+            values={currentPropertyValues.map((value) => ({ value, label: value }))}
+            onChange={(values) => {
+              const newValue = values.map(({ value }) => value);
+              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+            }}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+          />
+        );
+      }
+
+      // array of integers
+      if (type?.[0] === 'Number') {
+        const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
+        if (def.field?.options) {
+          const options = def.field.options as StringOption[];
+          return (
+            <SelectMany
+              key={index}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              type={'Int'}
+              options={options}
+              label={fieldName}
+              description={def.field?.description}
+              values={options.filter(({ value }) =>
+                currentPropertyValues.map((value) => value.toString()).includes(value)
+              )}
+              onChange={(values) => {
+                const newValue = values.map(({ value }) => value);
+                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              }}
+              disabled={loading || !!error}
+              isEmbedded={props.isEmbedded}
+            />
+          );
+        }
+        return (
+          <SelectMany
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            type={'Int'}
+            label={fieldName}
+            description={def.field?.description}
+            values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
+            onChange={(values) => {
+              const newValue = values.map(({ value }) => value);
+              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+            }}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+          />
+        );
+      }
+
+      // array of floats
+      if (type?.[0] === 'Float') {
+        const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
+        if (def.field?.options) {
+          const options = def.field.options as StringOption[];
+          return (
+            <SelectMany
+              key={index}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              type={'Float'}
+              options={options}
+              label={fieldName}
+              description={def.field?.description}
+              values={options.filter(({ value }) =>
+                currentPropertyValues.map((value) => value.toString()).includes(value)
+              )}
+              onChange={(values) => {
+                const newValue = values.map(({ value }) => value);
+                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              }}
+              disabled={loading || !!error}
+              isEmbedded={props.isEmbedded}
+            />
+          );
+        }
+        return (
+          <SelectMany
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            type={'Float'}
+            label={fieldName}
+            description={def.field?.description}
+            values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
+            onChange={(values) => {
+              const newValue = values.map(({ value }) => value);
+              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+            }}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+          />
+        );
+      }
+
+      // plain text fields
+      if (type === 'Date') {
+        const currentTimestamp: string | undefined = getProperty(itemState.fields, key);
+        return (
+          <DateTime
+            key={index}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            label={fieldName}
+            description={def.field?.description}
+            value={
+              !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z' ? null : currentTimestamp
+            }
+            onChange={(date) => {
+              if (date && !readOnly) dispatch(setField(date.toUTC().toISO(), key));
+            }}
+            placeholder={'Pick a time'}
+            disabled={loading || !!error}
+            isEmbedded={props.isEmbedded}
+          />
+        );
+      }
+
+      // fallback
+      return (
+        <Field
+          key={index}
+          color={props.isEmbedded ? 'blue' : 'primary'}
+          label={fieldName}
+          description={def.field?.description}
+          isEmbedded={props.isEmbedded}
+        >
+          <code>{JSON.stringify(def, null, 2)}</code>
+        </Field>
+      );
+    };
+
     return (
       <>
         {!props.isEmbedded && (fs === 'force' || fs === '1') ? (
@@ -269,494 +778,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               ) : null}
               <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
                 {props.isEmbedded ? <Sidebar {...sidebarProps} /> : null}
-                {schemaDef
-                  // sort fields to match their order
-                  .sort((a, b) => {
-                    if ((a[1].field?.order || 1000) > (b[1].field?.order || 1000)) return 1;
-                    return -1;
-                  })
-                  // hide hidden fields
-                  .filter(([, def]) => {
-                    return def.field?.hidden !== true;
-                  })
-                  // remove fields that are used in the sidebar
-                  .filter(([key]) => {
-                    if (key === 'stage') return false;
-                    if (key === 'permissions.users') return false;
-                    if (key === 'permissions.teams') return false;
-                    return true;
-                  })
-                  // return the correct input
-                  .map(([key, def], index) => {
-                    const isSubDocArray = def.type === 'DocArray';
-                    if (isSubDocArray) return <></>;
-
-                    const type: MongooseSchemaType = isTypeTuple(def.type) ? def.type[1] : def.type;
-                    const readOnly = def.field?.readonly === true;
-                    let fieldName = def.field?.label || key;
-
-                    // if a field is readonly, add readonly to the field name
-                    if (readOnly) fieldName += ' (read only)';
-
-                    // body field as tiptap editor
-                    if (key === 'body' && def.field?.tiptap) {
-                      if (props.isEmbedded) return <></>;
-
-                      // get the HTML
-                      const isHTML =
-                        def.field.tiptap.isHTMLkey && getProperty(itemState.fields, def.field.tiptap.isHTMLkey);
-                      const html = isHTML ? (getProperty(itemState.fields, key) as string) : undefined;
-
-                      return (
-                        <Field
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          isEmbedded={props.isEmbedded}
-                        >
-                          <EmbeddedFieldContainer theme={theme}>
-                            <Tiptap
-                              docName={`${collection}.${item_id}`}
-                              title={title}
-                              user={{
-                                name: authUserState.name,
-                                color: colorHash.hex(authUserState._id),
-                                photo:
-                                  `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/user-photo/${authUserState._id}` ||
-                                  genAvatar(authUserState._id),
-                              }}
-                              options={def.field.tiptap}
-                              isDisabled={
-                                itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly
-                              }
-                              showLoading={itemState.isLoading}
-                              sessionId={sessionId || ''}
-                              html={html}
-                              isMaximized={fs === '1' || fs === 'force'}
-                              forceMax={fs === 'force'}
-                              onDebouncedChange={(editorJson, storedJson) => {
-                                const isDefaultJson =
-                                  editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
-                                if (!isDefaultJson && editorJson && editorJson !== storedJson) {
-                                  dispatch(setField(editorJson, key, 'tiptap'));
-                                }
-                              }}
-                              currentJsonInState={
-                                JSON.stringify(itemState.fields) === '{}'
-                                  ? null
-                                  : getProperty(itemState.fields, key)
-                              }
-                              actions={actions}
-                              layout={itemState.fields.layout}
-                              message={
-                                publishLocked
-                                  ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
-                                  : undefined
-                              }
-                              useNewCollectionItemPage
-                              compact={fs !== '1' && fs !== 'force'}
-                            />
-                          </EmbeddedFieldContainer>
-                        </Field>
-                      );
-                    }
-
-                    // reference
-                    if (def.field?.reference?.collection || isTypeTuple(def.type)) {
-                      //TODO: add property for adding filter and sort to the query
-
-                      const isArrayType =
-                        (isTypeTuple(def.type) && Array.isArray(def.type[1])) ||
-                        (!isTypeTuple(def.type) && Array.isArray(def.type));
-
-                      const collection = isTypeTuple(def.type)
-                        ? def.type[0].replace('[', '').replace(']', '')
-                        : def.field!.reference!.collection!;
-
-                      if (isArrayType) {
-                        const stateValue = getProperty(itemState.fields, key);
-                        let rawValues: Record<string, string>[] = [];
-
-                        if (stateValue && Array.isArray(stateValue)) {
-                          rawValues = stateValue.map((val: string | number | Record<string, string>) => {
-                            if (typeof val === 'object') {
-                              return val;
-                            }
-                            return { _id: `${val}` };
-                          });
-                        }
-
-                        const values: { _id: string; label?: string }[] =
-                          rawValues
-                            .filter((s: Record<string, unknown>): s is Record<string, string> =>
-                              Object.keys(s).every(([, value]) => typeof value === 'string')
-                            )
-                            .map((value) => {
-                              const _id = value?.[def.field?.reference?.fields?._id || '_id'];
-                              const label = value?.[def.field?.reference?.fields?.name || 'name'];
-                              return { _id, label };
-                            }) || [];
-                        return (
-                          <ReferenceMany
-                            key={index}
-                            color={props.isEmbedded ? 'blue' : 'primary'}
-                            label={fieldName}
-                            description={def.field?.description}
-                            values={values}
-                            disabled={loading || !!error}
-                            isEmbedded={props.isEmbedded}
-                            collection={pluralize.singular(collection)}
-                            reference={def.field?.reference}
-                            onChange={(newValues) => {
-                              if (newValues !== undefined && !readOnly)
-                                dispatch(setField(newValues, key, 'reference'));
-                            }}
-                          />
-                        );
-                      }
-
-                      const value =
-                        getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
-                          ? (getProperty(itemState.fields, key) as { _id: string; label: string })
-                          : getProperty(itemState.fields, key)?._id
-                          ? {
-                              _id: getProperty(itemState.fields, key)?._id,
-                              label: getProperty(itemState.fields, key)?.[
-                                def.field?.reference?.fields?.name || 'name'
-                              ],
-                            }
-                          : typeof getProperty(itemState.fields, key) === 'string'
-                          ? { _id: getProperty(itemState.fields, key) }
-                          : undefined;
-
-                      return (
-                        <ReferenceOne
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          // only show the value if it is not null, undefined, or an empty string
-                          value={value?._id ? value : null}
-                          // disable when the api requires the field to always have a value but a default
-                          // value for when no specific photo is selected is not defined
-                          disabled={loading || !!error || (def.required && def.default === undefined)}
-                          isEmbedded={props.isEmbedded}
-                          collection={pluralize.singular(collection)}
-                          reference={def.field?.reference}
-                          onChange={(newValue) => {
-                            if (newValue !== undefined && !readOnly)
-                              dispatch(setField(newValue || def.default, key, 'reference'));
-                          }}
-                        />
-                      );
-                    }
-
-                    // plain text fields
-                    if (type === 'String') {
-                      if (def.field?.options) {
-                        const currentPropertyValue = getProperty(itemState.fields, key);
-                        const options = def.field.options as NumberOption[];
-                        return (
-                          <SelectOne
-                            key={index}
-                            color={props.isEmbedded ? 'blue' : 'primary'}
-                            type={'String'}
-                            options={options}
-                            label={fieldName}
-                            description={def.field.description}
-                            value={options.find(({ value }) => value === currentPropertyValue)}
-                            onChange={(value) => {
-                              const newValue = value?.value;
-                              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                            }}
-                            disabled={loading || !!error}
-                            isEmbedded={props.isEmbedded}
-                          />
-                        );
-                      }
-                      return (
-                        <Text
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          value={getProperty(itemState.fields, key)}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                          onChange={(e) => {
-                            const newValue = e.currentTarget.value;
-                            if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                          }}
-                        />
-                      );
-                    }
-
-                    // checkbox
-                    if (type === 'Boolean') {
-                      return (
-                        <Checkbox
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          checked={!!getProperty(itemState.fields, key)}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                          onChange={(e) => {
-                            const newValue = e.currentTarget.checked;
-                            if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                          }}
-                        />
-                      );
-                    }
-
-                    // integer fields
-                    if (type === 'Number') {
-                      if (def.field?.options) {
-                        const currentPropertyValue = getProperty(itemState.fields, key);
-                        const options = def.field.options as NumberOption[];
-                        return (
-                          <SelectOne
-                            key={index}
-                            color={props.isEmbedded ? 'blue' : 'primary'}
-                            type={'Int'}
-                            options={options}
-                            label={fieldName}
-                            description={def.field?.description}
-                            value={options.find(({ value }) => value === currentPropertyValue)}
-                            onChange={(value) => {
-                              const newValue = value?.value;
-                              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                            }}
-                            disabled={loading || !!error}
-                            isEmbedded={props.isEmbedded}
-                          />
-                        );
-                      }
-                      return (
-                        <Number
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          type={'Int'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          value={getProperty(itemState.fields, key)}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                          onChange={(e) => {
-                            const newValue = e.currentTarget.valueAsNumber;
-                            if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                          }}
-                        />
-                      );
-                    }
-
-                    // float fields
-                    if (type === 'Float') {
-                      if (def.field?.options) {
-                        const currentPropertyValue = getProperty(itemState.fields, key);
-                        const options = def.field.options as NumberOption[];
-                        return (
-                          <SelectOne
-                            key={index}
-                            color={props.isEmbedded ? 'blue' : 'primary'}
-                            type={'Float'}
-                            options={options}
-                            label={fieldName}
-                            description={def.field?.description}
-                            value={options.find(({ value }) => value === currentPropertyValue)}
-                            onChange={(value) => {
-                              const newValue = value?.value;
-                              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                            }}
-                            disabled={loading || !!error}
-                            isEmbedded={props.isEmbedded}
-                          />
-                        );
-                      }
-                      return (
-                        <Number
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          type={'Float'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          value={getProperty(itemState.fields, key)}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                          onChange={(e) => {
-                            const newValue = e.currentTarget.valueAsNumber;
-                            if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                          }}
-                        />
-                      );
-                    }
-
-                    // array of strings
-                    if (type?.[0] === 'String') {
-                      const currentPropertyValues: string[] = getProperty(itemState.fields, key) || [];
-                      if (def.field?.options) {
-                        const options = def.field.options as StringOption[];
-                        return (
-                          <SelectMany
-                            key={index}
-                            color={props.isEmbedded ? 'blue' : 'primary'}
-                            type={'Float'}
-                            options={options}
-                            label={fieldName}
-                            description={def.field?.description}
-                            values={options.filter(({ value }) => currentPropertyValues.includes(value))}
-                            onChange={(values) => {
-                              const newValue = values.map(({ value }) => value);
-                              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                            }}
-                            disabled={loading || !!error}
-                            isEmbedded={props.isEmbedded}
-                          />
-                        );
-                      }
-                      return (
-                        <SelectMany
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          type={'String'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          values={currentPropertyValues.map((value) => ({ value, label: value }))}
-                          onChange={(values) => {
-                            const newValue = values.map(({ value }) => value);
-                            if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                          }}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                        />
-                      );
-                    }
-
-                    // array of integers
-                    if (type?.[0] === 'Number') {
-                      const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
-                      if (def.field?.options) {
-                        const options = def.field.options as StringOption[];
-                        return (
-                          <SelectMany
-                            key={index}
-                            color={props.isEmbedded ? 'blue' : 'primary'}
-                            type={'Int'}
-                            options={options}
-                            label={fieldName}
-                            description={def.field?.description}
-                            values={options.filter(({ value }) =>
-                              currentPropertyValues.map((value) => value.toString()).includes(value)
-                            )}
-                            onChange={(values) => {
-                              const newValue = values.map(({ value }) => value);
-                              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                            }}
-                            disabled={loading || !!error}
-                            isEmbedded={props.isEmbedded}
-                          />
-                        );
-                      }
-                      return (
-                        <SelectMany
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          type={'Int'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
-                          onChange={(values) => {
-                            const newValue = values.map(({ value }) => value);
-                            if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                          }}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                        />
-                      );
-                    }
-
-                    // array of floats
-                    if (type?.[0] === 'Float') {
-                      const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
-                      if (def.field?.options) {
-                        const options = def.field.options as StringOption[];
-                        return (
-                          <SelectMany
-                            key={index}
-                            color={props.isEmbedded ? 'blue' : 'primary'}
-                            type={'Float'}
-                            options={options}
-                            label={fieldName}
-                            description={def.field?.description}
-                            values={options.filter(({ value }) =>
-                              currentPropertyValues.map((value) => value.toString()).includes(value)
-                            )}
-                            onChange={(values) => {
-                              const newValue = values.map(({ value }) => value);
-                              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                            }}
-                            disabled={loading || !!error}
-                            isEmbedded={props.isEmbedded}
-                          />
-                        );
-                      }
-                      return (
-                        <SelectMany
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          type={'Float'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
-                          onChange={(values) => {
-                            const newValue = values.map(({ value }) => value);
-                            if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
-                          }}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                        />
-                      );
-                    }
-
-                    // plain text fields
-                    if (type === 'Date') {
-                      const currentTimestamp: string | undefined = getProperty(itemState.fields, key);
-                      return (
-                        <DateTime
-                          key={index}
-                          color={props.isEmbedded ? 'blue' : 'primary'}
-                          label={fieldName}
-                          description={def.field?.description}
-                          value={
-                            !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z'
-                              ? null
-                              : currentTimestamp
-                          }
-                          onChange={(date) => {
-                            if (date && !readOnly) dispatch(setField(date.toUTC().toISO(), key));
-                          }}
-                          placeholder={'Pick a time'}
-                          disabled={loading || !!error}
-                          isEmbedded={props.isEmbedded}
-                        />
-                      );
-                    }
-
-                    // fallback
-                    return (
-                      <Field
-                        key={index}
-                        color={props.isEmbedded ? 'blue' : 'primary'}
-                        label={fieldName}
-                        description={def.field?.description}
-                        isEmbedded={props.isEmbedded}
-                      >
-                        <code>{JSON.stringify(def, null, 2)}</code>
-                      </Field>
-                    );
-                  })}
+                {processSchemaDef(schemaDef).map(renderFields)}
               </div>
             </div>
             {props.isEmbedded ? null : <Sidebar {...sidebarProps} />}
