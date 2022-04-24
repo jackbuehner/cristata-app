@@ -118,7 +118,7 @@
     ]
   },
   "devDependencies": {
-    "@jackbuehner/cristata-api": "2.16.0",
+    "@jackbuehner/cristata-api": "2.17.0",
     "@types/color": "^3.0.1",
     "@types/color-hash": "^1.0.0",
     "@types/dompurify": "^2.3.3",
