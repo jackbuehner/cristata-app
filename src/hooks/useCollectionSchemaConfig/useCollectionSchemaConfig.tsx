@@ -18,7 +18,7 @@ function useCollectionSchemaConfig(name: string): [
     canPublish: boolean;
     withPermissions: boolean;
     options?: { mandatoryWatchers?: string[]; previewUrl?: string; nameField?: string };
-    by: { one: string; many: string };
+    by: { one: string; many: string } | null;
   },
   ApolloError | undefined,
   () => Promise<ApolloQueryResult<QueryType>>
@@ -47,11 +47,7 @@ function useCollectionSchemaConfig(name: string): [
     ];
   }
 
-  return [
-    { schemaDef: [], canPublish: false, withPermissions: false, by: { one: '_id', many: '_id' } },
-    res.error,
-    res.refetch,
-  ];
+  return [{ schemaDef: [], canPublish: false, withPermissions: false, by: null }, res.error, res.refetch];
 }
 
 interface QueryType {

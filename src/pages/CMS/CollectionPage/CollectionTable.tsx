@@ -120,7 +120,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                 ...merge(
                   { _id: true },
                   // field used for navigating to item editor
-                  { [by.one]: true },
+                  { [by?.one || '_id']: true },
                   // standard people and timestamps shown at the end of every table
                   {
                     people: {
@@ -487,7 +487,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
             href: `/cms/${useLegacyItemPage ? 'item' : 'collection'}/${camelToDashCase(
               uncapitalize(pluralize(props.collection))
             )}`,
-            hrefSuffixKey: by.one,
+            hrefSuffixKey: by?.one || '_id',
             hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
             windowName:
               shouldOpenMaximized && window.matchMedia('(display-mode: standalone)').matches

@@ -87,7 +87,7 @@ function useFindDoc(
   // get the item
   const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: doNothing ? 'cache-only' : 'cache-and-network',
     onCompleted(data) {
       // save the item to redux
       if (data?.[queryName] && doNothing !== true) {

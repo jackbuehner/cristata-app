@@ -107,7 +107,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             query: {
               [uncapitalize(collectionName)]: {
                 __args: {
-                  [by.one]: item_id,
+                  [by?.one || '_id']: item_id,
                 },
                 ...unflattenObject(
                   merge(
@@ -215,7 +215,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
             mutation: {
               [`${colName}Modify`]: {
                 __args: {
-                  [by.one]: id,
+                  [by?.one || '_id']: id,
                   input: input,
                 },
                 _id: true,
@@ -252,7 +252,7 @@ function ItemDetailsPage(props: IItemDetailsPage) {
 
   // set the item to hidden
   const HIDE_ITEM = gql`mutation {
-    ${uncapitalize(collectionName)}Hide(${by.one}: "${item_id}") {
+    ${uncapitalize(collectionName)}Hide(${by?.one || '_id'}: "${item_id}") {
       hidden
     }
   }`;

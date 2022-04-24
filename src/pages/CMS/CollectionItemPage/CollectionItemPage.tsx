@@ -9,7 +9,6 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import ColorHash from 'color-hash';
-import { findAndReplace } from 'find-and-replace-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useEffect } from 'react';
@@ -80,8 +79,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     item_id,
     schemaDef,
     withPermissions,
-    props.isEmbedded || false,
-    by.one
+    props.isEmbedded || by === null || false,
+    by?.one
   );
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
 
@@ -154,13 +153,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     publishStage,
     withPermissions,
     isEmbedded: props.isEmbedded,
-    idKey: by.one,
+    idKey: by?.one,
   });
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
     docInfo: {
-      _id: getProperty(itemState.fields, by.one),
+      _id: getProperty(itemState.fields, by?.one || '_id'),
       createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
       modifiedAt: getProperty(itemState.fields, 'timestamps.modified_at'),
     },
