@@ -287,6 +287,12 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       const type: MongooseSchemaType = isTypeTuple(def.type) ? def.type[1] : def.type;
 
+      // do not render fields with # in their name
+      // because they are private fields that are used
+      // for various purposed not meant to be exposed
+      // to users in the CMS UI
+      if (key.includes('#')) return <></>;
+
       // body field as tiptap editor
       if (key === 'body' && def.field?.tiptap) {
         if (props.isEmbedded) return <></>;
