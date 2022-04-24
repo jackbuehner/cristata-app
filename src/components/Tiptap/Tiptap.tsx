@@ -26,7 +26,6 @@ import { TrackChanges } from './extension-track-changes';
 import { Toolbar } from './components/Toolbar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
-import { Iaction, ItemDetailsPage } from '../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Noticebar } from './components/Noticebar';
 import { Titlebar } from './components/Titlebar';
@@ -51,6 +50,7 @@ import {
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { Spinner } from '../Loading';
 import { CollectionItemPage } from '../../pages/CMS/CollectionItemPage';
+import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
 
 interface ITiptap {
   docName: string;
@@ -66,13 +66,12 @@ interface ITiptap {
   onDebouncedChange?: (editorJson: string, currentJsonInState?: string | null) => void;
   currentJsonInState?: string | null;
   html?: string;
-  actions?: Array<Iaction | null>;
+  actions?: Array<Action | null>;
   isMaximized?: boolean;
   forceMax?: boolean;
   message?: string;
   showLoading?: boolean;
   layout?: string;
-  useNewCollectionItemPage?: boolean;
   compact?: boolean;
 }
 
@@ -99,14 +98,7 @@ const Tiptap = (props: ITiptap) => {
       // open the sidebar to document properties if the url contains the correct search param
       isOpen: searchParams.get('props') === '1' || searchParams.get('comments') === '1',
       title: searchParams.get('comments') === '1' ? 'Comments' : 'Document properties',
-      content:
-        searchParams.get('comments') === '1' ? (
-          <CommentPanel />
-        ) : props.useNewCollectionItemPage ? (
-          <CollectionItemPage isEmbedded />
-        ) : (
-          <ItemDetailsPage isEmbedded />
-        ),
+      content: searchParams.get('comments') === '1' ? <CommentPanel /> : <CollectionItemPage isEmbedded />,
     },
   });
 
@@ -327,7 +319,6 @@ const Tiptap = (props: ITiptap) => {
             setSidebarTitle={setSidebarTitle}
             actions={props.actions}
             options={props.options}
-            useNewCollectionItemPage={props.useNewCollectionItemPage}
             compact={props.compact}
           />
         </ErrorBoundary>

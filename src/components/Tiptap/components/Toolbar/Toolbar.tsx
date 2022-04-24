@@ -48,7 +48,6 @@ import { ToolbarRow } from './ToolbarRow';
 import { Combobox } from './Combobox';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarRowButton } from './ToolbarRowButton';
-import { Iaction, ItemDetailsPage } from '../../../../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { tiptapOptions } from '../../../../config';
 import { Select } from '../../../Select';
@@ -63,6 +62,7 @@ import { useFontFamilyDropdown } from './useCustomDropdown';
 import { CommentPanel } from '../../extension-power-comment';
 import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
 import { Text } from '../../../ContentField';
+import { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -95,10 +95,9 @@ interface IToolbar {
   setSidebarContent: React.Dispatch<React.SetStateAction<React.ReactElement>>;
   sidebarTitle: string;
   setSidebarTitle: React.Dispatch<React.SetStateAction<string>>;
-  actions?: Array<Iaction | null>;
+  actions?: Array<Action | null>;
   forceMax?: boolean;
   options?: tiptapOptions;
-  useNewCollectionItemPage?: boolean;
   compact?: boolean;
 }
 
@@ -728,13 +727,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     } else {
                       props.setIsSidebarOpen(true);
                       props.setSidebarTitle('Document properties');
-                      props.setSidebarContent(
-                        props.useNewCollectionItemPage ? (
-                          <CollectionItemPage isEmbedded />
-                        ) : (
-                          <ItemDetailsPage isEmbedded />
-                        )
-                      );
+                      props.setSidebarContent(<CollectionItemPage isEmbedded />);
                       params.set('props', '1');
                       params.set('comments', '0');
                       navigate(pathname + '?' + params.toString() + hash, { replace: true });

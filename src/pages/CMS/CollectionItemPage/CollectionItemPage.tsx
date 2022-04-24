@@ -357,7 +357,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                     ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
                     : undefined
                 }
-                useNewCollectionItemPage
                 compact={fs !== '1' && fs !== 'force'}
               />
             </EmbeddedFieldContainer>

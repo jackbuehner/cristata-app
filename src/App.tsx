@@ -1,5 +1,6 @@
 import { css, Global, ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import * as fluentIcons from '@fluentui/react-icons';
 import useAxios, { configure } from 'axios-hooks';
 import Color from 'color';
 import { Fragment, useState } from 'react';
@@ -16,9 +17,9 @@ import { SidenavSub } from './components/SidenavSub';
 import { SplashScreen } from './components/SplashScreen';
 import { Titlebar } from './components/Titlebar';
 import { ToastContainer } from './components/ToastContainer';
-import { CollectionPage } from './pages/CMS/CollectionPage';
+import { useNavigationConfig } from './hooks/useNavigationConfig';
 import { CollectionItemPage } from './pages/CMS/CollectionItemPage';
-import { ItemDetailsPage } from './pages/CMS/ItemDetailsPage';
+import { CollectionPage } from './pages/CMS/CollectionPage';
 import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
 import { FathomEmbed } from './pages/embeds';
 import { HomePage } from './pages/Home';
@@ -31,10 +32,8 @@ import { TeamPage } from './pages/teams/TeamPage';
 import { TeamsNav } from './pages/teams/TeamsNav';
 import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
 import { db } from './utils/axios/db';
-import { theme as themeC, themeType } from './utils/theme/theme';
-import * as fluentIcons from '@fluentui/react-icons';
 import { isFluentIconComponent } from './utils/isFluentIconComponent';
-import { useNavigationConfig } from './hooks/useNavigationConfig';
+import { theme as themeC, themeType } from './utils/theme/theme';
 
 // configure axios global settings
 configure({ axios: db });
@@ -166,7 +165,6 @@ function App() {
                           <Route index element={<PhotoLibraryPage />} />
                           <Route path={`:photo_id`} element={<PhotoLibraryPage />} />
                         </Route>
-                        <Route path={`item/:collection/:item_id`} element={<ItemDetailsPage />} />
                         <Route path={`*`} element={<PageHead title={`CMS`} />} />
                       </Route>
                       <Route path={`/profile`}>

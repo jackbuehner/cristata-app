@@ -9,6 +9,7 @@ import {
   Share24Regular,
 } from '@fluentui/react-icons';
 import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types/config';
+import { get as getProperty } from 'object-path';
 import { useCallback } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -17,12 +18,11 @@ import { client } from '../../../graphql/client';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { colorType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { Iaction } from '../ItemDetailsPage/ItemDetailsPage';
 import { saveChanges } from './saveChanges';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
-import { get as getProperty } from 'object-path';
 
 interface UseActionsParams {
   actionAccess: Record<keyof CollectionPermissions, boolean | undefined> | undefined;
@@ -45,9 +45,19 @@ interface UseActionsParams {
 }
 
 interface UseActionsReturn {
-  actions: Iaction[];
-  quickActions: Iaction[];
+  actions: Action[];
+  quickActions: Action[];
   showActionDropdown: ReturnType<typeof useDropdown>[0];
+}
+
+interface Action {
+  label: string;
+  type: 'icon' | 'button';
+  icon?: React.ReactElement<any, string | React.JSXElementConstructor<any>>;
+  action: () => void;
+  color?: colorType;
+  disabled?: boolean;
+  'data-tip'?: string;
 }
 
 function useActions(params: UseActionsParams): UseActionsReturn {
@@ -159,7 +169,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   // create the actions for this document based on the current user's
   // permissions status and the current doc's status
   const actions = useCallback(() => {
-    const actions: (Iaction | null)[] = [
+    const actions: (Action | null)[] = [
       {
         label: 'Discard changes & refresh',
         type: 'icon',
@@ -240,7 +250,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
                 : undefined,
           },
     ];
-    return actions.filter((action): action is Iaction => !!action);
+    return actions.filter((action): action is Action => !!action);
   }, [allHaveAccess, hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
 
   // create a dropdown with all actions except save and publish
@@ -277,9 +287,10 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   const quickActions = [
     actions.find((action) => action?.label === 'Save'),
     actions.find((action) => action?.label === 'Share'),
-  ].filter((action): action is Iaction => !!action);
+  ].filter((action): action is Action => !!action);
 
   return { actions, quickActions, showActionDropdown };
 }
 
 export { useActions };
+export type { Action };
