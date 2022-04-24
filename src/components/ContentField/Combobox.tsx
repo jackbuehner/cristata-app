@@ -10,6 +10,7 @@ import ReactTooltip from 'react-tooltip';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 import { FieldProps } from './Field';
+import { replaceCircular } from '../../utils/replaceCircular';
 
 const isValidObjectId = mongoose.Types.ObjectId.isValid;
 
@@ -56,7 +57,10 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
 
   // keep internal state in sync with changes made by parent
   useEffect(() => {
-    if (props.values && JSON.stringify(props.values) !== JSON.stringify(internalState))
+    if (
+      props.values &&
+      JSON.stringify(replaceCircular(props.values)) !== JSON.stringify(replaceCircular(internalState))
+    )
       _setInternalState(props.values);
   }, [internalState, props.values]);
 

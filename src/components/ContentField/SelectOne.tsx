@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { replaceCircular } from '../../utils/replaceCircular';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Combobox, Number, Text } from './';
 import { Field, FieldProps } from './Field';
@@ -26,7 +27,10 @@ function SelectOne({ onChange, ...props }: SelectOneProps) {
   };
 
   // keep internal state in sync with changes made by parent
-  if (props.value && JSON.stringify(props.value) !== JSON.stringify(internalState)) {
+  if (
+    props.value &&
+    JSON.stringify(replaceCircular(props.value)) !== JSON.stringify(replaceCircular(internalState))
+  ) {
     _setInternalState(props.value);
   }
 
