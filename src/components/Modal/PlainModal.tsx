@@ -26,7 +26,11 @@ const PlainModalTitle = styled.h1<{
   line-height: 1.24;
   padding: ${({ modalHasChildren }) => (modalHasChildren ? `0 24px 20px 24px` : `0 24px 9px 24px`)};
   border-bottom: ${({ theme, modalHasChildren }) =>
-    modalHasChildren ? `1px solid ${theme.color.neutral[theme.mode][200]}` : `1px solid transparent`};
+    modalHasChildren
+      ? `1px solid ${
+          theme.mode === 'light' ? theme.color.neutral[theme.mode][200] : theme.color.neutral[theme.mode][300]
+        }`
+      : `1px solid transparent`};
   margin: 0;
   position: relative;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
@@ -78,7 +82,11 @@ const PlainModalText = styled.p<{ theme: themeType }>`
 const ActionRow = styled.div<{ modalHasChildren: boolean; theme: themeType }>`
   padding: ${({ modalHasChildren }) => (modalHasChildren ? `16px 24px` : `11px`)};
   border-top: ${({ theme, modalHasChildren }) =>
-    modalHasChildren ? `1px solid ${theme.color.neutral[theme.mode][200]}` : `1px solid transparent`};
+    modalHasChildren
+      ? `1px solid ${
+          theme.mode === 'light' ? theme.color.neutral[theme.mode][200] : theme.color.neutral[theme.mode][300]
+        }`
+      : `1px solid transparent`};
   flex-wrap: wrap;
   display: flex;
   flex-direction: row;
