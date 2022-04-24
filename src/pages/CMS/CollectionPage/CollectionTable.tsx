@@ -23,7 +23,6 @@ import { useLocation } from 'react-router-dom';
 import { Column } from 'react-table';
 import { Chip } from '../../../components/Chip';
 import { Table } from '../../../components/Table';
-import { collections as collectionsConfig } from '../../../config';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
@@ -467,10 +466,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // we want to open it in maximized mode for easy access to the editor
     const shouldOpenMaximized = schemaDef.find(([key, def]) => key === 'body' && def.field?.tiptap);
 
-    // we need to use the legacy item page if any items are defined in the
-    // local config
-    const useLegacyItemPage = collectionsConfig[props.collection]?.fields;
-
     // render the table
     return (
       <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
@@ -484,9 +479,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           showSkeleton={!docs || networkStatus === NetworkStatus.refetch}
           columns={columns}
           row={{
-            href: `/cms/${useLegacyItemPage ? 'item' : 'collection'}/${camelToDashCase(
-              uncapitalize(pluralize(props.collection))
-            )}`,
+            href: `/cms/collection/${camelToDashCase(uncapitalize(pluralize(props.collection)))}`,
             hrefSuffixKey: by?.one || '_id',
             hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
             windowName:

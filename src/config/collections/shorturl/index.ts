@@ -1,1 +1,0 @@
-export { shorturl } from './shorturl';

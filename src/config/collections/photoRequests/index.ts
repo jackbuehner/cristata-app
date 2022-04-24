@@ -1,1 +1,0 @@
-export { photoRequests } from './photoRequests';

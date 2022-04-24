@@ -1,54 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import React, { Dispatch, SetStateAction } from 'react';
-import { NavigateFunction } from 'react-router-dom';
-import { toast as toastify } from 'react-toastify';
-import { CreateNewStateType } from '../pages/CMS/CollectionPage/CollectionPage';
+import React from 'react';
 import { CustomFieldProps } from '../pages/CMS/ItemDetailsPage/ItemDetailsPage';
 import { CmsItemState } from '../redux/slices/cmsItemSlice';
-import { articles } from './collections/articles';
-import { flush } from './collections/flush';
-import { photoRequests } from './collections/photoRequests';
-import { satire } from './collections/satire';
-import { shorturl } from './collections/shorturl';
-
-const collections: collectionsType = {
-  Article: articles,
-  PhotoRequest: photoRequests,
-  Satire: satire,
-  ShortUrl: shorturl,
-  Flush: flush,
-};
-
-interface collectionsType {
-  [key: string]: collection | undefined;
-}
-
-interface collection {
-  /**
-   * A list of field keys that must always be retreived when querying the server.
-   *
-   * @deprecated
-   */
-  forceFields?: string[];
-  /**
-   * @deprecated Specify in server config.
-   */
-  fields?: IField[];
-  /**
-   * @deprecated Not used in new item page layout.
-   */
-  itemPageTitle?: (data: CmsItemState['fields']) => string;
-  createNew?: (
-    loadingState: [boolean, Dispatch<SetStateAction<boolean>>],
-    client: ApolloClient<NormalizedCacheObject>,
-    toast: typeof toastify,
-    history: NavigateFunction,
-    createNewModal: {
-      state: [CreateNewStateType, Dispatch<SetStateAction<CreateNewStateType>>];
-      modal: [() => void, () => void];
-    }
-  ) => void;
-}
 
 interface tiptapOptions {
   type: string;
@@ -121,5 +74,4 @@ interface IField {
   Component?: React.ComponentType<CustomFieldProps>;
 }
 
-export { collections };
-export type { collection, tiptapOptions, IField };
+export type { tiptapOptions, IField };

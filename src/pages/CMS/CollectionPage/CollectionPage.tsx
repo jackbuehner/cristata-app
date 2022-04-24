@@ -3,26 +3,19 @@ import styled from '@emotion/styled/macro';
 import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
 import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from 'react-modal-hook';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
-import { InputGroup } from '../../../components/InputGroup';
-import { Label } from '../../../components/Label';
 import { Menu } from '../../../components/Menu';
-import { PlainModal } from '../../../components/Modal';
 import { PageHead } from '../../../components/PageHead';
-import { TextInput } from '../../../components/TextInput';
-import { collections as collectionsConfig } from '../../../config';
-import { client, mongoFilterType } from '../../../graphql/client';
+import { mongoFilterType } from '../../../graphql/client';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { isJSON } from '../../../utils/isJSON';
 import { themeType } from '../../../utils/theme/theme';
 import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
+import { useNewItemModal } from './useNewItemModal';
 
 type CreateNewStateType = {
   /**
@@ -66,29 +59,12 @@ const TableWrapper = styled.div<{ theme?: themeType }>`
   box-sizing: border-box;
 `;
 
-interface IStore {
-  collectionName: string;
-  pageTitle: string;
-  pageDescription?: string;
-  tableFilters?: { id: string; value: string | boolean }[];
-  mongoDataFilter?: mongoFilterType;
-  createNew?: () => void;
-}
-
 function CollectionPage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const location = useLocation();
 
   const [isLoading, setIsLoading] = useState(true);
-
-  let store: IStore = {
-    collectionName: '',
-    pageTitle: '',
-    pageDescription: undefined,
-    tableFilters: undefined,
-    mongoDataFilter: undefined,
-  };
 
   // get the url parameters from the route
   let { collection = '' } = useParams();
@@ -115,42 +91,24 @@ function CollectionPage() {
         : { $regex: value, $options: 'i' };
   });
 
-  // store the fields and state for the createNew modal
-  const [createNewState, setCreateNewState] = useState<CreateNewStateType>({
-    fields: [],
-    state: {},
-    create: () => true,
-  });
-
-  const collectionConfig = collectionsConfig[capitalize(pluralize.singular(dashToCamelCase(collection)))];
-
-  if (collectionConfig) {
-    // set the collection name
-    store.collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
-    // set the page title
-    store.pageTitle =
-      // if defined, attempt to use the page title in the query string
-      searchParams.get('__pageTitle') ||
-      // otherwise, build a title using the collection string
-      collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ') + ' collection';
-    // set the page description
-    store.pageDescription =
-      searchParams.get('__pageCaption') ||
-      decodeURIComponent(location.search.slice(1)).split('&').join(' AND ');
-    // set the data filter for mongoDB
-    store.mongoDataFilter = defaultFilter;
-    // set the createNew function
-    store.createNew = () =>
-      collectionConfig.createNew?.([isLoading, setIsLoading], client, toast, navigate, {
-        state: [createNewState, setCreateNewState],
-        modal: [showCreateNewModal, hideCreateNewModal],
-      });
-  }
+  // set the collection name
+  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
+  // set the page title
+  const pageTitle =
+    // if defined, attempt to use the page title in the query string
+    searchParams.get('__pageTitle') ||
+    // otherwise, build a title using the collection string
+    collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ') + ' collection';
+  // set the page description
+  const pageDescription =
+    searchParams.get('__pageCaption') || decodeURIComponent(location.search.slice(1)).split('&').join(' AND ');
+  // set the data filter for mongoDB
+  const mongoDataFilter = defaultFilter;
 
   // set document title
   useEffect(() => {
-    document.title = `${store.pageTitle} - Cristata`;
-  }, [store.pageTitle]);
+    document.title = `${pageTitle} - Cristata`;
+  }, [pageTitle]);
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -158,51 +116,7 @@ function CollectionPage() {
   });
 
   // createNew modal
-  const [showCreateNewModal, hideCreateNewModal] = useModal(() => {
-    return (
-      <PlainModal
-        hideModal={hideCreateNewModal}
-        title={`Create new`}
-        isLoading={isLoading}
-        continueButton={{
-          text: 'Create',
-          onClick: () => {
-            createNewState.create(createNewState.state);
-            return false;
-          },
-        }}
-      >
-        {createNewState.fields.map((field, index) => {
-          const value = createNewState.state[field.key];
-
-          if (field.type === 'text' && (typeof value === 'string' || typeof value === 'undefined')) {
-            return (
-              <ErrorBoundary key={index} fallback={<div>Error loading field '{field.key}'</div>}>
-                <InputGroup type={`text`}>
-                  <Label htmlFor={field.key}>{`${field.label}${field.required ? '*' : ''}`}</Label>
-                  <TextInput
-                    name={field.label}
-                    id={field.key}
-                    value={value}
-                    onChange={(e) =>
-                      setCreateNewState({
-                        ...createNewState,
-                        state: {
-                          ...createNewState.state,
-                          [field.key]: e.currentTarget.value,
-                        },
-                      })
-                    }
-                  />
-                </InputGroup>
-              </ErrorBoundary>
-            );
-          }
-          return null;
-        })}
-      </PlainModal>
-    );
-  }, [createNewState, isLoading]);
+  const [createNew] = useNewItemModal(collectionName, navigate);
 
   // tools dropdown
   const [showToolsDropdown] = useDropdown(
@@ -246,12 +160,12 @@ function CollectionPage() {
   return (
     <>
       <PageHead
-        title={store.pageTitle}
-        description={store.pageDescription}
+        title={pageTitle}
+        description={pageDescription}
         isLoading={isLoading}
         buttons={
           <>
-            {store.createNew ? <Button onClick={store.createNew}>Create new</Button> : null}
+            <Button onClick={createNew}>Create new</Button>
             <Button
               onClick={(e) => {
                 // refetch data on shift click
@@ -276,9 +190,8 @@ function CollectionPage() {
       />
       <TableWrapper theme={theme}>
         <CollectionTable
-          collection={store.collectionName}
-          filters={store.tableFilters}
-          filter={store.mongoDataFilter}
+          collection={collectionName}
+          filter={mongoDataFilter}
           ref={tableRef}
           setIsLoading={setIsLoading}
         />

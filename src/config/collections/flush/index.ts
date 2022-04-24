@@ -1,1 +1,0 @@
-export { flush } from './flush';

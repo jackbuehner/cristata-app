@@ -2,7 +2,7 @@ import styled from '@emotion/styled/macro';
 import { DateTime } from 'luxon';
 import { get as getProperty } from 'object-path';
 import { useEffect, useState } from 'react';
-import { collections as collectionsConfig, tiptapOptions } from '../../../../config';
+import { tiptapOptions } from '../../../../config';
 import { client } from '../../../../graphql/client';
 import {
   GET_PHOTOGRAPHER_BY_PHOTO_URL,
@@ -112,9 +112,7 @@ function StandardLayout(props: IStandardLayout) {
     const photoUrl = getProperty(state.fields, keys_article.photo_url);
     const targetPublishAt = getProperty(state.fields, keys_article.target_publish_at);
 
-    const categoryLabels = collectionsConfig['articles']?.fields?.find(
-      (field) => field.key === 'categories'
-    )?.options;
+    const categoryLabels: { value: string; label: string }[] = [];
 
     return (
       <Container tiptapWidth={props.tiptapSize.width}>
