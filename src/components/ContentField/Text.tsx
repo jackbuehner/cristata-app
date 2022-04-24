@@ -22,6 +22,25 @@ function Text(props: TextProps) {
     }
   }, [props.value]);
 
+  // also ensure height matches content by listening to reize events
+  // which change the width of the element, altering the height needed
+  // to show all text
+  useEffect(() => {
+    // whenever the input element is resized, recalculate the needed height
+    const myObserver = new ResizeObserver(() => {
+      if (inputRef.current) {
+        inputRef.current.style.height = `auto`;
+        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+      }
+    });
+
+    // listen for the input element to be resized
+    if (inputRef.current) myObserver.observe(inputRef.current);
+
+    // disconnect the observor on unmount to prevent memory leaks
+    return () => myObserver.disconnect();
+  }, []);
+
   return (
     <Field
       label={props.label}
