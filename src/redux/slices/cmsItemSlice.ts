@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 import { get as getProperty, set as setProperty } from 'object-path';
 import { isObject } from '../../utils/isObject';
 
@@ -45,8 +45,22 @@ export const cmsItemSlice = createSlice({
     setField: {
       reducer: (
         state,
-        action: PayloadAction<field, string, { key: string; type: string; markUnsaved: boolean }>
+        action: PayloadAction<
+          field,
+          string,
+          { key: string; type: string; markUnsaved: boolean; inArrayKey: string }
+        >
       ) => {
+        // if the value is in an array, set the entire array to the unsaved fields before
+        // the value is also set, ensuring that array values are not lost
+        if (action.meta.inArrayKey) {
+          setProperty(
+            state.unsavedFields,
+            action.meta.inArrayKey,
+            JSON.parse(JSON.stringify(getProperty(current(state.fields), action.meta.inArrayKey)))
+          );
+        }
+
         if (action.type === 'tiptap') state.tipTapFields[action.meta.key] = action.payload;
         else if (action.meta.type === 'reference') {
           const isMultiReference = Array.isArray(action.payload);
@@ -67,12 +81,11 @@ export const cmsItemSlice = createSlice({
 
           const parsed = (payload: { __collapsed: boolean }[]) =>
             payload.map((item: { __collapsed: boolean }) => {
-              const { __collapsed, ...rest } = item;
-              return rest;
+              return { ...item, __collapsed: undefined };
             });
 
           const isDifferent =
-            JSON.stringify(parsed(getProperty(state.fields, action.meta.key))) !==
+            JSON.stringify(parsed(getProperty(current(state.fields), action.meta.key))) !==
             JSON.stringify(parsed(action.payload));
           if (isDifferent) {
             setProperty(state.unsavedFields, action.meta.key, parsed(action.payload));
@@ -88,11 +101,12 @@ export const cmsItemSlice = createSlice({
         payload: field,
         key: string,
         type: 'tiptap' | 'reference' | 'docarray' | 'default' = 'default',
-        markUnsaved = true
+        markUnsaved = true,
+        inArrayKey: string = ''
       ) => ({
         payload,
         type,
-        meta: { key, type, markUnsaved },
+        meta: { key, type, markUnsaved, inArrayKey },
       }),
     },
     /**

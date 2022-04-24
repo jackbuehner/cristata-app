@@ -251,7 +251,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     const renderFields = (
       input: DeconstructedSchemaDefType[0],
       index: number,
-      arr: DeconstructedSchemaDefType
+      arr: DeconstructedSchemaDefType,
+      inArrayKey?: string
     ): JSX.Element => {
       const [key, def] = input;
 
@@ -278,7 +279,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             processSchemaDef={processSchemaDef}
             renderFields={renderFields}
             onChange={(newValues) => {
-              if (!readOnly) dispatch(setField(newValues, key, 'docarray'));
+              if (!readOnly) dispatch(setField(newValues, key, 'docarray', undefined, inArrayKey));
             }}
           />
         );
@@ -323,7 +324,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 onDebouncedChange={(editorJson, storedJson) => {
                   const isDefaultJson = editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
                   if (!isDefaultJson && editorJson && editorJson !== storedJson) {
-                    dispatch(setField(editorJson, key, 'tiptap'));
+                    dispatch(setField(editorJson, key, 'tiptap', undefined, inArrayKey));
                   }
                 }}
                 currentJsonInState={
@@ -391,7 +392,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               collection={pluralize.singular(collection)}
               reference={def.field?.reference}
               onChange={(newValues) => {
-                if (newValues !== undefined && !readOnly) dispatch(setField(newValues, key, 'reference'));
+                if (newValues !== undefined && !readOnly)
+                  dispatch(setField(newValues, key, 'reference', undefined, inArrayKey));
               }}
             />
           );
@@ -425,7 +427,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             reference={def.field?.reference}
             onChange={(newValue) => {
               if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue || def.default, key, 'reference'));
+                dispatch(setField(newValue || def.default, key, 'reference', undefined, inArrayKey));
             }}
           />
         );
@@ -447,7 +449,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               value={options.find(({ value }) => value === currentPropertyValue)}
               onChange={(value) => {
                 const newValue = value?.value;
-                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+                if (newValue !== undefined && !readOnly)
+                  dispatch(setField(newValue, key, undefined, undefined, inArrayKey));
               }}
               disabled={loading || !!error}
               isEmbedded={props.isEmbedded}
@@ -465,7 +468,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.value;
-              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
           />
         );
@@ -484,7 +488,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.checked;
-              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
           />
         );
@@ -506,7 +511,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               value={options.find(({ value }) => value === currentPropertyValue)}
               onChange={(value) => {
                 const newValue = value?.value;
-                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+                if (newValue !== undefined && !readOnly)
+                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
               disabled={loading || !!error}
               isEmbedded={props.isEmbedded}
@@ -525,7 +531,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.valueAsNumber;
-              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
           />
         );
@@ -547,7 +554,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               value={options.find(({ value }) => value === currentPropertyValue)}
               onChange={(value) => {
                 const newValue = value?.value;
-                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+                if (newValue !== undefined && !readOnly)
+                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
               disabled={loading || !!error}
               isEmbedded={props.isEmbedded}
@@ -566,7 +574,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.valueAsNumber;
-              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
           />
         );
@@ -588,7 +597,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               values={options.filter(({ value }) => currentPropertyValues.includes(value))}
               onChange={(values) => {
                 const newValue = values.map(({ value }) => value);
-                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+                if (newValue !== undefined && !readOnly)
+                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
               disabled={loading || !!error}
               isEmbedded={props.isEmbedded}
@@ -605,7 +615,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             values={currentPropertyValues.map((value) => ({ value, label: value }))}
             onChange={(values) => {
               const newValue = values.map(({ value }) => value);
-              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
             disabled={loading || !!error}
             isEmbedded={props.isEmbedded}
@@ -631,7 +642,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               )}
               onChange={(values) => {
                 const newValue = values.map(({ value }) => value);
-                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+                if (newValue !== undefined && !readOnly)
+                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
               disabled={loading || !!error}
               isEmbedded={props.isEmbedded}
@@ -648,7 +660,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
             onChange={(values) => {
               const newValue = values.map(({ value }) => value);
-              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
             disabled={loading || !!error}
             isEmbedded={props.isEmbedded}
@@ -674,7 +687,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               )}
               onChange={(values) => {
                 const newValue = values.map(({ value }) => value);
-                if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+                if (newValue !== undefined && !readOnly)
+                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
               disabled={loading || !!error}
               isEmbedded={props.isEmbedded}
@@ -691,7 +705,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
             onChange={(values) => {
               const newValue = values.map(({ value }) => value);
-              if (newValue !== undefined && !readOnly) dispatch(setField(newValue, key));
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
             disabled={loading || !!error}
             isEmbedded={props.isEmbedded}
@@ -712,7 +727,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z' ? null : currentTimestamp
             }
             onChange={(date) => {
-              if (date && !readOnly) dispatch(setField(date.toUTC().toISO(), key));
+              if (date && !readOnly)
+                dispatch(setField(date.toUTC().toISO(), key, 'default', undefined, inArrayKey));
             }}
             placeholder={'Pick a time'}
             disabled={loading || !!error}

@@ -27,7 +27,8 @@ interface DocArrayProps extends Omit<FieldProps, 'children'> {
   renderFields: (
     input: DeconstructedSchemaDefType[0],
     index: number,
-    arr: DeconstructedSchemaDefType
+    arr: DeconstructedSchemaDefType,
+    inArrayKey?: string
   ) => JSX.Element;
   onChange?: (newValues: unknown[]) => void;
 }
@@ -50,7 +51,8 @@ function DocArray(props: DocArrayProps) {
       const fieldElem = props.renderFields(
         [subkey.replace(props.stateFieldKey, `${props.stateFieldKey}.${groupIndex}`), subdef],
         index,
-        arr
+        arr,
+        props.stateFieldKey
       );
 
       return React.cloneElement(fieldElem, { isEmbedded: true });
