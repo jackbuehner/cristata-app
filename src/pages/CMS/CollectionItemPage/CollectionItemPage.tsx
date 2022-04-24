@@ -9,6 +9,7 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import ColorHash from 'color-hash';
+import { findAndReplace } from 'find-and-replace-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useEffect } from 'react';
@@ -67,7 +68,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const [
     {
       schemaDef,
-      nameField,
       canPublish: isPublishableCollection,
       options: collectionOptions,
       withPermissions,
@@ -90,10 +90,25 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     ReactTooltip.rebuild();
   });
 
+  // construct the name field with the field provied
+  let docName = options?.nameField || collectionName;
+  if (options?.nameField?.includes('%')) {
+    const schemaKeys = schemaDef
+      .filter(([, def]) => def.type === 'String' || def.type === 'Number' || def.type === 'Float')
+      .map(([key]) => key);
+
+    for (const key of schemaKeys) {
+      if (docName.includes(`%${key}%`)) {
+        docName = docName.replaceAll(`%${key}%`, getProperty(itemState.fields, key));
+      }
+    }
+  } else {
+    docName = getProperty(itemState.fields, options?.nameField || 'name') || docName;
+  }
+  if (docName.includes('undefined')) docName = collectionName;
+
   // set the document title
-  const title = `${itemState.isUnsaved ? '*' : ''}${
-    getProperty(itemState.fields, nameField || 'name') || item_id
-  } - Cristata`;
+  const title = `${itemState.isUnsaved ? '*' : ''}${docName} - Cristata`;
   if (document.title !== title) document.title = title;
 
   // get the session id from sessionstorage
@@ -208,7 +223,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         // find the set of fields that are meant for this specific document
         // by finding a matching name or name === 'default'
         const match =
-          def.field.custom.find(({ name }) => name === getProperty(itemState.fields, nameField || 'name')) ||
+          def.field.custom.find(({ name }) => name === docName) ||
           def.field.custom.find(({ name }) => name === 'default');
 
         // push the matching subfields onto the schemaDef variable

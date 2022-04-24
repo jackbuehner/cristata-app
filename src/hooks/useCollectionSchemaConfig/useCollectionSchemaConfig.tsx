@@ -15,10 +15,9 @@ import {
 function useCollectionSchemaConfig(name: string): [
   {
     schemaDef: DeconstructedSchemaDefType;
-    nameField?: string;
     canPublish: boolean;
     withPermissions: boolean;
-    options?: { mandatoryWatchers?: string[]; previewUrl?: string };
+    options?: { mandatoryWatchers?: string[]; previewUrl?: string; nameField?: string };
     by: { one: string; many: string };
   },
   ApolloError | undefined,
@@ -85,6 +84,7 @@ function queryString(name: string): DocumentNode {
           generationOptions {
             mandatoryWatchers
             previewUrl
+            nameField
           }
           by {
             one
