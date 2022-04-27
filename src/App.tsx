@@ -21,6 +21,7 @@ import { useNavigationConfig } from './hooks/useNavigationConfig';
 import { CollectionItemPage } from './pages/CMS/CollectionItemPage';
 import { CollectionPage } from './pages/CMS/CollectionPage';
 import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
+import { CollectionSchemaPage, ConfigurationNavigation } from './pages/configuration';
 import { FathomEmbed } from './pages/embeds';
 import { HomePage } from './pages/Home';
 import { Playground, PlaygroundNavigation } from './pages/playground';
@@ -148,6 +149,7 @@ function App() {
                               element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />}
                             />
                             <Route path={`/playground`} element={<PlaygroundNavigation />} />
+                            <Route path={`/configuration/*`} element={<ConfigurationNavigation />} />
                             <Route path={`*`} element={<></>} />
                           </Routes>
                         </SidenavSub>
@@ -177,6 +179,7 @@ function App() {
                       </Route>
                       <Route path={`/playground`} element={<Playground setTheme={setTheme} />} />
                       <Route path={`/embed/fathom`} element={<FathomEmbed />} />
+                      <Route path={`/configuration/schema/:collection`} element={<CollectionSchemaPage />} />
                       <Route
                         path={`/`}
                         element={
