@@ -111,7 +111,7 @@ function usePublishModal(
         </PlainModal>
       </MuiPickersUtilsProvider>
     );
-  }, []);
+  }, [client, collectionName, itemId, refetch, publishStage, idKey]);
 
   return [showModal, hideModal];
 }
