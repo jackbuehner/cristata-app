@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { ApolloError, useApolloClient } from '@apollo/client';
-import { css, useTheme } from '@emotion/react';
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Checkmark28Regular, Mail48Regular } from '@fluentui/react-icons';
 import { LinearProgress } from '@rmwc/linear-progress';
@@ -60,16 +60,6 @@ function SignIn({ user, loadingUser }: ISignIn) {
 
   // nodegarden
   useScript('./scripts/nodegarden.js', 'nodegardenscript', () => null);
-
-  /**
-   * Redirect client to the github authentication URL (on the server).
-   * The server should redirect back to this page once it has authenticated
-   * the client.
-   */
-  const signInWithGitHubAction = () => {
-    setIsLoading(true);
-    document.location.href = `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/auth/github`;
-  };
 
   /**
    * Refresh the page to reload the app with new credentials.
@@ -352,63 +342,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
     </>
   );
   let buttons: JSX.Element = <Button onClick={nextFunction}>Next</Button>;
-  let below: JSX.Element = (
-    <Button
-      height={`2rem`}
-      cssExtra={css`
-        font-weight: 600;
-        color: #ccc;
-        padding-left: 16px;
-        padding-right: 16px;
-      `}
-      backgroundColor={{
-        base: 'transparent',
-        hover: 'rgba(255, 255, 255, 0.10)',
-        active: 'rgba(255, 255, 255, 0.04)',
-      }}
-      border={{
-        base: '1px solid rgba(255, 255, 255, 0.16)',
-        hover: '1px solid rgba(255, 255, 255, 0.1)',
-        active: '1px solid rgba(255, 255, 255, 0.1)',
-      }}
-      onClick={signInWithGitHubAction}
-      icon={
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          id='Layer_1'
-          viewBox='0 0 47.999998 48.000002'
-          width='48'
-          height='48'
-        >
-          <linearGradient
-            id='SVGID_1_'
-            gradientUnits='userSpaceOnUse'
-            x1='-216.625'
-            y1='-385.75'
-            x2='-215.918'
-            y2='-385.043'
-          >
-            <stop offset='0' id='stop6' stopColor='#dedfe3' />
-            <stop offset='.174' id='stop8' stopColor='#d8d9dd' />
-            <stop offset='.352' id='stop10' stopColor='#c9cacd' />
-            <stop offset='.532' id='stop12' stopColor='#b4b5b8' />
-            <stop offset='.714' id='stop14' stopColor='#989a9c' />
-            <stop offset='.895' id='stop16' stopColor='#797c7e' />
-            <stop offset='1' id='stop18' stopColor='#656b6c' />
-          </linearGradient>
-          <path
-            d='M23.928 1.15C11 1.15.514 11.638.514 24.566c0 10.343 6.75 19.105 15.945 22.265 1.148.144 1.58-.574 1.58-1.15v-4.02c-6.465 1.436-7.902-3.16-7.902-3.16-1.005-2.73-2.586-3.45-2.586-3.45-2.154-1.435.144-1.435.144-1.435 2.298.144 3.59 2.442 3.59 2.442 2.156 3.59 5.46 2.586 6.753 2.01.142-1.58.86-2.585 1.435-3.16-5.17-.574-10.63-2.585-10.63-11.635 0-2.585.862-4.596 2.442-6.32-.287-.575-1.005-3.017.288-6.177 0 0 2.01-.574 6.464 2.442 1.866-.574 3.877-.718 5.888-.718 2.01 0 4.022.286 5.89.717 4.453-3.016 6.464-2.442 6.464-2.442 1.293 3.16.43 5.602.287 6.177a9.29 9.29 0 0 1 2.44 6.32c0 9.05-5.458 10.918-10.63 11.492.863.718 1.58 2.155 1.58 4.31v6.464c0 .574.432 1.292 1.58 1.15 9.338-3.16 15.946-11.924 15.946-22.266-.143-12.785-10.63-23.27-23.558-23.27z'
-            id='path20'
-            clipRule='evenodd'
-            fill='currentColor'
-            fillRule='evenodd'
-          />
-        </svg>
-      }
-    >
-      Sign in with GitHub
-    </Button>
-  );
+  let below: JSX.Element = <></>;
 
   // set the template variables for the password step
   if (locState?.step === 'password') {
