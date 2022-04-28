@@ -1,9 +1,9 @@
+import { useApolloClient } from '@apollo/client';
 import styled from '@emotion/styled/macro';
 import { DateTime } from 'luxon';
 import { get as getProperty } from 'object-path';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { tiptapOptions } from '../../../../config';
-import { client } from '../../../../graphql/client';
 import {
   GET_PHOTOGRAPHER_BY_PHOTO_URL,
   GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE,
@@ -31,6 +31,7 @@ interface IStandardLayout {
 function StandardLayout(props: IStandardLayout) {
   const state = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
+  const client = useApolloClient();
 
   /**
    * Prevent new lines in fields.
@@ -72,18 +73,24 @@ function StandardLayout(props: IStandardLayout) {
    * @param url the url of the photo
    * @returns promise: the source of the photo OR `undefined`
    */
-  const getPhotoSourceFromUrl = async (url: string) => {
-    // get the data
-    const { data, error } = await client.query<GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE>({
-      query: GET_PHOTOGRAPHER_BY_PHOTO_URL(url),
-    });
+  const getPhotoSourceFromUrl = useCallback(
+    async (url: string) => {
+      if (client) {
+        // get the data
+        const { data, error } = await client.query<GET_PHOTOGRAPHER_BY_PHOTO_URL__TYPE>({
+          query: GET_PHOTOGRAPHER_BY_PHOTO_URL(url),
+        });
 
-    // log error if it occurs
-    if (error) console.error(error);
+        // log error if it occurs
+        if (error) console.error(error);
 
-    // return the photo source
-    return data?.photos.docs?.[0]?.people?.photo_created_by;
-  };
+        // return the photo source
+        return data?.photos.docs?.[0]?.people?.photo_created_by;
+      }
+      return undefined;
+    },
+    [client]
+  );
 
   // determine the photographer/artist
   const [photoCredit, setPhotoCredit] = useState<string>();
@@ -96,7 +103,7 @@ function StandardLayout(props: IStandardLayout) {
         if (credit) setPhotoCredit(credit);
       }
     })();
-  }, [setPhotoCredit, props.options.keys_article, state.fields]);
+  }, [setPhotoCredit, props.options.keys_article, state.fields, getPhotoSourceFromUrl]);
 
   // get the authors
   type authorObjsType = { name: string; photo: string; _id: string }[];

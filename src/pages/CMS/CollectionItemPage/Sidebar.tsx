@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
@@ -38,6 +39,7 @@ function Sidebar(props: SidebarProps) {
   const itemState = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
+  const client = useApolloClient();
 
   const [teams, setTeams] = useState<{ _id: string; name: string; color: string }[] | undefined>(undefined);
   useEffect(() => {
@@ -49,7 +51,7 @@ function Sidebar(props: SidebarProps) {
         });
         if (valuesAreLooselyDifferent) {
           setTeams(
-            (await populateReferenceValues(props.permissions.teams, 'Team')).map((t, i) => {
+            (await populateReferenceValues(client, props.permissions.teams, 'Team')).map((t, i) => {
               return {
                 _id: t._id,
                 name: t.label,
@@ -60,7 +62,7 @@ function Sidebar(props: SidebarProps) {
         }
       }
     })();
-  }, [props.permissions, teams]);
+  }, [client, props.permissions, teams]);
 
   return (
     <Container theme={theme} isEmbedded={props.isEmbedded}>

@@ -50,13 +50,15 @@ function CristataWebSocket(props: { children: React.ReactNode }) {
     [githubDataFreshness]
   );
 
+  const tenant = localStorage.getItem('tenant');
+
   /**
    * Connect to the websocket server and handle any messages.
    */
   useEffect(() => {
     const connectWS = () => {
       const ws = new WebSocket(
-        `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/websocket`
+        `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/websocket?tenant=${tenant}`
       );
       ws.addEventListener('message', ({ data }) => {
         if (isJSON(data)) {

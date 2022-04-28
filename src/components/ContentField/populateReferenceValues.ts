@@ -1,11 +1,11 @@
-import { gql } from '@apollo/client';
-import { client } from '../../graphql/client';
+import { ApolloClient, gql } from '@apollo/client';
 import mongoose from 'mongoose';
 
 type UnpopulatedValue = { _id: string; label?: string };
 type PopulatedValue = { _id: string; label: string };
 
 async function populateReferenceValues(
+  client: ApolloClient<object>,
   values: UnpopulatedValue[],
   collection: string,
   fields?: { _id?: string; name?: string }
@@ -15,13 +15,14 @@ async function populateReferenceValues(
       if (label !== undefined) {
         return { _id, label };
       } else {
-        return { _id, label: await getMissingLabel(_id, collection, fields) };
+        return { _id, label: await getMissingLabel(client, _id, collection, fields) };
       }
     })
   );
 }
 
 async function getMissingLabel(
+  client: ApolloClient<object>,
   _id: string,
   collection: string,
   fields?: { _id?: string; name?: string }

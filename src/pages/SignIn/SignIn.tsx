@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { ApolloError } from '@apollo/client';
+import { ApolloError, useApolloClient } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Checkmark28Regular, Mail48Regular } from '@fluentui/react-icons';
@@ -10,7 +10,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
 import { Titlebar } from '../../components/Titlebar';
-import { client } from '../../graphql/client';
 import {
   CHANGE_USER_PASSWORD,
   CHANGE_USER_PASSWORD__TYPE,
@@ -33,6 +32,7 @@ interface ISignIn {
 
 function SignIn({ user, loadingUser }: ISignIn) {
   const theme = useTheme() as themeType;
+  const client = useApolloClient();
   const { pathname, search, hash, ...location } = useLocation();
   const locState = location.state as { username?: string; step?: string };
   const navigate = useNavigate();
@@ -45,6 +45,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
     newConfirm?: string;
     hideOld?: true;
   }>();
+  const tenant = localStorage.getItem('tenant');
 
   // always reset locState undefined if username is missing in cred AND the user is not signed in
   // (this component might be loaded to enable 2fa or change a password)
@@ -131,7 +132,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
         setIsLoading(false);
       })();
     },
-    [hash, navigate, pathname, search]
+    [client, hash, navigate, pathname, search]
   );
 
   /**
@@ -142,20 +143,23 @@ function SignIn({ user, loadingUser }: ISignIn) {
    */
   const signInWithCredentials = useCallback(
     (pcred: typeof cred = cred, searchParams?: URLSearchParams) => {
-      fetch(`${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/auth/local`, {
-        method: 'post',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: pcred?.username,
-          password: pcred?.password,
-          redirect: false,
-        }),
-        redirect: 'follow',
-        cache: 'no-cache',
-      })
+      fetch(
+        `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/auth/local?tenant=${tenant}`,
+        {
+          method: 'post',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: pcred?.username,
+            password: pcred?.password,
+            redirect: false,
+          }),
+          redirect: 'follow',
+          cache: 'no-cache',
+        }
+      )
         .then(async (res) => {
           const json = await res.json();
           if (json.error) setError(json.error);
@@ -183,7 +187,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
           setError('An unexpected error occured');
         });
     },
-    [cred, newPassCred, navigate, pathname, search, hash, locState]
+    [cred, tenant, newPassCred, navigate, pathname, search, hash, locState]
   );
 
   /**

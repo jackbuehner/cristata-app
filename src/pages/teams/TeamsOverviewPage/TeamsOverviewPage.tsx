@@ -1,4 +1,4 @@
-import { NetworkStatus, useQuery } from '@apollo/client';
+import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { PeopleAdd16Regular } from '@fluentui/react-icons';
@@ -18,7 +18,6 @@ import { TeamCard } from '../../../components/TeamCard';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
 import { selectProfile } from '../selectProfile';
-import { client } from '../../../graphql/client';
 import {
   CREATE_TEAM,
   CREATE_TEAM__TYPE,
@@ -37,6 +36,7 @@ import { themeType } from '../../../utils/theme/theme';
 function TeamsOverviewPage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const client = useApolloClient();
 
   const [showCreateModal, hideCreateModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks

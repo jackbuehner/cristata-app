@@ -18,7 +18,8 @@ function useY({ name, ws }: UseYProps, deps: DependencyList = []): ReturnType {
   const settingsMap = useMemo(() => doc.getMap<IYSettingsMap>('settings'), [doc]);
 
   // register with a WebSocket provider
-  const params = useMemo(() => ({ version: packageJson.version }), []);
+  const tenant = localStorage.getItem('tenant');
+  const params = useMemo(() => ({ version: packageJson.version, tenant: tenant || '' }), []);
   const hocuspocus = useMemo(
     () => new WebsocketProvider(ws, name, doc, { params }),
     [ws, name, doc, params, ...deps]

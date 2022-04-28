@@ -1,23 +1,14 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import { ModalProvider } from 'react-modal-hook';
-import { ThemeProvider } from '@emotion/react';
-import { theme } from './utils/theme';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import reportWebVitals from './reportWebVitals';
-import { DropdownProvider } from './hooks/useDropdown';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-import LuxonUtils from '@date-io/luxon';
-import { store } from './redux/store';
-import { Provider as ReduxProvider } from 'react-redux';
-import ReactTooltip from 'react-tooltip';
 import styled from '@emotion/styled/macro';
 import Color from 'color';
-import { ApolloProvider } from '@apollo/client';
-import { client } from './graphql/client';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import ReactTooltip from 'react-tooltip';
 import { serializeError } from 'serialize-error';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { theme } from './utils/theme';
 
 const appTheme = theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
@@ -97,34 +88,22 @@ function AppErrorFallback({ error: unserializedError, resetErrorBoundary }: Fall
 ReactDOM.render(
   <React.StrictMode>
     <ErrorBoundary FallbackComponent={AppErrorFallback}>
-      <ReduxProvider store={store}>
-        <ApolloProvider client={client}>
-          <ThemeProvider theme={appTheme}>
-            <ModalProvider>
-              <DropdownProvider>
-                <MuiPickersUtilsProvider utils={LuxonUtils}>
-                  <App />
-                  <Tooltip
-                    place={'bottom'}
-                    effect={'float'}
-                    delayShow={600}
-                    delayHide={100}
-                    theme={theme}
-                    overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace) => {
-                      if (place === desiredPlace)
-                        return {
-                          top: pos.top + 2,
-                          left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
-                        };
-                      return pos;
-                    }}
-                  />
-                </MuiPickersUtilsProvider>
-              </DropdownProvider>
-            </ModalProvider>
-          </ThemeProvider>
-        </ApolloProvider>
-      </ReduxProvider>
+      <App />
+      <Tooltip
+        place={'bottom'}
+        effect={'float'}
+        delayShow={600}
+        delayHide={100}
+        theme={theme}
+        overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace) => {
+          if (place === desiredPlace)
+            return {
+              top: pos.top + 2,
+              left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
+            };
+          return pos;
+        }}
+      />
     </ErrorBoundary>
   </React.StrictMode>,
   document.getElementById('root')

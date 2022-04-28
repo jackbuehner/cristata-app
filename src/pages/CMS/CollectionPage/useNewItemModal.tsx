@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { gql } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 import LuxonUtils from '@date-io/luxon';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
@@ -11,7 +11,6 @@ import { toast } from 'react-toastify';
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import { Checkbox, DateTime, Number, Text } from '../../../components/ContentField';
 import { PlainModal } from '../../../components/Modal';
-import { client } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { uncapitalize } from '../../../utils/uncapitalize';
@@ -19,6 +18,7 @@ import { deepen } from '../CollectionItemPage/useFindDoc';
 
 function useNewItemModal(collectionName: string, navigate: NavigateFunction) {
   const [showModal, hideModal] = useModal(() => {
+    const client = useApolloClient();
     const [loading, setLoading] = useState(false);
 
     const [{ schemaDef, by }] = useCollectionSchemaConfig(collectionName);

@@ -1,4 +1,4 @@
-import { ApolloQueryResult, gql, OperationVariables } from '@apollo/client';
+import { ApolloQueryResult, gql, OperationVariables, useApolloClient } from '@apollo/client';
 import {
   ArrowClockwise24Regular,
   CloudArrowUp24Regular,
@@ -14,7 +14,6 @@ import { useCallback } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Menu } from '../../../components/Menu';
-import { client } from '../../../graphql/client';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
@@ -61,10 +60,13 @@ interface Action {
 }
 
 function useActions(params: UseActionsParams): UseActionsReturn {
+  const client = useApolloClient();
+
   const idKey = '_id';
 
   const [showShareModal] = useShareModal(params.collectionName, params.itemId);
   const [showPublishModal] = usePublishModal(
+    client,
     params.collectionName,
     params.itemId,
     params.refetchData,
@@ -109,7 +111,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         console.error(err);
         toast.error(`Failed to hide item. \n ${err.message}`);
       });
-  }, [params]);
+  }, [client, params]);
 
   /**
    * Toggle whether the current user is watching this document.
@@ -158,7 +160,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           toast.error(`Failed to watch item. \n ${err.message}`);
         });
     },
-    [params]
+    [client, params]
   );
 
   const allHaveAccess =
@@ -217,6 +219,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         icon: <Save24Regular />,
         action: () =>
           saveChanges(
+            client,
             params.collectionName,
             params.itemId,
             {
@@ -251,7 +254,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           },
     ];
     return actions.filter((action): action is Action => !!action);
-  }, [allHaveAccess, hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
+  }, [allHaveAccess, client, hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
 
   // create a dropdown with all actions except save and publish
   const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {

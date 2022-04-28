@@ -262,6 +262,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       );
     };
 
+    const tenant = localStorage.getItem('tenant');
+
     const renderFields = (
       input: DeconstructedSchemaDefType[0],
       index: number,
@@ -331,7 +333,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   name: authUserState.name,
                   color: colorHash.hex(authUserState._id),
                   photo:
-                    `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/user-photo/${authUserState._id}` ||
+                    `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}/user-photo/${authUserState._id}` ||
                     genAvatar(authUserState._id),
                 }}
                 options={def.field.tiptap}

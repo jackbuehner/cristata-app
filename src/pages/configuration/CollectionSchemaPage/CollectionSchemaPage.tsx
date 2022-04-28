@@ -1,4 +1,4 @@
-import { DocumentNode, gql } from '@apollo/client';
+import { DocumentNode, gql, useApolloClient } from '@apollo/client';
 import { ArrowClockwise24Regular, Save24Regular } from '@fluentui/react-icons';
 import collectionSchema from '@jackbuehner/cristata-api/dist/json-schemas/collection.schema.json';
 import { Collection } from '@jackbuehner/cristata-api/dist/types/config';
@@ -9,12 +9,12 @@ import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Button, IconButton } from '../../../components/Button';
 import { PageHead } from '../../../components/PageHead';
-import { client } from '../../../graphql/client';
 import { cristataCodeDarkTheme } from '../cristataCodeDarkTheme';
 import { useGetRawConfig } from './useGetRawConfig';
 
 function CollectionSchemaPage() {
   const location = useLocation();
+  const client = useApolloClient();
   const { collection } = useParams() as { collection: string };
   const [raw, loadingInitial, error, refetch] = useGetRawConfig(collection);
   const json = JSON.stringify(raw, null, 2);

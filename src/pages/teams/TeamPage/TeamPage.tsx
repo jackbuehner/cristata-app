@@ -1,4 +1,4 @@
-import { gql, NetworkStatus, useQuery } from '@apollo/client';
+import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import {
@@ -28,7 +28,6 @@ import { MultiSelect } from '../../../components/Select';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
 import { selectProfile } from '../selectProfile';
-import { client } from '../../../graphql/client';
 import {
   DEACTIVATE_USER,
   DEACTIVATE_USER__TYPE,
@@ -52,6 +51,7 @@ function TeamPage() {
   const navigate = useNavigate();
   const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
+  const client = useApolloClient();
 
   // get the url parameters from the route
   let { team_id } = useParams<{

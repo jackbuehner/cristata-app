@@ -39,24 +39,26 @@ const collectionQueryTypePolicies = [...collectionPluralNames, 'users', 'teams']
   };
 });
 
-const cache = new InMemoryCache({
-  addTypename: false,
-  typePolicies: {
-    Query: {
-      fields: merge({}, ...collectionQueryTypePolicies),
+const createCache = () =>
+  new InMemoryCache({
+    addTypename: false,
+    typePolicies: {
+      Query: {
+        fields: merge({}, ...collectionQueryTypePolicies),
+      },
     },
-  },
-});
+  });
 
-const client = new ApolloClient({
-  uri: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3`,
-  //uri: `https://api.thepaladin.dev.cristata.app/v3`,
-  cache,
-  credentials: 'include',
-});
+const createClient = (tenant?: string) =>
+  new ApolloClient({
+    uri: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}`,
+    //uri: `https://api.thepaladin.dev.cristata.app/v3`,
+    cache: createCache(),
+    credentials: 'include',
+  });
 
 type mongoFilterType = mongoose.FilterQuery<unknown>;
 type mongoSortType = { [key: string]: -1 | 1 };
 
 export type { mongoFilterType, mongoSortType };
-export { client, ClientConsumer };
+export { createClient, ClientConsumer };

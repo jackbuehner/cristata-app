@@ -1,4 +1,4 @@
-import { ApolloError, gql, useQuery } from '@apollo/client';
+import { ApolloError, gql, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Edit20Regular, Key20Regular } from '@fluentui/react-icons';
@@ -18,7 +18,6 @@ import { PlainModal } from '../../../components/Modal';
 import { PageHead } from '../../../components/PageHead';
 import { TextArea } from '../../../components/TextArea';
 import { TextInput } from '../../../components/TextInput';
-import { client } from '../../../graphql/client';
 import {
   DEACTIVATE_USER,
   DEACTIVATE_USER__TYPE,
@@ -38,6 +37,7 @@ function ProfilePage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const authUserState = useAppSelector((state) => state.authUser);
+  const client = useApolloClient();
 
   // get the url parameters from the route
   let { profile_id } = useParams<{

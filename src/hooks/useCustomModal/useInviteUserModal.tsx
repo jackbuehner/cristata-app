@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { toast } from 'react-toastify';
@@ -5,14 +6,15 @@ import { InputGroup } from '../../components/InputGroup';
 import { Label } from '../../components/Label';
 import { PlainModal } from '../../components/Modal';
 import { TextInput } from '../../components/TextInput';
-import { client } from '../../graphql/client';
-import { CREATE_USER__TYPE, CREATE_USER } from '../../graphql/queries';
+import { CREATE_USER, CREATE_USER__TYPE } from '../../graphql/queries';
 import { slugify } from '../../utils/slugify';
 
 /**
  * Use a modal for inviting a new user.
  */
 function useInviteUserModal() {
+  const client = useApolloClient();
+
   // create the modal
   const [showModal, hideModal] = useModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks

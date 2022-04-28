@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss24Regular, Open24Regular } from '@fluentui/react-icons';
@@ -30,6 +31,7 @@ type PopulatedValue = { _id: string; label: string };
 function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
   const [textValue, setTextValue, { options, loading }] = useOptions(props.collection, props.reference);
   const theme = useTheme() as themeType;
+  const client = useApolloClient();
 
   const [internalState, _setInternalState] = useState<PopulatedValue | null>(null);
   const setInternalState = (newState: PopulatedValue | null) => {
@@ -43,11 +45,11 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
       if (props.value === null) _setInternalState(null);
       else if (internalState === null || props.value._id !== internalState._id) {
         _setInternalState(
-          (await populateReferenceValues([props.value], props.collection, props.reference?.fields))[0]
+          (await populateReferenceValues(client, [props.value], props.collection, props.reference?.fields))[0]
         );
       }
     })();
-  }, [internalState, props.collection, props.reference?.fields, props.value]);
+  }, [client, internalState, props.collection, props.reference?.fields, props.value]);
 
   return (
     <Field

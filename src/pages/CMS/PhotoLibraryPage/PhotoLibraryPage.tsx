@@ -13,7 +13,7 @@ import Color from 'color';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 import ReactTooltip from 'react-tooltip';
-import { ApolloError, NetworkStatus, useQuery } from '@apollo/client';
+import { ApolloError, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import {
   CREATE_PHOTO,
   CREATE_PHOTO__TYPE,
@@ -26,11 +26,11 @@ import {
   SIGN_S3__TYPE,
 } from '../../../graphql/queries';
 import { CircularProgress } from '@material-ui/core';
-import { client } from '../../../graphql/client';
 
 function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const client = useApolloClient();
 
   // get the photos
   const { data, loading, error, refetch, networkStatus, fetchMore } = useQuery<PHOTOS_BASIC__TYPE>(

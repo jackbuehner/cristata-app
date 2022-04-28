@@ -1,7 +1,6 @@
-import { ApolloError, gql } from '@apollo/client';
+import { ApolloClient, ApolloError, gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { toast } from 'react-toastify';
-import { client } from '../../../graphql/client';
 import { useAppDispatch } from '../../../redux/hooks';
 import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
@@ -12,6 +11,7 @@ import { uncapitalize } from '../../../utils/uncapitalize';
  * @returns true if successful; false if error
  */
 async function saveChanges(
+  client: ApolloClient<object>,
   collectionName: string,
   itemId: string,
   data: { dispatch: ReturnType<typeof useAppDispatch>; state: CmsItemState; refetch: () => void },

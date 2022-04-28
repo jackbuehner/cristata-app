@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss24Regular, Open24Regular, ReOrderDotsHorizontal24Regular } from '@fluentui/react-icons';
@@ -31,6 +32,8 @@ type UnpopulatedValue = { _id: string; label?: string };
 type PopulatedValue = { _id: string; label: string };
 
 function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
+  const client = useApolloClient();
+
   const [textValue, setTextValue, { options, loading }] = useOptions(props.collection, props.reference);
 
   const [internalState, _setInternalState] = useState<PopulatedValue[]>([]);
@@ -49,12 +52,12 @@ function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
         });
         if (valuesAreLooselyDifferent) {
           _setInternalState(
-            await populateReferenceValues(props.values, props.collection, props.reference?.fields)
+            await populateReferenceValues(client, props.values, props.collection, props.reference?.fields)
           );
         }
       }
     })();
-  }, [internalState, props.collection, props.reference?.fields, props.values]);
+  }, [client, internalState, props.collection, props.reference?.fields, props.values]);
 
   const onDragEnd = (result: DropResult, provided: ResponderProvided) => {
     const from = result.source.index;

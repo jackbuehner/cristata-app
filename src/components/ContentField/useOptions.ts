@@ -1,11 +1,10 @@
-import { gql } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 import { FieldDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { SetStateAction, useEffect, useState, Dispatch } from 'react';
-import { client } from '../../graphql/client';
 import { deepen } from '../../pages/CMS/CollectionItemPage/useFindDoc';
 
 type Option = { value: string; label: string; disabled?: boolean; reason?: string };
@@ -38,6 +37,7 @@ type UseOptions = [
  * @param reference the reference definition, if available
  */
 function useOptions(collection: string, reference?: FieldDef['reference']): UseOptions {
+  const client = useApolloClient();
   const [textValue, setTextValue] = useState<string>('');
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -136,6 +136,7 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
       setOptions([]);
     }
   }, [
+    client,
     collection,
     reference?.fields?._id,
     reference?.fields?.name,

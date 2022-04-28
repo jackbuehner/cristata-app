@@ -12,7 +12,7 @@ import { Button } from '../../components/Button';
 import { PageHead } from '../../components/PageHead';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setQuery, setSchema } from '../../redux/slices/graphiqlSlice';
-import { theme as themeC, themeType } from '../../utils/theme/theme';
+import { themeType } from '../../utils/theme/theme';
 
 /**
  * A modified version of `fetch` that always includes credentials (cookies)
@@ -31,24 +31,26 @@ const defaultQuery = `query {
 `;
 
 interface PlaygroundProps {
-  setTheme: Dispatch<SetStateAction<themeType>>;
+  setThemeMode: Dispatch<SetStateAction<'light' | 'dark'>>;
 }
 
-function Playground({ setTheme }: PlaygroundProps) {
+function Playground({ setThemeMode }: PlaygroundProps) {
   const theme = useTheme() as themeType;
   const location = useLocation();
   const state = useAppSelector((state) => state.graphiql);
   const dispatch = useAppDispatch();
   const graphiqlRef = useRef<GraphiQL>(null);
 
+  const tenant = localStorage.getItem('tenant');
+
   const fetcher = createGraphiQLFetcher({
-    url: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3`,
+    url: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}`,
     fetch: fetchWithCredentials,
   });
 
   useEffect(() => {
     axios
-      .post(`${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3`, {
+      .post(`${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}`, {
         query: getIntrospectionQuery(),
       })
       .then(({ data }) => {
@@ -58,12 +60,12 @@ function Playground({ setTheme }: PlaygroundProps) {
 
   useEffect(() => {
     if (location.pathname === '/playground') {
-      setTheme(themeC('dark'));
+      setThemeMode('dark');
     }
     return () => {
-      setTheme(themeC(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+      setThemeMode(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     };
-  }, [location, setTheme]);
+  }, [location, setThemeMode]);
 
   return (
     <div style={{ overflow: 'hidden', height: '100%' }}>

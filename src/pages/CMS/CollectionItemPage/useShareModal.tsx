@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
@@ -17,6 +18,7 @@ import { saveChanges } from './saveChanges';
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
 function useShareModal(collection?: string, itemId?: string, color: colorType = 'primary') {
+  const client = useApolloClient();
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const isFs = searchParams.get('fs') === '1' || searchParams.get('fs') === 'force';
@@ -68,6 +70,7 @@ function useShareModal(collection?: string, itemId?: string, color: colorType = 
             color: isFs ? 'blue' : color,
             onClick: async () => {
               return await saveChanges(
+                client,
                 collection,
                 itemId,
                 { dispatch, state: itemState, refetch: () => null },

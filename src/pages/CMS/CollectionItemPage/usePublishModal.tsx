@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { gql, useMutation } from '@apollo/client';
+import { ApolloClient, gql, useMutation } from '@apollo/client';
 import LuxonUtils from '@date-io/luxon';
 import { useTheme } from '@emotion/react';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
@@ -14,6 +14,7 @@ import { uncapitalize } from '../../../utils/uncapitalize';
 import { saveChanges } from './saveChanges';
 
 function usePublishModal(
+  client: ApolloClient<object>,
   collectionName: string,
   itemId: string,
   refetch: () => void,
@@ -58,6 +59,7 @@ function usePublishModal(
               if (publishStage) {
                 const isPublished = !!(await publishItem()).data;
                 const isStageSet = await saveChanges(
+                  client,
                   collectionName,
                   itemId,
                   { dispatch, state, refetch },
