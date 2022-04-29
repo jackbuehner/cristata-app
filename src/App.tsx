@@ -31,7 +31,6 @@ export interface IGridCols {
 }
 
 function App() {
-  console.log(server);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
     baseURL: server.location,
