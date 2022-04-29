@@ -1,6 +1,3 @@
 {
-  "recommendations": [
-    "mariusalchimavicius.json-to-ts",
-    "esbenp.prettier-vscode"
-  ]
+  "recommendations": ["esbenp.prettier-vscode"]
 }
