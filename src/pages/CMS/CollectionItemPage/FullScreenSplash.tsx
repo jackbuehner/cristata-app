@@ -31,6 +31,11 @@ function FullScreenSplash(props: IFullScreenSplash) {
       animation-delay: 0.14s;
       -webkit-app-region: drag;
     }
+    @media (prefers-color-scheme: dark) {
+      .splash-wrapper2 {
+        background: #242424;
+      }
+    }
     .splash-app-name2 {
       font-family: ${theme.font.headline};
       font-size: 50px;

@@ -130,6 +130,11 @@ function SplashScreen(props: ISplashScreen) {
             animation-delay: 0.14s;
             -webkit-app-region: drag;
           }
+          @media (prefers-color-scheme: dark) {
+            .splash-wrapper {
+              background: #242424;
+            }
+          }
           .splash-app-name {
             height: 40px;
             margin: 8px;
