@@ -289,7 +289,7 @@ function SignIn({ user, loadingUser }: ISignIn) {
    */
   const nextOnEnter = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === 'Enter') {
-      //nextFunction();
+      nextFunction();
     }
   };
 
@@ -580,7 +580,15 @@ function SignIn({ user, loadingUser }: ISignIn) {
             <Title theme={theme}>{title}</Title>
             <Reason theme={theme}>{reason}</Reason>
           </div>
-          <Form theme={theme}>{form}</Form>
+          <Form
+            theme={theme}
+            onSubmit={(e) => {
+              e.preventDefault();
+              nextFunction();
+            }}
+          >
+            {form}
+          </Form>
           <Help>{note}</Help>
           <ButtonRow>{buttons}</ButtonRow>
           <Below>{below}</Below>
