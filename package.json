@@ -75,10 +75,10 @@
     "yjs": "^13.5.8"
   },
   "scripts": {
-    "dev": "cross-env BROWSER=none REACT_APP_GITPOD_HOSTNAME=${PORT:=3000}-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST REACT_APP_VERCEL_URL=$VERCEL_URL react-scripts --max_old_space_size=8128 start",
+    "dev": "cross-env BROWSER=none REACT_APP_API_PROTOCOL=https: REACT_APP_WS_PROTOCOL=wss: GENERATE_SOURCEMAP=false FAST_REFRESH=true CHOKIDAR_USEPOLLING=true WDS_SOCKET_PORT=0 REACT_APP_GITPOD_HOSTNAME=${PORT:=4000}-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST REACT_APP_VERCEL_URL=$VERCEL_URL react-scripts --max_old_space_size=8128 start",
     "dev:tunnel": "./bin/pktriot-0.10.8/pktriot start --config ./bin/pktriot-0.10.8/config.json",
-    "build": "cross-env BROWSER=none REACT_APP_GITPOD_HOSTNAME=${PORT:=3000}-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST REACT_APP_VERCEL_URL=$VERCEL_URL react-scripts --max_old_space_size=8128 build",
-    "start": "cross-env BROWSER=none REACT_APP_GITPOD_HOSTNAME=${PORT:=3000}-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST REACT_APP_VERCEL_URL=$VERCEL_URL vercel dev",
+    "build": "cross-env BROWSER=none REACT_APP_GITPOD_HOSTNAME=${PORT:=4000}-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST REACT_APP_VERCEL_URL=$VERCEL_URL react-scripts --max_old_space_size=8128 build",
+    "start": "cross-env BROWSER=none REACT_APP_API_PROTOCOL=https: REACT_APP_WS_PROTOCOL=wss: GENERATE_SOURCEMAP=false FAST_REFRESH=true CHOKIDAR_USEPOLLING=true WDS_SOCKET_PORT=0 REACT_APP_GITPOD_HOSTNAME=${PORT:=4000}-$GITPOD_WORKSPACE_ID.$GITPOD_WORKSPACE_CLUSTER_HOST REACT_APP_VERCEL_URL=$VERCEL_URL vercel dev",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "patch-package",
