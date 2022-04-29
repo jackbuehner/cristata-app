@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { server } from '../constants';
 
 const db = axios.create({
-  baseURL: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/api/v2`,
+  baseURL: `${server.location}/api/v2`,
   withCredentials: true,
 });
 

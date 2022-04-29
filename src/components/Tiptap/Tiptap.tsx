@@ -51,6 +51,7 @@ import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { Spinner } from '../Loading';
 import { CollectionItemPage } from '../../pages/CMS/CollectionItemPage';
 import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
+import { server } from '../../utils/constants';
 
 interface ITiptap {
   docName: string;
@@ -76,13 +77,12 @@ interface ITiptap {
 }
 
 const Tiptap = (props: ITiptap) => {
-  const api = `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}`;
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
   const [ydoc, ySettingsMap, providerWebsocket, isConnected] = useY({
-    ws: `${api}/hocuspocus/`,
+    ws: `${server.wsLocation}/hocuspocus/`,
     name: props.docName,
   }); // create a doc and connect it to the server
   const awarenessProfiles = useAwareness({ hocuspocus: providerWebsocket }); // get list of who is editing the doc
