@@ -19,6 +19,7 @@ import { SignIn, SignOut } from './pages/SignIn';
 import { Protected } from './Protected';
 import { store } from './redux/store';
 import { db } from './utils/axios/db';
+import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
 
 // configure axios global settings
@@ -30,9 +31,10 @@ export interface IGridCols {
 }
 
 function App() {
+  console.log(server);
   const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
     url: '/auth',
-    baseURL: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}`,
+    baseURL: server.location,
     withCredentials: true,
     method: 'GET',
   });

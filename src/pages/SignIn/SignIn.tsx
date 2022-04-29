@@ -23,6 +23,7 @@ import {
 import useScript from '../../hooks/useScript';
 import { themeType } from '../../utils/theme/theme';
 import { PasswordMeter } from 'password-meter';
+import { server } from '../../utils/constants';
 
 interface ISignIn {
   view?: 'sign-in';
@@ -133,23 +134,20 @@ function SignIn({ user, loadingUser }: ISignIn) {
    */
   const signInWithCredentials = useCallback(
     (pcred: typeof cred = cred, searchParams?: URLSearchParams) => {
-      fetch(
-        `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/auth/local?tenant=${tenant}`,
-        {
-          method: 'post',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: pcred?.username,
-            password: pcred?.password,
-            redirect: false,
-          }),
-          redirect: 'follow',
-          cache: 'no-cache',
-        }
-      )
+      fetch(`${server.location}/auth/local?tenant=${tenant}`, {
+        method: 'post',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: pcred?.username,
+          password: pcred?.password,
+          redirect: false,
+        }),
+        redirect: 'follow',
+        cache: 'no-cache',
+      })
         .then(async (res) => {
           const json = await res.json();
           if (json.error) setError(json.error);

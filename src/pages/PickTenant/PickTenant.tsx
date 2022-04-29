@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
 import { Titlebar } from '../../components/Titlebar';
 import useScript from '../../hooks/useScript';
+import { server } from '../../utils/constants';
 import { themeType } from '../../utils/theme/theme';
 
 interface PickTenantProps {
@@ -30,14 +31,11 @@ function PickTenant(props: PickTenantProps) {
     async (tenant?: string): Promise<void> => {
       setLoading(true);
 
-      const res = await fetch(
-        `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant || value}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: `query { userPublic(_id: "000000000000000000000000") { _id } }` }),
-        }
-      );
+      const res = await fetch(`${server.location}/v3/${tenant || value}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: `query { userPublic(_id: "000000000000000000000000") { _id } }` }),
+      });
 
       setLoading(false);
 

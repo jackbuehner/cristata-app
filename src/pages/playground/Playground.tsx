@@ -12,6 +12,7 @@ import { Button } from '../../components/Button';
 import { PageHead } from '../../components/PageHead';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setQuery, setSchema } from '../../redux/slices/graphiqlSlice';
+import { server } from '../../utils/constants';
 import { themeType } from '../../utils/theme/theme';
 
 /**
@@ -44,13 +45,13 @@ function Playground({ setThemeMode }: PlaygroundProps) {
   const tenant = localStorage.getItem('tenant');
 
   const fetcher = createGraphiQLFetcher({
-    url: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}`,
+    url: `${server.location}/v3/${tenant}`,
     fetch: fetchWithCredentials,
   });
 
   useEffect(() => {
     axios
-      .post(`${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}`, {
+      .post(`${server.location}/v3/${tenant}`, {
         query: getIntrospectionQuery(),
       })
       .then(({ data }) => {

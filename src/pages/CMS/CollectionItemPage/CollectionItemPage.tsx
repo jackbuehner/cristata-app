@@ -37,6 +37,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
+import { server } from '../../../utils/constants';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import { isJSON } from '../../../utils/isJSON';
@@ -333,7 +334,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   name: authUserState.name,
                   color: colorHash.hex(authUserState._id),
                   photo:
-                    `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}/user-photo/${authUserState._id}` ||
+                    `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` ||
                     genAvatar(authUserState._id),
                 }}
                 options={def.field.tiptap}

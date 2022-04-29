@@ -3,6 +3,7 @@ import { merge } from 'merge-anything';
 import { Paged } from '../interfaces/cristata/paged';
 import { ClientConsumer } from './ClientConsumer';
 import mongoose from 'mongoose';
+import { server } from '../utils/constants';
 
 const collectionPluralNames = [
   'articles',
@@ -51,7 +52,7 @@ const createCache = () =>
 
 const createClient = (tenant?: string) =>
   new ApolloClient({
-    uri: `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/v3/${tenant}`,
+    uri: `${server.location}/v3/${tenant}`,
     //uri: `https://api.thepaladin.dev.cristata.app/v3`,
     cache: createCache(),
     credentials: 'include',
