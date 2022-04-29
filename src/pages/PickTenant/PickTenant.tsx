@@ -65,6 +65,22 @@ function PickTenant(props: PickTenantProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // only on first mount
 
+  const checkAndContinue = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (value) {
+      checkTenantExists()
+        .then(() => {
+          setError('');
+          setLoading(true);
+          props.setTenant(value);
+          localStorage.setItem('tenant', value);
+        })
+        .catch(({ message }: Error) => {
+          setError(message);
+        });
+    }
+  };
+
   return (
     <>
       {isCustomTitlebarVisible ? <Titlebar /> : null}
@@ -78,7 +94,7 @@ function PickTenant(props: PickTenantProps) {
               <>
                 <Title theme={theme}>Specify your tenant</Title>
                 <Reason theme={theme}>to continue to Cristata</Reason>
-                <Form theme={theme}>
+                <Form theme={theme} onSubmit={checkAndContinue}>
                   <TextInput
                     lineHeight={'24px'}
                     placeholder={'Type your tenant name'}
@@ -88,21 +104,7 @@ function PickTenant(props: PickTenantProps) {
                   {error ? <ErrorMessage theme={theme}>{error}</ErrorMessage> : null}
                 </Form>
                 <ButtonRow theme={theme}>
-                  <Button
-                    onClick={() => {
-                      checkTenantExists()
-                        .then(() => {
-                          setError('');
-                          setLoading(true);
-                          props.setTenant(value);
-                          localStorage.setItem('tenant', value);
-                        })
-                        .catch(({ message }: Error) => {
-                          setError(message);
-                        });
-                    }}
-                    autoFocus
-                  >
+                  <Button onClick={checkAndContinue} autoFocus>
                     Continue
                   </Button>
                 </ButtonRow>
