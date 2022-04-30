@@ -46,6 +46,19 @@ function App() {
   );
   const theme = useMemo(() => themeC(themeMode), [themeMode]);
 
+  // listen for when user changes system theme preference
+  useEffect(() => {
+    const setCorrectThemeMode = (e: MediaQueryListEvent) => {
+      if (e.matches) setThemeMode('dark');
+      else setThemeMode('light');
+    };
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setCorrectThemeMode);
+
+    return () =>
+      window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', setCorrectThemeMode);
+  });
+
   // redirect to tenant if the current url is missing the tenant
   useEffect(() => {
     if (!window.location.pathname.includes(tenant)) {
