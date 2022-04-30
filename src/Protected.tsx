@@ -11,7 +11,6 @@ import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSoc
 import { SideNavHeading } from './components/Heading';
 import { PageHead } from './components/PageHead';
 import { Sidenav } from './components/Sidenav/Sidenav';
-import { SidenavHeader } from './components/SidenavHeader';
 import { SidenavSub } from './components/SidenavSub';
 import { Titlebar } from './components/Titlebar';
 import { useNavigationConfig } from './hooks/useNavigationConfig';
@@ -143,19 +142,7 @@ function Protected(props: ProtectedProps) {
               <Route path={`/playground`} element={<Playground setThemeMode={props.setThemeMode} />} />
               <Route path={`/embed/fathom`} element={<FathomEmbed />} />
               <Route path={`/configuration/schema/:collection`} element={<CollectionSchemaPage />} />
-              <Route
-                path={`/`}
-                element={
-                  <>
-                    <SidenavHeader
-                      gridCols={gridCols}
-                      homeOnly
-                      isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                    />
-                    <HomePage />
-                  </>
-                }
-              />
+              <Route path={`/`} element={<HomePage />} />
             </Routes>
           </Content>
         </Wrapper>
