@@ -32,6 +32,10 @@ interface ISplashScreen {
   }; // the user from the api request
   persistentChildren?: React.ReactNode;
   protectedChildren?: React.ReactNode;
+  /**
+   * Force this child to render instead of the persistent and protected children.
+   */
+  children?: React.ReactNode;
 }
 
 /**
@@ -188,7 +192,9 @@ function SplashScreen(props: ISplashScreen) {
           </ErrorBlock>
         )}
       </div>
-      {props.loading || !props.user || props.error ? (
+      {props.children ? (
+        props.children
+      ) : props.loading || !props.user || props.error ? (
         props.persistentChildren
       ) : (
         <>

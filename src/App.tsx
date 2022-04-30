@@ -63,27 +63,27 @@ function App() {
           <ModalProvider>
             <DropdownProvider>
               <MuiPickersUtilsProvider utils={LuxonUtils}>
-                {tenant === '' || !window.location.pathname.includes(tenant) ? (
-                  <PickTenant tenant={tenant} setTenant={setTenant} />
-                ) : (
-                  <Router basename={tenant}>
-                    <ToastContainer />
-                    <SplashScreen
-                      loading={loadingUser}
-                      error={errorUser || undefined}
-                      user={user}
-                      persistentChildren={
-                        <Routes>
-                          <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
-                          <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
-                          <Route path={`/sign-out`} element={<SignOut />} />
-                          <Route path={`*`} element={<></>} />
-                        </Routes>
-                      }
-                      protectedChildren={<Protected setThemeMode={setThemeMode} />}
-                    ></SplashScreen>
-                  </Router>
-                )}
+                <Router basename={tenant}>
+                  <ToastContainer />
+                  <SplashScreen
+                    loading={loadingUser}
+                    error={errorUser || undefined}
+                    user={user}
+                    persistentChildren={
+                      <Routes>
+                        <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
+                        <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
+                        <Route path={`/sign-out`} element={<SignOut />} />
+                        <Route path={`*`} element={<></>} />
+                      </Routes>
+                    }
+                    protectedChildren={<Protected setThemeMode={setThemeMode} />}
+                  >
+                    {tenant === '' || !window.location.pathname.includes(tenant) ? (
+                      <PickTenant tenant={tenant} setTenant={setTenant} />
+                    ) : null}
+                  </SplashScreen>
+                </Router>
 
                 <Global
                   styles={css`
