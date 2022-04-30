@@ -112,6 +112,9 @@ function SplashScreen(props: ISplashScreen) {
       <div className={`splash-wrapper`}>
         <style>
           {`
+          .root-splash-wrapper {
+            display: none !important;
+          }
           .splash-wrapper {
             top: 0;
             right: 0;
@@ -119,7 +122,6 @@ function SplashScreen(props: ISplashScreen) {
             left: 0;
             position: fixed;
             z-index: 9999;
-            background: ${isFullEditorPage ? theme.color.blue[800] : theme.color.primary[800]};
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -134,8 +136,11 @@ function SplashScreen(props: ISplashScreen) {
             animation-delay: 0.14s;
             -webkit-app-region: drag;
           }
+          .splash-wrapper, html {
+            background: ${isFullEditorPage ? theme.color.blue[800] : theme.color.primary[800]};
+          }
           @media (prefers-color-scheme: dark) {
-            .splash-wrapper {
+            .splash-wrapper, html {
               background: #242424;
             }
           }
