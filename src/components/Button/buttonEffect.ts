@@ -56,8 +56,15 @@ function buttonEffect(
                         : Color(theme.color[color][colorShade]).alpha(0.2).string()
                     }`
               };
-              box-shadow: 0 1.6px 3.6px 0 rgb(0 0 0 / 13%),
-                0 0.3px 0.9px 0 rgb(0 0 0 / 11%);
+              box-shadow: ${
+                theme.mode === 'dark'
+                  ? `0 2.4px 3.6px 0 rgb(0 0 0 / 26%), 0 0.45px 0.9px 0 rgb(0 0 0 / 22%), 0 0.45px 5px 0 ${
+                      color === 'neutral'
+                        ? Color(theme.color[color][theme.mode][colorShade]).alpha(0.26).string()
+                        : Color(theme.color[color][colorShade]).alpha(0.26).string()
+                    }`
+                  : `0 1.6px 3.6px 0 rgb(0 0 0 / 13%), 0 0.3px 0.9px 0 rgb(0 0 0 / 11%)`
+              };
             }
             &:focus {
               outline: none;
@@ -81,8 +88,11 @@ function buttonEffect(
               };
             }
             &:active {
-              box-shadow: 0 0.8px 3.6px 0 rgb(0 0 0 / 13%),
-                0 0.15px 0.9px 0 rgb(0 0 0 / 11%);
+              box-shadow: ${
+                theme.mode === 'dark'
+                  ? `none`
+                  : `0 0.8px 3.6px 0 rgb(0 0 0 / 13%), 0 0.15px 0.9px 0 rgb(0 0 0 / 11%)`
+              };
             }
           `
     }
