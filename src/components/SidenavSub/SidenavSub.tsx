@@ -15,7 +15,7 @@ const SidenavSubComponent = styled.div<{
   width: ${({ gridCols, isHome }) => (isHome ? 0 : gridCols.sideSub)}px;
   background: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
   border-right: 1px solid
-    ${({ theme }) => (theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300])};
+    ${({ theme }) => (theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[200])};
   overflow-x: hidden;
   transition: width 160ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
   height: 100%;

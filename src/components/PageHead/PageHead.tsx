@@ -14,7 +14,7 @@ const Wrapper = styled.div<{ theme?: themeType }>`
   box-sizing: border-box;
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light' ? theme.color.neutral.light[200] : theme.color.neutral.dark[200]};
   background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
 `;
 

@@ -99,8 +99,8 @@ const SidenavComponent = styled.div<{ theme: themeType; gridCols: IGridCols }>`
   border-right: 1px solid;
   transition: border-color 200ms;
   border-color: ${({ theme, gridCols }) =>
-    Color(theme.color.neutral[theme.mode][300])
-      .alpha(gridCols.sideSub > 0 ? 0.5 : 0)
+    Color(theme.color.neutral[theme.mode][theme.mode === 'light' ? 300 : 200])
+      .alpha(gridCols.sideSub > 0 ? 1 : 0)
       .string()};
   @media (max-width: 600px) {
     flex-direction: row;
