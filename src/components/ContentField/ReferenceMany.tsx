@@ -138,9 +138,7 @@ function Selected(props: SelectedProps) {
             border={{ base: '1px solid transparent' }}
             backgroundColor={{
               base:
-                theme.mode === 'dark'
-                  ? Color(theme.color.neutral.dark[100]).lighten(0.4).string()
-                  : Color('#ffffff').darken(0.3).string(),
+                theme.mode === 'dark' ? Color(theme.color.neutral.dark[100]).lighten(0.4).string() : undefined,
             }}
             onClick={() => setInternalState([])}
           >
@@ -240,7 +238,7 @@ const SelectItem = styled.div<{ theme: themeType }>`
   background-color: ${({ theme }) =>
     theme.mode === 'dark'
       ? Color(theme.color.neutral.dark[100]).lighten(0.2).string()
-      : Color('#ffffff').darken(0.2).string()};
+      : Color('#ffffff').darken(0.03).string()};
   border-radius: ${({ theme }) => theme.radius};
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
 `;

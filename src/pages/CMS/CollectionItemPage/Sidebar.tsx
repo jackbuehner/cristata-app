@@ -187,7 +187,7 @@ const Container = styled.div<{ theme: themeType; isEmbedded?: boolean }>`
   background-color: ${({ theme, isEmbedded }) => {
     if (isEmbedded) {
       if (theme.mode === 'dark') return Color(theme.color.neutral[theme.mode][200]).alpha(0.3).string();
-      return '#ffffff';
+      return Color(`#ffffff`).alpha(0.4).string();
     } else {
       if (theme.mode === 'dark') return theme.color.neutral[theme.mode][100];
       return '#ffffff';
