@@ -66,7 +66,7 @@ function useNewItemModal(collectionName: string, navigate: NavigateFunction) {
                   return deepen({ [key]: value });
                 })
               ),
-              _id: true,
+              [by?.one || '_id']: true,
             },
           },
         })
