@@ -9,12 +9,13 @@ import {
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import Color from 'color';
 import { DateTime } from 'luxon';
+import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import React, { FunctionComponentElement } from 'react';
 import { DragDropContext, Draggable, Droppable, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { colorType, themeType } from '../../utils/theme/theme';
-import { buttonEffect } from '../Button';
+import { Button, buttonEffect } from '../Button';
 import { Field, FieldProps } from './Field';
 
 interface DocArrayProps extends Omit<FieldProps, 'children'> {
@@ -41,6 +42,19 @@ function DocArray(props: DocArrayProps) {
     const to = result.destination?.index;
     if (from !== undefined && to !== undefined && props.data && props.onChange) {
       props.onChange(arrayMove(props.data, from, to));
+    }
+  };
+
+  const addDoc = () => {
+    if (props.onChange && props.data) {
+      const keysToAdd = props
+        .processSchemaDef(props.schemaDefs)
+        .map(([key, def]) => key.replace(props.stateFieldKey + '.', ''))
+        .filter((key) => key[0] !== '#');
+
+      const newEmptyDoc: Record<string, unknown> = merge({}, ...keysToAdd.map((key) => ({ [key]: undefined })));
+
+      props.onChange([...props.data, newEmptyDoc]);
     }
   };
 
@@ -183,6 +197,9 @@ function DocArray(props: DocArrayProps) {
                     </Draggable>
                   );
                 })}
+                <Button onClick={addDoc} height={`28px`} width={`100%`}>
+                  Add document
+                </Button>
               </>
             </div>
           )}
