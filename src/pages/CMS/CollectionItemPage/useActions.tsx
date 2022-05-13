@@ -62,7 +62,7 @@ interface Action {
 function useActions(params: UseActionsParams): UseActionsReturn {
   const client = useApolloClient();
 
-  const idKey = '_id';
+  const idKey = params.idKey || '_id';
 
   const [showShareModal] = useShareModal(params.collectionName, params.itemId);
   const [showPublishModal] = usePublishModal(
@@ -111,7 +111,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         console.error(err);
         toast.error(`Failed to hide item. \n ${err.message}`);
       });
-  }, [client, params]);
+  }, [client, idKey, params]);
 
   /**
    * Toggle whether the current user is watching this document.
@@ -160,7 +160,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           toast.error(`Failed to watch item. \n ${err.message}`);
         });
     },
-    [client, params]
+    [client, idKey, params]
   );
 
   const allHaveAccess =

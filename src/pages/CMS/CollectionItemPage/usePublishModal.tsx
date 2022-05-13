@@ -65,7 +65,9 @@ function usePublishModal(
                   { dispatch, state, refetch },
                   {
                     stage: publishStage,
-                  }
+                  },
+                  false,
+                  idKey
                 );
 
                 // return whether the action was successful
