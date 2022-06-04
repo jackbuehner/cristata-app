@@ -3,6 +3,7 @@ import styled from '@emotion/styled/macro';
 import { useEffect, useState } from 'react';
 import { Button } from '../../../components/Button';
 import { PageHead } from '../../../components/PageHead';
+import { server } from '../../../utils/constants';
 import { themeType } from '../../../utils/theme/theme';
 import { useGetBillingStatus } from './useGetBillingStatus';
 
@@ -61,9 +62,7 @@ function ProductDisplay() {
       </Description>
       <form
         style={{ marginTop: 10 }}
-        action={
-          'https://3000-jackbuehner-cristataapi-3ekrx0mwzql.ws-us46.gitpod.io/stripe/create-checkout-session'
-        }
+        action={`${server.location}/stripe/create-checkout-session`}
         method={'POST'}
       >
         <Button type={'submit'}>Checkout</Button>
@@ -81,9 +80,7 @@ function PortalDisplay() {
       <Description theme={theme}>Thank you!</Description>
       <form
         style={{ marginTop: 10 }}
-        action={
-          'https://3000-jackbuehner-cristataapi-3ekrx0mwzql.ws-us46.gitpod.io/stripe/create-portal-session'
-        }
+        action={`${server.location}/stripe/create-portal-session`}
         method={'POST'}
       >
         <Button type={'submit'}>Manage your billing information</Button>
