@@ -8,6 +8,13 @@ function ConfigurationNavigation() {
   return (
     <>
       <SideNavHeading>Configure Cristata</SideNavHeading>
+      <SideNavHeading>Billing</SideNavHeading>
+      <SideNavSubButton Icon={<></>} to={`/configuration/billing/usage`}>
+        Service usage
+      </SideNavSubButton>
+      <SideNavSubButton Icon={<></>} to={`/configuration/billing/payments`}>
+        Payments &amp; invoices
+      </SideNavSubButton>
       <SideNavHeading>Schemas</SideNavHeading>
       {collections?.map(({ name }, index) => {
         return (

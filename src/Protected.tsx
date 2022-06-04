@@ -17,7 +17,12 @@ import { useNavigationConfig } from './hooks/useNavigationConfig';
 import { CollectionItemPage } from './pages/CMS/CollectionItemPage';
 import { CollectionPage } from './pages/CMS/CollectionPage';
 import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
-import { CollectionSchemaPage, ConfigurationNavigation } from './pages/configuration';
+import {
+  BillingPaymentsPage,
+  BillingServiceUsagePage,
+  CollectionSchemaPage,
+  ConfigurationNavigation,
+} from './pages/configuration';
 import { FathomEmbed } from './pages/embeds';
 import { HomePage } from './pages/Home';
 import { Playground, PlaygroundNavigation } from './pages/playground';
@@ -141,7 +146,13 @@ function Protected(props: ProtectedProps) {
               </Route>
               <Route path={`/playground`} element={<Playground setThemeMode={props.setThemeMode} />} />
               <Route path={`/embed/fathom`} element={<FathomEmbed />} />
-              <Route path={`/configuration/schema/:collection`} element={<CollectionSchemaPage />} />
+              <Route path={`/configuration`}>
+                <Route path={`billing`}>
+                  <Route path={`usage`} element={<BillingServiceUsagePage />} />
+                  <Route path={`payments`} element={<BillingPaymentsPage />} />
+                </Route>
+                <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
+              </Route>
               <Route path={`/`} element={<HomePage />} />
             </Routes>
           </Content>
