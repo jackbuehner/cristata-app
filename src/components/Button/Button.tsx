@@ -114,6 +114,7 @@ export interface ButtonProps {
   className?: string;
   showChevron?: boolean;
   autoFocus?: InputHTMLAttributes<HTMLInputElement>['autoFocus'];
+  type?: 'button' | 'submit' | 'reset' | undefined;
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
@@ -136,6 +137,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       theme={theme}
       className={props.className}
       autoFocus={props.autoFocus}
+      type={props.type}
     >
       {props.customIcon ? (
         props.customIcon
