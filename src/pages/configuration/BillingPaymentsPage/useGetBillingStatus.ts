@@ -16,7 +16,7 @@ function useGetBillingStatus(): [
     return [res.data.billing, loading, res.error, () => res.refetch()];
   }
 
-  return [null, false, undefined, () => res.refetch()];
+  return [null, loading, undefined, () => res.refetch()];
 }
 
 interface QueryType {
