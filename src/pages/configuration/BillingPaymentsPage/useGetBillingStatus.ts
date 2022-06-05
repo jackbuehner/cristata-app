@@ -30,7 +30,7 @@ interface QueryType {
 
 function queryString(): DocumentNode {
   return gql`
-    query serviceUsage {
+    query billingStatus {
       billing {
         stripe_customer_id
         stripe_subscription_id
