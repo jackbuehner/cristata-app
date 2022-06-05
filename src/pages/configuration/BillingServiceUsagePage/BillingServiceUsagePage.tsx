@@ -44,7 +44,7 @@ function BillingServiceUsagePage() {
           <Number theme={theme}>{(data?.usage?.storage.files / 1000000000).toFixed(2) || '-'} GB</Number>
         </div>
       ) : (
-        <div>Loading...</div>
+        <></>
       )}
     </div>
   );

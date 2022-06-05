@@ -35,12 +35,15 @@ function BillingPaymentsPage() {
           // show the error if there is one
           error ? (
             <pre>{JSON.stringify(error, null, 2)}</pre>
+          ) : // show nothing while the page is loading
+          loading ? (
+            <></>
           ) : // show the billing portal if the subscription is active
           data?.subscription_active ? (
             <PortalDisplay />
           ) : // show the subscription button if there is no subscription
           !success && message === '' ? (
-            <ProductDisplay />
+            <ProductDisplay customerId={data?.stripe_customer_id} />
           ) : (
             // show the message
             <Message message={message} />
@@ -51,7 +54,11 @@ function BillingPaymentsPage() {
   );
 }
 
-function ProductDisplay() {
+interface ProductDisplayProps {
+  customerId?: string;
+}
+
+function ProductDisplay(props: ProductDisplayProps) {
   const theme = useTheme() as themeType;
 
   return (
@@ -65,8 +72,26 @@ function ProductDisplay() {
         action={`${server.location}/stripe/create-checkout-session`}
         method={'POST'}
       >
-        <Button type={'submit'}>Checkout</Button>
+        <Button type={'submit'}>Subscribe</Button>
       </form>
+      {props.customerId ? (
+        <>
+          <form
+            style={{ marginTop: 10 }}
+            action={`${server.location}/stripe/create-portal-session`}
+            method={'POST'}
+          >
+            <Button type={'submit'}>Manage your billing information</Button>
+          </form>
+          <form
+            style={{ marginTop: 10 }}
+            action={`${server.location}/stripe/create-portal-session`}
+            method={'POST'}
+          >
+            <Button type={'submit'}>View invoices</Button>
+          </form>
+        </>
+      ) : null}
     </section>
   );
 }
@@ -84,6 +109,13 @@ function PortalDisplay() {
         method={'POST'}
       >
         <Button type={'submit'}>Manage your billing information</Button>
+      </form>
+      <form
+        style={{ marginTop: 10 }}
+        action={`${server.location}/stripe/create-portal-session`}
+        method={'POST'}
+      >
+        <Button type={'submit'}>View invoices</Button>
       </form>
     </section>
   );
