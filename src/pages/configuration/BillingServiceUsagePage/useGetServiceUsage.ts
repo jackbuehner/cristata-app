@@ -28,6 +28,7 @@ interface QueryType {
       api?: {
         billable: number;
         total: number;
+        since: string; // ISO date
       };
       storage: {
         database: number;
@@ -42,9 +43,10 @@ function queryString(month: number, year: number): DocumentNode {
     query serviceUsage {
       billing {
         usage {
-          api(month: ${month}, year: ${year}) {
+          api {
             billable
             total
+            since
           }
           storage {
             database
