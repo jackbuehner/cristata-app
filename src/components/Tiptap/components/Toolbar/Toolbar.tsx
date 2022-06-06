@@ -19,6 +19,7 @@ import {
   Apps20Regular,
   CommentMultiple20Regular,
   Share20Regular,
+  TextQuote20Regular,
 } from '@fluentui/react-icons';
 import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
@@ -964,6 +965,16 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   disabled={props.isDisabled || !editor.can().setTextSelection({ from: 0, to: 1 })}
                 >
                   Link
+                </ToolbarRowButton>
+              ) : null}
+              {props.options?.features.pullQuote ? (
+                <ToolbarRowButton
+                  onClick={() => editor.chain().focus().insertPullQuote().setBold().run()}
+                  isActive={false}
+                  icon={<TextQuote20Regular />}
+                  disabled={props.isDisabled}
+                >
+                  Pull quote
                 </ToolbarRowButton>
               ) : null}
               {props.options?.features.comment ? (

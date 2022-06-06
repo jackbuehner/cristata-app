@@ -32,6 +32,7 @@ import { Titlebar } from './components/Titlebar';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
 import { SweepwidgetWidget } from './extension-widget-sweepwidget';
 import { YoutubeWidget } from './extension-widget-youtube';
+import { PullQuote } from './extension-pull-quote';
 import { PhotoWidget } from './extension-photo';
 import { ErrorBoundary } from 'react-error-boundary';
 import styled from '@emotion/styled';
@@ -123,6 +124,7 @@ const Tiptap = (props: ITiptap) => {
       FontSize,
       PowerComment,
       Comment,
+      PullQuote,
       ClassName.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({
         HTMLAttributes: {

@@ -38,6 +38,7 @@ interface tiptapOptions {
     link?: boolean;
     comment?: boolean;
     trackChanges?: boolean;
+    pullQuote?: boolean;
   };
 }
 
