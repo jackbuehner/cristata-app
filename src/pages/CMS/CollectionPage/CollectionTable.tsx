@@ -1,5 +1,5 @@
 import { gql, NetworkStatus, useQuery } from '@apollo/client';
-import { useTheme } from '@emotion/react';
+import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { CircularProgress } from '@material-ui/core';
@@ -21,6 +21,7 @@ import {
 import { ErrorBoundary } from 'react-error-boundary';
 import { useLocation } from 'react-router-dom';
 import { Column } from 'react-table';
+import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
 import { Table } from '../../../components/Table';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
@@ -348,6 +349,13 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // build the columns based on the config
     const columns: CustomColumn[] = useMemo(() => {
       return [
+        {
+          Header: '__cb',
+          id: '__cb',
+          accessor: (data) => <RowCheckbox data={data} />,
+          width: 32,
+          isSortable: false,
+        },
         ...schemaDef
           .sort((a, b) => {
             if ((a[1].column?.order || 1000) > (b[1].column?.order || 1000)) return 1;
@@ -500,6 +508,17 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           }
           ref={TableRef}
         />
+        <Global
+          styles={css`
+            .table-row-cell-checkbox {
+              display: none;
+            }
+            .table-row--contains-mouse .table-row-cell-checkbox,
+            .table-row-cell-checkbox.checked {
+              display: block;
+            }
+          `}
+        />
       </ErrorBoundary>
     );
   }
@@ -511,6 +530,20 @@ const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   margin: 10px;
   color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 900 : 300]} !important;
 `;
+
+function RowCheckbox({ data }: { data: {} }) {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <div>
+      <Checkbox
+        className={`table-row-cell-checkbox`}
+        isChecked={checked}
+        onChange={(e) => setChecked(e.currentTarget.checked)}
+      />
+    </div>
+  );
+}
 
 export { CollectionTable };
 export type { ICollectionTableImperative };

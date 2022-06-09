@@ -1,14 +1,32 @@
 import styled from '@emotion/styled/macro';
+import { useState } from 'react';
 import { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
 interface ITableRow {
   isHeader?: boolean;
   theme?: themeType;
-  onClick?: (e: MouseEvent) => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  children?: React.ReactNode;
 }
 
-const TableRow = styled.div<ITableRow>`
+function TableRow(props: ITableRow) {
+  const [mouseOver, setMouseOver] = useState(false);
+
+  return (
+    <TABLE_ROW
+      isHeader={props.isHeader}
+      theme={props.theme}
+      children={props.children}
+      onClick={props.onClick}
+      onMouseEnter={() => setMouseOver(true)}
+      onMouseLeave={() => setMouseOver(false)}
+      className={mouseOver ? `table-row--contains-mouse` : ``}
+    />
+  );
+}
+
+const TABLE_ROW = styled.div<ITableRow>`
   display: flex;
   flex-direction: row;
   box-sizing: border-box;

@@ -147,7 +147,7 @@ const Table = forwardRef(
                           >
                             {
                               // render the header
-                              column.render('Header')
+                              column.Header?.toString() === '__cb' ? '' : column.render('Header')
                             }
                             {/* Add a sort direction indicator */}
                             <span

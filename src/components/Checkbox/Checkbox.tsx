@@ -9,6 +9,7 @@ interface ICheckbox {
   title?: string;
   id?: string;
   isDisabled?: boolean;
+  className?: string;
 }
 
 function Checkbox(props: ICheckbox) {
@@ -22,6 +23,8 @@ function Checkbox(props: ICheckbox) {
       name={props.name}
       title={props.title}
       id={props.id}
+      onClick={(e) => e.stopPropagation()}
+      className={props.isChecked ? `checked ${props.className}` : `${props.className}`}
     />
   );
 }
