@@ -91,6 +91,8 @@ const Table = forwardRef(
 
     const backupRef = useRef<HTMLDivElement>(null);
 
+    const tenant = localStorage.getItem('tenant') || '';
+
     return (
       <>
         {/* apply the table props */}
@@ -222,7 +224,7 @@ const Table = forwardRef(
                     }`;
 
                     if (props.row.windowName) {
-                      window.open(href, props.row.windowName, 'location=no');
+                      window.open(`/${tenant}/${href}`, props.row.windowName, 'location=no');
                     } else {
                       navigate(href);
                     }
