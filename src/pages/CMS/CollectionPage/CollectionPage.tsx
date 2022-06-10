@@ -156,6 +156,10 @@ function CollectionPage() {
     true
   );
 
+  // track table items that have been selected
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [lastSelectedId, setLastSelectedId] = useState<string>();
+
   const tableRef = useRef<ICollectionTableImperative>(null);
   return (
     <>
@@ -194,6 +198,8 @@ function CollectionPage() {
           filter={mongoDataFilter}
           ref={tableRef}
           setIsLoading={setIsLoading}
+          selectedIdsState={[selectedIds, setSelectedIds]}
+          lastSelectedIdState={[lastSelectedId, setLastSelectedId]}
         />
       </TableWrapper>
     </>

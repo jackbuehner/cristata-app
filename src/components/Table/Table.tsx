@@ -14,6 +14,7 @@ import Skeleton from 'react-skeleton-loader';
 import { ApolloError } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { mongoSortType } from '../../graphql/client';
+import { Checkbox } from '../Checkbox';
 
 interface ITable {
   data: {
@@ -35,11 +36,16 @@ interface ITable {
   setPrevSort: Dispatch<SetStateAction<mongoSortType>>;
   id: string;
   footer?: React.ReactNode;
+  openOnDoubleClick?: boolean;
+  selectedIdsState?: [string[], Dispatch<SetStateAction<string[]>>];
+  lastSelectedIdState?: [string | undefined, Dispatch<SetStateAction<string | undefined>>];
 }
 
 const Table = forwardRef(
   ({ sort, setSort, setPrevSort, ...props }: ITable, ref?: React.ForwardedRef<HTMLDivElement>) => {
     const navigate = useNavigate();
+    const [selectedIds, setSelectedIds] = props.selectedIdsState || [undefined, undefined];
+    const [lastSelectedId, setLastSelectedId] = props.lastSelectedIdState || [undefined, undefined];
 
     // get the current theme
     const theme = useTheme() as themeType;
@@ -147,7 +153,24 @@ const Table = forwardRef(
                           >
                             {
                               // render the header
-                              column.Header?.toString() === '__cb' ? '' : column.render('Header')
+                              column.Header?.toString() === '__cb' &&
+                              selectedIds &&
+                              setLastSelectedId &&
+                              setSelectedIds ? (
+                                <Checkbox
+                                  isChecked={selectedIds?.length === rows.length}
+                                  indeterminate={selectedIds?.length > 0 && selectedIds?.length < rows.length}
+                                  onChange={() => {
+                                    if (selectedIds.length === rows.length) setSelectedIds([]);
+                                    else
+                                      setSelectedIds(
+                                        rows.map((row) => row.original._id).filter((_id) => !!_id)
+                                      );
+                                  }}
+                                />
+                              ) : (
+                                column.render('Header')
+                              )
                             }
                             {/* Add a sort direction indicator */}
                             <span
@@ -190,6 +213,22 @@ const Table = forwardRef(
               rows.map((row, rowIndex) => {
                 // prepare the row for display
                 prepareRow(row);
+
+                const openRowItem = () => {
+                  // if props for onClick action is defined (via `props.row`), push history
+                  if (props.row) {
+                    let href = `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
+                      props.row.hrefSearch || ''
+                    }`;
+
+                    if (props.row.windowName) {
+                      window.open(href, props.row.windowName, 'location=no');
+                    } else {
+                      navigate(href);
+                    }
+                  }
+                };
+
                 return (
                   // apply the row props
                   <TableRow
@@ -197,33 +236,45 @@ const Table = forwardRef(
                     {...row.getRowProps()}
                     key={rowIndex}
                     theme={theme}
-                    // if props for onClick action is defined (via `props.row`), push history
                     onClick={
-                      showSkeleton
-                        ? undefined
-                        : props.row
+                      !showSkeleton && props.row && !props.openOnDoubleClick
+                        ? openRowItem
+                        : selectedIds && setLastSelectedId
                         ? (e) => {
-                            if (props.row) {
-                              let href = `${props.row.href}/${row.original[props.row.hrefSuffixKey]}${
-                                props.row.hrefSearch || ''
-                              }`;
-
-                              // go to beta url path if shift key is pressed
-                              if (e.shiftKey)
-                                href = href
-                                  .replace('/item', '/collection')
-                                  .replace(/([^/]+)$/, 'item/$1')
-                                  .replace('force', '0');
-
-                              if (props.row.windowName) {
-                                window.open(href, props.row.windowName, 'location=no');
+                            if (row.original._id) {
+                              if (e.ctrlKey) {
+                                setSelectedIds?.(Array.from(new Set([...selectedIds, row.original._id])));
+                                setLastSelectedId?.(row.original._id);
+                              } else if (e.shiftKey) {
+                                // select all between last checked row and the row shft-clicked
+                                const lastRow = rows.find((row) => row.original._id === lastSelectedId);
+                                const lastRowIndex = lastRow?.index || 0;
+                                const thisRowIndex = row.index;
+                                if (lastRowIndex > thisRowIndex) {
+                                  const rowOriginalIds = rows
+                                    .filter((row) => row.index >= thisRowIndex && row.index <= lastRowIndex)
+                                    .map((row) => row.original._id);
+                                  setSelectedIds?.(Array.from(new Set([...selectedIds, ...rowOriginalIds])));
+                                  setLastSelectedId?.(row.original._id);
+                                } else if (lastRowIndex <= thisRowIndex) {
+                                  const rowOriginalIds = rows
+                                    .filter((row) => row.index <= thisRowIndex && row.index >= lastRowIndex)
+                                    .map((row) => row.original._id);
+                                  setSelectedIds?.(Array.from(new Set([...selectedIds, ...rowOriginalIds])));
+                                  setLastSelectedId?.(row.original._id);
+                                }
                               } else {
-                                navigate(href);
+                                setSelectedIds?.([row.original._id]);
+                                setLastSelectedId?.(row.original._id);
                               }
                             }
                           }
                         : undefined
                     }
+                    onDoubleClick={
+                      !showSkeleton && props.row && props.openOnDoubleClick ? openRowItem : undefined
+                    }
+                    isChecked={row.original._id && selectedIds?.includes(row.original._id) ? true : false}
                   >
                     {
                       // loop over the row cells to render each cell

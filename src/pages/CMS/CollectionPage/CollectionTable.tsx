@@ -42,6 +42,8 @@ interface ICollectionTable {
   filter?: mongoFilterType;
   ref?: React.RefObject<ICollectionTableImperative>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
+  selectedIdsState: [string[], Dispatch<SetStateAction<string[]>>];
+  lastSelectedIdState: [string | undefined, Dispatch<SetStateAction<string | undefined>>];
 }
 
 interface ICollectionTableImperative {
@@ -352,7 +354,17 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         {
           Header: '__cb',
           id: '__cb',
-          accessor: (data) => <RowCheckbox data={data} />,
+          accessor: (data: { _id?: unknown }) => {
+            if (data._id && typeof data._id === 'string')
+              return (
+                <RowCheckbox
+                  id={data._id}
+                  selectedIdsState={props.selectedIdsState}
+                  lastSelectedIdState={props.lastSelectedIdState}
+                />
+              );
+            return null;
+          },
           width: 32,
           isSortable: false,
         },
@@ -414,7 +426,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           isSortable: true,
         },
       ];
-    }, [schemaDef]);
+    }, [props.lastSelectedIdState, props.selectedIdsState, schemaDef]);
 
     // create a ref for the spinner that appears when more rows can be loaded
     const SpinnerRef = useRef<HTMLDivElement>(null);
@@ -507,6 +519,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
             ) : null
           }
           ref={TableRef}
+          openOnDoubleClick
+          selectedIdsState={props.selectedIdsState}
+          lastSelectedIdState={props.lastSelectedIdState}
         />
         <Global
           styles={css`
@@ -531,15 +546,28 @@ const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 900 : 300]} !important;
 `;
 
-function RowCheckbox({ data }: { data: {} }) {
-  const [checked, setChecked] = useState(false);
+function RowCheckbox({
+  id,
+  selectedIdsState,
+  lastSelectedIdState,
+}: {
+  id: string;
+  selectedIdsState: [string[], Dispatch<SetStateAction<string[]>>];
+  lastSelectedIdState: [string | undefined, Dispatch<SetStateAction<string | undefined>>];
+}) {
+  const [selectedIds, setSelectedIds] = selectedIdsState;
+  const [, setLastSelectedId] = lastSelectedIdState;
 
   return (
     <div>
       <Checkbox
         className={`table-row-cell-checkbox`}
-        isChecked={checked}
-        onChange={(e) => setChecked(e.currentTarget.checked)}
+        isChecked={selectedIds.includes(id)}
+        onChange={(e) => {
+          if (e.currentTarget.checked) setSelectedIds(Array.from(new Set([...selectedIds, id])));
+          else setSelectedIds([...selectedIds.filter((d) => d !== id)]);
+          setLastSelectedId(id);
+        }}
       />
     </div>
   );
