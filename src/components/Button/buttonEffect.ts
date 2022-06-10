@@ -21,7 +21,7 @@ function buttonEffect(
     cursor: default;
     user-select: none;
     background-color: ${
-      disabled
+      disabled && !backgroundColor?.base
         ? Color(theme.color.neutral[theme.mode][800]).alpha(0.1).string()
         : backgroundColor?.base
         ? backgroundColor.base
