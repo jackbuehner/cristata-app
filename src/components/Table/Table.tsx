@@ -256,13 +256,13 @@ const Table = forwardRef(
                                   const rowOriginalIds = rows
                                     .filter((row) => row.index >= thisRowIndex && row.index <= lastRowIndex)
                                     .map((row) => row.original._id);
-                                  setSelectedIds?.(Array.from(new Set([...selectedIds, ...rowOriginalIds])));
+                                  setSelectedIds?.(rowOriginalIds);
                                   setLastSelectedId?.(row.original._id);
                                 } else if (lastRowIndex <= thisRowIndex) {
                                   const rowOriginalIds = rows
                                     .filter((row) => row.index <= thisRowIndex && row.index >= lastRowIndex)
                                     .map((row) => row.original._id);
-                                  setSelectedIds?.(Array.from(new Set([...selectedIds, ...rowOriginalIds])));
+                                  setSelectedIds?.(rowOriginalIds);
                                   setLastSelectedId?.(row.original._id);
                                 }
                               } else {
