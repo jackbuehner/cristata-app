@@ -1,8 +1,10 @@
-import { gql, NetworkStatus, useQuery } from '@apollo/client';
+import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { Delete20Regular, Open20Regular } from '@fluentui/react-icons';
 import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { CircularProgress } from '@material-ui/core';
+import Color from 'color';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
@@ -19,10 +21,14 @@ import {
   useState,
 } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { useModal } from 'react-modal-hook';
 import { useLocation } from 'react-router-dom';
 import { Column } from 'react-table';
+import { toast } from 'react-toastify';
+import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
+import { PlainModal } from '../../../components/Modal';
 import { Table } from '../../../components/Table';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
@@ -41,6 +47,7 @@ interface ICollectionTable {
   }[];
   filter?: mongoFilterType;
   ref?: React.RefObject<ICollectionTableImperative>;
+  isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   selectedIdsState: [string[], Dispatch<SetStateAction<string[]>>];
   lastSelectedIdState: [string | undefined, Dispatch<SetStateAction<string | undefined>>];
@@ -62,8 +69,11 @@ interface ICollectionTableImperative {
 const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>(
   ({ setIsLoading, ...props }, ref) => {
     const theme = useTheme() as themeType;
+    const client = useApolloClient();
     const { search } = useLocation();
     const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+    const [selectedIds, setSelectedIds] = props.selectedIdsState;
+    const [, setLastSelectedId] = props.lastSelectedIdState;
 
     // calculate the approximate number of rows that can be visible on the display
     const rowDisplayCountEstimate = Math.floor((window.innerHeight - 100) / 38);
@@ -207,6 +217,8 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     useImperativeHandle(ref, () => ({
       refetchData() {
         refetch();
+        setSelectedIds([]);
+        setLastSelectedId(undefined);
       },
       resetSort() {
         setSort({});
@@ -473,6 +485,55 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       };
     }, [docs, docs?.length, fetchMore, limit, loading, networkStatus, sort]);
 
+    // modal for deleting selected items
+    const [showDeleteModal, hideDeleteModal] = useModal(() => {
+      return (
+        <PlainModal
+          hideModal={hideDeleteModal}
+          title={`Delete the selected item${selectedIds.length === 1 ? '' : 's'}?`}
+          isLoading={props.isLoading}
+          text={`This action may be permanent.`}
+          cancelButton={{ text: 'No' }}
+          continueButton={{
+            text: 'Yes',
+            color: 'red',
+            onClick: () => {
+              const items = docs.filter((doc: { _id: string }) => selectedIds.includes(doc._id));
+
+              const HIDE_ITEMS = gql`mutation {
+                ${items.map((item: { [x: string]: any }, index: number) => {
+                  return `hideItem${index}: ${uncapitalize(props.collection)}Hide(${by?.one || '_id'}: "${
+                    item[by?.one || '_id']
+                  }") {
+                  hidden
+                }`;
+                })}
+              }`;
+
+              setIsLoading(true);
+              return client
+                .mutate({ mutation: HIDE_ITEMS })
+                .finally(() => {
+                  setIsLoading(false);
+                })
+                .then(() => {
+                  toast.success(`Item successfully hidden.`);
+                  refetch();
+                  setSelectedIds([]);
+                  setLastSelectedId(undefined);
+                  return true;
+                })
+                .catch((err) => {
+                  console.error(err);
+                  toast.error(`Failed to hide item. \n ${err.message}`);
+                  return false;
+                });
+            },
+          }}
+        />
+      );
+    }, [selectedIds]);
+
     if (!data && error)
       return (
         <>
@@ -486,6 +547,15 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // we want to open it in maximized mode for easy access to the editor
     const shouldOpenMaximized = schemaDef.find(([key, def]) => key === 'body' && def.field?.tiptap);
 
+    const tenant = localStorage.getItem('tenant') || '';
+    const row = {
+      href: `/cms/collection/${camelToDashCase(uncapitalize(pluralize(props.collection)))}`,
+      hrefSuffixKey: by?.one || '_id',
+      hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
+      windowName:
+        shouldOpenMaximized && window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
+    };
+
     // render the table
     return (
       <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
@@ -498,15 +568,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           }}
           showSkeleton={!docs || networkStatus === NetworkStatus.refetch}
           columns={columns}
-          row={{
-            href: `/cms/collection/${camelToDashCase(uncapitalize(pluralize(props.collection)))}`,
-            hrefSuffixKey: by?.one || '_id',
-            hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
-            windowName:
-              shouldOpenMaximized && window.matchMedia('(display-mode: standalone)').matches
-                ? 'editor'
-                : undefined,
-          }}
+          row={row}
           sort={sort}
           setSort={setSort}
           setPrevSort={setPrevSort}
@@ -534,6 +596,34 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
             }
           `}
         />
+        <BulkActions theme={theme} show={selectedIds.length > 0}>
+          <Button
+            icon={<Delete20Regular />}
+            backgroundColor={{ base: 'transparent' }}
+            border={{ base: '1px solid transparent' }}
+            height={42}
+            disabled={selectedIds.length < 1}
+            onClick={showDeleteModal}
+          >
+            Delete
+          </Button>
+          <Button
+            icon={<Open20Regular />}
+            backgroundColor={{ base: 'transparent' }}
+            border={{ base: '1px solid transparent' }}
+            height={42}
+            disabled={selectedIds.length !== 1}
+            onClick={(e) => {
+              let href = `${row.href}/${
+                docs.find((doc: { _id: string }) => doc._id === selectedIds[0])?.[row.hrefSuffixKey]
+              }${row.hrefSearch || ''}`;
+
+              window.open(`/${tenant}/${href}`, row.windowName, 'location=no');
+            }}
+          >
+            Open
+          </Button>
+        </BulkActions>
       </ErrorBoundary>
     );
   }
@@ -544,6 +634,22 @@ const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   height: 20px !important;
   margin: 10px;
   color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 900 : 300]} !important;
+`;
+
+const BulkActions = styled.div<{ theme: themeType; show: boolean }>`
+  position: absolute;
+  bottom: ${({ show }) => (show ? 36 : -24)}px;
+  opacity: ${({ show }) => (show ? 1 : 0)};
+  transition: 240ms;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][300]).alpha(0.3).string()};
+  backdrop-filter: blur(20px);
+  border-radius: ${({ theme }) => theme.radius};
+  display: flex;
+  flex-direction: row;
+  box-shadow: 0px 25.6px 57.6px rgb(0 0 0 / 14%), 0px 0px 16.4px rgb(0 0 0 / 12%);
+  z-index: 1;
 `;
 
 function RowCheckbox({

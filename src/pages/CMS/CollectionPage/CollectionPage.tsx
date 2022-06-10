@@ -50,7 +50,9 @@ type CreateNewStateType = {
 };
 
 const TableWrapper = styled.div<{ theme?: themeType }>`
+  position: relative;
   padding: 20px;
+  overflow: hidden;
   height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
   @media (max-width: 600px) {
     height: ${({ theme }) =>
@@ -197,6 +199,7 @@ function CollectionPage() {
           collection={collectionName}
           filter={mongoDataFilter}
           ref={tableRef}
+          isLoading={isLoading}
           setIsLoading={setIsLoading}
           selectedIdsState={[selectedIds, setSelectedIds]}
           lastSelectedIdState={[lastSelectedId, setLastSelectedId]}
