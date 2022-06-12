@@ -265,7 +265,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                   cssExtra={css`
                     flex-direction: row;
                     font-weight: 500;
-                    margin: 0 6px 2px 6px;
+                    margin: 0 12px 2px 12px;
                     justify-content: flex-start;
                     background: ${location.pathname.indexOf(`/profile/${profile._id}`) !== -1
                       ? Color(theme.color.neutral[theme.mode][800]).alpha(0.15).string()

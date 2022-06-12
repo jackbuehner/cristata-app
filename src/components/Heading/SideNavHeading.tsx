@@ -9,9 +9,9 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
   font-weight: 600;
   font-size: 16px;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
-  padding: 20px 10px 10px 10px;
+  padding: 20px 20px 10px 20px;
   position: relative;
-  &:first-of-type {
+  &:first-of-type:not(.not-header) {
     border-bottom: 1px solid;
     border-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][300]).alpha(0.5).string()};
     margin-bottom: 10px;
@@ -46,11 +46,17 @@ const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   color: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 900 : 300]} !important;
 `;
 
-function SideNavHeading(props: { children: React.ReactNode; isLoading?: boolean }) {
+interface SideNavHeadingProps {
+  children: React.ReactNode;
+  isLoading?: boolean;
+  className?: string;
+}
+
+function SideNavHeading(props: SideNavHeadingProps) {
   const theme = useTheme() as themeType;
 
   return (
-    <SideNavHeadingComponent theme={theme}>
+    <SideNavHeadingComponent theme={theme} className={props.className}>
       {props.children}
       {props.isLoading ? <Spinner theme={theme} /> : null}
     </SideNavHeadingComponent>

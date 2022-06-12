@@ -24,12 +24,12 @@ function SideNavSubButton(props: {
   return (
     <Button
       height={`36px`}
-      width={`calc(100% - 12px)`}
+      width={`calc(100% - 24px)`}
       cssExtra={css`
         flex-direction: row;
         font-weight: 500;
         color: ${isSameLocation && isSameSearch ? theme.color.primary[theme.mode === 'light' ? 900 : 300] : ''};
-        margin: 0 6px 2px 6px;
+        margin: 0 12px 2px 12px;
         justify-content: flex-start;
         background: ${isSameLocation && isSameSearch
           ? Color(theme.color.neutral[theme.mode][800]).alpha(0.12).string()
