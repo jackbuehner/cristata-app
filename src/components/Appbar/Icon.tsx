@@ -6,6 +6,8 @@ interface IconProps {
   icon: React.ComponentType;
   color: colorType;
   name: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 function Icon(props: IconProps) {
@@ -23,6 +25,8 @@ function Icon(props: IconProps) {
         width='41.57'
         height='26'
         viewBox='0 0 31.1775 36'
+        onMouseEnter={props.onMouseEnter}
+        onMouseLeave={props.onMouseLeave}
       >
         <path d='m28.1553 10.7445-8.1515-4.7059v12.7647l8.1515-4.7059zM7.4376 8.1969l11.0557 6.3824V5.1667l-2.9039-1.676ZM12.683 30.8327l2.9064 1.677 8.081-4.665-10.9852-6.3409zM25.182 26.9724l2.9736-1.7166v-9.4132l-11.1275 6.424zM5.9264 9.0687l-2.903 1.6758-.0006 9.412 11.0544-6.3825zM3.0229 25.2555l8.1495 4.704.0028-12.764-8.1521 4.706z' />
         <path d='M15.589 0 .0006 8.9998 0 27.0002 15.5886 36l15.5885-8.9998V8.9998zm14.0775 26.1277L15.5897 34.255l-14.078-8.1273.0005-16.2554L15.5896 1.745l14.0767 8.1273z' />
@@ -31,7 +35,13 @@ function Icon(props: IconProps) {
   }
 
   return (
-    <ICON_COMPONENT theme={theme} color={props.color} isCustomTitlebarVisible={isCustomTitlebarVisible}>
+    <ICON_COMPONENT
+      theme={theme}
+      color={props.color}
+      isCustomTitlebarVisible={isCustomTitlebarVisible}
+      onMouseEnter={props.onMouseEnter}
+      onMouseLeave={props.onMouseLeave}
+    >
       <props.icon />
     </ICON_COMPONENT>
   );
