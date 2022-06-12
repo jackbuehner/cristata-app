@@ -237,7 +237,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
           <Button
             cssExtra={css`
               position: absolute;
-              top: 10px;
+              top: 8px;
               right: 10px;
             `}
             onClick={showMainDropdown}
@@ -261,7 +261,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
               <div style={{ position: 'relative', width: '100%' }} key={index}>
                 <Button
                   height={`48px`}
-                  width={`calc(100% - 12px)`}
+                  width={`calc(100% - 24px)`}
                   cssExtra={css`
                     flex-direction: row;
                     font-weight: 500;
@@ -275,7 +275,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                       width: 100%;
                     }
                   `}
-                  colorShade={600}
+                  colorShade={theme.mode === 'light' ? 600 : 200}
                   backgroundColor={{ base: 'white' }}
                   border={{ base: '1px solid transparent' }}
                   onClick={() => {

@@ -7,8 +7,7 @@ function ConfigurationNavigation() {
 
   return (
     <>
-      <SideNavHeading>Configure Cristata</SideNavHeading>
-      <SideNavHeading>Billing</SideNavHeading>
+      <SideNavHeading className={'not-header'}>Billing</SideNavHeading>
       <SideNavSubButton Icon={<></>} to={`/configuration/billing/usage`}>
         Service usage
       </SideNavSubButton>

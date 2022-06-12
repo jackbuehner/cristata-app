@@ -78,7 +78,9 @@ function TeamsNav(props: ITeamsNav) {
 
   return (
     <>
-      <SideNavHeading isLoading={isLoading}>Teams</SideNavHeading>
+      <SideNavHeading isLoading={isLoading} className={'not-header'}>
+        All teams
+      </SideNavHeading>
       <div
         ref={SideNavRef}
         style={{
