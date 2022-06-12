@@ -95,8 +95,8 @@ ReactDOM.render(
         delayShow={600}
         delayHide={100}
         theme={theme}
-        overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace) => {
-          if (place === desiredPlace)
+        overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
+          if (place === desiredPlace && effect === 'float')
             return {
               top: pos.top + 2,
               left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
