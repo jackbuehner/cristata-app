@@ -11,6 +11,7 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   padding: 20px 20px 10px 20px;
   position: relative;
+  box-sizing: border-box;
   &:first-of-type:not(.not-header) {
     border-bottom: 1px solid;
     border-color: ${({ theme }) => Color(theme.color.neutral[theme.mode][300]).alpha(0.5).string()};
@@ -19,10 +20,12 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
     top: 0;
     background: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
     z-index: 10;
-    font-size: 20px;
+    font-size: 16px;
+    font-family: ${({ theme }) => theme.font.headline};
     height: 48px;
+    padding: 0 20px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     flex-shrink: 0;
 
     /* blurred/acrylic background if supported */
@@ -35,6 +38,9 @@ const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
       -webkit-backdrop-filter: blur(10px);
       background-blend-mode: exclusion;
     }
+  }
+  &.not-header:first-of-type {
+    padding-top: 26px;
   }
 `;
 
