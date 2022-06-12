@@ -30,7 +30,7 @@ function Appbar() {
   };
 
   return (
-    <Bar>
+    <Bar loading={state.loading}>
       <div style={left}>
         <Icon icon={state.icon || AppGeneric20Regular} color={state.color} />
         <Name>{state.name}</Name>
