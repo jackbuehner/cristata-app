@@ -5,6 +5,7 @@ import { themeType } from '../../utils/theme/theme';
 import { AnalyticsChart } from './AnalyticsChart';
 import { HomeSectionHeading } from '../../components/Heading';
 import {
+  AppFolder24Regular,
   Pulse24Regular,
   DataUsage24Regular,
   Megaphone24Regular,
@@ -25,10 +26,14 @@ import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
 import { useDashboardConfig } from '../../hooks/useDashboardConfig';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppName, setAppActions, setAppLoading } from '../../redux/slices/appbarSlice';
+import { useNavigationConfig } from '../../hooks/useNavigationConfig';
+import { Button } from '../../components/Button';
+import { useNavigate } from 'react-router-dom';
 
 function HomePage() {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
+  const navigate = useNavigate();
 
   const { data: workflowStagesAll } = useQuery<STAGE_COUNTS__TYPE>(STAGE_COUNTS, { fetchPolicy: 'no-cache' });
   const workflowStages = [].concat(...(Object.values({ ...workflowStagesAll }) as any)) as {
@@ -40,6 +45,7 @@ function HomePage() {
       Object.assign(obj, { [item._id]: (obj[item._id] || 0) + item.count }),
     {}
   );
+  const [mainNav] = useNavigationConfig('main');
 
   // set document title
   useEffect(() => {
@@ -57,6 +63,44 @@ function HomePage() {
 
   return (
     <Grid theme={theme}>
+      <div style={{ gridArea: 'apps' }}>
+        <HomeSectionHeading icon={<AppFolder24Regular />}>Your apps</HomeSectionHeading>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
+          {mainNav
+            ?.filter((item) => item.to !== '/')
+            .map((item, index) => {
+              const Icon = fluentIcons[item.icon];
+
+              return (
+                <Button
+                  key={index}
+                  icon={isFluentIconComponent(Icon) ? <Icon /> : undefined}
+                  height={80}
+                  onClick={() => {
+                    navigate(item.to);
+                  }}
+                  cssExtra={css`
+                    padding: 0;
+                    width: 80px;
+                    flex-direction: column;
+                    gap: 10px;
+                    > span.IconStyleWrapper {
+                      margin: 0;
+                      width: 24px;
+                      height: 24px;
+                      svg {
+                        width: 24px;
+                        height: 24px;
+                      }
+                    }
+                  `}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+        </div>
+      </div>
       <div style={{ gridArea: 'analytics', paddingBottom: 0 }}>
         <AnalyticsChart theme={theme}></AnalyticsChart>
       </div>
@@ -167,8 +211,9 @@ const Grid = styled.div<{ theme: themeType }>`
   overflow: hidden auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: 400px 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 400px 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-template-areas:
+    'apps apps'
     'analytics analytics'
     'activity workflow'
     'announcement announcement'
@@ -177,8 +222,9 @@ const Grid = styled.div<{ theme: themeType }>`
     'row-6 row-6';
   @media (max-width: 600px) {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 1fr 1fr 1fr 300px 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 300px 1fr 1fr 1fr;
     grid-template-areas:
+      'apps'
       'announcement'
       'activity'
       'workflow'
