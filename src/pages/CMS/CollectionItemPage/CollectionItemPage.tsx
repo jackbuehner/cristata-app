@@ -315,6 +315,11 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       const isSubDocArray = def.type === 'DocArray';
       if (isSubDocArray) {
+        // do not show hidden subdoc arrays
+        const isHidden =
+          def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.hidden || false;
+        if (isHidden) return <></>;
+
         const label = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.label || key;
         const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field
           ?.description;
