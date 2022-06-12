@@ -32,7 +32,7 @@ function Appbar() {
   return (
     <Bar loading={state.loading}>
       <div style={left}>
-        <Icon icon={state.icon || AppGeneric20Regular} color={state.color} />
+        <Icon icon={state.icon || AppGeneric20Regular} color={state.color} name={state.name} />
         <Name>{state.name}</Name>
       </div>
       <div style={right}>
