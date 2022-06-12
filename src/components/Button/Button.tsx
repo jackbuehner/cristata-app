@@ -3,7 +3,7 @@ import styled from '@emotion/styled/macro';
 import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType, colorShade, colorType } from '../../utils/theme/theme';
 import { buttonEffect } from './buttonEffect';
-import { ChevronDown12Regular } from '@fluentui/react-icons';
+import { ChevronDown12Regular, ChevronUp12Regular } from '@fluentui/react-icons';
 
 interface StyledButtonProps extends ButtonProps {
   color: colorType;
@@ -113,6 +113,7 @@ export interface ButtonProps {
   disableLabelAlignmentFix?: boolean;
   className?: string;
   showChevron?: boolean;
+  flipChevron?: boolean;
   autoFocus?: InputHTMLAttributes<HTMLInputElement>['autoFocus'];
   type?: 'button' | 'submit' | 'reset' | undefined;
 }
@@ -149,7 +150,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
       {props.showChevron ? (
         <ChevronWrapper theme={theme} disabled={props.disabled} className={`ChevronWrapper`} size={12}>
-          <ChevronDown12Regular />
+          {props.flipChevron ? <ChevronUp12Regular /> : <ChevronDown12Regular />}
         </ChevronWrapper>
       ) : null}
     </BUTTON>
