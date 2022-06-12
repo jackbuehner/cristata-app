@@ -40,14 +40,6 @@ const Title = styled.span<{ theme?: themeType }>`
     theme.mode === 'light' ? theme.color.neutral.light[1200] : theme.color.neutral.dark[1200]};
 `;
 
-const Description = styled.span<{ theme?: themeType }>`
-  font-family: ${({ theme }) => theme.font.detail};
-  font-size: 13px;
-  font-weight: 400;
-  color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[1000] : theme.color.neutral.dark[1000]};
-`;
-
 /**
  * The indeterminate progressbar that appears at the bottom of the page header when `isLoading` is `true`.
  *
@@ -72,6 +64,9 @@ const IndeterminateProgress = styled(LinearProgress)<{
 
 interface IPageHead {
   title: string;
+  /**
+   * @deprecated description is no longer shown
+   */
   description?: string;
   buttons?: React.ReactChild;
   isLoading?: boolean | number;
@@ -84,7 +79,6 @@ function PageHead(props: IPageHead) {
     <Wrapper theme={theme}>
       <TextWrapper>
         <Title theme={theme}>{props.title}</Title>
-        <Description>{props.description}</Description>
       </TextWrapper>
       <ButtonWrapper>{props.buttons}</ButtonWrapper>
       {props.isLoading ? (
