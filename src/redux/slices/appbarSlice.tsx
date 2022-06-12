@@ -14,7 +14,8 @@ interface Action {
   label: string;
   type: 'icon' | 'button';
   icon?: React.ComponentType;
-  action: () => void;
+  action: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onAuxClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   color?: colorType;
   disabled?: boolean;
   'data-tip'?: string;

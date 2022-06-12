@@ -17,12 +17,13 @@ function Actions(props: ActionsProps) {
     <>
       <ACTIONS_WRAPPER_COMPONENT theme={theme}>
         {props.actions?.map(
-          ({ label, type, icon: Icon, action, color, disabled, 'data-tip': dataTip }, index) => {
+          ({ label, type, icon: Icon, action, onAuxClick, color, disabled, 'data-tip': dataTip }, index) => {
             if (type === 'icon' && Icon) {
               return (
                 <IconButton
                   icon={<Icon />}
-                  onClick={() => action()}
+                  onClick={action}
+                  onAuxClick={onAuxClick}
                   color={color || props.color}
                   disabled={disabled}
                   data-tip={dataTip || label}
@@ -36,7 +37,8 @@ function Actions(props: ActionsProps) {
             return (
               <Button
                 icon={Icon ? <Icon /> : undefined}
-                onClick={() => action()}
+                onClick={action}
+                onAuxClick={onAuxClick}
                 color={color || props.color}
                 disabled={disabled}
                 data-tip={dataTip || label}
