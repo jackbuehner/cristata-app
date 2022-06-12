@@ -1,3 +1,4 @@
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import * as fluentIcons from '@fluentui/react-icons';
 import Color from 'color';
@@ -6,11 +7,11 @@ import { Route, Routes } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { IGridCols } from './App';
 import './App.css';
+import { Appbar } from './components/Appbar';
 import { SideNavSubButton } from './components/Button';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { SideNavHeading } from './components/Heading';
 import { PageHead } from './components/PageHead';
-import { Sidenav } from './components/Sidenav/Sidenav';
 import { SidenavSub } from './components/SidenavSub';
 import { Titlebar } from './components/Titlebar';
 import { useNavigationConfig } from './hooks/useNavigationConfig';
@@ -33,7 +34,6 @@ import { TeamsNav } from './pages/teams/TeamsNav';
 import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
 import { isFluentIconComponent } from './utils/isFluentIconComponent';
 import { themeType } from './utils/theme/theme';
-import { useTheme } from '@emotion/react';
 
 interface ProtectedProps {
   setThemeMode: Dispatch<SetStateAction<'light' | 'dark'>>;
@@ -42,21 +42,7 @@ interface ProtectedProps {
 function Protected(props: ProtectedProps) {
   const theme = useTheme() as themeType;
 
-  const [gridCols, setGridCols] = useState({ side: 79, sideSub: 300 });
-
-  /**
-   * Toggles whether the sub side navigation pane is expanded or collapsed
-   * @param expandedWidth the width of the sub sidenavigation when expanded
-   */
-  const toggleSideNavSub = (expandedWidth = 300) => {
-    if (gridCols.sideSub > 0) {
-      // collapse
-      setGridCols({ ...gridCols, sideSub: 0 });
-    } else {
-      // expand
-      setGridCols({ ...gridCols, sideSub: expandedWidth });
-    }
-  };
+  const [gridCols] = useState({ side: 79, sideSub: 300 });
 
   // store whether the nav is shown
   const [isNavVisibleM, setIsNavVisibleM] = useState(false);
@@ -71,26 +57,24 @@ function Protected(props: ProtectedProps) {
     <CristataWebSocket>
       {isCustomTitlebarVisible ? <Titlebar /> : null}
       <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
-        <Wrapper>
+        {/** app bar */}
+        <Appbar />
+
+        {/** side navigation and main content  */}
+        <Wrapper theme={theme}>
           {window.name === '' ? (
             <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
               <SideNavs>
-                <Sidenav
-                  gridCols={gridCols}
-                  toggleSideNavSub={toggleSideNavSub}
-                  isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}
-                />
                 <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
                   <Routes>
                     <Route
                       path={`/cms/*`}
                       element={
                         <>
-                          <SideNavHeading>Content Management System</SideNavHeading>
                           {cmsNav?.map((group, index) => {
                             return (
                               <Fragment key={index}>
-                                <SideNavHeading>{group.label}</SideNavHeading>
+                                <SideNavHeading className={'not-header'}>{group.label}</SideNavHeading>
                                 {group.items.map((item, index) => {
                                   const Icon = fluentIcons[item.icon];
                                   return (
@@ -175,14 +159,14 @@ const PageWrapper = styled.div<{ isCustomTitlebarVisible?: boolean }>`
   }
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ theme: themeType }>`
   display: flex;
   flex-direction: row;
   @media (max-width: 600px) {
     display: block;
   }
   width: 100%;
-  height: 100%;
+  height: calc(100% - ${({ theme }) => theme.dimensions.appbar.height});
 `;
 
 const SideNavWrapper = styled.div<{
