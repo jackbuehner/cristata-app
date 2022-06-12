@@ -41,8 +41,8 @@ export const appbarSlice = createSlice({
     setAppColor: (state, action: PayloadAction<colorType>) => {
       state.color = action.payload;
     },
-    setAppActions: (state, action: PayloadAction<Action[]>) => {
-      state.actions = action.payload;
+    setAppActions: (state, action: PayloadAction<(Action | null)[]>) => {
+      state.actions = action.payload.filter((action): action is Action => !!action);
     },
     setAppLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
