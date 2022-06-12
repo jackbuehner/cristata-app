@@ -56,7 +56,7 @@ function HomePage() {
 
   // configure app bar
   useEffect(() => {
-    dispatch(setAppName('Home'));
+    dispatch(setAppName('Cristata'));
     dispatch(setAppActions([]));
     dispatch(setAppLoading(false));
   }, [dispatch]);
