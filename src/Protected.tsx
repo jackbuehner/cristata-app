@@ -1,9 +1,10 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import * as fluentIcons from '@fluentui/react-icons';
+import { ContentView20Regular } from '@fluentui/react-icons';
 import Color from 'color';
-import { Dispatch, Fragment, SetStateAction, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { IGridCols } from './App';
 import './App.css';
@@ -32,6 +33,8 @@ import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
 import { TeamPage } from './pages/teams/TeamPage';
 import { TeamsNav } from './pages/teams/TeamsNav';
 import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
+import { useAppDispatch } from './redux/hooks';
+import { setAppIcon } from './redux/slices/appbarSlice';
 import { isFluentIconComponent } from './utils/isFluentIconComponent';
 import { themeType } from './utils/theme/theme';
 
@@ -41,6 +44,8 @@ interface ProtectedProps {
 
 function Protected(props: ProtectedProps) {
   const theme = useTheme() as themeType;
+  const location = useLocation();
+  const dispatch = useAppDispatch();
 
   const [gridCols] = useState({ side: 79, sideSub: 300 });
 
@@ -52,6 +57,21 @@ function Protected(props: ProtectedProps) {
 
   // get the navigation for the cms
   const [cmsNav] = useNavigationConfig('cms');
+
+  //update app bar based on routes
+  const [mainNav] = useNavigationConfig('main');
+  useEffect(() => {
+    if (mainNav) {
+      const matchedRoute = mainNav.find((item) => location.pathname === item.to);
+
+      if (matchedRoute) {
+        const Icon = fluentIcons[matchedRoute.icon];
+        dispatch(setAppIcon(isFluentIconComponent(Icon) ? Icon : ContentView20Regular));
+      } else if (location.pathname.includes('/cms')) {
+        dispatch(setAppIcon(ContentView20Regular));
+      }
+    }
+  }, [dispatch, location, mainNav]);
 
   return (
     <CristataWebSocket>
