@@ -42,16 +42,21 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
   };
 
   /**
-   * Listen for any scroll events on the page
+   * Listen for any scroll or events on the page
+   * or page resize events
    * and close the dropdown if they occur.
    */
   useEffect(() => {
     if (hideOnScroll) {
-      const closeOnScroll = () => {
-        hideDropdown();
+      const closeOnScroll = () => hideDropdown();
+      const closeOnResize = () => hideDropdown();
+
+      document.addEventListener('scroll', closeOnScroll, { capture: true, passive: true });
+      document.addEventListener('resize', closeOnResize, { capture: true, passive: true });
+      return () => {
+        document.removeEventListener('scroll', closeOnScroll);
+        document.removeEventListener('resize', closeOnResize);
       };
-      document.addEventListener('scroll', closeOnScroll, true);
-      return document.removeEventListener('scroll', closeOnScroll);
     }
   });
 
