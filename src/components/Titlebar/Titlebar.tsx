@@ -52,8 +52,6 @@ function Titlebar(props: ITitlebar) {
             ) : null
           }
         </QuickAccess>
-        <Divider />
-        <Title>{props.title || 'Cristata'}</Title>
       </TITLEBAR>
     </Wrapper>
   );

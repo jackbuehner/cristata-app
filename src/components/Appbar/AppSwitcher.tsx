@@ -1,4 +1,4 @@
-import { useTheme } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import { AppFolder20Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +26,9 @@ function AppSwitcher(props: AppSwitcherProps) {
   useEffect(() => {
     ReactTooltip.rebuild();
   });
+
+  //@ts-expect-error windowControlsOverlay is only available in some browsers
+  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
   // dropdown for app switcher
   const [showDropdown] = useDropdown(
@@ -70,7 +73,14 @@ function AppSwitcher(props: AppSwitcherProps) {
           marginLeft: 20,
           paddingLeft: 20,
           height: '30',
-          borderLeft: props.actions.length > 0 ? `1px solid ${theme.color.neutral[theme.mode][300]}` : `none`,
+          borderLeft:
+            props.actions.length > 0
+              ? `1px solid ${
+                  isCustomTitlebarVisible
+                    ? theme.color.neutral['light'][800]
+                    : theme.color.neutral[theme.mode][300]
+                }`
+              : `none`,
           display: 'flex',
           alignItems: 'center',
         }}
@@ -84,6 +94,11 @@ function AppSwitcher(props: AppSwitcherProps) {
           data-effect={'solid'}
           data-place={'bottom'}
           data-offset={`{ 'bottom': 4 }`}
+          forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
+          cssExtra={css`
+            -webkit-app-region: no-drag;
+            app-region: no-drag;
+          `}
         />
       </div>
     </div>

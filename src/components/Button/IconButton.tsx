@@ -74,10 +74,12 @@ export interface ButtonProps {
   className?: string;
   onMouseEnter?: MouseEventHandler<HTMLButtonElement>;
   onMouseLeave?: MouseEventHandler<HTMLButtonElement>;
+  forcedThemeMode?: 'light' | 'dark';
 }
 
 const IconButton: React.FC<ButtonProps> = (props) => {
-  const theme = useTheme() as themeType;
+  let theme = useTheme() as themeType;
+  if (props.forcedThemeMode) theme = { ...theme, mode: props.forcedThemeMode };
 
   return (
     <BUTTON

@@ -1,4 +1,4 @@
-import { useTheme } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { AppbarState } from '../../redux/slices/appbarSlice';
 import { colorType, themeType } from '../../utils/theme/theme';
@@ -12,6 +12,9 @@ interface ActionsProps {
 
 function Actions(props: ActionsProps) {
   const theme = useTheme() as themeType;
+
+  //@ts-expect-error windowControlsOverlay is only available in some browsers
+  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
   return (
     <>
@@ -45,6 +48,11 @@ function Actions(props: ActionsProps) {
                   data-effect={'solid'}
                   data-place={'bottom'}
                   data-offset={`{ 'bottom': 4 }`}
+                  forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
+                  cssExtra={css`
+                    -webkit-app-region: no-drag;
+                    app-region: no-drag;
+                  `}
                 />
               );
             }
@@ -61,6 +69,11 @@ function Actions(props: ActionsProps) {
                 data-offset={`{ 'bottom': 4 }`}
                 showChevron={showChevron}
                 flipChevron={flipChevron}
+                forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
+                cssExtra={css`
+                  -webkit-app-region: no-drag;
+                  app-region: no-drag;
+                `}
               >
                 {label}
               </Button>

@@ -116,10 +116,12 @@ export interface ButtonProps {
   flipChevron?: boolean;
   autoFocus?: InputHTMLAttributes<HTMLInputElement>['autoFocus'];
   type?: 'button' | 'submit' | 'reset' | undefined;
+  forcedThemeMode?: 'light' | 'dark';
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
-  const theme = useTheme() as themeType;
+  let theme = useTheme() as themeType;
+  if (props.forcedThemeMode) theme = { ...theme, mode: props.forcedThemeMode };
 
   return (
     <BUTTON

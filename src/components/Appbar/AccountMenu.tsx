@@ -128,6 +128,8 @@ const ACCOUNT_MENU_ICON_COMPONENT = styled.div<{ photo: string; theme: themeType
   box-shadow: inset 0 0 0 1.5px ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   transition: 120ms;
   background-blend-mode: overlay;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
   &:hover {
     border-radius: ${({ theme }) => theme.radius};
     box-shadow: inset 0 0 0 1.5px ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 700 : 400]},
