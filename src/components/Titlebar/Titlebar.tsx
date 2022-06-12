@@ -90,24 +90,6 @@ const QuickAccess = styled.div`
   align-items: center;
 `;
 
-const Title = styled.div`
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-  font-size: 13px;
-  color: white;
-  flex-grow: 1;
-  flex-shrink: 1;
-  height: 100%;
-  margin-top: calc(13px / 6 * -1);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  width: 100%;
-  overflow: hidden;
-  display: inline-block;
-  line-height: env(titlebar-area-height, 33px);
-  margin-left: 10px;
-`;
-
 const TitlebarButton = styled.button<{
   iconSize?: number;
   width?: number;
