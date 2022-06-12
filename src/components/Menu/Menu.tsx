@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { forwardRef } from 'react';
 import { MenuItem, MenuList } from '.';
 import { colorShade, colorType } from '../../utils/theme/theme';
 
