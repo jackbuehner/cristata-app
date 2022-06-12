@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import cmsItemReducer from './slices/cmsItemSlice';
+import appbarReducer from './slices/appbarSlice';
 import authUserReducer from './slices/authUserSlice';
+import cmsItemReducer from './slices/cmsItemSlice';
 import graphiqlReducer from './slices/graphiqlSlice';
 
 const store = configureStore({
   reducer: {
-    cmsItem: cmsItemReducer,
+    appbar: appbarReducer,
     authUser: authUserReducer,
+    cmsItem: cmsItemReducer,
     graphiql: graphiqlReducer,
   },
 });
