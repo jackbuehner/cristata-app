@@ -49,7 +49,7 @@ const TABLE_ROW = styled.div<ITableRow & { canClick: boolean }>`
   width: 100%;
   border-bottom: 1px solid;
   border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[300]};
+    theme.mode === 'light' ? theme.color.neutral.light[200] : theme.color.neutral.dark[200]};
   ${({ isHeader }) =>
     isHeader
       ? `

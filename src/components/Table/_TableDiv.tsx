@@ -15,9 +15,9 @@ const TableDiv = styled.div<ITableDiv>`
   height: fit-content;
   max-height: 100%;
   overflow: ${({ noOverflow }) => (noOverflow ? 'hidden' : 'auto')};
-  border: 1px solid;
-  border-color: ${({ theme }) =>
-    theme.mode === 'light' ? theme.color.neutral.light[200] : theme.color.neutral.dark[200]};
+  margin: 1;
+  box-shadow: 0 0 0 1px
+    ${({ theme }) => (theme.mode === 'light' ? theme.color.neutral.light[200] : theme.color.neutral.dark[200])};
   border-radius: ${({ theme }) => theme.radius};
 `;
 

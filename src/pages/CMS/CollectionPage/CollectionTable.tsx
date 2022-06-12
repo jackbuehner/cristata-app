@@ -245,7 +245,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         });
 
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '6px 0' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, margin: '2px 0' }}>
             {refDataWithStandardKeys.map((data, index: number) => {
               const name = data.name ? `${data.name}` : undefined;
               const _id = data._id ? `${data._id}` : undefined;
@@ -272,7 +272,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
       if (Array.isArray(fieldData))
         return (
-          <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '6px 0', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '2px 0', flexWrap: 'wrap' }}>
             {fieldData.map((entry: any, index: number) => {
               let stringValue: string;
               try {
@@ -312,7 +312,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         if (def.column?.chips) {
           if (typeof def.column.chips === 'boolean') {
             return (
-              <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '6px 0', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '2px 0', flexWrap: 'wrap' }}>
                 <Chip label={fieldData} color={'neutral'} data-value={fieldData} />
               </div>
             );
@@ -320,7 +320,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
           const match = def.column.chips.find((s) => s.value === fieldData || s.value === parseInt(fieldData));
           return (
-            <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '6px 0', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '2px 0', flexWrap: 'wrap' }}>
               <Chip
                 label={match?.label || fieldData}
                 color={match?.color || 'neutral'}
@@ -337,7 +337,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         if (def.column?.chips) {
           if (typeof def.column.chips === 'boolean') {
             return (
-              <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '6px 0', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '2px 0', flexWrap: 'wrap' }}>
                 <Chip label={`${fieldData}`} color={'neutral'} data-value={fieldData} />
               </div>
             );
@@ -345,7 +345,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
           const match = def.column.chips.find((s) => s.value === fieldData);
           return (
-            <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '6px 0', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 3, margin: '2px 0', flexWrap: 'wrap' }}>
               <Chip
                 label={match?.label || `${fieldData}`}
                 color={match?.color || 'neutral'}
@@ -377,7 +377,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
               );
             return null;
           },
-          width: 32,
+          width: 42,
           isSortable: false,
         },
         ...schemaDef
@@ -665,7 +665,7 @@ function RowCheckbox({
   const [, setLastSelectedId] = lastSelectedIdState;
 
   return (
-    <div>
+    <div style={{ margin: '3px 0 0 3px' }}>
       <Checkbox
         className={`table-row-cell-checkbox`}
         isChecked={selectedIds.includes(id)}

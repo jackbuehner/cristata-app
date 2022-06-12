@@ -15,6 +15,7 @@ import { ApolloError } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { mongoSortType } from '../../graphql/client';
 import { Checkbox } from '../Checkbox';
+import Color from 'color';
 
 interface ITable {
   data: {
@@ -159,17 +160,19 @@ const Table = forwardRef(
                               selectedIds &&
                               setLastSelectedId &&
                               setSelectedIds ? (
-                                <Checkbox
-                                  isChecked={selectedIds?.length === rows.length}
-                                  indeterminate={selectedIds?.length > 0 && selectedIds?.length < rows.length}
-                                  onChange={() => {
-                                    if (selectedIds.length === rows.length) setSelectedIds([]);
-                                    else
-                                      setSelectedIds(
-                                        rows.map((row) => row.original._id).filter((_id) => !!_id)
-                                      );
-                                  }}
-                                />
+                                <div style={{ margin: '3px 0 0 3px' }}>
+                                  <Checkbox
+                                    isChecked={selectedIds?.length === rows.length}
+                                    indeterminate={selectedIds?.length > 0 && selectedIds?.length < rows.length}
+                                    onChange={() => {
+                                      if (selectedIds.length === rows.length) setSelectedIds([]);
+                                      else
+                                        setSelectedIds(
+                                          rows.map((row) => row.original._id).filter((_id) => !!_id)
+                                        );
+                                    }}
+                                  />
+                                </div>
                               ) : (
                                 column.render('Header')
                               )
@@ -233,77 +236,88 @@ const Table = forwardRef(
 
                 return (
                   // apply the row props
-                  <TableRow
-                    role={`row`}
-                    {...row.getRowProps()}
-                    key={rowIndex}
-                    theme={theme}
-                    onClick={
-                      !showSkeleton && props.row && !props.openOnDoubleClick
-                        ? openRowItem
-                        : selectedIds && setLastSelectedId
-                        ? (e) => {
-                            if (row.original._id) {
-                              if (e.ctrlKey) {
-                                setSelectedIds?.(Array.from(new Set([...selectedIds, row.original._id])));
-                                setLastSelectedId?.(row.original._id);
-                              } else if (e.shiftKey) {
-                                // select all between last checked row and the row shft-clicked
-                                const lastRow = rows.find((row) => row.original._id === lastSelectedId);
-                                const lastRowIndex = lastRow?.index || 0;
-                                const thisRowIndex = row.index;
-                                if (lastRowIndex > thisRowIndex) {
-                                  const rowOriginalIds = rows
-                                    .filter((row) => row.index >= thisRowIndex && row.index <= lastRowIndex)
-                                    .map((row) => row.original._id);
-                                  setSelectedIds?.(rowOriginalIds);
+                  <>
+                    <TableRow
+                      role={`row`}
+                      {...row.getRowProps()}
+                      key={rowIndex}
+                      theme={theme}
+                      onClick={
+                        !showSkeleton && props.row && !props.openOnDoubleClick
+                          ? openRowItem
+                          : selectedIds && setLastSelectedId
+                          ? (e) => {
+                              if (row.original._id) {
+                                if (e.ctrlKey) {
+                                  setSelectedIds?.(Array.from(new Set([...selectedIds, row.original._id])));
                                   setLastSelectedId?.(row.original._id);
-                                } else if (lastRowIndex <= thisRowIndex) {
-                                  const rowOriginalIds = rows
-                                    .filter((row) => row.index <= thisRowIndex && row.index >= lastRowIndex)
-                                    .map((row) => row.original._id);
-                                  setSelectedIds?.(rowOriginalIds);
+                                } else if (e.shiftKey) {
+                                  // select all between last checked row and the row shft-clicked
+                                  const lastRow = rows.find((row) => row.original._id === lastSelectedId);
+                                  const lastRowIndex = lastRow?.index || 0;
+                                  const thisRowIndex = row.index;
+                                  if (lastRowIndex > thisRowIndex) {
+                                    const rowOriginalIds = rows
+                                      .filter((row) => row.index >= thisRowIndex && row.index <= lastRowIndex)
+                                      .map((row) => row.original._id);
+                                    setSelectedIds?.(rowOriginalIds);
+                                    setLastSelectedId?.(row.original._id);
+                                  } else if (lastRowIndex <= thisRowIndex) {
+                                    const rowOriginalIds = rows
+                                      .filter((row) => row.index <= thisRowIndex && row.index >= lastRowIndex)
+                                      .map((row) => row.original._id);
+                                    setSelectedIds?.(rowOriginalIds);
+                                    setLastSelectedId?.(row.original._id);
+                                  }
+                                } else {
+                                  setSelectedIds?.([row.original._id]);
                                   setLastSelectedId?.(row.original._id);
                                 }
-                              } else {
-                                setSelectedIds?.([row.original._id]);
-                                setLastSelectedId?.(row.original._id);
                               }
                             }
-                          }
-                        : undefined
-                    }
-                    onDoubleClick={
-                      !showSkeleton && props.row && props.openOnDoubleClick ? openRowItem : undefined
-                    }
-                    isChecked={row.original._id && selectedIds?.includes(row.original._id) ? true : false}
-                  >
-                    {
-                      // loop over the row cells to render each cell
-                      row.cells.map((cell, index) => {
-                        // apply cell props
-                        return (
-                          <TableCell
-                            role={`cell`}
-                            width={cell.column.width}
-                            {...cell.getCellProps()}
-                            key={index}
-                          >
-                            {showSkeleton ? (
-                              <Skeleton
-                                color={theme.color.neutral[theme.mode][100]}
-                                width={`${parseInt(`${cell.column.width}` || `150`) - 30}px`}
-                                borderRadius={theme.radius}
-                              />
-                            ) : (
-                              // render cell contents
-                              cell.render('Cell')
-                            )}
-                          </TableCell>
-                        );
-                      })
-                    }
-                  </TableRow>
+                          : undefined
+                      }
+                      onDoubleClick={
+                        !showSkeleton && props.row && props.openOnDoubleClick ? openRowItem : undefined
+                      }
+                      isChecked={row.original._id && selectedIds?.includes(row.original._id) ? true : false}
+                    >
+                      {
+                        // loop over the row cells to render each cell
+                        row.cells.map((cell, index) => {
+                          // apply cell props
+                          return (
+                            <TableCell
+                              role={`cell`}
+                              width={cell.column.width}
+                              {...cell.getCellProps()}
+                              key={index}
+                            >
+                              {showSkeleton ? (
+                                <Skeleton
+                                  color={theme.color.neutral[theme.mode][100]}
+                                  width={`${parseInt(`${cell.column.width}` || `150`) - 30}px`}
+                                  borderRadius={theme.radius}
+                                />
+                              ) : (
+                                // render cell contents
+                                cell.render('Cell')
+                              )}
+                            </TableCell>
+                          );
+                        })
+                      }
+                    </TableRow>
+                    <div
+                      style={{
+                        width: '100%',
+                        height: 1,
+                        boxShadow: `inset 0 1px 0 0 ${Color(theme.color.neutral[theme.mode][200])
+                          .alpha(0.7)
+                          .string()}`,
+                      }}
+                    ></div>
+                  </>
                 );
               })
             }
