@@ -114,7 +114,7 @@ function HomePage() {
           }
         `}
       >
-        <HomeSectionHeading icon={<Pulse24Regular />}>Recent CMS Activty</HomeSectionHeading>
+        <HomeSectionHeading icon={<Pulse24Regular />}>Recent activty</HomeSectionHeading>
         <RecentActivity />
       </div>
       <div style={{ gridArea: 'workflow' }}>

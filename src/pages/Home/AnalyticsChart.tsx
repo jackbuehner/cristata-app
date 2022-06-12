@@ -110,7 +110,7 @@ class AnalyticsChart extends React.Component<IAnalyticsChart> {
             justify-content: space-between;
           `}
         >
-          <HomeSectionHeading icon={<DataUsage24Regular />}>Site Analytics</HomeSectionHeading>
+          <HomeSectionHeading icon={<DataUsage24Regular />}>Site analytics</HomeSectionHeading>
           <div
             css={css`
               display: flex;
