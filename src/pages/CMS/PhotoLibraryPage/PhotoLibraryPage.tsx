@@ -1,5 +1,4 @@
 import { toast } from 'react-toastify';
-import { PageHead } from '../../../components/PageHead';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { useRef, useState } from 'react';
@@ -7,8 +6,7 @@ import { useEffect } from 'react';
 import { themeType } from '../../../utils/theme/theme';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Button, IconButton } from '../../../components/Button';
-import { ArrowClockwise24Regular } from '@fluentui/react-icons';
+import { ArrowClockwise20Regular, ArrowUpload20Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
@@ -26,8 +24,11 @@ import {
   SIGN_S3__TYPE,
 } from '../../../graphql/queries';
 import { CircularProgress } from '@material-ui/core';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
 
 function PhotoLibraryPage() {
+  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const client = useApolloClient();
@@ -296,28 +297,35 @@ function PhotoLibraryPage() {
     ReactTooltip.rebuild();
   });
 
+  // keep loading state synced
+  useEffect(() => {
+    dispatch(setAppLoading(uploadProgress && uploadProgress !== 1 ? uploadProgress : isLoading));
+  }, [dispatch, isLoading, uploadProgress]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName(`Photo library${uploadStatus ? ` - ${uploadStatus}` : ``}`));
+    dispatch(
+      setAppActions([
+        {
+          label: 'Refresh library data',
+          type: 'icon',
+          icon: ArrowClockwise20Regular,
+          action: () => refetch(),
+        },
+        {
+          label: 'Upload',
+          type: 'button',
+          icon: ArrowUpload20Regular,
+          action: upload,
+          disabled: !!isLoading || !!uploadStatus || !!error,
+        },
+      ])
+    );
+  }, [dispatch, error, isLoading, refetch, uploadStatus]);
+
   return (
     <>
-      <PageHead
-        title={`Photo libary`}
-        description={uploadStatus || `📷 📷 📷 📷 📷 📷 📷 📷 📷 📷`}
-        // if upload progress is between 0 and 1, provide the upload progress; otherwise, just show whether something is loading
-        isLoading={uploadProgress && uploadProgress !== 1 ? uploadProgress : isLoading}
-        buttons={
-          <>
-            <IconButton
-              data-tip={'Refresh library'}
-              onClick={() => refetch()}
-              icon={<ArrowClockwise24Regular />}
-            >
-              Refresh
-            </IconButton>
-            <Button onClick={upload} disabled={!!isLoading || !!uploadStatus || !!error}>
-              Upload
-            </Button>
-          </>
-        }
-      />
       {error ? (
         <pre>{JSON.stringify(error, null, 2)}</pre>
       ) : (
@@ -368,7 +376,7 @@ function PhotoLibraryPage() {
 }
 
 const WrapperWrapper = styled.div<{ theme?: themeType }>`
-  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  height: 100%;
   @media (max-width: 600px) {
     height: ${({ theme }) =>
       `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
