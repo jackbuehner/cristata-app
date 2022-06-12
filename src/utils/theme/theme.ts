@@ -102,7 +102,7 @@ const theme = (mode: 'light' | 'dark' = 'light') => ({
   radius: '2px',
   dimensions: {
     PageHead: {
-      height: '64px',
+      height: '48px',
       width: '100%',
     },
     titlebar: {
