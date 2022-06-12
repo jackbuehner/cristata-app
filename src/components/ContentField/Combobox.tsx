@@ -4,8 +4,8 @@ import { ChevronDown20Regular, ErrorCircle20Regular } from '@fluentui/react-icon
 import Color from 'color';
 import mongoose from 'mongoose';
 import Select, { BaseSelectRef, Option } from 'rc-select';
-import { BaseOptionType, LabelInValueType, RawValueType } from 'rc-select/lib/Select';
-import { CSSProperties as CSS, useEffect, useRef, useState } from 'react';
+import { BaseOptionType, DefaultOptionType, LabelInValueType, RawValueType } from 'rc-select/lib/Select';
+import { CSSProperties as CSS, useCallback, useEffect, useRef, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
@@ -135,17 +135,56 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
     return !internalState.some(({ value }) => value.toString() === option?.value.toString());
   });
 
+  /**
+   * Returns whether the option should appear based on the last search value
+   * (there must be a match in label or value of the option).
+   */
+  const filterOption = useCallback(
+    (option: BaseOptionType | DefaultOptionType | undefined) => {
+      return (
+        option?.value &&
+        option.label &&
+        (option.label.toString().toLowerCase().includes(lastSearchValue.toLowerCase()) ||
+          option.value.toString().toLowerCase().includes(lastSearchValue.toLowerCase()))
+      );
+    },
+    [lastSearchValue]
+  );
+
+  // update the height of the menu every time the visible options change
+  const maxHeight = 260;
+  const height = Math.min((options.filter(filterOption).length || 1) * 30 + 8, maxHeight);
+
+  // track the open state
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenClass, setIsOpenClass] = useState(false);
+
   return (
     <div style={{ position: 'relative' }}>
       <SelectComponent
         theme={theme}
         color={props.color}
         ref={selectRef}
+        listHeight={maxHeight}
+        open={isOpen}
+        onDropdownVisibleChange={(open) => {
+          // we have to delay this so that the parent finished rerendering
+          // before adding the open class, which triggers a css transition
+          setTimeout(() => setIsOpenClass(open), 100);
+          if (!open) setTimeout(() => setIsOpen(open), 240);
+          else setIsOpen(open);
+        }}
         dropdownRender={(menu) => {
           ReactTooltip.rebuild();
 
           return (
-            <DropdownMenu theme={theme} optionHeight={props.optionHeight} color={props.color}>
+            <DropdownMenu
+              theme={theme}
+              optionHeight={props.optionHeight || 30}
+              color={props.color}
+              style={{ '--height': height + 'px', '--maxHeight': maxHeight + 'px' } as React.CSSProperties}
+              className={isOpenClass ? 'open' : ''}
+            >
               {menu}
             </DropdownMenu>
           );
@@ -161,14 +200,7 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
         onSelect={onSelect}
         virtual={false}
         notFoundContent={props.notFoundContent || 'No match found. Try a different query.'}
-        filterOption={(value, option) => {
-          return (
-            option?.value &&
-            option.label &&
-            (option.label.toString().toLowerCase().includes(lastSearchValue.toLowerCase()) ||
-              option.value.toString().toLowerCase().includes(lastSearchValue.toLowerCase()))
-          );
-        }}
+        filterOption={(value, option) => filterOption(option)}
         onSearch={(value) => {
           setLastSearchValue(value);
           props.onTextChange?.(value);
@@ -201,9 +233,13 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
         styles={css`
           .rc-select-dropdown {
             z-index: 100;
+            position: absolute;
           }
           .rc-select-dropdown-hidden {
             display: none;
+          }
+          .rc-select-dropdown-placement-topLeft > div > div {
+            flex-direction: column-reverse;
           }
         `}
       />
@@ -272,22 +308,45 @@ const SelectComponent = styled(Select)<{
 
 const DropdownMenu = styled.div<{
   theme: themeType;
-  optionHeight?: number;
+  optionHeight: number;
   disabled?: boolean;
   color?: colorType;
 }>`
   z-index: 100;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200])};
-  box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);
-  padding: 4px 0;
+  padding: 0;
   margin: 0;
-  border-radius: ${({ theme }) => theme.radius};
+  height: var(--maxHeight);
+  display: flex;
+  flex-direction: column;
+
+  .rc-virtual-list-holder,
+  .rc-select-item-empty {
+    height: 0 !important;
+    padding: 0;
+    max-height: unset !important;
+    background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200])};
+    box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%),
+      0 3px 14px 2px rgb(0 0 0 / 12%);
+    border-radius: ${({ theme }) => theme.radius};
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 240ms, height 0ms ease 240ms, padding 0ms ease 240ms;
+  }
+
+  &.open .rc-virtual-list-holder,
+  &.open .rc-select-item-empty {
+    height: var(--height) !important;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    opacity: 1;
+    transition: height 240ms cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
 
   .rc-select-item-option,
   .rc-select-item-empty {
     list-style: none;
     width: 100%;
-    height: ${({ optionHeight }) => (optionHeight ? optionHeight : 30)}px;
+    height: ${({ optionHeight }) => optionHeight}px;
     box-sizing: border-box;
     padding: 0 16px;
     display: flex;
