@@ -7,7 +7,7 @@ import { useDropdown } from '../../hooks/useDropdown';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 import { AppbarState } from '../../redux/slices/appbarSlice';
 import { colorType, themeType } from '../../utils/theme/theme';
-import { IconButton } from '../Button';
+import { Button, IconButton } from '../Button';
 import { Menu } from '../Menu';
 import * as fluentIcons from '@fluentui/react-icons';
 import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
@@ -85,21 +85,41 @@ function AppSwitcher(props: AppSwitcherProps) {
           alignItems: 'center',
         }}
       >
-        <IconButton
-          icon={<AppFolder20Regular />}
-          onClick={showDropdown}
-          color={props.color}
-          data-tip={'View all Cristata apps'}
-          data-delay-show={0}
-          data-effect={'solid'}
-          data-place={'bottom'}
-          data-offset={`{ 'bottom': 4 }`}
-          forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
-          cssExtra={css`
-            -webkit-app-region: no-drag;
-            app-region: no-drag;
-          `}
-        />
+        {props.actions.length > 0 ? (
+          <IconButton
+            icon={<AppFolder20Regular />}
+            onClick={showDropdown}
+            color={props.color}
+            data-tip={'View all Cristata apps'}
+            data-delay-show={0}
+            data-effect={'solid'}
+            data-place={'bottom'}
+            data-offset={`{ 'bottom': 4 }`}
+            forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
+            cssExtra={css`
+              -webkit-app-region: no-drag;
+              app-region: no-drag;
+            `}
+          />
+        ) : (
+          <Button
+            icon={<AppFolder20Regular />}
+            onClick={showDropdown}
+            color={props.color}
+            data-tip={'View all Cristata apps'}
+            data-delay-show={0}
+            data-effect={'solid'}
+            data-place={'bottom'}
+            data-offset={`{ 'bottom': 4 }`}
+            forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
+            cssExtra={css`
+              -webkit-app-region: no-drag;
+              app-region: no-drag;
+            `}
+          >
+            Apps
+          </Button>
+        )}
       </div>
     </div>
   );
