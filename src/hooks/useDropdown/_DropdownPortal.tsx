@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useEffect, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
 interface IDropdownPortal {
@@ -24,6 +24,7 @@ function DropdownPortal({ Dropdown, isOpen }: IDropdownPortal) {
    */
   const appendEl = useCallback(() => {
     document.body.appendChild(el);
+    el.style.opacity = '1';
   }, [el]);
 
   /**
@@ -35,11 +36,22 @@ function DropdownPortal({ Dropdown, isOpen }: IDropdownPortal) {
   }, []);
 
   // Appends/removes `el` based on whether the dropdown is opened or closed
+  const timeout = useRef<NodeJS.Timeout>();
   useEffect(() => {
+    if (timeout.current) clearTimeout(timeout.current);
     if (isOpen) appendEl();
-    else removeEl();
+    else {
+      el.style.transition = 'opacity 240ms';
+      el.style.opacity = '0';
+      timeout.current = setTimeout(() => {
+        if (!isOpen) removeEl();
+      }, 240);
+    }
     return () => {
-      if (!isOpen) removeEl();
+      if (!isOpen) {
+        removeEl();
+        if (timeout.current) clearTimeout(timeout.current);
+      }
     };
   }, [appendEl, el, isOpen, removeEl]);
 

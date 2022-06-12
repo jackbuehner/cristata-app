@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import { MenuItem, MenuList } from '.';
 import { colorShade, colorType } from '../../utils/theme/theme';
 
@@ -24,8 +24,24 @@ interface IMenu {
 }
 
 const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>) => {
+  const initialHeight = props.items.map((item) => item.height || 32).reduce((total, item) => total + item, 0);
+
+  const forwardedRef = (el: HTMLOListElement) => {
+    if (el && typeof ref === 'function') {
+      ref(el);
+      el.classList.remove('open');
+      setTimeout(() => el.classList.add('open'), 10);
+    }
+  };
+
   return (
-    <MenuList top={props.pos.top} left={props.pos.left} width={props.pos.width} ref={ref}>
+    <MenuList
+      top={props.pos.top}
+      left={props.pos.left}
+      width={props.pos.width}
+      ref={forwardedRef}
+      style={{ '--height': initialHeight + 'px' } as React.CSSProperties}
+    >
       {props.items
         // move disabled items to bottom
         .sort((a, b) => {

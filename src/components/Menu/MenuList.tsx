@@ -23,13 +23,21 @@ const MenuListComponent = styled.ul<IMenuListComponent>`
   z-index: 100;
   background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200])};
   box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);
-  padding: 4px 0;
+  padding: 0;
   margin: 0;
   border-radius: ${({ theme }) => theme.radius};
+  height: 0;
+  overflow: hidden;
+  &.open {
+    height: var(--height);
+    padding: 4px 0;
+    transition: height 240ms cubic-bezier(0.1, 0.9, 0.2, 1);
+  }
 `;
 
 interface IMenuList extends IMenuListBase {
   children: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -72,6 +80,7 @@ const MenuList = forwardRef((props: IMenuList, ref: React.ForwardedRef<HTMLOList
       tabIndex={-1}
       onKeyDown={props.onKeyDown ? props.onKeyDown : handleMenuArrowNavigation}
       className={`menu`}
+      style={props.style}
     >
       {React.Children.map(props.children, (child, index) => {
         if (React.isValidElement(child)) {
