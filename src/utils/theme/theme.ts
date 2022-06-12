@@ -108,6 +108,9 @@ const theme = (mode: 'light' | 'dark' = 'light') => ({
     titlebar: {
       height: '0px',
     },
+    appbar: {
+      height: '48px',
+    },
     bottomNav: {
       height: '56px',
       width: '100%',
