@@ -102,9 +102,6 @@ function CollectionPage() {
     searchParams.get('__pageTitle') ||
     // otherwise, build a title using the collection string
     collection.slice(0, 1).toLocaleUpperCase() + collection.slice(1).replace('-', ' ') + ' collection';
-  // set the page description
-  const pageDescription =
-    searchParams.get('__pageCaption') || decodeURIComponent(location.search.slice(1)).split('&').join(' AND ');
   // set the data filter for mongoDB
   const mongoDataFilter = defaultFilter;
 
