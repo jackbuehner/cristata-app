@@ -33,8 +33,10 @@ const BAR_COMPONENT = styled.div<{ theme: themeType; isCustomTitlebarVisible: bo
   height: ${({ theme }) => theme.dimensions.appbar.height};
   width: 100%;
   background-color: ${({ theme, isCustomTitlebarVisible }) => {
-    if (isCustomTitlebarVisible) return theme.color.primary[800];
-    else if (theme.mode === 'light') return Color(theme.color.neutral[theme.mode][100]).string();
+    if (theme.mode === 'light') {
+      if (isCustomTitlebarVisible) return theme.color.primary[800];
+      return Color(theme.color.neutral[theme.mode][100]).string();
+    }
     return Color(theme.color.neutral[theme.mode][200]).darken(0.24).string();
   }};
   border-bottom: 1px solid
@@ -49,7 +51,9 @@ const BAR_COMPONENT = styled.div<{ theme: themeType; isCustomTitlebarVisible: bo
       ? `
           -webkit-app-region: drag;
           app-region: drag;
-          box-shadow: ${Color(theme.color.primary[800])
+          box-shadow: ${Color(
+            theme.mode === 'light' ? theme.color.primary[800] : theme.color.neutral[theme.mode][200]
+          )
             .alpha(0.05)
             .string()} 0px 4px 4px 1px, rgb(0 0 0 / 10%) 0px 8px 16px -4px;
           border-bottom: none;
@@ -69,7 +73,7 @@ const IndeterminateProgress = styled(LinearProgress)<{
   isCustomTitlebarVisible: boolean;
 }>`
   --mdc-theme-primary: ${({ theme, isCustomTitlebarVisible }) =>
-    isCustomTitlebarVisible
+    isCustomTitlebarVisible && theme.mode === 'light'
       ? theme.color.neutral.dark[1200]
       : theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   position: absolute !important;
@@ -77,8 +81,10 @@ const IndeterminateProgress = styled(LinearProgress)<{
   bottom: 1px;
   .mdc-linear-progress__buffer {
     background-color: ${({ theme, isCustomTitlebarVisible }) => {
-      if (isCustomTitlebarVisible) return theme.color.primary[800];
-      else if (theme.mode === 'light') return Color(theme.color.neutral[theme.mode][100]).string();
+      if (theme.mode === 'light') {
+        if (isCustomTitlebarVisible) return theme.color.primary[800];
+        return Color(theme.color.neutral[theme.mode][100]).string();
+      }
       return Color(theme.color.neutral[theme.mode][200]).darken(0.24).string();
     }};
   }

@@ -30,11 +30,25 @@ function Titlebar(props: ITitlebar) {
 
   useEffect(() => {
     // on component mount, set the titlebar theme color to blue
-    document.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`, theme.color.blue[800]);
+    document
+      .querySelector(`meta[name='theme-color']`)
+      ?.setAttribute(
+        `content`,
+        theme.mode === 'light'
+          ? theme.color.blue[800]
+          : Color(theme.color.neutral.dark[100]).lighten(0.5).string()
+      );
     return () =>
       // on unmount, set it back to the primary color
-      document.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`, theme.color.primary[800]);
-  }, [theme.color.blue, theme.color.primary]);
+      document
+        .querySelector(`meta[name='theme-color']`)
+        ?.setAttribute(
+          `content`,
+          theme.mode === 'light'
+            ? theme.color.primary[800]
+            : Color(theme.color.neutral[theme.mode][200]).darken(0.24).string()
+        );
+  }, [theme.color.blue, theme.color.neutral, theme.color.primary, theme.mode]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect?.().x || 0;

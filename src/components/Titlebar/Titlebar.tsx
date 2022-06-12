@@ -1,8 +1,10 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular } from '@fluentui/react-icons';
+import Color from 'color';
 import { useNavigate } from 'react-router-dom';
 import { themeType } from '../../utils/theme/theme';
+import { useEffect } from 'react';
 
 interface ITitlebar {
   title?: string;
@@ -14,6 +16,18 @@ function Titlebar(props: ITitlebar) {
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect?.().x || 0;
+
+  // on component mount, set the titlebar theme
+  useEffect(() => {
+    document
+      .querySelector(`meta[name='theme-color']`)
+      ?.setAttribute(
+        `content`,
+        theme.mode === 'light'
+          ? theme.color.primary[800]
+          : Color(theme.color.neutral[theme.mode][200]).darken(0.24).string()
+      );
+  }, [theme.color.neutral, theme.color.primary, theme.mode]);
 
   return (
     <Wrapper>
@@ -76,7 +90,10 @@ const TITLEBAR = styled.div<{ theme: themeType; offsetX: number }>`
   top: env(titlebar-area-y, 0);
   width: env(titlebar-area-width, 100%);
   height: env(titlebar-area-height, 33px);
-  background-color: ${({ theme }) => theme.color.primary[800]};
+  background-color: ${({ theme }) =>
+    theme.mode === 'light'
+      ? theme.color.primary[800]
+      : Color(theme.color.neutral[theme.mode][200]).darken(0.24).string()};
   -webkit-app-region: drag;
   app-region: drag;
 `;
