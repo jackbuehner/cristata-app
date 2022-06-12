@@ -32,6 +32,7 @@ import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { slugify } from '../../../utils/slugify';
 import { themeType } from '../../../utils/theme/theme';
+import { selectProfile } from '../selectProfile';
 
 function TeamsOverviewPage() {
   const theme = useTheme() as themeType;
@@ -220,7 +221,7 @@ function TeamsOverviewPage() {
         return (
           <Fragment key={0}>
             <Group theme={theme}>
-              <Heading theme={theme}>Teams</Heading>
+              <SectionHeading>Teams</SectionHeading>
               <TeamsGrid>
                 {teams?.map((team, index) => {
                   const members: TEAMS__DOC_TYPE['members'] = Array.from(
@@ -242,7 +243,7 @@ function TeamsOverviewPage() {
             </Group>
             {unassignedUsers && unassignedUsers.length > 0 ? (
               <Group theme={theme}>
-                <Heading theme={theme}>Active users without teams</Heading>
+                <SectionHeading>Active users without teams</SectionHeading>
                 <UsersGrid>
                   {unassignedUsers?.map((user, index) => {
                     const { temporary, expired } = getPasswordStatus(user.flags);
@@ -280,20 +281,6 @@ const Group = styled.div<{ theme: themeType }>`
   font-size: 14px;
   font-weight: 400;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
-`;
-
-const Heading = styled.h1<{ theme: themeType }>`
-  font-family: ${({ theme }) => theme.font.detail};
-  font-size: 18px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
-  margin: 0 0 16px 0;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-  position: sticky;
-  left: 0;
 `;
 
 const TeamsGrid = styled.div`
