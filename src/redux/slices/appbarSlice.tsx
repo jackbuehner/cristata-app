@@ -19,6 +19,8 @@ interface Action {
   color?: colorType;
   disabled?: boolean;
   'data-tip'?: string;
+  showChevron?: boolean;
+  flipChevron?: boolean;
 }
 
 const initialState: AppbarState = {

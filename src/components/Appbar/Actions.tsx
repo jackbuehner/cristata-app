@@ -17,7 +17,21 @@ function Actions(props: ActionsProps) {
     <>
       <ACTIONS_WRAPPER_COMPONENT theme={theme}>
         {props.actions?.map(
-          ({ label, type, icon: Icon, action, onAuxClick, color, disabled, 'data-tip': dataTip }, index) => {
+          (
+            {
+              label,
+              type,
+              icon: Icon,
+              action,
+              onAuxClick,
+              color,
+              disabled,
+              'data-tip': dataTip,
+              showChevron,
+              flipChevron,
+            },
+            index
+          ) => {
             if (type === 'icon' && Icon) {
               return (
                 <IconButton
@@ -45,6 +59,8 @@ function Actions(props: ActionsProps) {
                 data-effect={'solid'}
                 data-place={'bottom'}
                 data-offset={`{ 'bottom': 4 }`}
+                showChevron={showChevron}
+                flipChevron={flipChevron}
               >
                 {label}
               </Button>
