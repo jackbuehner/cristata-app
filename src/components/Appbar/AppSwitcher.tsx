@@ -71,8 +71,8 @@ function AppSwitcher(props: AppSwitcherProps) {
       <div
         style={{
           marginLeft: 20,
-          paddingLeft: 20,
-          height: '30',
+          paddingLeft: window.name === '' ? 20 : 0,
+          height: 30,
           borderLeft:
             props.actions.length > 0
               ? `1px solid ${
@@ -85,41 +85,43 @@ function AppSwitcher(props: AppSwitcherProps) {
           alignItems: 'center',
         }}
       >
-        {props.actions.length > 0 ? (
-          <IconButton
-            icon={<AppFolder20Regular />}
-            onClick={showDropdown}
-            color={props.color}
-            data-tip={'View all Cristata apps'}
-            data-delay-show={0}
-            data-effect={'solid'}
-            data-place={'bottom'}
-            data-offset={`{ 'bottom': 4 }`}
-            forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
-            cssExtra={css`
-              -webkit-app-region: no-drag;
-              app-region: no-drag;
-            `}
-          />
-        ) : (
-          <Button
-            icon={<AppFolder20Regular />}
-            onClick={showDropdown}
-            color={props.color}
-            data-tip={'View all Cristata apps'}
-            data-delay-show={0}
-            data-effect={'solid'}
-            data-place={'bottom'}
-            data-offset={`{ 'bottom': 4 }`}
-            forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
-            cssExtra={css`
-              -webkit-app-region: no-drag;
-              app-region: no-drag;
-            `}
-          >
-            Apps
-          </Button>
-        )}
+        {window.name === '' ? (
+          props.actions.length > 0 ? (
+            <IconButton
+              icon={<AppFolder20Regular />}
+              onClick={showDropdown}
+              color={props.color}
+              data-tip={'View all Cristata apps'}
+              data-delay-show={0}
+              data-effect={'solid'}
+              data-place={'bottom'}
+              data-offset={`{ 'bottom': 4 }`}
+              forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
+              cssExtra={css`
+                -webkit-app-region: no-drag;
+                app-region: no-drag;
+              `}
+            />
+          ) : (
+            <Button
+              icon={<AppFolder20Regular />}
+              onClick={showDropdown}
+              color={props.color}
+              data-tip={'View all Cristata apps'}
+              data-delay-show={0}
+              data-effect={'solid'}
+              data-place={'bottom'}
+              data-offset={`{ 'bottom': 4 }`}
+              forcedThemeMode={isCustomTitlebarVisible ? 'dark' : undefined}
+              cssExtra={css`
+                -webkit-app-region: no-drag;
+                app-region: no-drag;
+              `}
+            >
+              Apps
+            </Button>
+          )
+        ) : null}
       </div>
     </div>
   );

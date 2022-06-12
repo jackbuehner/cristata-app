@@ -73,18 +73,20 @@ function AccountMenu(props: AccountMenuProps) {
                     {profile?.email}
                   </span>
                   <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
-                    <Button
-                      icon={<Person24Regular />}
-                      cssExtra={css`
-                        font-weight: 400;
-                        background-color: transparent;
-                      `}
-                      onClick={() => {
-                        navigate(`/profile/${profile?._id}`);
-                      }}
-                    >
-                      View profile
-                    </Button>
+                    {window.name === '' ? (
+                      <Button
+                        icon={<Person24Regular />}
+                        cssExtra={css`
+                          font-weight: 400;
+                          background-color: transparent;
+                        `}
+                        onClick={() => {
+                          navigate(`/profile/${profile?._id}`);
+                        }}
+                      >
+                        View profile
+                      </Button>
+                    ) : null}
                     <Button
                       icon={<SignOut24Regular />}
                       cssExtra={css`
