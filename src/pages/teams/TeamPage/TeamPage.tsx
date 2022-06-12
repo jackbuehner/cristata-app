@@ -16,18 +16,17 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button, IconButton } from '../../../components/Button';
+import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
+import { SectionHeading } from '../../../components/Heading';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { Spinner } from '../../../components/Loading';
 import { Menu } from '../../../components/Menu';
 import { PlainModal } from '../../../components/Modal';
-import { PageHead } from '../../../components/PageHead';
 import { MultiSelect } from '../../../components/Select';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
-import { selectProfile } from '../selectProfile';
 import {
   DEACTIVATE_USER,
   DEACTIVATE_USER__TYPE,
@@ -41,13 +40,16 @@ import {
 } from '../../../graphql/queries';
 import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
+import { selectProfile } from '../selectProfile';
 import { UsersGrid } from '../TeamsOverviewPage/TeamsOverviewPage';
 
 function TeamPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
@@ -76,6 +78,9 @@ function TeamPage() {
 
   // track loading state
   const isLoading = loading || networkStatus === NetworkStatus.refetch;
+  useEffect(() => {
+    dispatch(setAppLoading(isLoading));
+  }, [dispatch, isLoading]);
 
   // get the permissions for teams
   const { data: permissionsData } = useQuery(
@@ -630,31 +635,38 @@ function TeamPage() {
     );
   }, [isDeactivateChecked, modalUser, team]);
 
+  // configure app bar
+  useEffect(() => {
+    // set name
+    dispatch(setAppName('Teams'));
+    // set actions
+    dispatch(
+      setAppActions([
+        {
+          label: 'Manage team',
+          type: 'button',
+          icon: Settings24Regular,
+          action: showManageModal,
+        },
+        {
+          label: 'More team tools',
+          type: 'icon',
+          icon: MoreHorizontal24Regular,
+          action: showToolsDropdown,
+          onAuxClick: () => refetch(),
+        },
+      ])
+    );
+  }, [dispatch, refetch, showManageModal, showToolsDropdown]);
+
   return (
     <>
-      <PageHead
-        title={team?.name || `Team`}
-        description={`${allMembers.length} members`}
-        isLoading={isLoading}
-        buttons={
-          <>
-            <Button icon={<Settings24Regular />} onClick={showManageModal}>
-              Manage
-            </Button>
-            <IconButton
-              icon={<MoreHorizontal24Regular />}
-              onClick={showToolsDropdown}
-              onAuxClick={() => refetch()}
-            />
-          </>
-        }
-      />
       {[[]].map(() => {
         if (loading && !data) {
           // initial load only
           return (
             <ContentWrapper theme={theme} key={0}>
-              <p>Loading teams...</p>
+              <p>Loading team...</p>
             </ContentWrapper>
           );
         }
@@ -662,7 +674,7 @@ function TeamPage() {
         if (error) {
           return (
             <ContentWrapper theme={theme} key={0}>
-              <h2>Error loading teams.</h2>
+              <h2>Error loading team.</h2>
               <pre>{error.name}</pre>
               <pre>{error.message}</pre>
             </ContentWrapper>
@@ -671,6 +683,7 @@ function TeamPage() {
 
         return (
           <ContentWrapper theme={theme} key={0}>
+            <SectionHeading>{team?.name || `Team`}</SectionHeading>
             <UsersGrid>
               {allMembers.map((user, index) => {
                 const isOrganizer =

@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { PageHead } from '../../components/PageHead';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { setAppName, setAppActions } from '../../redux/slices/appbarSlice';
 import { setQuery, setSchema } from '../../redux/slices/graphiqlSlice';
 import { server } from '../../utils/constants';
 import { themeType } from '../../utils/theme/theme';
@@ -67,6 +68,12 @@ function Playground({ setThemeMode }: PlaygroundProps) {
       setThemeMode(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     };
   }, [location, setThemeMode]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName('API'));
+    dispatch(setAppActions([]));
+  }, [dispatch]);
 
   return (
     <div style={{ overflow: 'hidden', height: '100%' }}>

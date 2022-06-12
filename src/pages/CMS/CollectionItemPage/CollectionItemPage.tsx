@@ -14,7 +14,6 @@ import pluralize from 'pluralize';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
-import { Button, IconButton } from '../../../components/Button';
 import {
   Checkbox,
   DateTime,
@@ -27,7 +26,6 @@ import {
   Text,
 } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
-import { PageHead } from '../../../components/PageHead';
 import { Tiptap } from '../../../components/Tiptap';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
@@ -35,6 +33,7 @@ import {
   DeconstructedSchemaDefType,
 } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { server } from '../../../utils/constants';
@@ -202,6 +201,41 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           },
     previewUrl: options?.previewUrl,
   };
+
+  // keep loading state synced
+  useEffect(() => {
+    dispatch(setAppLoading(loading));
+  }, [dispatch, loading]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName(title.replace(' - Cristata', '')));
+    dispatch(
+      setAppActions([
+        ...quickActions.map((action, index) => {
+          const Icon = () => {
+            return <span>{action.icon}</span>;
+          };
+          return {
+            label: action.label,
+            type: action.type,
+            icon: Icon,
+            action: action.action,
+            color: action.color,
+            disabled: action.disabled,
+            'data-tip': action['data-tip'],
+          };
+        }),
+        {
+          label: 'More actions',
+          type: 'icon',
+          icon: MoreHorizontal24Regular,
+          action: showActionDropdown,
+          onAuxClick: () => refetch(),
+        },
+      ])
+    );
+  }, [dispatch, quickActions, refetch, showActionDropdown, title]);
 
   if (schemaDef) {
     // go through the schemaDef and convert JSON types with mutliple fields to individual fields
@@ -778,37 +812,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         {!props.isEmbedded && (fs === 'force' || fs === '1') ? (
           <FullScreenSplash isLoading={itemState.isLoading && !hasLoadedAtLeastOnce} />
         ) : null}
-        {props.isEmbedded ? null : (
-          <PageHead
-            title={title.replace(' - Cristata', '')}
-            buttons={
-              <>
-                {quickActions.map((action, index) => {
-                  return (
-                    <span data-tip={action['data-tip']} key={index}>
-                      <Button
-                        onClick={action.action}
-                        icon={action.icon}
-                        color={action.color}
-                        disabled={action.disabled}
-                        data-tip={action['data-tip']}
-                      >
-                        {action.label}
-                      </Button>
-                    </span>
-                  );
-                })}
-                <IconButton
-                  onClick={showActionDropdown}
-                  onAuxClick={() => refetch()}
-                  icon={<MoreHorizontal24Regular />}
-                  data-tip={'More actions'}
-                />
-              </>
-            }
-            isLoading={itemState.isLoading}
-          />
-        )}
         {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>

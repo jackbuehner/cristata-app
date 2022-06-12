@@ -160,7 +160,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   ]);
 
   // whether inactive users should be hidden
-  const [hideInactive, setHideInactive] = useState<boolean>(true);
+  const [hideInactive, setHideInactive] = useState<boolean>(false);
 
   // sidenav header dropdown
   const [showMainDropdown] = useDropdown(
@@ -169,7 +169,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
         <Menu
           ref={dropdownRef}
           pos={{
-            top: triggerRect.bottom,
+            top: triggerRect.top - 8 - 3 * 32,
             left: triggerRect.left + triggerRect.width - 240,
             width: 240,
           }}
@@ -208,12 +208,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     }
   }, [authUserState._id, location, navigate]);
 
-  if (loading && !data)
-    return (
-      <>
-        <SideNavHeading isLoading>Profiles</SideNavHeading>
-      </>
-    );
+  if (loading && !data) return <></>;
   if (error) {
     console.error(error);
     return (
@@ -232,25 +227,11 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
 
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <SideNavHeading isLoading={networkStatus === NetworkStatus.refetch}>
-          Profiles
-          <Button
-            cssExtra={css`
-              position: absolute;
-              top: 8px;
-              right: 10px;
-            `}
-            onClick={showMainDropdown}
-            onAuxClick={() => refetch()}
-            showChevron
-          >
-            Options
-          </Button>
-        </SideNavHeading>
         <div
           style={{
             overflow: 'auto',
             flexGrow: 1,
+            padding: '20px 0',
           }}
           ref={SideNavRef}
         >
@@ -289,7 +270,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                       css={css`
                         width: 36px;
                         height: 36px;
-                        border-radius: ${theme.radius};
+                        border-radius: 50%;
                         ${profile.retired ? `filter: grayscale(1); opacity: 0.7;` : ``}
                       `}
                     />
@@ -353,6 +334,25 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
               <Spinner theme={theme} />
             </div>
           ) : null}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: 56,
+            flexShrink: 0,
+            padding: '0 20px',
+            borderTop: `1px solid ${
+              theme.mode === 'light' ? theme.color.neutral.light[300] : theme.color.neutral.dark[200]
+            }`,
+          }}
+        >
+          {loading || networkStatus === NetworkStatus.refetch ? <Spinner theme={theme} /> : <div></div>}
+          <Button onClick={showMainDropdown} onAuxClick={() => refetch()} showChevron flipChevron>
+            Options
+          </Button>
         </div>
       </div>
     );

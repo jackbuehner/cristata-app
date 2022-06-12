@@ -2,12 +2,13 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
-import { IconButton } from '../../../components/Button';
-import { PageHead } from '../../../components/PageHead';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { formatISODate } from '../../../utils/formatISODate';
 import { themeType } from '../../../utils/theme/theme';
 import { useGetServiceUsage } from './useGetServiceUsage';
 function BillingServiceUsagePage() {
+  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const [data, loading, error, refetch] = useGetServiceUsage(6, 2022);
 
@@ -16,18 +17,28 @@ function BillingServiceUsagePage() {
     document.title = `Service usage`;
   }, []);
 
+  // keep loading state synced
+  useEffect(() => {
+    dispatch(setAppLoading(loading));
+  }, [dispatch, loading]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName('Service usage'));
+    dispatch(
+      setAppActions([
+        {
+          label: 'Refresh data',
+          type: 'icon',
+          icon: ArrowClockwise24Regular,
+          action: () => refetch(),
+        },
+      ])
+    );
+  }, [dispatch, refetch]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <PageHead
-        title={'Service usage'}
-        isLoading={loading}
-        buttons={
-          <>
-            <IconButton icon={<ArrowClockwise24Regular />} data-tip={`Reload`} onClick={() => refetch()} />
-          </>
-        }
-      />
-
       {error ? (
         <pre>{JSON.stringify(error, null, 2)}</pre>
       ) : data ? (

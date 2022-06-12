@@ -1,9 +1,10 @@
 import { gql, useQuery } from '@apollo/client';
-import { ArrowClockwise16Regular, Open24Regular } from '@fluentui/react-icons';
-import { useState } from 'react';
-import { IconButton } from '../../components/Button';
+import { ArrowClockwise20Regular } from '@fluentui/react-icons';
+import Open20Regular from '@fluentui/react-icons/lib/cjs/components/Open20Regular';
+import { useEffect, useState } from 'react';
 import { Spinner } from '../../components/Loading';
-import { PageHead } from '../../components/PageHead';
+import { useAppDispatch } from '../../redux/hooks';
+import { setAppActions, setAppName } from '../../redux/slices/appbarSlice';
 
 function FathomEmbed() {
   const [count, setCount] = useState<number>(0);
@@ -16,29 +17,32 @@ function FathomEmbed() {
 
   const { data } = useQuery<{ fathomDashboard: string }>(URL_QUERY);
 
+  // configure app bar
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    // set name
+    dispatch(setAppName('Fathom Analytics'));
+    // set actions
+    dispatch(
+      setAppActions([
+        {
+          label: 'Refresh frame',
+          type: 'icon',
+          icon: ArrowClockwise20Regular,
+          action: () => setCount((count) => count + 1),
+        },
+        {
+          label: 'Open in new window',
+          type: 'icon',
+          icon: Open20Regular,
+          action: () => window.open(data?.fathomDashboard, 'fathom', 'width=1200,height=800'),
+        },
+      ])
+    );
+  }, [data?.fathomDashboard, dispatch]);
+
   return (
     <div style={{ overflow: 'hidden', height: '100%' }}>
-      <PageHead
-        title={'Fathom Analytics'}
-        description={'thepaladin.news'}
-        buttons={
-          data?.fathomDashboard ? (
-            <>
-              <IconButton onClick={() => setCount((count) => count + 1)} icon={<ArrowClockwise16Regular />}>
-                Refresh frame
-              </IconButton>
-              <IconButton
-                onClick={() => window.open(data?.fathomDashboard, 'fathom', 'width=1200,height=800')}
-                icon={<Open24Regular />}
-              >
-                Open Externally
-              </IconButton>
-            </>
-          ) : (
-            <></>
-          )
-        }
-      />
       <div
         style={{
           width: 'calc(100% - 80px)',
@@ -57,7 +61,7 @@ function FathomEmbed() {
         key={count}
         title={'fathom'}
         src={data?.fathomDashboard}
-        style={{ width: '100%', height: 'calc(100% - 64px)', border: 'none', zIndex: 1, position: 'relative' }}
+        style={{ width: '100%', height: '100%', border: 'none', zIndex: 1, position: 'relative' }}
       />
     </div>
   );

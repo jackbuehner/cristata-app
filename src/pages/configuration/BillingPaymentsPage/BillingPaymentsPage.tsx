@@ -1,14 +1,17 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { useEffect, useState } from 'react';
 import { Button } from '../../../components/Button';
-import { PageHead } from '../../../components/PageHead';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
 import { server } from '../../../utils/constants';
 import { themeType } from '../../../utils/theme/theme';
 import { useGetBillingStatus } from './useGetBillingStatus';
 
 function BillingPaymentsPage() {
-  const [data, loading, error] = useGetBillingStatus();
+  const dispatch = useAppDispatch();
+  const [data, loading, error, refetch] = useGetBillingStatus();
   const [message, setMessage] = useState('');
   let [success, setSuccess] = useState(false);
 
@@ -27,9 +30,28 @@ function BillingPaymentsPage() {
     document.title = `Payments & invoices`;
   }, []);
 
+  // keep loading state synced
+  useEffect(() => {
+    dispatch(setAppLoading(loading));
+  }, [dispatch, loading]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName('Payments & invoices'));
+    dispatch(
+      setAppActions([
+        {
+          label: 'Refresh data',
+          type: 'icon',
+          icon: ArrowClockwise24Regular,
+          action: () => refetch(),
+        },
+      ])
+    );
+  }, [dispatch, refetch]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <PageHead title={'Payments & invoices'} isLoading={loading} />
       <div style={{ padding: 20 }}>
         {
           // show the error if there is one

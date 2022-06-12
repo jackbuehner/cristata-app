@@ -3,21 +3,19 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { PeopleAdd16Regular } from '@fluentui/react-icons';
 import mongoose from 'mongoose';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button } from '../../../components/Button';
+import { SectionHeading } from '../../../components/Heading';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { PlainModal } from '../../../components/Modal';
-import { PageHead } from '../../../components/PageHead';
 import { MultiSelect } from '../../../components/Select';
 import { TeamCard } from '../../../components/TeamCard';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
-import { selectProfile } from '../selectProfile';
 import {
   CREATE_TEAM,
   CREATE_TEAM__TYPE,
@@ -27,7 +25,8 @@ import {
   TEAM_UNASSIGNED_USERS,
   TEAM_UNASSIGNED_USERS__TYPE,
 } from '../../../graphql/queries';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { slugify } from '../../../utils/slugify';
@@ -35,6 +34,7 @@ import { themeType } from '../../../utils/theme/theme';
 import { selectProfile } from '../selectProfile';
 
 function TeamsOverviewPage() {
+  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const client = useApolloClient();
@@ -178,21 +178,29 @@ function TeamsOverviewPage() {
     networkStatusTeams === NetworkStatus.refetch ||
     loadingUA ||
     networkStatusUA === NetworkStatus.refetch;
+  useEffect(() => {
+    dispatch(setAppLoading(isLoading));
+  }, [dispatch, isLoading]);
+
+  // configure app bar
+  useEffect(() => {
+    // set name
+    dispatch(setAppName('Teams'));
+    // set actions
+    dispatch(
+      setAppActions([
+        {
+          label: 'New team',
+          type: 'button',
+          icon: PeopleAdd16Regular,
+          action: () => showCreateModal(),
+        },
+      ])
+    );
+  }, [dispatch, showCreateModal]);
 
   return (
     <>
-      <PageHead
-        title={`Teams`}
-        description={`Group users to give access to features and manage team members.`}
-        buttons={
-          <>
-            <Button onClick={showCreateModal} icon={<PeopleAdd16Regular />}>
-              New team
-            </Button>
-          </>
-        }
-        isLoading={isLoading}
-      />
       {[[]].map(() => {
         if (loadingTeams) {
           return <p key={0}>Loading teams...</p>;

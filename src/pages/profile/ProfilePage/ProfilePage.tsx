@@ -15,7 +15,6 @@ import { Chip } from '../../../components/Chip';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { PlainModal } from '../../../components/Modal';
-import { PageHead } from '../../../components/PageHead';
 import { TextArea } from '../../../components/TextArea';
 import { TextInput } from '../../../components/TextInput';
 import {
@@ -28,7 +27,8 @@ import {
   REINVITE_USER,
   REINVITE_USER__TYPE,
 } from '../../../graphql/queries';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
@@ -37,6 +37,7 @@ function ProfilePage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const authUserState = useAppSelector((state) => state.authUser);
+  const dispatch = useAppDispatch();
   const client = useApolloClient();
 
   // get the url parameters from the route
@@ -305,37 +306,46 @@ function ProfilePage() {
       });
   };
 
+  // keep loading state synced
+  useEffect(() => {
+    dispatch(setAppLoading(loading));
+  }, [dispatch, loading]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName('Profiles'));
+    dispatch(
+      setAppActions([
+        canEdit
+          ? {
+              label: 'Edit',
+              type: isSelf ? 'icon' : 'button',
+              icon: Edit20Regular,
+              action: showEditModal,
+              disabled: !canEdit,
+            }
+          : null,
+        isSelf
+          ? {
+              label: 'Change password',
+              type: 'button',
+              icon: Key20Regular,
+              action: () => {
+                navigate('/sign-in', {
+                  state: {
+                    step: 'change_password',
+                    username: profile?.email,
+                  },
+                });
+              },
+            }
+          : null,
+      ])
+    );
+  }, [canEdit, dispatch, isSelf, navigate, profile?.email, showEditModal]);
+
   return (
     <>
-      <PageHead
-        title={`Profile: ${profile?.name || `Profile viewer`}`}
-        description={profile?.email || `contact@thepaladin.news`}
-        isLoading={loading}
-        buttons={
-          <>
-            {canEdit ? (
-              <Button onClick={showEditModal} icon={<Edit20Regular />}>
-                Edit
-              </Button>
-            ) : null}
-            {isSelf ? (
-              <Button
-                onClick={() => {
-                  navigate('/sign-in', {
-                    state: {
-                      step: 'change_password',
-                      username: profile?.email,
-                    },
-                  });
-                }}
-                icon={<Key20Regular />}
-              >
-                Change pasword
-              </Button>
-            ) : null}
-          </>
-        }
-      />
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
           {profile?.retired ? (
@@ -483,7 +493,7 @@ const TopBox = styled.div`
   display: grid;
   grid-template-columns: 92px 1fr;
   gap: 20px;
-  margin: 20px 0px 0px;
+  margin: 0;
   align-items: center;
 `;
 
@@ -491,7 +501,7 @@ const Photo = styled.img<{ theme: themeType; retired: boolean }>`
   width: 92px;
   height: 92px;
   border: 0px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
-  border-radius: ${({ theme }) => theme.radius};
+  border-radius: 50%;
   ${({ retired }) => (retired ? `filter: grayscale(1); opacity: 0.7;` : ``)}
   &:hover {
     ${({ retired }) => (retired ? `filter: grayscale(0); opacity: 1;` : ``)}

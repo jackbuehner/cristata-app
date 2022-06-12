@@ -23,8 +23,11 @@ import { useQuery } from '@apollo/client';
 import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
 import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
 import { useDashboardConfig } from '../../hooks/useDashboardConfig';
+import { useAppDispatch } from '../../redux/hooks';
+import { setAppName, setAppActions } from '../../redux/slices/appbarSlice';
 
 function HomePage() {
+  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
 
   const { data: workflowStagesAll } = useQuery<STAGE_COUNTS__TYPE>(STAGE_COUNTS, { fetchPolicy: 'no-cache' });
@@ -44,6 +47,12 @@ function HomePage() {
   }, []);
 
   const [collectionRowsConfig] = useDashboardConfig('collectionRows');
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName('Home'));
+    dispatch(setAppActions([]));
+  }, [dispatch]);
 
   return (
     <Grid theme={theme}>

@@ -15,7 +15,7 @@ function useGetServiceUsage(
   });
   const loading = res.loading || res.networkStatus === NetworkStatus.refetch;
 
-  if (res.data?.billing.usage.api) {
+  if (res.data?.billing?.usage?.api) {
     return [res.data.billing, loading, res.error, () => res.refetch()];
   }
 

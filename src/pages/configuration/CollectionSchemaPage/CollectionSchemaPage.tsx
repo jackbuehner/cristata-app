@@ -7,12 +7,13 @@ import { type editor } from 'monaco-editor';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Button, IconButton } from '../../../components/Button';
-import { PageHead } from '../../../components/PageHead';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { cristataCodeDarkTheme } from '../cristataCodeDarkTheme';
 import { useGetRawConfig } from './useGetRawConfig';
 
 function CollectionSchemaPage() {
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const client = useApolloClient();
   const { collection } = useParams() as { collection: string };
@@ -49,58 +50,65 @@ function CollectionSchemaPage() {
     });
   };
 
+  // keep loading state synced
+  useEffect(() => {
+    dispatch(setAppLoading(loading));
+  }, [dispatch, loading]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName('Configure collection'));
+    dispatch(
+      setAppActions([
+        {
+          label: 'Refresh data',
+          type: 'icon',
+          icon: ArrowClockwise24Regular,
+          action: () => refetch(),
+          'data-tip': `Discard changes and refresh`,
+        },
+        {
+          label: 'Save',
+          type: 'button',
+          icon: Save24Regular,
+          action: () => {
+            // format on save
+            editorRef.current?.trigger('editor', 'editor.action.formatDocument', null);
+
+            // save
+            const value = editorRef.current
+              ? (JSON.parse(editorRef.current?.getValue()) as Collection)
+              : undefined;
+            if (value) {
+              console.log(saveMutationString(collection, value));
+              setLoading(true);
+              client
+                .mutate<SaveMutationType>({ mutation: saveMutationString(collection, value) })
+                .finally(() => {
+                  setLoading(false);
+                })
+                .then(({ data }) => {
+                  if (data?.setRawConfigurationCollection) {
+                    editorRef.current?.setValue(
+                      JSON.stringify(JSON.parse(data.setRawConfigurationCollection), null, 2)
+                    );
+                  }
+                })
+                .catch((error) => {
+                  console.error(error);
+                  toast.error(`Failed to save. \n ${error.message}`);
+                  return false;
+                });
+            }
+          },
+          disabled: hasErrors,
+        },
+      ])
+    );
+  }, [client, collection, dispatch, hasErrors, refetch]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <PageHead
-        title={'Configure collection'}
-        description={collection}
-        isLoading={loading}
-        buttons={
-          <>
-            <IconButton
-              icon={<ArrowClockwise24Regular />}
-              data-tip={`Discard changes and refresh`}
-              onClick={() => refetch()}
-            />
-            <Button
-              icon={<Save24Regular />}
-              disabled={loading || hasErrors}
-              onClick={() => {
-                // format on save
-                editorRef.current?.trigger('editor', 'editor.action.formatDocument', null);
-
-                // save
-                const value = editorRef.current
-                  ? (JSON.parse(editorRef.current?.getValue()) as Collection)
-                  : undefined;
-                if (value) {
-                  console.log(saveMutationString(collection, value));
-                  setLoading(true);
-                  client
-                    .mutate<SaveMutationType>({ mutation: saveMutationString(collection, value) })
-                    .finally(() => {
-                      setLoading(false);
-                    })
-                    .then(({ data }) => {
-                      if (data?.setRawConfigurationCollection) {
-                        editorRef.current?.setValue(
-                          JSON.stringify(JSON.parse(data.setRawConfigurationCollection), null, 2)
-                        );
-                      }
-                    })
-                    .catch((error) => {
-                      console.error(error);
-                      toast.error(`Failed to save. \n ${error.message}`);
-                      return false;
-                    });
-                }
-              }}
-            >
-              Save
-            </Button>
-          </>
-        }
-      />
       {raw ? (
         <Editor
           defaultLanguage={`json`}

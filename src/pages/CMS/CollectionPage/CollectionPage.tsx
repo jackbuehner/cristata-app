@@ -5,11 +5,11 @@ import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
-import { Button } from '../../../components/Button';
 import { Menu } from '../../../components/Menu';
-import { PageHead } from '../../../components/PageHead';
 import { mongoFilterType } from '../../../graphql/client';
 import { useDropdown } from '../../../hooks/useDropdown';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { isJSON } from '../../../utils/isJSON';
@@ -53,7 +53,7 @@ const TableWrapper = styled.div<{ theme?: themeType }>`
   position: relative;
   padding: 20px;
   overflow: hidden;
-  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
+  height: 100%;
   @media (max-width: 600px) {
     height: ${({ theme }) =>
       `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
@@ -62,6 +62,7 @@ const TableWrapper = styled.div<{ theme?: themeType }>`
 `;
 
 function CollectionPage() {
+  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const location = useLocation();
@@ -163,37 +164,46 @@ function CollectionPage() {
   const [lastSelectedId, setLastSelectedId] = useState<string>();
 
   const tableRef = useRef<ICollectionTableImperative>(null);
+
+  // keep loading state synced
+  useEffect(() => {
+    dispatch(setAppLoading(isLoading));
+  }, [dispatch, isLoading]);
+
+  // configure app bar
+  useEffect(() => {
+    dispatch(setAppName(pageTitle));
+    dispatch(
+      setAppActions([
+        {
+          label: 'Create new',
+          type: 'button',
+          action: createNew,
+        },
+        {
+          label: 'Tools',
+          type: 'button',
+          action: (e) => {
+            // refetch data on shift click
+            if (e.ctrlKey || e.metaKey) tableRef.current?.refetchData();
+            // otherwise, open dropdown
+            else showToolsDropdown(e);
+          },
+          onAuxClick: ({ button }) => {
+            // refetch data on middle click
+            if (button === 1) tableRef.current?.refetchData();
+          },
+          'data-tip': `${
+            // @ts-expect-error userAgentData exists
+            navigator.userAgentData?.platform === 'macOS' ? 'cmd' : 'ctrl'
+          } + click to refresh data`,
+          showChevron: true,
+        },
+      ])
+    );
+  }, [createNew, dispatch, pageTitle, showToolsDropdown]);
   return (
     <>
-      <PageHead
-        title={pageTitle}
-        description={pageDescription}
-        isLoading={isLoading}
-        buttons={
-          <>
-            <Button onClick={createNew}>Create new</Button>
-            <Button
-              onClick={(e) => {
-                // refetch data on shift click
-                if (e.ctrlKey || e.metaKey) tableRef.current?.refetchData();
-                // otherwise, open dropdown
-                else showToolsDropdown(e);
-              }}
-              onAuxClick={({ button }) => {
-                // refetch data on middle click
-                if (button === 1) tableRef.current?.refetchData();
-              }}
-              data-tip={`${
-                // @ts-expect-error userAgentData exists
-                navigator.userAgentData?.platform === 'macOS' ? 'cmd' : 'ctrl'
-              } + click to refresh data`}
-              showChevron
-            >
-              Tools
-            </Button>
-          </>
-        }
-      />
       <TableWrapper theme={theme}>
         <CollectionTable
           collection={collectionName}
