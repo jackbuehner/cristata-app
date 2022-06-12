@@ -7,7 +7,7 @@ export interface AppbarState {
   icon?: React.ComponentType;
   color: colorType;
   actions: Action[];
-  loading: boolean;
+  loading: boolean | number;
 }
 
 interface Action {
@@ -46,7 +46,7 @@ export const appbarSlice = createSlice({
     setAppActions: (state, action: PayloadAction<(Action | null)[]>) => {
       state.actions = action.payload.filter((action): action is Action => !!action);
     },
-    setAppLoading: (state, action: PayloadAction<boolean>) => {
+    setAppLoading: (state, action: PayloadAction<boolean | number>) => {
       state.loading = action.payload;
     },
   },

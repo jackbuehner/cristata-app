@@ -6,7 +6,7 @@ import { themeType } from '../../utils/theme/theme';
 
 interface BarProps {
   children?: React.ReactNode;
-  loading?: boolean;
+  loading?: boolean | number;
 }
 
 function Bar(props: BarProps) {
@@ -21,7 +21,11 @@ function Bar(props: BarProps) {
         {props.children}
       </BAR_COMPONENT>
       {props.loading ? (
-        <IndeterminateProgress theme={theme} isCustomTitlebarVisible={isCustomTitlebarVisible} />
+        <IndeterminateProgress
+          theme={theme}
+          isCustomTitlebarVisible={isCustomTitlebarVisible}
+          progress={typeof props.loading === 'number' ? props.loading : undefined}
+        />
       ) : null}
     </div>
   );
@@ -89,7 +93,7 @@ const IndeterminateProgress = styled(LinearProgress)<{
     }};
   }
   .mdc-linear-progress__buffering-dots {
-    filter: ${({ theme }) => `invert(${theme.mode === 'light' ? 0 : 1})`};
+    filter: invert(0.5);
   }
 `;
 
