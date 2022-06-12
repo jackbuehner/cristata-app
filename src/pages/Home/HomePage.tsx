@@ -24,7 +24,7 @@ import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
 import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
 import { useDashboardConfig } from '../../hooks/useDashboardConfig';
 import { useAppDispatch } from '../../redux/hooks';
-import { setAppName, setAppActions } from '../../redux/slices/appbarSlice';
+import { setAppName, setAppActions, setAppLoading } from '../../redux/slices/appbarSlice';
 
 function HomePage() {
   const dispatch = useAppDispatch();
@@ -52,6 +52,7 @@ function HomePage() {
   useEffect(() => {
     dispatch(setAppName('Home'));
     dispatch(setAppActions([]));
+    dispatch(setAppLoading(false));
   }, [dispatch]);
 
   return (

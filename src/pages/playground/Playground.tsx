@@ -11,7 +11,7 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
 import { PageHead } from '../../components/PageHead';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { setAppName, setAppActions } from '../../redux/slices/appbarSlice';
+import { setAppName, setAppActions, setAppLoading } from '../../redux/slices/appbarSlice';
 import { setQuery, setSchema } from '../../redux/slices/graphiqlSlice';
 import { server } from '../../utils/constants';
 import { themeType } from '../../utils/theme/theme';
@@ -73,6 +73,7 @@ function Playground({ setThemeMode }: PlaygroundProps) {
   useEffect(() => {
     dispatch(setAppName('API'));
     dispatch(setAppActions([]));
+    dispatch(setAppLoading(false));
   }, [dispatch]);
 
   return (

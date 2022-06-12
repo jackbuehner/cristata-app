@@ -4,7 +4,7 @@ import Open20Regular from '@fluentui/react-icons/lib/cjs/components/Open20Regula
 import { useEffect, useState } from 'react';
 import { Spinner } from '../../components/Loading';
 import { useAppDispatch } from '../../redux/hooks';
-import { setAppActions, setAppName } from '../../redux/slices/appbarSlice';
+import { setAppActions, setAppLoading, setAppName } from '../../redux/slices/appbarSlice';
 
 function FathomEmbed() {
   const [count, setCount] = useState<number>(0);
@@ -20,9 +20,8 @@ function FathomEmbed() {
   // configure app bar
   const dispatch = useAppDispatch();
   useEffect(() => {
-    // set name
     dispatch(setAppName('Fathom Analytics'));
-    // set actions
+    dispatch(setAppLoading(false));
     dispatch(
       setAppActions([
         {
