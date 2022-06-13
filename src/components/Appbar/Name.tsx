@@ -17,9 +17,6 @@ function Name(props: NameProps) {
       <NAME_COMPONENT theme={theme} isCustomTitlebarVisible={isCustomTitlebarVisible}>
         {props.children}
       </NAME_COMPONENT>
-      <BRAND_COMPONENT theme={theme} isCustomTitlebarVisible={isCustomTitlebarVisible}>
-        by Cristata
-      </BRAND_COMPONENT>
     </WRAPPER_COMPONENET>
   );
 }
@@ -28,11 +25,12 @@ const WRAPPER_COMPONENET = styled.div`
   display: flex;
   flex-grow: 0;
   flex-shrink: 1;
-  flex-wrap: wrap;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  flex-wrap: no-wrap;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
   user-select: none;
+  overflow: hidden;
 `;
 
 const NAME_COMPONENT = styled.h1<{ theme: themeType; isCustomTitlebarVisible: boolean }>`
@@ -43,9 +41,12 @@ const NAME_COMPONENT = styled.h1<{ theme: themeType; isCustomTitlebarVisible: bo
   color: ${({ theme, isCustomTitlebarVisible }) =>
     theme.color.neutral[isCustomTitlebarVisible ? 'dark' : theme.mode][1400]};
   margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
+  justify-content: flex-start;
+  text-overflow: ellipsis;
+  display: block;
 `;
 
 const BRAND_COMPONENT = styled.div<{ theme: themeType; isCustomTitlebarVisible: boolean }>`

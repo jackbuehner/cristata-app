@@ -24,15 +24,16 @@ function Appbar() {
 
   const left: CSSProperties = {
     flexGrow: 1,
-    flexShrink: 0,
+    flexShrink: 1,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    overflow: 'hidden',
   };
 
   const right: CSSProperties = {
     flexGrow: 1,
-    flexShrink: 1,
+    flexShrink: 0,
     flexBasis: 0,
     display: 'flex',
     flexDirection: 'row',
