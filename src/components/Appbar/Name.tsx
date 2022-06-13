@@ -32,6 +32,7 @@ const WRAPPER_COMPONENET = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+  user-select: none;
 `;
 
 const NAME_COMPONENT = styled.h1<{ theme: themeType; isCustomTitlebarVisible: boolean }>`

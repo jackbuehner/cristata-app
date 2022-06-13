@@ -64,6 +64,8 @@ const ICON_COMPONENT = styled.div<{ theme: themeType; color: colorType; isCustom
   flex-grow: 0;
   flex-shrink: 0;
   transform: rotate(45deg);
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
   > span {
     display: contents;
     svg {
@@ -81,13 +83,15 @@ const ICON_COMPONENT = styled.div<{ theme: themeType; color: colorType; isCustom
 
 const LogoSvg = styled.svg<{ theme: themeType; isCustomTitlebarVisible: boolean }>`
   fill: ${({ theme, isCustomTitlebarVisible }) => {
-    if (isCustomTitlebarVisible) return theme.color.neutral.dark[100];
+    if (isCustomTitlebarVisible && theme.mode === 'light') return theme.color.neutral.dark[100];
     return theme.color.primary[theme.mode === 'light' ? 800 : 300];
   }};
   margin: 8px 16px;
   width: 30px;
   height: 30px;
   padding: 0;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 `;
 
 export { Icon };

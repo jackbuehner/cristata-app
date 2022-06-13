@@ -47,6 +47,9 @@ function Appbar() {
             onMouseEnter={() => setShowHomeArrow(true)}
             onMouseLeave={() => setShowHomeArrow(false)}
             style={{
+              //@ts-expect-error app-region is in beta
+              'app-region': 'no-drag',
+              '-webkit-app-region': 'no-drag',
               padding: '9px',
               position: 'absolute',
               zIndex: 1,
@@ -72,7 +75,7 @@ function Appbar() {
           icon={state.icon || AppGeneric20Regular}
           color={state.color}
           name={state.name}
-          onMouseEnter={() => setShowHomeArrow(true)}
+          onMouseEnter={() => (location.pathname !== '/' ? setShowHomeArrow(true) : null)}
         />
         <Name>{state.name}</Name>
       </div>
