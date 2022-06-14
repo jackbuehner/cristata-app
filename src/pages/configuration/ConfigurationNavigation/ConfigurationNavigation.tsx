@@ -14,6 +14,10 @@ function ConfigurationNavigation() {
       <SideNavSubButton Icon={<></>} to={`/configuration/billing/payments`}>
         Payments &amp; invoices
       </SideNavSubButton>
+      <SideNavHeading>Security</SideNavHeading>
+      <SideNavSubButton Icon={<></>} to={`/configuration/security/tokens-secrets`}>
+        Secrets
+      </SideNavSubButton>
       <SideNavHeading>Schemas</SideNavHeading>
       {collections?.map(({ name }, index) => {
         return (

@@ -24,6 +24,7 @@ import {
   BillingServiceUsagePage,
   CollectionSchemaPage,
   ConfigurationNavigation,
+  TokenSecretsPage,
 } from './pages/configuration';
 import { FathomEmbed } from './pages/embeds';
 import { HomePage } from './pages/Home';
@@ -154,6 +155,9 @@ function Protected(props: ProtectedProps) {
                 <Route path={`billing`}>
                   <Route path={`usage`} element={<BillingServiceUsagePage />} />
                   <Route path={`payments`} element={<BillingPaymentsPage />} />
+                </Route>
+                <Route path={`security`}>
+                  <Route path={`tokens-secrets`} element={<TokenSecretsPage />} />
                 </Route>
                 <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
               </Route>
