@@ -76,7 +76,7 @@ function SplashScreen(props: ISplashScreen) {
       const locState = location.state as { step?: string } | undefined;
 
       // user needs to change password
-      if (props.user.next_step === 'change_password' && (!locState || locState.step !== 'change_password')) {
+      if ((props.user.next_step === 'change_password' && !locState) || locState?.step === 'change_password') {
         navigate('/sign-in', { state: { username: props.user.email, step: 'change_password' } });
       }
       // user needs to create a password
