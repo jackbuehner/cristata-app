@@ -67,7 +67,9 @@ const ICON_COMPONENT = styled.div<{ theme: themeType; color: colorType; isCustom
   -webkit-app-region: no-drag;
   app-region: no-drag;
   > span {
-    display: contents;
+    display: block;
+    width: 22px;
+    height: 22px;
     svg {
       width: 22px;
       height: 22px;
