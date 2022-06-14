@@ -33,6 +33,9 @@ const MenuListComponent = styled.ul<IMenuListComponent>`
     padding: 4px 0;
     transition: height 240ms cubic-bezier(0.1, 0.9, 0.2, 1);
   }
+  &:focus {
+    outline: none;
+  }
 `;
 
 interface IMenuList extends IMenuListBase {
