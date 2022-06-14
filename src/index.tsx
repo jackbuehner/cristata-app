@@ -15,7 +15,7 @@ const appTheme = theme(window?.matchMedia('(prefers-color-scheme: dark)').matche
 const Tooltip = styled(ReactTooltip)`
   margin: 0 !important;
   font-size: 12px !important;
-  font-family: 'Segoe UI' !important;
+  font-family: 'Segoe UI', -apple-system, sans-serif !important;
   padding: 8px !important;
   line-height: 12px !important;
   border: none !important;
