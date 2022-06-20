@@ -635,7 +635,6 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 color={'blue'}
                 isActive={activeTab === 'home'}
                 onClick={() => setActiveTab('home')}
-                disabled={props.isDisabled}
               >
                 Home
               </ToolbarTabButton>
@@ -644,7 +643,6 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 color={'blue'}
                 isActive={activeTab === 'insert'}
                 onClick={() => setActiveTab('insert')}
-                disabled={props.isDisabled}
               >
                 Insert
               </ToolbarTabButton>
@@ -653,7 +651,6 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 color={'blue'}
                 isActive={activeTab === 'layout'}
                 onClick={() => setActiveTab('layout')}
-                disabled={props.isDisabled}
               >
                 Layout
               </ToolbarTabButton>
@@ -662,7 +659,6 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 color={'blue'}
                 isActive={activeTab === 'review'}
                 onClick={() => setActiveTab('review')}
-                disabled={props.isDisabled}
               >
                 Review
               </ToolbarTabButton>
@@ -672,7 +668,6 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   color={'blue'}
                   isActive={activeTab === 'actions'}
                   onClick={() => setActiveTab('actions')}
-                  disabled={props.isDisabled}
                 >
                   Actions
                 </ToolbarTabButton>
@@ -1164,7 +1159,13 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                       key={index}
                       onClick={action.action}
                       color={action.color}
-                      disabled={props.isDisabled || action.disabled}
+                      disabled={
+                        (props.isDisabled &&
+                          action.label !== 'Remove from archive' &&
+                          action.label !== 'Watch' &&
+                          action.label !== 'Stop watching') ||
+                        action.disabled
+                      }
                       icon={action.icon}
                       isActive={false}
                     >
