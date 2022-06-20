@@ -35,7 +35,7 @@ import { TeamPage } from './pages/teams/TeamPage';
 import { TeamsNav } from './pages/teams/TeamsNav';
 import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
 import { useAppDispatch } from './redux/hooks';
-import { setAppIcon } from './redux/slices/appbarSlice';
+import { setAppIcon, setAppSearchShown } from './redux/slices/appbarSlice';
 import { isFluentIconComponent } from './utils/isFluentIconComponent';
 import { themeType } from './utils/theme/theme';
 
@@ -71,6 +71,9 @@ function Protected(props: ProtectedProps) {
       } else if (location.pathname.includes('/cms')) {
         dispatch(setAppIcon(ContentView20Regular));
       }
+
+      // close search on navigate
+      dispatch(setAppSearchShown(false));
     }
   }, [dispatch, location, mainNav]);
 
