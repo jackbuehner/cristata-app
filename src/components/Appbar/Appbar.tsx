@@ -23,7 +23,7 @@ function Appbar() {
   const [showHomeArrow, setShowHomeArrow] = useState(false);
 
   const left: CSSProperties = {
-    flexGrow: 1,
+    flexGrow: 0,
     flexShrink: 1,
     display: 'flex',
     flexDirection: 'row',
@@ -81,7 +81,7 @@ function Appbar() {
         <Name>{state.name}</Name>
       </div>
       <div style={right}>
-        <Actions color={state.color} actions={state.actions} />
+        <Actions color={state.color} actions={state.actions} name={state.name} showSearch={state.showSearch} />
         <AccountMenu />
       </div>
     </Bar>

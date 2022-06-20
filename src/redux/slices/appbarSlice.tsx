@@ -8,6 +8,7 @@ export interface AppbarState {
   color: colorType;
   actions: Action[];
   loading: boolean | number;
+  showSearch: boolean;
 }
 
 interface Action {
@@ -28,6 +29,7 @@ const initialState: AppbarState = {
   color: 'primary',
   actions: [],
   loading: false,
+  showSearch: true,
 };
 
 export const appbarSlice = createSlice({
@@ -49,9 +51,13 @@ export const appbarSlice = createSlice({
     setAppLoading: (state, action: PayloadAction<boolean | number>) => {
       state.loading = action.payload;
     },
+    setAppSearchShown: (state, action: PayloadAction<boolean>) => {
+      state.showSearch = action.payload;
+    },
   },
 });
 
-export const { setAppName, setAppIcon, setAppColor, setAppActions, setAppLoading } = appbarSlice.actions;
+export const { setAppName, setAppIcon, setAppColor, setAppActions, setAppLoading, setAppSearchShown } =
+  appbarSlice.actions;
 
 export default appbarSlice.reducer;
