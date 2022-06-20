@@ -1,7 +1,7 @@
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Delete20Regular, Open20Regular } from '@fluentui/react-icons';
+import { Archive20Regular, Delete20Regular, Open20Regular } from '@fluentui/react-icons';
 import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
@@ -534,6 +534,57 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       );
     }, [selectedIds]);
 
+    // modal for archiving selected items
+    const [showArchiveModal, hideArchiveModal] = useModal(() => {
+      return (
+        <PlainModal
+          hideModal={hideArchiveModal}
+          title={`Archive the selected item${selectedIds.length === 1 ? '' : 's'}?`}
+          isLoading={props.isLoading}
+          text={`This will remove the selected item${selectedIds.length === 1 ? '' : 's'} from most views.`}
+          cancelButton={{ text: 'No' }}
+          continueButton={{
+            text: 'Yes',
+            color: 'primary',
+            onClick: () => {
+              const items = docs.filter((doc: { _id: string }) => selectedIds.includes(doc._id));
+
+              const ARCHIVE_ITEMS = gql`mutation {
+                ${items.map((item: { [x: string]: any }, index: number) => {
+                  return `archiveItem${index}: ${uncapitalize(props.collection)}Archive(${by?.one || '_id'}: "${
+                    item[by?.one || '_id']
+                  }") {
+                  archived
+                }`;
+                })}
+              }`;
+
+              setIsLoading(true);
+              return client
+                .mutate({ mutation: ARCHIVE_ITEMS })
+                .finally(() => {
+                  setIsLoading(false);
+                })
+                .then(() => {
+                  toast.success(`Item${selectedIds.length === 1 ? '' : 's'} successfully archived.`);
+                  refetch();
+                  setSelectedIds([]);
+                  setLastSelectedId(undefined);
+                  return true;
+                })
+                .catch((err) => {
+                  console.error(err);
+                  toast.error(
+                    `Failed to archive item${selectedIds.length === 1 ? '' : 's'}. \n ${err.message}`
+                  );
+                  return false;
+                });
+            },
+          }}
+        />
+      );
+    }, [selectedIds]);
+
     if (!data && error)
       return (
         <>
@@ -598,7 +649,18 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         />
         <BulkActions theme={theme} show={selectedIds.length > 0}>
           <Button
+            icon={<Archive20Regular />}
+            backgroundColor={{ base: 'transparent' }}
+            border={{ base: '1px solid transparent' }}
+            height={42}
+            disabled={selectedIds.length < 1}
+            onClick={showArchiveModal}
+          >
+            Archive
+          </Button>
+          <Button
             icon={<Delete20Regular />}
+            color={'red'}
             backgroundColor={{ base: 'transparent' }}
             border={{ base: '1px solid transparent' }}
             height={42}
