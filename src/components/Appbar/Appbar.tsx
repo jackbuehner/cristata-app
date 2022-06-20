@@ -43,7 +43,7 @@ function Appbar() {
   return (
     <Bar loading={state.loading}>
       <div style={left}>
-        {location.pathname !== '/' ? (
+        {location.pathname !== '/' && window.name === '' ? (
           <div
             onMouseEnter={() => setShowHomeArrow(true)}
             onMouseLeave={() => setShowHomeArrow(false)}
@@ -77,6 +77,7 @@ function Appbar() {
           color={state.color}
           name={state.name}
           onMouseEnter={() => (location.pathname !== '/' ? setShowHomeArrow(true) : null)}
+          drag={window.name !== ''}
         />
         <Name>{state.name}</Name>
       </div>

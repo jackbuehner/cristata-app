@@ -8,6 +8,7 @@ interface IconProps {
   name: string;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  drag?: boolean;
 }
 
 function Icon(props: IconProps) {
@@ -41,13 +42,19 @@ function Icon(props: IconProps) {
       isCustomTitlebarVisible={isCustomTitlebarVisible}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
+      drag={props.drag || false}
     >
       <props.icon />
     </ICON_COMPONENT>
   );
 }
 
-const ICON_COMPONENT = styled.div<{ theme: themeType; color: colorType; isCustomTitlebarVisible: boolean }>`
+const ICON_COMPONENT = styled.div<{
+  theme: themeType;
+  color: colorType;
+  isCustomTitlebarVisible: boolean;
+  drag?: boolean;
+}>`
   margin: 11px 20px;
   display: flex;
   flex-direction: row;
@@ -64,8 +71,16 @@ const ICON_COMPONENT = styled.div<{ theme: themeType; color: colorType; isCustom
   flex-grow: 0;
   flex-shrink: 0;
   transform: rotate(45deg);
-  -webkit-app-region: no-drag;
-  app-region: no-drag;
+  ${({ drag }) =>
+    drag
+      ? `
+          -webkit-app-region: drag;
+          app-region: drag;
+        `
+      : `
+          -webkit-app-region: no-drag;
+          app-region: no-drag;
+  `}
   > span {
     display: block;
     width: 22px;
