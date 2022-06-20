@@ -11,6 +11,8 @@ const ToolbarMetaIconButton = styled(IconButton)<IToolbarMetaIconButton>`
   height: 32px;
   width: 32px;
   background-color: ${({ isActive }) => (isActive ? '_' : 'transparent')};
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 `;
 
 export { ToolbarMetaIconButton };

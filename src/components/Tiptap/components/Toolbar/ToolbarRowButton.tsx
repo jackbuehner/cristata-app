@@ -13,6 +13,8 @@ const ToolbarRowButtonComponent = styled(Button)<IToolbarRowButton>`
   min-width: 40px;
   border: 1px solid transparent;
   background-color: ${({ isActive }) => (isActive ? '_' : 'transparent')};
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
   > span[class*='IconStyleWrapper'] {
     width: 20px;
     height: 20px;

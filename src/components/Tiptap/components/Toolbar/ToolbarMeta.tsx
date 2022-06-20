@@ -8,6 +8,8 @@ const ToolbarMeta = styled.div`
   justify-content: flex-end;
   padding: 0px 8px;
   gap: 6px;
+  -webkit-app-region: drag;
+  app-region: drag;
 `;
 
 export { ToolbarMeta };

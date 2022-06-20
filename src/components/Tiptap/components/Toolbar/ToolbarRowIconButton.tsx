@@ -13,6 +13,8 @@ const ToolbarRowIconButtonComponent = styled(IconButton)<IToolbarRowIconButton>`
   width: 40px;
   border: 1px solid transparent;
   background-color: ${({ isActive }) => (isActive ? '_' : 'transparent')};
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 `;
 
 function ToolbarRowIconButton({ color, isActive, ...props }: IToolbarRowIconButton) {

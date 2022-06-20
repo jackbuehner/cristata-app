@@ -17,6 +17,8 @@ const ToolbarActionRowContainer = styled.div<IToolbarActionRowContainer>`
       : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
   padding: 0px 8px;
   display: flex;
+  -webkit-app-region: drag;
+  app-region: drag;
 `;
 
 export { ToolbarActionRowContainer };
