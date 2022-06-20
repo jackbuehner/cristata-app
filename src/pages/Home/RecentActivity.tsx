@@ -103,6 +103,10 @@ function RecentActivity() {
               ? 'removed'
               : type === 'published'
               ? 'published'
+              : type === 'archive'
+              ? 'archived'
+              : type === 'unarchive'
+              ? 'unarchived'
               : 'modified';
 
           return (
