@@ -82,6 +82,12 @@ function CollectionPage() {
     // parameters used in the page instead of filters
     if (param.indexOf('__') === 0) return;
 
+    // if the param name is _search, search the text index
+    if (param === '_search') {
+      defaultFilter.$text = { $search: value };
+      return;
+    }
+
     const isNegated = param[0] === '!';
     const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
 
