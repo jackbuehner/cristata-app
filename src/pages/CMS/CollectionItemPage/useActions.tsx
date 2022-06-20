@@ -6,6 +6,7 @@ import {
   Delete24Regular,
   EyeHide24Regular,
   EyeShow24Regular,
+  FolderArrowUp24Regular,
   Save24Regular,
   Share24Regular,
 } from '@fluentui/react-icons';
@@ -251,7 +252,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       {
         label: params.state.fields.archived ? 'Remove from archive' : 'Archive',
         type: 'button',
-        icon: params.state.fields.archived ? <></> : <Archive24Regular />,
+        icon: params.state.fields.archived ? <FolderArrowUp24Regular /> : <Archive24Regular />,
         action: () => archiveItem(params.state.fields.archived ? false : true),
         color: params.state.fields.archived ? 'primary' : 'yellow',
         disabled: params.actionAccess?.archive !== true,
