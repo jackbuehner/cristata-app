@@ -11,7 +11,7 @@ import Color from 'color';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
@@ -83,7 +83,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     props.isEmbedded || by === null || false,
     by?.one
   );
-  const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
+
+  const [hasLoadedAtLeastOnce, setHasLoadedAtLeastOnce] = useState(false);
+  useEffect(() => {
+    if (JSON.stringify(itemState.fields) !== JSON.stringify({})) {
+      setHasLoadedAtLeastOnce(true);
+    }
+  }, [itemState.fields]);
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -821,9 +827,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
     return (
       <>
-        {!props.isEmbedded && (fs === 'force' || fs === '1') ? (
-          <FullScreenSplash isLoading={itemState.isLoading && !hasLoadedAtLeastOnce} />
-        ) : null}
+        {!props.isEmbedded && (fs === 'force' || fs === '1') ? null : null}
+        <FullScreenSplash isLoading={(fs === 'force' || fs === '1') && !hasLoadedAtLeastOnce} />
         {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
