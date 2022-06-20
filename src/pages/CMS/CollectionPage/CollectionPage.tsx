@@ -1,6 +1,11 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
+import {
+  ArrowClockwise16Regular,
+  Filter16Regular,
+  FilterDismiss16Regular,
+  Search20Regular,
+} from '@fluentui/react-icons';
 import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -9,7 +14,7 @@ import { Menu } from '../../../components/Menu';
 import { mongoFilterType } from '../../../graphql/client';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
-import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
+import { setAppActions, setAppLoading, setAppName, setAppSearchShown } from '../../../redux/slices/appbarSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { isJSON } from '../../../utils/isJSON';
@@ -178,6 +183,12 @@ function CollectionPage() {
     dispatch(setAppName(pageTitle));
     dispatch(
       setAppActions([
+        {
+          label: 'Search',
+          type: 'icon',
+          icon: Search20Regular,
+          action: () => dispatch(setAppSearchShown(true)),
+        },
         {
           label: 'Create new',
           type: 'button',
