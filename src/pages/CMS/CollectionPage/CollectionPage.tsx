@@ -81,7 +81,7 @@ function CollectionPage() {
   const searchParams = new URLSearchParams(location.search);
 
   // build a filter for the table based on url search params
-  const defaultFilter: mongoFilterType = { hidden: { $ne: true } };
+  const defaultFilter: mongoFilterType = { hidden: { $ne: true }, archived: { $ne: true } };
   searchParams.forEach((value, param) => {
     // ignore values that start with two underscores because these are
     // parameters used in the page instead of filters
@@ -96,12 +96,23 @@ function CollectionPage() {
     const isNegated = param[0] === '!';
     const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
 
+    const parseBooleanString = (str: string) => {
+      if (str.toLowerCase() === 'true') return true;
+      else if (str.toLowerCase() === 'false') return false;
+      return undefined;
+    };
+
     if (isNegated && isArray) defaultFilter[param.slice(1)] = { $nin: JSON.parse(value) };
-    if (isNegated && !isArray) defaultFilter[param.slice(1)] = { $ne: parseFloat(value) || value };
+    if (isNegated && !isArray)
+      defaultFilter[param.slice(1)] = {
+        $ne: parseBooleanString(value) !== undefined ? parseBooleanString(value) : parseFloat(value) || value,
+      };
     if (!isNegated && isArray) defaultFilter[param] = { $in: JSON.parse(value) };
     if (!isNegated && !isArray)
       defaultFilter[param] = !isNaN(parseFloat(value))
         ? { $eq: parseFloat(value) }
+        : parseBooleanString(value) !== undefined
+        ? { $eq: parseBooleanString(value) }
         : { $regex: value, $options: 'i' };
   });
 
