@@ -71,11 +71,13 @@ function Protected(props: ProtectedProps) {
       } else if (location.pathname.includes('/cms')) {
         dispatch(setAppIcon(ContentView20Regular));
       }
-
-      // close search on navigate
-      dispatch(setAppSearchShown(false));
     }
   }, [dispatch, location, mainNav]);
+
+  // close search when pathname changes
+  useEffect(() => {
+    dispatch(setAppSearchShown(false));
+  }, [dispatch, location.pathname]);
 
   return (
     <CristataWebSocket>
