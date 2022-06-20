@@ -51,14 +51,16 @@ function Playground({ setThemeMode }: PlaygroundProps) {
   });
 
   useEffect(() => {
-    axios
-      .post(`${server.location}/v3/${tenant}`, {
-        query: getIntrospectionQuery(),
-      })
-      .then(({ data }) => {
-        dispatch(setSchema(buildClientSchema(data.data)));
-      });
-  });
+    if (tenant) {
+      axios
+        .post(`${server.location}/v3/${tenant}`, {
+          query: getIntrospectionQuery(),
+        })
+        .then(({ data }) => {
+          dispatch(setSchema(buildClientSchema(data.data)));
+        });
+    }
+  }, [dispatch, tenant]);
 
   useEffect(() => {
     if (location.pathname === '/playground') {
