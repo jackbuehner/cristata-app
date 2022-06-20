@@ -1,5 +1,6 @@
 import { ApolloQueryResult, gql, OperationVariables, useApolloClient } from '@apollo/client';
 import {
+  Archive24Regular,
   ArrowClockwise24Regular,
   CloudArrowUp24Regular,
   Delete24Regular,
@@ -114,6 +115,40 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   }, [client, idKey, params]);
 
   /**
+   * Set whether the item is archived.
+   */
+  const archiveItem = useCallback(
+    (archive = true) => {
+      params.dispatch(setIsLoading(true));
+
+      const ARCHIVE_ITEM = gql`mutation {
+      ${uncapitalize(params.collectionName)}Archive(${idKey || '_id'}: "${
+        params.itemId
+      }", archive: ${archive}) {
+        archived
+      }
+    }`;
+
+      client
+        .mutate({ mutation: ARCHIVE_ITEM })
+        .finally(() => {
+          params.dispatch(setIsLoading(false));
+        })
+        .then(({ data }) => {
+          params.refetchData();
+          if (data[`${uncapitalize(params.collectionName)}Archive`].archived)
+            toast.success(`Item successfully archived.`);
+          else toast.success(`Item successfully removed from the archive.`);
+        })
+        .catch((err) => {
+          console.error(err);
+          toast.error(`Failed to archived item. \n ${err.message}`);
+        });
+    },
+    [client, idKey, params]
+  );
+
+  /**
    * Toggle whether the current user is watching this document.
    *
    * This adds or removes the current user from the list of people
@@ -214,6 +249,14 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         disabled: params.actionAccess?.hide !== true,
       },
       {
+        label: params.state.fields.archived ? 'Remove from archive' : 'Archive',
+        type: 'button',
+        icon: params.state.fields.archived ? <></> : <Archive24Regular />,
+        action: () => archiveItem(params.state.fields.archived ? false : true),
+        color: params.state.fields.archived ? 'primary' : 'yellow',
+        disabled: params.actionAccess?.archive !== true,
+      },
+      {
         label: 'Save',
         type: 'button',
         icon: <Save24Regular />,
@@ -254,7 +297,16 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           },
     ];
     return actions.filter((action): action is Action => !!action);
-  }, [allHaveAccess, client, hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
+  }, [
+    allHaveAccess,
+    archiveItem,
+    client,
+    hideItem,
+    params,
+    showPublishModal,
+    showShareModal,
+    toggleWatchItem,
+  ])();
 
   // create a dropdown with all actions except save and publish
   const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {

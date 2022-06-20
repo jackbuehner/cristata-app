@@ -55,6 +55,7 @@ function useFindDoc(
                     _id: true,
                   },
                 },
+                archived: true,
               },
               withPermissions
                 ? {
@@ -76,6 +77,7 @@ function useFindDoc(
             hide: true,
             lock: true,
             watch: true,
+            archive: true,
             publish: true,
           },
         },

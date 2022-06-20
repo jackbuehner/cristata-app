@@ -1,4 +1,4 @@
-import { useTheme } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { MoreHorizontal24Regular } from '@fluentui/react-icons';
 import {
@@ -14,6 +14,7 @@ import pluralize from 'pluralize';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
+import { Button } from '../../../components/Button';
 import {
   Checkbox,
   DateTime,
@@ -237,6 +238,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     );
   }, [dispatch, quickActions, refetch, showActionDropdown, title]);
 
+  const locked = publishLocked || (itemState.fields.archived as boolean);
+
   if (schemaDef) {
     // go through the schemaDef and convert JSON types with mutliple fields to individual fields
     const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON');
@@ -327,7 +330,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           <DocArray
             label={label}
             description={description}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             key={key}
             stateFieldKey={key}
             data={getProperty(itemState.fields, key)}
@@ -377,7 +380,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                     genAvatar(authUserState._id),
                 }}
                 options={def.field.tiptap}
-                isDisabled={itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly}
+                isDisabled={
+                  locked || itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly
+                }
                 showLoading={itemState.isLoading}
                 sessionId={sessionId || ''}
                 html={html}
@@ -397,6 +402,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 message={
                   publishLocked
                     ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
+                    : itemState.fields.archived
+                    ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
                     : undefined
                 }
                 compact={fs !== '1' && fs !== 'force'}
@@ -448,7 +455,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               label={fieldName}
               description={def.field?.description}
               values={values}
-              disabled={loading || !!error}
+              disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
               collection={pluralize.singular(collection)}
               reference={def.field?.reference}
@@ -482,7 +489,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             value={value?._id ? value : null}
             // disable when the api requires the field to always have a value but a default
             // value for when no specific photo is selected is not defined
-            disabled={loading || !!error || (def.required && def.default === undefined)}
+            disabled={locked || loading || !!error || (def.required && def.default === undefined)}
             isEmbedded={props.isEmbedded}
             collection={pluralize.singular(collection)}
             reference={def.field?.reference}
@@ -513,7 +520,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, undefined, undefined, inArrayKey));
               }}
-              disabled={loading || !!error}
+              disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -525,7 +532,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             value={getProperty(itemState.fields, key)}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.value;
@@ -545,7 +552,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             checked={!!getProperty(itemState.fields, key)}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.checked;
@@ -575,7 +582,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={loading || !!error}
+              disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -588,7 +595,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             value={getProperty(itemState.fields, key)}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.valueAsNumber;
@@ -618,7 +625,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={loading || !!error}
+              disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -631,7 +638,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             value={getProperty(itemState.fields, key)}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
             onChange={(e) => {
               const newValue = e.currentTarget.valueAsNumber;
@@ -661,7 +668,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={loading || !!error}
+              disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -679,7 +686,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               if (newValue !== undefined && !readOnly)
                 dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -706,7 +713,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={loading || !!error}
+              disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -724,7 +731,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               if (newValue !== undefined && !readOnly)
                 dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -751,7 +758,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={loading || !!error}
+              disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -769,7 +776,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               if (newValue !== undefined && !readOnly)
                 dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -792,7 +799,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 dispatch(setField(date.toUTC().toISO(), key, 'default', undefined, inArrayKey));
             }}
             placeholder={'Pick a time'}
-            disabled={loading || !!error}
+            disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -820,10 +827,28 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
-              {publishLocked && !props.isEmbedded && !fs ? (
+              {publishLocked && !props.isEmbedded && fs !== '1' ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it has been published and you do not have
                   publish permissions.
+                </Notice>
+              ) : null}
+              {itemState.fields.archived && !props.isEmbedded && fs !== '1' ? (
+                <Notice theme={theme}>
+                  This document is opened in read-only mode because it is archived.
+                  <Button
+                    height={26}
+                    cssExtra={css`
+                      display: inline-block;
+                      margin: 4px 8px;
+                    `}
+                    onClick={() => {
+                      actions.find((a) => a.label === 'Remove from archive')?.action();
+                    }}
+                    disabled={actions.findIndex((a) => a.label === 'Remove from archive') === -1}
+                  >
+                    Remove from archive
+                  </Button>
                 </Notice>
               ) : null}
               <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
