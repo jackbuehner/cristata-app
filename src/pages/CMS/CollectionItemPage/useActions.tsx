@@ -214,7 +214,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         action: () => params.refetchData(),
       },
       {
-        label: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'Stop Watching' : 'Watch',
+        label: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'Stop watching' : 'Watch',
         type: 'button',
         icon:
           params.watch.isWatching || params.watch.isMandatoryWatcher ? (
