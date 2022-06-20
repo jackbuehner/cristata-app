@@ -70,7 +70,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
   ({ setIsLoading, ...props }, ref) => {
     const theme = useTheme() as themeType;
     const client = useApolloClient();
-    const { search } = useLocation();
+    const { pathname, search } = useLocation();
     const searchParams = useMemo(() => new URLSearchParams(search), [search]);
     const [selectedIds, setSelectedIds] = props.selectedIdsState;
     const [, setLastSelectedId] = props.lastSelectedIdState;
@@ -91,6 +91,11 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       }),
       [searchParams]
     );
+
+    // clear selection when pathname or search string changes
+    useEffect(() => {
+      setSelectedIds([]);
+    }, [pathname, search, setSelectedIds]);
 
     // keep the sort object in state
     const [sort, setSort] = useState<mongoSortType>(previousSort ? JSON.parse(previousSort) : defaultSort);
