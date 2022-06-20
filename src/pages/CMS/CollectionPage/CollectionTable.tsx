@@ -648,16 +648,19 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           `}
         />
         <BulkActions theme={theme} show={selectedIds.length > 0}>
-          <Button
-            icon={<Archive20Regular />}
-            backgroundColor={{ base: 'transparent' }}
-            border={{ base: '1px solid transparent' }}
-            height={42}
-            disabled={selectedIds.length < 1}
-            onClick={showArchiveModal}
-          >
-            Archive
-          </Button>
+          {searchParams.get('archived')?.toLowerCase() === 'true' ||
+          searchParams.get('!archived')?.toLowerCase() === 'false' ? null : (
+            <Button
+              icon={<Archive20Regular />}
+              backgroundColor={{ base: 'transparent' }}
+              border={{ base: '1px solid transparent' }}
+              height={42}
+              disabled={selectedIds.length < 1}
+              onClick={showArchiveModal}
+            >
+              Archive
+            </Button>
+          )}
           <Button
             icon={<Delete20Regular />}
             color={'red'}
