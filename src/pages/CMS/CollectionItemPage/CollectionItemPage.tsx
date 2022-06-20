@@ -871,11 +871,7 @@ const ContentWrapper = styled.div<{ theme?: themeType }>`
   flex-direction: row;
   width: 100%;
   overflow: hidden;
-  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
-  @media (max-width: 600px) {
-    height: ${({ theme }) =>
-      `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
-  }
+  height: 100%;
   box-sizing: border-box;
 `;
 
