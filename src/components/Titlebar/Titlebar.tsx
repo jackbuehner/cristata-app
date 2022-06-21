@@ -8,6 +8,8 @@ import { useEffect } from 'react';
 
 interface ITitlebar {
   title?: string;
+  hideNavigation?: boolean;
+  forceColor?: boolean;
 }
 
 function Titlebar(props: ITitlebar) {
@@ -31,7 +33,7 @@ function Titlebar(props: ITitlebar) {
 
   return (
     <Wrapper>
-      <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX}>
+      <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX} forceColor={props.forceColor || false}>
         <QuickAccess>
           {
             // right controls: <- -> | title     […] [_] [■] [X]
@@ -39,12 +41,12 @@ function Titlebar(props: ITitlebar) {
           }
           {
             // if the horizontal offset is greater than 0, this means the window controls are on the left, which means we need a divider to separate the window controls from the quick access buttons
-            customTitlebarOffsetX > 0 ? <Divider /> : null
+            props.hideNavigation !== true && customTitlebarOffsetX > 0 ? <Divider /> : null
           }
           {
             // only show history navigation when the titlebar replaces the default titlebar
             //@ts-expect-error windowControlsOverlay is only available in some browsers
-            navigator.windowControlsOverlay?.visible ? (
+            props.hideNavigation !== true && navigator.windowControlsOverlay?.visible ? (
               <>
                 <TitlebarButton
                   onClick={() => navigate(-1)}
@@ -66,6 +68,7 @@ function Titlebar(props: ITitlebar) {
             ) : null
           }
         </QuickAccess>
+        <Title>{props.title}</Title>
       </TITLEBAR>
     </Wrapper>
   );
@@ -81,7 +84,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const TITLEBAR = styled.div<{ theme: themeType; offsetX: number }>`
+const TITLEBAR = styled.div<{ theme: themeType; offsetX: number; forceColor: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -90,8 +93,8 @@ const TITLEBAR = styled.div<{ theme: themeType; offsetX: number }>`
   top: env(titlebar-area-y, 0);
   width: env(titlebar-area-width, 100%);
   height: env(titlebar-area-height, 33px);
-  background-color: ${({ theme }) =>
-    theme.mode === 'light'
+  background-color: ${({ theme, forceColor }) =>
+    theme.mode === 'light' || forceColor
       ? theme.color.primary[800]
       : Color(theme.color.neutral[theme.mode][200]).darken(0.24).string()};
   -webkit-app-region: drag;
@@ -105,6 +108,24 @@ const QuickAccess = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+`;
+
+const Title = styled.div`
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  font-size: 12px;
+  color: white;
+  flex-grow: 1;
+  flex-shrink: 1;
+  height: 100%;
+  margin-top: -1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+  display: inline-block;
+  line-height: env(titlebar-area-height, 33px);
+  margin-left: 11px;
 `;
 
 const TitlebarButton = styled.button<{
