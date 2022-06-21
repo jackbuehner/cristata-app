@@ -13,36 +13,39 @@ interface WindowProps {
   left?: number;
 }
 
-function Window(props: WindowProps) {
+function Window({ width, height, top, left, windowName, hideWindowModal, children }: WindowProps) {
   const [container] = useState<HTMLDivElement>(() => document.createElement('div'));
   const newWindow = useRef<Window | null>(window);
 
   useEffect(() => {
-    if (container) {
-      newWindow.current = window.open(
-        '/popup.html',
-        props.windowName || '',
-        `width=${props.width || 480},height=${props.height || 240},left=${props.left || 200},top=${
-          props.top || 200
-        }`
-      );
+    container.style.width = '100%';
+    container.style.height = '100%';
+  }, [container]);
 
-      container.style.width = '100%';
-      container.style.height = '100%';
+  useEffect(() => {
+    newWindow.current = window.open(
+      '/popup.html',
+      windowName || '',
+      `width=${width || 480},height=${height || 240},left=${left || 200},top=${top || 200}`
+    );
 
-      const curWindow = newWindow.current;
-      if (curWindow) {
-        curWindow.onload = function () {
-          curWindow.document.body.appendChild(container);
+    if (newWindow.current) {
+      newWindow.current.onload = () => {
+        newWindow.current!.document.body.appendChild(container);
 
-          curWindow.addEventListener('beforeunload', () => {
-            props.hideWindowModal();
-          });
-        };
-      }
-      return () => curWindow?.close();
+        newWindow.current!.addEventListener('beforeunload', () => {
+          hideWindowModal();
+        });
+      };
     }
-  }, [container, props]);
+
+    return () => {
+      console.log('closing');
+      newWindow.current?.close();
+    };
+    // hideWindowModal needlessly triggers the effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [container, height, left, top, width, windowName]);
 
   const windowCache = createCache({
     key: 'cristata-popup',
@@ -50,8 +53,7 @@ function Window(props: WindowProps) {
   });
 
   return (
-    container &&
-    ReactDOM.createPortal(<CacheProvider value={windowCache}>{props.children}</CacheProvider>, container)
+    container && ReactDOM.createPortal(<CacheProvider value={windowCache}>{children}</CacheProvider>, container)
   );
 }
 

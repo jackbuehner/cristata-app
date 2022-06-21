@@ -20,18 +20,15 @@ interface UseWindowOptions {
   left?: number;
 }
 
-function useWindow(Node: () => React.ReactNode, options?: UseWindowOptions): UseWindow {
+function useWindow(Node: React.ReactNode, options?: UseWindowOptions): UseWindow {
   const [open, setOpen] = useState(false);
-  const [, setCount] = useState(0);
 
   const openWindow = () => {
     setOpen(true);
-    setCount((count) => count + 1);
   };
 
   const closeWindow = () => {
     setOpen(false);
-    setCount((count) => count + 1);
   };
 
   const WindowModal = open && (
@@ -47,7 +44,7 @@ function useWindow(Node: () => React.ReactNode, options?: UseWindowOptions): Use
       <div
         style={{ position: 'relative', width: '100%', height: 'calc(100% - env(titlebar-area-height, 33px))' }}
       >
-        {Node()}
+        {Node}
       </div>
     </Window>
   );

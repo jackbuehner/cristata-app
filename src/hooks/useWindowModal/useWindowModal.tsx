@@ -26,27 +26,25 @@ function useWindowModal(
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
   const [Window, openWindow, closeWindow] = useWindow(
-    () => (
-      <div
-        style={{
-          width: `100%`,
-          height: `100%`,
-          border: `none`,
-          background: `none`,
-          color: theme.color.neutral[theme.mode][1400],
-          backgroundColor: theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200],
-          overflow: `auto`,
-          borderRadius: theme.radius,
-          padding: 0,
-          display: `flex`,
-          flexDirection: `column`,
-          outline: `none !important`,
-        }}
-      >
-        <PlainModal noModalComponent hideModal={() => closeWindow()} {...props} />
-      </div>
-    ),
-    { height: props.children ? 240 : 186, ...props.windowOptions }
+    <div
+      style={{
+        width: `100%`,
+        height: `100%`,
+        border: `none`,
+        background: `none`,
+        color: theme.color.neutral[theme.mode][1400],
+        backgroundColor: theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200],
+        overflow: `auto`,
+        borderRadius: theme.radius,
+        padding: 0,
+        display: `flex`,
+        flexDirection: `column`,
+        outline: `none !important`,
+      }}
+    >
+      <PlainModal noModalComponent hideModal={() => closeWindow()} {...props} />
+    </div>,
+    { height: props.children ? 600 : 186, ...props.windowOptions }
   );
 
   const [showModal, hideModal] = useModal(

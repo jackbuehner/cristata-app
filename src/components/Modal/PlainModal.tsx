@@ -181,74 +181,15 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
     ReactModal.setAppElement('body');
   }, []);
 
-  // get the titlebar height
-  const PlainModalTitleElem = useRef<HTMLHeadingElement>(null);
-  const [PlainModalTitleHeight, setPlainModalTitleHeight] = useState(67);
-  useEffect(() => {
-    if (typeof PlainModalTitleElem.current?.offsetHeight === 'number') {
-      setPlainModalTitleHeight(PlainModalTitleElem.current?.offsetHeight);
-    }
-  }, [PlainModalTitleElem]);
-
-  // get the action row height
-  const ActionRowElem = useRef<HTMLDivElement>(null);
-  const [ActionRowHeight, setActionRowHeight] = useState(63);
-  useEffect(() => {
-    if (typeof ActionRowElem.current?.offsetHeight === 'number') {
-      setActionRowHeight(ActionRowElem.current?.offsetHeight);
-    }
-  }, [ActionRowElem]);
-
-  /**
-   * Wraps text surrounded by two asterisks in `<strong>` and returns the html string.
-   */
-  const bold = (text: string) => {
-    const bold = /\*\*(.*?)\*\*/gm;
-    const html = text.replace(bold, '<strong>$1</strong>');
-    return html;
+  const contentProps = {
+    ...props,
+    handleCancelButtonClick,
+    handleContinueButtonClick,
+    hideModal,
   };
 
-  const Content = () => (
-    <>
-      <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>
-        {props.title}
-        {props.isLoading ? <IndeterminateProgress modalHasChildren={!!props.children} theme={theme} /> : null}
-      </PlainModalTitle>
-      <PlainModalContent
-        modalHasChildren={!!props.children}
-        theme={theme}
-        titleHeight={PlainModalTitleHeight ? PlainModalTitleHeight : 0}
-        actionRowHeight={ActionRowHeight ? ActionRowHeight : 0}
-      >
-        {props.text ? (
-          <PlainModalText theme={theme} dangerouslySetInnerHTML={{ __html: bold(props.text) }} />
-        ) : props.children ? (
-          <PlainModalText theme={theme}>{props.children}</PlainModalText>
-        ) : null}
-      </PlainModalContent>
-      <ActionRow modalHasChildren={!!props.children} theme={theme} ref={ActionRowElem}>
-        {props.cancelButton !== null ? (
-          <Button
-            color={props.cancelButton?.color}
-            onClick={handleCancelButtonClick}
-            disabled={props.cancelButton?.disabled}
-          >
-            {props.cancelButton?.text || 'Cancel'}
-          </Button>
-        ) : null}
-        <Button
-          color={props.continueButton?.color}
-          onClick={handleContinueButtonClick}
-          disabled={props.continueButton?.disabled}
-        >
-          {props.continueButton?.text || 'OK'}
-        </Button>
-      </ActionRow>
-    </>
-  );
-
   if (props.noModalComponent) {
-    return <Content />;
+    return <Content {...contentProps} />;
   }
 
   return (
@@ -296,11 +237,88 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               place-items: center;
             `}
           >
-            <Content />
+            <Content {...contentProps} />
           </ReactModal>
         );
       }}
     </ClassNames>
+  );
+}
+
+function Content({
+  handleCancelButtonClick,
+  handleContinueButtonClick,
+  ...props
+}: IPlainModal & {
+  handleCancelButtonClick: () => Promise<void>;
+  handleContinueButtonClick: () => Promise<void>;
+}) {
+  const theme = useTheme() as themeType;
+
+  // get the titlebar height
+  const PlainModalTitleElem = useRef<HTMLHeadingElement>(null);
+  const [PlainModalTitleHeight, setPlainModalTitleHeight] = useState(67);
+  useEffect(() => {
+    if (typeof PlainModalTitleElem.current?.offsetHeight === 'number') {
+      setPlainModalTitleHeight(PlainModalTitleElem.current?.offsetHeight);
+    }
+  }, [PlainModalTitleElem]);
+
+  // get the action row height
+  const ActionRowElem = useRef<HTMLDivElement>(null);
+  const [ActionRowHeight, setActionRowHeight] = useState(63);
+  useEffect(() => {
+    if (typeof ActionRowElem.current?.offsetHeight === 'number') {
+      setActionRowHeight(ActionRowElem.current?.offsetHeight);
+    }
+  }, [ActionRowElem]);
+
+  /**
+   * Wraps text surrounded by two asterisks in `<strong>` and returns the html string.
+   */
+  const bold = (text: string) => {
+    const bold = /\*\*(.*?)\*\*/gm;
+    const html = text.replace(bold, '<strong>$1</strong>');
+    return html;
+  };
+
+  return (
+    <>
+      <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>
+        {props.title}
+        {props.isLoading ? <IndeterminateProgress modalHasChildren={!!props.children} theme={theme} /> : null}
+      </PlainModalTitle>
+      <PlainModalContent
+        modalHasChildren={!!props.children}
+        theme={theme}
+        titleHeight={PlainModalTitleHeight ? PlainModalTitleHeight : 0}
+        actionRowHeight={ActionRowHeight ? ActionRowHeight : 0}
+      >
+        {props.text ? (
+          <PlainModalText theme={theme} dangerouslySetInnerHTML={{ __html: bold(props.text) }} />
+        ) : props.children ? (
+          <PlainModalText theme={theme}>{props.children}</PlainModalText>
+        ) : null}
+      </PlainModalContent>
+      <ActionRow modalHasChildren={!!props.children} theme={theme} ref={ActionRowElem}>
+        {props.cancelButton !== null ? (
+          <Button
+            color={props.cancelButton?.color}
+            onClick={handleCancelButtonClick}
+            disabled={props.cancelButton?.disabled}
+          >
+            {props.cancelButton?.text || 'Cancel'}
+          </Button>
+        ) : null}
+        <Button
+          color={props.continueButton?.color}
+          onClick={handleContinueButtonClick}
+          disabled={props.continueButton?.disabled}
+        >
+          {props.continueButton?.text || 'OK'}
+        </Button>
+      </ActionRow>
+    </>
   );
 }
 
