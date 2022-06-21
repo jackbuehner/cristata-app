@@ -1,4 +1,5 @@
 import { useTheme } from '@emotion/react';
+import styled from '@emotion/styled/macro';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../components/Modal';
 import { IPlainModal } from '../../components/Modal/PlainModal';
@@ -26,24 +27,9 @@ function useWindowModal(
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
   const [Window, openWindow, closeWindow] = useWindow(
-    <div
-      style={{
-        width: `100%`,
-        height: `100%`,
-        border: `none`,
-        background: `none`,
-        color: theme.color.neutral[theme.mode][1400],
-        backgroundColor: theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200],
-        overflow: `auto`,
-        borderRadius: theme.radius,
-        padding: 0,
-        display: `flex`,
-        flexDirection: `column`,
-        outline: `none !important`,
-      }}
-    >
+    <WindowWrapper theme={theme} styleString={props.styleString}>
       <PlainModal noModalComponent hideModal={() => closeWindow()} {...props} />
-    </div>,
+    </WindowWrapper>,
     { height: props.children ? 600 : 186, ...props.windowOptions }
   );
 
@@ -64,5 +50,21 @@ function useWindowModal(
 
   return [Window, open, close];
 }
+
+const WindowWrapper = styled.div<{ theme: themeType; styleString?: string }>`
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: none;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
+  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200])};
+  overflow: auto;
+  border-radius: ${({ theme }) => theme.radius};
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  outline: none !important;
+  ${({ styleString }) => styleString}
+`;
 
 export { useWindowModal };

@@ -40,7 +40,6 @@ function Window({ width, height, top, left, windowName, hideWindowModal, childre
     }
 
     return () => {
-      console.log('closing');
       newWindow.current?.close();
     };
     // hideWindowModal needlessly triggers the effect
