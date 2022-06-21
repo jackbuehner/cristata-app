@@ -199,7 +199,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   );
 
   // create/invite new user modal
-  const [showNewUserModal] = useInviteUserModal();
+  const [NewUserWindow, showNewUserModal] = useInviteUserModal();
 
   // navigate to the current user's profile if no other profile is selected
   useEffect(() => {
@@ -227,6 +227,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
 
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {NewUserWindow}
         <div
           style={{
             overflow: 'auto',

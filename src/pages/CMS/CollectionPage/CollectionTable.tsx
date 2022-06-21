@@ -21,17 +21,16 @@ import {
   useState,
 } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from 'react-modal-hook';
 import { useLocation } from 'react-router-dom';
 import { Column } from 'react-table';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
-import { PlainModal } from '../../../components/Modal';
 import { Table } from '../../../components/Table';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
+import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
@@ -491,104 +490,100 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     }, [docs, docs?.length, fetchMore, limit, loading, networkStatus, sort]);
 
     // modal for deleting selected items
-    const [showDeleteModal, hideDeleteModal] = useModal(() => {
-      return (
-        <PlainModal
-          hideModal={hideDeleteModal}
-          title={`Delete the selected item${selectedIds.length === 1 ? '' : 's'}?`}
-          isLoading={props.isLoading}
-          text={`This action may be permanent.`}
-          cancelButton={{ text: 'No' }}
-          continueButton={{
-            text: 'Yes',
-            color: 'red',
-            onClick: () => {
-              const items = docs.filter((doc: { _id: string }) => selectedIds.includes(doc._id));
+    const [DeleteWindow, showDeleteModal] = useWindowModal(
+      {
+        title: `Delete the selected item${selectedIds.length === 1 ? '' : 's'}?`,
+        isLoading: props.isLoading,
+        windowOptions: { name: 'delete selected items' },
+        text: `This action may be permanent.`,
+        cancelButton: { text: 'No' },
+        continueButton: {
+          text: 'Yes',
+          color: 'red',
+          onClick: () => {
+            const items = docs.filter((doc: { _id: string }) => selectedIds.includes(doc._id));
 
-              const HIDE_ITEMS = gql`mutation {
-                ${items.map((item: { [x: string]: any }, index: number) => {
-                  return `hideItem${index}: ${uncapitalize(props.collection)}Hide(${by?.one || '_id'}: "${
-                    item[by?.one || '_id']
-                  }") {
-                  hidden
-                }`;
-                })}
-              }`;
+            const HIDE_ITEMS = gql`mutation {
+            ${items.map((item: { [x: string]: any }, index: number) => {
+              return `hideItem${index}: ${uncapitalize(props.collection)}Hide(${by?.one || '_id'}: "${
+                item[by?.one || '_id']
+              }") {
+              hidden
+            }`;
+            })}
+          }`;
 
-              setIsLoading(true);
-              return client
-                .mutate({ mutation: HIDE_ITEMS })
-                .finally(() => {
-                  setIsLoading(false);
-                })
-                .then(() => {
-                  toast.success(`Item successfully hidden.`);
-                  refetch();
-                  setSelectedIds([]);
-                  setLastSelectedId(undefined);
-                  return true;
-                })
-                .catch((err) => {
-                  console.error(err);
-                  toast.error(`Failed to hide item. \n ${err.message}`);
-                  return false;
-                });
-            },
-          }}
-        />
-      );
-    }, [selectedIds]);
+            setIsLoading(true);
+            return client
+              .mutate({ mutation: HIDE_ITEMS })
+              .finally(() => {
+                setIsLoading(false);
+              })
+              .then(() => {
+                toast.success(`Item successfully hidden.`);
+                refetch();
+                setSelectedIds([]);
+                setLastSelectedId(undefined);
+                return true;
+              })
+              .catch((err) => {
+                console.error(err);
+                toast.error(`Failed to hide item. \n ${err.message}`);
+                return false;
+              });
+          },
+        },
+      },
+      [selectedIds]
+    );
 
     // modal for archiving selected items
-    const [showArchiveModal, hideArchiveModal] = useModal(() => {
-      return (
-        <PlainModal
-          hideModal={hideArchiveModal}
-          title={`Archive the selected item${selectedIds.length === 1 ? '' : 's'}?`}
-          isLoading={props.isLoading}
-          text={`This will remove the selected item${selectedIds.length === 1 ? '' : 's'} from most views.`}
-          cancelButton={{ text: 'No' }}
-          continueButton={{
-            text: 'Yes',
-            color: 'primary',
-            onClick: () => {
-              const items = docs.filter((doc: { _id: string }) => selectedIds.includes(doc._id));
+    const [ArchiveWindow, showArchiveModal] = useWindowModal(
+      {
+        title: `Archive the selected item${selectedIds.length === 1 ? '' : 's'}?`,
+        isLoading: props.isLoading,
+        windowOptions: { name: 'archive selected items' },
+        text: `This will remove the selected item${selectedIds.length === 1 ? '' : 's'} from most views.`,
+        cancelButton: { text: 'No' },
+        continueButton: {
+          text: 'Yes',
+          color: 'primary',
+          onClick: () => {
+            const items = docs.filter((doc: { _id: string }) => selectedIds.includes(doc._id));
 
-              const ARCHIVE_ITEMS = gql`mutation {
-                ${items.map((item: { [x: string]: any }, index: number) => {
-                  return `archiveItem${index}: ${uncapitalize(props.collection)}Archive(${by?.one || '_id'}: "${
-                    item[by?.one || '_id']
-                  }") {
-                  archived
-                }`;
-                })}
-              }`;
+            const ARCHIVE_ITEMS = gql`mutation {
+            ${items.map((item: { [x: string]: any }, index: number) => {
+              return `archiveItem${index}: ${uncapitalize(props.collection)}Archive(${by?.one || '_id'}: "${
+                item[by?.one || '_id']
+              }") {
+              archived
+            }`;
+            })}
+          }`;
 
-              setIsLoading(true);
-              return client
-                .mutate({ mutation: ARCHIVE_ITEMS })
-                .finally(() => {
-                  setIsLoading(false);
-                })
-                .then(() => {
-                  toast.success(`Item${selectedIds.length === 1 ? '' : 's'} successfully archived.`);
-                  refetch();
-                  setSelectedIds([]);
-                  setLastSelectedId(undefined);
-                  return true;
-                })
-                .catch((err) => {
-                  console.error(err);
-                  toast.error(
-                    `Failed to archive item${selectedIds.length === 1 ? '' : 's'}. \n ${err.message}`
-                  );
-                  return false;
-                });
-            },
-          }}
-        />
-      );
-    }, [selectedIds]);
+            setIsLoading(true);
+            return client
+              .mutate({ mutation: ARCHIVE_ITEMS })
+              .finally(() => {
+                setIsLoading(false);
+              })
+              .then(() => {
+                toast.success(`Item${selectedIds.length === 1 ? '' : 's'} successfully archived.`);
+                refetch();
+                setSelectedIds([]);
+                setLastSelectedId(undefined);
+                return true;
+              })
+              .catch((err) => {
+                console.error(err);
+                toast.error(`Failed to archive item${selectedIds.length === 1 ? '' : 's'}. \n ${err.message}`);
+                return false;
+              });
+          },
+        },
+      },
+      [selectedIds]
+    );
 
     if (!data && error)
       return (
@@ -615,6 +610,8 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // render the table
     return (
       <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
+        {DeleteWindow}
+        {ArchiveWindow}
         <Table
           data={{
             // when data is undefined, generate placeholder rows

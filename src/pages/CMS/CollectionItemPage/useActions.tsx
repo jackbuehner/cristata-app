@@ -49,6 +49,7 @@ interface UseActionsReturn {
   actions: Action[];
   quickActions: Action[];
   showActionDropdown: ReturnType<typeof useDropdown>[0];
+  Windows: React.ReactNode;
 }
 
 interface Action {
@@ -66,8 +67,8 @@ function useActions(params: UseActionsParams): UseActionsReturn {
 
   const idKey = params.idKey || '_id';
 
-  const [showShareModal] = useShareModal(params.collectionName, params.itemId);
-  const [showPublishModal] = usePublishModal(
+  const [ShareWindow, showShareModal] = useShareModal(params.collectionName, params.itemId);
+  const [PublishWindow, showPublishModal] = usePublishModal(
     client,
     params.collectionName,
     params.itemId,
@@ -345,7 +346,17 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     actions.find((action) => action?.label === 'Share'),
   ].filter((action): action is Action => !!action);
 
-  return { actions, quickActions, showActionDropdown };
+  return {
+    actions,
+    quickActions,
+    showActionDropdown,
+    Windows: (
+      <>
+        {ShareWindow}
+        {PublishWindow}
+      </>
+    ),
+  };
 }
 
 export { useActions };

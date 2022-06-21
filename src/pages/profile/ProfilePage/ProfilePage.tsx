@@ -6,7 +6,6 @@ import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
-import { useModal } from 'react-modal-hook';
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
@@ -14,7 +13,6 @@ import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
-import { PlainModal } from '../../../components/Modal';
 import { TextArea } from '../../../components/TextArea';
 import { TextInput } from '../../../components/TextInput';
 import {
@@ -27,6 +25,7 @@ import {
   REINVITE_USER,
   REINVITE_USER__TYPE,
 } from '../../../graphql/queries';
+import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
@@ -68,7 +67,7 @@ function ProfilePage() {
     document.title = `${profile?.name ? profile.name + ' - ' : ''} Profile - Cristata`;
   }, [profile?.name]);
 
-  const [showEditModal, hideEditModal] = useModal(() => {
+  const [EditWindow, showEditModal] = useWindowModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [fieldData, setFieldData] = useState({
       name: profile?.name,
@@ -146,25 +145,24 @@ function ProfilePage() {
         });
     };
 
-    if (data) {
-      return (
-        <PlainModal
-          hideModal={hideEditModal}
-          title={profile?.name || `Edit profile`}
-          continueButton={{
-            text: 'Save',
-            onClick: async () => {
-              setIsLoading(true);
-              const updateStatus = await updateProfileData();
-              if (profile && profile.retired !== fieldData.retired) await deactivate(profile._id);
-              setIsLoading(false);
-              // return whether the action was successful
-              if (updateStatus === true) return true;
-              return false;
-            },
-          }}
-          isLoading={isLoading}
-        >
+    return {
+      title: profile?.name || `Edit profile`,
+      isLoading: isLoading,
+      continueButton: {
+        text: 'Save',
+        onClick: async () => {
+          setIsLoading(true);
+          const updateStatus = await updateProfileData();
+          if (profile && profile.retired !== fieldData.retired) await deactivate(profile._id);
+          setIsLoading(false);
+          // return whether the action was successful
+          if (updateStatus === true) return true;
+          return false;
+        },
+      },
+      windowOptions: { name: 'edit profile', height: 800 },
+      children: data ? (
+        <>
           {canManage ? (
             <>
               <InputGroup type={`text`}>
@@ -286,10 +284,9 @@ function ProfilePage() {
             </a>
             .
           </Note>
-        </PlainModal>
-      );
-    }
-    return null;
+        </>
+      ) : undefined,
+    };
   }, [data]);
 
   const reinvite = () => {
@@ -346,6 +343,7 @@ function ProfilePage() {
 
   return (
     <>
+      {EditWindow}
       {loading ? null : data ? (
         <ContentWrapper theme={theme}>
           {profile?.retired ? (

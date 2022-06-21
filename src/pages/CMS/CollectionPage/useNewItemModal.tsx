@@ -5,19 +5,21 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { useState } from 'react';
-import { useModal } from 'react-modal-hook';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
+import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Checkbox, DateTime, Number, Text } from '../../../components/ContentField';
-import { PlainModal } from '../../../components/Modal';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
+import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { deepen } from '../CollectionItemPage/useFindDoc';
 
-function useNewItemModal(collectionName: string, navigate: NavigateFunction) {
-  const [showModal, hideModal] = useModal(() => {
+function useNewItemModal(
+  collectionName: string,
+  navigate: NavigateFunction
+): [React.ReactNode, () => void, () => void] {
+  const [WindowModal, showModal, hideModal] = useWindowModal(() => {
     const client = useApolloClient();
     const [loading, setLoading] = useState(false);
 
@@ -102,14 +104,13 @@ function useNewItemModal(collectionName: string, navigate: NavigateFunction) {
       return false;
     };
 
-    return (
-      <MuiPickersUtilsProvider utils={LuxonUtils}>
-        <PlainModal
-          hideModal={hideModal}
-          title={`Create new`}
-          isLoading={loading}
-          continueButton={{ text: 'Create', disabled: !allValuesAreSet, onClick: create }}
-        >
+    return {
+      title: `Create new`,
+      isLoading: loading,
+      continueButton: { text: 'Create', disabled: !allValuesAreSet, onClick: create },
+      windowOptions: { height: 600, name: 'Create new item CMS' },
+      children: (
+        <MuiPickersUtilsProvider utils={LuxonUtils}>
           {(requiredFields || []).map(([key, def], index) => {
             const fieldName = def.field?.label || key;
 
@@ -199,12 +200,12 @@ function useNewItemModal(collectionName: string, navigate: NavigateFunction) {
             }
             return <></>;
           })}
-        </PlainModal>
-      </MuiPickersUtilsProvider>
-    );
-  }, [collectionName]);
+        </MuiPickersUtilsProvider>
+      ),
+    };
+  }, []);
 
-  return [showModal, hideModal];
+  return [WindowModal, showModal, hideModal];
 }
 
 export { useNewItemModal };

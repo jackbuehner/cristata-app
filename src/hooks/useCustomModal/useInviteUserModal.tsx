@@ -1,22 +1,21 @@
 import { useApolloClient } from '@apollo/client';
-import { useState } from 'react';
-import { useModal } from 'react-modal-hook';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { InputGroup } from '../../components/InputGroup';
 import { Label } from '../../components/Label';
-import { PlainModal } from '../../components/Modal';
 import { TextInput } from '../../components/TextInput';
 import { CREATE_USER, CREATE_USER__TYPE } from '../../graphql/queries';
 import { slugify } from '../../utils/slugify';
+import { useWindowModal } from '../useWindowModal';
 
 /**
  * Use a modal for inviting a new user.
  */
-function useInviteUserModal() {
+function useInviteUserModal(): [React.ReactNode, () => void, () => void] {
   const client = useApolloClient();
 
   // create the modal
-  const [showModal, hideModal] = useModal(() => {
+  const [Window, showModal, hideModal] = useWindowModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState(false);
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -64,18 +63,17 @@ function useInviteUserModal() {
         });
     };
 
-    return (
-      <PlainModal
-        hideModal={hideModal}
-        title={`Invite new user`}
-        isLoading={isLoading}
-        continueButton={{
-          text: `Invite`,
-          onClick: async () => {
-            return await create();
-          },
-        }}
-      >
+    return {
+      title: `Invite new user`,
+      isLoading: isLoading,
+      continueButton: {
+        text: `Invite`,
+        onClick: async () => {
+          return await create();
+        },
+      },
+      windowOptions: { name: 'invite new user' },
+      children: (
         <>
           <InputGroup type={`text`}>
             <Label
@@ -143,12 +141,12 @@ function useInviteUserModal() {
             />
           </InputGroup>
         </>
-      </PlainModal>
-    );
+      ),
+    };
   }, []);
 
   // return the modal
-  return [showModal, hideModal];
+  return [Window, showModal, hideModal];
 }
 
 export { useInviteUserModal };

@@ -4,12 +4,11 @@ import { useTheme } from '@emotion/react';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import { useRef } from 'react';
-import { useModal } from 'react-modal-hook';
 import { useLocation } from 'react-router-dom';
 import { Button } from '../../../components/Button';
 import { ReferenceMany } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
-import { PlainModal } from '../../../components/Modal';
+import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField, setUnsavedPermissionField } from '../../../redux/slices/cmsItemSlice';
 import { colorType, themeType } from '../../../utils/theme/theme';
@@ -17,14 +16,18 @@ import { saveChanges } from './saveChanges';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
-function useShareModal(collection?: string, itemId?: string, color: colorType = 'primary') {
+function useShareModal(
+  collection?: string,
+  itemId?: string,
+  color: colorType = 'primary'
+): [React.ReactNode, () => void, () => void] {
   const client = useApolloClient();
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const isFs = searchParams.get('fs') === '1' || searchParams.get('fs') === 'force';
 
   // create the modal
-  const [showModal, hideModal] = useModal(() => {
+  const [Window, showModal, hideModal] = useWindowModal(() => {
     const itemState = useAppSelector((state) => state.cmsItem);
     const dispatch = useAppDispatch();
     const theme = useTheme() as themeType;
@@ -59,30 +62,29 @@ function useShareModal(collection?: string, itemId?: string, color: colorType = 
     };
 
     if (collection && itemId) {
-      return (
-        <PlainModal
-          hideModal={hideModal}
-          title={`Share`}
-          isLoading={itemState.isLoading}
-          cancelButton={{ color: isFs ? 'blue' : color }}
-          continueButton={{
-            text: 'Save changes',
-            color: isFs ? 'blue' : color,
-            onClick: async () => {
-              return await saveChanges(
-                client,
-                collection,
-                itemId,
-                { dispatch, state: itemState, refetch: () => null },
-                {},
-                true
-              );
-            },
-          }}
-          styleString={`width: 370px; background-color: ${
-            theme.mode === 'dark' ? theme.color.neutral.dark[100] : `#ffffff`
-          }; > div:first-of-type { height: 400px; }`}
-        >
+      return {
+        title: `Share`,
+        isLoading: itemState.isLoading,
+        cancelButton: { color: isFs ? 'blue' : color },
+        continueButton: {
+          text: 'Save changes',
+          color: isFs ? 'blue' : color,
+          onClick: async () => {
+            return await saveChanges(
+              client,
+              collection,
+              itemId,
+              { dispatch, state: itemState, refetch: () => null },
+              {},
+              true
+            );
+          },
+        },
+        styleString: `width: 370px; background-color: ${
+          theme.mode === 'dark' ? theme.color.neutral.dark[100] : `#ffffff`
+        }; > div:first-of-type { height: 400px; }`,
+        windowOptions: { name: 'share doc', width: 370, height: 560 },
+        children: (
           <>
             <Field
               label={'Link to document'}
@@ -149,19 +151,23 @@ function useShareModal(collection?: string, itemId?: string, color: colorType = 
               noDrag
             />
           </>
-        </PlainModal>
-      );
+        ),
+      };
     }
 
-    return (
-      <PlainModal hideModal={hideModal} title={`Share`} isLoading={itemState.isLoading}>
-        <div>Improper context!</div>
-      </PlainModal>
-    );
+    return {
+      title: `Share`,
+      isLoading: itemState.isLoading,
+      styleString: `width: 370px; background-color: ${
+        theme.mode === 'dark' ? theme.color.neutral.dark[100] : `#ffffff`
+      }; > div:first-of-type { height: 400px; }`,
+      windowOptions: { name: 'share doc', width: 370, height: 560 },
+      children: <div>Improper context!</div>,
+    };
   }, [isFs]);
 
   // return the modal
-  return [showModal, hideModal];
+  return [Window, showModal, hideModal];
 }
 
 export { useShareModal };

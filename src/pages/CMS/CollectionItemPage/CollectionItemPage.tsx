@@ -143,7 +143,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   });
 
   // determine the actions for this document
-  const { actions, quickActions, showActionDropdown } = useActions({
+  const { actions, quickActions, showActionDropdown, Windows } = useActions({
     actionAccess,
     canPublish,
     state: itemState,
@@ -827,6 +827,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
     return (
       <>
+        {Windows}
         {!props.isEmbedded && (fs === 'force' || fs === '1') ? null : null}
         <FullScreenSplash isLoading={(fs === 'force' || fs === '1') && !hasLoadedAtLeastOnce} />
         {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (

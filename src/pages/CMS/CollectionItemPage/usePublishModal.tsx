@@ -5,9 +5,8 @@ import { useTheme } from '@emotion/react';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { get as getProperty } from 'object-path';
 import { useState } from 'react';
-import { useModal } from 'react-modal-hook';
 import { DateTime, Text } from '../../../components/ContentField';
-import { PlainModal } from '../../../components/Modal';
+import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
@@ -20,8 +19,8 @@ function usePublishModal(
   refetch: () => void,
   publishStage?: number,
   idKey = '_id'
-) {
-  const [showModal, hideModal] = useModal(() => {
+): [React.ReactNode, () => void, () => void] {
+  const [Window, showModal, hideModal] = useWindowModal(() => {
     const state = useAppSelector((state) => state.cmsItem);
     const dispatch = useAppDispatch();
     const theme = useTheme() as themeType;
@@ -46,41 +45,40 @@ function usePublishModal(
 
     const shortId = itemId.slice(-6);
 
-    return (
-      <MuiPickersUtilsProvider utils={LuxonUtils}>
-        <PlainModal
-          hideModal={hideModal}
-          title={`Publish article`}
-          continueButton={{
-            text: 'Publish',
-            onClick: async () => {
-              setIsLoading(true);
+    return {
+      title: `Publish article`,
+      isLoading: isLoading,
+      continueButton: {
+        text: 'Publish',
+        onClick: async () => {
+          setIsLoading(true);
 
-              if (publishStage) {
-                const isPublished = !!(await publishItem()).data;
-                const isStageSet = await saveChanges(
-                  client,
-                  collectionName,
-                  itemId,
-                  { dispatch, state, refetch },
-                  {
-                    stage: publishStage,
-                  },
-                  false,
-                  idKey
-                );
+          if (publishStage) {
+            const isPublished = !!(await publishItem()).data;
+            const isStageSet = await saveChanges(
+              client,
+              collectionName,
+              itemId,
+              { dispatch, state, refetch },
+              {
+                stage: publishStage,
+              },
+              false,
+              idKey
+            );
 
-                // return whether the action was successful
-                setIsLoading(false);
-                if (isStageSet === true && isPublished === true) return true;
-              }
+            // return whether the action was successful
+            setIsLoading(false);
+            if (isStageSet === true && isPublished === true) return true;
+          }
 
-              return false;
-            },
-            disabled: confirm !== shortId,
-          }}
-          isLoading={isLoading}
-        >
+          return false;
+        },
+        disabled: confirm !== shortId,
+      },
+      windowOptions: { name: 'publish cms item' },
+      children: (
+        <MuiPickersUtilsProvider utils={LuxonUtils}>
           <p style={{ marginTop: 0, fontSize: 13, color: theme.color.neutral[theme.mode][1100] }}>
             Before continuing, please <b>check the document and its metadata for formatting issues and typos</b>
             .
@@ -110,12 +108,12 @@ function usePublishModal(
             onChange={(e) => setConfirm(e.currentTarget.value)}
             isEmbedded
           />
-        </PlainModal>
-      </MuiPickersUtilsProvider>
-    );
+        </MuiPickersUtilsProvider>
+      ),
+    };
   }, [client, collectionName, itemId, refetch, publishStage, idKey]);
 
-  return [showModal, hideModal];
+  return [Window, showModal, hideModal];
 }
 
 export { usePublishModal };

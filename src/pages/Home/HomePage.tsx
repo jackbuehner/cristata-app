@@ -1,34 +1,34 @@
 /** @jsxImportSource @emotion/react */
+import { useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { themeType } from '../../utils/theme/theme';
-import { AnalyticsChart } from './AnalyticsChart';
-import { HomeSectionHeading } from '../../components/Heading';
+import * as fluentIcons from '@fluentui/react-icons';
 import {
   AppFolder24Regular,
-  Pulse24Regular,
+  Checkmark24Regular,
+  Clock24Regular,
   DataUsage24Regular,
-  Megaphone24Regular,
+  Document24Regular,
   Edit24Regular,
   MailInbox24Regular,
-  Clock24Regular,
-  Checkmark24Regular,
-  Document24Regular,
+  Megaphone24Regular,
+  Pulse24Regular,
 } from '@fluentui/react-icons';
-import * as fluentIcons from '@fluentui/react-icons';
-import { ItemsRow } from './ItemsRow';
-import { WorkflowStatusCard } from './WorkflowStatusCard';
-import { RecentActivity } from './RecentActivity';
 import { useEffect } from 'react';
-import { useQuery } from '@apollo/client';
-import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
-import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
-import { useDashboardConfig } from '../../hooks/useDashboardConfig';
-import { useAppDispatch } from '../../redux/hooks';
-import { setAppName, setAppActions, setAppLoading } from '../../redux/slices/appbarSlice';
-import { useNavigationConfig } from '../../hooks/useNavigationConfig';
-import { Button } from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../../components/Button';
+import { HomeSectionHeading } from '../../components/Heading';
+import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
+import { useDashboardConfig } from '../../hooks/useDashboardConfig';
+import { useNavigationConfig } from '../../hooks/useNavigationConfig';
+import { useAppDispatch } from '../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName } from '../../redux/slices/appbarSlice';
+import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
+import { themeType } from '../../utils/theme/theme';
+import { AnalyticsChart } from './AnalyticsChart';
+import { ItemsRow } from './ItemsRow';
+import { RecentActivity } from './RecentActivity';
+import { WorkflowStatusCard } from './WorkflowStatusCard';
 
 function HomePage() {
   const dispatch = useAppDispatch();

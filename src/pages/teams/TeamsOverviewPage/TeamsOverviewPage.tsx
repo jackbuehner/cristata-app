@@ -5,13 +5,11 @@ import { PeopleAdd16Regular } from '@fluentui/react-icons';
 import mongoose from 'mongoose';
 import { Fragment, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from 'react-modal-hook';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { SectionHeading } from '../../../components/Heading';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
-import { PlainModal } from '../../../components/Modal';
 import { MultiSelect } from '../../../components/Select';
 import { TeamCard } from '../../../components/TeamCard';
 import { TextInput } from '../../../components/TextInput';
@@ -25,6 +23,7 @@ import {
   TEAM_UNASSIGNED_USERS,
   TEAM_UNASSIGNED_USERS__TYPE,
 } from '../../../graphql/queries';
+import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
@@ -39,7 +38,7 @@ function TeamsOverviewPage() {
   const navigate = useNavigate();
   const client = useApolloClient();
 
-  const [showCreateModal, hideCreateModal] = useModal(() => {
+  const [CreateWindow, showCreateModal] = useWindowModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const authUserState = useAppSelector((state) => state.authUser);
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -71,79 +70,80 @@ function TeamsOverviewPage() {
         });
     };
 
-    return (
-      <PlainModal
-        hideModal={hideCreateModal}
-        title={`New team`}
-        isLoading={isLoading}
-        continueButton={{
-          text: 'Create',
-          onClick: () => {
-            createTeam();
-            return false;
-          },
-        }}
-      >
-        <InputGroup type={`text`}>
-          <Label htmlFor={'name'} disabled={isLoading}>
-            Team name
-          </Label>
-          <TextInput
-            name={'name'}
-            value={name}
-            onChange={(e) => setName(e.currentTarget.value)}
-            isDisabled={isLoading}
-          />
-        </InputGroup>
-        <InputGroup type={`display`}>
-          <Label htmlFor={'slug'} disabled={isLoading}>
-            Team slug
-          </Label>
-          <span style={{ opacity: 0.7 }}>{slug}&nbsp;</span>
-        </InputGroup>
-        <ErrorBoundary fallback={<div>Error loading field 'organizers'</div>}>
+    return {
+      title: `New team`,
+      isLoading: isLoading,
+      continueButton: {
+        text: 'Create',
+        onClick: () => {
+          createTeam();
+          return false;
+        },
+      },
+      children: (
+        <>
           <InputGroup type={`text`}>
-            <Label
-              htmlFor={'organizers'}
-              description={'The people in charge of this team.'}
-              disabled={isLoading}
-            >
-              Organizers
+            <Label htmlFor={'name'} disabled={isLoading}>
+              Team name
             </Label>
-            <MultiSelect
-              loadOptions={selectProfile}
-              async
-              val={organizers}
-              onChange={(valueObjs) => {
-                if (valueObjs)
-                  setOrganizers(valueObjs.map((obj: { value: string; label: string }) => obj.value));
-              }}
+            <TextInput
+              name={'name'}
+              value={name}
+              onChange={(e) => setName(e.currentTarget.value)}
               isDisabled={isLoading}
             />
           </InputGroup>
-        </ErrorBoundary>
-        <ErrorBoundary fallback={<div>Error loading field 'members'</div>}>
-          <InputGroup type={`text`}>
-            <Label
-              htmlFor={'members'}
-              description={'The members of this team. Organizers are also members.'}
-              disabled={isLoading}
-            >
-              Members
+          <InputGroup type={`display`}>
+            <Label htmlFor={'slug'} disabled={isLoading}>
+              Team slug
             </Label>
-            <MultiSelect
-              loadOptions={selectProfile}
-              async
-              val={members}
-              onChange={(valueObjs) => {
-                if (valueObjs) setMembers(valueObjs.map((obj: { value: string; label: string }) => obj.value));
-              }}
-              isDisabled={isLoading}
-            />
+            <span style={{ opacity: 0.7 }}>{slug}&nbsp;</span>
           </InputGroup>
-        </ErrorBoundary>
-      </PlainModal>
-    );
+          <ErrorBoundary fallback={<div>Error loading field 'organizers'</div>}>
+            <InputGroup type={`text`}>
+              <Label
+                htmlFor={'organizers'}
+                description={'The people in charge of this team.'}
+                disabled={isLoading}
+              >
+                Organizers
+              </Label>
+              <MultiSelect
+                loadOptions={selectProfile}
+                async
+                val={organizers}
+                onChange={(valueObjs) => {
+                  if (valueObjs)
+                    setOrganizers(valueObjs.map((obj: { value: string; label: string }) => obj.value));
+                }}
+                isDisabled={isLoading}
+              />
+            </InputGroup>
+          </ErrorBoundary>
+          <ErrorBoundary fallback={<div>Error loading field 'members'</div>}>
+            <InputGroup type={`text`}>
+              <Label
+                htmlFor={'members'}
+                description={'The members of this team. Organizers are also members.'}
+                disabled={isLoading}
+              >
+                Members
+              </Label>
+              <MultiSelect
+                loadOptions={selectProfile}
+                async
+                val={members}
+                onChange={(valueObjs) => {
+                  if (valueObjs)
+                    setMembers(valueObjs.map((obj: { value: string; label: string }) => obj.value));
+                }}
+                isDisabled={isLoading}
+              />
+            </InputGroup>
+          </ErrorBoundary>
+        </>
+      ),
+    };
   });
 
   // get the teams
@@ -201,6 +201,7 @@ function TeamsOverviewPage() {
 
   return (
     <>
+      {CreateWindow}
       {[[]].map(() => {
         if (loadingTeams) {
           return <p key={0}>Loading teams...</p>;

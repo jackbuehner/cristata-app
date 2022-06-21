@@ -13,7 +13,6 @@ import {
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from 'react-modal-hook';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
@@ -23,7 +22,6 @@ import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { Spinner } from '../../../components/Loading';
 import { Menu } from '../../../components/Menu';
-import { PlainModal } from '../../../components/Modal';
 import { MultiSelect } from '../../../components/Select';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
@@ -40,6 +38,7 @@ import {
 } from '../../../graphql/queries';
 import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
+import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
@@ -115,8 +114,12 @@ function TeamPage() {
     false;
   const canDeactivate = permissionsData?.userActionAccess?.deactivate || false;
 
+  // modal to invite new user
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [NewUserWindow, showNewUserModal] = useInviteUserModal();
+
   // modal for managing the team
-  const [showManageModal, hideManageModal] = useModal(() => {
+  const [ManageWindow, showManageModal] = useWindowModal(() => {
     // get fresh data
     const {
       data,
@@ -184,149 +187,140 @@ function TeamPage() {
         });
     };
 
-    // modal to invite new user
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [showNewUserModal] = useInviteUserModal();
-
-    return (
-      <PlainModal
-        hideModal={hideManageModal}
-        title={`Manage team`}
-        isLoading={isLoading}
-        cancelButton={error ? { text: 'Close' } : !data || !canManage ? null : undefined}
-        continueButton={
-          error
-            ? {
-                text: 'Retry',
-                onClick: () => {
-                  retry();
-                  return false;
-                },
-              }
-            : !data || !canManage
-            ? {
-                text: 'Close',
-                onClick: () => true,
-              }
-            : {
-                text: 'Save',
-                onClick: async () => {
-                  return await modifyTeam();
-                },
-              }
-        }
-      >
-        {error ? (
-          <div>Failed to load 'Manage team' modal.</div>
-        ) : (
-          <>
-            {canManage ? null : (
-              <div style={{ fontSize: 14, fontStyle: 'italic', marginBottom: 10 }}>
-                You do not have permission to manage this team. If you think you should have permission, contact
-                one of the team organizers.
-              </div>
-            )}
-            {canManage ? (
+    return {
+      title: `Manage team`,
+      isLoading: isLoading,
+      cancelButton: error ? { text: 'Close' } : !data || !canManage ? null : undefined,
+      continueButton: error
+        ? {
+            text: 'Retry',
+            onClick: () => {
+              retry();
+              return false;
+            },
+          }
+        : !data || !canManage
+        ? {
+            text: 'Close',
+            onClick: () => true,
+          }
+        : {
+            text: 'Save',
+            onClick: async () => {
+              return await modifyTeam();
+            },
+          },
+      windowOptions: { name: 'manage team' },
+      children: error ? (
+        <div>Failed to load 'Manage team' modal.</div>
+      ) : (
+        <>
+          {canManage ? null : (
+            <div style={{ fontSize: 14, fontStyle: 'italic', marginBottom: 10 }}>
+              You do not have permission to manage this team. If you think you should have permission, contact
+              one of the team organizers.
+            </div>
+          )}
+          {canManage ? (
+            <InputGroup type={`text`}>
+              <Label
+                htmlFor={'name'}
+                description={`The display name of the team. Changing this will not affect the team ID or the team slug.`}
+                disabled={isLoading}
+              >
+                Team name
+              </Label>
+              <TextInput
+                name={'name'}
+                value={name}
+                onChange={(e) => setName(e.currentTarget.value)}
+                isDisabled={isLoading}
+              />
+            </InputGroup>
+          ) : (
+            <InputGroup type={`text`}>
+              <Label htmlFor={'name'} disabled={isLoading}>
+                Team name
+              </Label>
+              <span style={{ opacity: 0.7 }}>{team?.name}&nbsp;</span>
+            </InputGroup>
+          )}
+          <InputGroup type={canManage ? `display` : `text`}>
+            <Label htmlFor={'slug'} disabled={isLoading}>
+              Team slug
+            </Label>
+            <span style={{ opacity: 0.7 }}>{team?.slug}&nbsp;</span>
+          </InputGroup>
+          {canManage ? (
+            <ErrorBoundary fallback={<div>Error loading field 'members'</div>}>
               <InputGroup type={`text`}>
                 <Label
-                  htmlFor={'name'}
-                  description={`The display name of the team. Changing this will not affect the team ID or the team slug.`}
+                  htmlFor={'membersToAdd'}
+                  description={'Select users to add to this team.'}
                   disabled={isLoading}
                 >
-                  Team name
+                  Members to add
                 </Label>
-                <TextInput
-                  name={'name'}
-                  value={name}
-                  onChange={(e) => setName(e.currentTarget.value)}
+                <MultiSelect
+                  loadOptions={selectProfile}
+                  async
+                  val={membersToAdd}
+                  onChange={(valueObjs) => {
+                    if (valueObjs)
+                      setMembersToAdd(valueObjs.map((obj: { value: string; label: string }) => obj.value));
+                  }}
                   isDisabled={isLoading}
                 />
-              </InputGroup>
-            ) : (
-              <InputGroup type={`text`}>
-                <Label htmlFor={'name'} disabled={isLoading}>
-                  Team name
-                </Label>
-                <span style={{ opacity: 0.7 }}>{team?.name}&nbsp;</span>
-              </InputGroup>
-            )}
-            <InputGroup type={canManage ? `display` : `text`}>
-              <Label htmlFor={'slug'} disabled={isLoading}>
-                Team slug
-              </Label>
-              <span style={{ opacity: 0.7 }}>{team?.slug}&nbsp;</span>
-            </InputGroup>
-            {canManage ? (
-              <ErrorBoundary fallback={<div>Error loading field 'members'</div>}>
-                <InputGroup type={`text`}>
-                  <Label
-                    htmlFor={'membersToAdd'}
-                    description={'Select users to add to this team.'}
-                    disabled={isLoading}
-                  >
-                    Members to add
-                  </Label>
-                  <MultiSelect
-                    loadOptions={selectProfile}
-                    async
-                    val={membersToAdd}
-                    onChange={(valueObjs) => {
-                      if (valueObjs)
-                        setMembersToAdd(valueObjs.map((obj: { value: string; label: string }) => obj.value));
-                    }}
-                    isDisabled={isLoading}
-                  />
-                  <div
+                <div
+                  style={{
+                    fontFamily: theme.font.detail,
+                    fontSize: 13,
+                    color: theme.color.neutral[theme.mode][1200],
+                    marginTop: 6,
+                  }}
+                >
+                  Don't see the member you want to add?{' '}
+                  <span
                     style={{
-                      fontFamily: theme.font.detail,
-                      fontSize: 13,
-                      color: theme.color.neutral[theme.mode][1200],
-                      marginTop: 6,
+                      color: theme.color.primary[theme.mode === 'light' ? 800 : 300],
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
                     }}
+                    onClick={showNewUserModal}
                   >
-                    Don't see the member you want to add?{' '}
-                    <span
-                      style={{
-                        color: theme.color.primary[theme.mode === 'light' ? 800 : 300],
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                      }}
-                      onClick={showNewUserModal}
-                    >
-                      Invite a new user
-                    </span>
-                  </div>
-                </InputGroup>
-              </ErrorBoundary>
-            ) : null}
-            <InputGroup type={`text`}>
-              <Label description={'This team is managed by the following organizers:'} disabled={isLoading}>
-                Organizers
-              </Label>
-              {organizers?.map((organizer) => {
-                return (
-                  <Organizer
-                    theme={theme}
-                    href={`/profile/${organizer._id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(`/profile/${organizer._id}`);
-                    }}
-                  >
-                    <ProfilePhoto src={organizer.photo || genAvatar(organizer._id)} />
-                    <span>{organizer.name}</span>
-                  </Organizer>
-                );
-              })}
-            </InputGroup>
-          </>
-        )}
-      </PlainModal>
-    );
+                    Invite a new user
+                  </span>
+                </div>
+              </InputGroup>
+            </ErrorBoundary>
+          ) : null}
+          <InputGroup type={`text`}>
+            <Label description={'This team is managed by the following organizers:'} disabled={isLoading}>
+              Organizers
+            </Label>
+            {organizers?.map((organizer) => {
+              return (
+                <Organizer
+                  theme={theme}
+                  href={`/profile/${organizer._id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/profile/${organizer._id}`);
+                  }}
+                >
+                  <ProfilePhoto src={organizer.photo || genAvatar(organizer._id)} />
+                  <span>{organizer.name}</span>
+                </Organizer>
+              );
+            })}
+          </InputGroup>
+        </>
+      ),
+    };
   }, [theme, permissions, team?._id]);
 
   // modal for deleting the team
-  const [showDeleteModal, hideDeleteModal] = useModal(() => {
+  const [DeleteWindow, showDeleteModal] = useWindowModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -350,39 +344,40 @@ function TeamPage() {
         .finally(() => setIsLoading(false));
     };
 
-    return (
-      <PlainModal
-        title={'Delete team?'}
-        isLoading={isLoading}
-        hideModal={hideDeleteModal}
-        continueButton={{
-          text: 'Yes, Delete',
-          color: 'danger',
-          disabled: !textMatches,
-          onClick: deleteTeam,
-        }}
-      >
-        <div style={{ fontSize: 14, marginBottom: 16 }}>
-          Danger! <strong>This cannot be undone.</strong> Users in the team will not be deleted, but users will
-          not longer be able to access documents via this team.
-        </div>
-        <InputGroup type={`text`}>
-          <Label
-            htmlFor={'confirm-field'}
-            description={`Type "Delete ${team?.slug}" to delete this team.`}
-            disabled={isLoading}
-          >
-            Confirm delete
-          </Label>
-          <TextInput
-            name={'name'}
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.currentTarget.value)}
-            isDisabled={isLoading}
-          />
-        </InputGroup>
-      </PlainModal>
-    );
+    return {
+      title: `Delete team?`,
+      isLoading: isLoading,
+      continueButton: {
+        text: 'Yes, Delete',
+        color: 'danger',
+        disabled: !textMatches,
+        onClick: deleteTeam,
+      },
+      windowOptions: { name: `delete team`, height: 340 },
+      children: (
+        <>
+          <div style={{ fontSize: 14, marginBottom: 16 }}>
+            Danger! <strong>This cannot be undone.</strong> Users in the team will not be deleted, but users
+            will not longer be able to access documents via this team.
+          </div>
+          <InputGroup type={`text`}>
+            <Label
+              htmlFor={'confirm-field'}
+              description={`Type "Delete ${team?.slug}" to delete this team.`}
+              disabled={isLoading}
+            >
+              Confirm delete
+            </Label>
+            <TextInput
+              name={'name'}
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.currentTarget.value)}
+              isDisabled={isLoading}
+            />
+          </InputGroup>
+        </>
+      ),
+    };
   }, [team]);
 
   /**
@@ -523,7 +518,7 @@ function TeamPage() {
   // remove user modal
   const [isDeactivateChecked, setIsDeactivateChecked] = useState<boolean>(false);
   const [modalUser, setModalUser] = useState<string>();
-  const [showRemoveUserModal, hideRemoveUserModal] = useModal(() => {
+  const [RemoveUserWindow, showRemoveUserModal] = useWindowModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState(false);
 
@@ -593,46 +588,44 @@ function TeamPage() {
         });
     };
 
-    return (
-      <PlainModal
-        hideModal={hideRemoveUserModal}
-        title={`Remove from team?`}
-        isLoading={isLoading}
-        continueButton={{
-          text: `Yes, remove${isDeactivateChecked ? ` and deactivate` : ``}`,
-          color: 'danger',
-          onClick: async () => {
-            if (modalUser && modalUser.length > 0) {
-              if (isDeactivateChecked) deactivate(modalUser); // don't wait for deactivation
-              const removed = await remove(modalUser); // wait for removal
-              return removed; // return whether it worked
-            }
-            return false;
-          },
-        }}
-      >
-        {canDeactivate ? (
-          <>
-            <InputGroup type={`checkbox`}>
-              <Label
-                htmlFor={'deactivate'}
-                description={`Deactivate an account if this person no longer needs to access Cristata.`}
-                disabled={isLoading}
-              >
-                Also deactivate this account.
-              </Label>
-              <Checkbox
-                name={'deactivate'}
-                id={'deactivate'}
-                isChecked={isDeactivateChecked}
-                isDisabled={isLoading}
-                onChange={() => setIsDeactivateChecked(!isDeactivateChecked)}
-              />
-            </InputGroup>
-          </>
-        ) : null}
-      </PlainModal>
-    );
+    return {
+      title: `Remove from team?`,
+      isLoading: isLoading,
+      continueButton: {
+        text: `Yes, remove${isDeactivateChecked ? ` and deactivate` : ``}`,
+        color: 'danger',
+        onClick: async () => {
+          if (modalUser && modalUser.length > 0) {
+            if (isDeactivateChecked) deactivate(modalUser); // don't wait for deactivation
+            const removed = await remove(modalUser); // wait for removal
+            return removed; // return whether it worked
+          }
+          return false;
+        },
+      },
+      windowOptions: { name: 'remove from team', height: canDeactivate ? 272 : 180 },
+      text: canDeactivate ? undefined : `You can re-add this user to this team if you change your mind.`,
+      children: canDeactivate ? (
+        <>
+          <InputGroup type={`checkbox`}>
+            <Label
+              htmlFor={'deactivate'}
+              description={`Deactivate an account if this person no longer needs to access Cristata.`}
+              disabled={isLoading}
+            >
+              Also deactivate this account.
+            </Label>
+            <Checkbox
+              name={'deactivate'}
+              id={'deactivate'}
+              isChecked={isDeactivateChecked}
+              isDisabled={isLoading}
+              onChange={() => setIsDeactivateChecked(!isDeactivateChecked)}
+            />
+          </InputGroup>
+        </>
+      ) : undefined,
+    };
   }, [isDeactivateChecked, modalUser, team]);
 
   // configure app bar
@@ -661,6 +654,10 @@ function TeamPage() {
 
   return (
     <>
+      {ManageWindow}
+      {DeleteWindow}
+      {RemoveUserWindow}
+      {NewUserWindow}
       {[[]].map(() => {
         if (loading && !data) {
           // initial load only

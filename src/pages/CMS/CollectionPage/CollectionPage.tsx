@@ -138,7 +138,7 @@ function CollectionPage() {
   });
 
   // createNew modal
-  const [createNew] = useNewItemModal(collectionName, navigate);
+  const [NewItemWindow, createNew] = useNewItemModal(collectionName, navigate);
 
   // tools dropdown
   const [showToolsDropdown] = useDropdown(
@@ -229,6 +229,7 @@ function CollectionPage() {
   }, [createNew, dispatch, pageTitle, showToolsDropdown]);
   return (
     <>
+      {NewItemWindow}
       <TableWrapper theme={theme}>
         <CollectionTable
           collection={collectionName}
