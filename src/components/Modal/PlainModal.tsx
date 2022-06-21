@@ -59,6 +59,7 @@ const PlainModalContent = styled.div<{
 }>`
   padding: ${({ modalHasChildren }) => (modalHasChildren ? `20px 24px` : `0 24px 20px 24px`)};
   overflow: auto;
+  flex-grow: 1;
   max-height: ${({ theme, titleHeight, actionRowHeight }) =>
     `calc(100vh - 40px - 40px - ${theme.dimensions.titlebar.height} - ${titleHeight}px - ${actionRowHeight}px)`};
 `;
@@ -136,6 +137,7 @@ interface IPlainModal {
   };
   isLoading?: boolean;
   styleString?: string;
+  noModalComponent?: boolean;
 }
 
 /**
@@ -206,6 +208,49 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
     return html;
   };
 
+  const Content = () => (
+    <>
+      <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>
+        {props.title}
+        {props.isLoading ? <IndeterminateProgress modalHasChildren={!!props.children} theme={theme} /> : null}
+      </PlainModalTitle>
+      <PlainModalContent
+        modalHasChildren={!!props.children}
+        theme={theme}
+        titleHeight={PlainModalTitleHeight ? PlainModalTitleHeight : 0}
+        actionRowHeight={ActionRowHeight ? ActionRowHeight : 0}
+      >
+        {props.text ? (
+          <PlainModalText theme={theme} dangerouslySetInnerHTML={{ __html: bold(props.text) }} />
+        ) : props.children ? (
+          <PlainModalText theme={theme}>{props.children}</PlainModalText>
+        ) : null}
+      </PlainModalContent>
+      <ActionRow modalHasChildren={!!props.children} theme={theme} ref={ActionRowElem}>
+        {props.cancelButton !== null ? (
+          <Button
+            color={props.cancelButton?.color}
+            onClick={handleCancelButtonClick}
+            disabled={props.cancelButton?.disabled}
+          >
+            {props.cancelButton?.text || 'Cancel'}
+          </Button>
+        ) : null}
+        <Button
+          color={props.continueButton?.color}
+          onClick={handleContinueButtonClick}
+          disabled={props.continueButton?.disabled}
+        >
+          {props.continueButton?.text || 'OK'}
+        </Button>
+      </ActionRow>
+    </>
+  );
+
+  if (props.noModalComponent) {
+    return <Content />;
+  }
+
   return (
     <ClassNames>
       {({ css }) => {
@@ -251,42 +296,7 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
               place-items: center;
             `}
           >
-            <PlainModalTitle modalHasChildren={!!props.children} theme={theme} ref={PlainModalTitleElem}>
-              {props.title}
-              {props.isLoading ? (
-                <IndeterminateProgress modalHasChildren={!!props.children} theme={theme} />
-              ) : null}
-            </PlainModalTitle>
-            <PlainModalContent
-              modalHasChildren={!!props.children}
-              theme={theme}
-              titleHeight={PlainModalTitleHeight ? PlainModalTitleHeight : 0}
-              actionRowHeight={ActionRowHeight ? ActionRowHeight : 0}
-            >
-              {props.text ? (
-                <PlainModalText theme={theme} dangerouslySetInnerHTML={{ __html: bold(props.text) }} />
-              ) : props.children ? (
-                <PlainModalText theme={theme}>{props.children}</PlainModalText>
-              ) : null}
-            </PlainModalContent>
-            <ActionRow modalHasChildren={!!props.children} theme={theme} ref={ActionRowElem}>
-              {props.cancelButton !== null ? (
-                <Button
-                  color={props.cancelButton?.color}
-                  onClick={handleCancelButtonClick}
-                  disabled={props.cancelButton?.disabled}
-                >
-                  {props.cancelButton?.text || 'Cancel'}
-                </Button>
-              ) : null}
-              <Button
-                color={props.continueButton?.color}
-                onClick={handleContinueButtonClick}
-                disabled={props.continueButton?.disabled}
-              >
-                {props.continueButton?.text || 'OK'}
-              </Button>
-            </ActionRow>
+            <Content />
           </ReactModal>
         );
       }}
@@ -295,3 +305,4 @@ function PlainModal({ hideModal, ...props }: IPlainModal) {
 }
 
 export { PlainModal };
+export type { IPlainModal };

@@ -1,0 +1,1 @@
+export { useWindowModal } from './useWindowModal';

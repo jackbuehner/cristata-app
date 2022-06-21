@@ -56,3 +56,4 @@ function useWindow(Node: () => React.ReactNode, options?: UseWindowOptions): Use
 }
 
 export { useWindow };
+export type { UseWindowOptions };
