@@ -1,3 +1,5 @@
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import Color from 'color';
 import React from 'react';
@@ -87,24 +89,30 @@ function AppErrorFallback({ error: unserializedError, resetErrorBoundary }: Fall
 
 ReactDOM.render(
   <React.StrictMode>
-    <ErrorBoundary FallbackComponent={AppErrorFallback}>
-      <App />
-      <Tooltip
-        place={'bottom'}
-        effect={'float'}
-        delayShow={600}
-        delayHide={100}
-        theme={theme}
-        overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
-          if (place === desiredPlace && effect === 'float')
-            return {
-              top: pos.top + 2,
-              left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
-            };
-          return pos;
-        }}
-      />
-    </ErrorBoundary>
+    <CacheProvider
+      value={createCache({
+        key: 'cristata',
+      })}
+    >
+      <ErrorBoundary FallbackComponent={AppErrorFallback}>
+        <App />
+        <Tooltip
+          place={'bottom'}
+          effect={'float'}
+          delayShow={600}
+          delayHide={100}
+          theme={theme}
+          overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
+            if (place === desiredPlace && effect === 'float')
+              return {
+                top: pos.top + 2,
+                left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
+              };
+            return pos;
+          }}
+        />
+      </ErrorBoundary>
+    </CacheProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
