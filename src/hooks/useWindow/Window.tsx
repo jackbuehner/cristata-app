@@ -49,6 +49,7 @@ function Window({ width, height, top, left, windowName, hideWindowModal, childre
   const windowCache = createCache({
     key: 'cristata-popup',
     container: container,
+    speedy: false, // required to ensure that styles are actually present in the popup
   });
 
   return (
