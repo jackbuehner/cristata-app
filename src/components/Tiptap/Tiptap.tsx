@@ -26,7 +26,7 @@ import { TrackChanges } from './extension-track-changes';
 import { Toolbar } from './components/Toolbar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Sidebar } from './components/Sidebar';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Noticebar } from './components/Noticebar';
 import { Titlebar } from './components/Titlebar';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
@@ -80,8 +80,7 @@ interface ITiptap {
 const Tiptap = (props: ITiptap) => {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
-  const { pathname, search, hash } = useLocation();
-  const navigate = useNavigate();
+  const { search } = useLocation();
   const [ydoc, ySettingsMap, providerWebsocket, isConnected] = useY({
     ws: `${server.wsLocation}/hocuspocus/`,
     name: props.docName,
@@ -168,9 +167,15 @@ const Tiptap = (props: ITiptap) => {
         setSidebarTitle('Comments');
         setSidebarContent(<CommentPanel />);
         setIsSidebarOpen(true);
-        searchParams.set('props', '0');
-        searchParams.set('comments', '1');
-        navigate(pathname + '?' + searchParams.toString() + hash, { replace: true });
+        if (window?.location) {
+          // use window.location because it is always up-to-date
+          // and functions in `useEditor` do not reflect the current state
+          const { pathname, search, hash } = window.location;
+          const searchParams = new URLSearchParams(search);
+          searchParams.set('props', '0');
+          searchParams.set('comments', '1');
+          window.history.replaceState(undefined, '', pathname + '?' + searchParams.toString() + hash);
+        }
       }
     },
   });

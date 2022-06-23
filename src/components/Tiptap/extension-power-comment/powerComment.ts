@@ -175,7 +175,7 @@ const PowerComment = Mark.create<CommentOptions, CommentStorage>({
    *
    */
   renderHTML({ HTMLAttributes }) {
-    return ['power-comment', HTMLAttributes, 0];
+    return ['power-comment', { 'data-tip': 'Maximize the editor to view this comment', ...HTMLAttributes }, 0];
   },
 
   /**
