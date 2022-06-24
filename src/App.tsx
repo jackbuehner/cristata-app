@@ -37,7 +37,7 @@ export interface IGridCols {
 }
 
 function App() {
-  const [{ data: user, loading: loadingUser, error: errorUser }] = useAxios({
+  let [{ data: user, loading: loadingUser, error: errorUser }, refetchUser] = useAxios({
     url: '/auth',
     baseURL: server.location,
     withCredentials: true,
@@ -46,6 +46,16 @@ function App() {
 
   const [tenant, setTenant] = useState<string>(localStorage.getItem('tenant') || '');
   const client = useMemo(() => createClient(tenant), [tenant]);
+
+  // refetch the user if reauth=1 in url
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('from') === 'sign-out') {
+      searchParams.delete('from');
+      refetchUser();
+      window.history.replaceState(undefined, '', '?' + searchParams.toString());
+    }
+  }, [refetchUser]);
 
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(
     window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'

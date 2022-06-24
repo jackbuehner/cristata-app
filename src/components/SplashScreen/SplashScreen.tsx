@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { AxiosError } from 'axios';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
 import {
@@ -47,6 +47,7 @@ function SplashScreen(props: ISplashScreen) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const dispatch = useAppDispatch();
 
   // redirect the user to sign in page if not authenticated
@@ -63,7 +64,7 @@ function SplashScreen(props: ISplashScreen) {
   }, [props.error, navigate, location.pathname, location.hash, location.search]);
 
   useEffect(() => {
-    if (props.user) {
+    if (props.user && searchParams.get('from') !== 'sign-out') {
       dispatch(setEmail(props.user.email));
       dispatch(setAuthProvider(props.user.provider));
       dispatch(setName(props.user.name));
@@ -92,7 +93,7 @@ function SplashScreen(props: ISplashScreen) {
         localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
       }
     }
-  }, [props.user, navigate, dispatch, location.state, location.pathname]);
+  }, [props.user, navigate, dispatch, location.state, location.pathname, searchParams]);
 
   // set the session id
   useEffect(() => {

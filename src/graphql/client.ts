@@ -4,6 +4,7 @@ import { Paged } from '../interfaces/cristata/paged';
 import { ClientConsumer } from './ClientConsumer';
 import mongoose from 'mongoose';
 import { server } from '../utils/constants';
+import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
 
 const collectionPluralNames = [
   'articles',
@@ -40,8 +41,9 @@ const collectionQueryTypePolicies = [...collectionPluralNames, 'users', 'teams']
   };
 });
 
-const createCache = () =>
-  new InMemoryCache({
+const createCache = () => {
+  // create the cache
+  const cache = new InMemoryCache({
     addTypename: false,
     typePolicies: {
       Query: {
@@ -49,6 +51,17 @@ const createCache = () =>
       },
     },
   });
+
+  // persist the cache to localStorage
+  persistCache({
+    cache,
+    storage: new LocalStorageWrapper(window.localStorage),
+  });
+
+  // return the cache once the localstorage persistence
+  // is set up
+  return cache;
+};
 
 const createClient = (tenant?: string) =>
   new ApolloClient({

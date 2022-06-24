@@ -25,6 +25,7 @@
     "@tiptap/extension-underline": "^2.0.0-beta.22",
     "@tiptap/react": "^2.0.0-beta.105",
     "@tiptap/starter-kit": "^2.0.0-beta.171",
+    "apollo3-cache-persist": "^0.14.0",
     "array-move": "^4.0.0",
     "awesome-debounce-promise": "^2.1.0",
     "axios": "^0.25.0",
