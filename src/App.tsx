@@ -16,10 +16,11 @@ import { DropdownProvider } from './hooks/useDropdown';
 import { PickTenant } from './pages/PickTenant';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { SignIn, SignOut } from './pages/SignIn';
-import { store } from './redux/store';
+import { store, persistor } from './redux/store';
 import { db } from './utils/axios/db';
 import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
+import { PersistGate } from 'redux-persist/integration/react';
 
 /* prettier-ignore */ const Protected = loadable(() => import(/* webpackChunkName: "ProtectedRoutes" */'./Protected'), { resolveComponent: ({ Protected }) => Protected });
 /* prettier-ignore */ const SplashScreen = loadable(() => import(/* webpackChunkName: "SplashScreen" */'./components/SplashScreen'), { resolveComponent: ({ SplashScreen }) => SplashScreen });
@@ -90,59 +91,61 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <ReduxProvider store={store}>
-        <ThemeProvider theme={theme}>
-          <ModalProvider>
-            <DropdownProvider>
-              <MuiPickersUtilsProvider utils={LuxonUtils}>
-                <Router basename={tenant}>
-                  <ToastContainer />
-                  <SplashScreen
-                    loading={loadingUser}
-                    error={errorUser || undefined}
-                    user={user}
-                    persistentChildren={
-                      <Routes>
-                        <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
-                        <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
-                        <Route path={`/sign-out`} element={<SignOut />} />
-                        <Route path={`*`} element={<></>} />
-                      </Routes>
-                    }
-                    protectedChildren={<Protected setThemeMode={setThemeMode} />}
-                  >
-                    {tenant === '' || !window.location.pathname.includes(tenant) ? (
-                      <PickTenant tenant={tenant} setTenant={setTenant} />
-                    ) : null}
-                  </SplashScreen>
-                </Router>
+        <PersistGate loading={null} persistor={persistor}>
+          <ThemeProvider theme={theme}>
+            <ModalProvider>
+              <DropdownProvider>
+                <MuiPickersUtilsProvider utils={LuxonUtils}>
+                  <Router basename={tenant}>
+                    <ToastContainer />
+                    <SplashScreen
+                      loading={loadingUser}
+                      error={errorUser || undefined}
+                      user={user}
+                      persistentChildren={
+                        <Routes>
+                          <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
+                          <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
+                          <Route path={`/sign-out`} element={<SignOut />} />
+                          <Route path={`*`} element={<></>} />
+                        </Routes>
+                      }
+                      protectedChildren={<Protected setThemeMode={setThemeMode} />}
+                    >
+                      {tenant === '' || !window.location.pathname.includes(tenant) ? (
+                        <PickTenant tenant={tenant} setTenant={setTenant} />
+                      ) : null}
+                    </SplashScreen>
+                  </Router>
 
-                <Global
-                  styles={css`
-                    .ReactModal__Overlay {
-                      opacity: 0;
-                      transition: opacity 240ms;
-                    }
+                  <Global
+                    styles={css`
+                      .ReactModal__Overlay {
+                        opacity: 0;
+                        transition: opacity 240ms;
+                      }
 
-                    .ReactModal__Overlay--after-open {
-                      opacity: 1;
-                    }
+                      .ReactModal__Overlay--after-open {
+                        opacity: 1;
+                      }
 
-                    .ReactModal__Content {
-                      opacity: 0;
-                      transform: translateY(-40px) scale(0.9);
-                      transition: transform 240ms, opacity 240ms;
-                    }
+                      .ReactModal__Content {
+                        opacity: 0;
+                        transform: translateY(-40px) scale(0.9);
+                        transition: transform 240ms, opacity 240ms;
+                      }
 
-                    .ReactModal__Content--after-open {
-                      opacity: 1;
-                      transform: translateY(0px) scale(1);
-                    }
-                  `}
-                />
-              </MuiPickersUtilsProvider>
-            </DropdownProvider>
-          </ModalProvider>
-        </ThemeProvider>
+                      .ReactModal__Content--after-open {
+                        opacity: 1;
+                        transform: translateY(0px) scale(1);
+                      }
+                    `}
+                  />
+                </MuiPickersUtilsProvider>
+              </DropdownProvider>
+            </ModalProvider>
+          </ThemeProvider>
+        </PersistGate>
       </ReduxProvider>
     </ApolloProvider>
   );

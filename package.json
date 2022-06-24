@@ -64,6 +64,7 @@
     "react-toastify": "^8.1.0",
     "react-tooltip": "^4.2.21",
     "react-use-dimensions": "^1.2.1",
+    "redux-persist": "^6.0.0",
     "romans": "^2.0.3",
     "scroll-into-view-if-needed": "^2.2.29",
     "serialize-error": "^9.0.0",
