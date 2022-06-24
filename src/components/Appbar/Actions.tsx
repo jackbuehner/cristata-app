@@ -1,5 +1,6 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { Fragment } from 'react';
 import { AppbarState } from '../../redux/slices/appbarSlice';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
@@ -44,6 +45,7 @@ function Actions(props: ActionsProps) {
               if (type === 'icon' && icon) {
                 return (
                   <IconButton
+                    key={index}
                     icon={<FluentIcon name={icon} />}
                     onClick={action}
                     onAuxClick={onAuxClick}
@@ -64,6 +66,7 @@ function Actions(props: ActionsProps) {
               }
               return (
                 <Button
+                  key={index}
                   icon={icon ? <FluentIcon name={icon} /> : undefined}
                   onClick={action}
                   onAuxClick={onAuxClick}

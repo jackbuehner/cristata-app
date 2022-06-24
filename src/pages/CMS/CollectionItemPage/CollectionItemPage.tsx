@@ -10,7 +10,7 @@ import Color from 'color';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
@@ -323,7 +323,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         // do not show hidden subdoc arrays
         const isHidden =
           def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.hidden || false;
-        if (isHidden) return <></>;
+        if (isHidden) return <Fragment key={index}></Fragment>;
 
         const label = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.label || key;
         const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field
