@@ -57,7 +57,7 @@ const IconStyleWrapper = styled.span`
 interface IMenuItem extends IMenuItemBase {
   children: React.ReactNode;
   icon?: React.ReactElement;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   disableLabelAlignmentFix?: boolean;
   noIcons?: boolean;

@@ -11,7 +11,7 @@ interface IMenu {
   items: Array<{
     label: string | React.ReactNode;
     icon?: React.ReactElement;
-    onClick?: () => void;
+    onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     color?: colorType;
     colorShade?: colorShade;
     noEffect?: boolean;
