@@ -1,6 +1,7 @@
 import { ApolloProvider } from '@apollo/client';
 import LuxonUtils from '@date-io/luxon';
 import { css, Global, ThemeProvider } from '@emotion/react';
+import loadable from '@loadable/component';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import useAxios, { configure } from 'axios-hooks';
 import { useEffect, useMemo, useState } from 'react';
@@ -9,18 +10,22 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
-import { SplashScreen } from './components/SplashScreen';
 import { ToastContainer } from './components/ToastContainer';
 import { createClient } from './graphql/client';
 import { DropdownProvider } from './hooks/useDropdown';
 import { PickTenant } from './pages/PickTenant';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { SignIn, SignOut } from './pages/SignIn';
-import { Protected } from './Protected';
 import { store } from './redux/store';
 import { db } from './utils/axios/db';
 import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
+
+/* prettier-ignore */ const Protected = loadable(() => import(/* webpackChunkName: "ProtectedRoutes" */'./Protected'), { resolveComponent: ({ Protected }) => Protected });
+/* prettier-ignore */ const SplashScreen = loadable(() => import(/* webpackChunkName: "SplashScreen" */'./components/SplashScreen'), { resolveComponent: ({ SplashScreen }) => SplashScreen });
+
+Protected.preload();
+SplashScreen.preload();
 
 // configure axios global settings
 configure({ axios: db });

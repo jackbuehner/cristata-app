@@ -1,5 +1,4 @@
 import { css, useTheme } from '@emotion/react';
-import { AppFolder20Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
@@ -8,9 +7,8 @@ import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 import { AppbarState } from '../../redux/slices/appbarSlice';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
+import FluentIcon from '../FluentIcon';
 import { Menu } from '../Menu';
-import * as fluentIcons from '@fluentui/react-icons';
-import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
 
 interface AppSwitcherProps {
   actions: AppbarState['actions'];
@@ -43,11 +41,9 @@ function AppSwitcher(props: AppSwitcherProps) {
           }}
           items={
             mainNav?.map((item) => {
-              const Icon = fluentIcons[item.icon];
-
               return {
                 label: item.label,
-                icon: isFluentIconComponent(Icon) ? <Icon /> : <span />,
+                icon: <FluentIcon name={item.icon} />,
                 color: props.color,
                 onClick: () => navigate(item.to),
               };
@@ -88,7 +84,7 @@ function AppSwitcher(props: AppSwitcherProps) {
         {window.name === '' ? (
           props.actions.length > 0 ? (
             <IconButton
-              icon={<AppFolder20Regular />}
+              icon={<FluentIcon name={'AppFolder20Regular'} />}
               onClick={showDropdown}
               color={props.color}
               data-tip={'View all Cristata apps'}
@@ -104,7 +100,7 @@ function AppSwitcher(props: AppSwitcherProps) {
             />
           ) : (
             <Button
-              icon={<AppFolder20Regular />}
+              icon={<FluentIcon name={'AppFolder20Regular'} />}
               onClick={showDropdown}
               color={props.color}
               data-tip={'View all Cristata apps'}

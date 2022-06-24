@@ -1,12 +1,12 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ArrowRight20Regular, PanelRightContract20Regular } from '@fluentui/react-icons';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppSearchShown } from '../../redux/slices/appbarSlice';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { IconButton } from '../Button';
+import { FluentIcon } from '../FluentIcon';
 
 interface SearchProps {
   name: string;
@@ -53,7 +53,7 @@ function Search(props: SearchProps) {
         isCustomTitlebarVisible={isCustomTitlebarVisible}
       ></TextInputComponent>
       <IconButton
-        icon={<PanelRightContract20Regular />}
+        icon={<FluentIcon name={'PanelRightContract20Regular'} />}
         onClick={() => {
           dispatch(setAppSearchShown(false));
         }}
@@ -73,7 +73,7 @@ function Search(props: SearchProps) {
         `}
       />
       <IconButton
-        icon={<ArrowRight20Regular />}
+        icon={<FluentIcon name={'ArrowRight20Regular'} />}
         onClick={executeSearch}
         color={props.color}
         data-tip={`Search`}

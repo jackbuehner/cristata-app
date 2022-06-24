@@ -1,16 +1,15 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import * as fluentIcons from '@fluentui/react-icons';
 import { ChevronLeft24Regular } from '@fluentui/react-icons';
+import Color from 'color';
 import { Dispatch, SetStateAction } from 'react';
 import { useLocation } from 'react-router-dom';
 import { IGridCols } from '../../App';
+import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 import { themeType } from '../../utils/theme/theme';
 import { SideNavMainButton } from '../Button';
-import Color from 'color';
+import FluentIcon from '../FluentIcon';
 import { Profile } from './Profile';
-import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
-import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 
 interface ISidenav {
   gridCols: IGridCols;
@@ -40,11 +39,10 @@ function Sidenav(props: ISidenav) {
         <path d='M15.589 0 .0006 8.9998 0 27.0002 15.5886 36l15.5885-8.9998V8.9998zm14.0775 26.1277L15.5897 34.255l-14.078-8.1273.0005-16.2554L15.5896 1.745l14.0767 8.1273z' />
       </LogoSvg>
       {mainNav?.map((item, index) => {
-        const Icon = fluentIcons[item.icon];
         return (
           <SideNavMainButton
             key={index}
-            Icon={isFluentIconComponent(Icon) ? <Icon /> : <span />}
+            Icon={<FluentIcon name={item.icon} />}
             to={item.to}
             onClick={() => {
               if (item.subNav) {

@@ -1,5 +1,5 @@
 import { ApolloError, ApolloQueryResult, DocumentNode, gql, useQuery } from '@apollo/client';
-import { default as fluentIcons } from '@fluentui/react-icons';
+import { FluentIconNames } from '../../components/FluentIcon';
 
 /**
  * Gets the navigation config for the specified navigation.
@@ -41,7 +41,7 @@ interface QueryType {
 
 interface MainNavItem {
   label: string;
-  icon: keyof typeof fluentIcons;
+  icon: FluentIconNames;
   to: string;
   subNav?: 'forceCollapseForRoute' | 'hideMobile';
 }
@@ -50,7 +50,7 @@ interface SubNavGroup {
   label: string;
   items: Array<{
     label: string;
-    icon: keyof typeof fluentIcons;
+    icon: FluentIconNames;
     to: string;
   }>;
 }

@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Person24Regular, SignOut24Regular } from '@fluentui/react-icons';
+import { FluentIcon } from '../../components/FluentIcon';
 import Color from 'color';
 import { useNavigate } from 'react-router-dom';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
@@ -75,7 +75,7 @@ function AccountMenu(props: AccountMenuProps) {
                   <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
                     {window.name === '' ? (
                       <Button
-                        icon={<Person24Regular />}
+                        icon={<FluentIcon name={'Person24Regular'} />}
                         cssExtra={css`
                           font-weight: 400;
                           background-color: transparent;
@@ -88,7 +88,7 @@ function AccountMenu(props: AccountMenuProps) {
                       </Button>
                     ) : null}
                     <Button
-                      icon={<SignOut24Regular />}
+                      icon={<FluentIcon name={'SignOut24Regular'} />}
                       cssExtra={css`
                         font-weight: 400;
                         background-color: transparent;

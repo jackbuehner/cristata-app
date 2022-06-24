@@ -3,7 +3,7 @@ import styled from '@emotion/styled/macro';
 import { SerializedStyles, useTheme } from '@emotion/react';
 import { themeType, colorShade, colorType } from '../../utils/theme/theme';
 import { buttonEffect } from './buttonEffect';
-import { ChevronDown12Regular, ChevronUp12Regular } from '@fluentui/react-icons';
+import { FluentIcon } from '../../components/FluentIcon';
 
 interface StyledButtonProps extends ButtonProps {
   color: colorType;
@@ -152,7 +152,11 @@ const Button: React.FC<ButtonProps> = (props) => {
       <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
       {props.showChevron ? (
         <ChevronWrapper theme={theme} disabled={props.disabled} className={`ChevronWrapper`} size={12}>
-          {props.flipChevron ? <ChevronUp12Regular /> : <ChevronDown12Regular />}
+          {props.flipChevron ? (
+            <FluentIcon name={'ChevronUp12Regular'} />
+          ) : (
+            <FluentIcon name={'ChevronDown12Regular'} />
+          )}
         </ChevronWrapper>
       ) : null}
     </BUTTON>

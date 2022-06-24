@@ -1,6 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { ArrowClockwise20Regular } from '@fluentui/react-icons';
-import Open20Regular from '@fluentui/react-icons/lib/cjs/components/Open20Regular';
+import { ArrowClockwise20Regular, Open20Regular } from '@fluentui/react-icons';
 import { useEffect, useState } from 'react';
 import { Spinner } from '../../components/Loading';
 import { useAppDispatch } from '../../redux/hooks';

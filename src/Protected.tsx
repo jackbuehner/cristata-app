@@ -1,7 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import * as fluentIcons from '@fluentui/react-icons';
-import { ContentView20Regular } from '@fluentui/react-icons';
+import loadable from '@loadable/component';
 import Color from 'color';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
@@ -11,33 +10,51 @@ import './App.css';
 import { Appbar } from './components/Appbar';
 import { SideNavSubButton } from './components/Button';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
+import FluentIcon from './components/FluentIcon';
 import { SideNavHeading } from './components/Heading';
 import { PageHead } from './components/PageHead';
 import { SidenavSub } from './components/SidenavSub';
 import { Titlebar } from './components/Titlebar';
 import { useNavigationConfig } from './hooks/useNavigationConfig';
-import { CollectionItemPage } from './pages/CMS/CollectionItemPage';
-import { CollectionPage } from './pages/CMS/CollectionPage';
-import { PhotoLibraryPage } from './pages/CMS/PhotoLibraryPage';
-import {
-  BillingPaymentsPage,
-  BillingServiceUsagePage,
-  CollectionSchemaPage,
-  ConfigurationNavigation,
-  TokenSecretsPage,
-} from './pages/configuration';
-import { FathomEmbed } from './pages/embeds';
-import { HomePage } from './pages/Home';
-import { Playground, PlaygroundNavigation } from './pages/playground';
-import { ProfilePage } from './pages/profile/ProfilePage';
-import { ProfileSideNavSub } from './pages/profile/ProfileSideNavSub';
-import { TeamPage } from './pages/teams/TeamPage';
-import { TeamsNav } from './pages/teams/TeamsNav';
-import { TeamsOverviewPage } from './pages/teams/TeamsOverviewPage';
 import { useAppDispatch } from './redux/hooks';
 import { setAppIcon, setAppSearchShown } from './redux/slices/appbarSlice';
-import { isFluentIconComponent } from './utils/isFluentIconComponent';
 import { themeType } from './utils/theme/theme';
+
+/* prettier-ignore */ const HomePage = loadable(() => import(/* webpackChunkName: "HomePage" */'./pages/Home'), { resolveComponent: (c) => c.HomePage });
+/* prettier-ignore */ const ProfilePage = loadable(() => import(/* webpackChunkName: "ProfilePage" */'./pages/profile/ProfilePage'), { resolveComponent: (c) => c.ProfilePage });
+/* prettier-ignore */ const TeamPage = loadable(() => import(/* webpackChunkName: "TeamPage" */'./pages/teams/TeamPage'), { resolveComponent: (c) => c.TeamPage });
+/* prettier-ignore */ const TeamsOverviewPage = loadable(() => import(/* webpackChunkName: "TeamsOverviewPage" */'./pages/teams/TeamsOverviewPage'), { resolveComponent: (c) => c.TeamsOverviewPage });
+/* prettier-ignore */ const Playground = loadable(() => import(/* webpackChunkName: "PlaygroundPage" */'./pages/playground'), { resolveComponent: (c) => c.Playground });
+/* prettier-ignore */ const PlaygroundNavigation = loadable(() => import(/* webpackChunkName: "PlaygroundNavigation" */'./pages/playground'), { resolveComponent: (c) => c.PlaygroundNavigation });
+/* prettier-ignore */ const BillingPaymentsPage = loadable(() => import(/* webpackChunkName: "BillingPaymentsPage" */'./pages/configuration'), { resolveComponent: (c) => c.BillingPaymentsPage });
+/* prettier-ignore */ const BillingServiceUsagePage = loadable(() => import(/* webpackChunkName: "BillingServiceUsagePage" */'./pages/configuration'), { resolveComponent: (c) => c.BillingServiceUsagePage });
+/* prettier-ignore */ const CollectionSchemaPage = loadable(() => import(/* webpackChunkName: "CollectionSchemaPage" */'./pages/configuration'), { resolveComponent: (c) => c.CollectionSchemaPage });
+/* prettier-ignore */ const ConfigurationNavigation = loadable(() => import(/* webpackChunkName: "ConfigurationNavigation" */'./pages/configuration'), { resolveComponent: (c) => c.ConfigurationNavigation });
+/* prettier-ignore */ const TokenSecretsPage = loadable(() => import(/* webpackChunkName: "TokenSecretsPage" */'./pages/configuration'), { resolveComponent: (c) => c.TokenSecretsPage });
+/* prettier-ignore */ const FathomEmbed = loadable(() => import(/* webpackChunkName: "FathomEmbed" */'./pages/embeds'), { resolveComponent: (c) => c.FathomEmbed });
+/* prettier-ignore */ const CollectionItemPage = loadable(() => import(/* webpackChunkName: "CollectionItemPage" */'./pages/CMS/CollectionItemPage'), { resolveComponent: (c) => c.CollectionItemPage });
+/* prettier-ignore */ const CollectionPage = loadable(() => import(/* webpackChunkName: "CollectionPage" */'./pages/CMS/CollectionPage'), { resolveComponent: (c) => c.CollectionPage });
+/* prettier-ignore */ const PhotoLibraryPage = loadable(() => import(/* webpackChunkName: "PhotoLibraryPage" */'./pages/CMS/PhotoLibraryPage'), { resolveComponent: (c) => c.PhotoLibraryPage });
+/* prettier-ignore */ const ProfileNavigation = loadable(() => import(/* webpackChunkName: "ProfileNavigation" */'./pages/profile/ProfileSideNavSub'), { resolveComponent: (c) => c.ProfileSideNavSub });
+/* prettier-ignore */ const TeamsNavigation = loadable(() => import(/* webpackChunkName: "TeamsNavigation" */'./pages/teams/TeamsNav'), { resolveComponent: (c) => c.TeamsNav });
+
+HomePage.preload();
+ProfilePage.preload();
+TeamPage.preload();
+TeamsOverviewPage.preload();
+Playground.preload();
+PlaygroundNavigation.preload();
+BillingPaymentsPage.preload();
+BillingServiceUsagePage.preload();
+CollectionSchemaPage.preload();
+ConfigurationNavigation.preload();
+TokenSecretsPage.preload();
+FathomEmbed.preload();
+CollectionItemPage.preload();
+CollectionPage.preload();
+PhotoLibraryPage.preload();
+ProfileNavigation.preload();
+TeamsNavigation.preload();
 
 interface ProtectedProps {
   setThemeMode: Dispatch<SetStateAction<'light' | 'dark'>>;
@@ -66,10 +83,11 @@ function Protected(props: ProtectedProps) {
       const matchedRoute = mainNav.find((item) => location.pathname === item.to);
 
       if (matchedRoute) {
-        const Icon = fluentIcons[matchedRoute.icon];
-        dispatch(setAppIcon(isFluentIconComponent(Icon) ? Icon : ContentView20Regular));
+        const Icon = () => <FluentIcon name={matchedRoute.icon || 'ContentView20Regular'} />;
+        dispatch(setAppIcon(Icon));
       } else if (location.pathname.includes('/cms')) {
-        dispatch(setAppIcon(ContentView20Regular));
+        const Icon = () => <FluentIcon name={'ContentView20Regular'} />;
+        dispatch(setAppIcon(Icon));
       }
     }
   }, [dispatch, location, mainNav]);
@@ -102,11 +120,10 @@ function Protected(props: ProtectedProps) {
                               <Fragment key={index}>
                                 <SideNavHeading className={'not-header'}>{group.label}</SideNavHeading>
                                 {group.items.map((item, index) => {
-                                  const Icon = fluentIcons[item.icon];
                                   return (
                                     <SideNavSubButton
                                       key={index}
-                                      Icon={isFluentIconComponent(Icon) ? <Icon /> : <span />}
+                                      Icon={<FluentIcon key={index} name={item.icon} />}
                                       to={item.to}
                                       setIsNavVisibleM={setIsNavVisibleM}
                                     >
@@ -122,9 +139,12 @@ function Protected(props: ProtectedProps) {
                     />
                     <Route
                       path={`/profile/*`}
-                      element={<ProfileSideNavSub setIsNavVisibleM={setIsNavVisibleM} />}
+                      element={<ProfileNavigation setIsNavVisibleM={setIsNavVisibleM} />}
                     />
-                    <Route path={`/teams/*`} element={<TeamsNav setIsNavVisibleM={setIsNavVisibleM} />} />
+                    <Route
+                      path={`/teams/*`}
+                      element={<TeamsNavigation setIsNavVisibleM={setIsNavVisibleM} />}
+                    />
                     <Route path={`/playground`} element={<PlaygroundNavigation />} />
                     <Route path={`/configuration/*`} element={<ConfigurationNavigation />} />
                     <Route path={`*`} element={<></>} />

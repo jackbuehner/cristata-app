@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
 import { ApolloError, ApolloQueryResult, gql, useQuery } from '@apollo/client';
-import * as fluentIcons from '@fluentui/react-icons';
+import { FluentIconNames } from '../../components/FluentIcon';
 
 /**
  * Gets the config for the home dashboard.
@@ -68,7 +68,7 @@ interface Home {
        * The icon to appear in front of the label. Any icon from
        * `@fluentui/react-icons` is valid.
        */
-      icon: keyof typeof fluentIcons;
+      icon: FluentIconNames;
     };
     /**
      * The parts of the the location to navigate upon clicking an item in the

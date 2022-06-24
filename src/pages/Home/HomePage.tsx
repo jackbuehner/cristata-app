@@ -2,7 +2,6 @@
 import { useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import * as fluentIcons from '@fluentui/react-icons';
 import {
   AppFolder24Regular,
   Checkmark24Regular,
@@ -17,13 +16,13 @@ import {
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/Button';
+import FluentIcon from '../../components/FluentIcon';
 import { HomeSectionHeading } from '../../components/Heading';
 import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
 import { useDashboardConfig } from '../../hooks/useDashboardConfig';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../redux/slices/appbarSlice';
-import { isFluentIconComponent } from '../../utils/isFluentIconComponent';
 import { themeType } from '../../utils/theme/theme';
 import { AnalyticsChart } from './AnalyticsChart';
 import { ItemsRow } from './ItemsRow';
@@ -69,12 +68,10 @@ function HomePage() {
           {mainNav
             ?.filter((item) => item.to !== '/')
             .map((item, index) => {
-              const Icon = fluentIcons[item.icon];
-
               return (
                 <Button
                   key={index}
-                  icon={isFluentIconComponent(Icon) ? <Icon /> : undefined}
+                  icon={<FluentIcon name={item.icon} />}
                   height={80}
                   onClick={() => {
                     navigate(item.to);
@@ -181,7 +178,6 @@ function HomePage() {
         </p>
       </div>
       {collectionRowsConfig?.map((item, index: number) => {
-        const Icon = fluentIcons[item.header.icon];
         return (
           <div
             style={{
@@ -191,7 +187,7 @@ function HomePage() {
             }}
             key={index}
           >
-            <HomeSectionHeading icon={isFluentIconComponent(Icon) ? <Icon /> : <span />}>
+            <HomeSectionHeading icon={<FluentIcon name={item.header.icon} />}>
               {item.header.label}
             </HomeSectionHeading>
             <ItemsRow query={item.query} dataKeys={item.dataKeys} arrPath={item.arrPath} to={item.to} />

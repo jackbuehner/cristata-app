@@ -4,8 +4,8 @@ import {
   ArrowClockwise24Regular,
   CloudArrowUp24Regular,
   Delete24Regular,
-  EyeHide24Regular,
-  EyeShow24Regular,
+  EyeOff20Regular,
+  Eye24Regular,
   FolderArrowUp24Regular,
   Save24Regular,
   Share24Regular,
@@ -219,11 +219,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         label: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'Stop watching' : 'Watch',
         type: 'button',
         icon:
-          params.watch.isWatching || params.watch.isMandatoryWatcher ? (
-            <EyeHide24Regular />
-          ) : (
-            <EyeShow24Regular />
-          ),
+          params.watch.isWatching || params.watch.isMandatoryWatcher ? <EyeOff20Regular /> : <Eye24Regular />,
         action: () => toggleWatchItem(!params.watch.isWatching),
         disabled: params.watch.isMandatoryWatcher || params.actionAccess?.watch !== true,
         'data-tip': params.watch.isMandatoryWatcher
