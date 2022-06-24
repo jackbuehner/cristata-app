@@ -1,7 +1,6 @@
 import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { PeopleAdd16Regular } from '@fluentui/react-icons';
 import mongoose from 'mongoose';
 import { Fragment, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -192,7 +191,7 @@ function TeamsOverviewPage() {
         {
           label: 'New team',
           type: 'button',
-          icon: PeopleAdd16Regular,
+          icon: 'PeopleAdd16Regular',
           action: () => showCreateModal(),
         },
       ])

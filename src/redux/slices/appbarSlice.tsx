@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import React from 'react';
+import { FluentIconNames } from '../../components/FluentIcon';
 import { colorType } from '../../utils/theme/theme';
 
 export interface AppbarState {
   name: string;
-  icon?: React.ComponentType;
+  icon?: FluentIconNames;
   color: colorType;
   actions: Action[];
   loading: boolean | number;
@@ -14,7 +15,7 @@ export interface AppbarState {
 interface Action {
   label: string;
   type: 'icon' | 'button';
-  icon?: React.ComponentType;
+  icon?: FluentIconNames;
   action: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onAuxClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   color?: colorType;
@@ -39,7 +40,7 @@ export const appbarSlice = createSlice({
     setAppName: (state, action: PayloadAction<string>) => {
       state.name = action.payload;
     },
-    setAppIcon: (state, action: PayloadAction<React.ComponentType>) => {
+    setAppIcon: (state, action: PayloadAction<FluentIconNames>) => {
       state.icon = action.payload;
     },
     setAppColor: (state, action: PayloadAction<colorType>) => {
@@ -61,3 +62,4 @@ export const { setAppName, setAppIcon, setAppColor, setAppActions, setAppLoading
   appbarSlice.actions;
 
 export default appbarSlice.reducer;
+export type { Action };

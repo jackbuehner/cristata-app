@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import { AppGeneric20Regular, ArrowLeft24Regular } from '@fluentui/react-icons';
+import { ArrowLeft24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { CSSProperties, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -73,7 +73,7 @@ function Appbar() {
           </div>
         ) : null}
         <Icon
-          icon={state.icon || AppGeneric20Regular}
+          icon={state.icon || 'AppGeneric20Regular'}
           color={state.color}
           name={state.name}
           onMouseEnter={() => (location.pathname !== '/' ? setShowHomeArrow(true) : null)}

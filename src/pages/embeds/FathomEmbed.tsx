@@ -1,5 +1,4 @@
 import { gql, useQuery } from '@apollo/client';
-import { ArrowClockwise20Regular, Open20Regular } from '@fluentui/react-icons';
 import { useEffect, useState } from 'react';
 import { Spinner } from '../../components/Loading';
 import { useAppDispatch } from '../../redux/hooks';
@@ -26,13 +25,13 @@ function FathomEmbed() {
         {
           label: 'Refresh frame',
           type: 'icon',
-          icon: ArrowClockwise20Regular,
+          icon: 'ArrowClockwise20Regular',
           action: () => setCount((count) => count + 1),
         },
         {
           label: 'Open in new window',
           type: 'icon',
-          icon: Open20Regular,
+          icon: 'Open20Regular',
           action: () => window.open(data?.fathomDashboard, 'fathom', 'width=1200,height=800'),
         },
       ])

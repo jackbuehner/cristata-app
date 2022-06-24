@@ -1,5 +1,4 @@
 import { DocumentNode, gql, useApolloClient } from '@apollo/client';
-import { ArrowClockwise24Regular, Save24Regular } from '@fluentui/react-icons';
 import collectionSchema from '@jackbuehner/cristata-api/dist/json-schemas/collection.schema.json';
 import { Collection } from '@jackbuehner/cristata-api/dist/types/config';
 import Editor, { Monaco } from '@monaco-editor/react';
@@ -63,14 +62,14 @@ function CollectionSchemaPage() {
         {
           label: 'Refresh data',
           type: 'icon',
-          icon: ArrowClockwise24Regular,
+          icon: 'ArrowClockwise24Regular',
           action: () => refetch(),
           'data-tip': `Discard changes and refresh`,
         },
         {
           label: 'Save',
           type: 'button',
-          icon: Save24Regular,
+          icon: 'Save24Regular',
           action: () => {
             // format on save
             editorRef.current?.trigger('editor', 'editor.action.formatDocument', null);

@@ -1,7 +1,6 @@
 import { ApolloError, gql, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Edit20Regular, Key20Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
@@ -317,7 +316,7 @@ function ProfilePage() {
           ? {
               label: 'Edit',
               type: isSelf ? 'icon' : 'button',
-              icon: Edit20Regular,
+              icon: 'Edit20Regular',
               action: showEditModal,
               disabled: !canEdit,
             }
@@ -326,7 +325,7 @@ function ProfilePage() {
           ? {
               label: 'Change password',
               type: 'button',
-              icon: Key20Regular,
+              icon: 'Key20Regular',
               action: () => {
                 navigate('/sign-in', {
                   state: {

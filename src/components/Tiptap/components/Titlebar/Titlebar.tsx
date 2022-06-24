@@ -13,7 +13,7 @@ interface ITitlebar {
     label: string;
     icon: React.ReactElement;
     disabled?: boolean;
-    action?: () => void;
+    action?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     isActive?: boolean;
   }>;
   isDisabled?: boolean;

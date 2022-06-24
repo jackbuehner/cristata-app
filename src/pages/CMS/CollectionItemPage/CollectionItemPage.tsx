@@ -1,6 +1,5 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { MoreHorizontal24Regular } from '@fluentui/react-icons';
 import {
   isTypeTuple,
   MongooseSchemaType,
@@ -220,13 +219,10 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     dispatch(
       setAppActions([
         ...quickActions.map((action, index) => {
-          const Icon = () => {
-            return <span>{action.icon}</span>;
-          };
           return {
             label: action.label,
             type: action.type,
-            icon: Icon,
+            icon: action.icon,
             action: action.action,
             color: action.color,
             disabled: action.disabled,
@@ -236,7 +232,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         {
           label: 'More actions',
           type: 'icon',
-          icon: MoreHorizontal24Regular,
+          icon: 'MoreHorizontal24Regular',
           action: showActionDropdown,
           onAuxClick: () => refetch(),
         },
@@ -848,8 +844,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                       display: inline-block;
                       margin: 4px 8px;
                     `}
-                    onClick={() => {
-                      actions.find((a) => a.label === 'Remove from archive')?.action();
+                    onClick={(e) => {
+                      actions.find((a) => a.label === 'Remove from archive')?.action(e);
                     }}
                     disabled={actions.findIndex((a) => a.label === 'Remove from archive') === -1}
                   >

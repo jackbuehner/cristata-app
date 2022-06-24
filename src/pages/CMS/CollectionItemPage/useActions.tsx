@@ -1,25 +1,15 @@
 import { ApolloQueryResult, gql, OperationVariables, useApolloClient } from '@apollo/client';
-import {
-  Archive24Regular,
-  ArrowClockwise24Regular,
-  CloudArrowUp24Regular,
-  Delete24Regular,
-  EyeOff20Regular,
-  Eye24Regular,
-  FolderArrowUp24Regular,
-  Save24Regular,
-  Share24Regular,
-} from '@fluentui/react-icons';
 import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types/config';
 import { get as getProperty } from 'object-path';
 import { useCallback } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
+import { Action } from '../../../redux/slices/appbarSlice';
 import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
-import { colorType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { saveChanges } from './saveChanges';
 import { usePublishModal } from './usePublishModal';
@@ -50,16 +40,6 @@ interface UseActionsReturn {
   quickActions: Action[];
   showActionDropdown: ReturnType<typeof useDropdown>[0];
   Windows: React.ReactNode;
-}
-
-interface Action {
-  label: string;
-  type: 'icon' | 'button';
-  icon?: React.ReactElement<any, string | React.JSXElementConstructor<any>>;
-  action: () => void;
-  color?: colorType;
-  disabled?: boolean;
-  'data-tip'?: string;
 }
 
 function useActions(params: UseActionsParams): UseActionsReturn {
@@ -212,14 +192,13 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       {
         label: 'Discard changes & refresh',
         type: 'icon',
-        icon: <ArrowClockwise24Regular />,
+        icon: 'ArrowClockwise24Regular',
         action: () => params.refetchData(),
       },
       {
         label: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'Stop watching' : 'Watch',
         type: 'button',
-        icon:
-          params.watch.isWatching || params.watch.isMandatoryWatcher ? <EyeOff20Regular /> : <Eye24Regular />,
+        icon: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'EyeOff20Regular' : 'Eye24Regular',
         action: () => toggleWatchItem(!params.watch.isWatching),
         disabled: params.watch.isMandatoryWatcher || params.actionAccess?.watch !== true,
         'data-tip': params.watch.isMandatoryWatcher
@@ -229,7 +208,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       {
         label: 'Publish',
         type: 'button',
-        icon: <CloudArrowUp24Regular />,
+        icon: 'CloudArrowUp24Regular',
         action: () => showPublishModal(),
         color: 'success',
         disabled: params.canPublish !== true,
@@ -241,7 +220,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       {
         label: 'Delete',
         type: 'button',
-        icon: <Delete24Regular />,
+        icon: 'Delete24Regular',
         action: () => hideItem(),
         color: 'red',
         disabled: params.actionAccess?.hide !== true,
@@ -249,7 +228,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       {
         label: params.state.fields.archived ? 'Remove from archive' : 'Archive',
         type: 'button',
-        icon: params.state.fields.archived ? <FolderArrowUp24Regular /> : <Archive24Regular />,
+        icon: params.state.fields.archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
         action: () => archiveItem(params.state.fields.archived ? false : true),
         color: params.state.fields.archived ? 'primary' : 'yellow',
         disabled: params.actionAccess?.archive !== true,
@@ -257,7 +236,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       {
         label: 'Save',
         type: 'button',
-        icon: <Save24Regular />,
+        icon: 'Save24Regular',
         action: () =>
           saveChanges(
             client,
@@ -285,7 +264,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         : {
             label: 'Share',
             type: 'button',
-            icon: <Share24Regular />,
+            icon: 'Share24Regular',
             action: () => showShareModal(),
             disabled: params.actionAccess?.modify !== true,
             'data-tip':
@@ -321,11 +300,11 @@ function useActions(params: UseActionsParams): UseActionsReturn {
             .filter((action) => action.label !== 'Save' && action.label !== 'Share')
             .map((action) => {
               return {
-                onClick: () => action.action(),
+                onClick: (e) => action.action(e),
                 label: action.label,
                 color: action?.color || 'primary',
                 disabled: action.disabled,
-                icon: action.icon,
+                icon: action.icon ? <FluentIcon name={action.icon} /> : <></>,
                 'data-tip': action['data-tip'],
               };
             }) || []

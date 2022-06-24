@@ -1,6 +1,5 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
@@ -30,7 +29,7 @@ function BillingServiceUsagePage() {
         {
           label: 'Refresh data',
           type: 'icon',
-          icon: ArrowClockwise24Regular,
+          icon: 'ArrowClockwise24Regular',
           action: () => refetch(),
         },
       ])

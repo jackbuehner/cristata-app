@@ -1,6 +1,5 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ArrowClockwise24Regular } from '@fluentui/react-icons';
 import { useEffect, useState } from 'react';
 import { Button } from '../../../components/Button';
 import { useAppDispatch } from '../../../redux/hooks';
@@ -43,7 +42,7 @@ function BillingPaymentsPage() {
         {
           label: 'Refresh data',
           type: 'icon',
-          icon: ArrowClockwise24Regular,
+          icon: 'ArrowClockwise24Regular',
           action: () => refetch(),
         },
       ])

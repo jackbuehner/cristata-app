@@ -1,11 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import {
-  ArrowClockwise16Regular,
-  Filter16Regular,
-  FilterDismiss16Regular,
-  Search20Regular,
-} from '@fluentui/react-icons';
+import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
 import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -197,7 +192,7 @@ function CollectionPage() {
         {
           label: 'Search',
           type: 'icon',
-          icon: Search20Regular,
+          icon: 'Search20Regular',
           action: () => dispatch(setAppSearchShown(true)),
         },
         {

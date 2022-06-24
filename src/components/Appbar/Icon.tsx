@@ -1,9 +1,10 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { colorType, themeType } from '../../utils/theme/theme';
+import { FluentIcon, FluentIconNames } from '../FluentIcon';
 
 interface IconProps {
-  icon: React.ComponentType;
+  icon: FluentIconNames;
   color: colorType;
   name: string;
   onMouseEnter?: () => void;
@@ -44,7 +45,7 @@ function Icon(props: IconProps) {
       onMouseLeave={props.onMouseLeave}
       drag={props.drag || false}
     >
-      <props.icon />
+      <FluentIcon name={props.icon} />
     </ICON_COMPONENT>
   );
 }
@@ -81,20 +82,15 @@ const ICON_COMPONENT = styled.div<{
           -webkit-app-region: no-drag;
           app-region: no-drag;
   `}
-  > span {
-    display: block;
+  > svg {
     width: 22px;
     height: 22px;
-    svg {
-      width: 22px;
-      height: 22px;
-      transform: rotate(-45deg);
-      fill: ${({ theme, color, isCustomTitlebarVisible }) => {
-        if (color === 'neutral') return theme.color.neutral[theme.mode][1400];
-        else if (isCustomTitlebarVisible) return theme.color.neutral.dark[100];
-        return theme.color.neutral[theme.mode][100];
-      }};
-    }
+    transform: rotate(-45deg);
+    fill: ${({ theme, color, isCustomTitlebarVisible }) => {
+      if (color === 'neutral') return theme.color.neutral[theme.mode][1400];
+      else if (isCustomTitlebarVisible) return theme.color.neutral.dark[100];
+      return theme.color.neutral[theme.mode][100];
+    }};
   }
 `;
 

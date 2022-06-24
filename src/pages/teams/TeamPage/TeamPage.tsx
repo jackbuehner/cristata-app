@@ -6,9 +6,7 @@ import {
   Briefcase16Regular,
   Delete16Regular,
   Dismiss16Regular,
-  MoreHorizontal24Regular,
   Person16Regular,
-  Settings24Regular,
 } from '@fluentui/react-icons';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
@@ -638,13 +636,13 @@ function TeamPage() {
         {
           label: 'Manage team',
           type: 'button',
-          icon: Settings24Regular,
+          icon: 'Settings24Regular',
           action: showManageModal,
         },
         {
           label: 'More team tools',
           type: 'icon',
-          icon: MoreHorizontal24Regular,
+          icon: 'MoreHorizontal24Regular',
           action: showToolsDropdown,
           onAuxClick: () => refetch(),
         },

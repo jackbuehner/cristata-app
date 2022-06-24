@@ -1,6 +1,5 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ArrowClockwise24Regular, Save24Regular } from '@fluentui/react-icons';
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
@@ -51,13 +50,13 @@ function TokenSecretsPage() {
         {
           label: 'Refresh data',
           type: 'icon',
-          icon: ArrowClockwise24Regular,
+          icon: 'ArrowClockwise24Regular',
           action: () => refetch(),
         },
         {
           label: 'Save',
           type: 'button',
-          icon: Save24Regular,
+          icon: 'Save24Regular',
           action: () => {
             dispatch(setAppLoading(true));
             client

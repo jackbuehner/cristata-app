@@ -25,6 +25,7 @@ import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../Modal';
+import { FluentIcon } from '../../../FluentIcon';
 import { InputGroup } from '../../../InputGroup';
 import { Label } from '../../../Label';
 import Color from 'color';
@@ -761,7 +762,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   <ToolbarMetaIconButton
                     icon={<Share20Regular />}
                     color={'blue'}
-                    onClick={() => shareAction.action()}
+                    onClick={(e) => shareAction.action(e)}
                     isActive={false}
                     data-tip={`Share this document`}
                   />
@@ -1166,7 +1167,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                           action.label !== 'Stop watching') ||
                         action.disabled
                       }
-                      icon={action.icon}
+                      icon={action.icon ? <FluentIcon name={action.icon} /> : <></>}
                       isActive={false}
                     >
                       {action.label}

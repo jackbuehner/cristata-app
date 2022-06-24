@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 import { themeType } from '../../../utils/theme/theme';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { ArrowClockwise20Regular, ArrowUpload20Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
@@ -310,13 +309,13 @@ function PhotoLibraryPage() {
         {
           label: 'Refresh library data',
           type: 'icon',
-          icon: ArrowClockwise20Regular,
+          icon: 'ArrowClockwise20Regular',
           action: () => refetch(),
         },
         {
           label: 'Upload',
           type: 'button',
-          icon: ArrowUpload20Regular,
+          icon: 'ArrowUpload20Regular',
           action: upload,
           disabled: !!isLoading || !!uploadStatus || !!error,
         },

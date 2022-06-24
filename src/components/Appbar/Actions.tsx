@@ -3,6 +3,7 @@ import styled from '@emotion/styled/macro';
 import { AppbarState } from '../../redux/slices/appbarSlice';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
+import FluentIcon from '../FluentIcon';
 import { AppbarAppSwitcher as AppSwitcher, AppbarSearch as Search } from './';
 
 interface ActionsProps {
@@ -29,7 +30,7 @@ function Actions(props: ActionsProps) {
               {
                 label,
                 type,
-                icon: Icon,
+                icon,
                 action,
                 onAuxClick,
                 color,
@@ -40,10 +41,10 @@ function Actions(props: ActionsProps) {
               },
               index
             ) => {
-              if (type === 'icon' && Icon) {
+              if (type === 'icon' && icon) {
                 return (
                   <IconButton
-                    icon={<Icon />}
+                    icon={<FluentIcon name={icon} />}
                     onClick={action}
                     onAuxClick={onAuxClick}
                     color={color || props.color}
@@ -63,7 +64,7 @@ function Actions(props: ActionsProps) {
               }
               return (
                 <Button
-                  icon={Icon ? <Icon /> : undefined}
+                  icon={icon ? <FluentIcon name={icon} /> : undefined}
                   onClick={action}
                   onAuxClick={onAuxClick}
                   color={color || props.color}

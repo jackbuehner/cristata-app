@@ -83,11 +83,9 @@ function Protected(props: ProtectedProps) {
       const matchedRoute = mainNav.find((item) => location.pathname === item.to);
 
       if (matchedRoute) {
-        const Icon = () => <FluentIcon name={matchedRoute.icon || 'ContentView20Regular'} />;
-        dispatch(setAppIcon(Icon));
+        dispatch(setAppIcon(matchedRoute.icon || 'ContentView20Regular'));
       } else if (location.pathname.includes('/cms')) {
-        const Icon = () => <FluentIcon name={'ContentView20Regular'} />;
-        dispatch(setAppIcon(Icon));
+        dispatch(setAppIcon('ContentView20Regular'));
       }
     }
   }, [dispatch, location, mainNav]);
