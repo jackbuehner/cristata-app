@@ -7,7 +7,14 @@ import { arrayMoveImmutable as arrayMove } from 'array-move';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import { DragDropContext, Draggable, Droppable, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvidedDragHandleProps,
+  Droppable,
+  DropResult,
+  ResponderProvided,
+} from 'react-beautiful-dnd';
 import { Combobox } from '.';
 import { capitalize } from '../../utils/capitalize';
 import { colorType, themeType } from '../../utils/theme/theme';
@@ -155,7 +162,9 @@ function Selected(props: SelectedProps) {
                   <Draggable draggableId={_id.toString()} index={index} key={index + _id.toString()}>
                     {(provided) => (
                       <SelectItem ref={provided.innerRef} {...provided.draggableProps} theme={theme}>
-                        {props.noDrag ? null : <DragHandle {...provided.dragHandleProps} theme={theme} />}
+                        {props.noDrag ? null : (
+                          <DragHandle dragHandleProps={provided.dragHandleProps} theme={theme} />
+                        )}
                         <SelectContent>
                           <SelectText theme={theme} font={props.font}>
                             {label}
@@ -269,9 +278,9 @@ const SelectText = styled.div<{ theme: themeType; font?: keyof themeType['font']
   }
 `;
 
-function DragHandle(props: { theme: themeType }) {
+function DragHandle(props: { theme: themeType; dragHandleProps?: DraggableProvidedDragHandleProps }) {
   return (
-    <DragHandleComponent theme={props.theme}>
+    <DragHandleComponent theme={props.theme} {...props.dragHandleProps}>
       <ReOrderDotsHorizontal24Regular />
     </DragHandleComponent>
   );
