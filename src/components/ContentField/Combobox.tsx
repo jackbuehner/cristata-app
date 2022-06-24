@@ -159,18 +159,18 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenClass, setIsOpenClass] = useState(false);
 
-  // close on scroll
-  const closeOnScroll = (e: Event) => {
-    const target = e.target as HTMLElement | null;
-    const isSelf = target?.classList.contains('rc-virtual-list-holder') || false;
-
-    // only close if the scroll event did not occur in the combobox dropdown
-    if (!isSelf) {
-      setTimeout(() => setIsOpenClass(false), 100);
-      setTimeout(() => setIsOpen(false), 240);
-    }
-  };
   useEffect(() => {
+    // close on scroll
+    const closeOnScroll = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      const isSelf = target?.classList.contains('rc-virtual-list-holder') || false;
+
+      // only close if the scroll event did not occur in the combobox dropdown
+      if (!isSelf) {
+        setTimeout(() => setIsOpenClass(false), 100);
+        setTimeout(() => setIsOpen(false), 240);
+      }
+    };
     document.addEventListener('scroll', closeOnScroll, { capture: true, passive: true });
     return document.removeEventListener('scroll', closeOnScroll);
   }, []);

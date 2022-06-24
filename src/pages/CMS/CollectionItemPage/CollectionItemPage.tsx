@@ -85,10 +85,12 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   const [hasLoadedAtLeastOnce, setHasLoadedAtLeastOnce] = useState(false);
   useEffect(() => {
-    if (JSON.stringify(itemState.fields) !== JSON.stringify({})) {
-      setHasLoadedAtLeastOnce(true);
+    if (!hasLoadedAtLeastOnce) {
+      if (JSON.stringify(itemState.fields) !== JSON.stringify({})) {
+        setHasLoadedAtLeastOnce(true);
+      }
     }
-  }, [itemState.fields]);
+  }, [hasLoadedAtLeastOnce, itemState.fields]);
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -209,13 +211,19 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   };
 
   // keep loading state synced
+  const [lastAppLoading, setLastAppLoading] = useState(false);
   useEffect(() => {
-    dispatch(setAppLoading(loading));
-  }, [dispatch, loading]);
+    if (loading !== lastAppLoading) {
+      setLastAppLoading(loading);
+      dispatch(setAppLoading(loading));
+    }
+  }, [dispatch, lastAppLoading, loading]);
 
   // configure app bar
   useEffect(() => {
     dispatch(setAppName(title.replace(' - Cristata', '')));
+  }, [dispatch, title]);
+  useEffect(() => {
     dispatch(
       setAppActions([
         ...quickActions.map((action, index) => {
@@ -238,7 +246,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         },
       ])
     );
-  }, [dispatch, quickActions, refetch, showActionDropdown, title]);
+  }, [dispatch, quickActions, refetch, showActionDropdown]);
 
   const locked = publishLocked || (itemState.fields.archived as boolean);
 

@@ -19,23 +19,31 @@ const useTipTapEditor = (options: Partial<EditorOptions> = {}): Editor | null =>
   const editorRef = useRef<Editor | null>(null);
   const forceUpdate = useForceUpdate();
 
-  if (!editorRef.current && typeof window !== 'undefined') {
-    // create editor on initial browser render
-    editorRef.current = new Editor(options);
-    editorRef.current.on('transaction', () => {
-      requestAnimationFrame(() => {
+  useEffect(() => {
+    if (!editorRef.current && typeof window !== 'undefined') {
+      // create editor on initial browser render
+      editorRef.current = new Editor(options);
+
+      // keep editor updated
+      const update = () => {
         requestAnimationFrame(() => {
-          forceUpdate();
+          requestAnimationFrame(() => {
+            forceUpdate();
+          });
         });
-      });
-    });
-  } else if (!editorRef.current) {
-    // server; ignore
-  } else if (editorRef.current.isDestroyed) {
-    // attempted to update options after editor was destroyed; this shouldn't occur.
-  } else {
-    editorRef.current.setOptions(options);
-  }
+      };
+      editorRef.current.on('transaction', update);
+      return () => {
+        editorRef?.current?.off('transaction', update);
+      };
+    } else if (!editorRef.current) {
+      // server; ignore
+    } else if (editorRef.current.isDestroyed) {
+      // attempted to update options after editor was destroyed; this shouldn't occur.
+    } else {
+      editorRef.current.setOptions(options);
+    }
+  }, [forceUpdate, options]);
 
   // destroy editor on unmount
   useEffect(() => {

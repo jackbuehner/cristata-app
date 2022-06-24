@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { DependencyList, useMemo, useState } from 'react';
+import { DependencyList, useEffect, useMemo, useState } from 'react';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 import packageJson from '../../../../package.json';
@@ -26,12 +26,24 @@ function useY({ name, ws }: UseYProps, deps: DependencyList = []): ReturnType {
   );
 
   const [synced, setSynced] = useState<boolean>(false);
-  doc.once('update', () => {
-    // server will always send an update on first connect
-    // after it merges the database version into the
-    // client version
-    if (!synced) setSynced(true);
-  });
+  useEffect(() => {
+    const updateListener = () => {
+      // server will always send an update on first connect
+      // after it merges the database version into the
+      // client version
+      if (!synced) setSynced(true);
+    };
+
+    // we use on instead of once because there is no way
+    // to clean up a once event listener
+    if (!synced) {
+      doc.on('update', updateListener);
+
+      return () => {
+        doc.off('update', updateListener);
+      };
+    }
+  }, []);
 
   // whether the doc is connected to the server and is up-to-date
   let isConnected = undefined;
