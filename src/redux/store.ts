@@ -11,6 +11,13 @@ const store = configureStore({
     cmsItem: cmsItemReducer,
     graphiql: graphiqlReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['appbar/setAppActions'],
+        ignoredPaths: ['appbar.actions'],
+      },
+    }),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
