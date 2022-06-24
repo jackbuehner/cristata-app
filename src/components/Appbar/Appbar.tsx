@@ -49,8 +49,8 @@ function Appbar() {
             onMouseLeave={() => setShowHomeArrow(false)}
             style={{
               //@ts-expect-error app-region is in beta
-              'app-region': 'no-drag',
-              '-webkit-app-region': 'no-drag',
+              appRegion: 'no-drag',
+              WebkitAppRegion: 'no-drag',
               padding: '9px',
               position: 'absolute',
               zIndex: 1,
