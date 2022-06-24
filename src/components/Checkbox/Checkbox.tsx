@@ -19,7 +19,6 @@ function Checkbox(props: ICheckbox) {
     <Component
       theme={theme}
       type={'checkbox'}
-      defaultChecked={props.isChecked}
       checked={props.isChecked}
       indeterminate={props.indeterminate || false}
       onChange={props.onChange}
