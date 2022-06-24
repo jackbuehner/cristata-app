@@ -230,7 +230,7 @@ function Selected(props: SelectedProps) {
                         <SelectText theme={theme} font={props.font}>
                           {label}
                         </SelectText>
-                        <RemoveIcon
+                        <IconWrapper
                           theme={theme}
                           color={props.color || 'primary'}
                           disabled={false}
@@ -240,7 +240,9 @@ function Selected(props: SelectedProps) {
                               ...(internalState.slice(index + 1) as StringValue[]),
                             ]);
                           }}
-                        />
+                        >
+                          <Dismiss24Regular />
+                        </IconWrapper>
                       </SelectItem>
                     )}
                   </Draggable>
@@ -294,7 +296,15 @@ const SelectText = styled.div<{ theme: themeType; font?: keyof themeType['font']
   word-break: break-word;
 `;
 
-const DragHandle = styled(ReOrderDotsHorizontal24Regular)<{ theme: themeType }>`
+function DragHandle(props: { theme: themeType }) {
+  return (
+    <DragHandleComponent theme={props.theme}>
+      <ReOrderDotsHorizontal24Regular />
+    </DragHandleComponent>
+  );
+}
+
+const DragHandleComponent = styled.span<{ theme: themeType }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -305,7 +315,7 @@ const DragHandle = styled(ReOrderDotsHorizontal24Regular)<{ theme: themeType }>`
   flex-shrink: 0;
 `;
 
-const RemoveIcon = styled(Dismiss24Regular)<{ theme: themeType; color: colorType; disabled?: boolean }>`
+const IconWrapper = styled.span<{ theme: themeType; color: colorType; disabled?: boolean }>`
   ${({ color, theme, disabled }) =>
     buttonEffect(color, theme.mode === 'light' ? 700 : 300, theme, disabled, { base: 'transparent' })}
   border: none !important;

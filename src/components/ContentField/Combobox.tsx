@@ -208,7 +208,7 @@ function Combobox({ onChange, ...props }: ComboboxProps) {
         showSearch
         showArrow
         allowClear={false}
-        inputIcon={<ChevronButton theme={theme} />}
+        inputIcon={<ChevronButton />}
         value={props.values || internalState}
         mode={props.many ? 'multiple' : undefined}
         dropdownAlign={{ offset: [0, 0] }}
@@ -431,7 +431,17 @@ const DropdownMenu = styled.div<{
   }
 `;
 
-const ChevronButton = styled(ChevronDown20Regular)<{ theme: themeType }>`
+function ChevronButton() {
+  const theme = useTheme() as themeType;
+
+  return (
+    <ChevronIconWrapper theme={theme}>
+      <ChevronDown20Regular />
+    </ChevronIconWrapper>
+  );
+}
+
+const ChevronIconWrapper = styled.span<{ theme: themeType }>`
   position: absolute;
   top: 1px;
   right: 0;
@@ -443,6 +453,10 @@ const ChevronButton = styled(ChevronDown20Regular)<{ theme: themeType }>`
   justify-content: center;
   z-index: 0;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
+  > svg {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 export { Combobox };

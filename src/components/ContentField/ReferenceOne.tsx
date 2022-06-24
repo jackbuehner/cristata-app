@@ -76,7 +76,7 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
                 }
               </SelectText>
             </SelectContent>
-            <OpenIcon
+            <IconWrapper
               theme={theme}
               color={props.color || 'primary'}
               disabled={false}
@@ -109,15 +109,15 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
                   );
                 }
               }}
-            />
-            <RemoveIcon
+            ><Open24Regular /></IconWrapper>
+            <IconWrapper
               theme={theme}
               color={props.color || 'primary'}
               disabled={false}
               onClick={() => {
                 setInternalState(null);
               }}
-            />
+            ><Dismiss24Regular /></IconWrapper>
           </SelectItem>
         ) : (
           <Combobox
@@ -194,7 +194,7 @@ const SelectText = styled.div<{ theme: themeType; font?: keyof themeType['font']
   }
 `;
 
-const RemoveIcon = styled(Dismiss24Regular)<{ theme: themeType; color: colorType; disabled?: boolean }>`
+const IconWrapper = styled.span<{ theme: themeType; color: colorType; disabled?: boolean }>`
   ${({ color, theme, disabled }) =>
     buttonEffect(color, theme.mode === 'light' ? 700 : 300, theme, disabled, { base: 'transparent' })}
   border: none !important;
@@ -213,7 +213,5 @@ const RemoveIcon = styled(Dismiss24Regular)<{ theme: themeType; color: colorType
     height: 16px;
   }
 `;
-
-const OpenIcon = RemoveIcon.withComponent(Open24Regular);
 
 export { ReferenceOne };

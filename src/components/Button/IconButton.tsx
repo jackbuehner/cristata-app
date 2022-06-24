@@ -21,6 +21,8 @@ const BUTTON = styled.button<StyledButtonProps>`
   height: ${({ height }) => (height ? height : '30px')};
   border-radius: ${({ borderRadius, theme }) =>
     borderRadius?.base !== undefined ? borderRadius.base : theme.radius};
+  color: ${({ theme, disabled }) =>
+    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
   ${({ disabled, borderRadius, color, colorShade, theme }) =>
     disabled
       ? ``

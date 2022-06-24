@@ -73,13 +73,11 @@ const ChevronWrapper = styled.span<{ theme: themeType; disabled?: boolean; size?
   width: ${({ size }) => (size ? size : 12)}px;
   height: ${({ size }) => (size ? size : 12)}px;
   svg {
+    display: flex;
     width: ${({ size }) => (size ? size : 12)}px;
     height: ${({ size }) => (size ? size : 12)}px;
     fill: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
     opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
-  }
-  span {
-    display: flex;
   }
 `;
 
