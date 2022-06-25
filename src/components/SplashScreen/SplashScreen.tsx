@@ -36,6 +36,7 @@ interface ISplashScreen {
    * Force this child to render instead of the persistent and protected children.
    */
   children?: React.ReactNode;
+  bypassAuthLogic?: boolean;
 }
 
 /**
@@ -53,7 +54,7 @@ function SplashScreen(props: ISplashScreen) {
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
     // store where the user should be redirected
-    if (props.error) {
+    if (props.error && props.bypassAuthLogic !== true) {
       const is403 = props.error.message.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
       if (is403 && location.pathname.indexOf(`/sign-in`) !== 0) {
@@ -61,10 +62,10 @@ function SplashScreen(props: ISplashScreen) {
         navigate(`/sign-in`);
       }
     }
-  }, [props.error, navigate, location.pathname, location.hash, location.search]);
+  }, [props.error, navigate, location.pathname, location.hash, location.search, props.bypassAuthLogic]);
 
   useEffect(() => {
-    if (props.user && searchParams.get('from') !== 'sign-out') {
+    if (props.user && props.bypassAuthLogic !== true) {
       dispatch(setEmail(props.user.email));
       dispatch(setAuthProvider(props.user.provider));
       dispatch(setName(props.user.name));
@@ -93,7 +94,7 @@ function SplashScreen(props: ISplashScreen) {
         localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
       }
     }
-  }, [props.user, navigate, dispatch, location.state, location.pathname, searchParams]);
+  }, [props.user, navigate, dispatch, location.state, location.pathname, searchParams, props.bypassAuthLogic]);
 
   // set the session id
   useEffect(() => {
@@ -107,6 +108,13 @@ function SplashScreen(props: ISplashScreen) {
   // (we need to set the background color to blue instead of primary)
   const isFullEditorPage =
     location.pathname.indexOf(`/cms/item/`) === 0 && new URLSearchParams(location.search).get('fs') === '1';
+
+  const showError = props.error && props.bypassAuthLogic !== true;
+  const showPersistentChildren = props.loading || (!props.user && props.bypassAuthLogic !== true) || showError;
+  const hideSplashScreen =
+    props.bypassAuthLogic === true ||
+    (!props.error && !props.loading) ||
+    (props.error && props.error.message.indexOf('403') !== -1);
 
   return (
     <>
@@ -128,11 +136,7 @@ function SplashScreen(props: ISplashScreen) {
             gap: 20px;
             align-items: center;
             justify-content: center;
-            animation: ${
-              (!props.error && !props.loading) || (props.error && props.error.message.indexOf('403') !== -1)
-                ? `splash-off 0.14s ease-in-out`
-                : 'none'
-            };
+            animation: ${hideSplashScreen ? `splash-off 0.14s ease-in-out` : 'none'};
             animation-fill-mode: forwards;
             animation-delay: 0.14s;
             -webkit-app-region: drag;
@@ -190,7 +194,7 @@ function SplashScreen(props: ISplashScreen) {
             stroke='none'
           />
         </svg>
-        {props.error ? (
+        {showError ? (
           <ErrorBlock theme={theme}>Failed to connect to the server.</ErrorBlock>
         ) : (
           <ErrorBlock theme={theme}>
@@ -200,7 +204,7 @@ function SplashScreen(props: ISplashScreen) {
       </div>
       {props.children ? (
         props.children
-      ) : props.loading || !props.user || props.error ? (
+      ) : showPersistentChildren ? (
         props.persistentChildren
       ) : (
         <>
