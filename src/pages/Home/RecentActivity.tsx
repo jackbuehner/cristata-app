@@ -110,7 +110,7 @@ function RecentActivity() {
               : 'modified';
 
           return (
-            <ItemWrapper theme={theme} key={item._id + item.users.join('')}>
+            <ItemWrapper theme={theme} key={item._id + type + item.users.map((u) => u.name).join('')}>
               <Item>
                 <ListNames
                   NameComponent={Bold}

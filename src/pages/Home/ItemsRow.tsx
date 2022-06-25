@@ -40,7 +40,7 @@ function ItemsRow(props: ItemsRowProps) {
   if (props.to.idPrefix === '/profile/') {
     return (
       <Row>
-        {docs?.map((doc: Record<string, any>, index: number) => {
+        {docs?.map((doc: Record<string, any>) => {
           const _id = getProperty(doc, props.dataKeys._id);
           const name = getProperty(doc, props.dataKeys.name)?.replace(' (Provisional)', '');
           const photo = props.dataKeys.photo ? getProperty(doc, props.dataKeys.photo) : undefined;
@@ -49,7 +49,7 @@ function ItemsRow(props: ItemsRowProps) {
           return (
             <Card
               theme={theme}
-              key={lastActiveAt}
+              key={_id + lastActiveAt}
               onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
             >
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
@@ -68,7 +68,7 @@ function ItemsRow(props: ItemsRowProps) {
 
   return (
     <Row>
-      {docs?.map((doc: Record<string, any>, index: number) => {
+      {docs?.map((doc: Record<string, any>) => {
         const _id = getProperty(doc, props.dataKeys._id);
         const name = getProperty(doc, props.dataKeys.name);
         const description = props.dataKeys.description
