@@ -34,7 +34,9 @@ function HomePage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
 
-  const { data: workflowStagesAll } = useQuery<STAGE_COUNTS__TYPE>(STAGE_COUNTS, { fetchPolicy: 'no-cache' });
+  const { data: workflowStagesAll } = useQuery<STAGE_COUNTS__TYPE>(STAGE_COUNTS, {
+    fetchPolicy: 'cache-and-network',
+  });
   const workflowStages = [].concat(...(Object.values({ ...workflowStagesAll }) as any)) as {
     _id: number;
     count: number;

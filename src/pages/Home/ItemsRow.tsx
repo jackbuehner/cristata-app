@@ -33,7 +33,7 @@ function ItemsRow(props: ItemsRowProps) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
 
-  const res = useQuery(gql(props.query));
+  const res = useQuery(gql(props.query), { fetchPolicy: 'cache-and-network' });
   const docs = getProperty(res, props.arrPath);
 
   if (props.to.idPrefix === '/profile/') {

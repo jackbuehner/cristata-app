@@ -10,7 +10,7 @@ import { FluentIconNames } from '../../components/FluentIcon';
 function useDashboardConfig(
   key: 'collectionRows'
 ): [Home['collectionRows'] | undefined, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>] {
-  const res = useQuery<QueryType>(QUERY);
+  const res = useQuery<QueryType>(QUERY, { fetchPolicy: 'cache-and-network' });
 
   return [res.data?.configuration.dashboard.collectionRows, res.error, res.refetch];
 }

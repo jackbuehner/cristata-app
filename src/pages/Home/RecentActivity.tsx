@@ -24,7 +24,7 @@ function RecentActivity() {
 
   const { data } = useQuery<HISTORY__TYPE>(HISTORY, {
     variables: { limit: 25, exclude: ['User'] },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network',
   });
   const unmergedHistory = data?.collectionActivity.docs;
   const activity = (() => {
