@@ -73,9 +73,6 @@ function Protected(props: ProtectedProps) {
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
-  // get the navigation for the cms
-  const [cmsNav] = useNavigationConfig('cms');
-
   //update app bar based on routes
   const [mainNav] = useNavigationConfig('main');
   useEffect(() => {
