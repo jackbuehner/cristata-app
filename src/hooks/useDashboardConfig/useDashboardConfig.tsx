@@ -12,11 +12,11 @@ function useDashboardConfig(
 ): [Home['collectionRows'] | undefined, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>] {
   const res = useQuery<QueryType>(QUERY, { fetchPolicy: 'cache-and-network' });
 
-  return [res.data?.configuration.dashboard.collectionRows, res.error, res.refetch];
+  return [res.data?.dashboardConfig.dashboard.collectionRows, res.error, res.refetch];
 }
 
 interface QueryType {
-  configuration: {
+  dashboardConfig: {
     dashboard: {
       collectionRows: Home['collectionRows'];
     };
@@ -24,8 +24,8 @@ interface QueryType {
 }
 
 const QUERY = gql`
-  query {
-    configuration {
+  query dashboardConfig {
+    dashboardConfig: configuration {
       dashboard {
         collectionRows {
           arrPath
