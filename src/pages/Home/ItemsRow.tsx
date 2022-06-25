@@ -33,7 +33,8 @@ function ItemsRow(props: ItemsRowProps) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
 
-  const res = useQuery(gql(props.query), { fetchPolicy: 'cache-and-network' });
+  const namedQuery = props.query.replace('query {', `query ${props.arrPath.split('.')[1]} {`);
+  const res = useQuery(gql(namedQuery), { fetchPolicy: 'cache-and-network' });
   const docs = getProperty(res, props.arrPath);
 
   if (props.to.idPrefix === '/profile/') {
@@ -48,7 +49,7 @@ function ItemsRow(props: ItemsRowProps) {
           return (
             <Card
               theme={theme}
-              key={index}
+              key={lastActiveAt}
               onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
             >
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
@@ -78,7 +79,11 @@ function ItemsRow(props: ItemsRowProps) {
         const lastModifiedAt = timeToString(DateTime.fromISO(getProperty(doc, props.dataKeys.lastModifiedAt)));
 
         return (
-          <Card theme={theme} key={index} onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}>
+          <Card
+            theme={theme}
+            key={_id + name + description + photo + lastModifiedBy + lastModifiedAt}
+            onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
+          >
             {props.dataKeys.photo ? <Photo src={photo} theme={theme} /> : null}
             <Name theme={theme}>{name}</Name>
             {description ? <Description theme={theme}>{description}</Description> : null}

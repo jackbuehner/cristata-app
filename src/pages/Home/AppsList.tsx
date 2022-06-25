@@ -13,10 +13,10 @@ function AppsList() {
     <div style={{ display: 'flex', flexDirection: 'row', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
       {mainNav
         ?.filter((item) => item.to !== '/')
-        .map((item, index) => {
+        .map((item) => {
           return (
             <Button
-              key={index}
+              key={item.label + item.icon + item.to}
               icon={<FluentIcon name={item.icon} />}
               height={80}
               onClick={() => {

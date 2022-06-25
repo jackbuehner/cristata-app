@@ -88,7 +88,7 @@ function RecentActivity() {
     <>
       {
         // generate lines for each activity item
-        activity?.slice(0, 6).map((item, index: number) => {
+        activity?.slice(0, 6).map((item) => {
           let type = item.action;
           const at = item.at;
           const users = item.users;
@@ -110,7 +110,7 @@ function RecentActivity() {
               : 'modified';
 
           return (
-            <ItemWrapper theme={theme} key={index}>
+            <ItemWrapper theme={theme} key={item._id + item.users.join('')}>
               <Item>
                 <ListNames
                   NameComponent={Bold}
