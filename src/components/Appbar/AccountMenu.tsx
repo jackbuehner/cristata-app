@@ -14,7 +14,7 @@ import { Menu } from '../Menu';
 interface AccountMenuProps {}
 
 function AccountMenu(props: AccountMenuProps) {
-  const { data } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'no-cache' });
+  const { data } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'cache-and-network' });
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
 
