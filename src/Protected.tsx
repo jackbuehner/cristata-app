@@ -76,12 +76,17 @@ function Protected(props: ProtectedProps) {
     dispatch(setAppSearchShown(false));
   }, [dispatch, location.pathname]);
 
+  const isOffline = navigator.onLine === false;
+
   return (
     <CristataWebSocket>
       {isCustomTitlebarVisible ? <Titlebar /> : null}
       <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
         {/** app bar */}
         <Appbar />
+
+        {/** offline notice */}
+        {isOffline ? <OfflineNotice theme={theme}>Working offline</OfflineNotice> : null}
 
         {/** side navigation and main content  */}
         <Wrapper theme={theme}>
@@ -169,7 +174,9 @@ const Wrapper = styled.div<{ theme: themeType }>`
     display: block;
   }
   width: 100%;
-  height: calc(100% - ${({ theme }) => theme.dimensions.appbar.height});
+  height: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
 `;
 
 const SideNavWrapper = styled.div<{
@@ -216,6 +223,23 @@ const Content = styled.div<{ theme: themeType }>`
         theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]
       ).alpha(0)})`};
   }
+`;
+
+const OfflineNotice = styled.div<{ theme: themeType }>`
+  display: flex;
+  height: 20px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.color.neutral.dark[100]};
+  background-color: ${({ theme }) => theme.color.orange[800]};
+  font-family: ${({ theme }) => theme.font.detail};
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 13px;
+  letter-spacing: 0.3px;
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 export { Protected };
