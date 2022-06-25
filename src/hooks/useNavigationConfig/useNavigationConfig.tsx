@@ -21,7 +21,7 @@ function useNavigationConfig(
   ApolloError | undefined,
   () => Promise<ApolloQueryResult<QueryType>>
 ] {
-  const res = useQuery<QueryType>(queryString(key), { fetchPolicy: 'no-cache' });
+  const res = useQuery<QueryType>(queryString(key), { fetchPolicy: 'cache-and-network' });
 
   if (key === 'main') {
     return [res.data?.configuration.navigation.main, res.error, res.refetch];
