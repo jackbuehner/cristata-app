@@ -6,7 +6,6 @@ import { WorkflowStatusCard } from './WorkflowStatusCard';
 
 function Workflow() {
   const renderCounter = useRef(0);
-  console.log(renderCounter.current);
 
   // get the workflow stages for all collections
   const { data: workflowStagesAll } = useQuery<STAGE_COUNTS__TYPE>(STAGE_COUNTS, {
