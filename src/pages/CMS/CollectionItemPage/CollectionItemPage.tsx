@@ -11,6 +11,7 @@ import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { Fragment, useEffect, useState } from 'react';
+import useDimensions from 'react-cool-dimensions';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
@@ -250,6 +251,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   }, [dispatch, quickActions, refetch, showActionDropdown]);
 
   const locked = publishLocked || (itemState.fields.archived as boolean);
+
+  const { observe: contentRef, width: contentWidth } = useDimensions();
 
   if (schemaDef) {
     // go through the schemaDef and convert JSON types with mutliple fields to individual fields
@@ -840,7 +843,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         {!props.isEmbedded && (fs === 'force' || fs === '1') ? null : null}
         <FullScreenSplash isLoading={(fs === 'force' || fs === '1') && !hasLoadedAtLeastOnce} />
         {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
-          <ContentWrapper theme={theme}>
+          <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
               {publishLocked && !props.isEmbedded && fs !== '1' ? (
                 <Notice theme={theme}>
@@ -867,11 +870,11 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 </Notice>
               ) : null}
               <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
-                {props.isEmbedded ? <Sidebar {...sidebarProps} /> : null}
+                {contentWidth <= 700 ? <Sidebar {...sidebarProps} compact={true} /> : null}
                 {processSchemaDef(schemaDef).map(renderFields)}
               </div>
             </div>
-            {props.isEmbedded ? null : <Sidebar {...sidebarProps} />}
+            {contentWidth <= 700 ? null : <Sidebar {...sidebarProps} />}
           </ContentWrapper>
         )}
       </>

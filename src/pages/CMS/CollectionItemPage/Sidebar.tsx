@@ -33,6 +33,7 @@ interface SidebarProps {
   loading?: boolean;
   isEmbedded?: boolean;
   previewUrl?: string;
+  compact?: boolean;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -65,7 +66,7 @@ function Sidebar(props: SidebarProps) {
   }, [client, props.permissions, teams]);
 
   return (
-    <Container theme={theme} isEmbedded={props.isEmbedded}>
+    <Container theme={theme} compact={props.compact}>
       <SectionTitle theme={theme}>Document Information</SectionTitle>
       <DocInfoRow theme={theme}>
         <div>Created</div>
@@ -182,10 +183,10 @@ function Sidebar(props: SidebarProps) {
   );
 }
 
-const Container = styled.div<{ theme: themeType; isEmbedded?: boolean }>`
-  width: 300px;
-  background-color: ${({ theme, isEmbedded }) => {
-    if (isEmbedded) {
+const Container = styled.div<{ theme: themeType; compact?: boolean }>`
+  width: ${({ compact }) => (compact ? '100%' : '300px')};
+  background-color: ${({ theme, compact }) => {
+    if (compact) {
       if (theme.mode === 'dark') return Color(theme.color.neutral[theme.mode][200]).alpha(0.3).string();
       return Color(`#ffffff`).alpha(0.4).string();
     } else {
@@ -193,14 +194,14 @@ const Container = styled.div<{ theme: themeType; isEmbedded?: boolean }>`
       return '#ffffff';
     }
   }};
-  border: ${({ isEmbedded }) => (isEmbedded ? `1px solid` : `none`)};
-  border-radius: ${({ theme, isEmbedded }) => (isEmbedded ? theme.radius : 0)};
+  border: ${({ compact }) => (compact ? `1px solid` : `none`)};
+  border-radius: ${({ theme, compact }) => (compact ? theme.radius : 0)};
   border-left: 1px solid;
   border-color: ${({ theme }) => theme.color.neutral[theme.mode][200]};
   flex-grow: 0;
   flex-shrink: 0;
-  padding: ${({ isEmbedded }) => (isEmbedded ? '4px 16px 14px 16px' : '20px')};
-  margin-bottom: ${({ isEmbedded }) => (isEmbedded ? '16px' : '0px')};
+  padding: ${({ compact }) => (compact ? '4px 16px 14px 16px' : '20px')};
+  margin-bottom: ${({ compact }) => (compact ? '16px' : '0px')};
   box-sizing: border-box;
   overflow: auto;
 `;
