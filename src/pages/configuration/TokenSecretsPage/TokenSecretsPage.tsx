@@ -10,6 +10,7 @@ import { Button } from '../../../components/Button';
 import { DocumentNode } from 'graphql';
 import { gql, useApolloClient } from '@apollo/client';
 import { toast } from 'react-toastify';
+import { Offline } from '../../../components/Offline';
 
 function TokenSecretsPage() {
   const dispatch = useAppDispatch();
@@ -82,6 +83,10 @@ function TokenSecretsPage() {
       ])
     );
   }, [awsAccessKeyId, awsAccessKeySecret, client, dispatch, fathomDashboardPassword, fathomSiteId, refetch]);
+
+  if (!data && !navigator.onLine) {
+    return <Offline variant={'centered'} />;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

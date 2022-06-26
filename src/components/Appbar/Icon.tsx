@@ -1,5 +1,10 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useNavigationConfig } from '../../hooks/useNavigationConfig';
+import { useAppDispatch } from '../../redux/hooks';
+import { setAppIcon } from '../../redux/slices/appbarSlice';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { FluentIcon, FluentIconNames } from '../FluentIcon';
 
@@ -46,8 +51,30 @@ function Icon(props: IconProps) {
       drag={props.drag || false}
     >
       <FluentIcon name={props.icon} />
+      <SyncIcon />
     </ICON_COMPONENT>
   );
+}
+
+function SyncIcon() {
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const [mainNav] = useNavigationConfig('main');
+
+  //update app bar icon based on routes
+  useEffect(() => {
+    if (mainNav) {
+      const matchedRoute = mainNav.find((item) => location.pathname === item.to);
+
+      if (matchedRoute) {
+        dispatch(setAppIcon(matchedRoute.icon || 'ContentView20Regular'));
+      } else if (location.pathname.includes('/cms')) {
+        dispatch(setAppIcon('ContentView20Regular'));
+      }
+    }
+  }, [dispatch, location, mainNav]);
+
+  return null;
 }
 
 const ICON_COMPONENT = styled.div<{

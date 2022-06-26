@@ -2,6 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { useEffect, useState } from 'react';
 import { Button } from '../../../components/Button';
+import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
 import { server } from '../../../utils/constants';
@@ -48,6 +49,10 @@ function BillingPaymentsPage() {
       ])
     );
   }, [dispatch, refetch]);
+
+  if (!data && !navigator.onLine) {
+    return <Offline variant={'centered'} />;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

@@ -9,6 +9,7 @@ import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '../../components/Button';
+import { Offline } from '../../components/Offline';
 import { PageHead } from '../../components/PageHead';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setAppName, setAppActions, setAppLoading } from '../../redux/slices/appbarSlice';
@@ -77,6 +78,10 @@ function Playground({ setThemeMode }: PlaygroundProps) {
     dispatch(setAppActions([]));
     dispatch(setAppLoading(false));
   }, [dispatch]);
+
+  if (!navigator.onLine) {
+    return <Offline variant={'centered'} key={0} />;
+  }
 
   return (
     <div style={{ overflow: 'hidden', height: '100%' }}>

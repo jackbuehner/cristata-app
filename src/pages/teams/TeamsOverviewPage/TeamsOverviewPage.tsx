@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { SectionHeading } from '../../../components/Heading';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
+import { Offline } from '../../../components/Offline';
 import { MultiSelect } from '../../../components/Select';
 import { TeamCard } from '../../../components/TeamCard';
 import { TextInput } from '../../../components/TextInput';
@@ -197,6 +198,10 @@ function TeamsOverviewPage() {
       ])
     );
   }, [dispatch, showCreateModal]);
+
+  if (!dataTeams && !dataUA && !navigator.onLine) {
+    return <Offline variant={'centered'} key={0} />;
+  }
 
   return (
     <>

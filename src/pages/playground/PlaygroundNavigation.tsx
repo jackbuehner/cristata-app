@@ -2,6 +2,7 @@
 import { css, useTheme } from '@emotion/react';
 import GraphiQLExplorer from 'graphiql-explorer';
 import { SideNavHeading } from '../../components/Heading';
+import { Offline } from '../../components/Offline';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setExplorerIsOpen, setQuery } from '../../redux/slices/graphiqlSlice';
 import { themeType } from '../../utils/theme/theme';
@@ -12,6 +13,10 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
   const theme = useTheme() as themeType;
   const state = useAppSelector((state) => state.graphiql);
   const dispatch = useAppDispatch();
+
+  if (!state.schema && !navigator.onLine) {
+    return <Offline variant={'small'} key={0} />;
+  }
 
   return (
     <>

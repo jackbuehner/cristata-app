@@ -33,13 +33,14 @@ function ItemsRow(props: ItemsRowProps) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
 
-  const res = useQuery(gql(props.query));
+  const namedQuery = props.query.replace('query {', `query ${props.arrPath.split('.')[1]} {`);
+  const res = useQuery(gql(namedQuery), { fetchPolicy: 'cache-and-network' });
   const docs = getProperty(res, props.arrPath);
 
   if (props.to.idPrefix === '/profile/') {
     return (
       <Row>
-        {docs?.map((doc: Record<string, any>, index: number) => {
+        {docs?.map((doc: Record<string, any>) => {
           const _id = getProperty(doc, props.dataKeys._id);
           const name = getProperty(doc, props.dataKeys.name)?.replace(' (Provisional)', '');
           const photo = props.dataKeys.photo ? getProperty(doc, props.dataKeys.photo) : undefined;
@@ -48,7 +49,7 @@ function ItemsRow(props: ItemsRowProps) {
           return (
             <Card
               theme={theme}
-              key={index}
+              key={_id + lastActiveAt}
               onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
             >
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
@@ -67,7 +68,7 @@ function ItemsRow(props: ItemsRowProps) {
 
   return (
     <Row>
-      {docs?.map((doc: Record<string, any>, index: number) => {
+      {docs?.map((doc: Record<string, any>) => {
         const _id = getProperty(doc, props.dataKeys._id);
         const name = getProperty(doc, props.dataKeys.name);
         const description = props.dataKeys.description
@@ -78,7 +79,11 @@ function ItemsRow(props: ItemsRowProps) {
         const lastModifiedAt = timeToString(DateTime.fromISO(getProperty(doc, props.dataKeys.lastModifiedAt)));
 
         return (
-          <Card theme={theme} key={index} onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}>
+          <Card
+            theme={theme}
+            key={_id + name + description + photo + lastModifiedBy + lastModifiedAt}
+            onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
+          >
             {props.dataKeys.photo ? <Photo src={photo} theme={theme} /> : null}
             <Name theme={theme}>{name}</Name>
             {description ? <Description theme={theme}>{description}</Description> : null}

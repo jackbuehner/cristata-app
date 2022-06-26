@@ -112,6 +112,7 @@ function App() {
                       loading={loadingUser}
                       error={errorUser || undefined}
                       user={user}
+                      bypassAuthLogic={!navigator.onLine}
                       persistentChildren={
                         <Routes>
                           <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />

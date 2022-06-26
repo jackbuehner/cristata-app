@@ -1,4 +1,11 @@
-import { ApolloError, ApolloQueryResult, DocumentNode, gql, useQuery } from '@apollo/client';
+import {
+  ApolloError,
+  ApolloQueryResult,
+  DocumentNode,
+  gql,
+  useQuery,
+  WatchQueryFetchPolicy,
+} from '@apollo/client';
 import { FluentIconNames } from '../../components/FluentIcon';
 
 /**
@@ -9,7 +16,8 @@ import { FluentIconNames } from '../../components/FluentIcon';
  * @returns [nav, error, refetch()]
  */
 function useNavigationConfig(
-  key: 'main'
+  key: 'main',
+  fetchPolicy?: WatchQueryFetchPolicy
 ): [MainNavItem[] | undefined, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>];
 function useNavigationConfig(
   key: string
@@ -21,7 +29,7 @@ function useNavigationConfig(
   ApolloError | undefined,
   () => Promise<ApolloQueryResult<QueryType>>
 ] {
-  const res = useQuery<QueryType>(queryString(key), { fetchPolicy: 'no-cache' });
+  const res = useQuery<QueryType>(queryString(key), { fetchPolicy: 'cache-and-network' });
 
   if (key === 'main') {
     return [res.data?.configuration.navigation.main, res.error, res.refetch];
@@ -58,7 +66,7 @@ interface SubNavGroup {
 function queryString(key: string): DocumentNode {
   if (key === 'main') {
     return gql`
-      query navigationConfiguration {
+      query navigationConfiguration_${key} {
         configuration {
           navigation {
             main {
@@ -73,7 +81,7 @@ function queryString(key: string): DocumentNode {
     `;
   }
   return gql`
-    query navigationConfiguration {
+    query navigationConfiguration_${key} {
       configuration {
         navigation {
           sub(key: "${key}") {

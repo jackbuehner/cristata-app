@@ -6,6 +6,7 @@ import { type editor } from 'monaco-editor';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { cristataCodeDarkTheme } from '../cristataCodeDarkTheme';
@@ -105,6 +106,10 @@ function CollectionSchemaPage() {
       ])
     );
   }, [client, collection, dispatch, hasErrors, refetch]);
+
+  if (!raw && !navigator.onLine) {
+    return <Offline variant={'centered'} />;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

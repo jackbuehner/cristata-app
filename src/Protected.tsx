@@ -8,16 +8,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { IGridCols } from './App';
 import './App.css';
 import { Appbar } from './components/Appbar';
-import { SideNavSubButton } from './components/Button';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
-import FluentIcon from './components/FluentIcon';
-import { SideNavHeading } from './components/Heading';
 import { PageHead } from './components/PageHead';
 import { SidenavSub } from './components/SidenavSub';
 import { Titlebar } from './components/Titlebar';
-import { useNavigationConfig } from './hooks/useNavigationConfig';
 import { useAppDispatch } from './redux/hooks';
-import { setAppIcon, setAppSearchShown } from './redux/slices/appbarSlice';
+import { setAppSearchShown } from './redux/slices/appbarSlice';
 import { themeType } from './utils/theme/theme';
 
 /* prettier-ignore */ const HomePage = loadable(() => import(/* webpackChunkName: "HomePage" */'./pages/Home'), { resolveComponent: (c) => c.HomePage });
@@ -37,6 +33,7 @@ import { themeType } from './utils/theme/theme';
 /* prettier-ignore */ const PhotoLibraryPage = loadable(() => import(/* webpackChunkName: "PhotoLibraryPage" */'./pages/CMS/PhotoLibraryPage'), { resolveComponent: (c) => c.PhotoLibraryPage });
 /* prettier-ignore */ const ProfileNavigation = loadable(() => import(/* webpackChunkName: "ProfileNavigation" */'./pages/profile/ProfileSideNavSub'), { resolveComponent: (c) => c.ProfileSideNavSub });
 /* prettier-ignore */ const TeamsNavigation = loadable(() => import(/* webpackChunkName: "TeamsNavigation" */'./pages/teams/TeamsNav'), { resolveComponent: (c) => c.TeamsNav });
+/* prettier-ignore */ const CmsNavigation = loadable(() => import(/* webpackChunkName: "TeamsNavigation" */'./pages/CMS/CmsNavigation'), { resolveComponent: (c) => c.CmsNavigation });
 
 HomePage.preload();
 ProfilePage.preload();
@@ -55,6 +52,7 @@ CollectionPage.preload();
 PhotoLibraryPage.preload();
 ProfileNavigation.preload();
 TeamsNavigation.preload();
+CmsNavigation.preload();
 
 interface ProtectedProps {
   setThemeMode: Dispatch<SetStateAction<'light' | 'dark'>>;
@@ -73,27 +71,12 @@ function Protected(props: ProtectedProps) {
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
-  // get the navigation for the cms
-  const [cmsNav] = useNavigationConfig('cms');
-
-  //update app bar based on routes
-  const [mainNav] = useNavigationConfig('main');
-  useEffect(() => {
-    if (mainNav) {
-      const matchedRoute = mainNav.find((item) => location.pathname === item.to);
-
-      if (matchedRoute) {
-        dispatch(setAppIcon(matchedRoute.icon || 'ContentView20Regular'));
-      } else if (location.pathname.includes('/cms')) {
-        dispatch(setAppIcon('ContentView20Regular'));
-      }
-    }
-  }, [dispatch, location, mainNav]);
-
   // close search when pathname changes
   useEffect(() => {
     dispatch(setAppSearchShown(false));
   }, [dispatch, location.pathname]);
+
+  const isOffline = navigator.onLine === false;
 
   return (
     <CristataWebSocket>
@@ -102,6 +85,9 @@ function Protected(props: ProtectedProps) {
         {/** app bar */}
         <Appbar />
 
+        {/** offline notice */}
+        {isOffline ? <OfflineNotice theme={theme}>Working offline</OfflineNotice> : null}
+
         {/** side navigation and main content  */}
         <Wrapper theme={theme}>
           {window.name === '' ? (
@@ -109,32 +95,7 @@ function Protected(props: ProtectedProps) {
               <SideNavs>
                 <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
                   <Routes>
-                    <Route
-                      path={`/cms/*`}
-                      element={
-                        <>
-                          {cmsNav?.map((group, index) => {
-                            return (
-                              <Fragment key={index}>
-                                <SideNavHeading className={'not-header'}>{group.label}</SideNavHeading>
-                                {group.items.map((item, index) => {
-                                  return (
-                                    <SideNavSubButton
-                                      key={index}
-                                      Icon={<FluentIcon key={index} name={item.icon} />}
-                                      to={item.to}
-                                      setIsNavVisibleM={setIsNavVisibleM}
-                                    >
-                                      {item.label}
-                                    </SideNavSubButton>
-                                  );
-                                })}
-                              </Fragment>
-                            );
-                          })}
-                        </>
-                      }
-                    />
+                    <Route path={`/cms/*`} element={<CmsNavigation setIsNavVisibleM={setIsNavVisibleM} />} />
                     <Route
                       path={`/profile/*`}
                       element={<ProfileNavigation setIsNavVisibleM={setIsNavVisibleM} />}
@@ -213,7 +174,9 @@ const Wrapper = styled.div<{ theme: themeType }>`
     display: block;
   }
   width: 100%;
-  height: calc(100% - ${({ theme }) => theme.dimensions.appbar.height});
+  height: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
 `;
 
 const SideNavWrapper = styled.div<{
@@ -260,6 +223,23 @@ const Content = styled.div<{ theme: themeType }>`
         theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]
       ).alpha(0)})`};
   }
+`;
+
+const OfflineNotice = styled.div<{ theme: themeType }>`
+  display: flex;
+  height: 20px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.color.neutral.dark[100]};
+  background-color: ${({ theme }) => theme.color.orange[800]};
+  font-family: ${({ theme }) => theme.font.detail};
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 13px;
+  letter-spacing: 0.3px;
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 export { Protected };
