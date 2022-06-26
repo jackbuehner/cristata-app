@@ -51,7 +51,10 @@ const createCache = () => {
           {
             configuration: {
               merge: (existing: {}, incoming: {}) => {
-                return merge(JSON.parse(JSON.stringify(existing)), JSON.parse(JSON.stringify(incoming)));
+                return merge(
+                  JSON.parse(JSON.stringify(existing || {})),
+                  JSON.parse(JSON.stringify(incoming || {}))
+                );
               },
             },
           },
