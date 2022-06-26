@@ -77,10 +77,14 @@ function CollectionSchemaPage() {
 
             // save
             const value = editorRef.current
-              ? (JSON.parse(editorRef.current?.getValue()) as Collection)
+              ? (JSON.parse(editorRef.current?.getValue()) as Collection & { skipAdditionalParsing?: boolean })
               : undefined;
+
             if (value) {
-              console.log(saveMutationString(collection, value));
+              // tell the server to not parse objectIds and dates (leave them as strings)
+              value.skipAdditionalParsing = true;
+
+              // send the mutation
               setLoading(true);
               client
                 .mutate<SaveMutationType>({ mutation: saveMutationString(collection, value) })
