@@ -690,7 +690,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                 docs.find((doc: { _id: string }) => doc._id === selectedIds[0])?.[row.hrefSuffixKey]
               }${row.hrefSearch || ''}`;
 
-              window.open(`/${tenant}/${href}`, row.windowName, 'location=no');
+              window.open(`/${tenant}${href}`, row.windowName, 'location=no');
             }}
           >
             Open
