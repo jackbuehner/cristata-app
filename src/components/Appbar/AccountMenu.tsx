@@ -95,6 +95,7 @@ function AccountMenu(props: AccountMenuProps) {
                       `}
                       color={'red'}
                       onClick={() => navigate(`/sign-out`)}
+                      disabled={!navigator.onLine}
                     >
                       Sign out
                     </Button>
