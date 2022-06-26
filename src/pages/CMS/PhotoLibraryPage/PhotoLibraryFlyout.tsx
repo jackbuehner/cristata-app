@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
+import { Offline } from '../../../components/Offline';
 import { PHOTO, PHOTO__TYPE } from '../../../graphql/queries';
 import { themeType } from '../../../utils/theme/theme';
 
@@ -47,7 +48,9 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
           {loading || networkStatus === NetworkStatus.refetch ? 'Loading...' : photo ? photo.name : 'Error'}
         </Name>
       </Header>
-      {loading ? (
+      {!data && !navigator.onLine ? (
+        <Offline variant={'small'} />
+      ) : loading ? (
         ''
       ) : photo ? (
         <>

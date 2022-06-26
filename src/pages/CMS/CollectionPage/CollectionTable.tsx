@@ -27,6 +27,7 @@ import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
+import { Offline } from '../../../components/Offline';
 import { Table } from '../../../components/Table';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
@@ -584,6 +585,10 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       },
       [selectedIds]
     );
+
+    if (!data && !navigator.onLine) {
+      return <Offline variant={'centered'} />;
+    }
 
     if (!data && error)
       return (

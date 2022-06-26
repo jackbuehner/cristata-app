@@ -2,6 +2,7 @@ import { Dispatch, Fragment, SetStateAction } from 'react';
 import { SideNavSubButton } from '../../../components/Button';
 import FluentIcon from '../../../components/FluentIcon';
 import { SideNavHeading } from '../../../components/Heading';
+import { Offline } from '../../../components/Offline';
 import { useNavigationConfig } from '../../../hooks/useNavigationConfig';
 
 interface CmsNavigationProps {
@@ -10,6 +11,10 @@ interface CmsNavigationProps {
 
 function CmsNavigation(props: CmsNavigationProps) {
   const [cmsNav] = useNavigationConfig('cms');
+
+  if (!cmsNav && !navigator.onLine) {
+    return <Offline variant={'small'} />;
+  }
 
   return (
     <>

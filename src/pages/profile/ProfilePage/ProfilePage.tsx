@@ -12,6 +12,7 @@ import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
 import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
+import { Offline } from '../../../components/Offline';
 import { TextArea } from '../../../components/TextArea';
 import { TextInput } from '../../../components/TextInput';
 import {
@@ -339,6 +340,10 @@ function ProfilePage() {
       ])
     );
   }, [canEdit, dispatch, isSelf, navigate, profile?.email, showEditModal]);
+
+  if (!data && !navigator.onLine) {
+    return <Offline variant={'centered'} key={0} />;
+  }
 
   return (
     <>

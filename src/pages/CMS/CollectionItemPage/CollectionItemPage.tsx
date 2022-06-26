@@ -26,6 +26,7 @@ import {
   Text,
 } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
+import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
@@ -828,6 +829,10 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         </Field>
       );
     };
+
+    if ((!itemState || JSON.stringify(itemState.fields) === JSON.stringify({})) && !navigator.onLine) {
+      return <Offline variant={'centered'} />;
+    }
 
     return (
       <>

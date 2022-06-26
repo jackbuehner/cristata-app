@@ -25,6 +25,7 @@ import {
 import { CircularProgress } from '@material-ui/core';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
+import { Offline } from '../../../components/Offline';
 
 function PhotoLibraryPage() {
   const dispatch = useAppDispatch();
@@ -317,11 +318,15 @@ function PhotoLibraryPage() {
           type: 'button',
           icon: 'ArrowUpload20Regular',
           action: upload,
-          disabled: !!isLoading || !!uploadStatus || !!error,
+          disabled: !!isLoading || !!uploadStatus || !!error || !navigator.onLine,
         },
       ])
     );
   }, [dispatch, error, isLoading, refetch, uploadStatus]);
+
+  if (!data && !navigator.onLine) {
+    return <Offline variant={'centered'} />;
+  }
 
   return (
     <>

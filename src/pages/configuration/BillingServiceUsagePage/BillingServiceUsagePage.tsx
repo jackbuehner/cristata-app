@@ -1,6 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { useEffect } from 'react';
+import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { formatISODate } from '../../../utils/formatISODate';
@@ -35,6 +36,10 @@ function BillingServiceUsagePage() {
       ])
     );
   }, [dispatch, refetch]);
+
+  if (!data && !navigator.onLine) {
+    return <Offline variant={'centered'} />;
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

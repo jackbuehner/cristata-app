@@ -1,6 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { Spinner } from '../../components/Loading';
+import { Offline } from '../../components/Offline';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../redux/slices/appbarSlice';
 
@@ -37,6 +38,10 @@ function FathomEmbed() {
       ])
     );
   }, [data?.fathomDashboard, dispatch]);
+
+  if (!navigator.onLine) {
+    return <Offline variant={'centered'} />;
+  }
 
   return (
     <div style={{ overflow: 'hidden', height: '100%' }}>

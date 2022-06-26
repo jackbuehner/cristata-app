@@ -1,5 +1,6 @@
 import { SideNavSubButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
+import { Offline } from '../../../components/Offline';
 import { useGetCollections } from './useGetCollections';
 
 function ConfigurationNavigation() {
@@ -19,13 +20,17 @@ function ConfigurationNavigation() {
         Secrets
       </SideNavSubButton>
       <SideNavHeading>Schemas</SideNavHeading>
-      {collections?.map(({ name }, index) => {
-        return (
-          <SideNavSubButton key={index} Icon={<></>} to={`/configuration/schema/${name}`}>
-            {name}
-          </SideNavSubButton>
-        );
-      })}
+      {(!collections || collections?.length === 0) && !navigator.onLine ? (
+        <Offline variant={'small'} />
+      ) : (
+        collections?.map(({ name }, index) => {
+          return (
+            <SideNavSubButton key={index} Icon={<></>} to={`/configuration/schema/${name}`}>
+              {name}
+            </SideNavSubButton>
+          );
+        })
+      )}
     </>
   );
 }

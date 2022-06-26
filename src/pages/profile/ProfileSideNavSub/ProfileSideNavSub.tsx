@@ -19,6 +19,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { Button, IconButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
 import { Menu } from '../../../components/Menu';
+import { Offline } from '../../../components/Offline';
 import { PROFILES_BASIC, PROFILES_BASIC__DOC_TYPE, PROFILES_BASIC__TYPE } from '../../../graphql/queries';
 import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
@@ -207,6 +208,10 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
       navigate(`/profile/${authUserState._id}`);
     }
   }, [authUserState._id, location, navigate]);
+
+  if (!data && !navigator.onLine) {
+    return <Offline variant={'small'} key={0} />;
+  }
 
   if (loading && !data) return <></>;
   if (error) {

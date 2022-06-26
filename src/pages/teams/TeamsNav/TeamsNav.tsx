@@ -6,6 +6,7 @@ import { TEAMS, TEAMS__TYPE } from '../../../graphql/queries';
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { useLocation } from 'react-router-dom';
 import { Spinner } from '../../../components/Loading';
+import { Offline } from '../../../components/Offline';
 
 interface ITeamsNav {
   setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;
@@ -75,6 +76,10 @@ function TeamsNav(props: ITeamsNav) {
     SpinnerRef,
     SideNavRef,
   ]);
+
+  if (!data && !navigator.onLine) {
+    return <Offline variant={'small'} key={0} />;
+  }
 
   return (
     <>
