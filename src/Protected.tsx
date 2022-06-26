@@ -2,15 +2,14 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import loadable from '@loadable/component';
 import Color from 'color';
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import { IGridCols } from './App';
 import './App.css';
 import { Appbar } from './components/Appbar';
 import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { PageHead } from './components/PageHead';
-import { SidenavSub } from './components/SidenavSub';
+import { SideNavigation } from './components/SideNavigation';
 import { Titlebar } from './components/Titlebar';
 import { useAppDispatch } from './redux/hooks';
 import { setAppSearchShown } from './redux/slices/appbarSlice';
@@ -63,11 +62,6 @@ function Protected(props: ProtectedProps) {
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  const [gridCols] = useState({ side: 79, sideSub: 300 });
-
-  // store whether the nav is shown
-  const [isNavVisibleM, setIsNavVisibleM] = useState(false);
-
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
@@ -91,26 +85,21 @@ function Protected(props: ProtectedProps) {
         {/** side navigation and main content  */}
         <Wrapper theme={theme}>
           {window.name === '' ? (
-            <SideNavWrapper gridCols={gridCols} isNavVisibleM={isNavVisibleM}>
-              <SideNavs>
-                <SidenavSub gridCols={gridCols} isNavVisibleM={[isNavVisibleM, setIsNavVisibleM]}>
-                  <Routes>
-                    <Route path={`/cms/*`} element={<CmsNavigation setIsNavVisibleM={setIsNavVisibleM} />} />
-                    <Route
-                      path={`/profile/*`}
-                      element={<ProfileNavigation setIsNavVisibleM={setIsNavVisibleM} />}
-                    />
-                    <Route
-                      path={`/teams/*`}
-                      element={<TeamsNavigation setIsNavVisibleM={setIsNavVisibleM} />}
-                    />
-                    <Route path={`/playground`} element={<PlaygroundNavigation />} />
-                    <Route path={`/configuration/*`} element={<ConfigurationNavigation />} />
-                    <Route path={`*`} element={<></>} />
-                  </Routes>
-                </SidenavSub>
-              </SideNavs>
-            </SideNavWrapper>
+            <SideNavigation>
+              {(setIsNavVisible) => (
+                <Routes>
+                  <Route path={`/cms/*`} element={<CmsNavigation setIsNavVisibleM={setIsNavVisible} />} />
+                  <Route
+                    path={`/profile/*`}
+                    element={<ProfileNavigation setIsNavVisibleM={setIsNavVisible} />}
+                  />
+                  <Route path={`/teams/*`} element={<TeamsNavigation setIsNavVisibleM={setIsNavVisible} />} />
+                  <Route path={`/playground`} element={<PlaygroundNavigation />} />
+                  <Route path={`/configuration/*`} element={<ConfigurationNavigation />} />
+                  <Route path={`*`} element={<></>} />
+                </Routes>
+              )}
+            </SideNavigation>
           ) : null}
           <Content theme={theme}>
             <Routes>
@@ -177,34 +166,6 @@ const Wrapper = styled.div<{ theme: themeType }>`
   height: 0;
   flex-grow: 1;
   flex-shrink: 1;
-`;
-
-const SideNavWrapper = styled.div<{
-  gridCols: IGridCols;
-  isNavVisibleM: boolean;
-}>`
-  display: flex;
-  flex-direction: column;
-  width: fit-content;
-  transition: width 160ms cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
-  height: 100%;
-  //box-shadow: rgb(0 0 0 / 5%) 1px 0px 2px 0px, rgb(0 0 0 / 5%) 4px 0px 8px -2px;
-  z-index: 999;
-  @media (max-width: 600px) {
-    width: 100%;
-    height: ${({ isNavVisibleM }) => (isNavVisibleM ? '100%' : 'fit-content')};
-    position: ${({ isNavVisibleM }) => (isNavVisibleM ? 'initial' : 'fixed')};
-    bottom: ${({ isNavVisibleM }) => (isNavVisibleM ? 'unset' : 0)};
-  }
-`;
-
-const SideNavs = styled.div`
-  display: flex;
-  flex-direction: row;
-  @media (max-width: 600px) {
-    flex-direction: column-reverse;
-  }
-  height: calc(100%);
 `;
 
 const Content = styled.div<{ theme: themeType }>`
