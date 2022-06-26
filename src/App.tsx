@@ -112,10 +112,7 @@ function App() {
                       loading={loadingUser}
                       error={errorUser || undefined}
                       user={user}
-                      bypassAuthLogic={
-                        new URLSearchParams(window.location.search).get('from') === 'sign-out' ||
-                        !navigator.onLine
-                      }
+                      bypassAuthLogic={!navigator.onLine}
                       persistentChildren={
                         <Routes>
                           <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />

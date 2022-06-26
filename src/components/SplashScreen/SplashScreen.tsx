@@ -54,7 +54,7 @@ function SplashScreen(props: ISplashScreen) {
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
     // store where the user should be redirected
-    if (props.error && props.bypassAuthLogic !== true) {
+    if (props.error && props.bypassAuthLogic !== true && searchParams.get('from') !== 'sign-out') {
       const is403 = props.error.message.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
       if (is403 && location.pathname.indexOf(`/sign-in`) !== 0) {
@@ -62,10 +62,19 @@ function SplashScreen(props: ISplashScreen) {
         navigate(`/sign-in`);
       }
     }
-  }, [props.error, navigate, location.pathname, location.hash, location.search, props.bypassAuthLogic]);
+  }, [
+    props.error,
+    navigate,
+    location.pathname,
+    location.hash,
+    location.search,
+    props.bypassAuthLogic,
+    searchParams,
+  ]);
 
   useEffect(() => {
-    if (props.user && props.bypassAuthLogic !== true) {
+    if (props.user && props.bypassAuthLogic !== true && searchParams.get('from') !== 'sign-out') {
+      console.log('hi');
       dispatch(setEmail(props.user.email));
       dispatch(setAuthProvider(props.user.provider));
       dispatch(setName(props.user.name));
