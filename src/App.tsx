@@ -87,13 +87,13 @@ function App() {
 
   // suppress warnings that we do not care about
   const consoleError = console.error;
-  console.error = function filterWarnings(msg) {
+  console.error = function filterWarnings(msg: unknown | undefined) {
     const supressedWarnings = [
       'prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase',
       '`label` of `value` is not same as `label` in Select options.',
     ];
 
-    if (!supressedWarnings.some((entry) => msg.includes(entry))) {
+    if (msg && typeof msg === 'string' && !supressedWarnings.some((entry) => msg.includes(entry))) {
       consoleError.apply(console, arguments as unknown as any[]);
     }
   };
