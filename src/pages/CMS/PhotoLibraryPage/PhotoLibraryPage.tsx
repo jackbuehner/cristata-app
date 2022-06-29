@@ -32,6 +32,7 @@ function PhotoLibraryPage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const client = useApolloClient();
+  const tenant = localStorage.getItem('tenant');
 
   // get the photos
   const { data, loading, error, refetch, networkStatus, fetchMore } = useQuery<PHOTOS_BASIC__TYPE>(
@@ -130,8 +131,7 @@ function PhotoLibraryPage() {
         variables: {
           fileName: uuidv4(),
           fileType: file.type,
-          s3Bucket:
-            process.env.NODE_ENV === 'production' ? 'paladin-photo-library' : 'paladin-photo-library-test',
+          s3Bucket: tenant === 'paladin-news' ? 'paladin-photo-library' : `app.cristata.${tenant}.photos`,
         },
       })
       .then((data) => {
