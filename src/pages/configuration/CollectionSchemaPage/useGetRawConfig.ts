@@ -11,7 +11,9 @@ function useGetRawConfig(
   const loading = res.loading || res.networkStatus === NetworkStatus.refetch;
 
   if (res.data?.configuration.collection?.raw && name !== 'User' && name !== 'Team') {
-    return [JSON.parse(res.data.configuration.collection.raw), loading, res.error, () => res.refetch()];
+    const parsed = JSON.parse(res.data.configuration.collection.raw);
+    delete parsed.skipAdditionalParsing;
+    return [parsed, loading, res.error, () => res.refetch()];
   }
 
   return [null, false, undefined, () => res.refetch()];

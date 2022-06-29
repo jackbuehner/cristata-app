@@ -11,6 +11,8 @@ import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { cristataCodeDarkTheme } from '../cristataCodeDarkTheme';
 import { useGetRawConfig } from './useGetRawConfig';
+import prettier from 'prettier/standalone';
+import parserBabel from 'prettier/parser-babel';
 
 function CollectionSchemaPage() {
   const dispatch = useAppDispatch();
@@ -18,10 +20,21 @@ function CollectionSchemaPage() {
   const client = useApolloClient();
   const { collection } = useParams() as { collection: string };
   const [raw, loadingInitial, error, refetch] = useGetRawConfig(collection);
-  const json = JSON.stringify(raw, null, 2);
   const [hasErrors, setHasErrors] = useState(false);
   const monacoRef = useRef<Monaco | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+
+  const parseRaw = (raw: Collection | null) => {
+    if (raw) raw.name = '__collectionName'; // changing this will create a new collection
+    return prettier.format(JSON.stringify(raw), {
+      parser: 'json',
+      plugins: [parserBabel],
+      tabWidth: 2,
+      printWidth: 120,
+    });
+  };
+
+  const json = parseRaw(raw);
 
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -84,18 +97,19 @@ function CollectionSchemaPage() {
               // tell the server to not parse objectIds and dates (leave them as strings)
               value.skipAdditionalParsing = true;
 
+              // use the actual collection name
+              if (value.name === '__collectionName') value.name = collection;
+
               // send the mutation
               setLoading(true);
               client
-                .mutate<SaveMutationType>({ mutation: saveMutationString(collection, value) })
+                .mutate<SaveMutationType>({ mutation: saveMutationString(value.name, value) })
                 .finally(() => {
                   setLoading(false);
                 })
                 .then(({ data }) => {
                   if (data?.setRawConfigurationCollection) {
-                    editorRef.current?.setValue(
-                      JSON.stringify(JSON.parse(data.setRawConfigurationCollection), null, 2)
-                    );
+                    editorRef.current?.setValue(parseRaw(JSON.parse(data.setRawConfigurationCollection)));
                   }
                 })
                 .catch((error) => {
