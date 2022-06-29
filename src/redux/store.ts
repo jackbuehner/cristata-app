@@ -19,7 +19,7 @@ const persistedReducer = persistReducer(
   {
     key: 'redux-root',
     storage,
-    whitelist: ['authUser', 'graphiql'],
+    whitelist: ['authUser'],
   },
   reducers
 );
