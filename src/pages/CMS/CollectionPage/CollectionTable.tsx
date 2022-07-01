@@ -37,6 +37,7 @@ import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { docDefsToQueryObject } from '../CollectionItemPage/useFindDoc';
+import { CollectionTableFilterRow } from './CollectionTableFilterRow';
 
 interface ICollectionTable {
   collection: string;
@@ -617,6 +618,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
         {DeleteWindow}
         {ArchiveWindow}
+        <CollectionTableFilterRow schemaDef={schemaDef} collectionName={props.collection} />
         <Table
           data={{
             // when data is undefined, generate placeholder rows
