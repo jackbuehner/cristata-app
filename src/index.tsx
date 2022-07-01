@@ -101,7 +101,7 @@ ReactDOM.render(
           effect={'float'}
           delayShow={600}
           delayHide={100}
-          theme={theme}
+          theme={theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}
           overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
             if (place === desiredPlace && effect === 'float')
               return {
