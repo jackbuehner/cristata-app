@@ -26,10 +26,17 @@ const collectionQueryTypePolicies = [...collectionPluralNames, 'users', 'teams']
       // the existing list items.
       merge(existing: { docs: { _id: string }[] } = { docs: [] }, incoming: Paged<{ _id: string }>) {
         // NOTE: this merge expects incoming data be sequentially after existing data
+        // but it will replace existing docs if the _id is the same
         return {
           ...incoming,
           docs: [
-            ...existing.docs,
+            ...existing.docs.map((edoc, i) => {
+              const IdIsInNewer = !!incoming.docs.find((doc) => doc._id === edoc._id);
+              if (IdIsInNewer) {
+                return incoming.docs.find((idoc) => idoc._id === edoc._id);
+              }
+              return edoc;
+            }),
             ...incoming.docs.filter(({ _id }) => {
               const idIsUnique = !existing.docs.map((doc) => doc._id).includes(_id);
               return idIsUnique;
