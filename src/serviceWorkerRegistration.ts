@@ -35,7 +35,7 @@ export function register(config?: Config) {
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
+      const swUrl = `/service-worker.js`;
 
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
@@ -95,6 +95,11 @@ function registerValidSW(swUrl: string, config?: Config) {
           }
         };
       };
+
+      // do not wait to update
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
     })
     .catch((error) => {
       console.error('Error during service worker registration:', error);
