@@ -185,7 +185,7 @@ function Playground({ setThemeMode }: PlaygroundProps) {
           }
 
           /* tabs */
-          .secondary-editor-title,
+          .graphiql-container .secondary-editor-title,
           .graphiql-container .tabs {
             display: flex;
             flex-direction: row;
