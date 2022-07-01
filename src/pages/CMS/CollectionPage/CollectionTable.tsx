@@ -591,15 +591,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       return <Offline variant={'centered'} />;
     }
 
-    if (!data && error)
-      return (
-        <>
-          <p>Error!</p>
-          <pre>{JSON.stringify(error, null, 2)}</pre>
-          <button onClick={() => refetch()}>Reload</button>
-        </>
-      );
-
     // if the field is a body field that is rendered as a tiptap editor,
     // we want to open it in maximized mode for easy access to the editor
     const shouldOpenMaximized = schemaDef.find(([key, def]) => key === 'body' && def.field?.tiptap);
@@ -612,6 +603,46 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       windowName:
         shouldOpenMaximized && window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
     };
+
+    if (!data && error)
+      return (
+        <>
+          <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
+            <CollectionTableFilterRow schemaDef={schemaDef} collectionName={props.collection} />
+            <Table
+              data={{
+                // when data is undefined, generate placeholder rows
+                data: [],
+                loading,
+                error,
+              }}
+              showSkeleton={!docs || networkStatus === NetworkStatus.refetch}
+              columns={columns}
+              row={row}
+              sort={sort}
+              setSort={setSort}
+              setPrevSort={setPrevSort}
+              id={props.collection}
+              footer={
+                docs && data && docs.length < data.totalDocs ? (
+                  <div ref={SpinnerRef}>
+                    <Spinner theme={theme} />
+                  </div>
+                ) : null
+              }
+              ref={TableRef}
+              openOnDoubleClick
+              selectedIdsState={props.selectedIdsState}
+              lastSelectedIdState={props.lastSelectedIdState}
+            />
+          </ErrorBoundary>
+          <p style={{ fontFamily: theme.font.detail }}>
+            Failed to load data! <br /> Please submit a bug report with the following information:
+          </p>
+          <pre>{JSON.stringify(error, null, 2)}</pre>
+          <Button onClick={() => refetch()}>Reload</Button>
+        </>
+      );
 
     // render the table
     return (
