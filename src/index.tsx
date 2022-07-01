@@ -50,11 +50,19 @@ function AppErrorFallback({ error: unserializedError, resetErrorBoundary }: Fall
       role='alert'
       style={{
         padding: 20,
+        height: '100%',
         backgroundColor: '#5438B9',
         color: '#e0e0e0',
         fontFamily: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
       }}
     >
+      <style>
+        {`
+          .root-splash-wrapper {
+            display: none !important;
+          }
+        `}
+      </style>
       <div
         style={{
           float: 'right',
