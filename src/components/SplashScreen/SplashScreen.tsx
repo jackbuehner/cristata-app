@@ -74,7 +74,6 @@ function SplashScreen(props: ISplashScreen) {
 
   useEffect(() => {
     if (props.user && props.bypassAuthLogic !== true && searchParams.get('from') !== 'sign-out') {
-      console.log('hi');
       dispatch(setEmail(props.user.email));
       dispatch(setAuthProvider(props.user.provider));
       dispatch(setName(props.user.name));
