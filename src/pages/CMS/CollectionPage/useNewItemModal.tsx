@@ -1,7 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { gql, useApolloClient } from '@apollo/client';
-import LuxonUtils from '@date-io/luxon';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { useState } from 'react';
@@ -110,7 +108,7 @@ function useNewItemModal(
       continueButton: { text: 'Create', disabled: !allValuesAreSet, onClick: create },
       windowOptions: { height: 600, name: 'Create new item CMS' },
       children: (
-        <MuiPickersUtilsProvider utils={LuxonUtils}>
+        <>
           {(requiredFields || []).map(([key, def], index) => {
             const fieldName = def.field?.label || key;
 
@@ -200,7 +198,7 @@ function useNewItemModal(
             }
             return <></>;
           })}
-        </MuiPickersUtilsProvider>
+        </>
       ),
     };
   }, []);

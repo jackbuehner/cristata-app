@@ -1,8 +1,6 @@
 import { ApolloProvider } from '@apollo/client';
-import LuxonUtils from '@date-io/luxon';
 import { css, Global, ThemeProvider } from '@emotion/react';
 import loadable from '@loadable/component';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import useAxios, { configure } from 'axios-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { ModalProvider } from 'react-modal-hook';
@@ -105,54 +103,52 @@ function App() {
           <ThemeProvider theme={theme}>
             <ModalProvider>
               <DropdownProvider>
-                <MuiPickersUtilsProvider utils={LuxonUtils}>
-                  <Router basename={tenant}>
-                    <ToastContainer />
-                    <SplashScreen
-                      loading={loadingUser}
-                      error={errorUser || undefined}
-                      user={user}
-                      bypassAuthLogic={!navigator.onLine}
-                      persistentChildren={
-                        <Routes>
-                          <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
-                          <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
-                          <Route path={`/sign-out`} element={<SignOut />} />
-                          <Route path={`*`} element={<></>} />
-                        </Routes>
-                      }
-                      protectedChildren={<Protected setThemeMode={setThemeMode} />}
-                    >
-                      {tenant === '' || !window.location.pathname.includes(tenant) ? (
-                        <PickTenant tenant={tenant} setTenant={setTenant} />
-                      ) : null}
-                    </SplashScreen>
-                  </Router>
+                <Router basename={tenant}>
+                  <ToastContainer />
+                  <SplashScreen
+                    loading={loadingUser}
+                    error={errorUser || undefined}
+                    user={user}
+                    bypassAuthLogic={!navigator.onLine}
+                    persistentChildren={
+                      <Routes>
+                        <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
+                        <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
+                        <Route path={`/sign-out`} element={<SignOut />} />
+                        <Route path={`*`} element={<></>} />
+                      </Routes>
+                    }
+                    protectedChildren={<Protected setThemeMode={setThemeMode} />}
+                  >
+                    {tenant === '' || !window.location.pathname.includes(tenant) ? (
+                      <PickTenant tenant={tenant} setTenant={setTenant} />
+                    ) : null}
+                  </SplashScreen>
+                </Router>
 
-                  <Global
-                    styles={css`
-                      .ReactModal__Overlay {
-                        opacity: 0;
-                        transition: opacity 240ms;
-                      }
+                <Global
+                  styles={css`
+                    .ReactModal__Overlay {
+                      opacity: 0;
+                      transition: opacity 240ms;
+                    }
 
-                      .ReactModal__Overlay--after-open {
-                        opacity: 1;
-                      }
+                    .ReactModal__Overlay--after-open {
+                      opacity: 1;
+                    }
 
-                      .ReactModal__Content {
-                        opacity: 0;
-                        transform: translateY(-40px) scale(0.9);
-                        transition: transform 240ms, opacity 240ms;
-                      }
+                    .ReactModal__Content {
+                      opacity: 0;
+                      transform: translateY(-40px) scale(0.9);
+                      transition: transform 240ms, opacity 240ms;
+                    }
 
-                      .ReactModal__Content--after-open {
-                        opacity: 1;
-                        transform: translateY(0px) scale(1);
-                      }
-                    `}
-                  />
-                </MuiPickersUtilsProvider>
+                    .ReactModal__Content--after-open {
+                      opacity: 1;
+                      transform: translateY(0px) scale(1);
+                    }
+                  `}
+                />
               </DropdownProvider>
             </ModalProvider>
           </ThemeProvider>

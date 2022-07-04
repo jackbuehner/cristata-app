@@ -1,8 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { ApolloClient, gql, useMutation } from '@apollo/client';
-import LuxonUtils from '@date-io/luxon';
 import { useTheme } from '@emotion/react';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { get as getProperty } from 'object-path';
 import { useState } from 'react';
 import { DateTime, Text } from '../../../components/ContentField';
@@ -78,7 +76,7 @@ function usePublishModal(
       },
       windowOptions: { name: 'publish cms item' },
       children: (
-        <MuiPickersUtilsProvider utils={LuxonUtils}>
+        <>
           <p style={{ marginTop: 0, fontSize: 13, color: theme.color.neutral[theme.mode][1100] }}>
             Before continuing, please <b>check the document and its metadata for formatting issues and typos</b>
             .
@@ -108,7 +106,7 @@ function usePublishModal(
             onChange={(e) => setConfirm(e.currentTarget.value)}
             isEmbedded
           />
-        </MuiPickersUtilsProvider>
+        </>
       ),
     };
   }, [client, collectionName, itemId, refetch, publishStage, idKey]);
