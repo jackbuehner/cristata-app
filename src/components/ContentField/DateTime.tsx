@@ -56,7 +56,7 @@ const DateTimeComponent = styled(DatePicker)<{
   themeColor?: colorType;
   disabled?: boolean;
 }>`
-  padding: 10px 8px !important;
+  padding: 8px 8px !important;
   line-height: 1.2 !important;
   width: 100% !important;
   box-sizing: border-box !important;
