@@ -154,6 +154,9 @@ function DateTime(props: DateTimeProps) {
                   height: 30px;
                   box-sizing: border-box;
                   cursor: default;
+                  &:hover {
+                    background: none;
+                  }
                 }
                 &.ant-picker-time-panel-cell-selected > .ant-picker-time-panel-cell-inner {
                   background-color: ${theme.color[
