@@ -1,13 +1,14 @@
-import { useTheme } from '@emotion/react';
+import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { DatePicker } from 'antd';
+import 'antd/lib/date-picker/style/index.css';
 import { DateTime as Luxon } from 'luxon';
 import moment from 'moment';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { Field, FieldProps } from './Field';
-import 'antd/dist/antd.css';
-import FluentIcon from '../FluentIcon';
 import { formatISODate } from '../../utils/formatISODate';
+import { colorType, themeType } from '../../utils/theme/theme';
+import { buttonEffect } from '../Button';
+import FluentIcon from '../FluentIcon';
+import { Field, FieldProps } from './Field';
 
 interface DateTimeProps extends Omit<FieldProps, 'children'> {
   value: string | null;
@@ -19,35 +20,184 @@ interface DateTimeProps extends Omit<FieldProps, 'children'> {
 function DateTime(props: DateTimeProps) {
   const theme = useTheme() as themeType;
   return (
-    <Field
-      label={props.label}
-      description={props.description}
-      color={props.color}
-      font={props.font}
-      isEmbedded={props.isEmbedded}
-    >
-      <DateTimeComponent
-        id={props.label.replaceAll(' ', '-')}
-        value={moment(props.value)}
-        onChange={(date) => {
-          if (date) {
-            props.onChange(Luxon.fromISO(date.toISOString()));
-          } else {
-            props.onChange(null);
+    <>
+      <Field
+        label={props.label}
+        description={props.description}
+        color={props.color}
+        font={props.font}
+        isEmbedded={props.isEmbedded}
+      >
+        <DateTimeComponent
+          id={props.label.replaceAll(' ', '-')}
+          value={moment(props.value)}
+          onChange={(date) => {
+            if (date) {
+              props.onChange(Luxon.fromISO(date.toISOString()));
+            } else {
+              props.onChange(null);
+            }
+          }}
+          showTime
+          theme={theme}
+          disabled={props.disabled}
+          placeholder={props.placeholder}
+          use12Hours={true}
+          themeColor={props.color}
+          suffixIcon={<FluentIcon name={'CalendarLtr20Regular'} />}
+          clearIcon={<FluentIcon name={'Dismiss20Regular'} />}
+          format={(moment) => formatISODate(moment.toISOString(), false, true, true)}
+        />
+      </Field>
+      <Global
+        styles={css`
+          .ant-slide-up-leave-active {
+            display: none;
           }
-        }}
-        showTime
-        theme={theme}
-        disabled={props.disabled}
-        placeholder={props.placeholder}
-        showSecond={false}
-        use12Hours={true}
-        themeColor={props.color}
-        suffixIcon={<FluentIcon name={'CalendarLtr20Regular'} />}
-        clearIcon={<FluentIcon name={'Dismiss20Regular'} />}
-        format={(moment) => formatISODate(moment.toISOString(), false, true, true)}
+
+          .ant-picker-dropdown {
+            .ant-picker-panel-container {
+              .ant-picker-panel {
+                background-color: ${theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]};
+                border: none;
+              }
+              .ant-picker-panel,
+              .ant-picker-header,
+              .ant-picker-content th,
+              .ant-picker-cell-in-view,
+              .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+                color: ${theme.color.neutral[theme.mode][1400]};
+                font-family: ${theme.font.detail};
+              }
+              .ant-picker-cell:not(.ant-picker-cell-in-view) {
+                color: ${theme.color.neutral[theme.mode][900]};
+                font-family: ${theme.font.detail};
+              }
+              .ant-picker-header {
+                gap: 4px;
+                border-bottom: 1px solid ${theme.color.neutral[theme.mode][300]} !important;
+                > button {
+                  height: 32px;
+                  width: 32px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  margin-top: 4px;
+                  border-radius: ${theme.radius};
+                  color: ${theme.color.neutral[theme.mode][1000]};
+                  ${buttonEffect(
+                    props.color || 'primary',
+                    300,
+                    theme,
+                    false,
+                    { base: 'transparent' },
+                    { base: '1px solid transparent' }
+                  )};
+                }
+              }
+              .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+                border: 2px solid
+                  ${theme.color[props.color && props.color !== 'neutral' ? props.color : 'primary'][
+                    theme.mode === 'light' ? 800 : 300
+                  ]};
+              }
+              tr {
+                display: flex;
+                flex-direction: row;
+                td.ant-picker-cell {
+                  padding: 0;
+                  display: flex;
+                  width: 32px;
+                  height: 32px;
+                  margin: 2px;
+                  &::before {
+                    content: none;
+                  }
+                  &.ant-picker-cell-selected {
+                    > div {
+                      background-color: ${theme.color[
+                        props.color && props.color !== 'neutral' ? props.color : 'primary'
+                      ][theme.mode === 'light' ? 800 : 300]};
+                      color: ${theme.color.neutral[theme.mode][100]};
+                    }
+                  }
+                  > div {
+                    padding: 3px;
+                    border: 1px solid transparent;
+                    cursor: default;
+                  }
+                }
+              }
+              .ant-picker-cell:hover:not(.ant-picker-cell-in-view) .ant-picker-cell-inner,
+              .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end)
+                .ant-picker-cell-inner {
+                ${buttonEffect(
+                  props.color || 'primary',
+                  theme.mode === 'light' ? 800 : 300,
+                  theme,
+                  false,
+                  { base: 'transparent' },
+                  { base: '1px solid transparent' }
+                )};
+              }
+              .ant-picker-time-panel,
+              .ant-picker-time-panel-column:not(:first-child) {
+                border-left: 1px solid ${theme.color.neutral[theme.mode][300]} !important;
+              }
+              .ant-picker-time-panel-cell {
+                border-radius: ${theme.radius};
+                height: 30px;
+                margin-top: 4px;
+                > .ant-picker-time-panel-cell-inner {
+                  background: none;
+                  padding: 0 16px;
+                  height: 30px;
+                  box-sizing: border-box;
+                  cursor: default;
+                }
+                &.ant-picker-time-panel-cell-selected > .ant-picker-time-panel-cell-inner {
+                  background-color: ${theme.color[
+                    props.color && props.color !== 'neutral' ? props.color : 'primary'
+                  ][theme.mode === 'light' ? 800 : 300]};
+                  color: ${theme.color.neutral[theme.mode][100]} !important;
+                  border-radius: ${theme.radius};
+                }
+                ${buttonEffect(
+                  props.color || 'primary',
+                  theme.mode === 'light' ? 800 : 300,
+                  theme,
+                  false,
+                  { base: 'transparent' },
+                  { base: '1px solid transparent' }
+                )};
+              }
+            }
+            .ant-picker-footer {
+              border-top: 1px solid ${theme.color.neutral[theme.mode][300]} !important;
+              button {
+                height: 30px;
+                width: 80px;
+                color: ${theme.color.neutral[theme.mode][1400]};
+                border-radius: ${theme.radius};
+                font-family: ${theme.font.detail};
+                ${buttonEffect(props.color || 'primary', theme.mode === 'light' ? 800 : 300, theme)};
+              }
+              a.ant-picker-now-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 30px;
+                width: 80px;
+                color: ${theme.color.neutral[theme.mode][1400]};
+                border-radius: ${theme.radius};
+                font-family: ${theme.font.detail};
+                ${buttonEffect(props.color || 'primary', theme.mode === 'light' ? 800 : 300, theme)};
+              }
+            }
+          }
+        `}
       />
-    </Field>
+    </>
   );
 }
 
