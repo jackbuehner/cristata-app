@@ -46,7 +46,7 @@ function DocArray(props: DocArrayProps) {
   };
 
   const addDoc = () => {
-    if (props.onChange && props.data) {
+    if (props.onChange) {
       const keysToAdd = props
         .processSchemaDef(props.schemaDefs)
         .map(([key, def]) => key.replace(props.stateFieldKey + '.', ''))
@@ -54,7 +54,8 @@ function DocArray(props: DocArrayProps) {
 
       const newEmptyDoc: Record<string, unknown> = merge({}, ...keysToAdd.map((key) => ({ [key]: undefined })));
 
-      props.onChange([...props.data, newEmptyDoc]);
+      if (props.data) props.onChange([...props.data, newEmptyDoc]);
+      else props.onChange([newEmptyDoc]);
     }
   };
 
