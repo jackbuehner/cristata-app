@@ -349,7 +349,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             processSchemaDef={processSchemaDef}
             renderFields={renderFields}
             onChange={(newValues) => {
-              if (!readOnly) dispatch(setField(newValues, key, 'docarray', undefined, inArrayKey));
+              // do not pass `inArrayKey` because the state update for docarrays
+              // already includes the entire array
+              if (!readOnly) dispatch(setField(newValues, key, 'docarray'));
             }}
           />
         );
