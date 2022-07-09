@@ -31,8 +31,8 @@ import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
-  AppSchemaDef,
   DeconstructedSchemaDefType,
+  parseSchemaDefType,
 } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
@@ -280,10 +280,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         // push the matching subfields onto the schemaDef variable
         // so that they can appear in the UI
         if (match) {
-          const defs = Object.entries(match.fields).map(([subkey, subdef]): [string, AppSchemaDef] => [
-            `${key}.${subkey}`,
-            { ...subdef, docs: undefined },
-          ]);
+          const defs = parseSchemaDefType(match.fields, key);
           schemaDef.push(...defs);
         }
 

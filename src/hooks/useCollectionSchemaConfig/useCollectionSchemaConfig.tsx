@@ -125,4 +125,4 @@ function parseSchemaDefType(schemaDefObject: SchemaDefType, parentKey?: string) 
 }
 
 export type { AppSchemaDef, DeconstructedSchemaDefType };
-export { useCollectionSchemaConfig };
+export { useCollectionSchemaConfig, parseSchemaDefType };
