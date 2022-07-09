@@ -1,4 +1,4 @@
-import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, current, original, PayloadAction } from '@reduxjs/toolkit';
 import { get as getProperty, set as setProperty } from 'object-path';
 import { isObject } from '../../utils/isObject';
 
@@ -85,7 +85,7 @@ export const cmsItemSlice = createSlice({
             });
 
           const isDifferent =
-            JSON.stringify(parsed(getProperty(current(state.fields), action.meta.key))) !==
+            JSON.stringify(parsed(getProperty(original(state.fields) || {}, action.meta.key))) !==
             JSON.stringify(parsed(action.payload));
           if (isDifferent) {
             setProperty(state.unsavedFields, action.meta.key, parsed(action.payload));
