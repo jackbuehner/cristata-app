@@ -26,6 +26,8 @@ function CollectionSchemaPage() {
 
   const parseRaw = (raw: Collection | null) => {
     if (raw) raw.name = '__collectionName'; // changing this will create a new collection
+    // @ts-expect-error skipAdditionalParsing should not exist when sending, so delete it
+    if (raw) delete raw.skipAdditionalParsing;
     return prettier.format(JSON.stringify(raw), {
       parser: 'json',
       plugins: [parserBabel],
