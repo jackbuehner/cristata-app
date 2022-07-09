@@ -12,7 +12,14 @@ import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import React, { FunctionComponentElement } from 'react';
-import { DragDropContext, Draggable, Droppable, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import {
+  DragDropContext,
+  Draggable,
+  DraggableProvidedDragHandleProps,
+  Droppable,
+  DropResult,
+  ResponderProvided,
+} from 'react-beautiful-dnd';
 import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
@@ -128,7 +135,7 @@ function DocArray(props: DocArrayProps) {
                     <Draggable draggableId={`${index}`} index={index} key={index}>
                       {(provided) => (
                         <Group key={index} theme={theme} ref={provided.innerRef} {...provided.draggableProps}>
-                          <DragHandle theme={theme} {...provided.dragHandleProps} />
+                          <DragHandle dragHandleProps={provided.dragHandleProps} />
                           {isCollasped ? (
                             <GroupContent>
                               {collapsedContentRows.map(({ label, value }, index) => {
@@ -144,7 +151,7 @@ function DocArray(props: DocArrayProps) {
                             <GroupContent>{group}</GroupContent>
                           )}
                           <IconGroup theme={theme}>
-                            <RemoveIcon
+                            <IconWrapper
                               theme={theme}
                               color={'red'}
                               disabled={props.disabled}
@@ -156,9 +163,11 @@ function DocArray(props: DocArrayProps) {
                                   ]);
                                 }
                               }}
-                            />
+                            >
+                              <Dismiss24Regular />
+                            </IconWrapper>
                             {isCollasped ? (
-                              <ExpandIcon
+                              <IconWrapper
                                 theme={theme}
                                 color={props.color || 'primary'}
                                 disabled={props.disabled}
@@ -172,9 +181,11 @@ function DocArray(props: DocArrayProps) {
                                     ]);
                                   }
                                 }}
-                              />
+                              >
+                                <ChevronDown24Regular />
+                              </IconWrapper>
                             ) : (
-                              <CollapseIcon
+                              <IconWrapper
                                 theme={theme}
                                 color={props.color || 'primary'}
                                 disabled={props.disabled}
@@ -190,7 +201,9 @@ function DocArray(props: DocArrayProps) {
                                     ]);
                                   }
                                 }}
-                              />
+                              >
+                                <ChevronUp24Regular />
+                              </IconWrapper>
                             )}
                           </IconGroup>
                         </Group>
@@ -250,17 +263,6 @@ const FieldValue = styled.span`
   text-overflow: ellipsis;
 `;
 
-const DragHandle = styled(ReOrderDotsHorizontal24Regular)<{ theme: themeType }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  min-height: 38px;
-  border-right: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
-  flex-shrink: 0;
-`;
-
 const GroupContent = styled.div`
   flex-grow: 1;
   padding: 10px;
@@ -292,27 +294,43 @@ const IconGroup = styled.div<{ theme: themeType }>`
   }
 `;
 
-const RemoveIcon = styled(Dismiss24Regular)<{ theme: themeType; color: colorType; disabled?: boolean }>`
-  ${({ color, theme, disabled }) =>
-    buttonEffect(color, theme.mode === 'light' ? 700 : 300, theme, disabled, { base: 'transparent' })}
+function DragHandle(props: { dragHandleProps?: DraggableProvidedDragHandleProps }) {
+  return (
+    <DragHandleComponent {...props.dragHandleProps}>
+      <ReOrderDotsHorizontal24Regular />
+    </DragHandleComponent>
+  );
+}
+
+const DragHandleComponent = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-height: 38px;
+  border-right: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
+  flex-shrink: 0;
 `;
 
-const CollapseIcon = styled(ChevronUp24Regular)<{
-  theme: themeType;
-  color: colorType;
-  disabled?: boolean;
-}>`
+const IconWrapper = styled.span<{ theme: themeType; color: colorType; disabled?: boolean }>`
   ${({ color, theme, disabled }) =>
     buttonEffect(color, theme.mode === 'light' ? 700 : 300, theme, disabled, { base: 'transparent' })}
-`;
-
-const ExpandIcon = styled(ChevronDown24Regular)<{
-  theme: themeType;
-  color: colorType;
-  disabled?: boolean;
-}>`
-  ${({ color, theme, disabled }) =>
-    buttonEffect(color, theme.mode === 'light' ? 700 : 300, theme, disabled, { base: 'transparent' })}
+  border: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  justify-content: center;
+  width: 34px;
+  min-height: 36px;
+  margin: 0 1px 0 0;
+  border-left: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
+  border-radius: ${({ theme }) => theme.radius};
+  > svg {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 export { DocArray };
