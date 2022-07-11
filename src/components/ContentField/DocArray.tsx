@@ -266,6 +266,7 @@ const FieldValue = styled.span`
 const GroupContent = styled.div`
   flex-grow: 1;
   padding: 10px;
+  width: 0;
 `;
 
 const IconGroup = styled.div<{ theme: themeType }>`
