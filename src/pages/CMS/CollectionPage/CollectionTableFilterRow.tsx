@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { isJSON } from '../../../utils/isJSON';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { capitalize } from '../../../utils/capitalize';
+import { Button } from '../../../components/Button';
 
 interface CollectionTableFilterRowProps {
   collectionName: string;
@@ -107,61 +108,98 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
   });
 
   return (
-    <Row>
-      {items.map((item) => {
-        return (
-          <FilterChip key={item.key + item.value + item.negated} negated={item.negated}>
-            <Left negated={item.negated}>
-              {item.negated === true ? 'Not ' : ''}
-              {item.key}
-            </Left>
-            <Right negated={item.negated} hasX={item.negated !== undefined || item.original !== undefined}>
-              {item.value}
-              {item.negated !== undefined || item.original !== undefined ? (
-                <IconButton
-                  icon={<FluentIcon name={'Dismiss12Regular'} />}
-                  height={'20px'}
-                  width={'20px'}
-                  backgroundColor={{ base: 'transparent' }}
-                  border={{ base: '1px solid transparent' }}
-                  color={
-                    item.negated
-                      ? theme.mode === 'light'
-                        ? 'red'
-                        : 'orange'
-                      : item.negated === false
-                      ? 'green'
-                      : 'neutral'
-                  }
-                  cssExtra={css`
-                    svg {
-                      width: 12px !important;
-                      height: 12px !important;
+    <RowContainer>
+      <Row>
+        {items.map((item) => {
+          return (
+            <FilterChip key={item.key + item.value + item.negated} negated={item.negated}>
+              <Left negated={item.negated}>
+                {item.negated === true ? 'Not ' : ''}
+                {item.key}
+              </Left>
+              <Right negated={item.negated} hasX={item.negated !== undefined || item.original !== undefined}>
+                {item.value}
+                {item.negated !== undefined || item.original !== undefined ? (
+                  <IconButton
+                    icon={<FluentIcon name={'Dismiss12Regular'} />}
+                    height={'20px'}
+                    width={'20px'}
+                    backgroundColor={{ base: 'transparent' }}
+                    border={{ base: '1px solid transparent' }}
+                    color={
+                      item.negated
+                        ? theme.mode === 'light'
+                          ? 'red'
+                          : 'orange'
+                        : item.negated === false
+                        ? 'green'
+                        : 'neutral'
                     }
-                  `}
-                  onClick={() => {
-                    if (item.original) {
-                      const { param, paramValue, value } = item.original;
-                      const isArray = isJSON(paramValue) && Array.isArray(JSON.parse(paramValue));
+                    cssExtra={css`
+                      svg {
+                        width: 12px !important;
+                        height: 12px !important;
+                      }
+                    `}
+                    onClick={() => {
+                      if (item.original) {
+                        const { param, paramValue, value } = item.original;
+                        const isArray = isJSON(paramValue) && Array.isArray(JSON.parse(paramValue));
 
-                      const newArray = isArray
-                        ? JSON.parse(paramValue).filter((v: string | number) => `${v}` !== `${value}`)
-                        : [];
-                      if (newArray.length > 0) searchParams.set(param, JSON.stringify(newArray));
-                      else searchParams.delete(param);
+                        const newArray = isArray
+                          ? JSON.parse(paramValue).filter((v: string | number) => `${v}` !== `${value}`)
+                          : [];
+                        if (newArray.length > 0) searchParams.set(param, JSON.stringify(newArray));
+                        else searchParams.delete(param);
 
-                      navigate(pathname + hash + '?' + searchParams);
-                    }
-                  }}
-                />
-              ) : null}
-            </Right>
-          </FilterChip>
-        );
-      })}
-    </Row>
+                        navigate(pathname + hash + '?' + searchParams);
+                      }
+                    }}
+                  />
+                ) : null}
+              </Right>
+            </FilterChip>
+          );
+        })}
+      </Row>
+      {items.find((item) => item.key === 'Archived' && item.value === 'True' && item.negated === false) ? (
+        <Button
+          height={'26px'}
+          onClick={() => {
+            searchParams.delete('archived');
+            navigate(pathname + hash + '?' + searchParams);
+          }}
+        >
+          Hide archived
+        </Button>
+      ) : (
+        <Button
+          height={'26px'}
+          onClick={() => {
+            searchParams.set('archived', 'true');
+            navigate(pathname + hash + '?' + searchParams);
+          }}
+        >
+          View archived
+        </Button>
+      )}
+    </RowContainer>
   );
 }
+
+const RowContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: no-wrap;
+  overflow-y: hidden;
+  overflow-x: auto;
+  margin: 0 -1px 10px -1px;
+  gap: 6px;
+  > button {
+    flex-shrink: 0;
+  }
+`;
 
 const Row = styled.div`
   display: flex;
@@ -169,7 +207,6 @@ const Row = styled.div`
   flex-wrap: no-wrap;
   overflow-y: hidden;
   overflow-x: auto;
-  margin: 0 -1px 10px -1px;
   gap: 6px;
 `;
 
