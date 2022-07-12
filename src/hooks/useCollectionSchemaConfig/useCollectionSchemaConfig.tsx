@@ -23,7 +23,7 @@ function useCollectionSchemaConfig(name: string): [
   ApolloError | undefined,
   () => Promise<ApolloQueryResult<QueryType>>
 ] {
-  const res = useQuery<QueryType>(queryString(name), { fetchPolicy: 'cache-first' });
+  const res = useQuery<QueryType>(queryString(name), { fetchPolicy: 'cache-and-network' });
 
   // ensure the collection data is present
   // and that the correct collection is being provided

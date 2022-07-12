@@ -5,7 +5,7 @@ function useGetRawConfig(
   name: string
 ): [Collection | null, boolean, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>] {
   const res = useQuery<QueryType>(queryString(name), {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
   const loading = res.loading || res.networkStatus === NetworkStatus.refetch;

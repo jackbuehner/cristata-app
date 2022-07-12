@@ -10,7 +10,7 @@ function useGetServiceUsage(
   () => Promise<ApolloQueryResult<QueryType>>
 ] {
   const res = useQuery<QueryType>(queryString(month, year), {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
   const loading = res.loading || res.networkStatus === NetworkStatus.refetch;
