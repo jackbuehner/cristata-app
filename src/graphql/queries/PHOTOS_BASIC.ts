@@ -14,6 +14,7 @@ const PHOTOS_BASIC = gql(
         page: 'Int = 1',
         _ids: '[ObjectID]',
         filter: 'JSON',
+        sort: 'JSON',
       },
       photos: {
         __args: {
@@ -21,7 +22,7 @@ const PHOTOS_BASIC = gql(
           page: new VariableType('page'),
           _ids: new VariableType('_ids'),
           filter: new VariableType('filter'),
-          sort: JSON.stringify({ 'timestamps.created_at': -1 }), // sort newest first
+          sort: new VariableType('sort'),
         },
         ...paged({
           _id: true,

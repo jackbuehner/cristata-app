@@ -86,7 +86,11 @@ function PhotoLibraryPage() {
     PHOTOS_BASIC,
     {
       notifyOnNetworkStatusChange: true,
-      variables: { limit: 25, filter: JSON.stringify(filter) },
+      variables: {
+        limit: 25,
+        filter: JSON.stringify(filter),
+        sort: JSON.stringify({ 'timestamps.created_at': -1 }), // sort newest first
+      },
     }
   );
   const photos = data?.photos.docs;
