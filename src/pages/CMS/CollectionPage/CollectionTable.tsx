@@ -401,6 +401,27 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
             const isSubDocArray = def.type === 'DocArray';
             if (isSubDocArray) return null;
 
+            // use predefined values for publish timestamps
+            if (key === 'timestamps.published_at') {
+              return {
+                Header: 'Last published',
+                id: 'timestamps.published_at',
+                accessor: (data: Record<string, unknown>) => {
+                  const pub = data['timestamps.published_at'];
+                  const upd = data['timestamps.updated_at'];
+
+                  if (typeof pub === 'string' && typeof upd === 'string') {
+                    if (new Date(upd) > new Date(pub))
+                      return accessor(data, 'timestamps.updated_at', { type: 'Date' });
+                  }
+                  return accessor(data, 'timestamps.published_at', { type: 'Date' });
+                },
+                width: 150,
+                isSortable: true,
+              };
+            }
+            if (key === 'timestamps.updated_at') return null;
+
             if (def.column?.hidden !== true) {
               if (def.column) {
                 return {
