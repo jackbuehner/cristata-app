@@ -308,6 +308,10 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             if (key === 'permissions.teams') return false;
             return true;
           })
+          // remove timestamps related to publishing
+          .filter(([key]) => {
+            return key !== 'timestamps.published_at' && key !== 'timestamps.updated_at';
+          })
       );
     };
 
