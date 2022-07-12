@@ -27,7 +27,9 @@ function useNewItemModal(
     const [loading, setLoading] = useState(false);
 
     const [{ schemaDef, by }] = useCollectionSchemaConfig(collectionName);
-    const requiredFields = schemaDef.filter(([, def]) => def.required && def.default === undefined);
+    const requiredFields = schemaDef.filter(
+      ([key, def]) => def.required && def.default === undefined && !key.includes('.')
+    );
 
     // create a state object for storing the field values that resets whenever required fields
     // no longer matches state
