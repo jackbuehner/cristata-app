@@ -44,25 +44,36 @@ function Sidebar(props: SidebarProps) {
 
   const [teams, setTeams] = useState<{ _id: string; name: string; color: string }[] | undefined>(undefined);
   useEffect(() => {
+    let mounted = true;
+
     (async () => {
-      if (props.permissions) {
+      if (mounted && props.permissions) {
         const valuesAreLooselyDifferent = !props.permissions.teams.every(({ _id: propValue }) => {
           const internalValues = teams?.map(({ _id }) => _id) || [];
           return internalValues.includes(propValue);
         });
-        if (valuesAreLooselyDifferent) {
-          setTeams(
-            (await populateReferenceValues(client, props.permissions.teams, 'Team')).map((t, i) => {
+        if (mounted && valuesAreLooselyDifferent) {
+          const newTeams = (await populateReferenceValues(client, props.permissions.teams, 'Team')).map(
+            (t, i) => {
               return {
                 _id: t._id,
                 name: t.label,
                 color: props.permissions!.teams[i].color,
               };
-            })
+            }
           );
+          // only set the state if the component is still mounted
+          if (mounted) setTeams(newTeams);
         }
       }
     })();
+
+    return () => {
+      // set mounted to false so the async functions above
+      // do not attempt to set the state after the component
+      // has unmounted
+      mounted = false;
+    };
   }, [client, props.permissions, teams]);
 
   return (
