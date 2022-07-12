@@ -13,13 +13,14 @@ const PHOTOS_BASIC = gql(
         limit: 'Int = 10',
         page: 'Int = 1',
         _ids: '[ObjectID]',
+        filter: 'JSON',
       },
       photos: {
         __args: {
           limit: new VariableType('limit'),
           page: new VariableType('page'),
           _ids: new VariableType('_ids'),
-          filter: JSON.stringify({ hidden: { $ne: true } }), // exclude hidden photos
+          filter: new VariableType('filter'),
           sort: JSON.stringify({ 'timestamps.created_at': -1 }), // sort newest first
         },
         ...paged({

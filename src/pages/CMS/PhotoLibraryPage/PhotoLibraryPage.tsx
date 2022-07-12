@@ -7,7 +7,7 @@ import { themeType } from '../../../utils/theme/theme';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import Color from 'color';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 import ReactTooltip from 'react-tooltip';
 import { ApolloError, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
@@ -26,20 +26,63 @@ import { CircularProgress } from '@material-ui/core';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
 import { Offline } from '../../../components/Offline';
+import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilterRow';
+import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
+import { mongoFilterType } from '../../../graphql/client';
+import { isJSON } from '../../../utils/isJSON';
 
 function PhotoLibraryPage() {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
   const navigate = useNavigate();
   const client = useApolloClient();
   const tenant = localStorage.getItem('tenant');
+  const [{ schemaDef }] = useCollectionSchemaConfig('Photo');
+
+  // construct a filter
+  const filter: mongoFilterType = { hidden: { $ne: true }, archived: { $ne: true } };
+  searchParams.forEach((value, param) => {
+    // ignore values that start with two underscores because these are
+    // parameters used in the page instead of filters
+    if (param.indexOf('__') === 0) return;
+
+    // if the param name is _search, search the text index
+    if (param === '_search') {
+      filter.$text = { $search: value };
+      return;
+    }
+
+    const isNegated = param[0] === '!';
+    const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
+
+    const parseBooleanString = (str: string) => {
+      if (str.toLowerCase() === 'true') return true;
+      else if (str.toLowerCase() === 'false') return false;
+      return undefined;
+    };
+
+    if (isNegated && isArray) filter[param.slice(1)] = { $nin: JSON.parse(value) };
+    if (isNegated && !isArray)
+      filter[param.slice(1)] = {
+        $ne: parseBooleanString(value) !== undefined ? parseBooleanString(value) : parseFloat(value) || value,
+      };
+    if (!isNegated && isArray) filter[param] = { $in: JSON.parse(value) };
+    if (!isNegated && !isArray)
+      filter[param] = !isNaN(parseFloat(value))
+        ? { $eq: parseFloat(value) }
+        : parseBooleanString(value) !== undefined
+        ? { $eq: parseBooleanString(value) }
+        : { $regex: value, $options: 'i' };
+  });
 
   // get the photos
   const { data, loading, error, refetch, networkStatus, fetchMore } = useQuery<PHOTOS_BASIC__TYPE>(
     PHOTOS_BASIC,
     {
       notifyOnNetworkStatusChange: true,
-      variables: { limit: 25 },
+      variables: { limit: 25, filter: JSON.stringify(filter) },
     }
   );
   const photos = data?.photos.docs;
@@ -335,6 +378,7 @@ function PhotoLibraryPage() {
       ) : (
         <WrapperWrapper theme={theme}>
           <Wrapper theme={theme} ref={WrapperRef}>
+            <CollectionTableFilterRow schemaDef={schemaDef} collectionName={'Photo'} />
             <input
               ref={uploadInputRef}
               type={`file`}
