@@ -141,7 +141,7 @@ function DateTime(props: DateTimeProps) {
                 )};
               }
               .ant-picker-time-panel,
-              .ant-picker-time-panel-column:not(:first-child) {
+              .ant-picker-time-panel-column:not(:first-of-type) {
                 border-left: 1px solid ${theme.color.neutral[theme.mode][300]} !important;
               }
               .ant-picker-time-panel-cell {
