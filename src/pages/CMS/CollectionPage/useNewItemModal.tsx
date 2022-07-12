@@ -1,12 +1,17 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { gql, useApolloClient } from '@apollo/client';
+import {
+  isTypeTuple,
+  MongooseSchemaType,
+} from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
+import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
-import { Checkbox, DateTime, Number, Text } from '../../../components/ContentField';
+import { Checkbox, DateTime, Number, ReferenceOne, Text } from '../../../components/ContentField';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
@@ -28,10 +33,6 @@ function useNewItemModal(
     // no longer matches state
     const [state, setState] = useState<Record<string, boolean | number | string | undefined>>({});
     useEffect(() => {
-      console.log(
-        requiredFields.map(([key]) => key),
-        Object.keys(state)
-      );
       const sameKeys = requiredFields.map(([key]) => key).every((key) => Object.keys(state).includes(key));
 
       if (!sameKeys)
@@ -39,20 +40,24 @@ function useNewItemModal(
           merge(
             {},
             ...requiredFields
-              .map(([key, def]): Record<string, string | undefined> | null => {
-                if (def.type === 'Boolean') return { [key]: undefined };
-                if (def.type === 'Date') return { [key]: undefined };
-                if (def.type === 'Float') return { [key]: undefined };
-                if (def.type === 'Number') return { [key]: undefined };
-                if (def.type === 'String' && key === 'name') {
+              .map(([key, def]): Record<string, string | boolean | never[] | undefined> | null => {
+                const type: MongooseSchemaType | 'DocArray' = isTypeTuple(def.type) ? def.type[1] : def.type;
+
+                if (Array.isArray(type)) return { [key]: [] };
+                else if (type === 'DocArray') return { [key]: [] };
+                else if (type === 'Boolean') return { [key]: false };
+                else if (type === 'Date') return { [key]: undefined };
+                else if (type === 'Float') return { [key]: undefined };
+                else if (type === 'Number') return { [key]: undefined };
+                else if (type === 'String' && key === 'name') {
                   const name = uniqueNamesGenerator({
                     dictionaries: [adjectives, colors, animals],
                     separator: '-',
                   });
                   return { name };
-                }
-                if (def.type === 'String') return { [key]: undefined };
-                if (def.type === 'JSON') return { [key]: '{}' };
+                } else if (type === 'String') return { [key]: undefined };
+                else if (type === 'JSON') return { [key]: '{}' };
+                else if (type === 'ObjectId') return { [key]: undefined };
                 return null;
               })
               .filter((v): v is Record<string, undefined> => !!v)
@@ -122,11 +127,11 @@ function useNewItemModal(
       windowOptions: { height: 600, name: 'Create new item CMS' },
       children: (
         <>
-          {JSON.stringify(Object.keys(state))}
           {(requiredFields || []).map(([key, def], index) => {
+            const type: MongooseSchemaType | 'DocArray' = isTypeTuple(def.type) ? def.type[1] : def.type;
             const fieldName = def.field?.label || key;
 
-            if (def.type === 'Boolean') {
+            if (type === 'Boolean') {
               return (
                 <Checkbox
                   key={index}
@@ -142,7 +147,7 @@ function useNewItemModal(
                 />
               );
             }
-            if (def.type === 'Date') {
+            if (type === 'Date') {
               return (
                 <DateTime
                   key={index}
@@ -158,7 +163,7 @@ function useNewItemModal(
                 />
               );
             }
-            if (def.type === 'Float') {
+            if (type === 'Float') {
               return (
                 <Number
                   key={index}
@@ -176,7 +181,7 @@ function useNewItemModal(
                 />
               );
             }
-            if (def.type === 'Number') {
+            if (type === 'Number') {
               return (
                 <Number
                   key={index}
@@ -194,7 +199,28 @@ function useNewItemModal(
                 />
               );
             }
-            if (def.type === 'String') {
+            if (type === 'ObjectId' && (def.field?.reference?.collection || isTypeTuple(def.type))) {
+              const collection = isTypeTuple(def.type)
+                ? def.type[0].replace('[', '').replace(']', '')
+                : def.field!.reference!.collection!;
+
+              return (
+                <ReferenceOne
+                  key={index}
+                  label={fieldName}
+                  description={def.field?.description}
+                  value={{ _id: `${state[key]}` }}
+                  disabled={loading}
+                  isEmbedded
+                  collection={pluralize.singular(collection)}
+                  reference={def.field?.reference}
+                  onChange={(newValue) => {
+                    if (newValue?._id) setState({ ...state, [key]: newValue._id });
+                  }}
+                />
+              );
+            }
+            if (type === 'String' || type === 'ObjectId') {
               return (
                 <Text
                   key={index}
