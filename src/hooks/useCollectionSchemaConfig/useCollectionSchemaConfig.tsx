@@ -25,7 +25,9 @@ function useCollectionSchemaConfig(name: string): [
 ] {
   const res = useQuery<QueryType>(queryString(name), { fetchPolicy: 'cache-first' });
 
-  if (res.data?.configuration.collection) {
+  // ensure the collection data is present
+  // and that the correct collection is being provided
+  if (res.data?.configuration.collection && res.data?.configuration.collection.name === name) {
     const {
       schemaDef: schemaDefJson,
       canPublish,
