@@ -24,13 +24,16 @@ import {
 } from '../../../graphql/queries';
 import { CircularProgress } from '@material-ui/core';
 import { useAppDispatch } from '../../../redux/hooks';
-import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
+import { setAppLoading, setAppName, setAppActions, setAppSearchShown } from '../../../redux/slices/appbarSlice';
 import { Offline } from '../../../components/Offline';
 import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilterRow';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { mongoFilterType } from '../../../graphql/client';
 import { isJSON } from '../../../utils/isJSON';
 import { Chip } from '../../../components/Chip';
+import { useDropdown } from '../../../hooks/useDropdown';
+import { Menu } from '../../../components/Menu';
+import FluentIcon from '../../../components/FluentIcon';
 
 function PhotoLibraryPage() {
   const dispatch = useAppDispatch();
@@ -336,6 +339,44 @@ function PhotoLibraryPage() {
     uploadInputRef?.current?.click();
   };
 
+  // tools dropdown
+  const [showToolsDropdown] = useDropdown(
+    (triggerRect, dropdownRef) => {
+      return (
+        <Menu
+          ref={dropdownRef}
+          pos={{
+            top: triggerRect.bottom,
+            left: triggerRect.left + triggerRect.width - 240,
+            width: 240,
+          }}
+          items={[
+            {
+              label: 'Refresh data',
+              icon: <FluentIcon name={'ArrowClockwise16Regular'} />,
+              onClick: () => refetch(),
+            },
+            {
+              label: 'Filter',
+              icon: <FluentIcon name={'Filter16Regular'} />,
+              onClick: () => null,
+              disabled: true,
+              'data-tip': 'Filtering is currently unavailable.',
+            },
+            {
+              label: 'Clear filter',
+              icon: <FluentIcon name={'FilterDismiss16Regular'} />,
+              onClick: () => navigate(location.pathname),
+            },
+          ]}
+        />
+      );
+    },
+    [],
+    true,
+    true
+  );
+
   // update tooltip listener when component changes
   useEffect(() => {
     ReactTooltip.rebuild();
@@ -352,10 +393,10 @@ function PhotoLibraryPage() {
     dispatch(
       setAppActions([
         {
-          label: 'Refresh library data',
+          label: 'Search',
           type: 'icon',
-          icon: 'ArrowClockwise20Regular',
-          action: () => refetch(),
+          icon: 'Search20Regular',
+          action: () => dispatch(setAppSearchShown(true)),
         },
         {
           label: 'Upload',
@@ -364,9 +405,28 @@ function PhotoLibraryPage() {
           action: upload,
           disabled: !!isLoading || !!uploadStatus || !!error || !navigator.onLine,
         },
+        {
+          label: 'Tools',
+          type: 'button',
+          action: (e) => {
+            // refetch data on shift click
+            if (e.ctrlKey || e.metaKey) refetch();
+            // otherwise, open dropdown
+            else showToolsDropdown(e);
+          },
+          onAuxClick: ({ button }) => {
+            // refetch data on middle click
+            if (button === 1) refetch();
+          },
+          'data-tip': `${
+            // @ts-expect-error userAgentData exists
+            navigator.userAgentData?.platform === 'macOS' ? 'cmd' : 'ctrl'
+          } + click to refresh data`,
+          showChevron: true,
+        },
       ])
     );
-  }, [dispatch, error, isLoading, refetch, uploadStatus]);
+  }, [dispatch, error, isLoading, refetch, showToolsDropdown, uploadStatus]);
 
   if (!data && !navigator.onLine) {
     return <Offline variant={'centered'} />;
