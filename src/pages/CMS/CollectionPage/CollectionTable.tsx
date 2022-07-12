@@ -106,7 +106,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       if (localStorage)
         localStorage.setItem(
           `table.${props.collection}.sort`,
-          JSON.stringify(Object.keys(sort).length === 0 ? defaultSort : sort)
+          JSON.stringify(
+            Object.keys(sort).length === 0 ? defaultSort || { 'timestamps.last_modified_at': -1 } : sort
+          )
         );
     }, [defaultSort, props.collection, sort]);
 
