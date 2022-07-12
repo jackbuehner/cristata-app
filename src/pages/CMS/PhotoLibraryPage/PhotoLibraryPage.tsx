@@ -30,6 +30,7 @@ import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilte
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { mongoFilterType } from '../../../graphql/client';
 import { isJSON } from '../../../utils/isJSON';
+import { Chip } from '../../../components/Chip';
 
 function PhotoLibraryPage() {
   const dispatch = useAppDispatch();
@@ -393,7 +394,7 @@ function PhotoLibraryPage() {
             <Grid>
               {
                 // show a grid of the photos
-                photos?.map((photo: any, index: number) => {
+                photos?.map((photo, index: number) => {
                   return (
                     <Card
                       key={index}
@@ -405,6 +406,11 @@ function PhotoLibraryPage() {
                     >
                       <ImageBG src={photo.photo_url} theme={theme} />
                       <ImageLabel theme={theme}>{photo.name}</ImageLabel>
+                      <ImageTags theme={theme}>
+                        {photo.tags.map((tag, index) => {
+                          return <Chip key={index} label={tag} />;
+                        })}
+                      </ImageTags>
                     </Card>
                   );
                 })
@@ -442,7 +448,7 @@ const Wrapper = styled.div<{ theme?: themeType }>`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   grid-auto-rows: min-content;
   gap: 10px;
   width: 100%;
@@ -451,12 +457,13 @@ const Grid = styled.div`
 const Card = styled.div<{ theme: themeType; isSelected: boolean }>`
   width: 100%;
   height: 144px;
+  height: 180px;
   box-shadow: ${({ theme, isSelected }) =>
     `0 0 0 1px ${
       isSelected
         ? theme.color.primary[theme.mode === 'light' ? 800 : 300]
         : Color(theme.color.neutral[theme.mode][theme.mode === 'light' ? 800 : 300])
-            .alpha(0.2)
+            .alpha(0.56)
             .string()
     }`};
   border-radius: ${({ theme }) => theme.radius};
@@ -495,7 +502,7 @@ const Card = styled.div<{ theme: themeType; isSelected: boolean }>`
 
 const ImageBG = styled.div<{ src: string; theme: themeType }>`
   width: 100%;
-  height: calc(100% - 34px);
+  height: calc(100% - 34px - 28px);
   background-image: ${({ src }) => `url(${src})`};
   background-size: cover;
   background-position: center;
@@ -506,14 +513,22 @@ const ImageBG = styled.div<{ src: string; theme: themeType }>`
 const ImageLabel = styled.div<{ theme: themeType }>`
   font-size: 14px;
   font-family: ${({ theme }) => theme.font.detail};
-  padding: 0 10px;
+  padding: 8px 10px 2px 10px;
   align-items: center;
-  line-height: 34px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   border-top: ${({ theme }) => `1px solid ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
 `;
+
+const ImageTags = styled.div<{ theme: themeType }>`
+  padding: 2px 4px 8px 4px;
+  align-items: center;
+  overflow-y: hidden;
+  overflow-x: auto;
+  white-space: nowrap;
+`;
+
 const Spinner = styled(CircularProgress)<{ theme: themeType }>`
   width: 20px !important;
   height: 20px !important;
