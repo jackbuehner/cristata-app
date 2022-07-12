@@ -46,8 +46,12 @@ function useNewItemModal(
                 if (Array.isArray(type)) return { [key]: [] };
                 else if (type === 'DocArray') return { [key]: [] };
                 else if (type === 'Boolean') return { [key]: false };
-                else if (type === 'Date') return { [key]: undefined };
-                else if (type === 'Float') return { [key]: undefined };
+                else if (type === 'Date') {
+                  if (key === 'timestamps.published_at' || key === 'timestamps.updated_at') {
+                    return { [key]: '0001-01-01T01:00:00.000+00:00' };
+                  }
+                  return { [key]: undefined };
+                } else if (type === 'Float') return { [key]: undefined };
                 else if (type === 'Number') return { [key]: undefined };
                 else if (type === 'String' && key === 'name') {
                   const name = uniqueNamesGenerator({
@@ -127,117 +131,119 @@ function useNewItemModal(
       windowOptions: { height: 600, name: 'Create new item CMS' },
       children: (
         <>
-          {(requiredFields || []).map(([key, def], index) => {
-            const type: MongooseSchemaType | 'DocArray' = isTypeTuple(def.type) ? def.type[1] : def.type;
-            const fieldName = def.field?.label || key;
+          {(requiredFields || [])
+            .filter(([key, def], index) => key !== 'timestamps.published_at' && key !== 'timestamps.updated_at')
+            .map(([key, def], index) => {
+              const type: MongooseSchemaType | 'DocArray' = isTypeTuple(def.type) ? def.type[1] : def.type;
+              const fieldName = def.field?.label || key;
 
-            if (type === 'Boolean') {
-              return (
-                <Checkbox
-                  key={index}
-                  label={fieldName}
-                  description={def.field?.description}
-                  checked={!!state[key]}
-                  disabled={loading}
-                  isEmbedded
-                  onChange={(e) => {
-                    const newValue = e.currentTarget.checked;
-                    if (newValue !== undefined) setState({ ...state, [key]: newValue });
-                  }}
-                />
-              );
-            }
-            if (type === 'Date') {
-              return (
-                <DateTime
-                  key={index}
-                  label={fieldName}
-                  description={def.field?.description}
-                  value={state[key] as string}
-                  onChange={(date) => {
-                    if (date) setState({ ...state, [key]: date.toUTC().toISO() });
-                  }}
-                  placeholder={'Pick a time'}
-                  disabled={loading}
-                  isEmbedded
-                />
-              );
-            }
-            if (type === 'Float') {
-              return (
-                <Number
-                  key={index}
-                  type={'Float'}
-                  label={fieldName}
-                  description={def.field?.description}
-                  value={state[key] as number}
-                  disabled={loading}
-                  isEmbedded
-                  onChange={(e) => {
-                    const newValue = e.currentTarget.valueAsNumber;
-                    if (isNaN(newValue)) setState({ ...state, [key]: undefined });
-                    else if (newValue !== undefined) setState({ ...state, [key]: newValue });
-                  }}
-                />
-              );
-            }
-            if (type === 'Number') {
-              return (
-                <Number
-                  key={index}
-                  type={'Int'}
-                  label={fieldName}
-                  description={def.field?.description}
-                  value={state[key] as number}
-                  disabled={loading}
-                  isEmbedded
-                  onChange={(e) => {
-                    const newValue = e.currentTarget.valueAsNumber;
-                    if (isNaN(newValue)) setState({ ...state, [key]: undefined });
-                    else if (newValue !== undefined) setState({ ...state, [key]: newValue });
-                  }}
-                />
-              );
-            }
-            if (type === 'ObjectId' && (def.field?.reference?.collection || isTypeTuple(def.type))) {
-              const collection = isTypeTuple(def.type)
-                ? def.type[0].replace('[', '').replace(']', '')
-                : def.field!.reference!.collection!;
+              if (type === 'Boolean') {
+                return (
+                  <Checkbox
+                    key={index}
+                    label={fieldName}
+                    description={def.field?.description}
+                    checked={!!state[key]}
+                    disabled={loading}
+                    isEmbedded
+                    onChange={(e) => {
+                      const newValue = e.currentTarget.checked;
+                      if (newValue !== undefined) setState({ ...state, [key]: newValue });
+                    }}
+                  />
+                );
+              }
+              if (type === 'Date') {
+                return (
+                  <DateTime
+                    key={index}
+                    label={fieldName}
+                    description={def.field?.description}
+                    value={state[key] as string}
+                    onChange={(date) => {
+                      if (date) setState({ ...state, [key]: date.toUTC().toISO() });
+                    }}
+                    placeholder={'Pick a time'}
+                    disabled={loading}
+                    isEmbedded
+                  />
+                );
+              }
+              if (type === 'Float') {
+                return (
+                  <Number
+                    key={index}
+                    type={'Float'}
+                    label={fieldName}
+                    description={def.field?.description}
+                    value={state[key] as number}
+                    disabled={loading}
+                    isEmbedded
+                    onChange={(e) => {
+                      const newValue = e.currentTarget.valueAsNumber;
+                      if (isNaN(newValue)) setState({ ...state, [key]: undefined });
+                      else if (newValue !== undefined) setState({ ...state, [key]: newValue });
+                    }}
+                  />
+                );
+              }
+              if (type === 'Number') {
+                return (
+                  <Number
+                    key={index}
+                    type={'Int'}
+                    label={fieldName}
+                    description={def.field?.description}
+                    value={state[key] as number}
+                    disabled={loading}
+                    isEmbedded
+                    onChange={(e) => {
+                      const newValue = e.currentTarget.valueAsNumber;
+                      if (isNaN(newValue)) setState({ ...state, [key]: undefined });
+                      else if (newValue !== undefined) setState({ ...state, [key]: newValue });
+                    }}
+                  />
+                );
+              }
+              if (type === 'ObjectId' && (def.field?.reference?.collection || isTypeTuple(def.type))) {
+                const collection = isTypeTuple(def.type)
+                  ? def.type[0].replace('[', '').replace(']', '')
+                  : def.field!.reference!.collection!;
 
-              return (
-                <ReferenceOne
-                  key={index}
-                  label={fieldName}
-                  description={def.field?.description}
-                  value={{ _id: `${state[key]}` }}
-                  disabled={loading}
-                  isEmbedded
-                  collection={pluralize.singular(collection)}
-                  reference={def.field?.reference}
-                  onChange={(newValue) => {
-                    if (newValue?._id) setState({ ...state, [key]: newValue._id });
-                  }}
-                />
-              );
-            }
-            if (type === 'String' || type === 'ObjectId') {
-              return (
-                <Text
-                  key={index}
-                  label={fieldName}
-                  description={def.field?.description}
-                  value={state[key] as string}
-                  disabled={loading}
-                  isEmbedded
-                  onChange={(e) => {
-                    const newValue = e.currentTarget.value;
-                    if (newValue !== undefined) setState({ ...state, [key]: newValue });
-                  }}
-                />
-              );
-            }
-            return <></>;
-          })}
+                return (
+                  <ReferenceOne
+                    key={index}
+                    label={fieldName}
+                    description={def.field?.description}
+                    value={{ _id: `${state[key]}` }}
+                    disabled={loading}
+                    isEmbedded
+                    collection={pluralize.singular(collection)}
+                    reference={def.field?.reference}
+                    onChange={(newValue) => {
+                      if (newValue?._id) setState({ ...state, [key]: newValue._id });
+                    }}
+                  />
+                );
+              }
+              if (type === 'String' || type === 'ObjectId') {
+                return (
+                  <Text
+                    key={index}
+                    label={fieldName}
+                    description={def.field?.description}
+                    value={state[key] as string}
+                    disabled={loading}
+                    isEmbedded
+                    onChange={(e) => {
+                      const newValue = e.currentTarget.value;
+                      if (newValue !== undefined) setState({ ...state, [key]: newValue });
+                    }}
+                  />
+                );
+              }
+              return <></>;
+            })}
         </>
       ),
     };
