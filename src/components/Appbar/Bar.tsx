@@ -76,6 +76,9 @@ const IndeterminateProgress = styled(LinearProgress)<{
   progress?: number;
   isCustomTitlebarVisible: boolean;
 }>`
+  * {
+    background: none !important; /* empty background for entire progressbar */
+  }
   --mdc-theme-primary: ${({ theme, isCustomTitlebarVisible }) =>
     isCustomTitlebarVisible && theme.mode === 'light'
       ? theme.color.neutral.dark[1200]
