@@ -24,6 +24,12 @@ function CollectionSchemaPage() {
   const monacoRef = useRef<Monaco | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
+  // set document title
+  useEffect(() => {
+    if (raw) document.title = `Edit schema - ${raw.name}`;
+    else document.title = `Edit schema`;
+  }, [raw]);
+
   const parseRaw = (raw: Collection | null) => {
     if (raw) raw.name = '__collectionName'; // changing this will create a new collection
     // @ts-expect-error skipAdditionalParsing should not exist when sending, so delete it
@@ -36,7 +42,7 @@ function CollectionSchemaPage() {
     });
   };
 
-  const json = parseRaw(raw);
+  const json = parseRaw(raw ? { ...raw } : null);
 
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -72,7 +78,7 @@ function CollectionSchemaPage() {
 
   // configure app bar
   useEffect(() => {
-    dispatch(setAppName('Configure collection'));
+    dispatch(setAppName(raw ? `Edit schema - ${raw.name}` : `Edit collection schema`));
     dispatch(
       setAppActions([
         {
@@ -125,7 +131,7 @@ function CollectionSchemaPage() {
         },
       ])
     );
-  }, [client, collection, dispatch, hasErrors, refetch]);
+  }, [client, collection, dispatch, hasErrors, raw, refetch]);
 
   if (!raw && !navigator.onLine) {
     return <Offline variant={'centered'} />;
