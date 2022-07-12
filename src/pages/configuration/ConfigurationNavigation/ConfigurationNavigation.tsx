@@ -30,17 +30,19 @@ function ConfigurationNavigation() {
       {(!collections || collections?.length === 0) && !navigator.onLine ? (
         <Offline variant={'small'} />
       ) : (
-        collections?.map(({ name }, index) => {
-          return (
-            <SideNavSubButton
-              key={index}
-              Icon={<FluentIcon name={'CircleSmall20Filled'} />}
-              to={`/configuration/schema/${name}`}
-            >
-              {name}
-            </SideNavSubButton>
-          );
-        })
+        [...(collections || [])]
+          ?.sort((a, b) => a.name.localeCompare(b.name))
+          .map(({ name }, index) => {
+            return (
+              <SideNavSubButton
+                key={index}
+                Icon={<FluentIcon name={'CircleSmall20Filled'} />}
+                to={`/configuration/schema/${name}`}
+              >
+                {name}
+              </SideNavSubButton>
+            );
+          })
       )}
     </>
   );
