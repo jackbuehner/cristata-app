@@ -2,7 +2,7 @@
 import { gql, useApolloClient } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
@@ -24,28 +24,36 @@ function useNewItemModal(
     const [{ schemaDef, by }] = useCollectionSchemaConfig(collectionName);
     const requiredFields = schemaDef.filter(([, def]) => def.required && def.default === undefined);
 
-    const [state, setState] = useState<Record<string, boolean | number | string | undefined>>(
-      merge(
-        {},
-        ...requiredFields
-          .map(([key, def]): Record<string, string | undefined> | null => {
-            if (def.type === 'Boolean') return { [key]: undefined };
-            if (def.type === 'Date') return { [key]: undefined };
-            if (def.type === 'Float') return { [key]: undefined };
-            if (def.type === 'Number') return { [key]: undefined };
-            if (def.type === 'String' && key === 'name') {
-              const name = uniqueNamesGenerator({
-                dictionaries: [adjectives, colors, animals],
-                separator: '-',
-              });
-              return { name };
-            }
-            if (def.type === 'String') return { [key]: undefined };
-            return null;
-          })
-          .filter((v): v is Record<string, undefined> => !!v)
-      )
-    );
+    // create a state object for storing the field values that resets whenever required fields
+    // no longer matches state
+    const [state, setState] = useState<Record<string, boolean | number | string | undefined>>({});
+    useEffect(() => {
+      const sameKeys = requiredFields.map(([key]) => key).every((key) => Object.keys(state).includes(key));
+
+      if (!sameKeys)
+        setState(
+          merge(
+            {},
+            ...requiredFields
+              .map(([key, def]): Record<string, string | undefined> | null => {
+                if (def.type === 'Boolean') return { [key]: undefined };
+                if (def.type === 'Date') return { [key]: undefined };
+                if (def.type === 'Float') return { [key]: undefined };
+                if (def.type === 'Number') return { [key]: undefined };
+                if (def.type === 'String' && key === 'name') {
+                  const name = uniqueNamesGenerator({
+                    dictionaries: [adjectives, colors, animals],
+                    separator: '-',
+                  });
+                  return { name };
+                }
+                if (def.type === 'String') return { [key]: undefined };
+                return null;
+              })
+              .filter((v): v is Record<string, undefined> => !!v)
+          )
+        );
+    }, [requiredFields, state]);
 
     const allValuesAreSet = Object.entries(state).every(([, value]) => value !== undefined);
 
@@ -109,6 +117,7 @@ function useNewItemModal(
       windowOptions: { height: 600, name: 'Create new item CMS' },
       children: (
         <>
+          {JSON.stringify(Object.keys(state))}
           {(requiredFields || []).map(([key, def], index) => {
             const fieldName = def.field?.label || key;
 
@@ -201,7 +210,7 @@ function useNewItemModal(
         </>
       ),
     };
-  }, []);
+  }, [collectionName]);
 
   return [WindowModal, showModal, hideModal];
 }
