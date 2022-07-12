@@ -17,9 +17,10 @@ function SideNavSubButton(props: {
   const location = useLocation();
   const theme = useTheme() as themeType;
 
-  const isSameLocation = props.to && location.pathname.indexOf(props.to.split('?')[0]) !== -1;
+  const isSameLocation = props.to && location.pathname === props.to.split('?')[0];
   const isSameSearch =
-    (props.to && location.search === `?${props.to.split('?')[1]}`) ||
+    (props.to &&
+      `${new URLSearchParams(location.search)}` === `${new URLSearchParams(`?${props.to.split('?')[1]}`)}`) ||
     (props.to && location.search === `` && props.to.split('?')[1] === undefined);
 
   const isScoped = `${props.children}`.split('::').length === 2;
