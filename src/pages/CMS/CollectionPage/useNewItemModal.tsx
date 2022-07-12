@@ -28,6 +28,10 @@ function useNewItemModal(
     // no longer matches state
     const [state, setState] = useState<Record<string, boolean | number | string | undefined>>({});
     useEffect(() => {
+      console.log(
+        requiredFields.map(([key]) => key),
+        Object.keys(state)
+      );
       const sameKeys = requiredFields.map(([key]) => key).every((key) => Object.keys(state).includes(key));
 
       if (!sameKeys)
@@ -48,6 +52,7 @@ function useNewItemModal(
                   return { name };
                 }
                 if (def.type === 'String') return { [key]: undefined };
+                if (def.type === 'JSON') return { [key]: '{}' };
                 return null;
               })
               .filter((v): v is Record<string, undefined> => !!v)
