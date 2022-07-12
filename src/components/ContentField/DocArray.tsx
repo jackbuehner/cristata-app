@@ -140,7 +140,7 @@ function DocArray(props: DocArrayProps) {
                             <GroupContent>
                               {collapsedContentRows.map(({ label, value }, index) => {
                                 return (
-                                  <FieldGroup theme={theme}>
+                                  <FieldGroup theme={theme} key={index}>
                                     <FieldName theme={theme}>{label}</FieldName>
                                     <FieldValue>{value.toString()}</FieldValue>
                                   </FieldGroup>
