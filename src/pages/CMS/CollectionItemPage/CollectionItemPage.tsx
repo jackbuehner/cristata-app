@@ -13,6 +13,7 @@ import pluralize from 'pluralize';
 import { Fragment, useEffect, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
 import {
@@ -27,6 +28,7 @@ import {
   Text,
 } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
+import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
@@ -838,6 +840,32 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     return (
       <>
         {Windows}
+        <ReactRouterPrompt when={itemState.isUnsaved}>
+          {({ isActive, onConfirm, onCancel }) =>
+            isActive ? (
+              <PlainModal
+                title={'Are you sure?'}
+                text={'You have unsaved changes that may be lost.'}
+                hideModal={() => onCancel(true)}
+                cancelButton={{
+                  text: 'Go back',
+                  onClick: () => {
+                    onCancel(true);
+                    return true;
+                  },
+                }}
+                continueButton={{
+                  color: 'red',
+                  text: 'Yes, discard changes',
+                  onClick: () => {
+                    onConfirm(true);
+                    return true;
+                  },
+                }}
+              />
+            ) : null
+          }
+        </ReactRouterPrompt>
         {!props.isEmbedded && (fs === 'force' || fs === '1') ? null : null}
         <FullScreenSplash isLoading={(fs === 'force' || fs === '1') && !hasLoadedAtLeastOnce} />
         {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
