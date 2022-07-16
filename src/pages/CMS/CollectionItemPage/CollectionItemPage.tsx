@@ -85,14 +85,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     by?.one
   );
 
-  const [hasLoadedAtLeastOnce, setHasLoadedAtLeastOnce] = useState(false);
-  useEffect(() => {
-    if (!hasLoadedAtLeastOnce) {
-      if (JSON.stringify(itemState.fields) !== JSON.stringify({})) {
-        setHasLoadedAtLeastOnce(true);
-      }
-    }
-  }, [hasLoadedAtLeastOnce, itemState.fields]);
+  const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
 
   // update tooltip listener when component changes
   useEffect(() => {
