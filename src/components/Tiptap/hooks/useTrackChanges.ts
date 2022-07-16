@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { SetDocAttrStep } from '../utilities/SetDocAttrStep';
-import * as Y from 'yjs';
 import { Editor } from '@tiptap/react';
+import { useEffect, useState } from 'react';
+import * as Y from 'yjs';
+import { SetDocAttrStep } from '../utilities/SetDocAttrStep';
 import { IYSettingsMap } from './useY';
 
 function useTrackChanges({ editor, ydoc, ySettingsMap }: TrackChangesProps): ReturnType {
@@ -16,21 +16,21 @@ function useTrackChanges({ editor, ydoc, ySettingsMap }: TrackChangesProps): Ret
     // update track changes in react state
     setIsTracking(!isTracking);
     // update content of the ydoc
-    ydoc.transact(() => {
+    ydoc?.transact(() => {
       // set a trackChanges key-value pair inside the settings map
-      ySettingsMap.set('trackChanges', !isTracking);
+      ySettingsMap?.set('trackChanges', !isTracking);
     });
   };
 
   // when the editor finishes loading, update track changes to match
   useEffect(() => {
     if (editor) {
-      setIsTracking(ySettingsMap.get('trackChanges'));
+      setIsTracking(ySettingsMap?.get('trackChanges'));
     }
   }, [setIsTracking, ySettingsMap, editor]);
 
   // if another editor changes the track changes setting, update the react state
-  ySettingsMap.observe(() => {
+  ySettingsMap?.observe(() => {
     setIsTracking(ySettingsMap.get('trackChanges'));
   });
 
@@ -47,8 +47,8 @@ function useTrackChanges({ editor, ydoc, ySettingsMap }: TrackChangesProps): Ret
 
 interface TrackChangesProps {
   editor: Editor | null;
-  ydoc: Y.Doc;
-  ySettingsMap: Y.Map<IYSettingsMap>;
+  ydoc: Y.Doc | undefined;
+  ySettingsMap: Y.Map<IYSettingsMap> | undefined;
 }
 
 type ReturnType = [boolean, () => void];

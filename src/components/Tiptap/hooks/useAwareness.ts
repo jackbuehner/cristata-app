@@ -1,15 +1,17 @@
-import { WebsocketProvider } from 'y-websocket';
+import { WebrtcProvider } from 'y-webrtc';
 
 /**
  * Builds an array of objects of type `IAwarenessProfile` with duplicate values
  * from the same session removed from the array.
  */
 function useAwareness(props: UseAwarenessProps): AwarenessType[] {
-  const { awareness: hpa } = props.hocuspocus;
+  if (!props.provider) return [];
+
+  const { awareness: pa } = props.provider;
 
   // get all current awareness information and filter it to only include
   // sessions with defined users
-  const allAwarenessValues: AwarenessType[] = Array.from(hpa.getStates().values())
+  const allAwarenessValues: AwarenessType[] = Array.from(pa.getStates().values())
     .filter((value) => value.user)
     .map((value) => value.user);
 
@@ -33,7 +35,7 @@ function useAwareness(props: UseAwarenessProps): AwarenessType[] {
 }
 
 interface UseAwarenessProps {
-  hocuspocus: WebsocketProvider;
+  provider: WebrtcProvider | undefined;
 }
 
 type AwarenessType = {

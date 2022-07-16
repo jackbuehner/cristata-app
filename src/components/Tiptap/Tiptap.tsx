@@ -1,44 +1,44 @@
 /** @jsxImportSource @emotion/react */
-import { EditorContent, Editor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { ClassName } from './extension-class-name';
-import Underline from '@tiptap/extension-underline';
-import TextStyle from '@tiptap/extension-text-style';
-import FontFamily from '@tiptap/extension-font-family';
-import { FontSize } from './extension-font-size';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
 import { css, useTheme } from '@emotion/react';
-import { themeType } from '../../utils/theme/theme';
-import { useEffect, useMemo, useState } from 'react';
-import useDimensions from 'react-cool-dimensions';
-import packageJson from '../../../package.json';
-import { tiptapOptions } from '../../config';
-import { StandardLayout } from './special-components/article/StandardLayout';
-import { PowerComment, CommentPanel } from './extension-power-comment';
-import { Comment } from './extension-comment';
+import styled from '@emotion/styled';
+import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
+import { LinearProgress } from '@rmwc/linear-progress';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
-import { FullBleedLayout } from './special-components/article/FullBleedLayout';
-import './office-icon/colors1.css';
-import { SetDocAttrStep } from './utilities/SetDocAttrStep';
-import { TrackChanges } from './extension-track-changes';
-import { Toolbar } from './components/Toolbar';
-import { Statusbar, StatusbarBlock } from './components/Statusbar';
-import { Sidebar } from './components/Sidebar';
-import { useLocation } from 'react-router-dom';
-import { Noticebar } from './components/Noticebar';
-import { Titlebar } from './components/Titlebar';
-import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
-import { SweepwidgetWidget } from './extension-widget-sweepwidget';
-import { YoutubeWidget } from './extension-widget-youtube';
-import { PullQuote } from './extension-pull-quote';
-import { PhotoWidget } from './extension-photo';
+import FontFamily from '@tiptap/extension-font-family';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import TextStyle from '@tiptap/extension-text-style';
+import Underline from '@tiptap/extension-underline';
+import { Editor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
+import { useEffect, useMemo, useState } from 'react';
+import useDimensions from 'react-cool-dimensions';
 import { ErrorBoundary } from 'react-error-boundary';
-import styled from '@emotion/styled';
-import { LinearProgress } from '@rmwc/linear-progress';
+import { useLocation } from 'react-router-dom';
+import packageJson from '../../../package.json';
+import { tiptapOptions } from '../../config';
+import { CollectionItemPage } from '../../pages/CMS/CollectionItemPage';
+import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
 import { useAppDispatch } from '../../redux/hooks';
 import { setField } from '../../redux/slices/cmsItemSlice';
+import { themeType } from '../../utils/theme/theme';
+import { Spinner } from '../Loading';
+import { Noticebar } from './components/Noticebar';
+import { Sidebar } from './components/Sidebar';
+import { Statusbar, StatusbarBlock } from './components/Statusbar';
+import { Titlebar } from './components/Titlebar';
+import { Toolbar } from './components/Toolbar';
+import { ClassName } from './extension-class-name';
+import { Comment } from './extension-comment';
+import { FontSize } from './extension-font-size';
+import { PhotoWidget } from './extension-photo';
+import { CommentPanel, PowerComment } from './extension-power-comment';
+import { PullQuote } from './extension-pull-quote';
+import { TrackChanges } from './extension-track-changes';
+import { SweepwidgetWidget } from './extension-widget-sweepwidget';
+import { YoutubeWidget } from './extension-widget-youtube';
 import {
   useAwareness,
   useDevTools,
@@ -48,11 +48,10 @@ import {
   useWordCount,
   useY,
 } from './hooks';
-import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { Spinner } from '../Loading';
-import { CollectionItemPage } from '../../pages/CMS/CollectionItemPage';
-import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
-import { server } from '../../utils/constants';
+import './office-icon/colors1.css';
+import { FullBleedLayout } from './special-components/article/FullBleedLayout';
+import { StandardLayout } from './special-components/article/StandardLayout';
+import { SetDocAttrStep } from './utilities/SetDocAttrStep';
 
 interface ITiptap {
   docName: string;
@@ -81,11 +80,10 @@ const Tiptap = (props: ITiptap) => {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { search } = useLocation();
-  const [ydoc, ySettingsMap, providerWebsocket, isConnected] = useY({
-    ws: `${server.wsLocation}/hocuspocus/`,
+  const [ydoc, ySettingsMap, provider] = useY({
     name: props.docName,
   }); // create a doc and connect it to the server
-  const awarenessProfiles = useAwareness({ hocuspocus: providerWebsocket }); // get list of who is editing the doc
+  const awarenessProfiles = useAwareness({ provider }); // get list of who is editing the doc
   const { observe, width: thisWidth, height: tiptapHieght } = useDimensions(); // monitor the dimensions of the editor
 
   // manage sidebar content
@@ -113,7 +111,9 @@ const Tiptap = (props: ITiptap) => {
 
   // create the editor
   const editor = useTipTapEditor({
-    editable: isConnected === true && !props.isDisabled,
+    document: ydoc,
+    provider: provider,
+    editable: !props.isDisabled,
     extensions: [
       StarterKit.configure({ history: false }),
       TrackChanges,
@@ -137,7 +137,7 @@ const Tiptap = (props: ITiptap) => {
         document: ydoc,
       }),
       CollaborationCursor.configure({
-        provider: providerWebsocket,
+        provider: provider,
         user: {
           name: props.user.name,
           color: props.user.color,
@@ -181,6 +181,28 @@ const Tiptap = (props: ITiptap) => {
   });
 
   if (editor) editor.storage.currentJson = props.currentJsonInState;
+
+  // do not consider connected until editor is created, ydoc is available, and the provider is connected
+  const isConnected = provider?.connected && ydoc && editor !== null;
+
+  // if the document is empty, use the json/html from the api instead (if available)
+  if (editor && ydoc) {
+    const ydocString = ydoc.getXmlFragment('default').toJSON();
+    const isEmpty = ydocString === `<paragraph></paragraph>` || ydocString === ``;
+    if (isEmpty && props.html) {
+      editor.commands.setContent(props.html);
+    }
+    if (isEmpty && props.currentJsonInState) {
+      // if the json cannot be parsed for some reason, at least insert
+      // the string value (which may actually be html if it was not
+      // correctly marked)
+      try {
+        editor.commands.setContent(JSON.parse(props.currentJsonInState));
+      } catch (e) {
+        editor.commands.setContent(props.currentJsonInState);
+      }
+    }
+  }
 
   const [trackChanges, toggleTrackChanges] = useTrackChanges({ editor, ydoc, ySettingsMap }); // enable track changes management for the document
   useDevTools({ editor }); // show prosemirror developer tools when url query has dev=1

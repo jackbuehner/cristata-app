@@ -2,6 +2,8 @@ import { EditorOptions } from '@tiptap/core';
 import { Editor } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useEffect, useRef, useState } from 'react';
+import { WebrtcProvider } from 'y-webrtc';
+import * as Y from 'yjs';
 
 function useForceUpdate() {
   const [, setValue] = useState(0);
@@ -15,12 +17,12 @@ function useForceUpdate() {
   return increment;
 }
 
-const useTipTapEditor = (options: Partial<EditorOptions> = {}): Editor | null => {
+const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): Editor | null => {
   const editorRef = useRef<Editor | null>(null);
   const forceUpdate = useForceUpdate();
 
   useEffect(() => {
-    if (!editorRef.current && typeof window !== 'undefined') {
+    if (!editorRef.current && typeof window !== 'undefined' && options.document && options.provider) {
       // create editor on initial browser render
       editorRef.current = new Editor(options);
 
@@ -49,10 +51,17 @@ const useTipTapEditor = (options: Partial<EditorOptions> = {}): Editor | null =>
   useEffect(() => {
     return () => {
       editorRef.current?.destroy();
+      editorRef.current = null;
     };
   }, []);
 
   return editorRef.current;
 };
 
+interface EditorRequirements {
+  document: Y.Doc | undefined;
+  provider: WebrtcProvider | undefined;
+}
+
+export type { EditorRequirements };
 export { useTipTapEditor };
