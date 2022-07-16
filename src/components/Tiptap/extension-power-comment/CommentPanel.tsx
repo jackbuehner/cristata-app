@@ -33,12 +33,13 @@ interface CommentPanelProps {
 }
 
 function CommentPanel({ editor, user }: CommentPanelProps) {
-  const { comments } = editor?.storage.powerComment as CommentStorage;
+  const storage = editor?.storage.powerComment as CommentStorage | undefined;
+  const comments = storage?.comments;
 
   if (editor && user && editor.isEditable) {
     return (
       <div style={{ paddingBottom: 250 }}>
-        {comments.map((comment, index) => {
+        {comments?.map((comment, index) => {
           return (
             <Comment
               comment={comment}
