@@ -110,7 +110,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   if (docName.includes('undefined')) docName = collectionName;
 
   // set the document title
-  const title = `${itemState.isUnsaved ? '*' : ''}${docName} - Cristata`;
+  const title = `${itemState.isUnsaved ? '*' : ''}${docName}${
+    itemState.isUnsaved ? ' - Unsaved Changes' : ''
+  } - Cristata`;
   if (document.title !== title) document.title = title;
 
   // get the session id from sessionstorage
