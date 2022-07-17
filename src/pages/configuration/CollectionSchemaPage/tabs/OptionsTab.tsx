@@ -21,8 +21,8 @@ function OptionsTab(props: OptionsTabProps) {
     <div style={{ margin: 20 }}>
       <Card>
         <CardLabel>Name</CardLabel>
-        {name ? <Text isEmbedded label={'Schema name'} value={name[1]} /> : null}
-        {navLabel ? <Text isEmbedded label={'Plural label'} value={navLabel[1]} /> : null}
+        {name ? <Text isEmbedded label={'Schema name'} value={name} /> : null}
+        {navLabel ? <Text isEmbedded label={'Plural label'} value={navLabel} /> : null}
       </Card>
       {publicRules !== undefined ? (
         publicRules === false ? (
