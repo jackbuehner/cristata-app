@@ -89,8 +89,8 @@ function CollectionSchemaPage() {
         <Tab>Notices</Tab>
       </TabBar>
       <div>
-        {activeTab === 0 ? <SchemaTab collection={raw} /> : null}
-        {activeTab === 3 ? <OptionsTab collection={raw} /> : null}
+        {activeTab === 0 ? <SchemaTab /> : null}
+        {activeTab === 3 ? <OptionsTab /> : null}
       </div>
     </div>
   );

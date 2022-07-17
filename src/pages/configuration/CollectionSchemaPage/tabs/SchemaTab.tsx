@@ -1,5 +1,4 @@
 import styled from '@emotion/styled/macro';
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
 import {
   isSchemaDef,
   isTypeTuple,
@@ -7,15 +6,16 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { parseSchemaComponents } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genTypeDefs/parseSchemaComponents';
 import Color from 'color';
+import { useAppSelector } from '../../../../redux/hooks';
 import { SchemaCard, SchemaCardProps } from './SchemaCard';
 
-interface SchemaTabProps {
-  collection: GenCollectionInput;
-}
+interface SchemaTabProps {}
 
 function SchemaTab(props: SchemaTabProps) {
+  const state = useAppSelector(({ collectionConfig }) => collectionConfig);
+
   const generateItems = (
-    schema: SchemaDefType = props.collection.schemaDef,
+    schema: SchemaDefType = state.collection?.schemaDef || {},
     prefix?: { label: string; id: string },
     items: { node: React.ReactNode; id: string; order: number }[] = []
   ) => {
