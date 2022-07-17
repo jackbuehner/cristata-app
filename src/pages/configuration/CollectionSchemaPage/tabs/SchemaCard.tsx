@@ -1,8 +1,11 @@
 import styled from '@emotion/styled/macro';
 import Color from 'color';
 import React from 'react';
+import { buttonEffect } from '../../../../components/Button';
 import { Chip } from '../../../../components/Chip';
+import FluentIcon from '../../../../components/FluentIcon';
 import { colorType } from '../../../../utils/theme/theme';
+import { useEditSchemaDef } from './useEditSchemaDef';
 
 interface SchemaCardProps {
   label: string;
@@ -12,8 +15,11 @@ interface SchemaCardProps {
 }
 
 function SchemaCard(props: SchemaCardProps) {
+  const [EditWindow, showEditWindow] = useEditSchemaDef({ label: props.label, id: props.id });
+
   return (
     <Card>
+      {EditWindow}
       <Icon color={icons[props.icon || 'unknown'].color}>
         <svg
           xmlns='http://www.w3.org/2000/svg'
@@ -36,6 +42,11 @@ function SchemaCard(props: SchemaCardProps) {
           ))}
         </Tags>
       </Details>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+        <IconButtonWrapper color={'primary'} onClick={showEditWindow}>
+          <FluentIcon name={'Edit24Regular'} />
+        </IconButtonWrapper>
+      </div>
     </Card>
   );
 }
@@ -83,6 +94,7 @@ const Details = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   gap: 6px;
+  flex-grow: 1;
 `;
 
 const Label = styled.div`
@@ -100,6 +112,26 @@ const Id = styled.span`
 
 const Tags = styled.div`
   margin-left: -2px;
+`;
+
+const IconButtonWrapper = styled.span<{ color: colorType; disabled?: boolean }>`
+  ${({ color, theme, disabled }) =>
+    buttonEffect(color, theme.mode === 'light' ? 700 : 300, theme, disabled, { base: 'transparent' })}
+  border: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  justify-content: center;
+  width: 34px;
+  min-height: 36px;
+  margin: 0 1px 0 0;
+  border-left: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
+  border-radius: ${({ theme }) => theme.radius};
+  > svg {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 const icons: Record<
