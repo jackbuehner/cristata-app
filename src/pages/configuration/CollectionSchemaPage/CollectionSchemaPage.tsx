@@ -7,6 +7,7 @@ import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { OptionsTab } from './tabs/OptionsTab';
 import { QueriesTab } from './tabs/QueriesTab';
+import { MutationsTab } from './tabs/MutationsTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
 import { setCollection, setIsLoading } from '../../../redux/slices/collectionSlice';
@@ -92,6 +93,7 @@ function CollectionSchemaPage() {
       <div>
         {activeTab === 0 ? <SchemaTab /> : null}
         {activeTab === 1 ? <QueriesTab /> : null}
+        {activeTab === 2 ? <MutationsTab /> : null}
         {activeTab === 3 ? <OptionsTab /> : null}
       </div>
     </div>

@@ -237,6 +237,21 @@ export const collectionSlice = createSlice({
         }
       },
     },
+    setDefaultMutationOption: {
+      prepare: (option: DefaultMutationOption, value: boolean | undefined) => {
+        return { payload: { option, value } };
+      },
+      reducer: (
+        state,
+        action: PayloadAction<{ option: DefaultMutationOption; value: boolean | undefined }>
+      ) => {
+        if (state.collection) {
+          if (!state.collection.options) state.collection.options = {};
+          state.collection.options[action.payload.option] = action.payload.value;
+          state.isUnsaved = true;
+        }
+      },
+    },
   },
 });
 
@@ -247,6 +262,15 @@ type DefaultQueryOption =
   | 'disablePublicFindOneQuery'
   | 'disablePublicFindOneBySlugQuery'
   | 'disablePublicFindManyQuery';
+type DefaultMutationOption =
+  | 'disableCreateMutation'
+  | 'disableModifyMutation'
+  | 'disableHideMutation'
+  | 'disableArchiveMutation'
+  | 'disableLockMutation'
+  | 'disableWatchMutation'
+  | 'disableDeleteMutation'
+  | 'disablePublishMutation';
 type MandatoryWatchers = string[];
 type WatcherNotices = {
   subjectField: string;
@@ -277,6 +301,7 @@ export const {
   setWatcherNotices,
   setRootSchemaProperty,
   setDefaultQueryOption,
+  setDefaultMutationOption,
 } = collectionSlice.actions;
 
 export default collectionSlice.reducer;
