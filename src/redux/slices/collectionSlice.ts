@@ -164,13 +164,13 @@ export const collectionSlice = createSlice({
     },
     setCustomQueries: (state, action: PayloadAction<GenCollectionInput['customQueries']>) => {
       if (state.collection) {
-        state.collection.customQueries = action.payload;
+        state.collection.customQueries = action.payload?.filter((custom) => !!custom);
         state.isUnsaved = true;
       }
     },
     setCustomMutations: (state, action: PayloadAction<GenCollectionInput['customMutations']>) => {
       if (state.collection) {
-        state.collection.customMutations = action.payload;
+        state.collection.customMutations = action.payload?.filter((custom) => !!custom);
         state.isUnsaved = true;
       }
     },
