@@ -1,16 +1,16 @@
 import styled from '@emotion/styled/macro';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
 import {
   isSchemaDef,
   isTypeTuple,
-  SchemaDefType
+  SchemaDefType,
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { parseSchemaComponents } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genTypeDefs/parseSchemaComponents';
-import { Collection } from '@jackbuehner/cristata-api/dist/types/config';
 import Color from 'color';
 import { SchemaCard, SchemaCardProps } from './SchemaCard';
 
 interface SchemaTabProps {
-  collection: Collection;
+  collection: GenCollectionInput;
 }
 
 function SchemaTab(props: SchemaTabProps) {

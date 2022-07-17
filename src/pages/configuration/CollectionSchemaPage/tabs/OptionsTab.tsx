@@ -1,12 +1,12 @@
 import styled from '@emotion/styled/macro';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
 import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
-import { Collection } from '@jackbuehner/cristata-api/dist/types/config';
 import Color from 'color';
 import { Button } from '../../../../components/Button';
 import { Checkbox, Text } from '../../../../components/ContentField';
 
 interface OptionsTabProps {
-  collection: Collection;
+  collection: GenCollectionInput;
 }
 
 function OptionsTab(props: OptionsTabProps) {

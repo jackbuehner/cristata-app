@@ -1,6 +1,6 @@
 import { DocumentNode, gql, useApolloClient } from '@apollo/client';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
 import collectionSchema from '@jackbuehner/cristata-api/dist/json-schemas/collection.schema.json';
-import { Collection } from '@jackbuehner/cristata-api/dist/types/config';
 import Editor, { Monaco } from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';
 import parserBabel from 'prettier/parser-babel';
@@ -30,7 +30,7 @@ function CollectionSchemaPage() {
     else document.title = `Edit schema`;
   }, [raw]);
 
-  const parseRaw = (raw: Collection | null) => {
+  const parseRaw = (raw: GenCollectionInput | null) => {
     if (raw) raw.name = '__collectionName'; // changing this will create a new collection
     // @ts-expect-error skipAdditionalParsing should not exist when sending, so delete it
     if (raw) delete raw.skipAdditionalParsing;
@@ -98,7 +98,9 @@ function CollectionSchemaPage() {
 
             // save
             const value = editorRef.current
-              ? (JSON.parse(editorRef.current?.getValue()) as Collection & { skipAdditionalParsing?: boolean })
+              ? (JSON.parse(editorRef.current?.getValue()) as GenCollectionInput & {
+                  skipAdditionalParsing?: boolean;
+                })
               : undefined;
 
             if (value) {
@@ -170,7 +172,7 @@ interface SaveMutationType {
   setRawConfigurationCollection?: string | null;
 }
 
-function saveMutationString(name: string, raw: Collection): DocumentNode {
+function saveMutationString(name: string, raw: GenCollectionInput): DocumentNode {
   return gql`
     mutation {
       setRawConfigurationCollection(name: "${name}", raw: ${JSON.stringify(`${JSON.stringify(raw)}`)})
