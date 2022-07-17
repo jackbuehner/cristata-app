@@ -8,12 +8,19 @@ import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/
 import { OptionsTab } from './tabs/OptionsTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
+import { setCollection, setIsLoading } from '../../../redux/slices/collectionSlice';
 
 function CollectionSchemaPage() {
   const dispatch = useAppDispatch();
   const client = useApolloClient();
   const { collection } = useParams() as { collection: string };
   const [raw, loadingInitial, error, refetch] = useGetRawConfig(collection);
+
+  useEffect(() => {
+    if (raw) {
+      dispatch(setCollection(raw));
+    }
+  }, [dispatch, raw]);
 
   // set document title
   useEffect(() => {
@@ -24,7 +31,8 @@ function CollectionSchemaPage() {
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     setLoading(loadingInitial);
-  }, [loadingInitial]);
+    dispatch(setIsLoading(loadingInitial));
+  }, [dispatch, loadingInitial]);
 
   // keep loading state synced
   useEffect(() => {
