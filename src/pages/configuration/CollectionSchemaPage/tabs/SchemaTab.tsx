@@ -85,7 +85,7 @@ function SchemaTab(props: SchemaTabProps) {
     });
 
     arraySchemas.forEach(([key, arr], index) => {
-      const id = prefix ? `${prefix.id}.${key}` : key;
+      const id = prefix ? `${prefix.id}.${key}.0` : `${key}.0`;
 
       const labelDef = isSchemaDef(arr[0]['#label']) ? arr[0]['#label'] : undefined;
       const order = labelDef?.field?.order || 999;
