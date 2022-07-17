@@ -23,7 +23,8 @@ import { themeType } from './utils/theme/theme';
 /* prettier-ignore */ const PlaygroundNavigation = loadable(() => import(/* webpackChunkName: "PlaygroundNavigation" */'./pages/playground'), { resolveComponent: (c) => c.PlaygroundNavigation });
 /* prettier-ignore */ const BillingPaymentsPage = loadable(() => import(/* webpackChunkName: "BillingPaymentsPage" */'./pages/configuration'), { resolveComponent: (c) => c.BillingPaymentsPage });
 /* prettier-ignore */ const BillingServiceUsagePage = loadable(() => import(/* webpackChunkName: "BillingServiceUsagePage" */'./pages/configuration'), { resolveComponent: (c) => c.BillingServiceUsagePage });
-/* prettier-ignore */ const CollectionSchemaPage = loadable(() => import(/* webpackChunkName: "CollectionSchemaPage" */'./pages/configuration'), { resolveComponent: (c) => c.CollectionSchemaPage });
+/* prettier-ignore */ const CollectionSchemaPageOld = loadable(() => import(/* webpackChunkName: "CollectionSchemaPage" */'./pages/configuration'), { resolveComponent: (c) => c.CollectionSchemaPageOld });
+/* prettier-ignore */ const CollectionSchemaPage = loadable(() => import(/* webpackChunkName: "CollectionSchemaPageVisual" */'./pages/configuration'), { resolveComponent: (c) => c.CollectionSchemaPage });
 /* prettier-ignore */ const ConfigurationNavigation = loadable(() => import(/* webpackChunkName: "ConfigurationNavigation" */'./pages/configuration'), { resolveComponent: (c) => c.ConfigurationNavigation });
 /* prettier-ignore */ const TokenSecretsPage = loadable(() => import(/* webpackChunkName: "TokenSecretsPage" */'./pages/configuration'), { resolveComponent: (c) => c.TokenSecretsPage });
 /* prettier-ignore */ const FathomEmbed = loadable(() => import(/* webpackChunkName: "FathomEmbed" */'./pages/embeds'), { resolveComponent: (c) => c.FathomEmbed });
@@ -43,6 +44,7 @@ PlaygroundNavigation.preload();
 BillingPaymentsPage.preload();
 BillingServiceUsagePage.preload();
 CollectionSchemaPage.preload();
+CollectionSchemaPageOld.preload();
 ConfigurationNavigation.preload();
 TokenSecretsPage.preload();
 FathomEmbed.preload();
@@ -133,6 +135,7 @@ function Protected(props: ProtectedProps) {
                   <Route path={`tokens-secrets`} element={<TokenSecretsPage />} />
                 </Route>
                 <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
+                <Route path={`schema/:collection/code`} element={<CollectionSchemaPageOld />} />
               </Route>
               <Route path={`/`} element={<HomePage />} />
             </Routes>
