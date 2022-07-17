@@ -25,11 +25,11 @@ function Checkbox(props: CheckboxProps) {
         display: 'flex',
         flexDirection: 'row-reverse',
         gap: 10,
-        alignItems: 'center',
+        alignItems: 'flex-start',
         paddingTop: 10,
       }}
       labelRowStyle={{ flexGrow: 1 }}
-      labelStyle={{ marginBottom: 0 }}
+      labelStyle={props.description ? undefined : { marginBottom: 0 }}
       childWrapperStyle={{ display: 'flex' }}
     >
       <CheckboxComponent {...props} theme={theme} type={'checkbox'} id={props.label.replaceAll(' ', '-')} />
