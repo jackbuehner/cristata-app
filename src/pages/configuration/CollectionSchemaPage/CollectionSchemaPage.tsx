@@ -1,6 +1,6 @@
 import { useApolloClient } from '@apollo/client';
 import { SetStateAction, useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
@@ -20,6 +20,8 @@ function CollectionSchemaPage() {
   const client = useApolloClient();
   const { collection } = useParams() as { collection: string };
   const [raw, loadingInitial, error, _refetch] = useGetRawConfig(collection);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // when refetching, also update redux with a fresh copy of the collection
   const refetch = useCallback(() => {
@@ -81,8 +83,6 @@ function CollectionSchemaPage() {
     );
   }, [client, collection, dispatch, raw, refetch, state.isUnsaved]);
 
-  const [activeTab, setActiveTab] = useState<number>(0);
-
   if (!raw && !navigator.onLine) {
     return <Offline variant={'centered'} />;
   }
@@ -95,11 +95,15 @@ function CollectionSchemaPage() {
     return <div>Loading...</div>;
   }
 
+  const activeTabIndex = parseInt(location.hash[1]);
+
   return (
     <div style={{ maxWidth: 800, margin: '0 auto' }}>
       <TabBar
-        activeTabIndex={activeTab}
-        onActivate={(evt: { detail: { index: SetStateAction<number> } }) => setActiveTab(evt.detail.index)}
+        activeTabIndex={activeTabIndex}
+        onActivate={(evt: { detail: { index: SetStateAction<number> } }) =>
+          navigate(location.pathname + location.search + `#${evt.detail.index}`)
+        }
       >
         <Tab>Schema</Tab>
         <Tab>Queries</Tab>
@@ -107,10 +111,10 @@ function CollectionSchemaPage() {
         <Tab>Options</Tab>
       </TabBar>
       <div>
-        {activeTab === 0 ? <SchemaTab /> : null}
-        {activeTab === 1 ? <QueriesTab /> : null}
-        {activeTab === 2 ? <MutationsTab /> : null}
-        {activeTab === 3 ? <OptionsTab /> : null}
+        {activeTabIndex === 0 ? <SchemaTab /> : null}
+        {activeTabIndex === 1 ? <QueriesTab /> : null}
+        {activeTabIndex === 2 ? <MutationsTab /> : null}
+        {activeTabIndex === 3 ? <OptionsTab /> : null}
       </div>
       <ReactRouterPrompt when={state.isUnsaved}>
         {({ isActive, onConfirm, onCancel }) =>
