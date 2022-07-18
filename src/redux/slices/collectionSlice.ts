@@ -135,7 +135,8 @@ export const collectionSlice = createSlice({
     setPublicRules: (state, action: PayloadAction<false | FilterQuery | string>) => {
       if (state.collection) {
         // check the existing value
-        const existing = original(state.collection.publicRules);
+        const existing =
+          state.collection.publicRules === false ? false : original(state.collection.publicRules);
 
         // if the payload is false, we should disable public access
         if (action.payload === false) {
