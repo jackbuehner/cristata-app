@@ -88,7 +88,6 @@ function CollectionSchemaPage() {
         <Tab>Queries</Tab>
         <Tab>Mutations</Tab>
         <Tab>Options</Tab>
-        <Tab>Notices</Tab>
       </TabBar>
       <div>
         {activeTab === 0 ? <SchemaTab /> : null}

@@ -204,7 +204,7 @@ export const collectionSlice = createSlice({
         state.isUnsaved = true;
       }
     },
-    setWatcherNotices: (state, action: PayloadAction<WatcherNotices>) => {
+    setWatcherNotices: (state, action: PayloadAction<WatcherNotices | undefined>) => {
       if (state.collection) {
         if (!state.collection.options) state.collection.options = {};
         state.collection.options.watcherNotices = action.payload;

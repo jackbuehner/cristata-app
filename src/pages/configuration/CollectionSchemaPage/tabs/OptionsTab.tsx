@@ -2,13 +2,15 @@ import styled from '@emotion/styled/macro';
 import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import { useDispatch } from 'react-redux';
-import { Checkbox, SelectOne, Text } from '../../../../components/ContentField';
+import { Checkbox, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
   setCanPublish,
+  setMandatoryWatchers,
   setName,
   setNavLabel,
   setPublicRules,
+  setWatcherNotices,
   setWithPermissions,
   setWithSubscription,
 } from '../../../../redux/slices/collectionSlice';
@@ -27,15 +29,42 @@ function OptionsTab(props: OptionsTabProps) {
   const canPublish = state.collection?.canPublish;
   const withPermissions = state.collection?.withPermissions;
   const withSubscription = state.collection?.withSubscription;
+  const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
+  const watcherNotices = state.collection?.options?.watcherNotices;
 
   const fieldTypes = getFieldTypes(state.collection?.schemaDef || {}, true);
+  const dateFields = fieldTypes.filter(([key, label, type]) => type === 'Date');
+  const stringFields = fieldTypes.filter(([key, label, type]) => type === 'String');
+  const objectIdFields = fieldTypes.filter(([key, label, type]) => type === 'ObjectId');
+  const objectIdsFields = fieldTypes.filter(([key, label, type]) => type === 'ObjectIds');
 
   const hasSlugField =
     state.collection &&
     isSchemaDef(state.collection.schemaDef.slug) &&
     state.collection.schemaDef.slug.type === 'String';
-  const dateFields = fieldTypes.filter(([key, label, type]) => type === 'Date');
+  const hasStageField = state.collection && isSchemaDef(state.collection.schemaDef.stage);
+
   const slugDateFieldOptions = dateFields.map(([key, label]) => ({ value: key, label }));
+  const stringFieldOptions = stringFields.map(([key, label]) => ({ value: key, label }));
+  const userFieldOptions = [...objectIdFields, ...objectIdsFields].map(([key, label]) => ({
+    value: key,
+    label,
+  }));
+
+  // get the stage options from the stage field (if it exists)
+  // prefer the column chip options, but fallback to the field options
+  const stageFieldOptions =
+    state.collection && isSchemaDef(state.collection.schemaDef.stage)
+      ? Array.isArray(state.collection.schemaDef.stage.column?.chips)
+        ? state.collection.schemaDef.stage.column?.chips.map((opt) => ({
+            label: opt.label || `${opt.value}`,
+            value: parseFloat(`${opt.value}`),
+          }))
+        : state.collection.schemaDef.stage.field?.options?.map((opt) => ({
+            label: opt.label,
+            value: parseFloat(`${opt.value}`),
+          }))
+      : undefined;
 
   return (
     <div style={{ margin: 20 }}>
@@ -117,6 +146,94 @@ function OptionsTab(props: OptionsTabProps) {
                   />
                 ) : null}
               </>
+            </IndentField>
+          ) : null}
+        </Card>
+      ) : null}
+      {hasStageField && stageFieldOptions ? (
+        <Card>
+          <CardLabel>Change notices</CardLabel>
+          <Checkbox
+            isEmbedded
+            label={'Allow users to watch documents for changes'}
+            checked={!!watcherNotices}
+            onChange={(e) => {
+              if (state.collection && hasStageField) {
+                if (!e.currentTarget.checked) dispatch(setWatcherNotices(undefined));
+                else {
+                  // construct the stage map from the options in the stage field
+                  const stageMap: Record<number, string> = {};
+                  stageFieldOptions.forEach((opt) => {
+                    stageMap[opt.value] = opt.label;
+                  });
+                  dispatch(
+                    setWatcherNotices({
+                      subjectField: stringFieldOptions[0].value,
+                      stageField: 'stage',
+                      stageMap: stageMap,
+                      fields: [],
+                    })
+                  );
+                  dispatch(setMandatoryWatchers([]));
+                }
+              }
+            }}
+          />
+          {!!watcherNotices && !!mandatoryWatchers ? (
+            <IndentField color={'primary'}>
+              <CardLabel style={{ marginTop: 10, fontSize: 14 }}>Configure email alerts</CardLabel>
+              <SelectOne
+                isEmbedded
+                label={'Subject field'}
+                description={`The email subject line will include the value of this field.`}
+                type={'String'}
+                options={stringFieldOptions}
+                value={
+                  stringFieldOptions.find((a) => a.value === watcherNotices.subjectField) ||
+                  stringFieldOptions[0]
+                }
+                onChange={(opt) => {
+                  if (opt) {
+                    const copy = JSON.parse(JSON.stringify(watcherNotices));
+                    copy.subjectField = opt.value;
+                    dispatch(setWatcherNotices(copy));
+                  }
+                }}
+              />
+              <SelectMany
+                isEmbedded
+                label={'Body fields'}
+                description={`The value of each of these fields will be included in the email body.`}
+                type={'String'}
+                options={stringFieldOptions}
+                values={
+                  stringFieldOptions.filter((opt) =>
+                    watcherNotices.fields.find((field) => field.name === opt.value)
+                  ) || []
+                }
+                onChange={(opts) => {
+                  if (opts) {
+                    const copy = JSON.parse(JSON.stringify(watcherNotices));
+                    copy.fields = opts.map((opt) => ({ name: opt.value, label: opt.label }));
+                    dispatch(setWatcherNotices(copy));
+                  }
+                }}
+              />
+              <SelectMany
+                isEmbedded
+                label={'Required recipients'}
+                description={
+                  'Users who are referenced in these document fields are required to receive email alerts.'
+                }
+                type={'String'}
+                options={userFieldOptions}
+                values={userFieldOptions.filter((opt) => mandatoryWatchers.includes(opt.value)) || []}
+                onChange={(opts) => {
+                  if (opts) {
+                    dispatch(setMandatoryWatchers(opts.map((opt) => `${opt.value}`).filter((v) => !!v)));
+                  }
+                }}
+              />
             </IndentField>
           ) : null}
         </Card>
