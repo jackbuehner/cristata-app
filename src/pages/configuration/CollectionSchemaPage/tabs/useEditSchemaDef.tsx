@@ -81,6 +81,7 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
                 <Text
                   isEmbedded
                   label={'Description'}
+                  description={'Display a hint for content editors.'}
                   value={def?.field?.description}
                   onChange={(e) =>
                     dispatch(setRootSchemaProperty(props.id, 'field.description', e.currentTarget.value))
