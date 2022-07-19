@@ -18,6 +18,7 @@ import { useWindowModal } from '../../../../hooks/useWindowModal';
 import { useAppSelector } from '../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../redux/slices/collectionSlice';
 import { colorType } from '../../../../utils/theme/theme';
+import { useTheme } from '@emotion/react';
 
 interface UseEditSchemaDefProps {
   label: string;
@@ -27,6 +28,7 @@ interface UseEditSchemaDefProps {
 function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () => void, () => void] {
   // create the modal
   const [Window, showModal, hideModal] = useWindowModal(() => {
+    const theme = useTheme();
     const state = useAppSelector(({ collectionConfig }) => collectionConfig);
     const dispatch = useDispatch();
     const [activeTab, setActiveTab] = useState<number>(0);
@@ -42,7 +44,7 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
     return {
       title: `${props.label}`,
       windowOptions: { name: `editSchemaField_${props.label}`, width: 370, height: 560 },
-      styleString: `> div[class*='-PlainModalContent'] { padding: 0; }`,
+      styleString: `height: 600px; display: flex; flex-direction: column; > div[class*='-PlainModalContent'] { padding: 0; }`,
       cancelButton: null,
       continueButton: { text: 'Close' },
       children: (
@@ -50,6 +52,12 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
           <TabBar
             activeTabIndex={activeTab}
             onActivate={(evt: { detail: { index: SetStateAction<number> } }) => setActiveTab(evt.detail.index)}
+            style={{
+              position: 'sticky',
+              top: 0,
+              background: theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200],
+              borderBottom: `1px solid ${theme.color.neutral[theme.mode][theme.mode === 'light' ? 200 : 300]}`,
+            }}
           >
             <Tab>Options</Tab>
             <Tab>Validations</Tab>
