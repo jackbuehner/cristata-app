@@ -27,12 +27,11 @@ function CollectionSchemaPage() {
   const location = useLocation();
 
   // when refetching, also update redux with a fresh copy of the collection
-  const refetch = useCallback(() => {
-    _refetch().then(({ data }) => {
-      if (data.configuration.collection?.raw) {
-        dispatch(setCollection(JSON.parse(data.configuration.collection.raw)));
-      }
-    });
+  const refetch = useCallback(async () => {
+    const res = await _refetch();
+    if (res.data.configuration.collection?.raw) {
+      dispatch(setCollection(JSON.parse(res.data.configuration.collection.raw)));
+    }
   }, [_refetch, dispatch]);
 
   // set the redux collection state on first load
@@ -131,32 +130,35 @@ function CollectionSchemaPage() {
               {activeTabIndex === 2 ? <MutationsTab /> : null}
               {activeTabIndex === 3 ? <OptionsTab /> : null}
             </div>
-            <ReactRouterPrompt when={state.isUnsaved}>
-              {({ isActive, onConfirm, onCancel }) =>
-                isActive ? (
-                  <PlainModal
-                    title={'Are you sure?'}
-                    text={'You have unsaved changes that may be lost.'}
-                    hideModal={() => onCancel(true)}
-                    cancelButton={{
-                      text: 'Go back',
-                      onClick: () => {
-                        onCancel(true);
-                        return true;
-                      },
-                    }}
-                    continueButton={{
-                      color: 'red',
-                      text: 'Yes, discard changes',
-                      onClick: () => {
-                        onConfirm(true);
-                        return true;
-                      },
-                    }}
-                  />
-                ) : null
-              }
-            </ReactRouterPrompt>
+            {state.isUnsaved ? (
+              <ReactRouterPrompt when={state.isUnsaved}>
+                {({ isActive, onConfirm, onCancel }) =>
+                  isActive ? (
+                    <PlainModal
+                      title={'Are you sure?'}
+                      text={'You have unsaved changes that may be lost.'}
+                      hideModal={() => onCancel(true)}
+                      cancelButton={{
+                        text: 'Go back',
+                        onClick: () => {
+                          onCancel(true);
+                          return true;
+                        },
+                      }}
+                      continueButton={{
+                        color: 'red',
+                        text: 'Yes, discard changes',
+                        onClick: async () => {
+                          await refetch();
+                          onConfirm(true);
+                          return true;
+                        },
+                      }}
+                    />
+                  ) : null
+                }
+              </ReactRouterPrompt>
+            ) : null}
           </div>
         </div>
       </div>
