@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import {
   isTypeTuple,
@@ -10,7 +11,7 @@ import { get as getProperty } from 'object-path';
 import { SetStateAction, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, buttonEffect } from '../../../../components/Button';
-import { Checkbox, Number, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
+import { Checkbox, Code, Number, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
 import { Field } from '../../../../components/ContentField/Field';
 import FluentIcon from '../../../../components/FluentIcon';
 import { Tab, TabBar } from '../../../../components/Tabs';
@@ -18,7 +19,6 @@ import { useWindowModal } from '../../../../hooks/useWindowModal';
 import { useAppSelector } from '../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../redux/slices/collectionSlice';
 import { colorType } from '../../../../utils/theme/theme';
-import { useTheme } from '@emotion/react';
 
 interface UseEditSchemaDefProps {
   label: string;
@@ -432,21 +432,23 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
                     />
                     {!!def?.setter ? (
                       <IndentField color={'primary'}>
-                        <Text
+                        <Code
                           isEmbedded
+                          type={'json'}
                           label={'Condition'}
                           value={JSON.stringify(def.setter.condition, null, 2)}
-                          onChange={(e) =>
-                            dispatch(setRootSchemaProperty(props.id, `setter.condition`, e.currentTarget.value))
-                          }
+                          onChange={(value) => {
+                            if (value) dispatch(setRootSchemaProperty(props.id, `setter.condition`, value));
+                          }}
                         />
-                        <Text
+                        <Code
+                          type={'json'}
                           isEmbedded
                           label={'Value'}
                           value={JSON.stringify(def.setter.value, null, 2)}
-                          onChange={(e) =>
-                            dispatch(setRootSchemaProperty(props.id, `setter.value`, e.currentTarget.value))
-                          }
+                          onChange={(value) => {
+                            if (value) dispatch(setRootSchemaProperty(props.id, `setter.value`, value));
+                          }}
                         />
                       </IndentField>
                     ) : null}

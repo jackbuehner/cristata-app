@@ -2,7 +2,7 @@ import styled from '@emotion/styled/macro';
 import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import { useDispatch } from 'react-redux';
-import { Checkbox, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
+import { Checkbox, Code, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
 import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
@@ -118,15 +118,17 @@ function OptionsTab(props: OptionsTabProps) {
           {publicRules ? (
             <IndentField color={'primary'}>
               <>
-                <Text
+                <Code
                   isEmbedded
+                  type={'json'}
+                  height={140}
                   label={'Filter publicly exposed documents'}
                   description={
                     'Only documents that match the filter will be available for public access. Use the <a href="https://www.mongodb.com/docs/v5.3/tutorial/query-documents/#std-label-read-operations-query-argument">MongoDB query syntax</a> to construct the filter. Use <code>{}</code> for no filter.'
                   }
                   value={JSON.stringify(publicRules.filter || {}, null, 2)}
-                  onChange={(e) => {
-                    dispatch(setPublicRules(JSON.parse(e.currentTarget.value)));
+                  onChange={(value) => {
+                    if (value) dispatch(setPublicRules(JSON.parse(value)));
                   }}
                 />
                 {hasSlugField ? (

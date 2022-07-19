@@ -2,7 +2,7 @@ import styled from '@emotion/styled/macro';
 import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import { Button } from '../../../../components/Button';
-import { Checkbox, Text } from '../../../../components/ContentField';
+import { Checkbox, Code, Text } from '../../../../components/ContentField';
 import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector, useAppDispatch } from '../../../../redux/hooks';
 import { setDefaultQueryOption, setCustomQueries } from '../../../../redux/slices/collectionSlice';
@@ -185,15 +185,18 @@ function QueriesTab() {
                     />
                   </IndentField>
                 ) : null}
-                <Text
+                <Code
                   isEmbedded
+                  type={'json'}
                   label={'Pipeline'}
                   description={`A MongoDB aggregation pipeline. Pipelines always return an array of results. <a href="https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/#aggregation-pipeline-stages">Pipeline stage reference</a>`}
                   value={typeof cq.pipeline === 'string' ? cq.pipeline : JSON.stringify(cq.pipeline, null, 2)}
-                  onChange={(e) => {
-                    const copy = JSON.parse(JSON.stringify(arr));
-                    copy[index].pipeline = e.currentTarget.value;
-                    dispatch(setCustomQueries(copy));
+                  onChange={(value) => {
+                    if (value) {
+                      const copy = JSON.parse(JSON.stringify(arr));
+                      copy[index].pipeline = value;
+                      dispatch(setCustomQueries(copy));
+                    }
                   }}
                 />
                 <Button
