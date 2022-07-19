@@ -13,8 +13,11 @@ import { OptionsTab } from './tabs/OptionsTab';
 import { QueriesTab } from './tabs/QueriesTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
+import { useTheme } from '@emotion/react';
+import { Sidebar } from './Sidebar';
 
 function CollectionSchemaPage() {
+  const theme = useTheme();
   const state = useAppSelector(({ collectionConfig }) => collectionConfig);
   const dispatch = useAppDispatch();
   const client = useApolloClient();
@@ -98,50 +101,68 @@ function CollectionSchemaPage() {
   const activeTabIndex = parseInt(location.hash[1]);
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto' }}>
-      <TabBar
-        activeTabIndex={activeTabIndex}
-        onActivate={(evt: { detail: { index: SetStateAction<number> } }) =>
-          navigate(location.pathname + location.search + `#${evt.detail.index}`)
-        }
-      >
-        <Tab>Schema</Tab>
-        <Tab>Queries</Tab>
-        <Tab>Mutations</Tab>
-        <Tab>Options</Tab>
-      </TabBar>
-      <div>
-        {activeTabIndex === 0 ? <SchemaTab /> : null}
-        {activeTabIndex === 1 ? <QueriesTab /> : null}
-        {activeTabIndex === 2 ? <MutationsTab /> : null}
-        {activeTabIndex === 3 ? <OptionsTab /> : null}
+    <div style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
+      <div style={{ flexGrow: 1 }}>
+        <div style={{ borderBottom: `1px solid ${theme.color.neutral[theme.mode][200]}` }}>
+          <div
+            style={{
+              maxWidth: 800,
+              margin: '0 auto',
+            }}
+          >
+            <TabBar
+              activeTabIndex={activeTabIndex}
+              onActivate={(evt: { detail: { index: SetStateAction<number> } }) =>
+                navigate(location.pathname + location.search + `#${evt.detail.index}`)
+              }
+            >
+              <Tab>Schema</Tab>
+              <Tab>Queries</Tab>
+              <Tab>Mutations</Tab>
+              <Tab>Options</Tab>
+            </TabBar>
+          </div>
+        </div>
+        <div style={{ height: 'calc(100% - 49px)', overflow: 'auto', flexGrow: 1 }}>
+          <div style={{ maxWidth: 800, margin: '0 auto' }}>
+            <div>
+              {activeTabIndex === 0 ? <SchemaTab /> : null}
+              {activeTabIndex === 1 ? <QueriesTab /> : null}
+              {activeTabIndex === 2 ? <MutationsTab /> : null}
+              {activeTabIndex === 3 ? <OptionsTab /> : null}
+            </div>
+            <ReactRouterPrompt when={state.isUnsaved}>
+              {({ isActive, onConfirm, onCancel }) =>
+                isActive ? (
+                  <PlainModal
+                    title={'Are you sure?'}
+                    text={'You have unsaved changes that may be lost.'}
+                    hideModal={() => onCancel(true)}
+                    cancelButton={{
+                      text: 'Go back',
+                      onClick: () => {
+                        onCancel(true);
+                        return true;
+                      },
+                    }}
+                    continueButton={{
+                      color: 'red',
+                      text: 'Yes, discard changes',
+                      onClick: () => {
+                        onConfirm(true);
+                        return true;
+                      },
+                    }}
+                  />
+                ) : null
+              }
+            </ReactRouterPrompt>
+          </div>
+        </div>
       </div>
-      <ReactRouterPrompt when={state.isUnsaved}>
-        {({ isActive, onConfirm, onCancel }) =>
-          isActive ? (
-            <PlainModal
-              title={'Are you sure?'}
-              text={'You have unsaved changes that may be lost.'}
-              hideModal={() => onCancel(true)}
-              cancelButton={{
-                text: 'Go back',
-                onClick: () => {
-                  onCancel(true);
-                  return true;
-                },
-              }}
-              continueButton={{
-                color: 'red',
-                text: 'Yes, discard changes',
-                onClick: () => {
-                  onConfirm(true);
-                  return true;
-                },
-              }}
-            />
-          ) : null
-        }
-      </ReactRouterPrompt>
+      <div style={{ width: 300, borderLeft: `1px solid ${theme.color.neutral[theme.mode][200]}` }}>
+        <Sidebar activeTabIndex={activeTabIndex} />
+      </div>
     </div>
   );
 }
