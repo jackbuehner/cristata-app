@@ -93,18 +93,22 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
                 type === 'Numbers' ||
                 type === 'Float' ||
                 type === 'Floats' ? (
-                  <Checkbox
-                    isEmbedded
-                    label={'Select value from a predefined list of options'}
-                    checked={!!def?.field?.options}
-                    onChange={(e) => {
-                      if (e.currentTarget.checked) {
-                        dispatch(setRootSchemaProperty(props.id, 'field.options', []));
-                      } else {
-                        dispatch(setRootSchemaProperty(props.id, 'field.options', undefined));
-                      }
-                    }}
-                  />
+                  <Field isEmbedded label={'Value options'}>
+                    <>
+                      <Checkbox
+                        isEmbedded
+                        label={'Select value from a predefined list of options'}
+                        checked={!!def?.field?.options}
+                        onChange={(e) => {
+                          if (e.currentTarget.checked) {
+                            dispatch(setRootSchemaProperty(props.id, 'field.options', []));
+                          } else {
+                            dispatch(setRootSchemaProperty(props.id, 'field.options', undefined));
+                          }
+                        }}
+                      />
+                    </>
+                  </Field>
                 ) : null}
                 {!!def?.field?.options ? (
                   <IndentField color={'primary'}>
@@ -195,7 +199,7 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
                         }
                       }}
                     >
-                      Add
+                      Add option
                     </Button>
                   </IndentField>
                 ) : null}
