@@ -56,23 +56,28 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
           <div style={{ padding: '20px 24px' }}>
             {activeTab === 0 ? (
               <>
-                <Text
-                  isEmbedded
-                  label={'Display name'}
-                  value={def?.field?.label}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, 'field.label', e.currentTarget.value))
-                  }
-                />
-                <Text
-                  isEmbedded
-                  label={'Short display name'}
-                  value={def?.column?.label}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, 'column.label', e.currentTarget.value))
-                  }
-                />
-                <Text isEmbedded label={'API ID'} value={props.id} disabled />
+                <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+                  <div style={{ flex: 3 }}>
+                    <Text
+                      isEmbedded
+                      label={'Display name'}
+                      value={def?.field?.label}
+                      onChange={(e) =>
+                        dispatch(setRootSchemaProperty(props.id, 'field.label', e.currentTarget.value))
+                      }
+                    />
+                  </div>
+                  <div style={{ flex: 2 }}>
+                    <Text
+                      isEmbedded
+                      label={'Short display name'}
+                      value={def?.column?.label}
+                      onChange={(e) =>
+                        dispatch(setRootSchemaProperty(props.id, 'column.label', e.currentTarget.value))
+                      }
+                    />
+                  </div>
+                </div>
                 <Text
                   isEmbedded
                   label={'Description'}
