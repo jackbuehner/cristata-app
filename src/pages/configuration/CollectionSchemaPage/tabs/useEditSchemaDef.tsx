@@ -43,6 +43,8 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
       title: `${props.label}`,
       windowOptions: { name: `editSchemaField_${props.label}`, width: 370, height: 560 },
       styleString: `> div[class*='-PlainModalContent'] { padding: 0; }`,
+      cancelButton: null,
+      continueButton: { text: 'Close' },
       children: (
         <div>
           <TabBar
