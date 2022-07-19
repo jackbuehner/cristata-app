@@ -3,6 +3,7 @@ import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/gener
 import Color from 'color';
 import { useDispatch } from 'react-redux';
 import { Checkbox, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
+import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
   setCanPublish,
@@ -13,9 +14,11 @@ import {
   setWatcherNotices,
   setWithPermissions,
   setWithSubscription,
+  setRootSchemaProperty,
 } from '../../../../redux/slices/collectionSlice';
 import { colorType } from '../../../../utils/theme/theme';
 import { getFieldTypes } from './getFieldTypes';
+import { get as getProperty } from 'object-path';
 
 interface OptionsTabProps {}
 
@@ -24,6 +27,7 @@ function OptionsTab(props: OptionsTabProps) {
   const dispatch = useDispatch();
 
   const publicRules = state.collection?.publicRules;
+  const rootSchemaDef = state.collection?.schemaDef;
   const name = state.collection?.name;
   const navLabel = state.collection?.navLabel;
   const canPublish = state.collection?.canPublish;
@@ -145,6 +149,24 @@ function OptionsTab(props: OptionsTabProps) {
                     }}
                   />
                 ) : null}
+                <Field isEmbedded label={'Public fields'}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+                    {fieldTypes.map(([key, label], index) => {
+                      return (
+                        <Checkbox
+                          isEmbedded
+                          key={index}
+                          label={label}
+                          style={{ padding: '0 0 6px 0' }}
+                          checked={getProperty(rootSchemaDef || {}, key)?.public}
+                          onChange={(e) => {
+                            dispatch(setRootSchemaProperty(key, 'public', e.currentTarget.checked));
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                </Field>
               </>
             </IndentField>
           ) : null}
