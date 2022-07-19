@@ -160,7 +160,9 @@ function CollectionSchemaPage() {
           </div>
         </div>
       </div>
-      <div style={{ width: 300, borderLeft: `1px solid ${theme.color.neutral[theme.mode][200]}` }}>
+      <div
+        style={{ width: 300, borderLeft: `1px solid ${theme.color.neutral[theme.mode][200]}`, flexShrink: 0 }}
+      >
         <Sidebar activeTabIndex={activeTabIndex} />
       </div>
     </div>
