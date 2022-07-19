@@ -37,7 +37,7 @@ function ConfigurationNavigation() {
               <SideNavSubButton
                 key={index}
                 Icon={<FluentIcon name={'CircleSmall20Filled'} />}
-                to={`/configuration/schema/${name}`}
+                to={`/configuration/schema/${name}#0`}
               >
                 {name}
               </SideNavSubButton>
