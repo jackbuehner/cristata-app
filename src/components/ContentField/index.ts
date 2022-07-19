@@ -1,4 +1,5 @@
 export { Checkbox } from './Checkbox';
+export { Code } from './Code';
 export { Combobox } from './Combobox';
 export { DateTime } from './DateTime';
 export { DocArray } from './DocArray';
