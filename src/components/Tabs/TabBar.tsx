@@ -1,5 +1,3 @@
-import { TabBar as RMWCTabBar } from '@rmwc/tabs';
-
 // stylesheets
 import '@material/tab-bar/dist/mdc.tab-bar.css';
 import '@material/tab/dist/mdc.tab.css';
@@ -8,4 +6,4 @@ import '@material/tab-indicator/dist/mdc.tab-indicator.css';
 import '@material/ripple/dist/mdc.ripple.css';
 import '@rmwc/icon/icon.css';
 
-export { RMWCTabBar as TabBar };
+export { TabBar } from '@rmwc/tabs';
