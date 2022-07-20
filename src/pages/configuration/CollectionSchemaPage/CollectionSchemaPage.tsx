@@ -17,6 +17,7 @@ import { OptionsTab } from './tabs/OptionsTab';
 import { QueriesTab } from './tabs/QueriesTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
+import { Spinner } from '../../../components/Loading';
 
 function CollectionSchemaPage() {
   const theme = useTheme();
@@ -111,18 +112,6 @@ function CollectionSchemaPage() {
     );
   }, [client, collection, dispatch, raw, refetch, state.collection, state.isUnsaved]);
 
-  if (!raw && !navigator.onLine) {
-    return <Offline variant={'centered'} />;
-  }
-
-  if (!raw && error) {
-    return <pre>{JSON.stringify(error, null, 2)}</pre>;
-  }
-
-  if (!raw) {
-    return <div>Loading...</div>;
-  }
-
   const activeTabIndex = parseInt(location.hash[1]);
 
   return (
@@ -151,10 +140,34 @@ function CollectionSchemaPage() {
         <div style={{ height: 'calc(100% - 49px)', overflow: 'auto', flexGrow: 1 }}>
           <div style={{ maxWidth: 800, margin: '0 auto' }}>
             <div>
-              {activeTabIndex === 0 ? <SchemaTab /> : null}
-              {activeTabIndex === 1 ? <QueriesTab /> : null}
-              {activeTabIndex === 2 ? <MutationsTab /> : null}
-              {activeTabIndex === 3 ? <OptionsTab /> : null}
+              {!raw && !navigator.onLine ? (
+                <Offline variant={'centered'} />
+              ) : !raw && error ? (
+                <pre>{JSON.stringify(error, null, 2)}</pre>
+              ) : !raw ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 12,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: theme.color.neutral[theme.mode][1500],
+                    fontFamily: theme.font.detail,
+                    height: 200,
+                  }}
+                >
+                  <Spinner color={'neutral'} colorShade={1500} size={30} />
+                  <div>Loading configuration...</div>
+                </div>
+              ) : (
+                <>
+                  {activeTabIndex === 0 ? <SchemaTab /> : null}
+                  {activeTabIndex === 1 ? <QueriesTab /> : null}
+                  {activeTabIndex === 2 ? <MutationsTab /> : null}
+                  {activeTabIndex === 3 ? <OptionsTab /> : null}
+                </>
+              )}
             </div>
             {state.isUnsaved ? (
               <ReactRouterPrompt when={state.isUnsaved}>
@@ -191,7 +204,7 @@ function CollectionSchemaPage() {
       <div
         style={{ width: 300, borderLeft: `1px solid ${theme.color.neutral[theme.mode][200]}`, flexShrink: 0 }}
       >
-        <Sidebar activeTabIndex={activeTabIndex} />
+        {raw ? <Sidebar activeTabIndex={activeTabIndex} /> : null}
       </div>
     </div>
   );
