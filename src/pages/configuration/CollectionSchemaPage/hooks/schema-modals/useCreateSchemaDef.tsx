@@ -10,6 +10,7 @@ import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSli
 import { slugify } from '../../../../../utils/slugify';
 import { getFieldTypes } from '../../tabs/getFieldTypes';
 import { icons } from '../../tabs/SchemaCard';
+import { EditSchemaDef } from './EditSchemaDef';
 
 interface UseCreateSchemaDefProps {
   type: keyof typeof icons;
@@ -27,9 +28,11 @@ function useCreateSchemaDef(
 
     const [newId, setNewId] = useState<string>('');
     const [newName, setNewName] = useState<string>('');
+    const [isCreated, setIsCreated] = useState<boolean>(false);
     useEffect(() => {
       setNewName('');
       setNewId('');
+      setIsCreated(false);
     }, deps);
 
     const fieldTypes = getFieldTypes(state.collection?.schemaDef || {});
@@ -48,20 +51,24 @@ function useCreateSchemaDef(
     })();
 
     return {
-      title: `Create new field`,
+      title: !isCreated ? `Create new field` : newName || newId,
       windowOptions: { name: `createSchemaField_${props.type}`, width: 370, height: 560 },
       styleString: `height: 600px; display: flex; flex-direction: column; > div[class*='-PlainModalContent'] { padding: 0; }`,
-      continueButton: {
-        text: 'Next',
-        onClick: async () => {
-          dispatch(setRootSchemaProperty(newId, 'id', newId));
-          dispatch(setRootSchemaProperty(newId, 'field.label', newName));
-          dispatch(setRootSchemaProperty(newId, 'type', type));
-          return true;
-        },
-        disabled: !newId || !newName || !state.collection || !!idAlreadyExists,
-      },
-      children: (
+      cancelButton: !isCreated ? undefined : null,
+      continueButton: !isCreated
+        ? {
+            text: 'Create',
+            onClick: async () => {
+              dispatch(setRootSchemaProperty(newId, 'id', newId));
+              dispatch(setRootSchemaProperty(newId, 'field.label', newName));
+              dispatch(setRootSchemaProperty(newId, 'type', type));
+              setIsCreated(true);
+              return false;
+            },
+            disabled: !newId || !newName || !state.collection || !!idAlreadyExists,
+          }
+        : { text: 'Close' },
+      children: !isCreated ? (
         <div style={{ padding: '20px 24px' }}>
           <Text
             isEmbedded
@@ -86,6 +93,8 @@ function useCreateSchemaDef(
             }}
           />
         </div>
+      ) : (
+        <EditSchemaDef id={newId} setName={setNewName} />
       ),
     };
   }, [...deps]);

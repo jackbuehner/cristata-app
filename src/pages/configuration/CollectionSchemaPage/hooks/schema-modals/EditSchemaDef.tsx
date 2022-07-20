@@ -20,6 +20,7 @@ import { colorType } from '../../../../../utils/theme/theme';
 
 interface EditSchemaDefProps {
   id: string;
+  setName?: (name: string) => void;
 }
 
 function EditSchemaDef(props: EditSchemaDefProps) {
@@ -61,9 +62,10 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                   isEmbedded
                   label={'Display name'}
                   value={def?.field?.label}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, 'field.label', e.currentTarget.value))
-                  }
+                  onChange={(e) => {
+                    if (props.setName) props.setName(e.currentTarget.value);
+                    dispatch(setRootSchemaProperty(props.id, 'field.label', e.currentTarget.value));
+                  }}
                 />
               </div>
               <div style={{ flex: 2 }}>
