@@ -86,6 +86,7 @@ const Icon = styled.div<{ color: colorType }>`
       ? theme.color.neutral[theme.mode][900]
       : theme.color[color][theme.mode === 'light' ? 900 : 300]};
   border-radius: ${({ theme }) => theme.radius};
+  flex-shrink: 0;
 `;
 
 const Details = styled.div`
