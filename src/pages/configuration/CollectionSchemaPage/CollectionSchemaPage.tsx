@@ -1,20 +1,22 @@
-import { useApolloClient } from '@apollo/client';
+import { DocumentNode, gql, useApolloClient } from '@apollo/client';
+import { useTheme } from '@emotion/react';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
 import { SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
+import { toast } from 'react-toastify';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tab, TabBar } from '../../../components/Tabs';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { setCollection, setIsLoading } from '../../../redux/slices/collectionSlice';
+import { Sidebar } from './Sidebar';
 import { MutationsTab } from './tabs/MutationsTab';
 import { OptionsTab } from './tabs/OptionsTab';
 import { QueriesTab } from './tabs/QueriesTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
-import { useTheme } from '@emotion/react';
-import { Sidebar } from './Sidebar';
 
 function CollectionSchemaPage() {
   const theme = useTheme();
@@ -78,12 +80,36 @@ function CollectionSchemaPage() {
           label: 'Save',
           type: 'button',
           icon: 'Save24Regular',
-          action: () => null,
-          disabled: true,
+          action: () => {
+            if (state.collection) {
+              // send the mutation
+              setLoading(true);
+              client
+                .mutate<SaveMutationType>({
+                  mutation: saveMutationString(state.collection.name, {
+                    ...state.collection,
+                  }),
+                })
+                .finally(() => {
+                  setLoading(false);
+                })
+                .then(({ data }) => {
+                  if (data?.setRawConfigurationCollection) {
+                    dispatch(setCollection(JSON.parse(data.setRawConfigurationCollection)));
+                  }
+                })
+                .catch((error) => {
+                  console.error(error);
+                  toast.error(`Failed to save. \n ${error.message}`);
+                  return false;
+                });
+            }
+          },
+          disabled: !state.isUnsaved,
         },
       ])
     );
-  }, [client, collection, dispatch, raw, refetch, state.isUnsaved]);
+  }, [client, collection, dispatch, raw, refetch, state.collection, state.isUnsaved]);
 
   if (!raw && !navigator.onLine) {
     return <Offline variant={'centered'} />;
@@ -169,6 +195,24 @@ function CollectionSchemaPage() {
       </div>
     </div>
   );
+}
+
+interface SaveMutationType {
+  setRawConfigurationCollection?: string | null;
+}
+
+function saveMutationString(
+  name: string,
+  raw: GenCollectionInput & { skipAdditionalParsing?: boolean }
+): DocumentNode {
+  // tell the server to not parse objectIds and dates (leave them as strings)
+  raw.skipAdditionalParsing = true;
+
+  return gql`
+    mutation {
+      setRawConfigurationCollection(name: "${name}", raw: ${JSON.stringify(`${JSON.stringify(raw)}`)})
+    }
+  `;
 }
 
 export { CollectionSchemaPage };
