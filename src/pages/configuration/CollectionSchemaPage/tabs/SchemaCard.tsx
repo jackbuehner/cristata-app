@@ -6,6 +6,7 @@ import { Chip } from '../../../../components/Chip';
 import FluentIcon from '../../../../components/FluentIcon';
 import { colorType } from '../../../../utils/theme/theme';
 import { useEditSchemaDef } from '../hooks/schema-modals/useEditSchemaDef';
+import { useConfirmDelete } from '../hooks/schema-modals/useConfirmDelete';
 
 interface SchemaCardProps {
   label: string;
@@ -17,10 +18,12 @@ interface SchemaCardProps {
 
 function SchemaCard(props: SchemaCardProps) {
   const [EditWindow, showEditWindow] = useEditSchemaDef({ label: props.label, id: props.id });
+  const [DeleteWindow, showDeleteWindow] = useConfirmDelete({ id: props.id });
 
   return (
     <Card>
       {EditWindow}
+      {DeleteWindow}
       <Icon color={icons[props.icon || 'unknown'].color}>
         <svg
           xmlns='http://www.w3.org/2000/svg'
@@ -43,13 +46,16 @@ function SchemaCard(props: SchemaCardProps) {
           ))}
         </Tags>
       </Details>
-      {props.isRef ? null : (
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+        {props.isRef ? null : (
           <IconButtonWrapper color={'primary'} onClick={showEditWindow}>
             <FluentIcon name={'Edit24Regular'} />
           </IconButtonWrapper>
-        </div>
-      )}
+        )}
+        <IconButtonWrapper color={'red'} onClick={showDeleteWindow}>
+          <FluentIcon name={'Dismiss24Regular'} />
+        </IconButtonWrapper>
+      </div>
     </Card>
   );
 }
