@@ -55,6 +55,12 @@ function useCreateSchemaDef(
       return 'String';
     })();
 
+    useEffect(() => {
+      if (props.type === 'richtext') {
+        setNewId('body');
+      }
+    });
+
     const referenceOptions = (collections || []).map((collection) => ({
       value: collection.name,
       label: collection.name,
@@ -107,19 +113,21 @@ function useCreateSchemaDef(
               setNewId(slugify(e.currentTarget.value, ''));
             }}
           />
-          <Text
-            isEmbedded
-            label={'API ID'}
-            description={
-              idAlreadyExists
-                ? `<div style="color: ${theme.color.danger[800]}">ID already exists</div>`
-                : undefined
-            }
-            value={newId}
-            onChange={(e) => {
-              setNewId(slugify(e.currentTarget.value, ''));
-            }}
-          />
+          {props.type === 'richtext' ? null : (
+            <Text
+              isEmbedded
+              label={'API ID'}
+              description={
+                idAlreadyExists
+                  ? `<div style="color: ${theme.color.danger[800]}">ID already exists</div>`
+                  : undefined
+              }
+              value={newId}
+              onChange={(e) => {
+                setNewId(slugify(e.currentTarget.value, ''));
+              }}
+            />
+          )}
           {props.type === 'text' ||
           props.type === 'number' ||
           props.type === 'decimal' ||

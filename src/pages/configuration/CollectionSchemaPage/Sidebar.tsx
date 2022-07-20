@@ -1,4 +1,6 @@
 import styled from '@emotion/styled/macro';
+import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import { useAppSelector } from '../../../redux/hooks';
 import { SidebarSchemaCard } from './SidebarSchemaCard';
 
 interface SidebarProps {
@@ -6,13 +8,17 @@ interface SidebarProps {
 }
 
 function Sidebar(props: SidebarProps) {
+  const state = useAppSelector(({ collectionConfig }) => collectionConfig);
+
   return (
     <div style={{ padding: 20, height: '100%', overflow: 'auto', boxSizing: 'border-box' }}>
       {props.activeTabIndex === 0 ? (
         <>
           <Heading>Add fields</Heading>
           <SidebarSchemaCard label={'Text'} icon={'text'} />
-          <SidebarSchemaCard label={'Rich text'} icon={'richtext'} />
+          {isSchemaDef(state.collection?.schemaDef.body || {}) ? null : (
+            <SidebarSchemaCard label={'Rich text'} icon={'richtext'} />
+          )}
           <SidebarSchemaCard label={'Integer'} icon={'number'} />
           <SidebarSchemaCard label={'Float'} icon={'decimal'} />
           <SidebarSchemaCard label={'Boolean'} icon={'boolean'} />
