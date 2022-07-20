@@ -41,7 +41,7 @@ function useCreateSchemaDef(
     }, deps);
 
     const fieldTypes = getFieldTypes(state.collection?.schemaDef || {});
-    const idAlreadyExists = fieldTypes.find(([key]) => key === newId);
+    const idAlreadyExists = fieldTypes.find(([key]) => key.split('.').some((k) => k === newId));
 
     const type = (() => {
       if (props.type === 'text') return 'String';
