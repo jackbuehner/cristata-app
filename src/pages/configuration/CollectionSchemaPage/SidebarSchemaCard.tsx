@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { buttonEffect } from '../../../components/Button';
 import { colorType } from '../../../utils/theme/theme';
 import { icons } from './tabs/SchemaCard';
-import { useCreateSchemaDef } from './tabs/useCreateSchemaDef';
+import { useCreateSchemaDef } from './hooks/schema-modals/useCreateSchemaDef';
 
 interface SidebarSchemaCardProps {
   label: string;

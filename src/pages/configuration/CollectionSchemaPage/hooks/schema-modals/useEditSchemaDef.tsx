@@ -10,15 +10,15 @@ import Color from 'color';
 import { get as getProperty } from 'object-path';
 import { SetStateAction, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Button, buttonEffect } from '../../../../components/Button';
-import { Checkbox, Code, Number, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
-import { Field } from '../../../../components/ContentField/Field';
-import FluentIcon from '../../../../components/FluentIcon';
-import { Tab, TabBar } from '../../../../components/Tabs';
-import { useWindowModal } from '../../../../hooks/useWindowModal';
-import { useAppSelector } from '../../../../redux/hooks';
-import { setRootSchemaProperty } from '../../../../redux/slices/collectionSlice';
-import { colorType } from '../../../../utils/theme/theme';
+import { Button, buttonEffect } from '../../../../../components/Button';
+import { Checkbox, Code, Number, SelectMany, SelectOne, Text } from '../../../../../components/ContentField';
+import { Field } from '../../../../../components/ContentField/Field';
+import FluentIcon from '../../../../../components/FluentIcon';
+import { Tab, TabBar } from '../../../../../components/Tabs';
+import { useWindowModal } from '../../../../../hooks/useWindowModal';
+import { useAppSelector } from '../../../../../redux/hooks';
+import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
+import { colorType } from '../../../../../utils/theme/theme';
 
 interface UseEditSchemaDefProps {
   label: string;

@@ -3,13 +3,13 @@
 import { useTheme } from '@emotion/react';
 import { DependencyList, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Text } from '../../../../components/ContentField';
-import { useWindowModal } from '../../../../hooks/useWindowModal';
-import { useAppSelector } from '../../../../redux/hooks';
-import { setRootSchemaProperty } from '../../../../redux/slices/collectionSlice';
-import { slugify } from '../../../../utils/slugify';
-import { getFieldTypes } from './getFieldTypes';
-import { icons } from './SchemaCard';
+import { Text } from '../../../../../components/ContentField';
+import { useWindowModal } from '../../../../../hooks/useWindowModal';
+import { useAppSelector } from '../../../../../redux/hooks';
+import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
+import { slugify } from '../../../../../utils/slugify';
+import { getFieldTypes } from '../../tabs/getFieldTypes';
+import { icons } from '../../tabs/SchemaCard';
 
 interface UseCreateSchemaDefProps {
   type: keyof typeof icons;
