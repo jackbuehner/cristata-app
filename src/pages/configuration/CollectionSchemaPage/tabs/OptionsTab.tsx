@@ -2,7 +2,14 @@ import styled from '@emotion/styled/macro';
 import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import { useDispatch } from 'react-redux';
-import { Checkbox, Code, SelectMany, SelectOne, Text } from '../../../../components/ContentField';
+import {
+  Checkbox,
+  Code,
+  ReferenceMany,
+  SelectMany,
+  SelectOne,
+  Text,
+} from '../../../../components/ContentField';
 import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
@@ -279,6 +286,72 @@ function OptionsTab(props: OptionsTabProps) {
             checked={withPermissions}
             onChange={(e) => dispatch(setWithPermissions(e.currentTarget.checked))}
           />
+        ) : null}
+        {withPermissions ? (
+          <IndentField color={'primary'}>
+            <ReferenceMany
+              isEmbedded
+              label={`Teams with default access`}
+              values={
+                !isSchemaDef(state.collection?.schemaDef.permissions)
+                  ? state.collection?.schemaDef.permissions?.teams?.default?.map((value) => ({
+                      _id: `${value}`,
+                    }))
+                  : []
+              }
+              collection={'Team'}
+              onChange={(newValues) => {
+                if (newValues !== undefined) {
+                  if (
+                    !state.collection?.schemaDef.permissions ||
+                    (!isSchemaDef(state.collection?.schemaDef.permissions) &&
+                      !state.collection?.schemaDef.permissions.teams)
+                  ) {
+                    dispatch(setRootSchemaProperty('permissions.teams', 'type', ['ObjectId']));
+                    dispatch(setRootSchemaProperty('permissions.teams', 'required', true));
+                  }
+                  dispatch(
+                    setRootSchemaProperty(
+                      'permissions.teams',
+                      'default',
+                      newValues.map((val) => val._id)
+                    )
+                  );
+                }
+              }}
+            />
+            <ReferenceMany
+              isEmbedded
+              label={`Users with default access`}
+              values={
+                !isSchemaDef(state.collection?.schemaDef.permissions)
+                  ? state.collection?.schemaDef.permissions?.users?.default?.map((value) => ({
+                      _id: `${value}`,
+                    }))
+                  : []
+              }
+              collection={'Team'}
+              onChange={(newValues) => {
+                if (newValues !== undefined) {
+                  if (
+                    !state.collection?.schemaDef.permissions ||
+                    (!isSchemaDef(state.collection?.schemaDef.permissions) &&
+                      !state.collection?.schemaDef.permissions.users)
+                  ) {
+                    dispatch(setRootSchemaProperty('permissions.users', 'type', ['ObjectId']));
+                    dispatch(setRootSchemaProperty('permissions.users', 'required', true));
+                  }
+                  dispatch(
+                    setRootSchemaProperty(
+                      'permissions.users',
+                      'default',
+                      newValues.map((val) => val._id)
+                    )
+                  );
+                }
+              }}
+            />
+          </IndentField>
         ) : null}
         {withSubscription !== undefined ? (
           <Checkbox
