@@ -3,15 +3,16 @@
 import { useTheme } from '@emotion/react';
 import { DependencyList, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Text, SelectOne } from '../../../../../components/ContentField';
+import { Checkbox, SelectOne, Text } from '../../../../../components/ContentField';
+import { Field } from '../../../../../components/ContentField/Field';
 import { useWindowModal } from '../../../../../hooks/useWindowModal';
 import { useAppSelector } from '../../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
 import { slugify } from '../../../../../utils/slugify';
+import { useGetCollections } from '../../../ConfigurationNavigation/useGetCollections';
 import { getFieldTypes } from '../../tabs/getFieldTypes';
 import { icons } from '../../tabs/SchemaCard';
 import { EditSchemaDef } from './EditSchemaDef';
-import { useGetCollections } from '../../../ConfigurationNavigation/useGetCollections';
 
 interface UseCreateSchemaDefProps {
   type: keyof typeof icons;
@@ -31,10 +32,12 @@ function useCreateSchemaDef(
     const [newId, setNewId] = useState<string>('');
     const [newName, setNewName] = useState<string>('');
     const [isCreated, setIsCreated] = useState<boolean>(false);
+    const [allowMultiple, setAllowMultiple] = useState<boolean>(false);
     useEffect(() => {
       setNewName('');
       setNewId('');
       setIsCreated(false);
+      setAllowMultiple(false);
     }, deps);
 
     const fieldTypes = getFieldTypes(state.collection?.schemaDef || {});
@@ -70,10 +73,15 @@ function useCreateSchemaDef(
               dispatch(setRootSchemaProperty(newId, 'id', newId));
               dispatch(setRootSchemaProperty(newId, 'field.label', newName));
               dispatch(setRootSchemaProperty(newId, 'modifiable', true));
+              dispatch(setRootSchemaProperty(newId, 'multiple', allowMultiple));
 
-              if (type === 'Reference') {
+              if (type === 'Reference' && allowMultiple) {
+                dispatch(setRootSchemaProperty(newId, 'type', [`[${referenceType}]`, ['ObjectId']]));
+              } else if (type === 'Reference' && !allowMultiple) {
                 dispatch(setRootSchemaProperty(newId, 'type', [referenceType, 'ObjectId']));
-              } else {
+              } else if (allowMultiple) {
+                dispatch(setRootSchemaProperty(newId, 'type', [type]));
+              } else if (!allowMultiple) {
                 dispatch(setRootSchemaProperty(newId, 'type', type));
               }
 
@@ -90,7 +98,6 @@ function useCreateSchemaDef(
         : { text: 'Close' },
       children: !isCreated ? (
         <div style={{ padding: '20px 24px' }}>
-          {type}
           <Text
             isEmbedded
             label={'Display name'}
@@ -113,6 +120,23 @@ function useCreateSchemaDef(
               setNewId(slugify(e.currentTarget.value, ''));
             }}
           />
+          {props.type === 'text' ||
+          props.type === 'number' ||
+          props.type === 'decimal' ||
+          props.type === 'reference' ? (
+            <Field isEmbedded label={'Validations'}>
+              <>
+                <Checkbox
+                  isEmbedded
+                  label={'Allow multiple values'}
+                  checked={allowMultiple}
+                  onChange={(e) => {
+                    setAllowMultiple(e.currentTarget.checked);
+                  }}
+                />
+              </>
+            </Field>
+          ) : null}
           {type === 'Reference' ? (
             <SelectOne
               isEmbedded
