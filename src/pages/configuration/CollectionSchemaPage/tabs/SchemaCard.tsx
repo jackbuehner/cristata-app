@@ -12,6 +12,7 @@ interface SchemaCardProps {
   id: string;
   tags: string[];
   icon?: keyof typeof icons;
+  isRef?: boolean;
 }
 
 function SchemaCard(props: SchemaCardProps) {
@@ -42,11 +43,13 @@ function SchemaCard(props: SchemaCardProps) {
           ))}
         </Tags>
       </Details>
-      <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
-        <IconButtonWrapper color={'primary'} onClick={showEditWindow}>
-          <FluentIcon name={'Edit24Regular'} />
-        </IconButtonWrapper>
-      </div>
+      {props.isRef ? null : (
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+          <IconButtonWrapper color={'primary'} onClick={showEditWindow}>
+            <FluentIcon name={'Edit24Regular'} />
+          </IconButtonWrapper>
+        </div>
+      )}
     </Card>
   );
 }

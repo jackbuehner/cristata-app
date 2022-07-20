@@ -79,6 +79,7 @@ function SchemaTab(props: SchemaTabProps) {
       items.push({
         node: (
           <SchemaCard
+            isRef
             key={key + index}
             icon={'reference'}
             label={ref.model + ': ' + ref.field}
