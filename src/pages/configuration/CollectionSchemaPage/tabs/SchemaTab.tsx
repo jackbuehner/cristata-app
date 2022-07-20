@@ -109,7 +109,7 @@ function SchemaTab(props: SchemaTabProps) {
 
     nestedSchemas.forEach(([key, schema], index) => {
       const id = prefix ? `${prefix.id}.${key}` : key;
-      generateItems(schema, { label: key, id });
+      items.push(...generateItems(schema, { label: key, id }));
     });
 
     return items;
