@@ -7,28 +7,29 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
+import pluralize from 'pluralize';
 import { SetStateAction, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, buttonEffect } from '../../../../../components/Button';
 import {
   Checkbox,
   Code,
+  DateTime,
   Number,
+  ReferenceMany,
+  ReferenceOne,
   SelectMany,
   SelectOne,
   Text,
-  ReferenceMany,
-  ReferenceOne,
 } from '../../../../../components/ContentField';
 import { Field } from '../../../../../components/ContentField/Field';
 import FluentIcon from '../../../../../components/FluentIcon';
 import { Tab, TabBar } from '../../../../../components/Tabs';
 import { useAppSelector } from '../../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
+import { camelToDashCase } from '../../../../../utils/camelToDashCase';
 import { colorType } from '../../../../../utils/theme/theme';
 import { uncapitalize } from '../../../../../utils/uncapitalize';
-import { camelToDashCase } from '../../../../../utils/camelToDashCase';
-import pluralize from 'pluralize';
 
 interface EditSchemaDefProps {
   id: string;
@@ -339,6 +340,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
             type === 'Int' ||
             type === 'Float' ||
             type === 'Boolean' ||
+            type === 'Date' ||
             (isTypeTuple(def?.type) && type === 'ObjectId') ||
             type === 'Strings' ||
             type === 'Numbers' ||
@@ -362,6 +364,8 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                         dispatch(setRootSchemaProperty(props.id, `default`, 0));
                       } else if (type === 'Boolean') {
                         dispatch(setRootSchemaProperty(props.id, `default`, true));
+                      } else if (type === 'Date') {
+                        dispatch(setRootSchemaProperty(props.id, `default`, new Date().toISOString()));
                       } else if (type === 'ObjectId') {
                         dispatch(setRootSchemaProperty(props.id, `default`, null));
                       } else if (
@@ -419,6 +423,17 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                             checked={def.default}
                             onChange={(e) => {
                               dispatch(setRootSchemaProperty(props.id, `default`, e.currentTarget.checked));
+                            }}
+                          />
+                        ) : typeof def.default === 'string' && type === 'Date' ? (
+                          <DateTime
+                            isEmbedded
+                            label={'Default value'}
+                            value={def.default}
+                            onChange={(date) => {
+                              if (date) {
+                                dispatch(setRootSchemaProperty(props.id, `default`, date.toUTC().toISO()));
+                              }
                             }}
                           />
                         ) : Array.isArray(def.default) &&
