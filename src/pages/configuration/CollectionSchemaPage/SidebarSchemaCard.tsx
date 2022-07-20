@@ -1,8 +1,10 @@
 import styled from '@emotion/styled/macro';
 import Color from 'color';
+import { useState } from 'react';
+import { buttonEffect } from '../../../components/Button';
 import { colorType } from '../../../utils/theme/theme';
 import { icons } from './tabs/SchemaCard';
-import { buttonEffect } from '../../../components/Button';
+import { useCreateSchemaDef } from './tabs/useCreateSchemaDef';
 
 interface SidebarSchemaCardProps {
   label: string;
@@ -10,8 +12,17 @@ interface SidebarSchemaCardProps {
 }
 
 function SidebarSchemaCard(props: SidebarSchemaCardProps) {
+  const [count, setCount] = useState<number>(0);
+  const [EditWindow, showEditWindow] = useCreateSchemaDef({ type: props.icon || 'text' }, [count]);
+
   return (
-    <Card>
+    <Card
+      onClick={() => {
+        showEditWindow();
+        setCount(count + 1);
+      }}
+    >
+      {EditWindow}
       <Icon color={icons[props.icon || 'unknown'].color}>
         <svg
           xmlns='http://www.w3.org/2000/svg'
