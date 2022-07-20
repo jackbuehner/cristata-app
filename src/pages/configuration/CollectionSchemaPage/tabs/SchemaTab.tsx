@@ -21,44 +21,51 @@ function SchemaTab(props: SchemaTabProps) {
   ) => {
     const { schemaDefs, schemaRefs, arraySchemas, nestedSchemas } = parseSchemaComponents(schema);
 
-    schemaDefs.forEach(([key, def], index) => {
-      const schemaType = isTypeTuple(def.type) ? def.type[0] : def.type;
-      let type = Array.isArray(schemaType) ? schemaType[0] + 's' : schemaType;
-      if (type.includes('[') && type.includes(']')) type = type.replace('[', '').replace(']', '');
+    schemaDefs
+      .filter(([key]) => {
+        const id = prefix ? `${prefix.id}.${key}` : key;
+        return id !== 'timestamps.updated_at' && id !== 'timestamps.published_at';
+      })
+      .forEach(([key, def], index) => {
+        const schemaType = isTypeTuple(def.type) ? def.type[0] : def.type;
+        let type = Array.isArray(schemaType) ? schemaType[0] + 's' : schemaType;
+        if (type.includes('[') && type.includes(']')) type = type.replace('[', '').replace(']', '');
 
-      const tags = [type];
+        const tags = [type];
 
-      const isReference = def.field?.reference?.collection || isTypeTuple(def.type);
+        const isReference = def.field?.reference?.collection || isTypeTuple(def.type);
 
-      if (key === 'body' && def.field?.tiptap) tags.push('Rich text');
-      if (isReference) tags.push('Reference');
-      if (def.required) tags.push('Required');
-      if (def.unique) tags.push('Unique');
-      if (def.public) tags.push('Public');
-      if (!def.modifiable) tags.push('Read only');
-      if (def.textSearch) tags.push('Searchable');
-      if (def.setter) tags.push('Modified on condition');
+        if (key === 'body' && def.field?.tiptap) tags.push('Rich text');
+        if (isReference) tags.push('Reference');
+        if (def.required) tags.push('Required');
+        if (def.unique) tags.push('Unique');
+        if (def.public) tags.push('Public');
+        if (!def.modifiable) tags.push('Read only');
+        if (def.textSearch) tags.push('Searchable');
+        if (def.setter) tags.push('Modified on condition');
 
-      const id = prefix ? `${prefix.id}.${key}` : key;
+        const id = prefix ? `${prefix.id}.${key}` : key;
 
-      let icon: SchemaCardProps['icon'];
-      if (type === 'String' || type === 'Strings') {
-        if (key === 'body' && def.field?.tiptap) icon = 'richtext';
-        else icon = 'text';
-      }
-      if (type === 'Float' || type === 'Floats') icon = 'decimal';
-      if (type === 'Number' || type === 'Numbers') icon = 'number';
-      if (type === 'Boolean' || type === 'Booleans') icon = 'boolean';
-      if (type === 'Date' || type === 'Dates') icon = 'datetime';
-      if (type === 'ObjectId' || type === 'ObjectIds') icon = 'objectid';
-      if (isReference) icon = 'reference';
+        let icon: SchemaCardProps['icon'];
+        if (type === 'String' || type === 'Strings') {
+          if (key === 'body' && def.field?.tiptap) icon = 'richtext';
+          else icon = 'text';
+        }
+        if (type === 'Float' || type === 'Floats') icon = 'decimal';
+        if (type === 'Number' || type === 'Numbers') icon = 'number';
+        if (type === 'Boolean' || type === 'Booleans') icon = 'boolean';
+        if (type === 'Date' || type === 'Dates') icon = 'datetime';
+        if (type === 'ObjectId' || type === 'ObjectIds') icon = 'objectid';
+        if (isReference) icon = 'reference';
 
-      items.push({
-        node: <SchemaCard key={key + index} icon={icon} label={def.field?.label || key} id={id} tags={tags} />,
-        id,
-        order: def.field?.order || 999,
+        items.push({
+          node: (
+            <SchemaCard key={key + index} icon={icon} label={def.field?.label || key} id={id} tags={tags} />
+          ),
+          id,
+          order: def.field?.order || 999,
+        });
       });
-    });
 
     schemaRefs.forEach(([key, ref], index) => {
       const schemaType = isTypeTuple(ref.fieldType) ? ref.fieldType[0] : ref.fieldType;
@@ -107,10 +114,12 @@ function SchemaTab(props: SchemaTabProps) {
       });
     });
 
-    nestedSchemas.forEach(([key, schema], index) => {
-      const id = prefix ? `${prefix.id}.${key}` : key;
-      items.push(...generateItems(schema, { label: key, id }));
-    });
+    nestedSchemas
+      .filter(([key]) => key !== 'permissions')
+      .forEach(([key, schema], index) => {
+        const id = prefix ? `${prefix.id}.${key}` : key;
+        items.push(...generateItems(schema, { label: key, id }));
+      });
 
     return items;
   };
