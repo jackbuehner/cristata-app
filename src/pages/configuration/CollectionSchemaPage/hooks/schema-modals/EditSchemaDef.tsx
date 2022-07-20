@@ -10,13 +10,25 @@ import { get as getProperty } from 'object-path';
 import { SetStateAction, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, buttonEffect } from '../../../../../components/Button';
-import { Checkbox, Code, Number, SelectMany, SelectOne, Text } from '../../../../../components/ContentField';
+import {
+  Checkbox,
+  Code,
+  Number,
+  SelectMany,
+  SelectOne,
+  Text,
+  ReferenceMany,
+  ReferenceOne,
+} from '../../../../../components/ContentField';
 import { Field } from '../../../../../components/ContentField/Field';
 import FluentIcon from '../../../../../components/FluentIcon';
 import { Tab, TabBar } from '../../../../../components/Tabs';
 import { useAppSelector } from '../../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
 import { colorType } from '../../../../../utils/theme/theme';
+import { uncapitalize } from '../../../../../utils/uncapitalize';
+import { camelToDashCase } from '../../../../../utils/camelToDashCase';
+import pluralize from 'pluralize';
 
 interface EditSchemaDefProps {
   id: string;
@@ -322,92 +334,153 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 />
               </>
             </Field>
-            <Field isEmbedded label={'Defaults'}>
-              <>
-                <Checkbox
-                  isEmbedded
-                  label={'Use a default value'}
-                  description={'Fill this field with the default value upon document creation.'}
-                  checked={def?.default !== undefined}
-                  onChange={(e) => {
-                    if (!e.currentTarget.checked)
-                      dispatch(setRootSchemaProperty(props.id, `default`, undefined));
-                    else if (type === 'String') {
-                      dispatch(setRootSchemaProperty(props.id, `default`, ''));
-                    } else if (type === 'Number' || type === 'Int') {
-                      dispatch(setRootSchemaProperty(props.id, `default`, 0));
-                    } else if (type === 'Boolean') {
-                      dispatch(setRootSchemaProperty(props.id, `default`, true));
-                    } else if (
-                      type === 'Strings' ||
-                      type === 'Numbers' ||
-                      type === 'Ints' ||
-                      type === 'Booleans'
-                    ) {
-                      dispatch(setRootSchemaProperty(props.id, `default`, []));
-                    }
-                  }}
-                />
-                {def?.default !== undefined ? (
-                  <IndentField color={'primary'}>
-                    <>
-                      {typeof def.default === 'string' && type === 'String' ? (
-                        <Text
-                          isEmbedded
-                          label={'Default value'}
-                          value={def.default}
-                          onChange={(e) => {
-                            dispatch(setRootSchemaProperty(props.id, `default`, e.currentTarget.value));
-                          }}
-                        />
-                      ) : typeof def.default === 'number' && type === 'Number' ? (
-                        <Number
-                          isEmbedded
-                          type={'Float'}
-                          label={'Default value'}
-                          value={def.default}
-                          onChange={(e) => {
-                            dispatch(setRootSchemaProperty(props.id, `default`, e.currentTarget.value));
-                          }}
-                        />
-                      ) : typeof def.default === 'number' && type === 'Int' ? (
-                        <Number
-                          isEmbedded
-                          type={'Int'}
-                          label={'Default value'}
-                          value={def.default}
-                          onChange={(e) => {
-                            dispatch(setRootSchemaProperty(props.id, `default`, e.currentTarget.value));
-                          }}
-                        />
-                      ) : typeof def.default === 'boolean' && type === 'Boolean' ? (
-                        <Checkbox
-                          isEmbedded
-                          label={'true'}
-                          checked={def.default}
-                          onChange={(e) => {
-                            dispatch(setRootSchemaProperty(props.id, `default`, e.currentTarget.checked));
-                          }}
-                        />
-                      ) : Array.isArray(def.default) &&
-                        (type === 'Strings' || type === 'Numbers' || type === 'Ints') ? (
-                        <SelectMany
-                          isEmbedded
-                          type={type === 'Strings' ? 'String' : type === 'Numbers' ? 'Float' : 'Int'}
-                          label={'Default values'}
-                          values={def.default.map((value) => ({ value: `${value}`, label: `${value}` }))}
-                          onChange={(values) => {
-                            const newValues = values.map(({ value }) => value);
-                            if (newValues !== undefined)
-                              dispatch(setRootSchemaProperty(props.id, 'default', newValues));
-                          }}
-                        />
-                      ) : null}
-                    </>
-                  </IndentField>
-                ) : null}
-              </>
-            </Field>
+            {type === 'String' ||
+            type === 'Number' ||
+            type === 'Int' ||
+            type === 'Float' ||
+            type === 'Boolean' ||
+            (isTypeTuple(def?.type) && type === 'ObjectId') ||
+            type === 'Strings' ||
+            type === 'Numbers' ||
+            type === 'Ints' ||
+            type === 'Floats' ||
+            type === 'Booleans' ||
+            (isTypeTuple(def?.type) && type === 'ObjectIds') ? (
+              <Field isEmbedded label={'Defaults'}>
+                <>
+                  <Checkbox
+                    isEmbedded
+                    label={'Use a default value'}
+                    description={'Fill this field with the default value upon document creation.'}
+                    checked={def?.default !== undefined}
+                    onChange={(e) => {
+                      if (!e.currentTarget.checked)
+                        dispatch(setRootSchemaProperty(props.id, `default`, undefined));
+                      else if (type === 'String') {
+                        dispatch(setRootSchemaProperty(props.id, `default`, ''));
+                      } else if (type === 'Number' || type === 'Int' || type === 'Float') {
+                        dispatch(setRootSchemaProperty(props.id, `default`, 0));
+                      } else if (type === 'Boolean') {
+                        dispatch(setRootSchemaProperty(props.id, `default`, true));
+                      } else if (type === 'ObjectId') {
+                        dispatch(setRootSchemaProperty(props.id, `default`, null));
+                      } else if (
+                        type === 'Strings' ||
+                        type === 'Numbers' ||
+                        type === 'Floats' ||
+                        type === 'Ints' ||
+                        type === 'Booleans' ||
+                        type === 'ObjectIds'
+                      ) {
+                        dispatch(setRootSchemaProperty(props.id, `default`, []));
+                      }
+                    }}
+                  />
+                  {def?.default !== undefined ? (
+                    <IndentField color={'primary'}>
+                      <>
+                        {typeof def.default === 'string' && type === 'String' ? (
+                          <Text
+                            isEmbedded
+                            label={'Default value'}
+                            value={def.default}
+                            onChange={(e) => {
+                              dispatch(setRootSchemaProperty(props.id, `default`, e.currentTarget.value));
+                            }}
+                          />
+                        ) : typeof def.default === 'number' && (type === 'Number' || type === 'Int') ? (
+                          <Number
+                            isEmbedded
+                            type={'Int'}
+                            label={'Default value'}
+                            value={def.default}
+                            onChange={(e) => {
+                              dispatch(
+                                setRootSchemaProperty(props.id, `default`, e.currentTarget.valueAsNumber)
+                              );
+                            }}
+                          />
+                        ) : typeof def.default === 'number' && type === 'Float' ? (
+                          <Number
+                            isEmbedded
+                            type={'Float'}
+                            label={'Default value'}
+                            value={def.default}
+                            onChange={(e) => {
+                              dispatch(
+                                setRootSchemaProperty(props.id, `default`, e.currentTarget.valueAsNumber)
+                              );
+                            }}
+                          />
+                        ) : typeof def.default === 'boolean' && type === 'Boolean' ? (
+                          <Checkbox
+                            isEmbedded
+                            label={'true'}
+                            checked={def.default}
+                            onChange={(e) => {
+                              dispatch(setRootSchemaProperty(props.id, `default`, e.currentTarget.checked));
+                            }}
+                          />
+                        ) : Array.isArray(def.default) &&
+                          (type === 'Strings' || type === 'Numbers' || type === 'Ints') ? (
+                          <SelectMany
+                            isEmbedded
+                            type={type === 'Strings' ? 'String' : type === 'Numbers' ? 'Float' : 'Int'}
+                            label={'Default values'}
+                            values={def.default.map((value) => ({ value: `${value}`, label: `${value}` }))}
+                            onChange={(values) => {
+                              const newValues = values.map(({ value }) => value);
+                              if (newValues !== undefined)
+                                dispatch(setRootSchemaProperty(props.id, 'default', newValues));
+                            }}
+                          />
+                        ) : isTypeTuple(def.type) &&
+                          type === 'ObjectId' &&
+                          (def.default === null || typeof def.default === 'string') ? (
+                          // reference type
+                          <ReferenceOne
+                            isEmbedded
+                            label={`Default ${camelToDashCase(
+                              uncapitalize(pluralize(def.type[0].replace('[', '').replace(']', '')))
+                            ).replace('-', '')}`}
+                            value={def.default ? { _id: def.default } : null}
+                            collection={def.type[0].replace('[', '').replace(']', '')}
+                            reference={def.field?.reference}
+                            onChange={(newValue) => {
+                              if (newValue) {
+                                dispatch(setRootSchemaProperty(props.id, 'default', newValue._id));
+                              }
+                            }}
+                          />
+                        ) : Array.isArray(def.default) && isTypeTuple(def.type) && type === 'ObjectIds' ? (
+                          // reference type
+                          <ReferenceMany
+                            isEmbedded
+                            label={`Default ${camelToDashCase(
+                              uncapitalize(pluralize(def.type[0].replace('[', '').replace(']', '')))
+                            ).replace('-', '')}`}
+                            values={def.default.map((value) => ({ _id: `${value}` }))}
+                            collection={pluralize.singular(def.type[0].replace('[', '').replace(']', ''))}
+                            reference={def.field?.reference}
+                            onChange={(newValues) => {
+                              if (newValues !== undefined) {
+                                dispatch(
+                                  setRootSchemaProperty(
+                                    props.id,
+                                    'default',
+                                    newValues.map((val) => val._id)
+                                  )
+                                );
+                              }
+                            }}
+                          />
+                        ) : null}
+                      </>
+                    </IndentField>
+                  ) : null}
+                </>
+              </Field>
+            ) : null}
             <Field isEmbedded label={'Setter'}>
               <>
                 <Checkbox
