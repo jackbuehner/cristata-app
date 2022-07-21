@@ -13,7 +13,7 @@ interface SidebarSchemaCardProps {
 
 function SidebarSchemaCard(props: SidebarSchemaCardProps) {
   const [count, setCount] = useState<number>(0);
-  const [EditWindow, showEditWindow] = useCreateSchemaDef({ type: props.icon || 'text' }, [count]);
+  const [EditWindow, showEditWindow] = useCreateSchemaDef({ type: props.icon || 'unknown' }, [count]);
 
   return (
     <Card
