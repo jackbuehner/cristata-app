@@ -21,7 +21,7 @@ import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { Field, FieldProps } from './Field';
 import { populateReferenceValues } from './populateReferenceValues';
-import { useOptions } from './useOptions';
+import { useOptions, Option } from './useOptions';
 
 interface ReferenceManyProps extends Omit<FieldProps, 'children'> {
   values: UnpopulatedValue[];
@@ -33,6 +33,7 @@ interface ReferenceManyProps extends Omit<FieldProps, 'children'> {
   collection: string;
   reference?: FieldDef['reference'];
   noDrag?: boolean;
+  injectOptions?: Option[];
 }
 
 type UnpopulatedValue = { _id: string; label?: string };
@@ -88,7 +89,7 @@ function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
           label={props.label}
           description={props.description}
           disabled={props.disabled}
-          options={options}
+          options={[...(props.injectOptions || []), ...options]}
           values={internalState.map(({ _id: value, label }) => ({ value, label }))}
           many={true}
           color={props.color}

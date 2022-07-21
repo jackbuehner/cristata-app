@@ -149,4 +149,5 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
   return [textValue, setTextValue, { options, loading }];
 }
 
+export type { Option };
 export { useOptions };
