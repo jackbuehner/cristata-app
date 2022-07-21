@@ -50,6 +50,9 @@ function EditSchemaDef(props: EditSchemaDefProps) {
   let type = Array.isArray(schemaType) ? schemaType[0] + 's' : schemaType;
   if (type?.includes('[') && type?.includes(']')) type = type.replace('[', '').replace(']', '');
 
+  const isBranching = type === 'JSON' && def?.field?.custom;
+  const isInBranch = props.id.includes('.field.custom.');
+
   return (
     <div>
       <TabBar
@@ -92,15 +95,17 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 />
               </div>
             </div>
-            <Text
-              isEmbedded
-              label={'Description'}
-              description={'Display a hint for content editors.'}
-              value={def?.field?.description}
-              onChange={(e) =>
-                dispatch(setRootSchemaProperty(props.id, 'field.description', e.currentTarget.value))
-              }
-            />
+            {!isBranching ? (
+              <Text
+                isEmbedded
+                label={'Description'}
+                description={'Display a hint for content editors.'}
+                value={def?.field?.description}
+                onChange={(e) =>
+                  dispatch(setRootSchemaProperty(props.id, 'field.description', e.currentTarget.value))
+                }
+              />
+            ) : null}
             {type === 'String' ||
             type === 'Strings' ||
             type === 'Number' ||
@@ -229,31 +234,35 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               checked={def?.required === true}
               onChange={(e) => dispatch(setRootSchemaProperty(props.id, `required`, e.currentTarget.checked))}
             />
-            <Checkbox
-              isEmbedded
-              label={'Set this field as unique'}
-              description={'Prevent saving an entry if this field is not unique.'}
-              checked={def?.unique === true}
-              onChange={(e) => dispatch(setRootSchemaProperty(props.id, `unique`, e.currentTarget.checked))}
-            />
-            <Checkbox
-              isEmbedded
-              label={'Require this field to match a specific pattern'}
-              description={'Only accept the specified regular expression.'}
-              checked={!!def?.rule}
-              onChange={(e) => {
-                if (e.currentTarget.checked) {
-                  dispatch(
-                    setRootSchemaProperty(props.id, `rule`, {
-                      regexp: { pattern: '', flags: '' },
-                      message: '',
-                    })
-                  );
-                } else {
-                  dispatch(setRootSchemaProperty(props.id, `rule`, false));
-                }
-              }}
-            />
+            {!isBranching && !isInBranch ? (
+              <Checkbox
+                isEmbedded
+                label={'Set this field as unique'}
+                description={'Prevent saving an entry if this field is not unique.'}
+                checked={def?.unique === true}
+                onChange={(e) => dispatch(setRootSchemaProperty(props.id, `unique`, e.currentTarget.checked))}
+              />
+            ) : null}
+            {!isBranching && !isInBranch ? (
+              <Checkbox
+                isEmbedded
+                label={'Require this field to match a specific pattern'}
+                description={'Only accept the specified regular expression.'}
+                checked={!!def?.rule}
+                onChange={(e) => {
+                  if (e.currentTarget.checked) {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `rule`, {
+                        regexp: { pattern: '', flags: '' },
+                        message: '',
+                      })
+                    );
+                  } else {
+                    dispatch(setRootSchemaProperty(props.id, `rule`, false));
+                  }
+                }}
+              />
+            ) : null}
             {!!def?.rule ? (
               <IndentField color={'primary'}>
                 <Text
@@ -285,69 +294,79 @@ function EditSchemaDef(props: EditSchemaDefProps) {
           </>
         ) : (
           <>
-            <Field isEmbedded label={'Search and sort'}>
-              <>
-                {type === 'String' || type === 'Strings' ? (
+            {!isBranching && !isInBranch ? (
+              <Field isEmbedded label={'Search and sort'}>
+                <>
+                  {type === 'String' || type === 'Strings' ? (
+                    <Checkbox
+                      isEmbedded
+                      label={'Index this field for search'}
+                      checked={def?.textSearch === true}
+                      onChange={(e) =>
+                        dispatch(setRootSchemaProperty(props.id, `textSearch`, e.currentTarget.checked))
+                      }
+                    />
+                  ) : null}
                   <Checkbox
                     isEmbedded
-                    label={'Index this field for search'}
-                    checked={def?.textSearch === true}
+                    label={'Allow sorting this field in ascending or descending order in table views'}
+                    checked={def?.column?.sortable === true}
                     onChange={(e) =>
-                      dispatch(setRootSchemaProperty(props.id, `textSearch`, e.currentTarget.checked))
+                      dispatch(setRootSchemaProperty(props.id, `column.sortable`, e.currentTarget.checked))
+                    }
+                  />
+                </>
+              </Field>
+            ) : null}
+            <Field isEmbedded label={'Visibility'}>
+              <>
+                {!isBranching ? (
+                  <Checkbox
+                    isEmbedded
+                    label={'Hide from document editor'}
+                    checked={def?.field?.hidden === true}
+                    onChange={(e) =>
+                      dispatch(setRootSchemaProperty(props.id, `field.hidden`, e.currentTarget.checked))
                     }
                   />
                 ) : null}
-                <Checkbox
-                  isEmbedded
-                  label={'Allow sorting this field in ascending or descending order in table views'}
-                  checked={def?.column?.sortable === true}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, `column.sortable`, e.currentTarget.checked))
-                  }
-                />
+                {!isInBranch ? (
+                  <Checkbox
+                    isEmbedded
+                    label={'Hide from table views'}
+                    checked={def?.column?.hidden === true}
+                    onChange={(e) =>
+                      dispatch(setRootSchemaProperty(props.id, `column.hidden`, e.currentTarget.checked))
+                    }
+                  />
+                ) : null}
+                {!isBranching ? (
+                  <Checkbox
+                    isEmbedded
+                    label={'Make this field read only'}
+                    checked={def?.modifiable === false}
+                    onChange={(e) =>
+                      dispatch(setRootSchemaProperty(props.id, `modifiable`, e.currentTarget.checked))
+                    }
+                  />
+                ) : null}
               </>
             </Field>
-            <Field isEmbedded label={'Visibility'}>
-              <>
-                <Checkbox
-                  isEmbedded
-                  label={'Hide from document editor'}
-                  checked={def?.field?.hidden === true}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, `field.hidden`, e.currentTarget.checked))
-                  }
-                />
-                <Checkbox
-                  isEmbedded
-                  label={'Hide from table views'}
-                  checked={def?.column?.hidden === true}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, `column.hidden`, e.currentTarget.checked))
-                  }
-                />
-                <Checkbox
-                  isEmbedded
-                  label={'Make this field read only'}
-                  checked={def?.modifiable === false}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, `modifiable`, e.currentTarget.checked))
-                  }
-                />
-              </>
-            </Field>
-            {type === 'String' ||
-            type === 'Number' ||
-            type === 'Int' ||
-            type === 'Float' ||
-            type === 'Boolean' ||
-            type === 'Date' ||
-            (isTypeTuple(def?.type) && type === 'ObjectId') ||
-            type === 'Strings' ||
-            type === 'Numbers' ||
-            type === 'Ints' ||
-            type === 'Floats' ||
-            type === 'Booleans' ||
-            (isTypeTuple(def?.type) && type === 'ObjectIds') ? (
+            {!isBranching &&
+            !isInBranch &&
+            (type === 'String' ||
+              type === 'Number' ||
+              type === 'Int' ||
+              type === 'Float' ||
+              type === 'Boolean' ||
+              type === 'Date' ||
+              (isTypeTuple(def?.type) && type === 'ObjectId') ||
+              type === 'Strings' ||
+              type === 'Numbers' ||
+              type === 'Ints' ||
+              type === 'Floats' ||
+              type === 'Booleans' ||
+              (isTypeTuple(def?.type) && type === 'ObjectIds')) ? (
               <Field isEmbedded label={'Defaults'}>
                 <>
                   <Checkbox
@@ -496,39 +515,43 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 </>
               </Field>
             ) : null}
-            <Field isEmbedded label={'Setter'}>
-              <>
-                <Checkbox
-                  isEmbedded
-                  label={'Use a setter'}
-                  description={'Set the value of this field when a condition is met.'}
-                  checked={!!def?.setter}
-                  onChange={(e) => dispatch(setRootSchemaProperty(props.id, `setter`, e.currentTarget.checked))}
-                />
-                {!!def?.setter ? (
-                  <IndentField color={'primary'}>
-                    <Code
-                      isEmbedded
-                      type={'json'}
-                      label={'Condition'}
-                      value={JSON.stringify(def.setter.condition, null, 2)}
-                      onChange={(value) => {
-                        if (value) dispatch(setRootSchemaProperty(props.id, `setter.condition`, value));
-                      }}
-                    />
-                    <Code
-                      type={'json'}
-                      isEmbedded
-                      label={'Value'}
-                      value={JSON.stringify(def.setter.value, null, 2)}
-                      onChange={(value) => {
-                        if (value) dispatch(setRootSchemaProperty(props.id, `setter.value`, value));
-                      }}
-                    />
-                  </IndentField>
-                ) : null}
-              </>
-            </Field>
+            {!isInBranch ? (
+              <Field isEmbedded label={'Setter'}>
+                <>
+                  <Checkbox
+                    isEmbedded
+                    label={'Use a setter'}
+                    description={'Set the value of this field when a condition is met.'}
+                    checked={!!def?.setter}
+                    onChange={(e) =>
+                      dispatch(setRootSchemaProperty(props.id, `setter`, e.currentTarget.checked))
+                    }
+                  />
+                  {!!def?.setter ? (
+                    <IndentField color={'primary'}>
+                      <Code
+                        isEmbedded
+                        type={'json'}
+                        label={'Condition'}
+                        value={JSON.stringify(def.setter.condition, null, 2)}
+                        onChange={(value) => {
+                          if (value) dispatch(setRootSchemaProperty(props.id, `setter.condition`, value));
+                        }}
+                      />
+                      <Code
+                        type={'json'}
+                        isEmbedded
+                        label={'Value'}
+                        value={JSON.stringify(def.setter.value, null, 2)}
+                        onChange={(value) => {
+                          if (value) dispatch(setRootSchemaProperty(props.id, `setter.value`, value));
+                        }}
+                      />
+                    </IndentField>
+                  ) : null}
+                </>
+              </Field>
+            ) : null}
             <div style={{ display: 'flex', flexDirection: 'row', gap: 20 }}>
               <div style={{ flexGrow: 1 }}>
                 <Number
@@ -541,31 +564,38 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                   }
                 />
               </div>
-              <div style={{ flexGrow: 1 }}>
-                <Number
-                  isEmbedded
-                  type={'Int'}
-                  label={'Column order'}
-                  value={def?.column?.order}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, `column.order`, e.currentTarget.value))
-                  }
-                />
-              </div>
+              {!isInBranch ? (
+                <div style={{ flexGrow: 1 }}>
+                  <Number
+                    isEmbedded
+                    type={'Int'}
+                    label={'Column order'}
+                    value={def?.column?.order}
+                    onChange={(e) =>
+                      dispatch(setRootSchemaProperty(props.id, `column.order`, e.currentTarget.value))
+                    }
+                  />
+                </div>
+              ) : null}
             </div>
-            <Number
-              isEmbedded
-              type={'Int'}
-              label={'Column width'}
-              value={def?.column?.width || 150}
-              onChange={(e) => dispatch(setRootSchemaProperty(props.id, `column.width`, e.currentTarget.value))}
-            />
-            {type === 'String' ||
-            type === 'Strings' ||
-            type === 'Number' ||
-            type === 'Numbers' ||
-            type === 'Float' ||
-            type === 'Floats' ? (
+            {!isInBranch ? (
+              <Number
+                isEmbedded
+                type={'Int'}
+                label={'Column width'}
+                value={def?.column?.width || 150}
+                onChange={(e) =>
+                  dispatch(setRootSchemaProperty(props.id, `column.width`, e.currentTarget.value))
+                }
+              />
+            ) : null}
+            {!isInBranch &&
+            (type === 'String' ||
+              type === 'Strings' ||
+              type === 'Number' ||
+              type === 'Numbers' ||
+              type === 'Float' ||
+              type === 'Floats') ? (
               <Checkbox
                 isEmbedded
                 label={'Style this field as chips in the table view'}

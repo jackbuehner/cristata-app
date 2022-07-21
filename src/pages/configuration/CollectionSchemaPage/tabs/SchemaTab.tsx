@@ -6,7 +6,9 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { parseSchemaComponents } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genTypeDefs/parseSchemaComponents';
 import Color from 'color';
+import { Fragment } from 'react';
 import { useAppSelector } from '../../../../redux/hooks';
+import { BranchCard } from './BranchCard';
 import { SchemaCard, SchemaCardProps } from './SchemaCard';
 
 interface SchemaTabProps {}
@@ -34,9 +36,11 @@ function SchemaTab(props: SchemaTabProps) {
         const tags = [type];
 
         const isReference = def.field?.reference?.collection || isTypeTuple(def.type);
+        const isBranching = type === 'JSON' && def.field?.custom;
 
         if (key === 'body' && def.field?.tiptap) tags.push('Rich text');
         if (isReference) tags.push('Reference');
+        if (isBranching) tags.push('Branching');
         if (def.required) tags.push('Required');
         if (def.unique) tags.push('Unique');
         if (def.public) tags.push('Public');
@@ -57,10 +61,31 @@ function SchemaTab(props: SchemaTabProps) {
         if (type === 'Date' || type === 'Dates') icon = 'datetime';
         if (type === 'ObjectId' || type === 'ObjectIds') icon = 'objectid';
         if (isReference) icon = 'reference';
+        if (isBranching) icon = 'branching';
 
         items.push({
           node: (
-            <SchemaCard key={key + index} icon={icon} label={def.field?.label || key} id={id} tags={tags} />
+            <Fragment key={key + index}>
+              <SchemaCard key={key + index} icon={icon} label={def.field?.label || key} id={id} tags={tags} />
+              {isBranching ? (
+                <BranchCard
+                  id={id}
+                  branches={
+                    def.field?.custom?.map((branch, index) => {
+                      return {
+                        name: branch.name,
+                        fields: generateItems(branch.fields, {
+                          label: key,
+                          id: `${id}.field.custom.${index}.fields`,
+                        })
+                          .sort((a, b) => (a.order > b.order ? 1 : -1))
+                          .map(({ node }) => node),
+                      };
+                    }) || []
+                  }
+                />
+              ) : null}
+            </Fragment>
           ),
           id,
           order: def.field?.order || 999,
