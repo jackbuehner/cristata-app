@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useTheme } from '@emotion/react';
-import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { DependencyList, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Checkbox, SelectOne, Text } from '../../../../../components/ContentField';
@@ -117,9 +116,6 @@ function useCreateSchemaDef(
         type === 'unknown' ? (
           <div style={{ padding: '20px 24px' }}>
             <SidebarSchemaCard label={'Text'} icon={'text'} onClick={() => setType('text')} />
-            {isSchemaDef(state.collection?.schemaDef.body || {}) ? null : (
-              <SidebarSchemaCard label={'Rich text'} icon={'richtext'} onClick={() => setType('richtext')} />
-            )}
             <SidebarSchemaCard label={'Integer'} icon={'number'} onClick={() => setType('number')} />
             <SidebarSchemaCard label={'Float'} icon={'decimal'} onClick={() => setType('decimal')} />
             <SidebarSchemaCard label={'Boolean'} icon={'boolean'} onClick={() => setType('boolean')} />
