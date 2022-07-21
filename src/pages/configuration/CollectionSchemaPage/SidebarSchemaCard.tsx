@@ -9,6 +9,7 @@ import { useCreateSchemaDef } from './hooks/schema-modals/useCreateSchemaDef';
 interface SidebarSchemaCardProps {
   label: string;
   icon?: keyof typeof icons;
+  onClick?: () => void;
 }
 
 function SidebarSchemaCard(props: SidebarSchemaCardProps) {
@@ -18,8 +19,12 @@ function SidebarSchemaCard(props: SidebarSchemaCardProps) {
   return (
     <Card
       onClick={() => {
-        showEditWindow();
-        setCount(count + 1);
+        if (props.onClick) {
+          props.onClick();
+        } else {
+          showEditWindow();
+          setCount(count + 1);
+        }
       }}
     >
       {EditWindow}
