@@ -7,6 +7,7 @@ import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/typ
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';
+import { Button } from '../../../../components/Button';
 import {
   Checkbox,
   Code,
@@ -31,6 +32,7 @@ import {
 } from '../../../../redux/slices/collectionSlice';
 import { capitalize } from '../../../../utils/capitalize';
 import { colorType } from '../../../../utils/theme/theme';
+import { useConfirmDelete } from '../hooks/useConfirmDelete';
 import { getFieldTypes } from './getFieldTypes';
 
 interface OptionsTabProps {}
@@ -38,6 +40,7 @@ interface OptionsTabProps {}
 function OptionsTab(props: OptionsTabProps) {
   const state = useAppSelector(({ collectionConfig }) => collectionConfig);
   const dispatch = useDispatch();
+  const [DangerDeleteWindow, openDangerDeleteWindow] = useConfirmDelete({ name: state.collection?.name });
 
   const publicRules = state.collection?.publicRules;
   const rootSchemaDef = state.collection?.schemaDef;
@@ -461,6 +464,13 @@ function OptionsTab(props: OptionsTabProps) {
               );
             })}
         </div>
+      </Card>
+      <Card>
+        <CardLabel>Danger zone</CardLabel>
+        {DangerDeleteWindow}
+        <Button color={'red'} onClick={openDangerDeleteWindow}>
+          Delete this collection
+        </Button>
       </Card>
     </div>
   );
