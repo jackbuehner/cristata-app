@@ -1,13 +1,15 @@
 import styled from '@emotion/styled/macro';
 import Editor, { Monaco } from '@monaco-editor/react';
 import { editor } from 'monaco-editor';
-import { useRef } from 'react';
+import { SetStateAction, useRef, useState } from 'react';
 import { cristataCodeDarkTheme } from '../../pages/configuration/cristataCodeDarkTheme';
 import { colorType } from '../../utils/theme/theme';
+import { TabBar, Tab } from '../Tabs';
 import { Field, FieldProps } from './Field';
+import { Remark } from 'react-remark';
 
 interface TextProps extends Omit<FieldProps, 'children'> {
-  type: 'json';
+  type: 'json' | 'md';
   value: string;
   onValidate?: (markers: editor.IMarker[]) => void;
   onChange?: (value: string | undefined) => void;
@@ -15,6 +17,8 @@ interface TextProps extends Omit<FieldProps, 'children'> {
 }
 
 function Code(props: TextProps) {
+  const [tabIndex, setTabIndex] = useState<number>(0);
+
   // make editor and monaco available to any function
   const monacoRef = useRef<Monaco | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -47,22 +51,40 @@ function Code(props: TextProps) {
       font={props.font}
       isEmbedded={props.isEmbedded}
     >
-      <EditorComponent
-        color={props.color}
-        height={props.height || 300}
-        language={`json`}
-        value={props.value}
-        options={{ tabSize: 2, theme: 'cristata-code-dark' }}
-        beforeMount={handleBeforeMount}
-        path={window.location.pathname + '.json'}
-        onMount={(editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-          editorRef.current = editor;
-          monacoRef.current = monaco;
-          monaco.editor.setTheme('cristata-code-dark');
-        }}
-        onValidate={props.onValidate}
-        onChange={props.onChange}
-      />
+      <>
+        {props.type === 'md' ? (
+          <TabBar
+            activeTabIndex={tabIndex}
+            onActivate={(evt: { detail: { index: SetStateAction<number> } }) => setTabIndex(evt.detail.index)}
+          >
+            <Tab>Compose</Tab>
+            <Tab>Preview</Tab>
+          </TabBar>
+        ) : null}
+        {tabIndex === 0 ? (
+          <EditorComponent
+            color={props.color}
+            height={props.height || 300}
+            language={props.type}
+            value={props.value}
+            options={{ tabSize: 2, theme: 'cristata-code-dark' }}
+            beforeMount={handleBeforeMount}
+            path={window.location.pathname + props.type}
+            onMount={(editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
+              editorRef.current = editor;
+              monacoRef.current = monaco;
+              monaco.editor.setTheme('cristata-code-dark');
+            }}
+            onValidate={props.onValidate}
+            onChange={props.onChange}
+          />
+        ) : null}
+        {tabIndex === 1 ? (
+          <MdPreview color={props.color} height={props.height || 300}>
+            <Remark>{props.value}</Remark>
+          </MdPreview>
+        ) : null}
+      </>
     </Field>
   );
 }
@@ -87,6 +109,18 @@ const EditorComponent = styled(Editor)<{
       }}
       0px 0px 0px 2px inset;
   }
+`;
+
+const MdPreview = styled.div<{
+  color?: colorType;
+  height: number;
+}>`
+  height: ${({ height }) => height}px;
+  padding: 20px;
+  border-radius: ${({ theme }) => theme.radius};
+  box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][400]} 0px 0px 0px 1px inset;
+  transition: box-shadow 240ms;
+  box-sizing: border-box;
 `;
 
 export { Code };

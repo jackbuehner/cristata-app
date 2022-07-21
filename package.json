@@ -55,6 +55,7 @@
     "react-modal": "^3.12.1",
     "react-modal-hook": "^3.0.0",
     "react-redux": "^7.2.5",
+    "react-remark": "^2.1.0",
     "react-router-dom": "^6.2.1",
     "react-router-prompt": "^0.1.0",
     "react-scripts": "5.0.1",
