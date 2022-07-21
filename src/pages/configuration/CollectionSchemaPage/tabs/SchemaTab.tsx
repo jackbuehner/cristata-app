@@ -36,10 +36,12 @@ function SchemaTab(props: SchemaTabProps) {
 
         const isReference = def.field?.reference?.collection || isTypeTuple(def.type);
         const isBranching = type === 'JSON' && def.field?.custom;
+        const isMarkdown = type === 'String' && def.field?.markdown;
 
         if (key === 'body' && def.field?.tiptap) tags.push('Rich text');
         if (isReference) tags.push('Reference');
         if (isBranching) tags.push('Branching');
+        if (isMarkdown) tags.push('Markdown');
         if (def.required) tags.push('Required');
         if (def.unique) tags.push('Unique');
         if (def.public) tags.push('Public');

@@ -16,6 +16,7 @@ function Sidebar(props: SidebarProps) {
         <>
           <Heading>Add fields</Heading>
           <SidebarSchemaCard label={'Text'} icon={'text'} />
+          <SidebarSchemaCard label={'Markdown'} icon={'text-markdown'} />
           {isSchemaDef(state.collection?.schemaDef.body || {}) ? null : (
             <SidebarSchemaCard label={'Rich text'} icon={'richtext'} />
           )}

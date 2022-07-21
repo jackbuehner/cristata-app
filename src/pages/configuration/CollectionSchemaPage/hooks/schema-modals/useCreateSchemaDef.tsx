@@ -59,6 +59,7 @@ function useCreateSchemaDef(
       if (type === 'objectid') return 'ObjectId';
       if (type === 'reference') return 'Reference';
       if (type === 'richtext') return 'String';
+      if (type === 'text-markdown') return 'String';
       if (type === 'branching') return 'JSON';
       if (type === 'docarray') return '[]';
       return 'String';
@@ -110,6 +111,10 @@ function useCreateSchemaDef(
                 dispatch(setRootSchemaProperty(path + '.field', 'custom', []));
               }
 
+              if (type === 'text-markdown') {
+                dispatch(setRootSchemaProperty(path + '.field', 'markdown', true));
+              }
+
               setIsCreated(true);
               return false;
             },
@@ -126,6 +131,11 @@ function useCreateSchemaDef(
         type === 'unknown' ? (
           <div style={{ padding: '20px 24px' }}>
             <SidebarSchemaCard label={'Text'} icon={'text'} onClick={() => setType('text')} />
+            <SidebarSchemaCard
+              label={'Markdown'}
+              icon={'text-markdown'}
+              onClick={() => setType('text-markdown')}
+            />
             <SidebarSchemaCard label={'Integer'} icon={'number'} onClick={() => setType('number')} />
             <SidebarSchemaCard label={'Float'} icon={'decimal'} onClick={() => setType('decimal')} />
             <SidebarSchemaCard label={'Boolean'} icon={'boolean'} onClick={() => setType('boolean')} />

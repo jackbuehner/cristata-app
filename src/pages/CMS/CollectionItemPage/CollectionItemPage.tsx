@@ -18,6 +18,7 @@ import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
 import {
   Checkbox,
+  Code,
   DateTime,
   DocArray,
   Number,
@@ -510,6 +511,26 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             onChange={(newValue) => {
               if (newValue !== undefined && !readOnly)
                 dispatch(setField(newValue || def.default, key, 'reference', undefined, inArrayKey));
+            }}
+          />
+        );
+      }
+
+      // markdown fields
+      if (type === 'String' && def.field?.markdown) {
+        return (
+          <Code
+            key={index}
+            type={'md'}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            label={fieldName}
+            description={def.field?.description}
+            value={getProperty(itemState.fields, key)}
+            disabled={locked || loading || !!error}
+            isEmbedded={props.isEmbedded}
+            onChange={(newValue) => {
+              if (newValue !== undefined && !readOnly)
+                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
           />
         );

@@ -54,6 +54,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
   const isInBranch = props.id.includes('.field.custom.');
   const isDocArray = props.id.includes('.0.#label');
   const isInDocArray = props.id.includes('.0.') && !props.id.includes('.0.#label');
+  const isMarkdown = type === 'String' && def?.field?.markdown;
 
   return (
     <div>
@@ -109,6 +110,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               />
             ) : null}
             {!isDocArray &&
+            !isMarkdown &&
             (type === 'String' ||
               type === 'Strings' ||
               type === 'Number' ||
@@ -248,7 +250,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 onChange={(e) => dispatch(setRootSchemaProperty(props.id, `unique`, e.currentTarget.checked))}
               />
             ) : null}
-            {!isBranching && !isInBranch && !isDocArray ? (
+            {!isBranching && !isInBranch && !isDocArray && !isMarkdown ? (
               <Checkbox
                 isEmbedded
                 label={'Require this field to match a specific pattern'}
@@ -408,7 +410,19 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                   {def?.default !== undefined ? (
                     <IndentField color={'primary'}>
                       <>
-                        {typeof def.default === 'string' && type === 'String' ? (
+                        {typeof def.default === 'string' && type === 'String' && def.field?.markdown ? (
+                          <Code
+                            isEmbedded
+                            type={'md'}
+                            label={'Default value'}
+                            value={def.default}
+                            onChange={(newValue) => {
+                              if (newValue) {
+                                dispatch(setRootSchemaProperty(props.id, `default`, newValue));
+                              }
+                            }}
+                          />
+                        ) : typeof def.default === 'string' && type === 'String' ? (
                           <Text
                             isEmbedded
                             label={'Default value'}
@@ -598,6 +612,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
             {!isInBranch &&
             !isDocArray &&
             !isInDocArray &&
+            !isMarkdown &&
             (type === 'String' ||
               type === 'Strings' ||
               type === 'Number' ||
