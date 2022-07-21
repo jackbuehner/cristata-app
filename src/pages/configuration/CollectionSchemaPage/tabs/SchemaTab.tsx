@@ -1,14 +1,13 @@
-import styled from '@emotion/styled/macro';
 import {
   isSchemaDef,
   isTypeTuple,
   SchemaDefType,
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import { parseSchemaComponents } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genTypeDefs/parseSchemaComponents';
-import Color from 'color';
 import { Fragment } from 'react';
 import { useAppSelector } from '../../../../redux/hooks';
 import { BranchCard } from './BranchCard';
+import { DocArrayCard } from './DocArrayCard';
 import { SchemaCard, SchemaCardProps } from './SchemaCard';
 
 interface SchemaTabProps {}
@@ -130,10 +129,18 @@ function SchemaTab(props: SchemaTabProps) {
 
       items.push({
         node: (
-          <Card key={key + index}>
-            <CardLabel>{labelDef?.field?.label || key}</CardLabel>
-            {generated}
-          </Card>
+          <Fragment key={key + index}>
+            <SchemaCard
+              key={key + index}
+              icon={'docarray'}
+              label={labelDef?.field?.label || key}
+              id={id.replace('.0', '')}
+              tags={['Document Array']}
+            />
+            <DocArrayCard id={id}>
+              <>{generated}</>
+            </DocArrayCard>
+          </Fragment>
         ),
         id,
         order: order,
@@ -156,24 +163,5 @@ function SchemaTab(props: SchemaTabProps) {
 
   return <>{items}</>;
 }
-
-const Card = styled.div`
-  margin: 16px;
-  padding: 16px 0 1px 0;
-  box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][200]} 0px 0px 0px 1px inset;
-  background-color: ${({ theme }) =>
-    theme.mode === 'dark'
-      ? Color(theme.color.neutral.dark[100]).lighten(0.2).string()
-      : Color('#ffffff').darken(0.03).string()};
-  border-radius: ${({ theme }) => theme.radius};
-`;
-
-const CardLabel = styled.div`
-  font-family: ${({ theme }) => theme.font.detail};
-  font-weight: 600;
-  font-size: 16px;
-  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
-  margin: 0 16px;
-`;
 
 export { SchemaTab };

@@ -30,6 +30,7 @@ function Sidebar(props: SidebarProps) {
           state.collection.schemaDef.name.type === 'String' ? (
             <SidebarSchemaCard label={'Branch'} icon={'branching'} />
           ) : null}
+          <SidebarSchemaCard label={'Document array'} icon={'docarray'} />
         </>
       ) : null}
       <Heading>Help</Heading>
