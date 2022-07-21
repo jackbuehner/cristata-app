@@ -13,7 +13,7 @@ function ConfigurationNavigation() {
   return (
     <Wrapper>
       {CreateWindow}
-      <div>
+      <div style={{ height: 300 }}>
         <SideNavHeading className={'not-header'}>Billing</SideNavHeading>
         <SideNavSubButton Icon={<FluentIcon name={'TopSpeed20Regular'} />} to={`/configuration/billing/usage`}>
           Service usage
@@ -65,6 +65,8 @@ const Wrapper = styled.div`
   height: 100%;
   > div:nth-of-type(1) {
     flex-grow: 1;
+    height: 0;
+    overflow: auto;
   }
   > div:nth-of-type(2) {
     flex-shrink: 0;
