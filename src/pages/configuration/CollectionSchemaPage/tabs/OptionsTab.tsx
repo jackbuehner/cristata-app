@@ -1,6 +1,10 @@
 import styled from '@emotion/styled/macro';
-import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import {
+  isSchemaDef,
+  isSchemaDefOrType,
+} from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
 import Color from 'color';
+import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';
 import {
   Checkbox,
@@ -18,14 +22,13 @@ import {
   setName,
   setNavLabel,
   setPublicRules,
+  setRootSchemaProperty,
   setWatcherNotices,
   setWithPermissions,
   setWithSubscription,
-  setRootSchemaProperty,
 } from '../../../../redux/slices/collectionSlice';
 import { colorType } from '../../../../utils/theme/theme';
 import { getFieldTypes } from './getFieldTypes';
-import { get as getProperty } from 'object-path';
 
 interface OptionsTabProps {}
 
@@ -293,8 +296,13 @@ function OptionsTab(props: OptionsTabProps) {
               isEmbedded
               label={`Teams with default access`}
               values={
-                !isSchemaDef(state.collection?.schemaDef.permissions)
-                  ? state.collection?.schemaDef.permissions?.teams?.default?.map((value) => ({
+                state.collection?.schemaDef.permissions &&
+                isSchemaDefOrType(state.collection.schemaDef.permissions) &&
+                !isSchemaDef(state.collection.schemaDef.permissions) &&
+                isSchemaDef(state.collection.schemaDef.permissions.teams) &&
+                Array.isArray(state.collection.schemaDef.permissions.teams.default || [])
+                  ? // @ts-expect-error default is an array
+                    (state.collection.schemaDef.permissions.teams.default || []).map((value) => ({
                       _id: `${value}`,
                     }))
                   : []
@@ -304,8 +312,9 @@ function OptionsTab(props: OptionsTabProps) {
                 if (newValues !== undefined) {
                   if (
                     !state.collection?.schemaDef.permissions ||
-                    (!isSchemaDef(state.collection?.schemaDef.permissions) &&
-                      !state.collection?.schemaDef.permissions.teams)
+                    !isSchemaDefOrType(state.collection.schemaDef.permissions) ||
+                    (!isSchemaDef(state.collection.schemaDef.permissions) &&
+                      !state.collection.schemaDef.permissions.teams)
                   ) {
                     dispatch(setRootSchemaProperty('permissions.teams', 'type', ['ObjectId']));
                     dispatch(setRootSchemaProperty('permissions.teams', 'required', true));
@@ -324,8 +333,13 @@ function OptionsTab(props: OptionsTabProps) {
               isEmbedded
               label={`Users with default access`}
               values={
-                !isSchemaDef(state.collection?.schemaDef.permissions)
-                  ? state.collection?.schemaDef.permissions?.users?.default?.map((value) => ({
+                state.collection?.schemaDef.permissions &&
+                isSchemaDefOrType(state.collection.schemaDef.permissions) &&
+                !isSchemaDef(state.collection.schemaDef.permissions) &&
+                isSchemaDef(state.collection.schemaDef.permissions.users) &&
+                Array.isArray(state.collection.schemaDef.permissions.users.default || [])
+                  ? // @ts-expect-error default is an array
+                    (state.collection.schemaDef.permissions.users.default || []).map((value) => ({
                       _id: `${value}`,
                     }))
                   : []
@@ -335,8 +349,9 @@ function OptionsTab(props: OptionsTabProps) {
                 if (newValues !== undefined) {
                   if (
                     !state.collection?.schemaDef.permissions ||
-                    (!isSchemaDef(state.collection?.schemaDef.permissions) &&
-                      !state.collection?.schemaDef.permissions.users)
+                    !isSchemaDefOrType(state.collection.schemaDef.permissions) ||
+                    (!isSchemaDef(state.collection.schemaDef.permissions) &&
+                      !state.collection.schemaDef.permissions.users)
                   ) {
                     dispatch(setRootSchemaProperty('permissions.users', 'type', ['ObjectId']));
                     dispatch(setRootSchemaProperty('permissions.users', 'required', true));
