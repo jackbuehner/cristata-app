@@ -29,8 +29,8 @@ function Field(props: FieldProps) {
       style={props.style}
     >
       {props.label !== '__in-select' && props.label !== '__in-combobox' ? (
-        <>
-          <LabelRow theme={theme} style={props.labelRowStyle}>
+        <div style={props.labelRowStyle}>
+          <LabelRow theme={theme}>
             <Label
               theme={theme}
               font={props.font}
@@ -48,7 +48,7 @@ function Field(props: FieldProps) {
               color={props.color}
             />
           ) : null}
-        </>
+        </div>
       ) : null}
       <div style={props.childWrapperStyle}>{props.children}</div>
     </FieldComponent>

@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { InputHTMLAttributes } from 'react';
+import { CSSProperties, InputHTMLAttributes } from 'react';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Field, FieldProps } from './Field';
 
@@ -9,6 +9,7 @@ interface CheckboxProps
     Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   color?: colorType;
   font?: keyof themeType['font'];
+  style?: CSSProperties;
 }
 
 function Checkbox(props: CheckboxProps) {
@@ -25,11 +26,12 @@ function Checkbox(props: CheckboxProps) {
         display: 'flex',
         flexDirection: 'row-reverse',
         gap: 10,
-        alignItems: 'center',
+        alignItems: 'flex-start',
         paddingTop: 10,
+        ...props.style,
       }}
       labelRowStyle={{ flexGrow: 1 }}
-      labelStyle={{ marginBottom: 0 }}
+      labelStyle={props.description ? undefined : { marginBottom: 0 }}
       childWrapperStyle={{ display: 'flex' }}
     >
       <CheckboxComponent {...props} theme={theme} type={'checkbox'} id={props.label.replaceAll(' ', '-')} />

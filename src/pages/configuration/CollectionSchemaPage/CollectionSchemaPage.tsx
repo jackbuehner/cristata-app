@@ -1,28 +1,50 @@
 import { DocumentNode, gql, useApolloClient } from '@apollo/client';
-import collectionSchema from '@jackbuehner/cristata-api/dist/json-schemas/collection.schema.json';
-import { Collection } from '@jackbuehner/cristata-api/dist/types/config';
-import Editor, { Monaco } from '@monaco-editor/react';
-import { type editor } from 'monaco-editor';
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useTheme } from '@emotion/react';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
+import { SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import ReactRouterPrompt from 'react-router-prompt';
 import { toast } from 'react-toastify';
+import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
-import { useAppDispatch } from '../../../redux/hooks';
+import { Tab, TabBar } from '../../../components/Tabs';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
-import { cristataCodeDarkTheme } from '../cristataCodeDarkTheme';
+import { setCollection, setIsLoading } from '../../../redux/slices/collectionSlice';
+import { Sidebar } from './Sidebar';
+import { MutationsTab } from './tabs/MutationsTab';
+import { OptionsTab } from './tabs/OptionsTab';
+import { QueriesTab } from './tabs/QueriesTab';
+import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
-import prettier from 'prettier/standalone';
-import parserBabel from 'prettier/parser-babel';
+import { Spinner } from '../../../components/Loading';
 
 function CollectionSchemaPage() {
+  const theme = useTheme();
+  const state = useAppSelector(({ collectionConfig }) => collectionConfig);
   const dispatch = useAppDispatch();
-  const location = useLocation();
   const client = useApolloClient();
   const { collection } = useParams() as { collection: string };
-  const [raw, loadingInitial, error, refetch] = useGetRawConfig(collection);
-  const [hasErrors, setHasErrors] = useState(false);
-  const monacoRef = useRef<Monaco | null>(null);
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const [raw, loadingInitial, error, _refetch] = useGetRawConfig(collection);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // when refetching, also update redux with a fresh copy of the collection
+  const refetch = useCallback(async () => {
+    const res = await _refetch();
+    if (res.data.configuration.collection?.raw) {
+      dispatch(setCollection(JSON.parse(res.data.configuration.collection.raw)));
+    }
+  }, [_refetch, dispatch]);
+
+  // set the redux collection state on first load
+  useEffect(() => {
+    if (raw) {
+      if (!state.collection || (state.collection && state.collection.name !== raw.name)) {
+        dispatch(setCollection(raw));
+      }
+    }
+  }, [dispatch, raw, state.collection]);
 
   // set document title
   useEffect(() => {
@@ -30,46 +52,11 @@ function CollectionSchemaPage() {
     else document.title = `Edit schema`;
   }, [raw]);
 
-  const parseRaw = (raw: Collection | null) => {
-    if (raw) raw.name = '__collectionName'; // changing this will create a new collection
-    // @ts-expect-error skipAdditionalParsing should not exist when sending, so delete it
-    if (raw) delete raw.skipAdditionalParsing;
-    return prettier.format(JSON.stringify(raw), {
-      parser: 'json',
-      plugins: [parserBabel],
-      tabWidth: 2,
-      printWidth: 120,
-    });
-  };
-
-  const json = parseRaw(raw ? { ...raw } : null);
-
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     setLoading(loadingInitial);
-  }, [loadingInitial]);
-
-  useEffect(() => {
-    if (json && loadingInitial === false) editorRef.current?.setValue(json);
-  }, [json, loadingInitial]);
-
-  const handleBeforeMount = (monaco: Monaco) => {
-    monaco.editor.defineTheme('cristata-code-dark', cristataCodeDarkTheme);
-
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-      validate: true,
-      allowComments: false,
-      comments: 'error',
-      trailingCommas: 'error',
-      schemas: [
-        {
-          uri: 'collection-schema',
-          fileMatch: ['/configuration/schema/*.json'], // associate with collection schemas
-          schema: collectionSchema,
-        },
-      ],
-    });
-  };
+    dispatch(setIsLoading(loadingInitial));
+  }, [dispatch, loadingInitial]);
 
   // keep loading state synced
   useEffect(() => {
@@ -78,7 +65,9 @@ function CollectionSchemaPage() {
 
   // configure app bar
   useEffect(() => {
-    dispatch(setAppName(raw ? `Edit schema - ${raw.name}` : `Edit collection schema`));
+    dispatch(
+      setAppName((state.isUnsaved ? '*' : '') + (raw ? `Edit schema - ${raw.name}` : `Edit collection schema`))
+    );
     dispatch(
       setAppActions([
         {
@@ -93,31 +82,21 @@ function CollectionSchemaPage() {
           type: 'button',
           icon: 'Save24Regular',
           action: () => {
-            // format on save
-            editorRef.current?.trigger('editor', 'editor.action.formatDocument', null);
-
-            // save
-            const value = editorRef.current
-              ? (JSON.parse(editorRef.current?.getValue()) as Collection & { skipAdditionalParsing?: boolean })
-              : undefined;
-
-            if (value) {
-              // tell the server to not parse objectIds and dates (leave them as strings)
-              value.skipAdditionalParsing = true;
-
-              // use the actual collection name
-              if (value.name === '__collectionName') value.name = collection;
-
+            if (state.collection) {
               // send the mutation
               setLoading(true);
               client
-                .mutate<SaveMutationType>({ mutation: saveMutationString(value.name, value) })
+                .mutate<SaveMutationType>({
+                  mutation: saveMutationString(state.collection.name, {
+                    ...state.collection,
+                  }),
+                })
                 .finally(() => {
                   setLoading(false);
                 })
                 .then(({ data }) => {
                   if (data?.setRawConfigurationCollection) {
-                    editorRef.current?.setValue(parseRaw(JSON.parse(data.setRawConfigurationCollection)));
+                    dispatch(setCollection(JSON.parse(data.setRawConfigurationCollection)));
                   }
                 })
                 .catch((error) => {
@@ -127,41 +106,106 @@ function CollectionSchemaPage() {
                 });
             }
           },
-          disabled: hasErrors,
+          disabled: !state.isUnsaved,
         },
       ])
     );
-  }, [client, collection, dispatch, hasErrors, raw, refetch]);
+  }, [client, collection, dispatch, raw, refetch, state.collection, state.isUnsaved]);
 
-  if (!raw && !navigator.onLine) {
-    return <Offline variant={'centered'} />;
-  }
+  const activeTabIndex = parseInt(location.hash[1]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {raw ? (
-        <Editor
-          defaultLanguage={`json`}
-          language={`json`}
-          defaultValue={json}
-          options={{ tabSize: 2, theme: 'cristata-code-dark' }}
-          beforeMount={handleBeforeMount}
-          path={location.pathname + '.json'}
-          onMount={(editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-            editorRef.current = editor;
-            monacoRef.current = monaco;
-            monaco.editor.setTheme('cristata-code-dark');
-          }}
-          onValidate={(markers: editor.IMarker[]) => {
-            setHasErrors(markers.length > 0);
-          }}
-          onChange={(value) => {}}
-        />
-      ) : error ? (
-        <pre>{JSON.stringify(error, null, 2)}</pre>
-      ) : (
-        <div>Loading...</div>
-      )}
+    <div style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
+      <div style={{ flexGrow: 1 }}>
+        <div style={{ borderBottom: `1px solid ${theme.color.neutral[theme.mode][200]}` }}>
+          <div
+            style={{
+              maxWidth: 800,
+              margin: '0 auto',
+            }}
+          >
+            <TabBar
+              activeTabIndex={activeTabIndex}
+              onActivate={(evt: { detail: { index: SetStateAction<number> } }) =>
+                navigate(location.pathname + location.search + `#${evt.detail.index}`)
+              }
+            >
+              <Tab>Schema</Tab>
+              <Tab>Queries</Tab>
+              <Tab>Mutations</Tab>
+              <Tab>Options</Tab>
+            </TabBar>
+          </div>
+        </div>
+        <div style={{ height: 'calc(100% - 49px)', overflow: 'auto', flexGrow: 1 }}>
+          <div style={{ maxWidth: 800, margin: '0 auto' }}>
+            <div>
+              {!raw && !navigator.onLine ? (
+                <Offline variant={'centered'} />
+              ) : !raw && error ? (
+                <pre>{JSON.stringify(error, null, 2)}</pre>
+              ) : !raw ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 12,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: theme.color.neutral[theme.mode][1500],
+                    fontFamily: theme.font.detail,
+                    height: 200,
+                  }}
+                >
+                  <Spinner color={'neutral'} colorShade={1500} size={30} />
+                  <div>Loading configuration...</div>
+                </div>
+              ) : (
+                <>
+                  {activeTabIndex === 0 ? <SchemaTab /> : null}
+                  {activeTabIndex === 1 ? <QueriesTab /> : null}
+                  {activeTabIndex === 2 ? <MutationsTab /> : null}
+                  {activeTabIndex === 3 ? <OptionsTab /> : null}
+                </>
+              )}
+            </div>
+            {state.isUnsaved ? (
+              <ReactRouterPrompt when={state.isUnsaved}>
+                {({ isActive, onConfirm, onCancel }) =>
+                  isActive ? (
+                    <PlainModal
+                      title={'Are you sure?'}
+                      text={'You have unsaved changes that may be lost.'}
+                      hideModal={() => onCancel(true)}
+                      cancelButton={{
+                        text: 'Go back',
+                        onClick: () => {
+                          onCancel(true);
+                          return true;
+                        },
+                      }}
+                      continueButton={{
+                        color: 'red',
+                        text: 'Yes, discard changes',
+                        onClick: async () => {
+                          await refetch();
+                          onConfirm(true);
+                          return true;
+                        },
+                      }}
+                    />
+                  ) : null
+                }
+              </ReactRouterPrompt>
+            ) : null}
+          </div>
+        </div>
+      </div>
+      <div
+        style={{ width: 300, borderLeft: `1px solid ${theme.color.neutral[theme.mode][200]}`, flexShrink: 0 }}
+      >
+        {raw ? <Sidebar activeTabIndex={activeTabIndex} /> : null}
+      </div>
     </div>
   );
 }
@@ -170,7 +214,13 @@ interface SaveMutationType {
   setRawConfigurationCollection?: string | null;
 }
 
-function saveMutationString(name: string, raw: Collection): DocumentNode {
+function saveMutationString(
+  name: string,
+  raw: GenCollectionInput & { skipAdditionalParsing?: boolean }
+): DocumentNode {
+  // tell the server to not parse objectIds and dates (leave them as strings)
+  raw.skipAdditionalParsing = true;
+
   return gql`
     mutation {
       setRawConfigurationCollection(name: "${name}", raw: ${JSON.stringify(`${JSON.stringify(raw)}`)})

@@ -12,6 +12,7 @@
     "@monaco-editor/react": "^4.4.4",
     "@reduxjs/toolkit": "^1.6.2",
     "@rmwc/linear-progress": "^8.0.0",
+    "@rmwc/tabs": "^8.0.0",
     "@tiptap/extension-collaboration": "^2.0.0-beta.33",
     "@tiptap/extension-collaboration-cursor": "^2.0.0-beta.34",
     "@tiptap/extension-font-family": "^2.0.0-beta.21",

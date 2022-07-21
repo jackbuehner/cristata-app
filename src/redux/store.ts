@@ -7,12 +7,14 @@ import appbarReducer from './slices/appbarSlice';
 import authUserReducer from './slices/authUserSlice';
 import cmsItemReducer from './slices/cmsItemSlice';
 import graphiqlReducer from './slices/graphiqlSlice';
+import collectionReducer from './slices/collectionSlice';
 
 const reducers = combineReducers({
   appbar: appbarReducer,
   authUser: authUserReducer,
   cmsItem: cmsItemReducer,
   graphiql: graphiqlReducer,
+  collectionConfig: collectionReducer,
 });
 
 const persistedReducer = persistReducer(

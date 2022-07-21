@@ -1,9 +1,9 @@
 import { ApolloError, ApolloQueryResult, DocumentNode, gql, NetworkStatus, useQuery } from '@apollo/client';
-import { Collection } from '@jackbuehner/cristata-api/dist/types/config';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
 
 function useGetRawConfig(
   name: string
-): [Collection | null, boolean, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>] {
+): [GenCollectionInput | null, boolean, ApolloError | undefined, () => Promise<ApolloQueryResult<QueryType>>] {
   const res = useQuery<QueryType>(queryString(name), {
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
