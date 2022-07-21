@@ -59,6 +59,8 @@ function useCreateSchemaDef(
       if (type === 'objectid') return 'ObjectId';
       if (type === 'reference') return 'Reference';
       if (type === 'richtext') return 'String';
+      if (type === 'branching') return 'JSON';
+      if (type === 'docarray') return '[]';
       return 'String';
     })();
 
@@ -85,12 +87,16 @@ function useCreateSchemaDef(
             onClick: async () => {
               const path = props.apiIdPrefix ? `${props.apiIdPrefix}.${newId}` : newId;
 
-              dispatch(setRootSchemaProperty(path, 'id', newId));
-              dispatch(setRootSchemaProperty(path, 'field.label', newName));
-              dispatch(setRootSchemaProperty(path, 'modifiable', true));
-              dispatch(setRootSchemaProperty(path, 'multiple', allowMultiple));
+              if (parsedType !== '[]') {
+                dispatch(setRootSchemaProperty(path, 'id', newId));
+                dispatch(setRootSchemaProperty(path, 'field.label', newName));
+                dispatch(setRootSchemaProperty(path, 'modifiable', true));
+                dispatch(setRootSchemaProperty(path, 'multiple', allowMultiple));
+              }
 
-              if (parsedType === 'Reference' && allowMultiple) {
+              if (parsedType === '[]') {
+                dispatch(setRootSchemaProperty(path + '.0.#label', 'type', 'String'));
+              } else if (parsedType === 'Reference' && allowMultiple) {
                 dispatch(setRootSchemaProperty(path, 'type', [`[${referenceType}]`, ['ObjectId']]));
               } else if (parsedType === 'Reference' && !allowMultiple) {
                 dispatch(setRootSchemaProperty(path, 'type', [referenceType, 'ObjectId']));
@@ -98,6 +104,10 @@ function useCreateSchemaDef(
                 dispatch(setRootSchemaProperty(path, 'type', [parsedType]));
               } else if (!allowMultiple) {
                 dispatch(setRootSchemaProperty(path, 'type', parsedType));
+              }
+
+              if (parsedType === 'JSON' && type === 'branching') {
+                dispatch(setRootSchemaProperty(path + '.field', 'custom', []));
               }
 
               setIsCreated(true);
