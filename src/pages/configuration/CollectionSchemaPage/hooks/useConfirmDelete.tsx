@@ -61,7 +61,7 @@ interface DeleteMutationType {
 function deleteMutationString(name: string): DocumentNode {
   return gql`
     mutation {
-      deleteCollection(name: "${name}")})
+      deleteCollection(name: "${name}")
     }
   `;
 }
