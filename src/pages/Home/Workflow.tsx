@@ -20,11 +20,10 @@ function Workflow() {
 
   // reduce stages to remove duplicates
   // (merge stage numbers from the different collections)
-  const stages = workflowStages?.reduce(
-    (obj: { [key: number]: number }, item) =>
-      Object.assign(obj, { [item._id]: (obj[item._id] || 0) + item.count }),
-    {}
-  );
+  const stages = workflowStages?.reduce((obj: { [key: number]: number }, item) => {
+    if (item) return Object.assign(obj, { [item._id]: (obj[item._id] || 0) + item.count });
+    return obj;
+  }, {});
 
   // return status cards
   renderCounter.current = renderCounter.current + 1;
