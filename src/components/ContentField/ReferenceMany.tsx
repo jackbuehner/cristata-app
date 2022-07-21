@@ -53,10 +53,11 @@ function ReferenceMany({ onChange, ...props }: ReferenceManyProps) {
   useEffect(() => {
     (async () => {
       if (props.values) {
-        const valuesAreLooselyDifferent = !(props.values as UnpopulatedValue[]).every(({ _id, label }) => {
-          const internalIds = (internalState as PopulatedValue[]).map(({ _id }) => _id);
-          return internalIds.includes(_id);
-        });
+        const valuesAreLooselyDifferent =
+          !(props.values as UnpopulatedValue[]).every(({ _id, label }) => {
+            const internalIds = (internalState as PopulatedValue[]).map(({ _id }) => _id);
+            return internalIds.includes(_id);
+          }) || props.values.length !== internalState.length;
         if (valuesAreLooselyDifferent) {
           _setInternalState(
             await populateReferenceValues(client, props.values, props.collection, props.reference?.fields)
