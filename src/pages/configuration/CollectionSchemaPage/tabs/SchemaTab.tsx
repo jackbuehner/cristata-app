@@ -134,7 +134,7 @@ function SchemaTab(props: SchemaTabProps) {
               key={key + index}
               icon={'docarray'}
               label={labelDef?.field?.label || key}
-              id={id.replace('.0', '')}
+              id={id.replace('.0', '.0.#label')}
               tags={['Document Array']}
             />
             <DocArrayCard id={id}>

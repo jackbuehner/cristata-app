@@ -52,6 +52,8 @@ function EditSchemaDef(props: EditSchemaDefProps) {
 
   const isBranching = type === 'JSON' && def?.field?.custom;
   const isInBranch = props.id.includes('.field.custom.');
+  const isDocArray = props.id.includes('.0.#label');
+  const isInDocArray = props.id.includes('.0.') && !props.id.includes('.0.#label');
 
   return (
     <div>
@@ -106,12 +108,13 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 }
               />
             ) : null}
-            {type === 'String' ||
-            type === 'Strings' ||
-            type === 'Number' ||
-            type === 'Numbers' ||
-            type === 'Float' ||
-            type === 'Floats' ? (
+            {!isDocArray &&
+            (type === 'String' ||
+              type === 'Strings' ||
+              type === 'Number' ||
+              type === 'Numbers' ||
+              type === 'Float' ||
+              type === 'Floats') ? (
               <Field isEmbedded label={'Value options'}>
                 <>
                   <Checkbox
@@ -225,16 +228,18 @@ function EditSchemaDef(props: EditSchemaDefProps) {
           </>
         ) : activeTab === 1 ? (
           <>
-            <Checkbox
-              isEmbedded
-              label={'Make this field required'}
-              description={
-                'Prevent saving an entry if this field is not defined. Empty text fields are considered to be defined.'
-              }
-              checked={def?.required === true}
-              onChange={(e) => dispatch(setRootSchemaProperty(props.id, `required`, e.currentTarget.checked))}
-            />
-            {!isBranching && !isInBranch ? (
+            {!isDocArray ? (
+              <Checkbox
+                isEmbedded
+                label={'Make this field required'}
+                description={
+                  'Prevent saving an entry if this field is not defined. Empty text fields are considered to be defined.'
+                }
+                checked={def?.required === true}
+                onChange={(e) => dispatch(setRootSchemaProperty(props.id, `required`, e.currentTarget.checked))}
+              />
+            ) : null}
+            {!isBranching && !isInBranch && !isDocArray ? (
               <Checkbox
                 isEmbedded
                 label={'Set this field as unique'}
@@ -243,7 +248,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 onChange={(e) => dispatch(setRootSchemaProperty(props.id, `unique`, e.currentTarget.checked))}
               />
             ) : null}
-            {!isBranching && !isInBranch ? (
+            {!isBranching && !isInBranch && !isDocArray ? (
               <Checkbox
                 isEmbedded
                 label={'Require this field to match a specific pattern'}
@@ -294,7 +299,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
           </>
         ) : (
           <>
-            {!isBranching && !isInBranch ? (
+            {!isBranching && !isInBranch && !isDocArray && !isInDocArray ? (
               <Field isEmbedded label={'Search and sort'}>
                 <>
                   {type === 'String' || type === 'Strings' ? (
@@ -330,7 +335,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                     }
                   />
                 ) : null}
-                {!isInBranch ? (
+                {!isInBranch && !isDocArray && !isInDocArray ? (
                   <Checkbox
                     isEmbedded
                     label={'Hide from table views'}
@@ -340,7 +345,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                     }
                   />
                 ) : null}
-                {!isBranching ? (
+                {!isBranching && !isDocArray ? (
                   <Checkbox
                     isEmbedded
                     label={'Make this field read only'}
@@ -354,6 +359,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
             </Field>
             {!isBranching &&
             !isInBranch &&
+            !isDocArray &&
             (type === 'String' ||
               type === 'Number' ||
               type === 'Int' ||
@@ -515,7 +521,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 </>
               </Field>
             ) : null}
-            {!isInBranch ? (
+            {!isInBranch && !isDocArray && !isInDocArray ? (
               <Field isEmbedded label={'Setter'}>
                 <>
                   <Checkbox
@@ -564,7 +570,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                   }
                 />
               </div>
-              {!isInBranch ? (
+              {!isInBranch && !isDocArray && !isInDocArray ? (
                 <div style={{ flexGrow: 1 }}>
                   <Number
                     isEmbedded
@@ -578,7 +584,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 </div>
               ) : null}
             </div>
-            {!isInBranch ? (
+            {!isInBranch && !isDocArray && !isInDocArray ? (
               <Number
                 isEmbedded
                 type={'Int'}
@@ -590,6 +596,8 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               />
             ) : null}
             {!isInBranch &&
+            !isDocArray &&
+            !isInDocArray &&
             (type === 'String' ||
               type === 'Strings' ||
               type === 'Number' ||
