@@ -18,6 +18,7 @@ import { EditSchemaDef } from './EditSchemaDef';
 
 interface UseCreateSchemaDefProps {
   type: keyof typeof icons;
+  apiIdPrefix?: string;
 }
 
 function useCreateSchemaDef(
@@ -83,19 +84,21 @@ function useCreateSchemaDef(
         ? {
             text: 'Create',
             onClick: async () => {
-              dispatch(setRootSchemaProperty(newId, 'id', newId));
-              dispatch(setRootSchemaProperty(newId, 'field.label', newName));
-              dispatch(setRootSchemaProperty(newId, 'modifiable', true));
-              dispatch(setRootSchemaProperty(newId, 'multiple', allowMultiple));
+              const path = props.apiIdPrefix ? `${props.apiIdPrefix}.${newId}` : newId;
+
+              dispatch(setRootSchemaProperty(path, 'id', newId));
+              dispatch(setRootSchemaProperty(path, 'field.label', newName));
+              dispatch(setRootSchemaProperty(path, 'modifiable', true));
+              dispatch(setRootSchemaProperty(path, 'multiple', allowMultiple));
 
               if (parsedType === 'Reference' && allowMultiple) {
-                dispatch(setRootSchemaProperty(newId, 'type', [`[${referenceType}]`, ['ObjectId']]));
+                dispatch(setRootSchemaProperty(path, 'type', [`[${referenceType}]`, ['ObjectId']]));
               } else if (parsedType === 'Reference' && !allowMultiple) {
-                dispatch(setRootSchemaProperty(newId, 'type', [referenceType, 'ObjectId']));
+                dispatch(setRootSchemaProperty(path, 'type', [referenceType, 'ObjectId']));
               } else if (allowMultiple) {
-                dispatch(setRootSchemaProperty(newId, 'type', [parsedType]));
+                dispatch(setRootSchemaProperty(path, 'type', [parsedType]));
               } else if (!allowMultiple) {
-                dispatch(setRootSchemaProperty(newId, 'type', parsedType));
+                dispatch(setRootSchemaProperty(path, 'type', parsedType));
               }
 
               setIsCreated(true);
@@ -144,9 +147,17 @@ function useCreateSchemaDef(
                     ? `<div style="color: ${theme.color.danger[800]}">ID already exists</div>`
                     : undefined
                 }
-                value={newId}
+                value={props.apiIdPrefix ? `${props.apiIdPrefix}.${newId}` : newId}
                 onChange={(e) => {
-                  setNewId(slugify(e.currentTarget.value, ''));
+                  const prefix = props.apiIdPrefix
+                    ? e.currentTarget.value.slice(0, props.apiIdPrefix.length + 1)
+                    : '.';
+                  const value = props.apiIdPrefix
+                    ? e.currentTarget.value.slice(props.apiIdPrefix.length + 1)
+                    : e.currentTarget.value;
+                  if (prefix === `${props.apiIdPrefix}.`) {
+                    setNewId(slugify(value, ''));
+                  }
                 }}
               />
             )}
@@ -181,7 +192,10 @@ function useCreateSchemaDef(
             ) : null}
           </div>
         ) : (
-          <EditSchemaDef id={newId} setName={setNewName} />
+          <EditSchemaDef
+            id={props.apiIdPrefix ? `${props.apiIdPrefix}.${newId}` : newId}
+            setName={setNewName}
+          />
         ),
     };
   }, [...deps]);
