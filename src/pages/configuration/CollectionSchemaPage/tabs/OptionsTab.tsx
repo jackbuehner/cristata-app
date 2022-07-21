@@ -3,6 +3,7 @@ import {
   isSchemaDef,
   isSchemaDefOrType,
 } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';
@@ -26,7 +27,9 @@ import {
   setWatcherNotices,
   setWithPermissions,
   setWithSubscription,
+  setActionAccess,
 } from '../../../../redux/slices/collectionSlice';
+import { capitalize } from '../../../../utils/capitalize';
 import { colorType } from '../../../../utils/theme/theme';
 import { getFieldTypes } from './getFieldTypes';
 
@@ -45,6 +48,7 @@ function OptionsTab(props: OptionsTabProps) {
   const withSubscription = state.collection?.withSubscription;
   const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
   const watcherNotices = state.collection?.options?.watcherNotices;
+  const actionAccess = state.collection?.actionAccess;
 
   const fieldTypes = getFieldTypes(state.collection?.schemaDef || {}, true);
   const dateFields = fieldTypes.filter(([key, label, type]) => type === 'Date');
@@ -302,11 +306,16 @@ function OptionsTab(props: OptionsTabProps) {
                 isSchemaDef(state.collection.schemaDef.permissions.teams) &&
                 Array.isArray(state.collection.schemaDef.permissions.teams.default || [])
                   ? // @ts-expect-error default is an array
-                    (state.collection.schemaDef.permissions.teams.default || []).map((value) => ({
-                      _id: `${value}`,
-                    }))
+                    (state.collection.schemaDef.permissions.teams.default || []).map((value) =>
+                      value === 0
+                        ? { _id: 'any', label: 'Any team' }
+                        : {
+                            _id: `${value}`,
+                          }
+                    )
                   : []
               }
+              injectOptions={[{ value: 'any', label: 'Any team' }]}
               collection={'Team'}
               onChange={(newValues) => {
                 if (newValues !== undefined) {
@@ -323,7 +332,7 @@ function OptionsTab(props: OptionsTabProps) {
                     setRootSchemaProperty(
                       'permissions.teams',
                       'default',
-                      newValues.map((val) => val._id)
+                      newValues.map((val) => (val._id === 'any' ? 0 : val._id))
                     )
                   );
                 }
@@ -339,11 +348,16 @@ function OptionsTab(props: OptionsTabProps) {
                 isSchemaDef(state.collection.schemaDef.permissions.users) &&
                 Array.isArray(state.collection.schemaDef.permissions.users.default || [])
                   ? // @ts-expect-error default is an array
-                    (state.collection.schemaDef.permissions.users.default || []).map((value) => ({
-                      _id: `${value}`,
-                    }))
+                    (state.collection.schemaDef.permissions.users.default || []).map((value) =>
+                      value === 0
+                        ? { _id: 'any', label: 'Any user' }
+                        : {
+                            _id: `${value}`,
+                          }
+                    )
                   : []
               }
+              injectOptions={[{ value: 'any', label: 'Any user' }]}
               collection={'Team'}
               onChange={(newValues) => {
                 if (newValues !== undefined) {
@@ -360,7 +374,7 @@ function OptionsTab(props: OptionsTabProps) {
                     setRootSchemaProperty(
                       'permissions.users',
                       'default',
-                      newValues.map((val) => val._id)
+                      newValues.map((val) => (val._id === 'any' ? 0 : val._id))
                     )
                   );
                 }
@@ -377,12 +391,83 @@ function OptionsTab(props: OptionsTabProps) {
           />
         ) : null}
       </Card>
+      <Card>
+        <CardLabel>Action access</CardLabel>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          {(
+            [
+              'get',
+              'create',
+              'modify',
+              'hide',
+              'lock',
+              'watch',
+              'archive',
+              'delete',
+              canPublish ? 'publish' : null,
+              'bypassDocPermissions',
+            ] as unknown as CollectionPermissionsActions[]
+          )
+            .filter((a) => !!a)
+            .map((action) => {
+              return (
+                <Card key={'action'} noMargin>
+                  <CardLabel>{capitalize(action)}</CardLabel>
+                  <ReferenceMany
+                    isEmbedded
+                    label={`Users`}
+                    values={
+                      actionAccess?.[action]?.users.map((user) =>
+                        user === 0 ? { _id: 'any', label: 'Any user' } : { _id: user }
+                      ) || []
+                    }
+                    injectOptions={[{ value: 'any', label: 'Any user' }]}
+                    collection={'User'}
+                    onChange={(newValues) => {
+                      const current = actionAccess?.[action];
+                      if (newValues !== undefined && current) {
+                        dispatch(
+                          setActionAccess(action, {
+                            users: newValues.map((value) => (value._id === 'any' ? 0 : value._id)),
+                            teams: current.teams,
+                          })
+                        );
+                      }
+                    }}
+                  />
+                  <ReferenceMany
+                    isEmbedded
+                    label={`Teams`}
+                    values={
+                      actionAccess?.[action]?.teams.map((team) =>
+                        team === 0 ? { _id: 'any', label: 'Any team' } : { _id: team }
+                      ) || []
+                    }
+                    injectOptions={[{ value: 'any', label: 'Any team' }]}
+                    collection={'Team'}
+                    onChange={(newValues) => {
+                      const current = actionAccess?.[action];
+                      if (newValues !== undefined && current) {
+                        dispatch(
+                          setActionAccess(action, {
+                            users: current.users,
+                            teams: newValues.map((value) => (value._id === 'any' ? 0 : value._id)),
+                          })
+                        );
+                      }
+                    }}
+                  />
+                </Card>
+              );
+            })}
+        </div>
+      </Card>
     </div>
   );
 }
 
-const Card = styled.div`
-  margin: 16px 0;
+const Card = styled.div<{ noMargin?: boolean }>`
+  margin: ${({ noMargin }) => (noMargin ? 0 : 16)}px 0;
   padding: 16px;
   box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][200]} 0px 0px 0px 1px inset;
   background-color: ${({ theme }) =>
