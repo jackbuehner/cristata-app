@@ -11,7 +11,7 @@ function useEditSchemaDef(props: UseEditSchemaDefProps): [React.ReactNode, () =>
     return {
       title: `${props.label}`,
       windowOptions: { name: `editSchemaField_${props.label}`, width: 370, height: 560 },
-      styleString: `height: 600px; display: flex; flex-direction: column; > div[class*='-PlainModalContent'] { padding: 0; }`,
+      styleString: `height: 600px; display: flex; flex-direction: column; > div:first-of-type { padding: 0; }`,
       cancelButton: null,
       continueButton: { text: 'Close' },
       children: <EditSchemaDef id={props.id} />,

@@ -79,7 +79,7 @@ function useCreateSchemaDef(
     return {
       title: type === 'unknown' ? `Choose field type` : !isCreated ? `Create new field` : newName || newId,
       windowOptions: { name: `createSchemaField_${type}`, width: 370, height: 560 },
-      styleString: `height: 600px; display: flex; flex-direction: column; > div[class*='-PlainModalContent'] { padding: 0; }`,
+      styleString: `height: 600px; display: flex; flex-direction: column; > div:first-of-type { padding: 0; }`,
       cancelButton: !isCreated ? undefined : null,
       continueButton: !isCreated
         ? {
