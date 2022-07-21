@@ -24,7 +24,7 @@ function Sidebar(props: SidebarProps) {
           <SidebarSchemaCard label={'Boolean'} icon={'boolean'} />
           <SidebarSchemaCard label={'Reference'} icon={'reference'} />
           <SidebarSchemaCard label={'Date and time'} icon={'datetime'} />
-          <SidebarSchemaCard label={'Unique ID'} icon={'objectid'} />
+          {/* <SidebarSchemaCard label={'ObjectID'} icon={'objectid'} /> */}
           {state.collection?.schemaDef?.name &&
           isSchemaDef(state.collection.schemaDef.name) &&
           state.collection.schemaDef.name.type === 'String' ? (

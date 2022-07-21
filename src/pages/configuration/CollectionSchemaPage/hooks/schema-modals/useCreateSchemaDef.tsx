@@ -125,7 +125,7 @@ function useCreateSchemaDef(
             <SidebarSchemaCard label={'Boolean'} icon={'boolean'} onClick={() => setType('boolean')} />
             <SidebarSchemaCard label={'Reference'} icon={'reference'} onClick={() => setType('reference')} />
             <SidebarSchemaCard label={'Date and time'} icon={'datetime'} onClick={() => setType('datetime')} />
-            <SidebarSchemaCard label={'Unique ID'} icon={'objectid'} onClick={() => setType('objectid')} />
+            {/* <SidebarSchemaCard label={'ObjectID'} icon={'objectid'} onClick={() => setType('objectid')} /> */}
           </div>
         ) : !isCreated ? (
           <div style={{ padding: '20px 24px' }}>
