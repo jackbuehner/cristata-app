@@ -155,7 +155,7 @@ function useCreateSchemaDef(
               value={newName}
               onChange={(e) => {
                 setNewName(e.currentTarget.value);
-                setNewId(slugify(e.currentTarget.value, ''));
+                setNewId(slugify(e.currentTarget.value, '_'));
               }}
             />
             {type === 'richtext' ? null : (
@@ -176,7 +176,7 @@ function useCreateSchemaDef(
                     ? e.currentTarget.value.slice(props.apiIdPrefix.length + 1)
                     : e.currentTarget.value;
                   if (prefix === `${props.apiIdPrefix}.`) {
-                    setNewId(slugify(value, ''));
+                    setNewId(slugify(value, '_'));
                   }
                 }}
               />
