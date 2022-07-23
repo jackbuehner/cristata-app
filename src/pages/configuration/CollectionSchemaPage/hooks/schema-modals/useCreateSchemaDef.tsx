@@ -71,10 +71,14 @@ function useCreateSchemaDef(
       }
     });
 
-    const referenceOptions = (collections || []).map((collection) => ({
-      value: collection.name,
-      label: collection.name,
-    }));
+    const referenceOptions = [
+      ...(collections || []).map((collection) => ({
+        value: collection.name,
+        label: collection.name,
+      })),
+      { value: 'User', label: 'User' },
+      { value: 'Team', label: 'Team' },
+    ];
     const [referenceType, setReferenceType] = useState<string>(referenceOptions[0]?.value || 'User');
 
     return {
