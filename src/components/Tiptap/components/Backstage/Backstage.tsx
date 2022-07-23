@@ -97,13 +97,13 @@ function Backstage(props: BackstageProps) {
             Publish
           </NavButton>
         ) : null}
-        <NavButton
+        {/* <NavButton
           color={'blue'}
           icon={<FluentIcon name='Print24Regular' />}
           onClick={() => setActiveTabIndex(0)}
         >
           Print
-        </NavButton>
+        </NavButton> */}
         <NavButton
           color={'blue'}
           icon={<FluentIcon name='ArrowExportUp24Regular' />}
