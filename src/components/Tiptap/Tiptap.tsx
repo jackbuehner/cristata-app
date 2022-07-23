@@ -329,6 +329,7 @@ const Tiptap = (props: ITiptap) => {
                 },
               ]}
               isDisabled={props.isDisabled}
+              isBackstageOpen={isBackstageOpen}
             />
           ) : null}
         </ErrorBoundary>

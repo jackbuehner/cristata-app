@@ -17,6 +17,7 @@ interface ITitlebar {
     isActive?: boolean;
   }>;
   isDisabled?: boolean;
+  isBackstageOpen: boolean;
 }
 
 function Titlebar(props: ITitlebar) {
@@ -56,64 +57,68 @@ function Titlebar(props: ITitlebar) {
   return (
     <Wrapper>
       <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX}>
-        <QuickAccess>
-          {
-            // right controls: <- -> | * * * * | doc title     […] [_] [■] [X]
-            // left controls:  [X] [_] [■] | <- -> * * * * | doc title     […]
-          }
-          {
-            // if the horizontal offset is greater than 0, this means the window controls are on the left, which means we need a divider to separate the window controls from the quick access buttons
-            customTitlebarOffsetX > 0 ? <Divider /> : null
-          }
-          {
-            // only show history navigation when the titlebar replaces the default titlebar
-            //@ts-expect-error windowControlsOverlay is only available in some browsers
-            navigator.windowControlsOverlay?.visible ? (
-              <>
-                <TitlebarButton
-                  onClick={() => navigate(-1)}
-                  data-tip={'Go back'}
-                  iconSize={16}
-                  width={customTitlebarOffsetX !== 0 ? 33 : undefined}
-                >
-                  <ArrowLeft20Regular />
-                </TitlebarButton>
-                <TitlebarButton
-                  onClick={() => navigate(1)}
-                  data-tip={'Go forward'}
-                  iconSize={16}
-                  width={customTitlebarOffsetX !== 0 ? 33 : undefined}
-                >
-                  <ArrowRight20Regular />
-                </TitlebarButton>
-                {
-                  // if the horizontal offset is 0, this means the window controls are on the right, which means we need a divider to separate the larger size history buttons
-                  customTitlebarOffsetX === 0 ? <Divider /> : null
-                }
-              </>
-            ) : null
-          }
-          <TitlebarButton onClick={() => navigate('/')} data-tip={'Navigate home'} iconSize={16} width={33}>
-            <Home16Regular />
-          </TitlebarButton>
-          {props.actions?.map((action, index) => {
-            return (
-              <TitlebarButton
-                key={index}
-                data-tip={action.label}
-                width={33}
-                iconSize={action.label === 'Save' ? 20 : undefined}
-                onClick={action.action}
-                isActive={action.isActive}
-                disabled={props.isDisabled || action.disabled}
-              >
-                {action.icon}
+        {props.isBackstageOpen ? null : (
+          <>
+            <QuickAccess>
+              {
+                // right controls: <- -> | * * * * | doc title     […] [_] [■] [X]
+                // left controls:  [X] [_] [■] | <- -> * * * * | doc title     […]
+              }
+              {
+                // if the horizontal offset is greater than 0, this means the window controls are on the left, which means we need a divider to separate the window controls from the quick access buttons
+                customTitlebarOffsetX > 0 ? <Divider /> : null
+              }
+              {
+                // only show history navigation when the titlebar replaces the default titlebar
+                //@ts-expect-error windowControlsOverlay is only available in some browsers
+                navigator.windowControlsOverlay?.visible ? (
+                  <>
+                    <TitlebarButton
+                      onClick={() => navigate(-1)}
+                      data-tip={'Go back'}
+                      iconSize={16}
+                      width={customTitlebarOffsetX !== 0 ? 33 : undefined}
+                    >
+                      <ArrowLeft20Regular />
+                    </TitlebarButton>
+                    <TitlebarButton
+                      onClick={() => navigate(1)}
+                      data-tip={'Go forward'}
+                      iconSize={16}
+                      width={customTitlebarOffsetX !== 0 ? 33 : undefined}
+                    >
+                      <ArrowRight20Regular />
+                    </TitlebarButton>
+                    {
+                      // if the horizontal offset is 0, this means the window controls are on the right, which means we need a divider to separate the larger size history buttons
+                      customTitlebarOffsetX === 0 ? <Divider /> : null
+                    }
+                  </>
+                ) : null
+              }
+              <TitlebarButton onClick={() => navigate('/')} data-tip={'Navigate home'} iconSize={16} width={33}>
+                <Home16Regular />
               </TitlebarButton>
-            );
-          })}
-        </QuickAccess>
-        <Divider />
-        <Title>{props.title || 'Cristata'}</Title>
+              {props.actions?.map((action, index) => {
+                return (
+                  <TitlebarButton
+                    key={index}
+                    data-tip={action.label}
+                    width={33}
+                    iconSize={action.label === 'Save' ? 20 : undefined}
+                    onClick={action.action}
+                    isActive={action.isActive}
+                    disabled={props.isDisabled || action.disabled}
+                  >
+                    {action.icon}
+                  </TitlebarButton>
+                );
+              })}
+            </QuickAccess>
+            <Divider />
+          </>
+        )}
+        <Title isBackstageOpen={props.isBackstageOpen}>{props.title || 'Cristata'}</Title>
       </TITLEBAR>
     </Wrapper>
   );
@@ -151,7 +156,7 @@ const QuickAccess = styled.div`
   align-items: center;
 `;
 
-const Title = styled.div`
+const Title = styled.div<{ isBackstageOpen: boolean }>`
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   font-size: 13px;
@@ -166,6 +171,7 @@ const Title = styled.div`
   overflow: hidden;
   display: inline-block;
   line-height: env(titlebar-area-height, 33px);
+  padding: ${({ isBackstageOpen }) => (isBackstageOpen ? '0 10px' : '0')};
 `;
 
 const TitlebarButton = styled.button<{
