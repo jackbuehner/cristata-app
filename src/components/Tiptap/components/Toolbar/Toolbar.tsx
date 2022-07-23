@@ -25,7 +25,6 @@ import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
 import { useModal } from 'react-modal-hook';
 import { PlainModal } from '../../../Modal';
-import { FluentIcon } from '../../../FluentIcon';
 import { InputGroup } from '../../../InputGroup';
 import { Label } from '../../../Label';
 import Color from 'color';
@@ -97,6 +96,7 @@ interface IToolbar {
   setSidebarContent: React.Dispatch<React.SetStateAction<React.ReactElement>>;
   sidebarTitle: string;
   setSidebarTitle: React.Dispatch<React.SetStateAction<string>>;
+  setIsBackstageOpen: React.Dispatch<React.SetStateAction<boolean>>;
   actions?: Array<Action | null>;
   forceMax?: boolean;
   options?: tiptapOptions;
@@ -631,6 +631,9 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
         <ToolbarTabRow theme={theme} width={props.tiptapWidth} compact={props.compact}>
           {props.compact ? null : (
             <ToolbarTabList width={props.tiptapWidth}>
+              <ToolbarTabButton theme={theme} color={'blue'} onClick={() => props.setIsBackstageOpen(true)}>
+                File
+              </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
                 color={'blue'}
@@ -663,16 +666,6 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               >
                 Review
               </ToolbarTabButton>
-              {props.actions ? (
-                <ToolbarTabButton
-                  theme={theme}
-                  color={'blue'}
-                  isActive={activeTab === 'actions'}
-                  onClick={() => setActiveTab('actions')}
-                >
-                  Actions
-                </ToolbarTabButton>
-              ) : null}
             </ToolbarTabList>
           )}
 
@@ -1149,33 +1142,6 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 </>
               ) : null}
             </ToolbarRow>
-            {props.actions ? (
-              <ToolbarRow isActive={activeTab === 'actions'}>
-                {props.actions.map((action, index) => {
-                  if (action === null) {
-                    return null;
-                  }
-                  return (
-                    <ToolbarRowButton
-                      key={index}
-                      onClick={action.action}
-                      color={action.color}
-                      disabled={
-                        (props.isDisabled &&
-                          action.label !== 'Remove from archive' &&
-                          action.label !== 'Watch' &&
-                          action.label !== 'Stop watching') ||
-                        action.disabled
-                      }
-                      icon={action.icon ? <FluentIcon name={action.icon} /> : <></>}
-                      isActive={false}
-                    >
-                      {action.label}
-                    </ToolbarRowButton>
-                  );
-                })}
-              </ToolbarRow>
-            ) : null}
           </ToolbarActionRowContainer>
         )}
       </TOOLBAR>
