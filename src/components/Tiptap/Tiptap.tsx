@@ -25,6 +25,7 @@ import { useAppDispatch } from '../../redux/hooks';
 import { setField } from '../../redux/slices/cmsItemSlice';
 import { themeType } from '../../utils/theme/theme';
 import { Spinner } from '../Loading';
+import { Backstage } from './components/Backstage';
 import { Noticebar } from './components/Noticebar';
 import { Sidebar } from './components/Sidebar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
@@ -231,239 +232,268 @@ const Tiptap = (props: ITiptap) => {
     }
   }, [editor, props.user]);
 
+  // track whether the backstage view is shown
+  const [isBackstageOpen, setIsBackstageOpen] = useState<boolean>(false);
+
   return (
     <Container theme={theme} isMaximized={props.isMaximized || false} ref={observe}>
-      <ErrorBoundary
-        fallback={
-          <div
-            style={{
-              background: 'black',
-              color: 'white',
-              left: 'env(titlebar-area-x, 0)',
-              top: 'env(titlebar-area-y, 0)',
-              width: 'env(titlebar-area-width, 100%)',
-              height: 'env(titlebar-area-height, 33px)',
-              //@ts-expect-error this is a (currently) nonstandard property
-              webkitAppRegion: 'drag',
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              fontFamily: 'sans-serif',
-              fontSize: 14,
-            }}
-          >
-            Error loading titlebar
-          </div>
-        }
-      >
-        {props.isMaximized ? (
-          <Titlebar
-            title={props.title}
-            actions={[
-              {
-                label: 'Undo',
-                icon: <ArrowUndo20Regular />,
-                disabled: !editor?.can().undo(),
-                action: () => editor?.chain().focus().undo().run(),
-              },
-              {
-                label: 'Redo',
-                icon: <ArrowRedo20Regular />,
-                disabled: !editor?.can().redo(),
-                action: () => editor?.chain().focus().redo().run(),
-              },
-              {
-                label: 'Save',
-                icon: <Save20Regular />,
-                disabled: false,
-                action: props.actions?.find((action) => action?.label === 'Save')?.action || (() => null),
-              },
-              {
-                label: 'Track changes',
-                icon: (
-                  <svg height='100%' width='100%' viewBox='0,0,2048,2048' focusable='false' fill='currentColor'>
-                    <path
-                      type='path'
-                      d='M 921 717 h -307 v -103 h 307 m 284 410 h -386 v -102 h 409 v 79 m -330 330 h -284 v -102 h 386 m -454 717 h -239 v -1844 h 920 l 456 456 q -15 10 -29 21 q -14 10 -27 23 l -115 115 h -387 v -512 h -716 v 1638 h 177 m 642 -1229 h 366 l -366 -366 m 511 1108 v 590 h -594 l 103 -103 h 389 v -386 m 351 -783 q 30 30 45 68 q 15 38 15 77 q 0 40 -15 78 q -15 37 -45 67 l -916 910 l -454 167 l 183 -468 l 898 -899 q 29 -29 67 -44 q 38 -15 77 -15 q 40 0 78 15 q 37 15 67 44 m -1064 921 q 90 53 145 144 l 759 -759 l -145 -145 m -889 1032 l 190 -69 q -43 -76 -119 -119 m 1051 -787 q 15 -15 23 -33 q 7 -19 7 -39 q 0 -21 -8 -39 q -8 -19 -22 -33 q -15 -15 -33 -23 q -19 -8 -40 -8 q -20 0 -38 8 q -19 7 -34 22 l -16 16 l 145 144 z'
-                    ></path>
-                    <path
-                      type='path'
-                      fill='transparent'
-                      d='M 569 1886 h -211 v -1732 h 840 l 443 436 q -3 3 -7 6 q -4 2 -7 6 l -913 914 m 974 -110 v 480 h -483 z'
-                    ></path>
-                    <path
-                      type='path'
-                      d='M 921 717 h -307 v -103 h 307 m 284 410 h -386 v -102 h 409 v 79 m -330 330 h -284 v -102 h 386 z'
-                    ></path>
-                    <path
-                      type='path'
-                      d='M 546 1946 h -239 v -1844 h 920 l 456 456 q -15 10 -29 21 q -14 10 -27 23 l -115 115 h -387 v -512 h -716 v 1638 h 177 m 642 -1229 h 366 l -366 -366 m 511 1108 v 590 h -594 l 103 -103 h 389 v -386 z'
-                    ></path>
-                    <path
-                      type='path'
-                      fill='transparent'
-                      d='M 820 1634 q 240 -270 448 -482 q 59 -60 119 -119 q 60 -60 118 -113 q 57 -54 111 -100 q 53 -46 99 -79 q 45 -34 82 -53 q 36 -19 60 -19 q 8 0 12 1 q 41 11 68 28 q 26 17 41 37 q 15 20 21 42 q 6 21 6 41 q 0 17 -3 33 q -3 15 -7 26 q -4 13 -9 25 l -957 950 z'
-                    ></path>
-                    <path type='path' d='M 837 1609 q 77 27 134 84 q 56 57 83 133 l -362 145 z'></path>
-                    <path
-                      type='path'
-                      d='M 1988 674 q 30 30 45 68 q 15 38 15 77 q 0 40 -15 78 q -15 37 -45 67 l -916 910 l -454 167 l 183 -468 l 898 -899 q 29 -29 67 -44 q 38 -15 77 -15 q 40 0 78 15 q 37 15 67 44 m -1064 921 q 90 53 145 144 l 759 -759 l -145 -145 m -889 1032 l 190 -69 q -43 -76 -119 -119 m 1051 -787 q 15 -15 23 -33 q 7 -19 7 -39 q 0 -21 -8 -39 q -8 -19 -22 -33 q -15 -15 -33 -23 q -19 -8 -40 -8 q -20 0 -38 8 q -19 7 -34 22 l -16 16 l 145 144 z'
-                    ></path>
-                  </svg>
-                ),
-                disabled: false,
-                action: () => toggleTrackChanges(),
-                isActive: trackChanges,
-              },
-            ]}
-            isDisabled={props.isDisabled}
-          />
-        ) : null}
-      </ErrorBoundary>
       <div
-        css={css`
-          flex-grow: 0;
-          flex-shrink: 0;
-          width: 100%;
-          position: relative;
-        `}
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
-        <ErrorBoundary fallback={<div>Error loading toolbar</div>}>
-          <Toolbar
-            editor={editor}
-            isMax={props.isMaximized || false}
-            forceMax={props.forceMax}
-            isDisabled={props.isDisabled}
-            layouts={{ layout, options: layoutOptions, setLayout }}
-            awarenessProfiles={awarenessProfiles}
-            tiptapWidth={tiptapWidth}
-            user={{ ...props.user, sessionId: props.sessionId }}
-            toggleTrackChanges={toggleTrackChanges}
-            trackChanges={trackChanges}
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-            setSidebarContent={setSidebarContent}
-            sidebarTitle={sidebarTitle}
-            setSidebarTitle={setSidebarTitle}
-            actions={props.actions}
-            options={props.options}
-            compact={props.compact}
-          />
-        </ErrorBoundary>
-        {props.showLoading ? <IndeterminateProgress theme={theme} /> : null}
-      </div>
-      <div
-        css={css`
-          display: flex;
-          flex-direction: row;
-          gap: 0;
-          overflow: auto;
-          width: 100%;
-          height: 100%;
-        `}
-      >
-        <ErrorBoundary fallback={<div>Error loading document content</div>}>
-          <div
-            css={css`
-              scroll-behavior: smooth;
-              overflow: auto;
-              width: 100%;
-              display: flex;
-              height: 100%;
-              flex-direction: column;
-              align-items: center;
-              justify-content: ${isConnected !== true ? 'center' : 'unset'};
-              flex-grow: 1;
-            `}
-          >
-            {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
-            {isConnected !== true ? (
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 12,
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  color: theme.color.neutral[theme.mode][1500],
-                  fontFamily: theme.font.detail,
-                }}
-              >
-                {isConnected === undefined ? (
-                  <>
-                    <Spinner color={'neutral'} colorShade={1500} size={30} />
-                    <div>Connecting...</div>
-                  </>
-                ) : (
-                  <div>Failed to connect</div>
-                )}
-              </div>
-            ) : null}
-            {
-              // if it is an article type, show article metadata and photo
-              props.options?.type === 'article' &&
-              props.options.keys_article &&
-              isConnected === true &&
-              !props.compact ? (
-                <>
-                  {layout === 'standard' ? (
-                    <StandardLayout
-                      options={props.options}
-                      isDisabled={props.isDisabled}
-                      tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                    />
-                  ) : layout === 'full' ? (
-                    <FullBleedLayout
-                      options={props.options}
-                      isDisabled={props.isDisabled}
-                      tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                    />
-                  ) : null}
-                </>
-              ) : null
-            }
-            {isConnected === true ? <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} /> : null}
-          </div>
-        </ErrorBoundary>
-        <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
-          {props.compact ? null : (
-            <Sidebar
-              isOpen={isSidebarOpen}
-              setIsOpen={setIsSidebarOpen}
-              header={sidebarTitle}
-              setHeader={setSidebarTitle}
-              editor={editor}
-              user={{ ...props.user, sessionId: props.sessionId }}
+        <ErrorBoundary
+          fallback={
+            <div
+              style={{
+                background: 'black',
+                color: 'white',
+                left: 'env(titlebar-area-x, 0)',
+                top: 'env(titlebar-area-y, 0)',
+                width: 'env(titlebar-area-width, 100%)',
+                height: 'env(titlebar-area-height, 33px)',
+                //@ts-expect-error this is a (currently) nonstandard property
+                webkitAppRegion: 'drag',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                fontFamily: 'sans-serif',
+                fontSize: 14,
+              }}
             >
-              {sidebarContent}
-            </Sidebar>
-          )}
+              Error loading titlebar
+            </div>
+          }
+        >
+          {props.isMaximized ? (
+            <Titlebar
+              title={props.title}
+              actions={[
+                {
+                  label: 'Undo',
+                  icon: <ArrowUndo20Regular />,
+                  disabled: !editor?.can().undo(),
+                  action: () => editor?.chain().focus().undo().run(),
+                },
+                {
+                  label: 'Redo',
+                  icon: <ArrowRedo20Regular />,
+                  disabled: !editor?.can().redo(),
+                  action: () => editor?.chain().focus().redo().run(),
+                },
+                {
+                  label: 'Save',
+                  icon: <Save20Regular />,
+                  disabled: false,
+                  action: props.actions?.find((action) => action?.label === 'Save')?.action || (() => null),
+                },
+                {
+                  label: 'Track changes',
+                  icon: (
+                    <svg
+                      height='100%'
+                      width='100%'
+                      viewBox='0,0,2048,2048'
+                      focusable='false'
+                      fill='currentColor'
+                    >
+                      <path
+                        type='path'
+                        d='M 921 717 h -307 v -103 h 307 m 284 410 h -386 v -102 h 409 v 79 m -330 330 h -284 v -102 h 386 m -454 717 h -239 v -1844 h 920 l 456 456 q -15 10 -29 21 q -14 10 -27 23 l -115 115 h -387 v -512 h -716 v 1638 h 177 m 642 -1229 h 366 l -366 -366 m 511 1108 v 590 h -594 l 103 -103 h 389 v -386 m 351 -783 q 30 30 45 68 q 15 38 15 77 q 0 40 -15 78 q -15 37 -45 67 l -916 910 l -454 167 l 183 -468 l 898 -899 q 29 -29 67 -44 q 38 -15 77 -15 q 40 0 78 15 q 37 15 67 44 m -1064 921 q 90 53 145 144 l 759 -759 l -145 -145 m -889 1032 l 190 -69 q -43 -76 -119 -119 m 1051 -787 q 15 -15 23 -33 q 7 -19 7 -39 q 0 -21 -8 -39 q -8 -19 -22 -33 q -15 -15 -33 -23 q -19 -8 -40 -8 q -20 0 -38 8 q -19 7 -34 22 l -16 16 l 145 144 z'
+                      ></path>
+                      <path
+                        type='path'
+                        fill='transparent'
+                        d='M 569 1886 h -211 v -1732 h 840 l 443 436 q -3 3 -7 6 q -4 2 -7 6 l -913 914 m 974 -110 v 480 h -483 z'
+                      ></path>
+                      <path
+                        type='path'
+                        d='M 921 717 h -307 v -103 h 307 m 284 410 h -386 v -102 h 409 v 79 m -330 330 h -284 v -102 h 386 z'
+                      ></path>
+                      <path
+                        type='path'
+                        d='M 546 1946 h -239 v -1844 h 920 l 456 456 q -15 10 -29 21 q -14 10 -27 23 l -115 115 h -387 v -512 h -716 v 1638 h 177 m 642 -1229 h 366 l -366 -366 m 511 1108 v 590 h -594 l 103 -103 h 389 v -386 z'
+                      ></path>
+                      <path
+                        type='path'
+                        fill='transparent'
+                        d='M 820 1634 q 240 -270 448 -482 q 59 -60 119 -119 q 60 -60 118 -113 q 57 -54 111 -100 q 53 -46 99 -79 q 45 -34 82 -53 q 36 -19 60 -19 q 8 0 12 1 q 41 11 68 28 q 26 17 41 37 q 15 20 21 42 q 6 21 6 41 q 0 17 -3 33 q -3 15 -7 26 q -4 13 -9 25 l -957 950 z'
+                      ></path>
+                      <path type='path' d='M 837 1609 q 77 27 134 84 q 56 57 83 133 l -362 145 z'></path>
+                      <path
+                        type='path'
+                        d='M 1988 674 q 30 30 45 68 q 15 38 15 77 q 0 40 -15 78 q -15 37 -45 67 l -916 910 l -454 167 l 183 -468 l 898 -899 q 29 -29 67 -44 q 38 -15 77 -15 q 40 0 78 15 q 37 15 67 44 m -1064 921 q 90 53 145 144 l 759 -759 l -145 -145 m -889 1032 l 190 -69 q -43 -76 -119 -119 m 1051 -787 q 15 -15 23 -33 q 7 -19 7 -39 q 0 -21 -8 -39 q -8 -19 -22 -33 q -15 -15 -33 -23 q -19 -8 -40 -8 q -20 0 -38 8 q -19 7 -34 22 l -16 16 l 145 144 z'
+                      ></path>
+                    </svg>
+                  ),
+                  disabled: false,
+                  action: () => toggleTrackChanges(),
+                  isActive: trackChanges,
+                },
+              ]}
+              isDisabled={props.isDisabled}
+              isBackstageOpen={isBackstageOpen}
+            />
+          ) : null}
         </ErrorBoundary>
+        <div
+          css={css`
+            flex-grow: 0;
+            flex-shrink: 0;
+            width: 100%;
+            position: relative;
+          `}
+        >
+          <ErrorBoundary fallback={<div>Error loading toolbar</div>}>
+            <Toolbar
+              editor={editor}
+              isMax={props.isMaximized || false}
+              forceMax={props.forceMax}
+              isDisabled={props.isDisabled}
+              layouts={{ layout, options: layoutOptions, setLayout }}
+              awarenessProfiles={awarenessProfiles}
+              tiptapWidth={tiptapWidth}
+              user={{ ...props.user, sessionId: props.sessionId }}
+              toggleTrackChanges={toggleTrackChanges}
+              trackChanges={trackChanges}
+              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
+              setSidebarContent={setSidebarContent}
+              sidebarTitle={sidebarTitle}
+              setSidebarTitle={setSidebarTitle}
+              setIsBackstageOpen={setIsBackstageOpen}
+              actions={props.actions}
+              options={props.options}
+              compact={props.compact}
+            />
+          </ErrorBoundary>
+          {props.showLoading ? <IndeterminateProgress theme={theme} /> : null}
+        </div>
+        <div
+          css={css`
+            display: flex;
+            flex-direction: row;
+            gap: 0;
+            overflow: auto;
+            width: 100%;
+            height: 100%;
+          `}
+        >
+          <ErrorBoundary fallback={<div>Error loading document content</div>}>
+            <div
+              css={css`
+                scroll-behavior: smooth;
+                overflow: auto;
+                width: 100%;
+                display: flex;
+                height: 100%;
+                flex-direction: column;
+                align-items: center;
+                justify-content: ${isConnected !== true ? 'center' : 'unset'};
+                flex-grow: 1;
+              `}
+            >
+              {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
+              {isConnected !== true ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 12,
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    color: theme.color.neutral[theme.mode][1500],
+                    fontFamily: theme.font.detail,
+                  }}
+                >
+                  {isConnected === undefined ? (
+                    <>
+                      <Spinner color={'neutral'} colorShade={1500} size={30} />
+                      <div>Connecting...</div>
+                    </>
+                  ) : (
+                    <div>Failed to connect</div>
+                  )}
+                </div>
+              ) : null}
+              {
+                // if it is an article type, show article metadata and photo
+                props.options?.type === 'article' &&
+                props.options.keys_article &&
+                isConnected === true &&
+                !props.compact ? (
+                  <>
+                    {layout === 'standard' ? (
+                      <StandardLayout
+                        options={props.options}
+                        isDisabled={props.isDisabled}
+                        tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                      />
+                    ) : layout === 'full' ? (
+                      <FullBleedLayout
+                        options={props.options}
+                        isDisabled={props.isDisabled}
+                        tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
+                      />
+                    ) : null}
+                  </>
+                ) : null
+              }
+              {isConnected === true ? (
+                <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} />
+              ) : null}
+            </div>
+          </ErrorBoundary>
+          <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
+            {props.compact ? null : (
+              <Sidebar
+                isOpen={isSidebarOpen}
+                setIsOpen={setIsSidebarOpen}
+                header={sidebarTitle}
+                setHeader={setSidebarTitle}
+                editor={editor}
+                user={{ ...props.user, sessionId: props.sessionId }}
+              >
+                {sidebarContent}
+              </Sidebar>
+            )}
+          </ErrorBoundary>
+        </div>
+        <ErrorBoundary fallback={<div>Error loading statusbar</div>}>
+          <Statusbar>
+            <>
+              {isConnected === true ? (
+                <>
+                  <StatusbarBlock>
+                    {wordCount} word{wordCount !== 1 ? 's' : ''}
+                  </StatusbarBlock>
+                  <StatusbarBlock>{editor?.storage.characterCount?.characters()} characters</StatusbarBlock>
+                </>
+              ) : null}
+              <StatusbarBlock>
+                {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
+              </StatusbarBlock>
+              <StatusbarBlock>
+                {isConnected === true
+                  ? 'Connected'
+                  : isConnected === undefined
+                  ? 'Connecting...'
+                  : 'Failed to connect'}
+              </StatusbarBlock>
+            </>
+          </Statusbar>
+        </ErrorBoundary>
+        <Backstage
+          editor={editor}
+          isOpen={isBackstageOpen}
+          setIsOpen={setIsBackstageOpen}
+          actions={props.actions || []}
+        />
       </div>
-      <ErrorBoundary fallback={<div>Error loading statusbar</div>}>
-        <Statusbar>
-          <>
-            {isConnected === true ? (
-              <>
-                <StatusbarBlock>
-                  {wordCount} word{wordCount !== 1 ? 's' : ''}
-                </StatusbarBlock>
-                <StatusbarBlock>{editor?.storage.characterCount?.characters()} characters</StatusbarBlock>
-              </>
-            ) : null}
-            <StatusbarBlock>
-              {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
-            </StatusbarBlock>
-            <StatusbarBlock>
-              {isConnected === true
-                ? 'Connected'
-                : isConnected === undefined
-                ? 'Connecting...'
-                : 'Failed to connect'}
-            </StatusbarBlock>
-          </>
-        </Statusbar>
-      </ErrorBoundary>
     </Container>
   );
 };

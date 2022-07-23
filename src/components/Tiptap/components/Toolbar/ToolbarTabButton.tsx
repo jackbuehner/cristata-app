@@ -16,6 +16,7 @@ const ToolbarTabButton = styled(Button)<IToolbarTabButton>`
   background-color: transparent;
   -webkit-app-region: no-drag;
   app-region: no-drag;
+  min-width: 0;
   ${({ theme, isActive }) =>
     isActive
       ? `
