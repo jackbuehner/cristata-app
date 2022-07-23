@@ -16,7 +16,7 @@ interface BackstageProps {
 }
 
 function Backstage(props: BackstageProps) {
-  const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
+  const [activeTabIndex, setActiveTabIndex] = useState<number>(3);
 
   const saveAction = props.actions.find((action) => action && action.label === 'Save');
   const publishAction = props.actions.find((action) => action && action.label === 'Publish');
