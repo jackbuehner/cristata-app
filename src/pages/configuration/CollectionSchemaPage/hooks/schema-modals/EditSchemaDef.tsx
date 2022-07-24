@@ -754,6 +754,26 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 </>
               </IndentField>
             ) : null}
+            {!isInBranch &&
+            !isDocArray &&
+            !isInDocArray &&
+            !isMarkdown &&
+            type === 'String' &&
+            props.id === 'body' ? (
+              <>
+                <Text
+                  isEmbedded
+                  label={'Tiptap meta frame URL'}
+                  description={
+                    'Render this URL in an iFrame above the editor body. Field data is provided via <code>Window.postMessage()</code> and can be captured and rendered by adding a listener for messages. Include the <a href="https://github.com/davidjbradshaw/iframe-resizer">iframe-resizer</a> content script to allow the iframe to automatically resize to fit the content inside the iframe.                              '
+                  }
+                  value={def?.field?.tiptap?.metaFrame}
+                  onChange={(e) =>
+                    dispatch(setRootSchemaProperty(props.id, `field.tiptap.metaFrame`, e.currentTarget.value))
+                  }
+                />
+              </>
+            ) : null}
           </>
         )}
       </div>
