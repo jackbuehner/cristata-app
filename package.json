@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.4.17",
-    "@e-goi/css-inliner": "^1.0.6",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
     "@fluentui/react-icons": "^2.0.173-rc.9",
@@ -39,7 +38,6 @@
     "iframe-resizer-react": "^1.1.0",
     "json-to-graphql-query": "^2.1.0",
     "jsoncrush": "^1.1.6",
-    "juice": "^8.0.0",
     "luxon": "^2.3.0",
     "merge-anything": "^4.0.1",
     "monaco-editor": "^0.33.0",

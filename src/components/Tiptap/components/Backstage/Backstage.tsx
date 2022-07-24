@@ -7,7 +7,6 @@ import { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
 import { colorType } from '../../../../utils/theme/theme';
 import { Button, buttonEffect } from '../../../Button';
 import FluentIcon from '../../../FluentIcon';
-import juice from 'juice';
 
 interface BackstageProps {
   editor: Editor | null;
@@ -348,10 +347,10 @@ function Backstage(props: BackstageProps) {
       });
 
       // inline
-      const inlined = juice(htmlDoc.documentElement.innerHTML, { inlinePseudoElements: true });
+      //const inlined = juiceClient(htmlDoc.documentElement.innerHTML, { inlinePseudoElements: true });
 
       // create blob
-      const blob = new Blob([inlined], { type: 'text/plain;charset=utf-8' });
+      const blob = new Blob([htmlDoc.documentElement.innerHTML], { type: 'text/plain;charset=utf-8' });
 
       // download
       const url = window.URL || window.webkitURL;
