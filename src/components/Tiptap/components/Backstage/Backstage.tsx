@@ -13,6 +13,7 @@ interface BackstageProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   actions: Array<Action | null>;
+  iframehtmlstring: string;
 }
 
 function Backstage(props: BackstageProps) {
@@ -53,9 +54,10 @@ function Backstage(props: BackstageProps) {
   const downloadHTML = () => {
     if (props.editor) {
       const html = props.editor.getHTML();
+      const constructed = `<div>${props.iframehtmlstring}${html}</div>`;
 
       // create blob
-      const blob = new Blob([html], { type: 'text/plain;charset=utf-8' });
+      const blob = new Blob([constructed], { type: 'text/plain;charset=utf-8' });
 
       // download
       const url = window.URL || window.webkitURL;
@@ -72,9 +74,17 @@ function Backstage(props: BackstageProps) {
   const downloadEmailHTML = () => {
     if (props.editor) {
       const html = props.editor.getHTML();
+      const constructed = `<div>${props.iframehtmlstring}${html}</div>`;
 
       const editorHtml = `
         <style>
+          #emailPreview {
+            display: block !important;
+          }
+          #preview {
+            display: none !important;
+          }
+
           table.root {
             font-family: Georgia, Times, 'Times New Roman', serif;
             color: #3a3a3a;
@@ -153,7 +163,7 @@ function Backstage(props: BackstageProps) {
             <td align="center">
               <table cellspacing="0" cellpadding="0" border="0" class="root">
                 <tr>
-                  <td width="590">${html}</td>
+                  <td width="590">${constructed}</td>
                 </tr>
               </table>
             </td>

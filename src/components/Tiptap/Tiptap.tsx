@@ -234,6 +234,9 @@ const Tiptap = (props: ITiptap) => {
   // track whether the backstage view is shown
   const [isBackstageOpen, setIsBackstageOpen] = useState<boolean>(false);
 
+  // track iframe html content when it sends a copy
+  const [iframehtmlstring, setIframehtmlstring] = useState<string>('');
+
   return (
     <Container theme={theme} isMaximized={props.isMaximized || false} ref={observe}>
       <div
@@ -416,7 +419,11 @@ const Tiptap = (props: ITiptap) => {
                 </div>
               ) : null}
               {props.options?.metaFrame && isConnected === true && !props.compact ? (
-                <ExternalFrame src={props.options.metaFrame} tiptapwidth={tiptapWidth} />
+                <ExternalFrame
+                  src={props.options.metaFrame}
+                  tiptapwidth={tiptapWidth}
+                  setIframehtmlstring={setIframehtmlstring}
+                />
               ) : null}
 
               {isConnected === true ? (
@@ -468,6 +475,7 @@ const Tiptap = (props: ITiptap) => {
           isOpen={isBackstageOpen}
           setIsOpen={setIsBackstageOpen}
           actions={props.actions || []}
+          iframehtmlstring={iframehtmlstring}
         />
       </div>
     </Container>
