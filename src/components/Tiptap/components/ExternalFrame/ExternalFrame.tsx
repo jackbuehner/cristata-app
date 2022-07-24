@@ -5,9 +5,10 @@ import { useAppSelector } from '../../../../redux/hooks';
 
 interface ExternalFrameProps {
   src: string;
+  tiptapwidth: number;
 }
 
-function ExternalFrame({ src }: ExternalFrameProps) {
+function ExternalFrame({ src, tiptapwidth }: ExternalFrameProps) {
   const state = useAppSelector(({ cmsItem }) => cmsItem);
   const iframe = useRef<any>(null);
 
@@ -46,14 +47,15 @@ function ExternalFrame({ src }: ExternalFrameProps) {
       heightCalculationMethod={'documentElementOffset'}
       title={'tiptap-header'}
       src={src}
+      tiptapwidth={tiptapwidth}
     />
   );
 }
 
-const Frame = styled(IframeResizer)`
+const Frame = styled(IframeResizer)<{ tiptapwidth: number }>`
   width: 100%;
   border: none;
-  margin-bottom: -74px;
+  margin-bottom: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? -6 : -74)}px;
 `;
 
 export { ExternalFrame };

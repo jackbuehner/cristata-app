@@ -416,7 +416,7 @@ const Tiptap = (props: ITiptap) => {
                 </div>
               ) : null}
               {props.options?.metaFrame && isConnected === true && !props.compact ? (
-                <ExternalFrame src={props.options.metaFrame} />
+                <ExternalFrame src={props.options.metaFrame} tiptapwidth={tiptapWidth} />
               ) : null}
 
               {isConnected === true ? (
