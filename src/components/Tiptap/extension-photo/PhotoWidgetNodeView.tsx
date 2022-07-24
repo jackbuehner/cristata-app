@@ -33,7 +33,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
       fetchPolicy: 'no-cache',
     }
   );
-  const photo = PHOTO_QUERY.data?.photos.docs?.[0];
+  const photo = PHOTO_QUERY.data?.photos?.docs?.[0];
 
   // set the photo url and credit attributes
   useEffect(() => {
