@@ -50,9 +50,8 @@ import {
   useY,
 } from './hooks';
 import './office-icon/colors1.css';
-import { FullBleedLayout } from './special-components/article/FullBleedLayout';
-import { StandardLayout } from './special-components/article/StandardLayout';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
+import { ExternalFrame } from './components/ExternalFrame';
 
 interface ITiptap {
   docName: string;
@@ -85,7 +84,7 @@ const Tiptap = (props: ITiptap) => {
     name: props.docName,
   }); // create a doc and connect it to the server
   const awarenessProfiles = useAwareness({ provider }); // get list of who is editing the doc
-  const { observe, width: thisWidth, height: tiptapHieght } = useDimensions(); // monitor the dimensions of the editor
+  const { observe, width: thisWidth } = useDimensions(); // monitor the dimensions of the editor
 
   // manage sidebar content
   const searchParams = useMemo(() => new URLSearchParams(search), [search]);
@@ -390,11 +389,7 @@ const Tiptap = (props: ITiptap) => {
                 scroll-behavior: smooth;
                 overflow: auto;
                 width: 100%;
-                display: flex;
                 height: 100%;
-                flex-direction: column;
-                align-items: center;
-                justify-content: ${isConnected !== true ? 'center' : 'unset'};
                 flex-grow: 1;
               `}
             >
@@ -420,29 +415,10 @@ const Tiptap = (props: ITiptap) => {
                   )}
                 </div>
               ) : null}
-              {
-                // if it is an article type, show article metadata and photo
-                props.options?.type === 'article' &&
-                props.options.keys_article &&
-                isConnected === true &&
-                !props.compact ? (
-                  <>
-                    {layout === 'standard' ? (
-                      <StandardLayout
-                        options={props.options}
-                        isDisabled={props.isDisabled}
-                        tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                      />
-                    ) : layout === 'full' ? (
-                      <FullBleedLayout
-                        options={props.options}
-                        isDisabled={props.isDisabled}
-                        tiptapSize={{ width: tiptapWidth, height: tiptapHieght }}
-                      />
-                    ) : null}
-                  </>
-                ) : null
-              }
+              {props.options?.metaFrame && isConnected === true && !props.compact ? (
+                <ExternalFrame src={props.options.metaFrame} />
+              ) : null}
+
               {isConnected === true ? (
                 <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} />
               ) : null}
@@ -517,7 +493,7 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
   background-color: white;
   border: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`)};
   padding: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `24px 20px` : `68px 88px`)};
-  margin: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `0` : `20px`)};
+  margin: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `0 auto` : `20px auto`)};
   .ProseMirror {
     font-family: Georgia, Times, 'Times New Roman', serif;
     color: #3a3a3a;
