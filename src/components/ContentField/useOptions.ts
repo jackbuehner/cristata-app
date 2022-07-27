@@ -6,6 +6,7 @@ import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { SetStateAction, useEffect, useState, Dispatch } from 'react';
 import { deepen } from '../../pages/CMS/CollectionItemPage/useFindDoc';
+import { uncapitalize } from '../../utils/uncapitalize';
 
 type Option = { value: string; label: string; disabled?: boolean; reason?: string };
 
@@ -62,7 +63,7 @@ function useOptions(collection: string, reference?: FieldDef['reference']): UseO
             query: {
               result: {
                 // we alias to "result" so the accessor for the data is always the same
-                __aliasFor: pluralize(collection).toLowerCase(),
+                __aliasFor: uncapitalize(pluralize(collection)),
                 __args: {
                   // limit to 6 because it shows enough options while also keeping responses fast
                   limit: 6,

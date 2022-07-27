@@ -1,5 +1,6 @@
 import { ApolloClient, gql } from '@apollo/client';
 import mongoose from 'mongoose';
+import { uncapitalize } from '../../utils/uncapitalize';
 
 type UnpopulatedValue = { _id: string; label?: string };
 type PopulatedValue = { _id: string; label: string };
@@ -31,7 +32,7 @@ async function getMissingLabel(
     if (!mongoose.Types.ObjectId.isValid(_id)) return _id;
     const res = await client.query<{ result: { name: string } }>({
       query: gql`{
-        result: ${collection.toLowerCase()}(_id: "${_id}") {
+        result: ${uncapitalize(collection)}(_id: "${_id}") {
           name: ${fields?.name || 'name'}
         }
       }`,
