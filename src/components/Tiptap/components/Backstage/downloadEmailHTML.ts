@@ -1,6 +1,23 @@
 import { Editor } from '@tiptap/react';
 
 function downloadEmailHTML(editor: Editor, iframehtmlstring: string) {
+  const html = generateEmailHTML(editor, iframehtmlstring);
+
+  // create blob
+  const blob = new Blob([html], { type: 'text/plain;charset=utf-8' });
+
+  // download
+  const url = window.URL || window.webkitURL;
+  const link = url.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.download = 'document.html';
+  a.href = link;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function generateEmailHTML(editor: Editor, iframehtmlstring: string) {
   const html = editor.getHTML();
   const constructed = `<div>${iframehtmlstring}${html}</div>`;
 
@@ -287,18 +304,7 @@ function downloadEmailHTML(editor: Editor, iframehtmlstring: string) {
   // inline
   //const inlined = juiceClient(htmlDoc.documentElement.innerHTML, { inlinePseudoElements: true });
 
-  // create blob
-  const blob = new Blob([htmlDoc.documentElement.innerHTML], { type: 'text/plain;charset=utf-8' });
-
-  // download
-  const url = window.URL || window.webkitURL;
-  const link = url.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.download = 'document.html';
-  a.href = link;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  return htmlDoc.documentElement.innerHTML;
 }
 
-export { downloadEmailHTML };
+export { downloadEmailHTML, generateEmailHTML };
