@@ -17,7 +17,7 @@ function downloadEmailHTML(editor: Editor, iframehtmlstring: string) {
   document.body.removeChild(a);
 }
 
-function generateEmailHTML(editor: Editor, iframehtmlstring: string) {
+function generateEmailHTML(editor: Editor, iframehtmlstring: string, utm_campaign?: string) {
   const html = editor.getHTML();
   const constructed = `<div>${iframehtmlstring}${html}</div>`;
 
@@ -300,6 +300,19 @@ function generateEmailHTML(editor: Editor, iframehtmlstring: string) {
     const parsedElem = parsed.querySelector('span');
     if (parsedElem) elem.replaceWith(parsedElem);
   });
+
+  if (utm_campaign) {
+    htmlDoc.querySelectorAll('a').forEach((elem: HTMLAnchorElement) => {
+      try {
+        const url = new URL(elem.href);
+        url.searchParams.set('utm_source', 'cristatahtml');
+        url.searchParams.set('utm_medium', 'email');
+        url.searchParams.set('utm_campaign', utm_campaign || '');
+
+        elem.href = url.toString();
+      } catch (error) {}
+    });
+  }
 
   // inline
   //const inlined = juiceClient(htmlDoc.documentElement.innerHTML, { inlinePseudoElements: true });
