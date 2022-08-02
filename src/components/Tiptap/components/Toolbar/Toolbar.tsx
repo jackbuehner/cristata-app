@@ -1,33 +1,47 @@
 /** @jsxImportSource @emotion/react */
-import { Editor } from '@tiptap/react';
-import styled from '@emotion/styled/macro';
 import { css, useTheme } from '@emotion/react';
-import { themeType } from '../../../../utils/theme/theme';
-import React, { useEffect, useState } from 'react';
-import { BackIcon, RedoIcon, BoldIcon, ItalicsIcon, UnderlineIcon, StrikeIcon } from './../../Icons';
+import styled from '@emotion/styled/macro';
 import {
-  Code20Regular,
-  ArrowMinimize20Regular,
-  LineHorizontal120Regular,
+  Apps20Regular,
   ArrowMaximize20Regular,
-  TextBulletListLtr20Regular,
-  TextNumberListLtr20Regular,
-  Link20Regular,
+  ArrowMinimize20Regular,
+  Code20Regular,
   CommentAdd20Regular,
+  CommentMultiple20Regular,
   CommentOff20Regular,
   Database20Regular,
-  Apps20Regular,
-  CommentMultiple20Regular,
+  LineHorizontal120Regular,
+  Link20Regular,
   Share20Regular,
+  TextBulletListLtr20Regular,
+  TextNumberListLtr20Regular,
   TextQuote20Regular,
 } from '@fluentui/react-icons';
-import { useDropdown } from '../../../../hooks/useDropdown';
-import { Menu } from '../../../Menu';
+import { Editor } from '@tiptap/react';
+import Color from 'color';
+import React, { useEffect, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useModal } from 'react-modal-hook';
-import { PlainModal } from '../../../Modal';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ReactTooltip from 'react-tooltip';
+import { tiptapOptions } from '../../../../config';
+import { ClientConsumer } from '../../../../graphql/client';
+import {
+  PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
+  PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
+} from '../../../../graphql/queries';
+import { useDropdown } from '../../../../hooks/useDropdown';
+import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
+import { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
+import { themeType } from '../../../../utils/theme/theme';
+import { Text } from '../../../ContentField';
 import { InputGroup } from '../../../InputGroup';
 import { Label } from '../../../Label';
-import Color from 'color';
+import { Menu } from '../../../Menu';
+import { PlainModal } from '../../../Modal';
+import { Select } from '../../../Select';
+import { CommentPanel } from '../../extension-power-comment';
+import { BackIcon, BoldIcon, ItalicsIcon, RedoIcon, StrikeIcon, UnderlineIcon } from './../../Icons';
 import {
   AcceptRevision20Icon,
   Editor20Icon,
@@ -38,32 +52,19 @@ import {
   WordCountList20Icon,
 } from './../../office-icon';
 import './../../office-icon/colors1.css';
-import { ToolbarTabRow } from './ToolbarTabRow';
-import { ToolbarTabList } from './ToolbarTabList';
-import { ToolbarMeta } from './ToolbarMeta';
-import { ToolbarTabButton } from './ToolbarTabButton';
-import { ToolbarMetaIconButton } from './ToolbarMetaIconButton';
-import { ToolbarActionRowContainer } from './ToolbarActionRowContainer';
-import { ToolbarRowIconButton } from './ToolbarRowIconButton';
-import { ToolbarRow } from './ToolbarRow';
 import { Combobox } from './Combobox';
+import { SendToolbarRow } from './SendToolbarRow';
+import { ToolbarActionRowContainer } from './ToolbarActionRowContainer';
 import { ToolbarDivider } from './ToolbarDivider';
+import { ToolbarMeta } from './ToolbarMeta';
+import { ToolbarMetaIconButton } from './ToolbarMetaIconButton';
+import { ToolbarRow } from './ToolbarRow';
 import { ToolbarRowButton } from './ToolbarRowButton';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { tiptapOptions } from '../../../../config';
-import { Select } from '../../../Select';
-import { ErrorBoundary } from 'react-error-boundary';
-import ReactTooltip from 'react-tooltip';
-import { ClientConsumer } from '../../../../graphql/client';
-import {
-  PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
-  PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
-} from '../../../../graphql/queries';
+import { ToolbarRowIconButton } from './ToolbarRowIconButton';
+import { ToolbarTabButton } from './ToolbarTabButton';
+import { ToolbarTabList } from './ToolbarTabList';
+import { ToolbarTabRow } from './ToolbarTabRow';
 import { useFontFamilyDropdown } from './useCustomDropdown';
-import { CommentPanel } from '../../extension-power-comment';
-import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
-import { Text } from '../../../ContentField';
-import { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
 
 const TOOLBAR = styled.div`
   position: relative;
@@ -101,12 +102,13 @@ interface IToolbar {
   forceMax?: boolean;
   options?: tiptapOptions;
   compact?: boolean;
+  iframehtmlstring?: string;
 }
 
 function Toolbar({ editor, isMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'actions'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'email'>('home');
   const { pathname, search, hash } = useLocation();
   const params = new URLSearchParams(search);
   const shareAction = props.actions?.find((action) => action?.label === 'Share') || undefined;
@@ -666,6 +668,14 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               >
                 Review
               </ToolbarTabButton>
+              <ToolbarTabButton
+                theme={theme}
+                color={'blue'}
+                isActive={activeTab === 'email'}
+                onClick={() => setActiveTab('email')}
+              >
+                Email
+              </ToolbarTabButton>
             </ToolbarTabList>
           )}
 
@@ -1142,6 +1152,12 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 </>
               ) : null}
             </ToolbarRow>
+            <SendToolbarRow
+              isActive={activeTab === 'email'}
+              editor={editor}
+              iframehtmlstring={props.iframehtmlstring || ''}
+              isDisabled={props.isDisabled || !editor}
+            />
           </ToolbarActionRowContainer>
         )}
       </TOOLBAR>

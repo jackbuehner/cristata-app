@@ -372,6 +372,7 @@ const Tiptap = (props: ITiptap) => {
               actions={props.actions}
               options={props.options}
               compact={props.compact}
+              iframehtmlstring={iframehtmlstring}
             />
           </ErrorBoundary>
           {props.showLoading ? <IndeterminateProgress theme={theme} /> : null}
