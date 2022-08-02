@@ -1,6 +1,7 @@
 import { MailTemplate24Regular, SendClock24Regular } from '@fluentui/react-icons';
 import { Editor } from '@tiptap/react';
 import { useAppSelector } from '../../../../redux/hooks';
+import { server } from '../../../../utils/constants';
 import { useScheduleEmailWindow } from '../../hooks/useScheduleEmail';
 import { downloadEmailHTML } from '../Backstage/downloadEmailHTML';
 import { ToolbarRow } from './ToolbarRow';
@@ -15,8 +16,27 @@ interface SendToolbarRowProps {
 
 function SendToolbarRow({ editor, isActive, ...props }: SendToolbarRowProps) {
   const cmsItemState = useAppSelector((state) => state.cmsItem);
+  const authUserState = useAppSelector((state) => state.authUser);
   const isPublished = cmsItemState.fields.stage === 5.2;
   const [ScheduleEmailWindow, showScheduleEmailWindow] = useScheduleEmailWindow(editor, props.iframehtmlstring);
+
+  console.log(authUserState);
+  const handleSendEmailClick = () => {
+    if (
+      !authUserState.constantcontact ||
+      new Date(authUserState.constantcontact.expires_at - 1000 * 60 * 10) > new Date()
+    ) {
+      const child = window.open(`${server.location}/v3/constant-contact/authorize`);
+      if (child) {
+        child.onunload = () => {
+          window.location.reload();
+          console.log('child window closed');
+        };
+      }
+    } else {
+      showScheduleEmailWindow();
+    }
+  };
 
   return (
     <ToolbarRow isActive={isActive}>
@@ -31,7 +51,7 @@ function SendToolbarRow({ editor, isActive, ...props }: SendToolbarRowProps) {
         Export
       </ToolbarRowButton>
       <ToolbarRowButton
-        onClick={showScheduleEmailWindow}
+        onClick={handleSendEmailClick}
         isActive={false}
         icon={<SendClock24Regular />}
         disabled={props.isDisabled || !editor || !isPublished}
