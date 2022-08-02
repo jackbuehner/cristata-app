@@ -23,11 +23,6 @@ function useScheduleEmailWindow(
     const theme = useTheme() as themeType;
     const isPublished = cmsItemState.fields.stage === 5.2;
 
-    let generatedHTML = '';
-    if (editor) {
-      generatedHTML = generateEmailHTML(editor, iframehtmlstring);
-    }
-
     // get the available contact lists and display them for selection
     // before sending the email campaign
     const [{ data: contactLists }] = fetchContactLists();
@@ -84,6 +79,15 @@ function useScheduleEmailWindow(
     const handleSenderNameChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setSenderName(e.currentTarget.value);
     };
+
+    let generatedHTML = '';
+    if (editor) {
+      generatedHTML = generateEmailHTML(
+        editor,
+        iframehtmlstring,
+        `${subject} [${cmsItemState.fields._id.slice(-6)}]`
+      );
+    }
 
     return {
       title: `Schedule email`,
