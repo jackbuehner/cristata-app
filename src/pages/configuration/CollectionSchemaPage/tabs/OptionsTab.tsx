@@ -27,7 +27,6 @@ import {
   setRootSchemaProperty,
   setWatcherNotices,
   setWithPermissions,
-  setWithSubscription,
   setActionAccess,
 } from '../../../../redux/slices/collectionSlice';
 import { capitalize } from '../../../../utils/capitalize';
@@ -48,7 +47,6 @@ function OptionsTab(props: OptionsTabProps) {
   const navLabel = state.collection?.navLabel;
   const canPublish = state.collection?.canPublish;
   const withPermissions = state.collection?.withPermissions;
-  const withSubscription = state.collection?.withSubscription;
   const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
   const watcherNotices = state.collection?.options?.watcherNotices;
   const actionAccess = state.collection?.actionAccess;
@@ -384,14 +382,6 @@ function OptionsTab(props: OptionsTabProps) {
               }}
             />
           </IndentField>
-        ) : null}
-        {withSubscription !== undefined ? (
-          <Checkbox
-            isEmbedded
-            label={'Allow subscriptions to changes (via websockets)'}
-            checked={withSubscription}
-            onChange={(e) => dispatch(setWithSubscription(e.currentTarget.checked))}
-          />
         ) : null}
       </Card>
       <Card>

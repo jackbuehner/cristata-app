@@ -16,7 +16,6 @@ export interface CollectionSliceState {
   collection: {
     canPublish: GenCollectionInput['canPublish'];
     withPermissions: GenCollectionInput['withPermissions'];
-    withSubscription: GenCollectionInput['withSubscription'];
     name: GenCollectionInput['name'];
     navLabel?: GenCollectionInput['navLabel'];
     schemaDef: GenCollectionInput['schemaDef'];
@@ -66,12 +65,6 @@ export const collectionSlice = createSlice({
     setWithPermissions: (state, action: PayloadAction<GenCollectionInput['withPermissions']>) => {
       if (state.collection) {
         state.collection.withPermissions = action.payload;
-        state.isUnsaved = true;
-      }
-    },
-    setWithSubscription: (state, action: PayloadAction<GenCollectionInput['withSubscription']>) => {
-      if (state.collection) {
-        state.collection.withSubscription = action.payload;
         state.isUnsaved = true;
       }
     },
@@ -289,7 +282,6 @@ export const {
   setIsLoading,
   setCanPublish,
   setWithPermissions,
-  setWithSubscription,
   setName,
   setNavLabel,
   setRootSchemaDef,
