@@ -69,7 +69,6 @@ function Code(props: TextProps) {
             value={props.value}
             options={{ tabSize: 2, theme: 'cristata-code-dark' }}
             beforeMount={handleBeforeMount}
-            path={window.location.pathname + props.type}
             onMount={(editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
               editorRef.current = editor;
               monacoRef.current = monaco;
