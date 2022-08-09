@@ -2,7 +2,7 @@ import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss24Regular, Open24Regular } from '@fluentui/react-icons';
-import { FieldDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
@@ -109,7 +109,9 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
                   );
                 }
               }}
-            ><Open24Regular /></IconWrapper>
+            >
+              <Open24Regular />
+            </IconWrapper>
             <IconWrapper
               theme={theme}
               color={props.color || 'primary'}
@@ -117,7 +119,9 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
               onClick={() => {
                 setInternalState(null);
               }}
-            ><Dismiss24Regular /></IconWrapper>
+            >
+              <Dismiss24Regular />
+            </IconWrapper>
           </SelectItem>
         ) : (
           <Combobox

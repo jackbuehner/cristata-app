@@ -1,6 +1,6 @@
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
-import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
-import { parseSchemaComponents } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genTypeDefs/parseSchemaComponents';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genCollection';
+import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { parseSchemaComponents } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genTypeDefs/parseSchemaComponents';
 
 const getFieldTypes = (
   schema: GenCollectionInput['schemaDef'],

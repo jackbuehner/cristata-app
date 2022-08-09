@@ -1,5 +1,5 @@
 import { ApolloQueryResult, gql, OperationVariables, useApolloClient } from '@apollo/client';
-import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types/config';
+import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/api/types/config';
 import { get as getProperty } from 'object-path';
 import { useCallback } from 'react';
 import { NavigateFunction } from 'react-router-dom';

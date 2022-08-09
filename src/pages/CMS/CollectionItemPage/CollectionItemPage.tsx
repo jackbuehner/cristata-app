@@ -5,7 +5,7 @@ import {
   MongooseSchemaType,
   NumberOption,
   StringOption,
-} from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import Color from 'color';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';

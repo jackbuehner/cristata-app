@@ -3,7 +3,7 @@ import { gql, useApolloClient } from '@apollo/client';
 import {
   isTypeTuple,
   MongooseSchemaType,
-} from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';

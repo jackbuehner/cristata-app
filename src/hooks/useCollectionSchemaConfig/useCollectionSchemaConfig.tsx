@@ -5,7 +5,7 @@ import {
   isSchemaRef,
   SchemaDefType,
   SchemaType,
-} from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 
 /**
  * Gets the collection config for the specified collection.

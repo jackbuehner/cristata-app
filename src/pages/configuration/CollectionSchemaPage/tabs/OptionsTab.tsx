@@ -2,8 +2,8 @@ import styled from '@emotion/styled/macro';
 import {
   isSchemaDef,
   isSchemaDefOrType,
-} from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
+} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';

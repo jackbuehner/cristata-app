@@ -1,11 +1,11 @@
 import { createSlice, original, PayloadAction } from '@reduxjs/toolkit';
 import { set as setProperty } from 'object-path';
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genCollection';
-import { SchemaType } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genCollection';
+import { SchemaType } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import {
   CollectionPermissionsActions as CollectionPermissionsActionName,
   CollectionPermissionsType,
-} from '@jackbuehner/cristata-api/dist/types/config';
+} from '@jackbuehner/cristata-api/dist/api/types/config';
 import { RootQuerySelector } from 'mongoose';
 
 type FilterQuery = RootQuerySelector<Record<string, unknown>>;

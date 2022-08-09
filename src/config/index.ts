@@ -1,1 +1,1 @@
-export type { TiptapOptions as tiptapOptions } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+export type { TiptapOptions as tiptapOptions } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';

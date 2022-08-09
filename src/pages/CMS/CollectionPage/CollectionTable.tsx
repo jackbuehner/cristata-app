@@ -2,7 +2,10 @@ import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Archive20Regular, Delete20Regular, Open20Regular } from '@fluentui/react-icons';
-import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import {
+  isTypeTuple,
+  SchemaDef,
+} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';

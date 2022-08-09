@@ -1,5 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client';
-import { FieldDef } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
+import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';

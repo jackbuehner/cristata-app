@@ -8,8 +8,8 @@ import {
 } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/v3/helpers/generators/genSchema';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
+import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIsLoading, setFields, clearUnsavedFields } from '../../../redux/slices/cmsItemSlice';
 import { useEffect } from 'react';
