@@ -50,14 +50,8 @@ interface ITiptap {
   y: FieldY;
   docName: string;
   title?: string;
-  user: {
-    name: string;
-    color: string;
-    photo: string;
-  };
   options?: tiptapOptions;
   isDisabled?: boolean;
-  sessionId: string;
   onDebouncedChange?: (editorJson: string, currentJsonInState?: string | null) => void;
   currentJsonInState?: string | null;
   html?: string;
@@ -132,10 +126,10 @@ const Tiptap = (props: ITiptap) => {
       CollaborationCursor.configure({
         provider: provider,
         user: {
-          name: props.user.name,
-          color: props.user.color,
-          sessionId: props.sessionId,
-          photo: props.user.photo,
+          name: props.y.user.name,
+          color: props.y.user.color,
+          sessionId: props.y.user.sessionId,
+          photo: props.y.user.photo,
         },
       }),
       Placeholder.configure({
@@ -220,9 +214,9 @@ const Tiptap = (props: ITiptap) => {
   // make user name and color available to tiptap extensions via document attributes
   useEffect(() => {
     if (editor) {
-      editor.state.tr.step(new SetDocAttrStep('user', props.user));
+      editor.state.tr.step(new SetDocAttrStep('user', props.y.user));
     }
-  }, [editor, props.user]);
+  }, [editor, props.y.user]);
 
   // track whether the backstage view is shown
   const [isBackstageOpen, setIsBackstageOpen] = useState<boolean>(false);
@@ -353,7 +347,7 @@ const Tiptap = (props: ITiptap) => {
               layouts={{ layout, options: layoutOptions, setLayout }}
               awarenessProfiles={awarenessProfiles}
               tiptapWidth={tiptapWidth}
-              user={{ ...props.user, sessionId: props.sessionId }}
+              user={props.y.user}
               toggleTrackChanges={toggleTrackChanges}
               trackChanges={trackChanges}
               isSidebarOpen={isSidebarOpen}
@@ -433,7 +427,7 @@ const Tiptap = (props: ITiptap) => {
                 header={sidebarTitle}
                 setHeader={setSidebarTitle}
                 editor={editor}
-                user={{ ...props.user, sessionId: props.sessionId }}
+                user={props.y.user}
               >
                 {sidebarContent}
               </Sidebar>

@@ -398,19 +398,11 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 y={{ ...y, field: key, user }}
                 docName={`${collection}.${item_id}`}
                 title={title}
-                user={{
-                  name: authUserState.name,
-                  color: colorHash.hex(authUserState._id),
-                  photo:
-                    `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` ||
-                    genAvatar(authUserState._id),
-                }}
                 options={def.field.tiptap}
                 isDisabled={
                   locked || itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly
                 }
                 showLoading={itemState.isLoading}
-                sessionId={sessionId || ''}
                 html={html}
                 isMaximized={fs === '1' || fs === 'force'}
                 forceMax={fs === 'force'}
