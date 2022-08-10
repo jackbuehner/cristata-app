@@ -16,6 +16,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
+import { CollaborativeTextField } from '../../../components/CollaborativeFields';
 import {
   Checkbox,
   Code,
@@ -26,7 +27,6 @@ import {
   ReferenceOne,
   SelectMany,
   SelectOne,
-  Text,
 } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
@@ -564,18 +564,18 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           );
         }
         return (
-          <Text
+          <CollaborativeTextField
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
+            y={{ ...y, field: key, user }}
+            defaultValue={getProperty(itemState.fields, key)}
+            color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.value;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
+            onDebouncedChange={(content, text) => {
+              if (text !== undefined && !readOnly)
+                dispatch(setField(text, key, 'default', undefined, inArrayKey));
             }}
           />
         );
