@@ -2,6 +2,7 @@ import { DependencyList, useEffect, useRef } from 'react';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
+import { useAwareness } from './useAwareness';
 
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};
@@ -14,14 +15,14 @@ class YProvider {
       this.#ydocs[name] = ydoc;
 
       // register with a WebRTC provider
-      const providerOptions = {
-        password: await (async () => {
-          if (process.env.NODE_ENV === 'production') {
-            return (await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))).toString();
-          }
-          return name + 'cristata-development';
-        })(),
-      };
+      let providerOptions;
+      if (process.env.NODE_ENV === 'production') {
+        providerOptions = {
+          password: (await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))).toString(),
+        };
+      } else {
+        providerOptions = { password: name + 'cristata-development' };
+      }
       // @ts-expect-error all properties are actually optional
       const provider = new WebrtcProvider(name, ydoc, providerOptions);
       this.#providers[name] = provider;
@@ -53,7 +54,7 @@ class YProvider {
 
 const y = new YProvider();
 
-function useY({ name: docName }: UseYProps, deps: DependencyList = []): ReturnType {
+function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYReturn {
   let ydoc = useRef<Y.Doc>();
   const provider = useRef<WebrtcProvider>();
   const settingsMap = useRef<Y.Map<IYSettingsMap>>();
@@ -81,7 +82,16 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): ReturnTy
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docName, ...deps]);
 
-  return [ydoc.current, settingsMap.current, provider.current, provider.current?.connected];
+  const awareness = useAwareness({ provider: provider.current }); // get list of who is editing the doc
+
+  const entryY = {
+    ydoc: ydoc.current,
+    provider: provider.current,
+    connected: provider.current?.connected,
+    awareness,
+  };
+
+  return [ydoc.current, settingsMap.current, provider.current, provider.current?.connected, entryY];
 }
 
 interface UseYProps {
@@ -92,14 +102,27 @@ interface IYSettingsMap {
   trackChanges?: boolean;
 }
 
-type ReturnType = [
+type UseYReturn = [
   Y.Doc | undefined,
   Y.Map<IYSettingsMap> | undefined,
   WebrtcProvider | undefined,
-  boolean | undefined
+  boolean | undefined,
+  EntryY
 ];
+
+interface EntryY {
+  ydoc: Y.Doc | undefined;
+  provider: WebrtcProvider | undefined;
+  connected: boolean | undefined;
+  awareness: ReturnType<typeof useAwareness>;
+}
+
+interface FieldY extends EntryY {
+  field: string;
+  user: ReturnType<typeof useAwareness>[0];
+}
 
 type FakeProvider = { awareness: awarenessProtocol.Awareness; connected?: boolean };
 
-export type { IYSettingsMap, FakeProvider };
+export type { IYSettingsMap, FakeProvider, EntryY, FieldY };
 export { useY };
