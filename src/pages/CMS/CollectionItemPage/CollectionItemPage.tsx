@@ -16,13 +16,12 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
-import { CollaborativeTextField } from '../../../components/CollaborativeFields';
+import { CollaborativeNumberField, CollaborativeTextField } from '../../../components/CollaborativeFields';
 import {
   Checkbox,
   Code,
   DateTime,
   DocArray,
-  Number,
   ReferenceMany,
   ReferenceOne,
   SelectMany,
@@ -626,19 +625,18 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           );
         }
         return (
-          <Number
+          <CollaborativeNumberField
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Int'}
             label={fieldName}
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
+            y={{ ...y, field: key, user }}
+            defaultValue={getProperty(itemState.fields, key)}
+            color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.valueAsNumber;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
+            onDebouncedChange={(content, number) => {
+              if (number !== undefined && !readOnly)
+                dispatch(setField(number, key, 'default', undefined, inArrayKey));
             }}
           />
         );
@@ -669,19 +667,19 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           );
         }
         return (
-          <Number
+          <CollaborativeNumberField
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Float'}
             label={fieldName}
+            allowDecimals
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
+            y={{ ...y, field: key, user }}
+            defaultValue={getProperty(itemState.fields, key)}
+            color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.valueAsNumber;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
+            onDebouncedChange={(content, number) => {
+              if (number !== undefined && !readOnly)
+                dispatch(setField(number, key, 'default', undefined, inArrayKey));
             }}
           />
         );
