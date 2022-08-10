@@ -15,7 +15,12 @@ class YProvider {
 
       // register with a WebRTC provider
       const providerOptions = {
-        password: (await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))).toString(),
+        password: await (async () => {
+          if (process.env.NODE_ENV === 'production') {
+            return (await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))).toString();
+          }
+          return name + 'cristata-development';
+        })(),
       };
       // @ts-expect-error all properties are actually optional
       const provider = new WebrtcProvider(name, ydoc, providerOptions);
