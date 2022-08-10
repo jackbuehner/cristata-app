@@ -16,9 +16,12 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
-import { CollaborativeNumberField, CollaborativeTextField } from '../../../components/CollaborativeFields';
 import {
-  Checkbox,
+  CollaborativeCheckbox,
+  CollaborativeNumberField,
+  CollaborativeTextField,
+} from '../../../components/CollaborativeFields';
+import {
   Code,
   DateTime,
   DocArray,
@@ -583,18 +586,18 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // checkbox
       if (type === 'Boolean') {
         return (
-          <Checkbox
+          <CollaborativeCheckbox
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            checked={!!getProperty(itemState.fields, key)}
+            y={{ ...y, field: key, user }}
+            defaultChecked={!!getProperty(itemState.fields, key)}
+            color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.checked;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
+            onChange={(checked) => {
+              if (checked !== undefined && !readOnly)
+                dispatch(setField(checked, key, 'default', undefined, inArrayKey));
             }}
           />
         );

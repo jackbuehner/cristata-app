@@ -6,6 +6,7 @@ interface CollaborativeFieldProps extends Omit<Omit<FieldProps, 'label'>, 'child
   label?: string;
 }
 
-export { CollaborativeTextField } from './CollaborativeTextField';
+export { CollaborativeCheckbox } from './CollaborativeCheckbox';
 export { CollaborativeNumberField } from './CollaborativeNumberField';
+export { CollaborativeTextField } from './CollaborativeTextField';
 export type { CollaborativeFieldProps };
