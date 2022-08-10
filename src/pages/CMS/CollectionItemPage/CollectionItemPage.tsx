@@ -18,11 +18,11 @@ import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
 import {
   CollaborativeCheckbox,
+  CollaborativeCode,
   CollaborativeNumberField,
   CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
 import {
-  Code,
   DateTime,
   DocArray,
   ReferenceMany,
@@ -524,18 +524,19 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // markdown fields
       if (type === 'String' && def.field?.markdown) {
         return (
-          <Code
+          <CollaborativeCode
             key={index}
-            type={'md'}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
+            type={'md'}
+            y={{ ...y, field: key, user }}
+            initialValue={getProperty(itemState.fields, key)}
+            color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
             isEmbedded={props.isEmbedded}
-            onChange={(newValue) => {
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
+            onChange={(value) => {
+              if (value !== undefined && !readOnly)
+                dispatch(setField(value, key, 'default', undefined, inArrayKey));
             }}
           />
         );
