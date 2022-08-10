@@ -20,7 +20,6 @@ function SendToolbarRow({ editor, isActive, ...props }: SendToolbarRowProps) {
   const isPublished = cmsItemState.fields.stage === 5.2;
   const [ScheduleEmailWindow, showScheduleEmailWindow] = useScheduleEmailWindow(editor, props.iframehtmlstring);
 
-  console.log(authUserState);
   const handleSendEmailClick = () => {
     if (
       !authUserState.constantcontact ||
@@ -30,7 +29,6 @@ function SendToolbarRow({ editor, isActive, ...props }: SendToolbarRowProps) {
       if (child) {
         child.onunload = () => {
           window.location.reload();
-          console.log('child window closed');
         };
       }
     } else {
