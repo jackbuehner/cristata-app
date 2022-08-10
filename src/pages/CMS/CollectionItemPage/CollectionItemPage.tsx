@@ -949,6 +949,31 @@ const ContentWrapper = styled.div<{ theme?: themeType }>`
   overflow: hidden;
   height: 100%;
   box-sizing: border-box;
+
+  .collaboration-cursor__caret {
+    position: relative;
+    margin-left: -0.5px;
+    margin-right: -0.5px;
+    border-left: 0.5px solid #0d0d0d;
+    border-right: 0.5px solid #0d0d0d;
+    word-break: normal;
+    pointer-events: none;
+  }
+  .collaboration-cursor__label {
+    position: absolute;
+    top: -1.4em;
+    left: -1px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 680;
+    line-height: normal;
+    user-select: none;
+    color: ${({ theme }) => theme.color.neutral['light'][1500]};
+    font-family: ${({ theme }) => theme.font.detail};
+    padding: 0.1rem 0.3rem;
+    border-radius: 0;
+    white-space: nowrap;
+  }
 `;
 
 const EmbeddedFieldContainer = styled.div<{ theme: themeType; color?: colorType }>`
