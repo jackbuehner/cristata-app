@@ -40,20 +40,14 @@ import { PullQuote } from './extension-pull-quote';
 import { TrackChanges } from './extension-track-changes';
 import { SweepwidgetWidget } from './extension-widget-sweepwidget';
 import { YoutubeWidget } from './extension-widget-youtube';
-import {
-  useAwareness,
-  useDevTools,
-  useSidebar,
-  useTipTapEditor,
-  useTrackChanges,
-  useWordCount,
-  useY,
-} from './hooks';
+import { useDevTools, useSidebar, useTipTapEditor, useTrackChanges, useWordCount } from './hooks';
 import './office-icon/colors1.css';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
 import { ExternalFrame } from './components/ExternalFrame';
+import { FieldY, IYSettingsMap } from './hooks/useY';
 
 interface ITiptap {
+  y: FieldY;
   docName: string;
   title?: string;
   user: {
@@ -80,10 +74,8 @@ const Tiptap = (props: ITiptap) => {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { search } = useLocation();
-  const [ydoc, ySettingsMap, provider] = useY({
-    name: props.docName,
-  }); // create a doc and connect it to the server
-  const awarenessProfiles = useAwareness({ provider }); // get list of who is editing the doc
+  const { ydoc, provider, awareness: awarenessProfiles } = props.y;
+  const ySettingsMap = ydoc?.getMap<IYSettingsMap>('settings');
   const { observe, width: thisWidth } = useDimensions(); // monitor the dimensions of the editor
 
   // manage sidebar content
@@ -135,6 +127,7 @@ const Tiptap = (props: ITiptap) => {
       }),
       Collaboration.configure({
         document: ydoc,
+        field: props.y.field,
       }),
       CollaborationCursor.configure({
         provider: provider,

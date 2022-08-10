@@ -32,6 +32,7 @@ import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
+import { useY } from '../../../components/Tiptap/hooks';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
   DeconstructedSchemaDefType,
@@ -250,6 +251,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   const locked = publishLocked || (itemState.fields.archived as boolean);
 
+  const [, , , , y] = useY({ name: pluralize.singular(collection) + item_id }); // create or load y
+
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
   if (schemaDef) {
@@ -314,6 +317,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     };
 
     const tenant = localStorage.getItem('tenant');
+
+    const user = {
+      name: authUserState.name,
+      color: colorHash.hex(authUserState._id),
+      sessionId: sessionId || '',
+      photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
+    };
 
     const renderFields = (
       input: DeconstructedSchemaDefType[0],
@@ -385,6 +395,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           >
             <EmbeddedFieldContainer theme={theme}>
               <Tiptap
+                y={{ ...y, field: key, user }}
                 docName={`${collection}.${item_id}`}
                 title={title}
                 user={{
