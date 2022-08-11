@@ -16,10 +16,11 @@ interface CollaborativeTextFieldProps extends CollaborativeFieldProps {
   defaultValue?: string;
   onChange?: (content: JSONContent[], text: string) => void;
   onDebouncedChange?: (content: JSONContent[], text: string) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
 }
 
 function CollaborativeTextField(props: CollaborativeTextFieldProps) {
-  const { y, defaultValue, onChange, onDebouncedChange, ...labelProps } = props;
+  const { y, defaultValue, onChange, onDebouncedChange, onKeyDown, ...labelProps } = props;
 
   // create the editor
   const editor = useTipTapEditor({
@@ -47,6 +48,12 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
     onUpdate({ editor }) {
       onUpdate(editor);
       onUpdateDelayed(editor);
+    },
+    editorProps: {
+      handleKeyDown(view, event) {
+        onKeyDown?.(event);
+        return false;
+      },
     },
   });
 

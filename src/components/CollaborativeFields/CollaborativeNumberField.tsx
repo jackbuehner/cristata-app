@@ -19,10 +19,11 @@ interface CollaborativeNumberFieldProps extends CollaborativeFieldProps {
   allowDecimals?: boolean;
   onChange?: (content: JSONContent[], number: number) => void;
   onDebouncedChange?: (content: JSONContent[], number: number) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
 }
 
 function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
-  const { y, defaultValue, onChange, onDebouncedChange, ...labelProps } = props;
+  const { y, defaultValue, onChange, onDebouncedChange, onKeyDown, ...labelProps } = props;
 
   // create the editor
   const editor = useTipTapEditor({
@@ -50,6 +51,12 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
     onUpdate({ editor }) {
       onUpdate(editor);
       onUpdateDelayed(editor);
+    },
+    editorProps: {
+      handleKeyDown(view, event) {
+        onKeyDown?.(event);
+        return false;
+      },
     },
   });
 
