@@ -1,4 +1,4 @@
-import { DependencyList, useEffect, useRef } from 'react';
+import { DependencyList, useEffect, useState } from 'react';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
@@ -55,43 +55,48 @@ class YProvider {
 const y = new YProvider();
 
 function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYReturn {
-  let ydoc = useRef<Y.Doc>();
-  const provider = useRef<WebrtcProvider>();
-  const settingsMap = useRef<Y.Map<IYSettingsMap>>();
+  const [ydoc, setYdoc] = useState<Y.Doc>();
+  const [provider, setProvider] = useState<WebrtcProvider>();
+  const [settingsMap, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
+
   useEffect(() => {
     let mounted = true;
 
     const tenant = localStorage.getItem('tenant');
     y.create(`${tenant}.${docName}`).then((data) => {
       if (mounted) {
-        ydoc.current = data.ydoc;
-        provider.current = data.provider;
+        setYdoc(data.ydoc);
+        setProvider(data.provider);
 
         // create a setting map for this document (used to sync settings accross all editors)
-        settingsMap.current = ydoc.current.getMap<IYSettingsMap>('settings');
+        setSettingsMap(ydoc?.getMap<IYSettingsMap>('settings'));
       }
     });
 
     return () => {
-      y.delete(docName);
-      ydoc.current = undefined;
-      provider.current = undefined;
-      settingsMap.current = undefined;
+      provider?.destroy();
+      setProvider(undefined);
+
+      ydoc?.destroy();
+      setYdoc(undefined);
+
+      setSettingsMap(undefined);
+
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docName, ...deps]);
 
-  const awareness = useAwareness({ provider: provider.current }); // get list of who is editing the doc
+  const awareness = useAwareness({ provider: provider }); // get list of who is editing the doc
 
   const entryY = {
-    ydoc: ydoc.current,
-    provider: provider.current,
-    connected: provider.current?.connected,
+    ydoc: ydoc,
+    provider: provider,
+    connected: provider?.connected,
     awareness,
   };
 
-  return [ydoc.current, settingsMap.current, provider.current, provider.current?.connected, entryY];
+  return [ydoc, settingsMap, provider, provider?.connected, entryY];
 }
 
 interface UseYProps {
