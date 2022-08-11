@@ -1,12 +1,14 @@
 import { DependencyList, useEffect, useState } from 'react';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
+import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
 import { useAwareness } from './useAwareness';
 
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};
-  #providers: Record<string, WebrtcProvider> = {};
+  #webProviders: Record<string, WebrtcProvider> = {};
+  #localProviders: Record<string, IndexeddbPersistence> = {};
 
   async create(name: string) {
     if (!this.has(name)) {
@@ -24,8 +26,10 @@ class YProvider {
         providerOptions = { password: name + 'cristata-development' };
       }
       // @ts-expect-error all properties are actually optional
-      const provider = new WebrtcProvider(name, ydoc, providerOptions);
-      this.#providers[name] = provider;
+      const webProvider = new WebrtcProvider(name, ydoc, providerOptions);
+      const localProvider = new IndexeddbPersistence(name, ydoc);
+      this.#webProviders[name] = webProvider;
+      this.#localProviders[name] = localProvider;
     }
 
     return this.get(name);
@@ -33,9 +37,10 @@ class YProvider {
 
   get(name: string) {
     const ydoc = this.#ydocs[name];
-    const provider = this.#providers[name];
+    const webProvider = this.#webProviders[name];
+    const localProvider = this.#localProviders[name];
 
-    return { ydoc, provider };
+    return { ydoc, webProvider, localProvider };
   }
 
   has(name: string): boolean {
@@ -46,8 +51,10 @@ class YProvider {
     if (this.has(name)) {
       this.#ydocs[name].destroy();
       delete this.#ydocs[name];
-      this.#providers[name].destroy();
-      delete this.#providers[name];
+      this.#webProviders[name].destroy();
+      delete this.#webProviders[name];
+      this.#localProviders[name].destroy();
+      delete this.#localProviders[name];
     }
   }
 }
@@ -56,7 +63,8 @@ const y = new YProvider();
 
 function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYReturn {
   const [ydoc, setYdoc] = useState<Y.Doc>();
-  const [provider, setProvider] = useState<WebrtcProvider>();
+  const [webProvider, setWebProvider] = useState<WebrtcProvider>();
+  const [localProvider, setLocalProvider] = useState<IndexeddbPersistence>();
   const [settingsMap, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
 
   useEffect(() => {
@@ -66,7 +74,8 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYRetu
     y.create(`${tenant}.${docName}`).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
-        setProvider(data.provider);
+        setWebProvider(data.webProvider);
+        setLocalProvider(data.localProvider);
 
         // create a setting map for this document (used to sync settings accross all editors)
         setSettingsMap(ydoc?.getMap<IYSettingsMap>('settings'));
@@ -74,8 +83,11 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYRetu
     });
 
     return () => {
-      provider?.destroy();
-      setProvider(undefined);
+      webProvider?.destroy();
+      setWebProvider(undefined);
+
+      localProvider?.destroy();
+      setLocalProvider(undefined);
 
       ydoc?.destroy();
       setYdoc(undefined);
@@ -87,16 +99,30 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYRetu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docName, ...deps]);
 
-  const awareness = useAwareness({ provider: provider }); // get list of who is editing the doc
+  const awareness = useAwareness({ provider: webProvider }); // get list of who is editing the doc
+
+  // consider synced once the local provider is connected
+  // and the web provider awareness has propogated (at least one array value)
+  const [synced, setSynced] = useState(false);
+  useEffect(() => {
+    if (!synced && awareness.length > 0) {
+      const handleSync = () => setSynced(true);
+      localProvider?.on('synced', handleSync);
+      return () => {
+        localProvider?.off('synced', handleSync);
+      };
+    }
+  }, [awareness, localProvider, synced, webProvider, ydoc]);
 
   const entryY = {
     ydoc: ydoc,
-    provider: provider,
-    connected: provider?.connected,
-    awareness,
+    provider: webProvider,
+    connected: webProvider?.connected,
+    awareness: synced ? awareness : [],
+    initialSynced: synced,
   };
 
-  return [ydoc, settingsMap, provider, provider?.connected, entryY];
+  return [ydoc, settingsMap, webProvider, webProvider?.connected, entryY];
 }
 
 interface UseYProps {
@@ -120,6 +146,7 @@ interface EntryY {
   provider: WebrtcProvider | undefined;
   connected: boolean | undefined;
   awareness: ReturnType<typeof useAwareness>;
+  initialSynced: boolean;
 }
 
 interface FieldY extends EntryY {
