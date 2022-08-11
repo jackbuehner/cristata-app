@@ -61,7 +61,7 @@ class YProvider {
 
 const y = new YProvider();
 
-function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYReturn {
+function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): UseYReturn {
   const [ydoc, setYdoc] = useState<Y.Doc>();
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
   const [localProvider, setLocalProvider] = useState<IndexeddbPersistence>();
@@ -99,7 +99,7 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYRetu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docName, ...deps]);
 
-  const awareness = useAwareness({ provider: webProvider }); // get list of who is editing the doc
+  const awareness = useAwareness({ provider: webProvider, user }); // get list of who is editing the doc
 
   // consider synced once the local provider is connected
   // and the web provider awareness has propogated (at least one array value)
@@ -125,6 +125,7 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYRetu
 
 interface UseYProps {
   name: string;
+  user?: ReturnType<typeof useAwareness>[0];
 }
 
 interface IYSettingsMap {

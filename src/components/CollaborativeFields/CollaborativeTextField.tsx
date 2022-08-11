@@ -37,12 +37,6 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
       }),
       CollaborationCursor.configure({
         provider: props.y.provider,
-        user: {
-          name: props.y.user.name,
-          color: props.y.user.color,
-          sessionId: props.y.user.sessionId,
-          photo: props.y.user.photo,
-        },
       }),
     ],
     onUpdate({ editor }) {

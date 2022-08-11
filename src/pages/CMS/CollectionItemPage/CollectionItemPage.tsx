@@ -164,8 +164,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     idKey: by?.one,
   });
 
-  const y = useY({ name: pluralize.singular(collection) + item_id }); // create or load y
-
   const tenant = localStorage.getItem('tenant');
 
   const user = {
@@ -174,6 +172,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     sessionId: sessionId || '',
     photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
   };
+
+  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,

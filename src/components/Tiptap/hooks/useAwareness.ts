@@ -9,6 +9,10 @@ function useAwareness(props: UseAwarenessProps): AwarenessType[] {
 
   const { awareness: pa } = props.provider;
 
+  // set local user awareness field with user details
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  if (props.user) pa.setLocalStateField('user', props.user);
+
   // get all current awareness information and filter it to only include
   // sessions with defined users
   const allAwarenessValues: AwarenessType[] = Array.from(pa.getStates().values())
@@ -36,6 +40,7 @@ function useAwareness(props: UseAwarenessProps): AwarenessType[] {
 
 interface UseAwarenessProps {
   provider: WebrtcProvider | undefined;
+  user: AwarenessType;
 }
 
 type AwarenessType = {
@@ -43,6 +48,7 @@ type AwarenessType = {
   color: string;
   sessionId: string;
   photo: string;
+  [key: string]: unknown;
 };
 
 export { useAwareness };
