@@ -6,10 +6,9 @@ import { SetStateAction, useEffect, useRef, useState } from 'react';
 import { Remark } from 'react-remark';
 import { MonacoBinding } from 'y-monaco';
 import { YTextEvent } from 'yjs';
-import { CollaborativeFieldProps } from '.';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { cristataCodeDarkTheme } from '../../pages/configuration/cristataCodeDarkTheme';
 import { colorType } from '../../utils/theme/theme';
-import { Field } from '../ContentField/Field';
 import { Tab, TabBar } from '../Tabs';
 import { useAwareness } from '../Tiptap/hooks';
 
@@ -108,9 +107,9 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         {Component}
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

@@ -7,11 +7,10 @@ import { DateTime as Luxon } from 'luxon';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { YTextEvent } from 'yjs';
-import { CollaborativeFieldProps } from '.';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { formatISODate } from '../../utils/formatISODate';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
-import { Field } from '../ContentField/Field';
 
 interface CollaborativeDateTimeProps extends CollaborativeFieldProps {
   initialValue: string | null;
@@ -65,9 +64,9 @@ function CollaborativeDateTime(props: CollaborativeDateTimeProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         {Content}
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

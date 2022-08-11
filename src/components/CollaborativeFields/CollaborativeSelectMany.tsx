@@ -2,9 +2,13 @@ import styled from '@emotion/styled/macro';
 import { Add20Regular } from '@fluentui/react-icons';
 import { InputHTMLAttributes, useState } from 'react';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { CollaborativeFieldProps, CollaborativeNumberField, CollaborativeTextField } from '.';
+import {
+  CollaborativeFieldProps,
+  CollaborativeFieldWrapper,
+  CollaborativeNumberField,
+  CollaborativeTextField,
+} from '.';
 import { IconButton } from '../Button';
-import { Field } from '../ContentField/Field';
 import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 import { SelectedItems } from './SelectedItems';
 import { useSetInitialYarray } from './useSetInitialYarray';
@@ -174,9 +178,9 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         {Content}
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

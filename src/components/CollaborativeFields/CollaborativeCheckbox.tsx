@@ -1,9 +1,8 @@
 import styled from '@emotion/styled/macro';
 import { InputHTMLAttributes, useEffect, useState } from 'react';
 import { YMapEvent } from 'yjs';
-import { CollaborativeFieldProps } from '.';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
-import { Field } from '../ContentField/Field';
 
 interface CollaborativeCheckboxProps
   extends CollaborativeFieldProps,
@@ -53,8 +52,9 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
 
   if (props.label) {
     return (
-      <Field
+      <CollaborativeFieldWrapper
         {...labelProps}
+        y={y}
         label={props.label}
         style={{
           display: 'flex',
@@ -75,7 +75,7 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
           onChange={onUpdate}
           checked={checked}
         />
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

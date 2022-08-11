@@ -7,9 +7,8 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { EditorContent, JSONContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { CollaborativeFieldProps } from '.';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
-import { Field } from '../ContentField/Field';
 import { useTipTapEditor } from '../Tiptap/hooks';
 
 interface CollaborativeTextFieldProps extends CollaborativeFieldProps {
@@ -78,9 +77,9 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         <Content editor={editor} color={props.color} />
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

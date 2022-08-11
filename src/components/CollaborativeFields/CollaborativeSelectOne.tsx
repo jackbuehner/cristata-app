@@ -1,6 +1,5 @@
 import { InputHTMLAttributes } from 'react';
-import { CollaborativeFieldProps } from '.';
-import { Field } from '../ContentField/Field';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 
 interface CollaborativeSelectOneProps
@@ -35,9 +34,9 @@ function CollaborativeSelectOne(props: CollaborativeSelectOneProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         {Content}
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

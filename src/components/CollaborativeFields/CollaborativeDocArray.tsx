@@ -21,11 +21,10 @@ import {
 } from 'react-beautiful-dnd';
 import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs';
-import { CollaborativeFieldProps } from '.';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
-import { Field } from '../ContentField/Field';
 import { Value } from './CollaborativeCombobox';
 
 interface CollaborativeDocArrayProps extends CollaborativeFieldProps {
@@ -150,12 +149,13 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
   }, [hasSetInitialValue, yarray, y.initialSynced, y.awareness.length, props.initialData, arr.length]);
 
   return (
-    <Field
+    <CollaborativeFieldWrapper
       label={props.label || ''}
       disabled={props.disabled}
       description={props.description}
       font={props.font}
       color={props.color}
+      y={y}
     >
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId={`subdocarray-${props.stateFieldKey}`} direction={'vertical'}>
@@ -281,7 +281,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
           )}
         </Droppable>
       </DragDropContext>
-    </Field>
+    </CollaborativeFieldWrapper>
   );
 }
 

@@ -9,9 +9,8 @@ import { EditorContent, JSONContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { Slice } from 'prosemirror-model';
 import { Plugin, PluginKey } from 'prosemirror-state';
-import { CollaborativeFieldProps } from '.';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
-import { Field } from '../ContentField/Field';
 import { useTipTapEditor } from '../Tiptap/hooks';
 
 interface CollaborativeNumberFieldProps extends CollaborativeFieldProps {
@@ -81,9 +80,9 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         <Content editor={editor} color={props.color} />
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

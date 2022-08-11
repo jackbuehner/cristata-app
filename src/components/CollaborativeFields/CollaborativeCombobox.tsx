@@ -8,11 +8,10 @@ import { BaseOptionType, DefaultOptionType } from 'rc-select/lib/Select';
 import { CSSProperties as CSS, useCallback, useEffect, useRef, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import * as Y from 'yjs';
-import { CollaborativeFieldProps } from '.';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { replaceCircular } from '../../utils/replaceCircular';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
-import { Field } from '../ContentField/Field';
 import { useSetInitialYarray } from './useSetInitialYarray';
 
 const isValidObjectId = mongoose.Types.ObjectId.isValid;
@@ -254,9 +253,9 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         {Content}
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 

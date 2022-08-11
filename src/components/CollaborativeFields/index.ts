@@ -1,8 +1,6 @@
-import { FieldProps } from '../ContentField/Field';
-import { FieldY } from '../Tiptap/hooks/useY';
+import { CollaborativeFieldWrapperProps } from './CollaborativeFieldWrapper';
 
-interface CollaborativeFieldProps extends Omit<Omit<FieldProps, 'label'>, 'children'> {
-  y: FieldY;
+interface CollaborativeFieldProps extends Omit<Omit<CollaborativeFieldWrapperProps, 'label'>, 'children'> {
   label?: string;
 }
 
@@ -11,6 +9,7 @@ export { CollaborativeCode } from './CollaborativeCode';
 export { CollaborativeCombobox } from './CollaborativeCombobox';
 export { CollaborativeDateTime } from './CollaborativeDateTime';
 export { CollaborativeDocArray } from './CollaborativeDocArray';
+export { CollaborativeFieldWrapper } from './CollaborativeFieldWrapper';
 export { CollaborativeNumberField } from './CollaborativeNumberField';
 export { CollaborativeReferenceMany } from './CollaborativeReferenceMany';
 export { CollaborativeReferenceOne } from './CollaborativeReferenceOne';

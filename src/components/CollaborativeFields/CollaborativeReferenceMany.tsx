@@ -2,8 +2,7 @@ import { useApolloClient } from '@apollo/client';
 import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { useEffect, useState } from 'react';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { CollaborativeFieldProps } from '.';
-import { Field } from '../ContentField/Field';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { populateReferenceValues } from '../ContentField/populateReferenceValues';
 import { useOptions } from '../ContentField/useOptions';
 import {
@@ -100,9 +99,9 @@ function CollaborativeReferenceMany(props: CollaborativeReferenceManyProps) {
 
   if (props.label) {
     return (
-      <Field {...labelProps} label={props.label}>
+      <CollaborativeFieldWrapper {...labelProps} y={y} label={props.label}>
         {Content}
-      </Field>
+      </CollaborativeFieldWrapper>
     );
   }
 
