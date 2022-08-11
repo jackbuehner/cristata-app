@@ -20,11 +20,13 @@ import {
   CollaborativeCode,
   CollaborativeDateTime,
   CollaborativeNumberField,
+  CollaborativeReferenceMany,
+  CollaborativeReferenceOne,
   CollaborativeSelectMany,
   CollaborativeSelectOne,
   CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
-import { DocArray, ReferenceMany, ReferenceOne } from '../../../components/ContentField';
+import { DocArray } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
@@ -466,12 +468,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 return { _id, label };
               }) || [];
           return (
-            <ReferenceMany
+            <CollaborativeReferenceMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
               label={fieldName}
               description={def.field?.description}
-              values={values}
+              y={{ ...y, field: key, user }}
+              initialValues={values}
+              color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error}
               isEmbedded={props.isEmbedded}
               collection={pluralize.singular(collection)}
@@ -497,13 +500,14 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             : undefined;
 
         return (
-          <ReferenceOne
+          <CollaborativeReferenceOne
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            // only show the value if it is not null, undefined, or an empty string
-            value={value?._id ? value : null}
+            y={{ ...y, field: key, user }}
+            // only show the value if it is truthy
+            initialValue={value?._id ? value : undefined}
+            color={props.isEmbedded ? 'blue' : 'primary'}
             // disable when the api requires the field to always have a value but a default
             // value for when no specific photo is selected is not defined
             disabled={locked || loading || !!error || (def.required && def.default === undefined)}
@@ -511,8 +515,9 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             collection={pluralize.singular(collection)}
             reference={def.field?.reference}
             onChange={(newValue) => {
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue || def.default, key, 'reference', undefined, inArrayKey));
+              const defaultValue = def.required ? def.default : null;
+              if (!readOnly)
+                dispatch(setField(newValue || defaultValue, key, 'reference', undefined, inArrayKey));
             }}
           />
         );

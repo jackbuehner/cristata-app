@@ -35,9 +35,22 @@ interface CollaborativeComboboxProps extends CollaborativeFieldProps {
 
 type Values<T extends string | number> = Value<T>[];
 
-interface Value<T extends string | number> {
+interface Value<T extends string | number> extends BaseValue {
   value: T;
   label: string;
+}
+
+interface UnpopulatedRefValue extends BaseValue {
+  _id: string;
+  label?: string;
+}
+
+interface PopulatedRefValue extends BaseValue {
+  _id: string;
+  label: string;
+}
+
+interface BaseValue {
   disabled?: boolean;
   reason?: string;
   children?: React.ReactChildren;
@@ -55,6 +68,8 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
   const [selected, setSelected] = useState<Value<string>[]>(yarray?.toArray() || []);
   useEffect(() => {
     if (yarray) {
+      setSelected(yarray.toArray());
+
       const handleChange = (evt: Y.YArrayEvent<Value<string>>) => {
         if (evt.changes.delta) {
           setSelected(yarray.toArray());
@@ -453,4 +468,4 @@ const ChevronIconWrapper = styled.span`
 `;
 
 export { CollaborativeCombobox };
-export type { Value, Values };
+export type { Value, Values, PopulatedRefValue, UnpopulatedRefValue };

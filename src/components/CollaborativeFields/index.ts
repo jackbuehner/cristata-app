@@ -11,6 +11,8 @@ export { CollaborativeCode } from './CollaborativeCode';
 export { CollaborativeCombobox } from './CollaborativeCombobox';
 export { CollaborativeDateTime } from './CollaborativeDateTime';
 export { CollaborativeNumberField } from './CollaborativeNumberField';
+export { CollaborativeReferenceMany } from './CollaborativeReferenceMany';
+export { CollaborativeReferenceOne } from './CollaborativeReferenceOne';
 export { CollaborativeSelectMany } from './CollaborativeSelectMany';
 export { CollaborativeSelectOne } from './CollaborativeSelectOne';
 export { CollaborativeTextField } from './CollaborativeTextField';
