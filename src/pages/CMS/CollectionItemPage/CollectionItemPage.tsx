@@ -164,7 +164,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     idKey: by?.one,
   });
 
-  const [, , , , y] = useY({ name: pluralize.singular(collection) + item_id }); // create or load y
+  const y = useY({ name: pluralize.singular(collection) + item_id }); // create or load y
 
   const tenant = localStorage.getItem('tenant');
 

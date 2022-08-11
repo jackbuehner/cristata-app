@@ -65,7 +65,7 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYRetu
   const [ydoc, setYdoc] = useState<Y.Doc>();
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
   const [localProvider, setLocalProvider] = useState<IndexeddbPersistence>();
-  const [settingsMap, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
+  const [, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
 
   useEffect(() => {
     let mounted = true;
@@ -114,15 +114,13 @@ function useY({ name: docName }: UseYProps, deps: DependencyList = []): UseYRetu
     }
   }, [awareness, localProvider, synced, webProvider, ydoc]);
 
-  const entryY = {
+  return {
     ydoc: ydoc,
     provider: webProvider,
     connected: webProvider?.connected,
     awareness: synced ? awareness : [],
     initialSynced: synced,
   };
-
-  return [ydoc, settingsMap, webProvider, webProvider?.connected, entryY];
 }
 
 interface UseYProps {
@@ -133,13 +131,7 @@ interface IYSettingsMap {
   trackChanges?: boolean;
 }
 
-type UseYReturn = [
-  Y.Doc | undefined,
-  Y.Map<IYSettingsMap> | undefined,
-  WebrtcProvider | undefined,
-  boolean | undefined,
-  EntryY
-];
+type UseYReturn = EntryY;
 
 interface EntryY {
   ydoc: Y.Doc | undefined;
