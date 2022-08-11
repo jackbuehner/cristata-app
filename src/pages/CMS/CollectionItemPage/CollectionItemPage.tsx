@@ -335,7 +335,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     ): JSX.Element => {
       const [key, def] = input;
 
-      const readOnly = def.field?.readonly === true || def.modifiable === true;
+      const readOnly = def.field?.readonly === true || def.modifiable !== true;
       let fieldName = def.field?.label || key;
 
       // if a field is readonly, add readonly to the field name
