@@ -7,6 +7,7 @@ import { IconButton } from '../Button';
 import { Field } from '../ContentField/Field';
 import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 import { SelectedItems } from './SelectedItems';
+import { useSetInitialYarray } from './useSetInitialYarray';
 
 interface CollaborativeSelectManyProps
   extends CollaborativeFieldProps,
@@ -24,9 +25,10 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
 
   // create yarray only if combobox is not going to be used
   // (combobox creates the shared type already)
-  if (props.initialValues && !props.options && yarray?.toArray().length === 0) {
-    yarray.insert(0, props.initialValues);
-  }
+  useSetInitialYarray(
+    { initialSynced: y.initialSynced, initialValues: props.initialValues, yarray, awareness: y.awareness },
+    !props.options
+  );
 
   const onDragEnd = (result: DropResult, provided: ResponderProvided) => {
     const from = result.source.index;

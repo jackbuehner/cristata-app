@@ -13,6 +13,7 @@ import { replaceCircular } from '../../utils/replaceCircular';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 import { Field } from '../ContentField/Field';
+import { useSetInitialYarray } from './useSetInitialYarray';
 
 const isValidObjectId = mongoose.Types.ObjectId.isValid;
 
@@ -161,23 +162,10 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
     }
   }, []);
 
-  // if there are provided initial values and there are no values
-  // defined in the ydoc shared type, use the initial values
-  // in the shared type array for selected items
-  const [hasSetInitialValue, setHasSetInitialValue] = useState(false);
-  if (
-    props.initialValues &&
-    yarray &&
-    yarray.toArray().length === 0 &&
-    selected.length === 0 &&
-    !hasSetInitialValue
-  ) {
-    // only insert if there are no other clients connected
-    // (otherwise, they probably already inserted the initial values
-    // and may have removed them before this client connected)
-    if (y.awareness.length === 0) yarray.insert(0, props.initialValues);
-    setHasSetInitialValue(true);
-  }
+  useSetInitialYarray(
+    { initialSynced: y.initialSynced, initialValues: props.initialValues, yarray, awareness: y.awareness },
+    selected.length === 0 // only set value using `initialValues` if `selection` is empty
+  );
 
   const Content = (
     <div style={{ position: 'relative' }}>
