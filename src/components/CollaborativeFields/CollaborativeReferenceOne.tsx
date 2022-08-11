@@ -87,6 +87,7 @@ function CollaborativeReferenceOne(props: CollaborativeReferenceOneProps) {
       </div>
       {y.ydoc ? (
         <SelectedReferenceItems
+          disabled={props.disabled}
           onDragEnd={() => null}
           fieldName={y.field}
           font={props.font}

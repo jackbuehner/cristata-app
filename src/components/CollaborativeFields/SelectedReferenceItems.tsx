@@ -30,6 +30,7 @@ interface SelectedReferenceItemsProps {
   collection: string;
   noDrag?: boolean;
   many?: false;
+  disabled?: boolean;
 }
 
 function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
@@ -58,6 +59,7 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
       {selected.length > 0 && props.many !== false ? (
         <div style={{ display: 'flex', flexDirection: 'row', gap: 6, padding: '12px 0 6px 0' }}>
           <Button
+            disabled={props.disabled}
             cssExtra={css`
               min-width: unset;
             `}
@@ -82,7 +84,9 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
                   <Draggable draggableId={_id.toString()} index={index} key={index + _id.toString()}>
                     {(provided) => (
                       <SelectItem ref={provided.innerRef} {...provided.draggableProps} theme={theme}>
-                        {props.noDrag ? null : <DragHandle dragHandleProps={provided.dragHandleProps} />}
+                        {props.noDrag || props.disabled ? null : (
+                          <DragHandle dragHandleProps={provided.dragHandleProps} />
+                        )}
                         <SelectContent>
                           <SelectText font={props.font}>{label}</SelectText>
                           <SelectText font={props.font}>
@@ -119,8 +123,9 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
                         <IconWrapper
                           theme={theme}
                           color={props.color || 'primary'}
-                          disabled={false}
+                          disabled={props.disabled}
                           onClick={() => {
+                            if (props.disabled) return;
                             yarray.delete(index);
                           }}
                         >

@@ -85,6 +85,7 @@ function CollaborativeReferenceMany(props: CollaborativeReferenceManyProps) {
       />
       {y.ydoc ? (
         <SelectedReferenceItems
+          disabled={props.disabled}
           onDragEnd={onDragEnd}
           fieldName={y.field}
           font={props.font}
