@@ -44,22 +44,16 @@ interface Value<T extends string | number> {
   [key: string]: unknown;
 }
 
-interface ComboboxMap {
-  selected: Y.Array<Value<string>>;
-}
-
 function CollaborativeCombobox(props: CollaborativeComboboxProps) {
   const { y, initialValues, onChange, ...labelProps } = props;
-  const fieldMap = y.ydoc?.getMap<ComboboxMap>(y.field);
+  const yarray = y.ydoc?.getArray<Value<string>>(y.field);
 
   const theme = useTheme();
   const selectRef = useRef<BaseSelectRef>(null);
 
   // keep track of the selected values shared type
-  const [selected, setSelected] = useState<Value<string>[]>(fieldMap?.get('selected')?.toArray() || []);
+  const [selected, setSelected] = useState<Value<string>[]>(yarray?.toArray() || []);
   useEffect(() => {
-    const yarray: Y.Array<Value<string>> = fieldMap?.get('selected');
-
     if (yarray) {
       const handleChange = (evt: Y.YArrayEvent<Value<string>>) => {
         if (evt.changes.delta) {
@@ -75,7 +69,7 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
         yarray.unobserve(handleChange);
       };
     }
-  }, [fieldMap, onChange]);
+  }, [onChange, yarray]);
 
   /**
    * Update the y shared map type based on the new selection.
@@ -85,9 +79,7 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
    * with the newly selected option.
    */
   const onSelect = (value: unknown, option: BaseOptionType) => {
-    if (fieldMap && option.value && option.label) {
-      const yarray: Y.Array<Value<string>> = fieldMap.get('selected');
-
+    if (yarray && option.value && option.label) {
       y.ydoc?.transact(() => {
         // delete existing values if only one value can be set
         if (props.many === false) yarray.delete(0, yarray.length);
@@ -157,9 +149,7 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
   // if there are provided initial values and there are no values
   // defined in the ydoc shared type, use the initial values
   // in the shared type array for selected items
-  if (props.initialValues && fieldMap && !fieldMap.has('selected')) {
-    const yarray = new Y.Array();
-    fieldMap.set('selected', yarray);
+  if (props.initialValues && yarray && yarray.toArray().length === 0 && selected.length === 0) {
     yarray.insert(0, props.initialValues);
   }
 
@@ -452,4 +442,4 @@ const ChevronIconWrapper = styled.span`
 `;
 
 export { CollaborativeCombobox };
-export type { Value, Values, ComboboxMap };
+export type { Value, Values };

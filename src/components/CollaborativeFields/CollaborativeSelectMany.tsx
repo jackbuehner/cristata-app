@@ -2,11 +2,10 @@ import styled from '@emotion/styled/macro';
 import { Add20Regular } from '@fluentui/react-icons';
 import { InputHTMLAttributes, useState } from 'react';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import * as Y from 'yjs';
 import { CollaborativeFieldProps, CollaborativeNumberField, CollaborativeTextField } from '.';
 import { IconButton } from '../Button';
 import { Field } from '../ContentField/Field';
-import { CollaborativeCombobox, ComboboxMap, Value, Values } from './CollaborativeCombobox';
+import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 import { SelectedItems } from './SelectedItems';
 
 interface CollaborativeSelectManyProps
@@ -21,18 +20,12 @@ interface CollaborativeSelectManyProps
 
 function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
   const { y, defaultValue, onChange, ...labelProps } = props;
-  const fieldMap = y.ydoc?.getMap<ComboboxMap>(y.field);
-  const yarray: Y.Array<Value<string>> | undefined = fieldMap?.get('selected');
+  const yarray = y.ydoc?.getArray<Value<string>>(y.field);
 
-  // create fieldmap and yarray only if combobox is not going to be used
-  // (combobox creates these shared types already)
-  if (!fieldMap && !props.options) {
-    const fieldMap = y.ydoc?.getMap<ComboboxMap>(y.field);
-    if (props.initialValues && fieldMap && !fieldMap.has('selected')) {
-      const yarray = new Y.Array();
-      fieldMap.set('selected', yarray);
-      yarray.insert(0, props.initialValues);
-    }
+  // create yarray only if combobox is not going to be used
+  // (combobox creates the shared type already)
+  if (props.initialValues && !props.options && yarray?.toArray().length === 0) {
+    yarray.insert(0, props.initialValues);
   }
 
   const onDragEnd = (result: DropResult, provided: ResponderProvided) => {

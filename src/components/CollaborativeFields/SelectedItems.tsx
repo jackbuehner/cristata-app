@@ -14,7 +14,7 @@ import {
 import * as Y from 'yjs';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
-import { ComboboxMap, Value } from './CollaborativeCombobox';
+import { Value } from './CollaborativeCombobox';
 
 interface SelectedItemsProps {
   onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
@@ -27,11 +27,10 @@ interface SelectedItemsProps {
 
 function SelectedItems(props: SelectedItemsProps) {
   const theme = useTheme();
-  const fieldMap = props.ydoc.getMap<ComboboxMap>(props.fieldName);
-  const yarray: Y.Array<Value<string>> = fieldMap.get('selected');
+  const yarray = props.ydoc.getArray<Value<string>>(props.fieldName);
 
   // keep track of the selected values shared type
-  const [selected, setSelected] = useState<Value<string>[]>(fieldMap?.get('selected')?.toArray() || []);
+  const [selected, setSelected] = useState<Value<string>[]>(yarray?.toArray() || []);
   useEffect(() => {
     if (yarray) {
       const handleChange = (evt: Y.YArrayEvent<Value<string>>) => {
