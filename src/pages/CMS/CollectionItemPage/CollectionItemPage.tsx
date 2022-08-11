@@ -19,6 +19,7 @@ import {
   CollaborativeCheckbox,
   CollaborativeCode,
   CollaborativeDateTime,
+  CollaborativeDocArray,
   CollaborativeNumberField,
   CollaborativeReferenceMany,
   CollaborativeReferenceOne,
@@ -26,7 +27,6 @@ import {
   CollaborativeSelectOne,
   CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
-import { DocArray } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
@@ -330,7 +330,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       input: DeconstructedSchemaDefType[0],
       index: number,
       arr: DeconstructedSchemaDefType,
-      inArrayKey?: string
+      inArrayKey?: string,
+      yjsDocArrayConfig?: { __uuid: string; parentKey: string; childKey: string }
     ): JSX.Element => {
       const [key, def] = input;
 
@@ -339,6 +340,16 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // if a field is readonly, add readonly to the field name
       if (readOnly) fieldName += ' (read only)';
+
+      // use this key for yjs shared type key for doc array contents
+      // so there shared type for each field in the array is unique
+      // for the array and array doc
+      const docArrayYjsKey = yjsDocArrayConfig
+        ? `__docArray.${yjsDocArrayConfig.parentKey}.${yjsDocArrayConfig.__uuid}.${yjsDocArrayConfig.childKey}`
+        : undefined;
+
+      // pass this to every collaborative field so it can communicate with yjs
+      const fieldY = { ...y, field: docArrayYjsKey || key, user };
 
       const isSubDocArray = def.type === 'DocArray';
       if (isSubDocArray) {
@@ -351,13 +362,14 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field
           ?.description;
         return (
-          <DocArray
+          <CollaborativeDocArray
+            y={fieldY}
             label={label}
             description={description}
             disabled={locked || loading || !!error}
             key={key}
             stateFieldKey={key}
-            data={getProperty(itemState.fields, key)}
+            initialData={getProperty(itemState.fields, key)}
             schemaDefs={processSchemaDef(def.docs)}
             processSchemaDef={processSchemaDef}
             renderFields={renderFields}
@@ -396,7 +408,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           >
             <EmbeddedFieldContainer theme={theme}>
               <Tiptap
-                y={{ ...y, field: key, user }}
+                y={fieldY}
                 docName={`${collection}.${item_id}`}
                 title={title}
                 options={def.field.tiptap}
@@ -472,7 +484,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               key={index}
               label={fieldName}
               description={def.field?.description}
-              y={{ ...y, field: key, user }}
+              y={fieldY}
               initialValues={values}
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error}
@@ -504,7 +516,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             // only show the value if it is truthy
             initialValue={value?._id ? value : undefined}
             color={props.isEmbedded ? 'blue' : 'primary'}
@@ -531,7 +543,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             type={'md'}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             initialValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
@@ -554,7 +566,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               key={index}
               label={fieldName}
               description={def.field?.description}
-              y={{ ...y, field: key, user }}
+              y={fieldY}
               initialValue={options.find(({ value }) => value === currentPropertyValue)}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
@@ -573,7 +585,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
@@ -593,7 +605,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             defaultChecked={!!getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
@@ -616,7 +628,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               key={index}
               label={fieldName}
               description={def.field?.description}
-              y={{ ...y, field: key, user }}
+              y={fieldY}
               initialValue={options.find(({ value }) => value === currentPropertyValue.toString())}
               options={options}
               number={'integer'}
@@ -636,7 +648,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
@@ -659,7 +671,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               key={index}
               label={fieldName}
               description={def.field?.description}
-              y={{ ...y, field: key, user }}
+              y={fieldY}
               initialValue={options.find(({ value }) => value === currentPropertyValue.toString())}
               options={options}
               number={'decimal'}
@@ -680,7 +692,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             allowDecimals
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
@@ -703,7 +715,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               key={index}
               label={fieldName}
               description={def.field?.description}
-              y={{ ...y, field: key, user }}
+              y={fieldY}
               initialValues={options.filter(({ value }) => currentPropertyValues.includes(value))}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
@@ -722,7 +734,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             initialValues={currentPropertyValues.map((value) => ({ value, label: value }))}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error}
@@ -746,7 +758,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               key={index}
               label={fieldName}
               description={def.field?.description}
-              y={{ ...y, field: key, user }}
+              y={fieldY}
               initialValues={options.filter(({ value }) => currentPropertyValues.includes(parseInt(value)))}
               options={options}
               number={'integer'}
@@ -766,7 +778,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             initialValues={currentPropertyValues.map((value) => ({
               value: value.toString(),
               label: value.toString(),
@@ -794,7 +806,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               key={index}
               label={fieldName}
               description={def.field?.description}
-              y={{ ...y, field: key, user }}
+              y={fieldY}
               initialValues={options.filter(({ value }) => currentPropertyValues.includes(parseFloat(value)))}
               options={options}
               number={'decimal'}
@@ -814,7 +826,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             initialValues={currentPropertyValues.map((value) => ({
               value: value.toString(),
               label: value.toString(),
@@ -840,7 +852,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             key={index}
             label={fieldName}
             description={def.field?.description}
-            y={{ ...y, field: key, user }}
+            y={fieldY}
             initialValue={
               !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z' ? null : currentTimestamp
             }

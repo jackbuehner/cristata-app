@@ -10,6 +10,7 @@ export { CollaborativeCheckbox } from './CollaborativeCheckbox';
 export { CollaborativeCode } from './CollaborativeCode';
 export { CollaborativeCombobox } from './CollaborativeCombobox';
 export { CollaborativeDateTime } from './CollaborativeDateTime';
+export { CollaborativeDocArray } from './CollaborativeDocArray';
 export { CollaborativeNumberField } from './CollaborativeNumberField';
 export { CollaborativeReferenceMany } from './CollaborativeReferenceMany';
 export { CollaborativeReferenceOne } from './CollaborativeReferenceOne';
