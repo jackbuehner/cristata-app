@@ -99,7 +99,8 @@ const CollaborativeDateTimeComponent = styled(DatePicker)<{
       0px 0px 0px 2px inset !important;
   }
 
-  > .ant-picker-input > input {
+  > .ant-picker-input > input,
+  > .ant-picker-input > input[disabled] {
     color: ${({ theme, disabled }) => theme.color.neutral[theme.mode][disabled ? 800 : 1400]};
     font-family: ${({ theme }) => theme.font['detail']};
     font-size: 14px;
