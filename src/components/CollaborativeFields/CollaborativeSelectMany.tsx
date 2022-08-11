@@ -122,6 +122,11 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
               }
             }}
           />
+          <AddButton
+            icon={<Add20Regular />}
+            onClick={addNumberValueToInternalState}
+            disabled={props.disabled}
+          />
           <SelectedItems
             disabled={props.disabled}
             onDragEnd={onDragEnd}
