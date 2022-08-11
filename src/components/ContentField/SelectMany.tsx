@@ -83,6 +83,7 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
       <Field
         label={props.label}
         description={props.description}
+        disabled={props.disabled}
         color={props.color}
         font={props.font}
         isEmbedded={props.isEmbedded}
@@ -117,12 +118,14 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
       <Field
         label={props.label}
         description={props.description}
+        disabled={props.disabled}
         color={props.color}
         font={props.font}
         isEmbedded={props.isEmbedded}
       >
         <div style={{ position: 'relative' }}>
           <Text
+            disabled={props.disabled}
             style={{ paddingRight: '42px' }}
             color={props.color}
             font={props.font}
@@ -136,8 +139,14 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
             }}
           />
 
-          <AddButton theme={theme} icon={<Add20Regular />} onClick={addTextValueToInternalState} />
+          <AddButton
+            theme={theme}
+            icon={<Add20Regular />}
+            onClick={addTextValueToInternalState}
+            disabled={props.disabled}
+          />
           <Selected
+            disabled={props.disabled}
             onDragEnd={onDragEnd}
             label={props.label}
             font={props.font}
@@ -155,12 +164,14 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
       <Field
         label={props.label}
         description={props.description}
+        disabled={props.disabled}
         color={props.color}
         font={props.font}
         isEmbedded={props.isEmbedded}
       >
         <div style={{ position: 'relative' }}>
           <Number
+            disabled={props.disabled}
             style={{ paddingRight: '42px' }}
             type={props.type}
             color={props.color}
@@ -174,8 +185,14 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
               }
             }}
           />
-          <AddButton theme={theme} icon={<Add20Regular />} onClick={addNumberValueToInternalState} />
+          <AddButton
+            theme={theme}
+            icon={<Add20Regular />}
+            onClick={addNumberValueToInternalState}
+            disabled={props.disabled}
+          />
           <Selected
+            disabled={props.disabled}
             onDragEnd={onDragEnd}
             label={props.label}
             font={props.font}
@@ -198,6 +215,7 @@ interface SelectedProps {
   color?: colorType;
   internalState: [StringValue[] | NumberValue[], (newState: StringValue[] | NumberValue[]) => void];
   noDrag?: boolean;
+  disabled?: boolean;
 }
 
 function Selected(props: SelectedProps) {
@@ -209,6 +227,7 @@ function Selected(props: SelectedProps) {
       {internalState.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'row', gap: 6, padding: '12px 0 6px 0' }}>
           <Button
+            disabled={props.disabled}
             cssExtra={css`
               min-width: unset;
             `}
@@ -233,7 +252,7 @@ function Selected(props: SelectedProps) {
                   <Draggable draggableId={value.toString()} index={index} key={index + value.toString()}>
                     {(provided) => (
                       <SelectItem ref={provided.innerRef} {...provided.draggableProps} theme={theme}>
-                        {props.noDrag ? null : (
+                        {props.noDrag || props.disabled ? null : (
                           <DragHandle dragHandleProps={provided.dragHandleProps} theme={theme} />
                         )}
                         <SelectText theme={theme} font={props.font}>
@@ -242,12 +261,14 @@ function Selected(props: SelectedProps) {
                         <IconWrapper
                           theme={theme}
                           color={props.color || 'primary'}
-                          disabled={false}
+                          disabled={props.disabled}
                           onClick={() => {
-                            setInternalState([
-                              ...(internalState.slice(0, index) as StringValue[]),
-                              ...(internalState.slice(index + 1) as StringValue[]),
-                            ]);
+                            if (!props.disabled) {
+                              setInternalState([
+                                ...(internalState.slice(0, index) as StringValue[]),
+                                ...(internalState.slice(index + 1) as StringValue[]),
+                              ]);
+                            }
                           }}
                         >
                           <Dismiss24Regular />

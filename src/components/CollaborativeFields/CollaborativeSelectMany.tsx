@@ -87,6 +87,7 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
           />
           {y.ydoc ? (
             <SelectedItems
+              disabled={props.disabled}
               onDragEnd={onDragEnd}
               fieldName={y.field}
               font={props.font}
@@ -106,6 +107,7 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
         <div style={{ position: 'relative' }}>
           <CollaborativeNumberField
             y={{ ...props.y, field: '__comboboxEntry.' + props.y.field }}
+            disabled={props.disabled}
             style={{ paddingRight: '42px' }}
             allowDecimals={props.number === 'decimal'}
             color={props.color}
@@ -121,6 +123,7 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
             }}
           />
           <SelectedItems
+            disabled={props.disabled}
             onDragEnd={onDragEnd}
             fieldName={y.field}
             font={props.font}
@@ -136,6 +139,7 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
       <div style={{ position: 'relative' }}>
         <CollaborativeTextField
           y={{ ...props.y, field: '__comboboxEntry.' + props.y.field }}
+          disabled={props.disabled}
           style={{ paddingRight: '42px' }}
           color={props.color}
           font={props.font}
@@ -149,8 +153,9 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
             }
           }}
         />
-        <AddButton icon={<Add20Regular />} onClick={addTextValueToInternalState} />
+        <AddButton icon={<Add20Regular />} onClick={addTextValueToInternalState} disabled={props.disabled} />
         <SelectedItems
+          disabled={props.disabled}
           onDragEnd={onDragEnd}
           fieldName={y.field}
           font={props.font}

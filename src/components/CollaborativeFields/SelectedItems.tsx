@@ -23,6 +23,7 @@ interface SelectedItemsProps {
   color?: colorType;
   ydoc: Y.Doc;
   noDrag?: boolean;
+  disabled?: boolean;
 }
 
 function SelectedItems(props: SelectedItemsProps) {
@@ -51,6 +52,7 @@ function SelectedItems(props: SelectedItemsProps) {
       {selected.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'row', gap: 6, padding: '12px 0 6px 0' }}>
           <Button
+            disabled={props.disabled}
             cssExtra={css`
               min-width: unset;
             `}
@@ -75,16 +77,18 @@ function SelectedItems(props: SelectedItemsProps) {
                   <Draggable draggableId={value.toString()} index={index} key={index + value.toString()}>
                     {(provided) => (
                       <SelectItem ref={provided.innerRef} {...provided.draggableProps}>
-                        {props.noDrag ? null : <DragHandle dragHandleProps={provided.dragHandleProps} />}
+                        {props.noDrag || props.disabled ? null : (
+                          <DragHandle dragHandleProps={provided.dragHandleProps} />
+                        )}
                         <SelectText theme={theme} font={props.font}>
                           {label}
                         </SelectText>
                         <IconWrapper
                           theme={theme}
                           color={props.color || 'primary'}
-                          disabled={false}
+                          disabled={props.disabled}
                           onClick={() => {
-                            yarray.delete(index);
+                            if (!props.disabled) yarray.delete(index);
                           }}
                         >
                           <Dismiss24Regular />

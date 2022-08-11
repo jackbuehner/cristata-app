@@ -335,7 +335,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     ): JSX.Element => {
       const [key, def] = input;
 
-      const readOnly = def.field?.readonly === true;
+      const readOnly = def.field?.readonly === true || def.modifiable === true;
       let fieldName = def.field?.label || key;
 
       // if a field is readonly, add readonly to the field name
@@ -366,7 +366,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             y={fieldY}
             label={label}
             description={description}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             key={key}
             stateFieldKey={key}
             initialData={getProperty(itemState.fields, key)}
@@ -487,7 +487,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               y={fieldY}
               initialValues={values}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error}
+              disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
               collection={pluralize.singular(collection)}
               reference={def.field?.reference}
@@ -522,7 +522,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             // disable when the api requires the field to always have a value but a default
             // value for when no specific photo is selected is not defined
-            disabled={locked || loading || !!error || (def.required && def.default === undefined)}
+            disabled={locked || loading || !!error || readOnly || (def.required && def.default === undefined)}
             isEmbedded={props.isEmbedded}
             collection={pluralize.singular(collection)}
             reference={def.field?.reference}
@@ -546,7 +546,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             y={fieldY}
             initialValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onChange={(value) => {
               if (value !== undefined && !readOnly)
@@ -570,7 +570,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               initialValue={options.find(({ value }) => value === currentPropertyValue)}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error}
+              disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
               onChange={(value) => {
                 const newValue = value?.value;
@@ -588,7 +588,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             y={fieldY}
             defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onDebouncedChange={(content, text) => {
               if (text !== undefined && !readOnly)
@@ -608,7 +608,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             y={fieldY}
             defaultChecked={!!getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onChange={(checked) => {
               if (checked !== undefined && !readOnly)
@@ -633,7 +633,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               options={options}
               number={'integer'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error}
+              disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
               onChange={(value) => {
                 const newValue = value?.value;
@@ -651,7 +651,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             y={fieldY}
             defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onDebouncedChange={(content, number) => {
               if (number !== undefined && !readOnly)
@@ -676,7 +676,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               options={options}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error}
+              disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
               onChange={(value) => {
                 const newValue = value?.value;
@@ -695,7 +695,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             y={fieldY}
             defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onDebouncedChange={(content, number) => {
               if (number !== undefined && !readOnly)
@@ -719,7 +719,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               initialValues={options.filter(({ value }) => currentPropertyValues.includes(value))}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error}
+              disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
               onChange={(values) => {
                 const newValue = values.map(({ value }) => value);
@@ -737,7 +737,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             y={fieldY}
             initialValues={currentPropertyValues.map((value) => ({ value, label: value }))}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onChange={(values) => {
               const newValue = values.map(({ value }) => value);
@@ -763,7 +763,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               options={options}
               number={'integer'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error}
+              disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
               onChange={(values) => {
                 const newValue = values.map(({ value }) => parseInt(value));
@@ -785,7 +785,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             }))}
             number={'integer'}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onChange={(values) => {
               const newValue = values.map(({ value }) => parseInt(value));
@@ -811,7 +811,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               options={options}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error}
+              disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
               onChange={(values) => {
                 const newValue = values.map(({ value }) => parseFloat(value));
@@ -833,7 +833,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             }))}
             number={'decimal'}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             onChange={(values) => {
               const newValue = values.map(({ value }) => parseFloat(value));
@@ -857,7 +857,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z' ? null : currentTimestamp
             }
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error}
+            disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             placeholder={'Pick a time'}
             onChange={(date) => {
