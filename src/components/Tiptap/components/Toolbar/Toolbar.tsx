@@ -41,6 +41,7 @@ import { Menu } from '../../../Menu';
 import { PlainModal } from '../../../Modal';
 import { Select } from '../../../Select';
 import { CommentPanel } from '../../extension-power-comment';
+import { useAwareness } from '../../hooks';
 import { BackIcon, BoldIcon, ItalicsIcon, RedoIcon, StrikeIcon, UnderlineIcon } from './../../Icons';
 import {
   AcceptRevision20Icon,
@@ -84,12 +85,7 @@ interface IToolbar {
   };
   awarenessProfiles?: { name: string; color: string; sessionId: string; photo: string }[];
   tiptapWidth: number;
-  user: {
-    name: string;
-    color: string;
-    sessionId: string;
-    photo: string;
-  };
+  user?: ReturnType<typeof useAwareness>[0];
   toggleTrackChanges: () => void;
   trackChanges: boolean;
   isSidebarOpen: boolean;
@@ -980,18 +976,19 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 <ToolbarRowButton
                   onClick={() => {
                     // insert comment
-                    editor
-                      .chain()
-                      .focus()
-                      .setComment({
-                        color: props.user.color,
-                        commenter: {
-                          name: props.user.name,
-                          photo: props.user.photo,
-                        },
-                        sessionId: props.user.sessionId,
-                      })
-                      .run();
+                    if (props.user)
+                      editor
+                        .chain()
+                        .focus()
+                        .setComment({
+                          color: props.user.color,
+                          commenter: {
+                            name: props.user.name,
+                            photo: props.user.photo,
+                          },
+                          sessionId: props.user.sessionId,
+                        })
+                        .run();
 
                     // open comment panel
                     props.setIsSidebarOpen(true);
@@ -1005,6 +1002,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   icon={<CommentAdd20Regular />}
                   disabled={
                     props.isDisabled ||
+                    !props.user ||
                     !editor.can().setComment({
                       color: '',
                       commenter: {
@@ -1105,18 +1103,19 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   <ToolbarRowButton
                     onClick={() => {
                       // insert comment
-                      editor
-                        .chain()
-                        .focus()
-                        .setComment({
-                          color: props.user.color,
-                          commenter: {
-                            name: props.user.name,
-                            photo: props.user.photo,
-                          },
-                          sessionId: props.user.sessionId,
-                        })
-                        .run();
+                      if (props.user)
+                        editor
+                          .chain()
+                          .focus()
+                          .setComment({
+                            color: props.user.color,
+                            commenter: {
+                              name: props.user.name,
+                              photo: props.user.photo,
+                            },
+                            sessionId: props.user.sessionId,
+                          })
+                          .run();
 
                       // open comment panel
                       props.setIsSidebarOpen(true);
@@ -1130,6 +1129,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     icon={<CommentAdd20Regular />}
                     disabled={
                       props.isDisabled ||
+                      !props.user ||
                       !editor.can().setComment({
                         color: '',
                         commenter: {

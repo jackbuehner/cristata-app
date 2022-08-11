@@ -144,7 +144,7 @@ interface EntryY {
 
 interface FieldY extends EntryY {
   field: string;
-  user: ReturnType<typeof useAwareness>[0];
+  user?: ReturnType<typeof useAwareness>[0];
 }
 
 type FakeProvider = { awareness: awarenessProtocol.Awareness; connected?: boolean };

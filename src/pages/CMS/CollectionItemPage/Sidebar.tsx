@@ -40,7 +40,7 @@ interface SidebarProps {
   previewUrl?: string;
   compact?: boolean;
   y: EntryY;
-  user: ReturnType<typeof useAwareness>[0];
+  user?: ReturnType<typeof useAwareness>[0];
 }
 
 function Sidebar(props: SidebarProps) {

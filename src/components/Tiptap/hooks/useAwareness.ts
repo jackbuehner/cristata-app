@@ -40,7 +40,7 @@ function useAwareness(props: UseAwarenessProps): AwarenessType[] {
 
 interface UseAwarenessProps {
   provider: WebrtcProvider | undefined;
-  user: AwarenessType;
+  user?: AwarenessType;
 }
 
 type AwarenessType = {

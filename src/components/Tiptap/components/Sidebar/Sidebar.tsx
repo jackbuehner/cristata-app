@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { themeType } from '../../../../utils/theme/theme';
 import { SidebarHeader } from './SidebarHeader';
 import { Children, cloneElement } from 'react';
+import { useAwareness } from '../../hooks';
 
 interface I_SIDEBAR {
   theme: themeType;
@@ -44,12 +45,7 @@ interface ISidebar {
   header: string;
   setHeader: React.Dispatch<React.SetStateAction<string>>;
   editor: Editor | null;
-  user: {
-    name: string;
-    color: string;
-    sessionId: string;
-    photo: string;
-  };
+  user?: ReturnType<typeof useAwareness>[0];
 }
 
 function Sidebar(props: ISidebar) {
