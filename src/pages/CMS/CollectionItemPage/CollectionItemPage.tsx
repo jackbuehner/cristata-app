@@ -3,7 +3,6 @@ import styled from '@emotion/styled/macro';
 import {
   isTypeTuple,
   MongooseSchemaType,
-  NumberOption,
   StringOption,
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import Color from 'color';
@@ -21,9 +20,11 @@ import {
   CollaborativeCode,
   CollaborativeDateTime,
   CollaborativeNumberField,
+  CollaborativeSelectMany,
+  CollaborativeSelectOne,
   CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
-import { DocArray, ReferenceMany, ReferenceOne, SelectMany, SelectOne } from '../../../components/ContentField';
+import { DocArray, ReferenceMany, ReferenceOne } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
@@ -161,8 +162,21 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     idKey: by?.one,
   });
 
+  const [, , , , y] = useY({ name: pluralize.singular(collection) + item_id }); // create or load y
+
+  const tenant = localStorage.getItem('tenant');
+
+  const user = {
+    name: authUserState.name,
+    color: colorHash.hex(authUserState._id),
+    sessionId: sessionId || '',
+    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
+  };
+
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
+    y,
+    user,
     docInfo: {
       _id: getProperty(itemState.fields, by?.one || '_id'),
       createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
@@ -247,8 +261,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   const locked = publishLocked || (itemState.fields.archived as boolean);
 
-  const [, , , , y] = useY({ name: pluralize.singular(collection) + item_id }); // create or load y
-
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
   if (schemaDef) {
@@ -310,15 +322,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             return key !== 'timestamps.published_at' && key !== 'timestamps.updated_at';
           })
       );
-    };
-
-    const tenant = localStorage.getItem('tenant');
-
-    const user = {
-      name: authUserState.name,
-      color: colorHash.hex(authUserState._id),
-      sessionId: sessionId || '',
-      photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
     };
 
     const renderFields = (
@@ -540,23 +543,23 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       if (type === 'String') {
         if (def.field?.options) {
           const currentPropertyValue = getProperty(itemState.fields, key);
-          const options = def.field.options as NumberOption[];
+          const options = def.field.options as StringOption[];
           return (
-            <SelectOne
+            <CollaborativeSelectOne
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'String'}
-              options={options}
               label={fieldName}
-              description={def.field.description}
-              value={options.find(({ value }) => value === currentPropertyValue)}
+              description={def.field?.description}
+              y={{ ...y, field: key, user }}
+              initialValue={options.find(({ value }) => value === currentPropertyValue)}
+              options={options}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={locked || loading || !!error}
+              isEmbedded={props.isEmbedded}
               onChange={(value) => {
                 const newValue = value?.value;
                 if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, undefined, undefined, inArrayKey));
+                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={locked || loading || !!error}
-              isEmbedded={props.isEmbedded}
             />
           );
         }
@@ -602,23 +605,24 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       if (type === 'Number') {
         if (def.field?.options) {
           const currentPropertyValue = getProperty(itemState.fields, key);
-          const options = def.field.options as NumberOption[];
+          const options = def.field.options.map((opt) => ({ ...opt, value: opt.toString() }));
           return (
-            <SelectOne
+            <CollaborativeSelectOne
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Int'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              value={options.find(({ value }) => value === currentPropertyValue)}
+              y={{ ...y, field: key, user }}
+              initialValue={options.find(({ value }) => value === currentPropertyValue.toString())}
+              options={options}
+              number={'integer'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={locked || loading || !!error}
+              isEmbedded={props.isEmbedded}
               onChange={(value) => {
                 const newValue = value?.value;
                 if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
+                  dispatch(setField(parseInt(newValue), key, 'default', undefined, inArrayKey));
               }}
-              disabled={locked || loading || !!error}
-              isEmbedded={props.isEmbedded}
             />
           );
         }
@@ -644,23 +648,24 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       if (type === 'Float') {
         if (def.field?.options) {
           const currentPropertyValue = getProperty(itemState.fields, key);
-          const options = def.field.options as NumberOption[];
+          const options = def.field.options.map((opt) => ({ ...opt, value: opt.value.toString() }));
           return (
-            <SelectOne
+            <CollaborativeSelectOne
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              value={options.find(({ value }) => value === currentPropertyValue)}
+              y={{ ...y, field: key, user }}
+              initialValue={options.find(({ value }) => value === currentPropertyValue.toString())}
+              options={options}
+              number={'decimal'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={locked || loading || !!error}
+              isEmbedded={props.isEmbedded}
               onChange={(value) => {
                 const newValue = value?.value;
                 if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
+                  dispatch(setField(parseFloat(newValue), key, 'default', undefined, inArrayKey));
               }}
-              disabled={locked || loading || !!error}
-              isEmbedded={props.isEmbedded}
             />
           );
         }
@@ -689,39 +694,39 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
-            <SelectMany
+            <CollaborativeSelectMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              values={options.filter(({ value }) => currentPropertyValues.includes(value))}
+              y={{ ...y, field: key, user }}
+              initialValues={options.filter(({ value }) => currentPropertyValues.includes(value))}
+              options={options}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={locked || loading || !!error}
+              isEmbedded={props.isEmbedded}
               onChange={(values) => {
                 const newValue = values.map(({ value }) => value);
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={locked || loading || !!error}
-              isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <SelectMany
+          <CollaborativeSelectMany
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'String'}
             label={fieldName}
             description={def.field?.description}
-            values={currentPropertyValues.map((value) => ({ value, label: value }))}
+            y={{ ...y, field: key, user }}
+            initialValues={currentPropertyValues.map((value) => ({ value, label: value }))}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={locked || loading || !!error}
+            isEmbedded={props.isEmbedded}
             onChange={(values) => {
               const newValue = values.map(({ value }) => value);
               if (newValue !== undefined && !readOnly)
                 dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
-            disabled={locked || loading || !!error}
-            isEmbedded={props.isEmbedded}
           />
         );
       }
@@ -732,41 +737,44 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
-            <SelectMany
+            <CollaborativeSelectMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Int'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              values={options.filter(({ value }) =>
-                currentPropertyValues.map((value) => value.toString()).includes(value)
-              )}
+              y={{ ...y, field: key, user }}
+              initialValues={options.filter(({ value }) => currentPropertyValues.includes(parseInt(value)))}
+              options={options}
+              number={'integer'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={locked || loading || !!error}
+              isEmbedded={props.isEmbedded}
               onChange={(values) => {
-                const newValue = values.map(({ value }) => value);
+                const newValue = values.map(({ value }) => parseInt(value));
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={locked || loading || !!error}
-              isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <SelectMany
+          <CollaborativeSelectMany
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Int'}
             label={fieldName}
             description={def.field?.description}
-            values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
+            y={{ ...y, field: key, user }}
+            initialValues={currentPropertyValues.map((value) => ({
+              value: value.toString(),
+              label: value.toString(),
+            }))}
+            number={'integer'}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={locked || loading || !!error}
+            isEmbedded={props.isEmbedded}
             onChange={(values) => {
-              const newValue = values.map(({ value }) => value);
+              const newValue = values.map(({ value }) => parseInt(value));
               if (newValue !== undefined && !readOnly)
                 dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
-            disabled={locked || loading || !!error}
-            isEmbedded={props.isEmbedded}
           />
         );
       }
@@ -777,41 +785,44 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
-            <SelectMany
+            <CollaborativeSelectMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              values={options.filter(({ value }) =>
-                currentPropertyValues.map((value) => value.toString()).includes(value)
-              )}
+              y={{ ...y, field: key, user }}
+              initialValues={options.filter(({ value }) => currentPropertyValues.includes(parseFloat(value)))}
+              options={options}
+              number={'decimal'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={locked || loading || !!error}
+              isEmbedded={props.isEmbedded}
               onChange={(values) => {
-                const newValue = values.map(({ value }) => value);
+                const newValue = values.map(({ value }) => parseFloat(value));
                 if (newValue !== undefined && !readOnly)
                   dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
               }}
-              disabled={locked || loading || !!error}
-              isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <SelectMany
+          <CollaborativeSelectMany
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Float'}
             label={fieldName}
             description={def.field?.description}
-            values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
+            y={{ ...y, field: key, user }}
+            initialValues={currentPropertyValues.map((value) => ({
+              value: value.toString(),
+              label: value.toString(),
+            }))}
+            number={'decimal'}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={locked || loading || !!error}
+            isEmbedded={props.isEmbedded}
             onChange={(values) => {
-              const newValue = values.map(({ value }) => value);
+              const newValue = values.map(({ value }) => parseFloat(value));
               if (newValue !== undefined && !readOnly)
                 dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
             }}
-            disabled={locked || loading || !!error}
-            isEmbedded={props.isEmbedded}
           />
         );
       }

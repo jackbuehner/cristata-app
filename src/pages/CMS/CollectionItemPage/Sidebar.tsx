@@ -10,8 +10,10 @@ import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
 import { Button, buttonEffect } from '../../../components/Button';
-import { SelectOne } from '../../../components/ContentField';
+import { CollaborativeSelectOne } from '../../../components/CollaborativeFields';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
+import { useAwareness } from '../../../components/Tiptap/hooks';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { formatISODate } from '../../../utils/formatISODate';
@@ -37,6 +39,8 @@ interface SidebarProps {
   isEmbedded?: boolean;
   previewUrl?: string;
   compact?: boolean;
+  y: EntryY;
+  user: ReturnType<typeof useAwareness>[0];
 }
 
 function Sidebar(props: SidebarProps) {
@@ -94,34 +98,45 @@ function Sidebar(props: SidebarProps) {
         <>
           <SectionTitle theme={theme}>Stage</SectionTitle>
           {typeof props.stage.current === 'string' && typeof props.stage.options[0].value === 'string' ? (
-            <SelectOne
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'String'}
-              options={props.stage.options}
+            <CollaborativeSelectOne
               label={'Stage'}
-              value={(props.stage.options as StringOption[]).find(
+              y={{ ...props.y, field: props.stage.key, user: props.user }}
+              initialValue={(props.stage.options as StringOption[]).find(
                 ({ value }) => value === props.stage!.current
               )}
+              options={props.stage.options as StringOption[]}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={props.loading}
+              isEmbedded
               onChange={(value) => {
                 const newValue = value?.value;
                 if (newValue) dispatch(setField(newValue, props.stage!.key));
               }}
-              disabled={props.loading}
             />
           ) : (
-            <SelectOne
+            <CollaborativeSelectOne
+              label={'Stage'}
+              y={{ ...props.y, field: props.stage.key, user: props.user }}
+              initialValue={(props.stage.options as NumberOption[])
+                .map((opt) => ({
+                  ...opt,
+                  value: opt.value.toString(),
+                  label: opt.label.toString(),
+                }))
+                .find(({ value }) => value.toString() === props.stage!.current.toString())}
+              options={(props.stage.options as NumberOption[]).map((opt) => ({
+                ...opt,
+                value: opt.value.toString(),
+                label: opt.label.toString(),
+              }))}
+              number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={props.stage.options}
-              label={'__in-select'}
-              value={(props.stage.options as NumberOption[]).find(
-                ({ value }) => value === props.stage!.current
-              )}
+              disabled={props.loading}
+              isEmbedded
               onChange={(value) => {
                 const newValue = value?.value;
                 if (newValue) dispatch(setField(newValue, props.stage!.key));
               }}
-              disabled={props.loading}
             />
           )}
         </>
