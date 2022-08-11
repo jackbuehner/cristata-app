@@ -19,17 +19,11 @@ import { Button } from '../../../components/Button';
 import {
   CollaborativeCheckbox,
   CollaborativeCode,
+  CollaborativeDateTime,
   CollaborativeNumberField,
   CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
-import {
-  DateTime,
-  DocArray,
-  ReferenceMany,
-  ReferenceOne,
-  SelectMany,
-  SelectOne,
-} from '../../../components/ContentField';
+import { DocArray, ReferenceMany, ReferenceOne, SelectMany, SelectOne } from '../../../components/ContentField';
 import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
@@ -826,21 +820,22 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       if (type === 'Date') {
         const currentTimestamp: string | undefined = getProperty(itemState.fields, key);
         return (
-          <DateTime
+          <CollaborativeDateTime
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            value={
+            y={{ ...y, field: key, user }}
+            initialValue={
               !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z' ? null : currentTimestamp
             }
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={locked || loading || !!error}
+            isEmbedded={props.isEmbedded}
+            placeholder={'Pick a time'}
             onChange={(date) => {
               if (date && !readOnly)
                 dispatch(setField(date.toUTC().toISO(), key, 'default', undefined, inArrayKey));
             }}
-            placeholder={'Pick a time'}
-            disabled={locked || loading || !!error}
-            isEmbedded={props.isEmbedded}
           />
         );
       }
