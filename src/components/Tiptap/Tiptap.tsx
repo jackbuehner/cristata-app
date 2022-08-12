@@ -5,13 +5,8 @@ import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui
 import { LinearProgress } from '@rmwc/linear-progress';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
-import FontFamily from '@tiptap/extension-font-family';
-import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import TextStyle from '@tiptap/extension-text-style';
-import Underline from '@tiptap/extension-underline';
 import { Editor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useEffect, useMemo, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
@@ -24,27 +19,20 @@ import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
 import { useAppDispatch } from '../../redux/hooks';
 import { setField } from '../../redux/slices/cmsItemSlice';
 import { themeType } from '../../utils/theme/theme';
+import { editorExtensions } from '../CollaborativeFields/editorExtensions';
 import { Spinner } from '../Loading';
 import { Backstage } from './components/Backstage';
+import { ExternalFrame } from './components/ExternalFrame';
 import { Noticebar } from './components/Noticebar';
 import { Sidebar } from './components/Sidebar';
 import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Titlebar } from './components/Titlebar';
 import { Toolbar } from './components/Toolbar';
-import { ClassName } from './extension-class-name';
-import { Comment } from './extension-comment';
-import { FontSize } from './extension-font-size';
-import { PhotoWidget } from './extension-photo';
-import { CommentPanel, PowerComment } from './extension-power-comment';
-import { PullQuote } from './extension-pull-quote';
-import { TrackChanges } from './extension-track-changes';
-import { SweepwidgetWidget } from './extension-widget-sweepwidget';
-import { YoutubeWidget } from './extension-widget-youtube';
+import { CommentPanel } from './extension-power-comment';
 import { useDevTools, useSidebar, useTipTapEditor, useTrackChanges, useWordCount } from './hooks';
+import { FieldY, IYSettingsMap } from './hooks/useY';
 import './office-icon/colors1.css';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
-import { ExternalFrame } from './components/ExternalFrame';
-import { FieldY, IYSettingsMap } from './hooks/useY';
 
 interface ITiptap {
   y: FieldY;
@@ -101,24 +89,7 @@ const Tiptap = (props: ITiptap) => {
     provider: provider,
     editable: !props.isDisabled,
     extensions: [
-      StarterKit.configure({ history: false }),
-      TrackChanges,
-      Underline,
-      TextStyle,
-      FontFamily,
-      FontSize,
-      PowerComment,
-      Comment,
-      PullQuote,
-      ClassName.configure({ types: ['heading', 'paragraph'] }),
-      Link.configure({
-        HTMLAttributes: {
-          target: '_self',
-          rel: 'noopener noreferrer nofollow',
-        },
-        openOnClick: false,
-        linkOnPaste: true,
-      }),
+      ...editorExtensions.tiptap,
       Collaboration.configure({
         document: ydoc,
         field: props.y.field,
@@ -132,9 +103,6 @@ const Tiptap = (props: ITiptap) => {
           return '';
         },
       }),
-      SweepwidgetWidget,
-      YoutubeWidget,
-      PhotoWidget,
     ],
     onUpdate() {
       const editor = this as unknown as Editor;

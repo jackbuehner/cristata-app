@@ -2,14 +2,12 @@ import styled from '@emotion/styled/macro';
 import { Editor } from '@tiptap/core';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
 import { EditorContent, JSONContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
 import { useTipTapEditor } from '../Tiptap/hooks';
+import { editorExtensions } from './editorExtensions';
 
 interface CollaborativeTextFieldProps extends CollaborativeFieldProps {
   defaultValue?: string;
@@ -27,9 +25,7 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
     provider: props.y.provider,
     editable: !props.disabled,
     extensions: [
-      ParagraphDocument,
-      Paragraph,
-      Text,
+      ...editorExtensions.text,
       Collaboration.configure({
         document: props.y.ydoc,
         field: props.y.field,
@@ -85,10 +81,6 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
 
   return <Content editor={editor} color={props.color} />;
 }
-
-const ParagraphDocument = Document.extend({
-  content: 'paragraph',
-});
 
 const Content = styled(EditorContent)<{ color?: colorType }>`
   width: 100%;

@@ -2,16 +2,12 @@ import styled from '@emotion/styled/macro';
 import { Editor } from '@tiptap/core';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
 import { EditorContent, JSONContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { Slice } from 'prosemirror-model';
-import { Plugin, PluginKey } from 'prosemirror-state';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
 import { useTipTapEditor } from '../Tiptap/hooks';
+import { editorExtensions } from './editorExtensions';
 
 interface CollaborativeNumberFieldProps extends CollaborativeFieldProps {
   defaultValue?: number;
@@ -30,9 +26,7 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
     provider: props.y.provider,
     editable: !props.disabled,
     extensions: [
-      ParagraphDocument,
-      Paragraph,
-      props.allowDecimals ? Float : Integer,
+      ...editorExtensions[props.allowDecimals ? 'float' : 'integer'],
       Collaboration.configure({
         document: props.y.ydoc,
         field: props.y.field,
@@ -88,87 +82,6 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
 
   return <Content editor={editor} color={props.color} />;
 }
-
-const ParagraphDocument = Document.extend({
-  content: 'paragraph',
-});
-
-const Integer = Text.extend({
-  addProseMirrorPlugins() {
-    const schema = this.editor.schema;
-
-    return [
-      new Plugin({
-        key: new PluginKey('eventHandler'),
-        props: {
-          handleTextInput(view, from, to, text) {
-            // cancel input if it contains non-numeric character
-            if (text.match(/[^0-9]/g)) return true;
-
-            return false;
-          },
-          handlePaste(view, event, slice) {
-            const json = slice.toJSON();
-            const tr = view.state.tr;
-            if (json?.content[0].content[0].text) {
-              const text = json.content[0].content[0].text;
-
-              // replace invalid characters and then insert the string
-              json.content[0].content[0].text = text.replace(/[^0-9]/g, '');
-              console.log(text, json.content[0].content[0].text);
-              view.dispatch(tr.replaceSelection(Slice.fromJSON(schema, json)));
-              return true;
-            }
-
-            return false;
-          },
-        },
-      }),
-    ];
-  },
-});
-
-const Float = Text.extend({
-  addProseMirrorPlugins() {
-    const schema = this.editor.schema;
-
-    return [
-      new Plugin({
-        key: new PluginKey('eventHandler'),
-        props: {
-          handleTextInput(view, from, to, text) {
-            const hasDecimal = view.state.doc.textContent.includes('.');
-
-            if (hasDecimal) {
-              // cancel input if it contains non-numeric character
-              if (text.match(/[^0-9]$/)) return true;
-            } else {
-              // cancel input if it contains non-numeric or non-decimal character
-              if (text.match(/[^0-9,.]$/)) return true;
-            }
-
-            return false;
-          },
-          handlePaste(view, event, slice) {
-            const json = slice.toJSON();
-            const tr = view.state.tr;
-            if (json?.content[0].content[0].text) {
-              const text = json.content[0].content[0].text;
-
-              // replace invalid characters and then insert the string
-              json.content[0].content[0].text = text.replace(/(?<=(.*\..*))\./g, '');
-              console.log(text, json.content[0].content[0].text);
-              view.dispatch(tr.replaceSelection(Slice.fromJSON(schema, json)));
-              return true;
-            }
-
-            return false;
-          },
-        },
-      }),
-    ];
-  },
-});
 
 const Content = styled(EditorContent)<{ color?: colorType }>`
   width: 100%;
