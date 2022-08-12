@@ -79,13 +79,33 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       options,
     },
   ] = useCollectionSchemaConfig(collectionName);
+
+  // get the session id from sessionstorage
+  const sessionId = sessionStorage.getItem('sessionId');
+
+  // get the current tenant name
+  const tenant = localStorage.getItem('tenant');
+
+  // create a user object for the current user (for yjs)
+  const user = {
+    name: authUserState.name,
+    color: colorHash.hex(authUserState._id),
+    sessionId: sessionId || '',
+    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
+  };
+
+  // connect to other clients with yjs for collaborative editing
+  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
+
+  // put the document in redux state and ydoc
   const { actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
     schemaDef,
     withPermissions,
     props.isEmbedded || by === null || false,
-    by?.one
+    by?.one,
+    y
   );
 
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
@@ -117,23 +137,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     itemState.isUnsaved ? ' - Unsaved Changes' : ''
   } - Cristata`;
   if (document.title !== title) document.title = title;
-
-  // get the session id from sessionstorage
-  const sessionId = sessionStorage.getItem('sessionId');
-
-  // get the current tenant name
-  const tenant = localStorage.getItem('tenant');
-
-  // create a user object for the current user (for yjs)
-  const user = {
-    name: authUserState.name,
-    color: colorHash.hex(authUserState._id),
-    sessionId: sessionId || '',
-    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
-  };
-
-  // connect to other clients with yjs for collaborative editing
-  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
 
   // calculate publish permissions
   const {

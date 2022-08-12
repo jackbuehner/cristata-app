@@ -4,18 +4,21 @@ import {
   gql,
   NetworkStatus,
   OperationVariables,
+  useApolloClient,
   useQuery,
 } from '@apollo/client';
-import { jsonToGraphQLQuery } from 'json-to-graphql-query';
-import { merge } from 'merge-anything';
 import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setIsLoading, setFields, clearUnsavedFields } from '../../../redux/slices/cmsItemSlice';
-import { useEffect } from 'react';
-import pluralize from 'pluralize';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
+import pluralize from 'pluralize';
+import { useEffect } from 'react';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { clearUnsavedFields, setFields, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { addToY } from './addToY';
 
 function useFindDoc(
   collection: string,
@@ -23,7 +26,8 @@ function useFindDoc(
   schemaDef: DeconstructedSchemaDefType,
   withPermissions: boolean,
   doNothing = false,
-  accessor = '_id'
+  accessor = '_id',
+  y?: EntryY
 ): {
   actionAccess?: Record<CollectionPermissionsActions, boolean | undefined>;
   loading: boolean;
@@ -32,6 +36,7 @@ function useFindDoc(
 } {
   const itemState = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
+  const client = useApolloClient();
 
   const queryName = pluralize.singular(collection);
 
@@ -95,6 +100,8 @@ function useFindDoc(
       if (data?.[queryName] && doNothing !== true) {
         dispatch(setFields(data[queryName]));
       }
+
+      if (y) addToY(y, schemaDef, client, data[queryName]);
     },
   });
 
