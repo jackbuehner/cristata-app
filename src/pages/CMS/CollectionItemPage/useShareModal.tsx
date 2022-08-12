@@ -6,25 +6,43 @@ import { get as getProperty } from 'object-path';
 import { useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '../../../components/Button';
-import { ReferenceMany } from '../../../components/ContentField';
-import { Field } from '../../../components/ContentField/Field';
+import { CollaborativeFieldWrapper, CollaborativeReferenceMany } from '../../../components/CollaborativeFields';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField, setUnsavedPermissionField } from '../../../redux/slices/cmsItemSlice';
+import { server } from '../../../utils/constants';
+import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { saveChanges } from './saveChanges';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
 function useShareModal(
+  y: EntryY,
   collection?: string,
   itemId?: string,
   color: colorType = 'primary'
 ): [React.ReactNode, () => void, () => void] {
+  const authUserState = useAppSelector((state) => state.authUser);
   const client = useApolloClient();
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const isFs = searchParams.get('fs') === '1' || searchParams.get('fs') === 'force';
+
+  // get the session id from sessionstorage
+  const sessionId = sessionStorage.getItem('sessionId');
+
+  // get the current tenant name
+  const tenant = localStorage.getItem('tenant');
+
+  // create a user object for the current user (for yjs)
+  const user = {
+    name: authUserState.name,
+    color: colorHash.hex(authUserState._id),
+    sessionId: sessionId || '',
+    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
+  };
 
   // create the modal
   const [Window, showModal, hideModal] = useWindowModal(() => {
@@ -86,7 +104,8 @@ function useShareModal(
         windowOptions: { name: 'share doc', width: 370, height: 560 },
         children: (
           <>
-            <Field
+            <CollaborativeFieldWrapper
+              y={{ ...y, field: 'permissions.__shareButtonWrapper', user }}
               label={'Link to document'}
               description={`This link will only work for people with permission to access this document.`}
               isEmbedded={true}
@@ -108,48 +127,55 @@ function useShareModal(
                   Copy link to document
                 </Button>
               </>
-            </Field>
+            </CollaborativeFieldWrapper>
 
-            <ReferenceMany
-              label={'Users'}
-              color={isFs ? 'blue' : color}
-              values={current.users}
-              disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
-              isEmbedded={true}
-              collection={'User'}
-              onChange={(newValues) => {
-                if (newValues !== undefined) {
-                  dispatch(
-                    setUnsavedPermissionField(
-                      newValues.map((v) => v._id),
-                      'permissions.users'
-                    )
-                  );
-                  dispatch(setField(newValues, 'permissions.users', 'reference', false));
-                }
-              }}
-              noDrag
-            />
-            <ReferenceMany
-              label={'Teams'}
-              color={isFs ? 'blue' : color}
-              values={current.teams}
-              disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
-              isEmbedded={true}
-              collection={'Team'}
-              onChange={(newValues) => {
-                if (newValues !== undefined) {
-                  dispatch(
-                    setUnsavedPermissionField(
-                      newValues.map((v) => v._id),
-                      'permissions.teams'
-                    )
-                  );
-                  dispatch(setField(newValues, 'permissions.teams', 'reference', false));
-                }
-              }}
-              noDrag
-            />
+            {current.users ? (
+              <CollaborativeReferenceMany
+                y={{ ...y, field: 'permissions.users', user }}
+                label={'Users'}
+                color={isFs ? 'blue' : color}
+                initialValues={current.users}
+                disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
+                isEmbedded={true}
+                collection={'User'}
+                onChange={(newValues) => {
+                  if (newValues !== undefined) {
+                    dispatch(
+                      setUnsavedPermissionField(
+                        newValues.map((v) => v._id),
+                        'permissions.users'
+                      )
+                    );
+                    dispatch(setField(newValues, 'permissions.users', 'reference', false));
+                  }
+                }}
+                noDrag
+              />
+            ) : null}
+
+            {current.teams ? (
+              <CollaborativeReferenceMany
+                y={{ ...y, field: 'permissions.teams', user }}
+                label={'Teams'}
+                color={isFs ? 'blue' : color}
+                initialValues={current.teams}
+                disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
+                isEmbedded={true}
+                collection={'Team'}
+                onChange={(newValues) => {
+                  if (newValues !== undefined) {
+                    dispatch(
+                      setUnsavedPermissionField(
+                        newValues.map((v) => v._id),
+                        'permissions.teams'
+                      )
+                    );
+                    dispatch(setField(newValues, 'permissions.teams', 'reference', false));
+                  }
+                }}
+                noDrag
+              />
+            ) : null}
           </>
         ),
       };

@@ -6,6 +6,7 @@ import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { Action } from '../../../redux/slices/appbarSlice';
@@ -16,6 +17,7 @@ import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
 
 interface UseActionsParams {
+  y: EntryY;
   actionAccess: Record<keyof CollectionPermissions, boolean | undefined> | undefined;
   canPublish: boolean;
   watch: {
@@ -47,7 +49,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
 
   const idKey = params.idKey || '_id';
 
-  const [ShareWindow, showShareModal] = useShareModal(params.collectionName, params.itemId);
+  const [ShareWindow, showShareModal] = useShareModal(params.y, params.collectionName, params.itemId);
   const [PublishWindow, showPublishModal] = usePublishModal(
     client,
     params.collectionName,

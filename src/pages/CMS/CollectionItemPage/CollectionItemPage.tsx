@@ -121,6 +121,20 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
 
+  // get the current tenant name
+  const tenant = localStorage.getItem('tenant');
+
+  // create a user object for the current user (for yjs)
+  const user = {
+    name: authUserState.name,
+    color: colorHash.hex(authUserState._id),
+    sessionId: sessionId || '',
+    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
+  };
+
+  // connect to other clients with yjs for collaborative editing
+  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
+
   // calculate publish permissions
   const {
     canPublish,
@@ -145,6 +159,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   // determine the actions for this document
   const { actions, quickActions, showActionDropdown, Windows } = useActions({
+    y,
     actionAccess,
     canPublish,
     state: itemState,
@@ -163,17 +178,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     isEmbedded: props.isEmbedded,
     idKey: by?.one,
   });
-
-  const tenant = localStorage.getItem('tenant');
-
-  const user = {
-    name: authUserState.name,
-    color: colorHash.hex(authUserState._id),
-    sessionId: sessionId || '',
-    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
-  };
-
-  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
