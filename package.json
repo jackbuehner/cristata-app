@@ -74,7 +74,8 @@
     "y-indexeddb": "^9.0.9",
     "y-monaco": "^0.1.4",
     "y-webrtc": "^10.2.3",
-    "yjs": "^13.5.8"
+    "yjs": "^13.5.8",
+    "z": "^1.0.9"
   },
   "scripts": {
     "dev": "cross-env GENERATE_SOURCEMAP=false REACT_APP_GITPOD_WORKSPACE_URL=$GITPOD_WORKSPACE_URL PORT=${PORT:=4000} REACT_APP_GITPOD_APP_PORT=${REACT_APP_GITPOD_APP_PORT:=4000} REACT_APP_GITPOD_SERVER_PORT=${REACT_APP_GITPOD_SERVER_PORT:=3000} BROWSER=${BROWSER:=none} WDS_SOCKET_PORT=${WDS_SOCKET_PORT:=0} react-scripts --max_old_space_size=8128 start",
