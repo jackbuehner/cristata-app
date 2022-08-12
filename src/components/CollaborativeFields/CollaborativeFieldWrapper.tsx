@@ -1,8 +1,11 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { CSSProperties } from 'react';
-import { colorType, themeType } from '../../utils/theme/theme';
 import { sanitize } from 'dompurify';
+import { get as getProperty } from 'object-path';
+import { CSSProperties, useEffect, useState } from 'react';
+import ReactTooltip from 'react-tooltip';
+import { colorType, themeType } from '../../utils/theme/theme';
+import { useAwareness } from '../Tiptap/hooks';
 import { FieldY } from '../Tiptap/hooks/useY';
 
 interface CollaborativeFieldWrapperProps {
@@ -23,12 +26,67 @@ interface CollaborativeFieldWrapperProps {
 function CollaborativeFieldWrapper(props: CollaborativeFieldWrapperProps) {
   const theme = useTheme() as themeType;
 
+  const { field: yFieldName, provider, user } = props.y;
+
+  const handleFocus = () => {
+    const focused = new Set((user?.__focused as string[]) || []);
+    focused.add(yFieldName);
+    provider?.awareness.setLocalStateField('focused', Array.from(focused));
+  };
+
+  const handleBlur = () => {
+    const focused = new Set((user?.__focused as string[]) || []);
+    focused.delete(yFieldName);
+    provider?.awareness.setLocalStateField('focused', Array.from(focused));
+  };
+
+  // the users who have declared that they are focused on this field
+  const [focusedUsers, setFocusedUsers] = useState<ReturnType<typeof useAwareness>>([]);
+  useEffect(() => {
+    if (provider) {
+      const listener = () => {
+        const allAwarenessValues: ReturnType<typeof useAwareness> = Array.from(
+          provider.awareness.getStates().values()
+        )
+          .filter((value) => value.user)
+          .map((value) => ({ ...value.user, __focused: value.focused || [] }));
+
+        let awareness: ReturnType<typeof useAwareness> = [];
+        allAwarenessValues.forEach((value: ReturnType<typeof useAwareness>[0]) => {
+          // check whether session id is unique
+          const isUnique = awareness.findIndex((session) => session.sessionId === value.sessionId) === -1;
+
+          // check if focused on this field
+          const isFocused = (getProperty(JSON.parse(JSON.stringify(value)), '__focused') as string[]).includes(
+            yFieldName
+          );
+
+          // check that the value does not represent this client
+          const isThisClient = value.sessionId === sessionStorage.getItem('sessionId');
+
+          // only push to final awareness array if the session is unique and it is focused on this field
+          // (also do not show current client's focus)
+          if (isUnique && isFocused && !isThisClient) {
+            awareness.push(value);
+          }
+        });
+
+        setFocusedUsers(awareness);
+      };
+      provider.awareness.on('change', listener);
+
+      return () => provider?.awareness.off('change', listener);
+    }
+  }, [provider, yFieldName]);
+
   return (
     <CollaborativeFieldWrapperComponent
       theme={theme}
       isInSelect={props.label === '__in-select' || props.label === '__in-combobox'}
       isEmbedded={props.isEmbedded}
       style={props.style}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
     >
       {props.label !== '__in-select' && props.label !== '__in-combobox' ? (
         <div style={props.labelRowStyle}>
@@ -39,7 +97,10 @@ function CollaborativeFieldWrapper(props: CollaborativeFieldWrapperProps) {
               style={props.labelStyle}
               htmlFor={props.label.replaceAll(' ', '-')}
             >
-              {props.label}
+              {props.label}{' '}
+              {focusedUsers.map((user) => (
+                <FocusBullet key={user.sessionId} user={user} />
+              ))}
             </Label>
           </LabelRow>
           {props.description ? (
@@ -56,6 +117,26 @@ function CollaborativeFieldWrapper(props: CollaborativeFieldWrapperProps) {
     </CollaborativeFieldWrapperComponent>
   );
 }
+
+const FocusBullet = ({ user }: { user: ReturnType<typeof useAwareness>[0] }) => {
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  }, [user]);
+
+  return (
+    <svg
+      viewBox='0 0 100 100'
+      xmlns='http://www.w3.org/2000/svg'
+      fill={user.color}
+      data-tip={user.name + ' is here'}
+      width='8'
+      height='8'
+      style={{ marginLeft: 3 }}
+    >
+      <circle cx='50' cy='50' r='50' />
+    </svg>
+  );
+};
 
 const CollaborativeFieldWrapperComponent = styled.div<{
   theme: themeType;
