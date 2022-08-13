@@ -104,11 +104,16 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
     }
   }, [awareness, localProvider, synced, webProvider, ydoc]);
 
+  // the web provider is connected when there is a room
+  // and the web provider is set to be connected
+  const connected = (webProvider?.room && webProvider.shouldConnect) || undefined;
+
   return {
     ydoc: ydoc,
     provider: webProvider,
-    connected: (webProvider?.room && webProvider.shouldConnect) || undefined,
-    awareness: synced ? awareness : [],
+    connected: connected,
+    // hide awareness if web or local provider is not connected
+    awareness: synced && connected ? awareness : [],
     initialSynced: synced,
   };
 }
