@@ -14,7 +14,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useLocation } from 'react-router-dom';
 import packageJson from '../../../package.json';
 import { tiptapOptions } from '../../config';
-import { CollectionItemPage } from '../../pages/CMS/CollectionItemPage';
+import { CollectionItemPageContent } from '../../pages/CMS/CollectionItemPage';
 import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
 import { useAppDispatch } from '../../redux/hooks';
 import { setField } from '../../redux/slices/cmsItemSlice';
@@ -29,7 +29,7 @@ import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Titlebar } from './components/Titlebar';
 import { Toolbar } from './components/Toolbar';
 import { CommentPanel } from './extension-power-comment';
-import { useDevTools, useSidebar, useTipTapEditor, useTrackChanges, useWordCount } from './hooks';
+import { useAwareness, useDevTools, useSidebar, useTipTapEditor, useTrackChanges, useWordCount } from './hooks';
 import { FieldY, IYSettingsMap } from './hooks/useY';
 import './office-icon/colors1.css';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
@@ -50,6 +50,7 @@ interface ITiptap {
   showLoading?: boolean;
   layout?: string;
   compact?: boolean;
+  user: ReturnType<typeof useAwareness>[0];
 }
 
 const Tiptap = (props: ITiptap) => {
@@ -70,7 +71,12 @@ const Tiptap = (props: ITiptap) => {
       // open the sidebar to document properties if the url contains the correct search param
       isOpen: searchParams.get('props') === '1' || searchParams.get('comments') === '1',
       title: searchParams.get('comments') === '1' ? 'Comments' : 'Document properties',
-      content: searchParams.get('comments') === '1' ? <CommentPanel /> : <CollectionItemPage isEmbedded />,
+      content:
+        searchParams.get('comments') === '1' ? (
+          <CommentPanel />
+        ) : (
+          <CollectionItemPageContent isEmbedded y={props.y} user={props.user} />
+        ),
     },
   });
 
@@ -309,7 +315,8 @@ const Tiptap = (props: ITiptap) => {
               layouts={{ layout, options: layoutOptions, setLayout }}
               awarenessProfiles={awarenessProfiles}
               tiptapWidth={tiptapWidth}
-              user={props.y.user}
+              y={props.y}
+              user={props.user}
               toggleTrackChanges={toggleTrackChanges}
               trackChanges={trackChanges}
               isSidebarOpen={isSidebarOpen}

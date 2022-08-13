@@ -31,7 +31,8 @@ import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
-import { useY } from '../../../components/Tiptap/hooks';
+import { useAwareness, useY } from '../../../components/Tiptap/hooks';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
   DeconstructedSchemaDefType,
@@ -56,11 +57,39 @@ import { useWatching } from './useWatching';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
-interface CollectionItemPageProps {
+interface CollectionItemPageProps {}
+
+function CollectionItemPage(props: CollectionItemPageProps) {
+  const authUserState = useAppSelector((state) => state.authUser);
+  let { collection, item_id } = useParams() as { collection: string; item_id: string };
+
+  // get the session id from sessionstorage
+  const sessionId = sessionStorage.getItem('sessionId');
+
+  // get the current tenant name
+  const tenant = localStorage.getItem('tenant');
+
+  // create a user object for the current user (for yjs)
+  const user = {
+    name: authUserState.name,
+    color: colorHash.hex(authUserState._id),
+    sessionId: sessionId || '',
+    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
+  };
+
+  // connect to other clients with yjs for collaborative editing
+  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
+
+  return <CollectionItemPageContent y={y} user={user} />;
+}
+
+interface CollectionItemPageContentProps {
+  y: EntryY;
+  user: ReturnType<typeof useAwareness>[0];
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
 }
 
-function CollectionItemPage(props: CollectionItemPageProps) {
+function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const itemState = useAppSelector((state) => state.cmsItem);
   const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
@@ -80,23 +109,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     },
   ] = useCollectionSchemaConfig(collectionName);
 
-  // get the session id from sessionstorage
-  const sessionId = sessionStorage.getItem('sessionId');
-
-  // get the current tenant name
-  const tenant = localStorage.getItem('tenant');
-
-  // create a user object for the current user (for yjs)
-  const user = {
-    name: authUserState.name,
-    color: colorHash.hex(authUserState._id),
-    sessionId: sessionId || '',
-    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
-  };
-
-  // connect to other clients with yjs for collaborative editing
-  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
-
   // put the document in redux state and ydoc
   const { actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
@@ -105,7 +117,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     withPermissions,
     props.isEmbedded || by === null || false,
     by?.one,
-    y
+    props.y
   );
 
   const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
@@ -152,6 +164,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   // fs search param
   const fs = new URLSearchParams(search).get('fs');
+  const isMaximized = fs === '1' || fs === 'force';
 
   // calculate user watching status
   const { isWatching, isMandatoryWatcher, mandatoryWatchersList } = useWatching({
@@ -162,7 +175,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   // determine the actions for this document
   const { actions, quickActions, showActionDropdown, Windows } = useActions({
-    y,
+    y: props.y,
     actionAccess,
     canPublish,
     state: itemState,
@@ -184,8 +197,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
-    y,
-    user,
+    y: props.y,
+    user: props.user,
     docInfo: {
       _id: getProperty(itemState.fields, by?.one || '_id'),
       createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
@@ -356,7 +369,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         : undefined;
 
       // pass this to every collaborative field so it can communicate with yjs
-      const fieldY = { ...y, field: docArrayYjsKey || key, user };
+      const fieldY = { ...props.y, field: docArrayYjsKey || key, user: props.user };
 
       const isSubDocArray = def.type === 'DocArray';
       if (isSubDocArray) {
@@ -396,6 +409,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // to users in the CMS UI
       if (key.includes('#')) return <></>;
 
+      // hide all fields except the body tiptap field when
+      // the body tiptap field is maximized
+      // (to prevent duplicate fields; tiptap embeds the fields in a pane)
+      // if (isMaximized && !(key === 'body' && def.field?.tiptap) && !props.isEmbedded) {
+      //   return <></>;
+      // }
+
       // body field as tiptap editor
       if (key === 'body' && def.field?.tiptap) {
         if (props.isEmbedded) return <></>;
@@ -414,6 +434,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             <EmbeddedFieldContainer theme={theme}>
               <Tiptap
                 y={fieldY}
+                user={props.user}
                 docName={`${collection}.${item_id}`}
                 title={title}
                 options={def.field.tiptap}
@@ -421,7 +442,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   locked || itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly
                 }
                 showLoading={itemState.isLoading}
-                isMaximized={fs === '1' || fs === 'force'}
+                isMaximized={isMaximized}
                 forceMax={fs === 'force'}
                 onDebouncedChange={(editorJson, storedJson) => {
                   const isDefaultJson = editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
@@ -542,20 +563,27 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             />
           );
         }
+
+        console.log(fieldY.provider);
         return (
-          <CollaborativeTextField
-            key={index}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
-            isEmbedded={props.isEmbedded}
-            onDebouncedChange={(content, text) => {
-              if (text !== undefined && !readOnly)
-                dispatch(setField(text, key, 'default', undefined, inArrayKey));
-            }}
-          />
+          <>
+            {JSON.stringify(fieldY.connected)}
+            {JSON.stringify(fieldY.provider?.connected)}
+            {JSON.stringify(fieldY.initialSynced)}
+            <CollaborativeTextField
+              key={index}
+              label={fieldName}
+              description={def.field?.description}
+              y={fieldY}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={locked || loading || !!error || readOnly}
+              isEmbedded={props.isEmbedded}
+              onDebouncedChange={(content, text) => {
+                if (text !== undefined && !readOnly)
+                  dispatch(setField(text, key, 'default', undefined, inArrayKey));
+              }}
+            />
+          </>
         );
       }
 
@@ -850,8 +878,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             ) : null
           }
         </ReactRouterPrompt>
-        {!props.isEmbedded && (fs === 'force' || fs === '1') ? null : null}
-        <FullScreenSplash isLoading={(fs === 'force' || fs === '1') && !hasLoadedAtLeastOnce} />
+        {!props.isEmbedded && isMaximized ? null : null}
+        <FullScreenSplash isLoading={isMaximized && !hasLoadedAtLeastOnce} />
         {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
@@ -970,4 +998,4 @@ const Notice = styled.div<{ theme: themeType }>`
   box-sizing: border-box;
 `;
 
-export { CollectionItemPage };
+export { CollectionItemPage, CollectionItemPageContent };
