@@ -564,26 +564,20 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           );
         }
 
-        console.log(fieldY.provider);
         return (
-          <>
-            {JSON.stringify(fieldY.connected)}
-            {JSON.stringify(fieldY.provider?.connected)}
-            {JSON.stringify(fieldY.initialSynced)}
-            <CollaborativeTextField
-              key={index}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
-              isEmbedded={props.isEmbedded}
-              onDebouncedChange={(content, text) => {
-                if (text !== undefined && !readOnly)
-                  dispatch(setField(text, key, 'default', undefined, inArrayKey));
-              }}
-            />
-          </>
+          <CollaborativeTextField
+            key={index}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={locked || loading || !!error || readOnly}
+            isEmbedded={props.isEmbedded}
+            onDebouncedChange={(content, text) => {
+              if (text !== undefined && !readOnly)
+                dispatch(setField(text, key, 'default', undefined, inArrayKey));
+            }}
+          />
         );
       }
 
