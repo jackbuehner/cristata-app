@@ -5,7 +5,7 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import Collaboration from '@tiptap/extension-collaboration';
 import { Editor as TipTapEditor, Extensions as TipTapExtensions } from '@tiptap/react';
-import { get as getProperty } from 'object-path';
+import { get as getProperty, set as setProperty } from 'object-path';
 import { v4 as uuidv4 } from 'uuid';
 import * as Y from 'yjs';
 import { z } from 'zod';
@@ -123,7 +123,35 @@ function addToY(
         const validator = z.record(z.any()).array();
         const res = validator.parse(getProperty(data, key));
 
-        array.push(res.map((rest) => ({ ...rest, __uuid: uuidv4() })));
+        // track the generated uuids so we can create types
+        // for the fields in each doc
+        let generatedUuids: string[] = [];
+
+        // push each doc into the array
+        array.push(
+          res.map((rest) => {
+            const __uuid = uuidv4();
+            generatedUuids.push(__uuid);
+            return { ...rest, __uuid };
+          })
+        );
+
+        if (def.docs) {
+          generatedUuids.forEach((uuid, index) => {
+            const namedSubdocSchemas = def.docs
+              .filter(([docKey]) => !docKey.includes('#'))
+              .map(([docKey, docDef]): typeof def.docs[0] => {
+              const valueKey = docKey.replace(key, `${key}.${index}`);
+              const docArrayKey = docKey.replace(key, `__docArray.${key}.${uuid}`);
+
+              const value = getProperty(data, valueKey);
+              setProperty(data, docArrayKey, value);
+
+              return [docArrayKey, docDef];
+            });
+            addToY(y, namedSubdocSchemas, client, data);
+          });
+        }
       }
 
       /**
