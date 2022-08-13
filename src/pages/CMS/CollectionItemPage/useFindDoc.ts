@@ -13,7 +13,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
@@ -100,10 +100,21 @@ function useFindDoc(
       if (data?.[queryName] && doNothing !== true) {
         dispatch(setFields(data[queryName]));
       }
-
-      if (y) addToY(y, schemaDef, client, data[queryName]);
     },
   });
+
+  // only added data to yjs shared types
+  // once the ydoc has initialy connected
+  // and there are no other clients
+  const [shouldAddToY, setShouldAddToY] = useState(true);
+  useEffect(() => {
+    if (y?.initialSynced && shouldAddToY && req.data) {
+      if (y?.awareness.length === 1) {
+        addToY(y, schemaDef, client, req.data[queryName]);
+      }
+      setShouldAddToY(false);
+    }
+  }, [client, queryName, req.data, schemaDef, shouldAddToY, y]);
 
   let actionAccess: Record<CollectionPermissionsActions, boolean | undefined> | undefined =
     req.data?.[queryName + 'ActionAccess'];
