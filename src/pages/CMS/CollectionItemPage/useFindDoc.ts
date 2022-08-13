@@ -100,6 +100,10 @@ function useFindDoc(
       if (data?.[queryName] && doNothing !== true) {
         dispatch(setFields(data[queryName]));
       }
+
+      // reset the check for whether the data
+      // should be injected into the ydoc
+      setShouldAddToY(true);
     },
   });
 
