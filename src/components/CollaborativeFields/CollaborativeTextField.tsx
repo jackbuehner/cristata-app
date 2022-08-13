@@ -10,14 +10,13 @@ import { useTipTapEditor } from '../Tiptap/hooks';
 import { editorExtensions } from './editorExtensions';
 
 interface CollaborativeTextFieldProps extends CollaborativeFieldProps {
-  defaultValue?: string;
   onChange?: (content: JSONContent[], text: string) => void;
   onDebouncedChange?: (content: JSONContent[], text: string) => void;
   onKeyDown?: (event: KeyboardEvent) => void;
 }
 
 function CollaborativeTextField(props: CollaborativeTextFieldProps) {
-  const { y, defaultValue, onChange, onDebouncedChange, onKeyDown, ...labelProps } = props;
+  const { y, onChange, onDebouncedChange, onKeyDown, ...labelProps } = props;
 
   // create the editor
   const editor = useTipTapEditor({
@@ -65,11 +64,6 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
       props.onDebouncedChange(content || [], text || '');
     }
   }, 1000);
-
-  // replace the content with default content if the field is empty in the ydoc
-  if (props.defaultValue && editor && !editor.getText()) {
-    editor.commands.setContent(props.defaultValue);
-  }
 
   if (props.label) {
     return (

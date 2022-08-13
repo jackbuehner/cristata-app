@@ -5,7 +5,6 @@ import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 interface CollaborativeSelectOneProps
   extends CollaborativeFieldProps,
     Omit<Omit<Omit<Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>, 'onChange'>, 'color'>, 'checked'> {
-  initialValue?: Value<string>;
   onChange?: (value: Value<string>) => void;
   options: Values<string>;
   noDrag?: boolean;
@@ -13,7 +12,7 @@ interface CollaborativeSelectOneProps
 }
 
 function CollaborativeSelectOne(props: CollaborativeSelectOneProps) {
-  const { y, defaultValue, onChange, ...labelProps } = props;
+  const { y, onChange, ...labelProps } = props;
 
   const Content = (
     <div style={{ position: 'relative' }}>
@@ -21,7 +20,6 @@ function CollaborativeSelectOne(props: CollaborativeSelectOneProps) {
         y={props.y}
         disabled={props.disabled}
         options={props.options}
-        initialValues={props.initialValue ? [props.initialValue] : []}
         many={false}
         color={props.color}
         font={props.font}

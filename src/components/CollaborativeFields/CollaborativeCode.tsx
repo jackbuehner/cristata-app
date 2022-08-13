@@ -14,14 +14,13 @@ import { useAwareness } from '../Tiptap/hooks';
 
 interface CollaborativeCodeProps extends CollaborativeFieldProps {
   type: 'json' | 'md';
-  initialValue: string;
   onValidate?: (markers: editor.IMarker[]) => void;
   onChange?: (value: string | undefined) => void;
   height?: number;
 }
 
 function CollaborativeCode(props: CollaborativeCodeProps) {
-  const { y, type: language, initialValue, onChange, onValidate, height, ...labelProps } = props;
+  const { y, type: language, onChange, onValidate, height, ...labelProps } = props;
   const ySharedType = y.ydoc?.getText(y.field);
 
   const [tabIndex, setTabIndex] = useState<number>(0);
@@ -38,10 +37,10 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
     if (monaco && node.current !== null && editor === null) {
       const el = node.current;
       monaco.editor.defineTheme('cristata-code-dark', cristataCodeDarkTheme);
-      setModel(monaco.editor.createModel(initialValue, language, undefined));
+      setModel(monaco.editor.createModel('', language, undefined));
       setEditor(monaco.editor.create(el, { theme: 'cristata-code-dark' }));
     }
-  }, [language, monaco, initialValue, editor]);
+  }, [language, monaco, editor]);
 
   // bind yjs to the monaco editor
   useEffect(() => {
@@ -52,7 +51,7 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
   }, [binding, editor, model, y.provider, ySharedType]);
 
   // send changes to parent when yjs shared type changes
-  const [value, setValue] = useState(props.initialValue || '');
+  const [value, setValue] = useState('');
   useEffect(() => {
     const handleChange = (evt: YTextEvent) => {
       const text = evt.target.toJSON();

@@ -13,6 +13,7 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import * as Y from 'yjs';
+import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { capitalize } from '../../utils/capitalize';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
@@ -36,14 +37,22 @@ interface SelectedReferenceItemsProps {
 function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
   const theme = useTheme();
   const yarray = props.ydoc.getArray<Value<string>>(props.fieldName);
+  const forceUpdate = useForceUpdate();
 
   // keep track of the selected values shared type
   const [selected, setSelected] = useState<Value<string>[]>(yarray?.toArray() || []);
   useEffect(() => {
     if (yarray) {
+      if (selected.length !== yarray.toArray().length) {
+        setSelected(yarray.toArray());
+      }
+
       const handleChange = (evt: Y.YArrayEvent<Value<string>>) => {
         if (evt.changes.delta) {
           setSelected(yarray.toArray());
+
+          // rerender the component
+          forceUpdate();
         }
       };
 
@@ -52,7 +61,7 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
         yarray.unobserve(handleChange);
       };
     }
-  }, [yarray]);
+  }, [forceUpdate, selected.length, yarray]);
 
   return (
     <>

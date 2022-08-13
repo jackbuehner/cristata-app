@@ -1,21 +1,11 @@
-import { useApolloClient } from '@apollo/client';
 import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
-import { useEffect, useState } from 'react';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
-import { populateReferenceValues } from '../ContentField/populateReferenceValues';
 import { useOptions } from '../ContentField/useOptions';
-import {
-  CollaborativeCombobox,
-  PopulatedRefValue,
-  UnpopulatedRefValue,
-  Value,
-  Values,
-} from './CollaborativeCombobox';
+import { CollaborativeCombobox, PopulatedRefValue, Value, Values } from './CollaborativeCombobox';
 import { SelectedReferenceItems } from './SelectedReferenceItems';
 
 interface CollaborativeReferenceManyProps extends CollaborativeFieldProps {
-  initialValues?: UnpopulatedRefValue[];
   onChange?: (values: PopulatedRefValue[]) => void;
   injectedOptions?: Values<string>;
   noDrag?: boolean;
@@ -27,23 +17,12 @@ interface CollaborativeReferenceManyProps extends CollaborativeFieldProps {
 }
 
 function CollaborativeReferenceMany(props: CollaborativeReferenceManyProps) {
-  const { y, initialValues, onChange, injectedOptions, noDrag, collection, reference, ...labelProps } = props;
+  const { y, onChange, injectedOptions, noDrag, collection, reference, ...labelProps } = props;
   const yarray = y.ydoc?.getArray<Value<string>>(y.field);
-
-  const client = useApolloClient();
 
   // generate options from the referenced collection
   // based on a provided search string
   const [searchValue, setSearchValue, { options, loading }] = useOptions(props.collection, props.reference);
-
-  // populate the initial value with a label based on the name field
-  // in the referenced collection (or another field defined in the reference object)
-  const [populatedInitialValues, setPopulatedInitialValues] = useState<PopulatedRefValue[]>([]);
-  useEffect(() => {
-    populateReferenceValues(client, initialValues || [], collection, reference?.fields).then((values) => {
-      setPopulatedInitialValues(values);
-    });
-  }, [client, collection, initialValues, reference?.fields, yarray]);
 
   const onDragEnd = (result: DropResult, provided: ResponderProvided) => {
     const from = result.source.index;
@@ -66,13 +45,10 @@ function CollaborativeReferenceMany(props: CollaborativeReferenceManyProps) {
         y={props.y}
         disabled={props.disabled}
         options={[...(props.injectedOptions || []), ...options]}
-        initialValues={populatedInitialValues.map(({ _id: value, label }) => ({ value, label }))}
         many={true}
         color={props.color}
         font={props.font}
         onChange={(values) => {
-          if (values.length === 0) setPopulatedInitialValues([]);
-
           props.onChange?.(
             values.map(({ value, label, children, ...rest }) => ({ _id: value.toString(), label, ...rest }))
           );

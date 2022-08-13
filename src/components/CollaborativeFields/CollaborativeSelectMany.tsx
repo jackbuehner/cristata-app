@@ -11,12 +11,10 @@ import {
 import { IconButton } from '../Button';
 import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 import { SelectedItems } from './SelectedItems';
-import { useSetInitialYarray } from './useSetInitialYarray';
 
 interface CollaborativeSelectManyProps
   extends CollaborativeFieldProps,
     Omit<Omit<Omit<Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>, 'onChange'>, 'color'>, 'checked'> {
-  initialValues?: Values<string>;
   onChange?: (values: Values<string>) => void;
   options?: Values<string>;
   noDrag?: boolean;
@@ -24,15 +22,8 @@ interface CollaborativeSelectManyProps
 }
 
 function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
-  const { y, defaultValue, onChange, ...labelProps } = props;
+  const { y, onChange, ...labelProps } = props;
   const yarray = y.ydoc?.getArray<Value<string>>(y.field);
-
-  // create yarray only if combobox is not going to be used
-  // (combobox creates the shared type already)
-  useSetInitialYarray(
-    { initialSynced: y.initialSynced, initialValues: props.initialValues, yarray, awareness: y.awareness },
-    !props.options
-  );
 
   const onDragEnd = (result: DropResult, provided: ResponderProvided) => {
     const from = result.source.index;
@@ -83,7 +74,6 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
             y={props.y}
             disabled={props.disabled}
             options={props.options}
-            initialValues={props.initialValues}
             many={true}
             color={props.color}
             font={props.font}

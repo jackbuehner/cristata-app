@@ -29,7 +29,6 @@ import { Value } from './CollaborativeCombobox';
 
 interface CollaborativeDocArrayProps extends CollaborativeFieldProps {
   stateFieldKey: string;
-  initialData?: Record<string, unknown>[];
   schemaDefs: DeconstructedSchemaDefType;
   processSchemaDef: (schemaDef: DeconstructedSchemaDefType) => DeconstructedSchemaDefType;
   renderFields: (
@@ -121,32 +120,6 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
       return groupFields;
     }
   );
-
-  // use initial values for yarray contents if the ydoc has synced,
-  // is connected, and the cyrrent yarray is empty
-  const [hasSetInitialValue, setHasSetInitialValue] = useState(false);
-  useEffect(() => {
-    if (
-      props.initialData &&
-      props.initialData.length > 0 &&
-      yarray &&
-      yarray.toArray().length === 0 &&
-      y.initialSynced &&
-      !hasSetInitialValue &&
-      arr.length === 0
-    ) {
-      // only insert if there are no other clients connected
-      // (otherwise, they probably already inserted the initial values
-      // and may have removed them before this client connected)
-      if (y.awareness.length === 1) {
-        yarray.insert(
-          0,
-          props.initialData.map((a) => ({ ...a, __uuid: uuidv4() }))
-        );
-      }
-      setHasSetInitialValue(true);
-    }
-  }, [hasSetInitialValue, yarray, y.initialSynced, y.awareness.length, props.initialData, arr.length]);
 
   return (
     <CollaborativeFieldWrapper

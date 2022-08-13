@@ -6,13 +6,15 @@ import { colorType } from '../../utils/theme/theme';
 
 interface CollaborativeCheckboxProps
   extends CollaborativeFieldProps,
-    Omit<Omit<Omit<Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>, 'onChange'>, 'color'>, 'checked'> {
-  defaultChecked?: boolean;
+    Omit<
+      Omit<Omit<Omit<Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>, 'onChange'>, 'color'>, 'checked'>,
+      'defaultChecked'
+    > {
   onChange?: (checked: boolean) => void;
 }
 
 function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
-  const { y, defaultValue, onChange, ...labelProps } = props;
+  const { y, onChange, ...labelProps } = props;
   const checkboxFieldsMap = y.ydoc?.getMap<Record<string, boolean>>('__checkboxes');
 
   // keep track of the checked status in the checkbox field shared type
@@ -44,11 +46,6 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
       props.onChange(checked);
     }
   };
-
-  // replace the checked value with default checked if the field is empty in the ydoc shared type
-  if (props.defaultChecked && checkboxFieldsMap && checked === undefined) {
-    checkboxFieldsMap.set(y.field, props.defaultChecked);
-  }
 
   if (props.label) {
     return (

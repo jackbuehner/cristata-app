@@ -10,7 +10,6 @@ import { useTipTapEditor } from '../Tiptap/hooks';
 import { editorExtensions } from './editorExtensions';
 
 interface CollaborativeNumberFieldProps extends CollaborativeFieldProps {
-  defaultValue?: number;
   allowDecimals?: boolean;
   onChange?: (content: JSONContent[], number: number) => void;
   onDebouncedChange?: (content: JSONContent[], number: number) => void;
@@ -18,7 +17,7 @@ interface CollaborativeNumberFieldProps extends CollaborativeFieldProps {
 }
 
 function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
-  const { y, defaultValue, onChange, onDebouncedChange, onKeyDown, ...labelProps } = props;
+  const { y, onChange, onDebouncedChange, onKeyDown, ...labelProps } = props;
 
   // create the editor
   const editor = useTipTapEditor({
@@ -66,11 +65,6 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
       props.onDebouncedChange(content || [], parseFloat(text || ''));
     }
   }, 1000);
-
-  // replace the content with default content if the field is empty in the ydoc
-  if (props.defaultValue && editor && !editor.getText()) {
-    editor.commands.setContent(props.defaultValue.toString());
-  }
 
   if (props.label) {
     return (

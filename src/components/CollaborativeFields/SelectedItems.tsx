@@ -12,6 +12,7 @@ import {
   ResponderProvided,
 } from 'react-beautiful-dnd';
 import * as Y from 'yjs';
+import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { Value } from './CollaborativeCombobox';
@@ -29,14 +30,22 @@ interface SelectedItemsProps {
 function SelectedItems(props: SelectedItemsProps) {
   const theme = useTheme();
   const yarray = props.ydoc.getArray<Value<string>>(props.fieldName);
+  const forceUpdate = useForceUpdate();
 
   // keep track of the selected values shared type
   const [selected, setSelected] = useState<Value<string>[]>(yarray?.toArray() || []);
   useEffect(() => {
     if (yarray) {
+      if (selected.length !== yarray.toArray().length) {
+        setSelected(yarray.toArray());
+      }
+
       const handleChange = (evt: Y.YArrayEvent<Value<string>>) => {
         if (evt.changes.delta) {
           setSelected(yarray.toArray());
+
+          // rerender the component
+          forceUpdate();
         }
       };
 
@@ -45,7 +54,7 @@ function SelectedItems(props: SelectedItemsProps) {
         yarray.unobserve(handleChange);
       };
     }
-  }, [yarray]);
+  }, [forceUpdate, selected.length, yarray]);
 
   return (
     <>

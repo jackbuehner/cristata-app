@@ -9,10 +9,10 @@ import { CSSProperties as CSS, useCallback, useEffect, useRef, useState } from '
 import ReactTooltip from 'react-tooltip';
 import * as Y from 'yjs';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
+import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { replaceCircular } from '../../utils/replaceCircular';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
-import { useSetInitialYarray } from './useSetInitialYarray';
 
 const isValidObjectId = mongoose.Types.ObjectId.isValid;
 
@@ -22,7 +22,6 @@ interface CollaborativeComboboxProps extends CollaborativeFieldProps {
    */
   optionHeight?: number;
   options: Values<string>;
-  initialValues?: Values<string>;
   onChange?: (values: Values<string>) => void;
   onSearchChange?: (text: string) => void;
   /**
@@ -58,17 +57,20 @@ interface BaseValue {
 }
 
 function CollaborativeCombobox(props: CollaborativeComboboxProps) {
-  const { y, initialValues, onChange, ...labelProps } = props;
+  const { y, onChange, ...labelProps } = props;
   const yarray = y.ydoc?.getArray<Value<string>>(y.field);
 
   const theme = useTheme();
+  const forceUpdate = useForceUpdate();
   const selectRef = useRef<BaseSelectRef>(null);
 
   // keep track of the selected values shared type
   const [selected, setSelected] = useState<Value<string>[]>(yarray?.toArray() || []);
   useEffect(() => {
     if (yarray) {
-      setSelected(yarray.toArray());
+      if (selected.length !== yarray.toArray().length) {
+        setSelected(yarray.toArray());
+      }
 
       const handleChange = (evt: Y.YArrayEvent<Value<string>>) => {
         if (evt.changes.delta) {
@@ -76,6 +78,9 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
 
           // send the change to the parent
           onChange?.(yarray.toArray());
+
+          // rerender the component
+          forceUpdate();
         }
       };
 
@@ -84,7 +89,7 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
         yarray.unobserve(handleChange);
       };
     }
-  }, [onChange, yarray]);
+  }, [forceUpdate, onChange, selected.length, yarray]);
 
   /**
    * Update the y shared map type based on the new selection.
@@ -160,11 +165,6 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
       console.error(error);
     }
   }, []);
-
-  useSetInitialYarray(
-    { initialSynced: y.initialSynced, initialValues: props.initialValues, yarray, awareness: y.awareness },
-    selected.length === 0 // only set value using `initialValues` if `selection` is empty
-  );
 
   const Content = (
     <div style={{ position: 'relative' }}>

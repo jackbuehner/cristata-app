@@ -13,29 +13,36 @@ import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
 interface CollaborativeDateTimeProps extends CollaborativeFieldProps {
-  initialValue: string | null;
   onChange?: (date: Luxon | null) => void;
   placeholder?: string;
 }
 
 function CollaborativeDateTime(props: CollaborativeDateTimeProps) {
-  const { y, initialValue, onChange, placeholder, ...labelProps } = props;
+  const { y, onChange, placeholder, ...labelProps } = props;
   const yText = y.ydoc?.getText(y.field);
 
   // keep track of the iso date in the shared type
-  const [value, setValue] = useState(props.initialValue || '');
+  const [value, setValue] = useState(yText?.toJSON() || '');
   useEffect(() => {
-    const handleChange = (evt: YTextEvent) => {
-      const text = evt.target.toJSON();
-      setValue(text);
-      // send changes to parent
-      onChange?.(Luxon.fromISO(text));
-    };
-    yText?.observe(handleChange);
-    return () => {
-      yText?.unobserve(handleChange);
-    };
-  });
+    if (yText) {
+      if (value !== yText.toJSON()) {
+        setValue(yText.toJSON());
+      }
+
+      const handleChange = (evt: YTextEvent) => {
+        const text = evt.target.toJSON();
+        setValue(text);
+
+        // send changes to parent
+        onChange?.(Luxon.fromISO(text));
+      };
+
+      yText.observe(handleChange);
+      return () => {
+        yText.unobserve(handleChange);
+      };
+    }
+  }, [onChange, value, yText]);
 
   const theme = useTheme() as themeType;
 

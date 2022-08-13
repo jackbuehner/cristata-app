@@ -376,7 +376,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             disabled={locked || loading || !!error || readOnly}
             key={key}
             stateFieldKey={key}
-            initialData={getProperty(itemState.fields, key)}
             schemaDefs={processSchemaDef(def.docs)}
             processSchemaDef={processSchemaDef}
             renderFields={renderFields}
@@ -403,7 +402,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
         // get the HTML
         const isHTML = def.field.tiptap.isHTMLkey && getProperty(itemState.fields, def.field.tiptap.isHTMLkey);
-        const html = isHTML ? (getProperty(itemState.fields, key) as string) : undefined;
 
         return (
           <Field
@@ -423,7 +421,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   locked || itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly
                 }
                 showLoading={itemState.isLoading}
-                html={html}
                 isMaximized={fs === '1' || fs === 'force'}
                 forceMax={fs === 'force'}
                 onDebouncedChange={(editorJson, storedJson) => {
@@ -432,9 +429,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                     dispatch(setField(editorJson, key, 'tiptap', undefined, inArrayKey));
                   }
                 }}
-                currentJsonInState={
-                  JSON.stringify(itemState.fields) === '{}' ? null : getProperty(itemState.fields, key)
-                }
                 actions={actions}
                 layout={itemState.fields.layout}
                 message={
@@ -464,35 +458,12 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           : def.field!.reference!.collection!;
 
         if (isArrayType) {
-          const stateValue = getProperty(itemState.fields, key);
-          let rawValues: Record<string, string>[] = [];
-
-          if (stateValue && Array.isArray(stateValue)) {
-            rawValues = stateValue.map((val: string | number | Record<string, string>) => {
-              if (typeof val === 'object') {
-                return val;
-              }
-              return { _id: `${val}` };
-            });
-          }
-
-          const values: { _id: string; label?: string }[] =
-            rawValues
-              .filter((s: Record<string, unknown>): s is Record<string, string> =>
-                Object.keys(s).every(([, value]) => typeof value === 'string')
-              )
-              .map((value) => {
-                const _id = value?.[def.field?.reference?.fields?._id || '_id'];
-                const label = value?.[def.field?.reference?.fields?.name || 'name'];
-                return { _id, label };
-              }) || [];
           return (
             <CollaborativeReferenceMany
               key={index}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
-              initialValues={values}
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
@@ -506,18 +477,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           );
         }
 
-        const value =
-          getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
-            ? (getProperty(itemState.fields, key) as { _id: string; label: string })
-            : getProperty(itemState.fields, key)?._id
-            ? {
-                _id: getProperty(itemState.fields, key)?._id,
-                label: getProperty(itemState.fields, key)?.[def.field?.reference?.fields?.name || 'name'],
-              }
-            : typeof getProperty(itemState.fields, key) === 'string'
-            ? { _id: getProperty(itemState.fields, key) }
-            : undefined;
-
         return (
           <CollaborativeReferenceOne
             key={index}
@@ -525,7 +484,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             description={def.field?.description}
             y={fieldY}
             // only show the value if it is truthy
-            initialValue={value?._id ? value : undefined}
             color={props.isEmbedded ? 'blue' : 'primary'}
             // disable when the api requires the field to always have a value but a default
             // value for when no specific photo is selected is not defined
@@ -551,7 +509,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             description={def.field?.description}
             type={'md'}
             y={fieldY}
-            initialValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
@@ -566,7 +523,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // plain text fields
       if (type === 'String') {
         if (def.field?.options) {
-          const currentPropertyValue = getProperty(itemState.fields, key);
           const options = def.field.options as StringOption[];
           return (
             <CollaborativeSelectOne
@@ -574,7 +530,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
-              initialValue={options.find(({ value }) => value === currentPropertyValue)}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
@@ -593,7 +548,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
-            defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
@@ -613,7 +567,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
-            defaultChecked={!!getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
@@ -628,7 +581,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // integer fields
       if (type === 'Number') {
         if (def.field?.options) {
-          const currentPropertyValue = getProperty(itemState.fields, key);
           const options = def.field.options.map((opt) => ({ ...opt, value: opt.toString() }));
           return (
             <CollaborativeSelectOne
@@ -636,7 +588,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
-              initialValue={options.find(({ value }) => value === currentPropertyValue.toString())}
               options={options}
               number={'integer'}
               color={props.isEmbedded ? 'blue' : 'primary'}
@@ -656,7 +607,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
-            defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
@@ -671,7 +621,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // float fields
       if (type === 'Float') {
         if (def.field?.options) {
-          const currentPropertyValue = getProperty(itemState.fields, key);
           const options = def.field.options.map((opt) => ({ ...opt, value: opt.value.toString() }));
           return (
             <CollaborativeSelectOne
@@ -679,7 +628,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
-              initialValue={options.find(({ value }) => value === currentPropertyValue.toString())}
               options={options}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
@@ -700,7 +648,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             allowDecimals
             description={def.field?.description}
             y={fieldY}
-            defaultValue={getProperty(itemState.fields, key)}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
@@ -714,7 +661,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // array of strings
       if (type?.[0] === 'String') {
-        const currentPropertyValues: string[] = getProperty(itemState.fields, key) || [];
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
@@ -723,7 +669,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
-              initialValues={options.filter(({ value }) => currentPropertyValues.includes(value))}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
@@ -742,7 +687,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
-            initialValues={currentPropertyValues.map((value) => ({ value, label: value }))}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
@@ -757,7 +701,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // array of integers
       if (type?.[0] === 'Number') {
-        const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
@@ -766,7 +709,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
-              initialValues={options.filter(({ value }) => currentPropertyValues.includes(parseInt(value)))}
               options={options}
               number={'integer'}
               color={props.isEmbedded ? 'blue' : 'primary'}
@@ -786,10 +728,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
-            initialValues={currentPropertyValues.map((value) => ({
-              value: value.toString(),
-              label: value.toString(),
-            }))}
             number={'integer'}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
@@ -805,7 +743,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // array of floats
       if (type?.[0] === 'Float') {
-        const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
@@ -814,7 +751,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
-              initialValues={options.filter(({ value }) => currentPropertyValues.includes(parseFloat(value)))}
               options={options}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
@@ -834,10 +770,6 @@ function CollectionItemPage(props: CollectionItemPageProps) {
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
-            initialValues={currentPropertyValues.map((value) => ({
-              value: value.toString(),
-              label: value.toString(),
-            }))}
             number={'decimal'}
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
@@ -853,16 +785,12 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // plain text fields
       if (type === 'Date') {
-        const currentTimestamp: string | undefined = getProperty(itemState.fields, key);
         return (
           <CollaborativeDateTime
             key={index}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
-            initialValue={
-              !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z' ? null : currentTimestamp
-            }
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
