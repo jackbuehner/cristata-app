@@ -107,7 +107,7 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
   return {
     ydoc: ydoc,
     provider: webProvider,
-    connected: webProvider?.connected,
+    connected: (webProvider?.room && webProvider.shouldConnect) || undefined,
     awareness: synced ? awareness : [],
     initialSynced: synced,
   };
