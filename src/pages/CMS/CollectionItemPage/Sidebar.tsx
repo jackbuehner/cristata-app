@@ -11,10 +11,12 @@ import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { Button, buttonEffect } from '../../../components/Button';
+import { Checkbox } from '../../../components/Checkbox';
 import { CollaborativeSelectOne } from '../../../components/CollaborativeFields';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
 import { useAwareness } from '../../../components/Tiptap/hooks';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
+import { useForceUpdate } from '../../../hooks/useForceUpdate';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { formatISODate } from '../../../utils/formatISODate';
@@ -49,6 +51,7 @@ function Sidebar(props: SidebarProps) {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const client = useApolloClient();
+  const forceUpdate = useForceUpdate();
 
   ReactTooltip.rebuild();
 
@@ -86,6 +89,8 @@ function Sidebar(props: SidebarProps) {
     };
   }, [client, props.permissions, teams]);
 
+  const ySettingsMap = props.y.ydoc?.getMap<IYSettingsMap>('__settings');
+
   return (
     <Container theme={theme} compact={props.compact}>
       <SectionTitle theme={theme}>Document Information</SectionTitle>
@@ -97,6 +102,30 @@ function Sidebar(props: SidebarProps) {
         <div>Last updated</div>
         <div>{formatISODate(props.docInfo.modifiedAt, undefined, undefined, true)}</div>
       </DocInfoRow>
+      {true ? null : (
+        <DocInfoRow
+          theme={theme}
+          style={{
+            flexDirection: 'row-reverse',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 10,
+            marginTop: 10,
+          }}
+        >
+          <label htmlFor={'autosave'} style={{ userSelect: 'none' }}>
+            Autosave
+          </label>
+          <Checkbox
+            isChecked={!!ySettingsMap?.get('autosave')}
+            id={'autosave'}
+            onChange={(e) => {
+              ySettingsMap?.set('autosave', e.currentTarget.checked);
+              forceUpdate();
+            }}
+          />
+        </DocInfoRow>
+      )}
       {props.stage ? (
         <>
           <SectionTitle theme={theme}>Stage</SectionTitle>
@@ -155,7 +184,6 @@ function Sidebar(props: SidebarProps) {
           </div>
         </>
       )}
-
       {props.previewUrl ? (
         <>
           <SectionTitle theme={theme}>Preview</SectionTitle>
@@ -273,10 +301,10 @@ const DocInfoRow = styled.div<{ theme: themeType }>`
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  > div:nth-of-type(1) {
+  > *:nth-of-type(1) {
     color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
   }
-  > div:nth-of-type(2) {
+  > *:nth-of-type(2) {
     color: ${({ theme }) => theme.color.neutral[theme.mode][1000]};
   }
 `;
