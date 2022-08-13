@@ -143,14 +143,14 @@ function addToY(
             const namedSubdocSchemas = def.docs
               .filter(([docKey]) => !docKey.includes('#'))
               .map(([docKey, docDef]): typeof def.docs[0] => {
-              const valueKey = docKey.replace(key, `${key}.${index}`);
-              const docArrayKey = docKey.replace(key, `__docArray.${key}.${uuid}`);
+                const valueKey = docKey.replace(key, `${key}.${index}`);
+                const docArrayKey = docKey.replace(key, `__docArray.${key}.${uuid}`);
 
-              const value = getProperty(data, valueKey);
-              setProperty(data, docArrayKey, value);
+                const value = getProperty(data, valueKey);
+                setProperty(data, docArrayKey, value);
 
-              return [docArrayKey, docDef];
-            });
+                return [docArrayKey, docDef];
+              });
             addToY(y, namedSubdocSchemas, client, data);
           });
         }
@@ -174,7 +174,9 @@ function addToY(
           floatArray.delete(0, floatArray.toArray()?.length);
 
           const validator = z.number().array().optional().nullable();
-          const floats = validator.parse(options ? [getProperty(data, key)] : getProperty(data, key));
+          const floats = validator.parse(
+            !isArray && options ? [getProperty(data, key)] : getProperty(data, key)
+          );
 
           if (floats) {
             floatArray.push(
@@ -222,7 +224,7 @@ function addToY(
           intArray.delete(0, intArray.toArray()?.length);
 
           const validator = z.number().array().optional().nullable();
-          const ints = validator.parse(options ? [getProperty(data, key)] : getProperty(data, key));
+          const ints = validator.parse(!isArray && options ? [getProperty(data, key)] : getProperty(data, key));
 
           if (ints) {
             intArray.push(
@@ -323,7 +325,7 @@ function addToY(
 
           const validator = z.string().optional().nullable().array().optional().nullable();
           const strings = validator.parse(
-            options || reference ? [getProperty(data, key)] : getProperty(data, key)
+            !isArray && (options || reference) ? [getProperty(data, key)] : getProperty(data, key)
           );
 
           if (strings) {
