@@ -371,16 +371,29 @@ function setTipTapXMLFragment(
 
   // set the shared type based on this value
   if (content) {
-    try {
-      // if content is stringified json, parse it before inserting it
+    // if content is stringified json object, parse it before inserting it
+    if (isObjectJSONString(content)) {
       tiptap.commands.setContent(JSON.parse(content));
-    } catch {
+    } else {
       tiptap.commands.setContent(content);
     }
   }
 
   // destory tiptap editor
   tiptap.destroy();
+}
+
+/**
+ * Returns whether an input string is a
+ * stringified JSON object.
+ */
+function isObjectJSONString(str: string) {
+  try {
+    const parsed = JSON.parse(str);
+    return typeof parsed === 'object' && !Array.isArray(parsed);
+  } catch {
+    return false;
+  }
 }
 
 export { addToY };
