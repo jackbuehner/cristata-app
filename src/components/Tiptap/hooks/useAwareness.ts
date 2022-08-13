@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { WebrtcProvider } from 'y-webrtc';
 
 /**
@@ -5,32 +6,49 @@ import { WebrtcProvider } from 'y-webrtc';
  * from the same session removed from the array.
  */
 function useAwareness(props: UseAwarenessProps): AwarenessType[] {
-  if (!props.provider) return [];
-
-  const { awareness: pa } = props.provider;
-
   // set local user awareness field with user details
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  if (props.user) pa.setLocalStateField('user', props.user);
+  useEffect(() => {
+    if (props.user && props.provider) {
+      props.provider.awareness.setLocalStateField('user', props.user);
+    }
+  }, [props.provider, props.user]);
 
-  // get all current awareness information and filter it to only include
-  // sessions with defined users
-  const allAwarenessValues: AwarenessType[] = Array.from(pa.getStates().values())
-    .filter((value) => value.user)
-    .map((value) => value.user);
+  // keep awareness state in sync with awareness values
+  const [awareness, setAwareness] = useState<AwarenessType[]>([]);
+  useEffect(() => {
+    if (props.provider?.awareness) {
+      const pa = props.provider.awareness;
 
-  // remove duplicate awareness information by only adding objects with
-  // unique sessionIds to the array (session ids are create by the app and
-  // stored in `sessionStorage`)
-  let awareness: AwarenessType[] = [];
-  allAwarenessValues.forEach((value: AwarenessType) => {
-    // check whether session id is unique
-    const isUnique =
-      awareness.findIndex((session) => session.sessionId === value.sessionId) === -1 ? false : true;
+      const handleUpdate = () => {
+        // get all current awareness information and filter it to only include
+        // sessions with defined users
+        const allAwarenessValues: AwarenessType[] = Array.from(pa.getStates().values())
+          .filter((value) => value.user)
+          .map((value) => value.user);
 
-    // only push to final awareness array if the session is unique
-    if (!isUnique) {
-      awareness.push(value);
+        // remove duplicate awareness information by only adding objects with
+        // unique sessionIds to the array (session ids are create by the app and
+        // stored in `sessionStorage`)
+        let awareness: AwarenessType[] = [];
+        allAwarenessValues.forEach((value: AwarenessType) => {
+          // check whether session id is unique
+          const isUnique =
+            awareness.findIndex((session) => session.sessionId === value.sessionId) === -1 ? false : true;
+
+          // only push to final awareness array if the session is unique
+          if (!isUnique) {
+            awareness.push(value);
+          }
+        });
+
+        // update in state
+        setAwareness(awareness);
+      };
+
+      pa.on('change', handleUpdate);
+      return () => {
+        pa.off('change', handleUpdate);
+      };
     }
   });
 
