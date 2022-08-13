@@ -85,7 +85,9 @@ function addToY(
         const validator = z.string().optional().nullable();
         const date = validator.parse(getProperty(data, key));
 
-        if (date) dateText.insert(0, date); // asume value is ISO date
+        if (date && date !== '0001-01-01T01:00:00.000Z') {
+          dateText.insert(0, date); // asume value is ISO date
+        }
       }
 
       /**
