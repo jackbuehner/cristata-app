@@ -78,7 +78,7 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
         setLocalProvider(data.localProvider);
 
         // create a setting map for this document (used to sync settings accross all editors)
-        setSettingsMap(ydoc?.getMap<IYSettingsMap>('settings'));
+        setSettingsMap(ydoc?.getMap<IYSettingsMap>('__settings'));
       }
     });
 
