@@ -1,5 +1,6 @@
 import { EditorOptions } from '@tiptap/core';
-import { Editor } from '@tiptap/react';
+import { CollaborationOptions } from '@tiptap/extension-collaboration';
+import { Editor, Extension } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useEffect, useRef, useState } from 'react';
 import { WebrtcProvider } from 'y-webrtc';
@@ -17,6 +18,10 @@ function useForceUpdate() {
   return increment;
 }
 
+interface CollaborationOptions2 extends CollaborationOptions {
+  document: Y.Doc | undefined;
+}
+
 const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): Editor | null => {
   const editorRef = useRef<Editor | null>(null);
   const forceUpdate = useForceUpdate();
@@ -26,7 +31,15 @@ const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): 
       // create editor on initial browser render
       editorRef.current = new Editor(options);
 
-      // keep editor updated
+      // get the ydoc shared type
+      const CollaborationExtension = options.extensions?.find((ext) => ext.name === 'collaboration') as
+        | Extension<CollaborationOptions2>
+        | undefined;
+      const sharedType = CollaborationExtension?.options?.document?.getXmlFragment(
+        CollaborationExtension.options.field
+      );
+
+      // trigger update in editor
       const update = () => {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -34,9 +47,13 @@ const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): 
           });
         });
       };
+
+      // listen for transactions AND ydoc shared type change
       editorRef.current.on('transaction', update);
+      sharedType?.observe(update);
       return () => {
         editorRef?.current?.off('transaction', update);
+        sharedType?.unobserve(update);
       };
     } else if (!editorRef.current) {
       // server; ignore
