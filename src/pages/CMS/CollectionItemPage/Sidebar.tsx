@@ -101,9 +101,6 @@ function Sidebar(props: SidebarProps) {
             <CollaborativeSelectOne
               label={'Stage'}
               y={{ ...props.y, field: props.stage.key, user: props.user }}
-              initialValue={(props.stage.options as StringOption[]).find(
-                ({ value }) => value === props.stage!.current
-              )}
               options={props.stage.options as StringOption[]}
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={props.loading}
@@ -117,13 +114,6 @@ function Sidebar(props: SidebarProps) {
             <CollaborativeSelectOne
               label={'Stage'}
               y={{ ...props.y, field: props.stage.key, user: props.user }}
-              initialValue={(props.stage.options as NumberOption[])
-                .map((opt) => ({
-                  ...opt,
-                  value: opt.value.toString(),
-                  label: opt.label.toString(),
-                }))
-                .find(({ value }) => value.toString() === props.stage!.current.toString())}
               options={(props.stage.options as NumberOption[]).map((opt) => ({
                 ...opt,
                 value: opt.value.toString(),

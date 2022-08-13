@@ -134,7 +134,6 @@ function useShareModal(
                 y={{ ...y, field: 'permissions.users', user }}
                 label={'Users'}
                 color={isFs ? 'blue' : color}
-                initialValues={current.users}
                 disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'User'}
@@ -158,7 +157,6 @@ function useShareModal(
                 y={{ ...y, field: 'permissions.teams', user }}
                 label={'Teams'}
                 color={isFs ? 'blue' : color}
-                initialValues={current.teams}
                 disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'Team'}
