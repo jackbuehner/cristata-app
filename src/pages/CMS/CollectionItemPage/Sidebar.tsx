@@ -9,6 +9,7 @@ import {
 import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
+import ReactTooltip from 'react-tooltip';
 import { Button, buttonEffect } from '../../../components/Button';
 import { CollaborativeSelectOne } from '../../../components/CollaborativeFields';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
@@ -48,6 +49,8 @@ function Sidebar(props: SidebarProps) {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const client = useApolloClient();
+
+  ReactTooltip.rebuild();
 
   const [teams, setTeams] = useState<{ _id: string; name: string; color: string }[] | undefined>(undefined);
   useEffect(() => {
@@ -131,6 +134,28 @@ function Sidebar(props: SidebarProps) {
           )}
         </>
       ) : null}
+      {props.isEmbedded ? null : (
+        <>
+          <SectionTitle theme={theme}>Current editors</SectionTitle>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 6, flexWrap: 'wrap', minHeight: 28 }}>
+            {props.y.awareness?.map((profile, index) => {
+              return (
+                <AwarenessPhoto
+                  key={index}
+                  photo={profile.photo}
+                  color={profile.color}
+                  data-tip={profile.name}
+                  data-delay-show={0}
+                  data-effect={'solid'}
+                  data-place={'bottom'}
+                  data-offset={`{ 'bottom': 4 }`}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
+
       {props.previewUrl ? (
         <>
           <SectionTitle theme={theme}>Preview</SectionTitle>
@@ -309,6 +334,24 @@ const TeamIcon = styled(PeopleTeam16Regular)<{ theme: themeType; color: string }
     width: 16px;
     height: 16px;
   }
+`;
+
+const AwarenessPhoto = styled.div<{ color: string; photo: string }>`
+  width: 24px;
+  height: 24px;
+  border: 2px solid ${({ color }) => color};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: ${({ theme }) => theme.font.headline};
+  border-radius: 50%;
+  font-size: 14px;
+  background-color: ${({ color }) => Color(color).alpha(0.4).string()};
+  background-image: url('${({ photo }) => photo}');
+  user-select: none;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
+  background-position: center;
+  background-size: cover;
 `;
 
 export { Sidebar };
