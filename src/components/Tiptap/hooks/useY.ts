@@ -1,4 +1,4 @@
-import { DependencyList, useEffect, useState } from 'react';
+import { DependencyList, useEffect, useRef, useState } from 'react';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
@@ -59,16 +59,16 @@ class YProvider {
   }
 }
 
-const y = new YProvider();
-
 function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): UseYReturn {
   const [ydoc, setYdoc] = useState<Y.Doc>();
+  const providerRef = useRef(new YProvider());
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
   const [localProvider, setLocalProvider] = useState<IndexeddbPersistence>();
   const [, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
 
   useEffect(() => {
     let mounted = true;
+    const y = providerRef.current;
 
     const tenant = localStorage.getItem('tenant');
     y.create(`${tenant}.${docName}`).then((data) => {
@@ -83,17 +83,7 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
     });
 
     return () => {
-      webProvider?.destroy();
-      setWebProvider(undefined);
-
-      localProvider?.destroy();
-      setLocalProvider(undefined);
-
-      ydoc?.destroy();
-      setYdoc(undefined);
-
-      setSettingsMap(undefined);
-
+      y.delete(`${tenant}.${docName}`);
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
