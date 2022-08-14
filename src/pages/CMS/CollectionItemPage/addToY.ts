@@ -3,14 +3,9 @@ import {
   isTypeTuple,
   MongooseSchemaType,
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
-import Collaboration from '@tiptap/extension-collaboration';
-import { Editor as TipTapEditor, Extensions as TipTapExtensions } from '@tiptap/react';
 import { get as getProperty, set as setProperty } from 'object-path';
-import { v4 as uuidv4 } from 'uuid';
-import * as Y from 'yjs';
 import { z } from 'zod';
-import { editorExtensions } from '../../../components/CollaborativeFields/editorExtensions';
-import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
+import fieldUtils from '../../../components/CollaborativeFields/utils';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
@@ -47,97 +42,39 @@ function addToY(
 
       const reference = def.field?.reference;
 
-      /**
-       * BOOLEAN
-       *
-       * Booleans are stored in a shared map that contain
-       * all booleans. The field's value is stored as a key
-       * in the map.
-       *
-       * ? Arrays of booleans are not handled in the Cristata UI
-       */
       if (schemaType === 'Boolean') {
+        // arrays of booleans are not supported in the app
         if (isArray) return;
 
-        const booleanMap = y.ydoc.getMap<Record<string, boolean>>('__checkboxes');
-        booleanMap.set(key, getProperty(data, key));
+        const validator = z.boolean().optional().nullable();
+        const validValue = validator.parse(getProperty(data, key));
+
+        const boolean = new fieldUtils.shared.Boolean(y.ydoc);
+        boolean.set(key, validValue);
       }
 
-      /**
-       * DATE
-       *
-       * Dates are stored in a shared text type.
-       * Each field has it's own shared text type attached
-       * to the yjs document.
-       *
-       * Date fields do not allow modifying individual characters,
-       * so the entire text in the shared type can be replaced.
-       * (this is what happens in the UI when a date is changed.)
-       *
-       * ? Arrays of dates are not handled in the Cristata UI
-       */
       if (schemaType === 'Date') {
+        // arrays of dates are not supported in the app
         if (isArray) return;
-
-        const dateText = y.ydoc.getText(key);
-        dateText.delete(0, dateText.toJSON()?.length); // delete any existing text
 
         const validator = z.string().optional().nullable();
-        const date = validator.parse(getProperty(data, key));
+        const validValue = validator.parse(getProperty(data, key));
 
-        if (date && date !== '0001-01-01T01:00:00.000Z') {
-          dateText.insert(0, date); // asume value is ISO date
-        }
+        const date = new fieldUtils.shared.Date(y.ydoc);
+        date.set(key, validValue);
       }
 
-      /**
-       * DOCUMENT ARRAYS
-       *
-       * DocArrays are stored in a yjs shared array. The value
-       * of each doc is an object with keys, and we store
-       * each object in the shared array. *There is no validation
-       * of the object contents.*
-       *
-       * DocArray children are fields that may create their own
-       * shared type. These are always prefixed with
-       * `__docArray.KEY.`, where `KEY` is the key of the doc array.
-       * These need to be deleted when we are setting the doc array
-       * so there are no leftover usused shared types.
-       *
-       * To ensure the DocArray children can be uniquely
-       * identified, we also inject a uuid into each object
-       * in the shared array.
-       *
-       * ? Doc Arrays are always arrays. There cannot be a single doc.
-       */
       if (schemaType === 'DocArray') {
-        const array = y.ydoc.getArray(key);
-        array.delete(0, array.toArray()?.length);
-
-        // remove shared types that were created as a result
-        // of this docArray
-        y.ydoc.share.forEach((share, shareName) => {
-          if (shareName.includes(`__docArray.${key}.`)) {
-            y.ydoc?.share.delete(shareName);
-          }
-        });
-
         const validator = z.record(z.any()).array();
-        const res = validator.parse(getProperty(data, key));
+        const validValue = validator.parse(getProperty(data, key));
 
-        // track the generated uuids so we can create types
-        // for the fields in each doc
-        let generatedUuids: string[] = [];
+        const array = new fieldUtils.shared.DocArray(y.ydoc);
+        const [, generatedUuids] = array.set(key, validValue);
 
-        // push each doc into the array
-        array.push(
-          res.map((rest) => {
-            const __uuid = uuidv4();
-            generatedUuids.push(__uuid);
-            return { ...rest, __uuid };
-          })
-        );
-
+        // insert values into the fields of each doc
+        // by running each field through this function
+        // after injecting the field data into the
+        // data object with the correct key
         if (def.docs) {
           generatedUuids.forEach((uuid, index) => {
             const namedSubdocSchemas = def.docs
@@ -156,46 +93,19 @@ function addToY(
         }
       }
 
-      /**
-       * FLOAT
-       *
-       * Floats are stored in a shared XML Fragment.
-       * Fields in the UI are powered by TipTap.
-       * TipTap will add XML tags as needed, so we just
-       * set the fragment value to a stringified float.
-       *
-       * When floats are in an array, they are stored
-       * in a shared array of objects containing a
-       * value, label, and other optional metadata.
-       */
       if (schemaType === 'Float') {
-        if (isArray || options) {
-          const floatArray = y.ydoc.getArray(key);
-          floatArray.delete(0, floatArray.toArray()?.length);
+        const float = new fieldUtils.shared.Float(y.ydoc);
+        const validator = z.union([z.number().optional().nullable().array(), z.number().optional().nullable()]);
+        const validValue = validator.parse(getProperty(data, key));
 
-          const validator = z.number().array().optional().nullable();
-          const floats = validator.parse(
-            !isArray && options ? [getProperty(data, key)] : getProperty(data, key)
-          );
-
-          if (floats) {
-            floatArray.push(
-              floats.map((float) => {
-                const matchingOption = options?.find((opt) => opt.value.toString() === float.toString());
-                return matchingOption || { value: float.toString(), label: float.toString() };
-              })
-            );
-          }
-
-          return;
+        if (Array.isArray(validValue) || options) {
+          // if it is not an array, but there are options, stick
+          // the value in an array since the SelectOne field
+          // requires the value to be in an array
+          float.set(key, Array.isArray(validValue) ? validValue : [validValue], options);
+        } else {
+          float.set(key, validValue);
         }
-
-        const validator = z.number().optional().nullable();
-        const float = validator.parse(getProperty(data, key));
-
-        setTipTapXMLFragment(key, float?.toString(), y.ydoc, editorExtensions.float);
-
-        return;
       }
 
       if (schemaType === 'JSON') {
@@ -206,196 +116,51 @@ function addToY(
         // The UI will show it as uneditable JSON.
       }
 
-      /**
-       * NUMBER (INTEGER)
-       *
-       * Numbers are stored in a shared XML Fragment.
-       * Fields in the UI are powered by TipTap.
-       * TipTap will add XML tags as needed, so we just
-       * set the fragment value to a stringified integer.
-       *
-       * When integers are in an array, they are stored
-       * in a shared array of objects containing a
-       * value, label, and other optional metadata.
-       */
       if (schemaType === 'Number') {
-        if (isArray || options) {
-          const intArray = y.ydoc.getArray(key);
-          intArray.delete(0, intArray.toArray()?.length);
+        const integer = new fieldUtils.shared.Integer(y.ydoc);
+        const validator = z.union([z.number().optional().nullable().array(), z.number().optional().nullable()]);
+        const validValue = validator.parse(getProperty(data, key));
 
-          const validator = z.number().array().optional().nullable();
-          const ints = validator.parse(!isArray && options ? [getProperty(data, key)] : getProperty(data, key));
-
-          if (ints) {
-            intArray.push(
-              ints.map((int) => {
-                const matchingOption = options?.find((opt) => opt.value.toString() === int.toString());
-                return matchingOption || { value: int.toString(), label: int.toString() };
-              })
-            );
-          }
-
-          return;
+        if (Array.isArray(validValue) || options) {
+          // if it is not an array, but there are options, stick
+          // the value in an array since the SelectOne field
+          // requires the value to be in an array
+          integer.set(key, Array.isArray(validValue) ? validValue : [validValue], options);
+        } else {
+          integer.set(key, validValue);
         }
-
-        const validator = z.number().optional().nullable();
-        const int = validator.parse(getProperty(data, key));
-
-        setTipTapXMLFragment(key, int?.toString(), y.ydoc, editorExtensions.integer);
-
-        return;
       }
 
-      /**
-       * OBJECTID (REFERENCE)
-       *
-       * ObjectId fields are stored in a shared
-       * array of objects containing a value,
-       * label, and other optional metadata.
-       *
-       * The shared array if used for both single
-       * ObjectIds and arrays of ObjectIds. The
-       * UI clears the existing array values
-       * when selecting on option in a field that
-       * only allows one selection.
-       */
       if (schemaType === 'ObjectId') {
-        const array = y.ydoc.getArray(key);
-        array.delete(0, array.toArray()?.length);
-
         const validator = z.union([
           z.string().array().optional().nullable(),
           z.object({ _id: z.string(), name: z.string().optional() }).array(),
         ]);
-        const res = validator.parse(isArray ? getProperty(data, key) : [getProperty(data, key)]);
+        const validValue = validator.parse(isArray ? getProperty(data, key) : [getProperty(data, key)]);
 
-        let unpopulated: { _id: string; label?: string }[] = [];
-        if (res && res[0]) {
-          const isIdArray = typeof res[0] === 'string';
+        const reference = new fieldUtils.shared.Reference(y.ydoc);
 
-          if (isIdArray) {
-            unpopulated = (res as string[]).map((_id) => ({ _id }));
-          } else {
-            unpopulated = (res as { _id: string; name?: string }[]).map(({ _id, name }) => ({
-              _id,
-              label: name,
-            }));
-          }
-        }
-
-        if (def.field?.reference?.collection) {
-          const populated = populateReferenceValues(
-            client,
-            unpopulated,
-            def.field.reference.collection,
-            def.field.reference.fields
-          );
-          populated.then((values) => {
-            array.push(
-              values.map(({ _id, label }) => {
-                return { value: _id, label };
-              })
-            );
-          });
-        } else {
-          array.push(
-            unpopulated.map(({ _id, label }) => {
-              return { value: _id, label: label || _id };
-            })
-          );
-        }
+        reference.set(key, validValue, client, {
+          ...def.field?.reference,
+          collection: def.field?.reference?.collection || def.type[0].replace('[', '').replace(']', ''),
+        });
       }
 
-      /**
-       * STRING
-       *
-       * Strings are stored in a shared XML Fragment.
-       * Fields in the UI are powered by TipTap.
-       * TipTap will add XML tags as needed, so we just
-       * need to set the fragment value.
-       *
-       * When strings are in an array, they are stored
-       * in a shared array of objects containing a
-       * value, label, and other optional metadata.
-       */
       if (schemaType === 'String') {
-        if (isArray || options || reference) {
-          const strArray = y.ydoc.getArray(key);
-          strArray.delete(0, strArray.toArray()?.length);
+        const string = new fieldUtils.shared.String(y.ydoc);
+        const validator = z.union([z.string().optional().nullable().array(), z.string().optional().nullable()]);
+        const validValue = validator.parse(getProperty(data, key));
 
-          const validator = z.string().optional().nullable().array().optional().nullable();
-          const strings = validator.parse(
-            !isArray && (options || reference) ? [getProperty(data, key)] : getProperty(data, key)
-          );
-
-          if (strings) {
-            strArray.push(
-              strings
-                .filter((str): str is string => !!str)
-                .map((str) => {
-                  const matchingOption = options?.find((opt) => opt.value.toString() === str);
-                  return matchingOption || { value: str, label: str };
-                })
-            );
-          }
-
-          return;
+        if (Array.isArray(validValue) || options || reference) {
+          // if it is not an array, but there are options (or a reference config), stick
+          // the value in an array since the SelectOne and ReferenceOne fields
+          // require the value to be in an array
+          string.set(key, Array.isArray(validValue) ? validValue : [validValue], options);
+        } else {
+          string.set(key, validValue, !!def.field?.tiptap);
         }
-
-        const validator = z.string().optional().nullable();
-        const str = validator.parse(getProperty(data, key));
-
-        setTipTapXMLFragment(key, str, y.ydoc, editorExtensions[def.field?.tiptap ? 'tiptap' : 'text']);
-
-        return;
       }
     });
-}
-
-function setTipTapXMLFragment(
-  field: string,
-  content: string | undefined | null,
-  document: Y.Doc,
-  extensions: TipTapExtensions
-) {
-  // delete current value
-  const current = document.getXmlFragment(field);
-  current.delete(0, current.length);
-
-  // set value in tiptap
-  const tiptap = new TipTapEditor({
-    extensions: [
-      ...extensions,
-      // set the sharsed type value at the provided key
-      Collaboration.configure({ document, field }),
-    ],
-  });
-
-  // set the shared type based on this value
-  if (content) {
-    // if content is stringified json object, parse it before inserting it
-    if (isJsonContentArrayString(content)) {
-      tiptap.commands.setContent(JSON.parse(content));
-    } else {
-      tiptap.commands.setContent(content);
-    }
-  }
-
-  // destory tiptap editor
-  tiptap.destroy();
-}
-
-/**
- * Returns whether an input string is a
- * stringified JSON content array.
- */
-function isJsonContentArrayString(str: string) {
-  try {
-    const parsed = JSON.parse(str);
-    return typeof parsed === 'object' && Array.isArray(parsed);
-  } catch {
-    return false;
-  }
 }
 
 export { addToY };
