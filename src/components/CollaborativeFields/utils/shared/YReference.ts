@@ -16,7 +16,10 @@ type UnpopulatedValue = { _id: string; label?: string; [key: string]: unknown };
  * when selecting on option in a field that
  * only allows one selection.
  */
-class YReference<K extends string, V extends string[] | UnpopulatedValue[] | undefined | null> {
+class YReference<
+  K extends string,
+  V extends (string | undefined | null)[] | UnpopulatedValue[] | undefined | null
+> {
   #ydoc: Y.Doc;
 
   constructor(ydoc: Y.Doc) {
@@ -34,7 +37,9 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
 
     // convert all values into partially populated values
     let partiallyPopulated: UnpopulatedValue[] = [];
+
     value?.forEach((v) => {
+      if (!v) return;
       if (typeof v === 'string') {
         partiallyPopulated.push({ _id: v });
       } else {

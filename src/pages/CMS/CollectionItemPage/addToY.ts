@@ -133,7 +133,7 @@ function addToY(
 
       if (schemaType === 'ObjectId') {
         const validator = z.union([
-          z.string().array().optional().nullable(),
+        z.string().optional().nullable().array().optional().nullable(),
           z.object({ _id: z.string(), name: z.string().optional() }).passthrough().array(),
         ]);
         const validValue = validator.parse(isArray ? getProperty(data, key) : [getProperty(data, key)]);
