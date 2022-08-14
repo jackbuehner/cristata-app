@@ -49,6 +49,7 @@ import { isJSON } from '../../../utils/isJSON';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { FullScreenSplash } from './FullScreenSplash';
+import { getYFields, GetYFieldsOptions } from './getYFields';
 import { Sidebar } from './Sidebar';
 import { useActions } from './useActions';
 import { useFindDoc } from './useFindDoc';
@@ -108,6 +109,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       options,
     },
   ] = useCollectionSchemaConfig(collectionName);
+
+  // function to get the values of the fields that can be used
+  // when sending changes to the database or opening previews
+  const getFieldValues = (opts: GetYFieldsOptions) => getYFields(props.y, schemaDef, opts);
 
   // put the document in redux state and ydoc
   const { actionAccess, loading, error, refetch } = useFindDoc(
@@ -241,6 +246,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 }) || [],
           },
     previewUrl: options?.previewUrl,
+    getFieldValues,
   };
 
   // keep loading state synced

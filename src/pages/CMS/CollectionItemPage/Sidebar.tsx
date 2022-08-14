@@ -17,11 +17,12 @@ import { populateReferenceValues } from '../../../components/ContentField/popula
 import { useAwareness } from '../../../components/Tiptap/hooks';
 import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useForceUpdate } from '../../../hooks/useForceUpdate';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch } from '../../../redux/hooks';
 import { setField } from '../../../redux/slices/cmsItemSlice';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
+import { GetYFieldsOptions } from './getYFields';
 
 interface SidebarProps {
   docInfo: {
@@ -44,10 +45,10 @@ interface SidebarProps {
   compact?: boolean;
   y: EntryY;
   user?: ReturnType<typeof useAwareness>[0];
+  getFieldValues: (opts: GetYFieldsOptions) => any;
 }
 
 function Sidebar(props: SidebarProps) {
-  const itemState = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const client = useApolloClient();
@@ -193,15 +194,17 @@ function Sidebar(props: SidebarProps) {
             onClick={() =>
               window.open(
                 props.previewUrl +
-                  `?data=${encodeURIComponent(JSONCrush.crush(JSON.stringify(itemState.fields)))}`,
+                  `?data=${encodeURIComponent(
+                    JSONCrush.crush(JSON.stringify(props.getFieldValues({ retainReferenceObjects: true })))
+                  )}`,
                 `sidebar_preview` + props.docInfo._id,
                 'location=no'
               )
             }
             onAuxClick={() => {
-              console.log(JSONCrush.crush(encodeURIComponent(JSON.stringify(itemState.fields))));
-              console.log(JSONCrush.crush(JSON.stringify(itemState.fields)));
-              console.log(JSON.stringify(itemState.fields));
+              const values = props.getFieldValues({ retainReferenceObjects: true });
+              console.log(JSONCrush.crush(JSON.stringify(values)));
+              console.log(values);
             }}
           >
             Open preview
