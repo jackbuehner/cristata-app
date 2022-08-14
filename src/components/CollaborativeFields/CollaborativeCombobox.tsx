@@ -13,6 +13,7 @@ import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { replaceCircular } from '../../utils/replaceCircular';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
+import utils from './utils';
 
 const isValidObjectId = mongoose.Types.ObjectId.isValid;
 
@@ -106,6 +107,7 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
 
         // push the new value into the end of the array
         yarray.push([replaceCircular({ ...option, value: option.value, label: option.label })]);
+        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
       });
     }
   };

@@ -8,6 +8,7 @@ import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
 import { useTipTapEditor } from '../Tiptap/hooks';
 import { editorExtensions } from './editorExtensions';
+import utils from './utils';
 
 interface CollaborativeTextFieldProps extends CollaborativeFieldProps {
   onChange?: (content: JSONContent[], text: string) => void;
@@ -40,6 +41,10 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
     editorProps: {
       handleKeyDown(view, event) {
         onKeyDown?.(event);
+        return false;
+      },
+      handleTextInput() {
+        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
         return false;
       },
     },

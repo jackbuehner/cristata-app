@@ -79,7 +79,7 @@ function addToY(
             .filter(([docKey]) => !docKey.includes('#'))
             .map(([docKey, docDef]): typeof def.docs[0] => {
               const valueKey = docKey.replace(key, `${key}.${index}`);
-              const docArrayKey = docKey.replace(key, `__docArray.${key}.${uuid}`);
+              const docArrayKey = docKey.replace(key, `__docArray.‾‾${key}‾‾.${uuid}`);
 
               const value = getProperty(data, valueKey);
               setProperty(data, docArrayKey, value);
@@ -160,7 +160,8 @@ function addToY(
     }
   });
 
-  console.log(y.ydoc?.toJSON());
+  const unsaved = y.ydoc?.getArray('__unsavedFields');
+  unsaved?.delete(0, unsaved.length);
 }
 
 export { addToY };

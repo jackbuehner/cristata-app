@@ -115,7 +115,7 @@ class YReference<
    */
   #deleteDocFieldShares(key: K) {
     this.#ydoc.share.forEach((share, shareName) => {
-      if (shareName.includes(`__docArray.${key}.`)) {
+      if (shareName.includes(`__docArray.‾‾${key}‾‾.`)) {
         this.#ydoc.share.delete(shareName);
       }
     });

@@ -371,7 +371,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       // so there shared type for each field in the array is unique
       // for the array and array doc
       const docArrayYjsKey = yjsDocArrayConfig
-        ? `__docArray.${yjsDocArrayConfig.parentKey}.${yjsDocArrayConfig.__uuid}.${yjsDocArrayConfig.childKey}`
+        ? `__docArray.‾‾${yjsDocArrayConfig.parentKey}‾‾.${yjsDocArrayConfig.__uuid}.${yjsDocArrayConfig.childKey}`
         : undefined;
 
       // pass this to every collaborative field so it can communicate with yjs

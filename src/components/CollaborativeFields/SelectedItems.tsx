@@ -16,6 +16,7 @@ import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { Value } from './CollaborativeCombobox';
+import utils from './utils';
 
 interface SelectedItemsProps {
   onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
@@ -71,7 +72,12 @@ function SelectedItems(props: SelectedItemsProps) {
               base:
                 theme.mode === 'dark' ? Color(theme.color.neutral.dark[100]).lighten(0.4).string() : undefined,
             }}
-            onClick={() => yarray.delete(0, yarray.length)}
+            onClick={() => {
+              props.ydoc.transact(() => {
+                yarray.delete(0, yarray.length);
+                utils.setUnsaved(props.ydoc, props.fieldName.split('‾‾')[1] || props.fieldName);
+              });
+            }}
           >
             Clear all
           </Button>
@@ -97,7 +103,10 @@ function SelectedItems(props: SelectedItemsProps) {
                           color={props.color || 'primary'}
                           disabled={props.disabled}
                           onClick={() => {
-                            if (!props.disabled) yarray.delete(index);
+                            props.ydoc.transact(() => {
+                              if (!props.disabled) yarray.delete(index);
+                              utils.setUnsaved(props.ydoc, props.fieldName.split('‾‾')[1] || props.fieldName);
+                            });
                           }}
                         >
                           <Dismiss24Regular />

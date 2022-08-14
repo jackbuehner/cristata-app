@@ -26,6 +26,7 @@ import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfi
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { Value } from './CollaborativeCombobox';
+import utils from './utils';
 
 interface CollaborativeDocArrayProps extends CollaborativeFieldProps {
   stateFieldKey: string;
@@ -75,6 +76,8 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
     const items = yarray?.toArray();
     if (from !== undefined && to !== undefined && yarray && items) {
       props.y.ydoc?.transact(() => {
+        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+
         // remove from existing location
         yarray.delete(from);
 
@@ -95,7 +98,10 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
       ...keysToAdd.map((key) => ({ [key]: undefined }))
     );
 
-    yarray?.push([newEmptyDoc]);
+    props.y.ydoc?.transact(() => {
+      yarray?.push([newEmptyDoc]);
+      utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+    });
   };
 
   const docFieldGroups: FunctionComponentElement<Record<string, unknown>>[][] = arr.map(
@@ -205,7 +211,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                                   props.y.ydoc?.share.delete(key);
                                 });
 
-                                console.log(`__docArray.${props.stateFieldKey}.${uuid}`);
+                                console.log(`__docArray.‾‾${props.stateFieldKey}‾‾.${uuid}`);
                               }}
                             >
                               <Dismiss24Regular />

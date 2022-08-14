@@ -11,6 +11,7 @@ import { cristataCodeDarkTheme } from '../../pages/configuration/cristataCodeDar
 import { colorType } from '../../utils/theme/theme';
 import { Tab, TabBar } from '../Tabs';
 import { useAwareness } from '../Tiptap/hooks';
+import utils from './utils';
 
 interface CollaborativeCodeProps extends CollaborativeFieldProps {
   type: 'json' | 'md';
@@ -63,6 +64,15 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
       ySharedType?.unobserve(handleChange);
     };
   });
+
+  useEffect(() => {
+    if (editor) {
+      const handleKeyDown = () => {
+        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+      };
+      editor.onKeyDown(handleKeyDown);
+    }
+  }, [editor, props.y.field, props.y.ydoc]);
 
   const awareness = y.provider?.awareness;
   const [awarenessProfiles, setAwarenessProfiles] = useState<AwarenessProfiles>();

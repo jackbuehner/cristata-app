@@ -108,6 +108,21 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
   // and the web provider is set to be connected
   const connected = (webProvider?.room && webProvider.shouldConnect) || undefined;
 
+  const __unsavedFields = ydoc?.getArray<string>('__unsavedFields');
+  const [unsavedFields, setUnsavedFields] = useState(__unsavedFields?.toArray() || []);
+  useEffect(() => {
+    if (__unsavedFields) {
+      const handleChange = () => {
+        console.log(__unsavedFields.toArray());
+        setUnsavedFields(__unsavedFields.toArray() || []);
+      };
+      __unsavedFields.observe(handleChange);
+      return () => {
+        __unsavedFields.unobserve(handleChange);
+      };
+    }
+  });
+
   return {
     ydoc: ydoc,
     provider: webProvider,
@@ -115,6 +130,7 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
     // hide awareness if web or local provider is not connected
     awareness: synced && connected ? awareness : [],
     initialSynced: synced,
+    unsavedFields: unsavedFields,
   };
 }
 
@@ -135,6 +151,7 @@ interface EntryY {
   connected: boolean | undefined;
   awareness: ReturnType<typeof useAwareness>;
   initialSynced: boolean;
+  unsavedFields: string[];
 }
 
 interface FieldY extends EntryY {

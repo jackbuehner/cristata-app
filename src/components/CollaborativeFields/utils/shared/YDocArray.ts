@@ -9,7 +9,7 @@ import * as Y from 'yjs';
  *
  * DocArray children are fields that may create their own
  * shared type. These are always prefixed with
- * `__docArray.KEY.`, where `KEY` is the key of the doc array.
+ * `__docArray.‾‾KEY‾‾.`, where `KEY` is the key of the doc array.
  * These need to be deleted when we are setting the doc array
  * so there are no leftover usused shared types.
  *
@@ -70,7 +70,7 @@ class YDocArray<K extends string, V extends Record<string, any>[]> {
    */
   #deleteDocFieldShares(key: K) {
     this.#ydoc.share.forEach((share, shareName) => {
-      if (shareName.includes(`__docArray.${key}.`)) {
+      if (shareName.includes(`__docArray.‾‾${key}‾‾.`)) {
         this.#ydoc.share.delete(shareName);
       }
     });

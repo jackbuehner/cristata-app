@@ -20,6 +20,7 @@ import { useAppDispatch } from '../../redux/hooks';
 import { setField } from '../../redux/slices/cmsItemSlice';
 import { themeType } from '../../utils/theme/theme';
 import { editorExtensions } from '../CollaborativeFields/editorExtensions';
+import utils from '../CollaborativeFields/utils';
 import { Spinner } from '../Loading';
 import { Backstage } from './components/Backstage';
 import { ExternalFrame } from './components/ExternalFrame';
@@ -113,6 +114,12 @@ const Tiptap = (props: ITiptap) => {
     onUpdate() {
       const editor = this as unknown as Editor;
       onUpdateDelayed(editor);
+    },
+    editorProps: {
+      handleTextInput() {
+        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+        return false;
+      },
     },
     onSelectionUpdate({ editor }) {
       const anchorIsInComment = editor.state.selection.$anchor

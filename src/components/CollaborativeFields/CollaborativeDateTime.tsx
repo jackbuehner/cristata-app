@@ -11,6 +11,7 @@ import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { formatISODate } from '../../utils/formatISODate';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
+import utils from './utils';
 
 interface CollaborativeDateTimeProps extends CollaborativeFieldProps {
   onChange?: (date: Luxon | null) => void;
@@ -52,8 +53,11 @@ function CollaborativeDateTime(props: CollaborativeDateTimeProps) {
         value={value ? moment(value) : undefined}
         onChange={(date) => {
           if (yText) {
-            yText.delete(0, yText.toJSON().length);
-            yText.insert(0, date?.toISOString() || '');
+            y.ydoc?.transact(() => {
+              yText.delete(0, yText.toJSON().length);
+              yText.insert(0, date?.toISOString() || '');
+              utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+            });
           }
         }}
         showTime
