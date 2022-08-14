@@ -3,6 +3,7 @@ import { InputHTMLAttributes, useEffect, useState } from 'react';
 import { YMapEvent } from 'yjs';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
+import utils from './utils';
 
 interface CollaborativeCheckboxProps
   extends CollaborativeFieldProps,
@@ -15,21 +16,21 @@ interface CollaborativeCheckboxProps
 
 function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
   const { y, onChange, ...labelProps } = props;
-  const checkboxFieldsMap = y.ydoc?.getMap<Record<string, boolean>>('__checkboxes');
+  const sharedType = y.ydoc ? new utils.shared.Boolean(y.ydoc) : undefined;
 
   // keep track of the checked status in the checkbox field shared type
-  const [checked, setChecked] = useState(checkboxFieldsMap?.get(y.field));
+  const [checked, setChecked] = useState(sharedType?.get(y.field) || undefined);
   useEffect(() => {
     const handleChange = (evt: YMapEvent<Record<string, boolean>>) => {
       const change = evt.changes.keys.get(y.field);
       if (change) {
         if (change.action === 'delete') setChecked(undefined);
-        else setChecked(checkboxFieldsMap?.get(y.field));
+        else setChecked(sharedType?.get(y.field) || undefined);
       }
     };
-    checkboxFieldsMap?.observe(handleChange);
+    sharedType?.map.observe(handleChange);
     return () => {
-      checkboxFieldsMap?.unobserve(handleChange);
+      sharedType?.map.unobserve(handleChange);
     };
   });
 
@@ -39,8 +40,7 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
       const checked = evt.currentTarget.checked;
 
       // store change in ydoc shared type for checkbox fields
-      const checkboxFieldsMap = y.ydoc.getMap<Record<string, boolean>>('__checkboxes');
-      checkboxFieldsMap.set(y.field, checked);
+      sharedType?.set(y.field, checked);
 
       // send the change to the parent
       props.onChange(checked);

@@ -20,6 +20,10 @@ class YBoolean<T extends string, V extends boolean | undefined | null> {
     return this.map.has(key);
   }
 
+  get(key: T): V {
+    return this.map.get(key) as V;
+  }
+
   delete(key: T): void {
     return this.map.delete(key);
   }
