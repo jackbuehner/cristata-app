@@ -32,13 +32,13 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
     // get/create the shared type
     const type = this.#ydoc.getArray<Record<string, unknown>>(key);
 
-    // convert all values into unpopulated values
-    let unpopulated: UnpopulatedValue[] = [];
+    // convert all values into partially populated values
+    let partiallyPopulated: UnpopulatedValue[] = [];
     value?.forEach((v) => {
       if (typeof v === 'string') {
-        unpopulated.push({ _id: v });
+        partiallyPopulated.push({ _id: v });
       } else {
-        unpopulated.push({
+        partiallyPopulated.push({
           _id: (v[reference?.fields?._id || '_id'] as string | undefined) || v._id,
           label: (v[reference?.fields?.name || 'name'] as string | undefined) || v.label,
         });
@@ -48,7 +48,12 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
     // populate values
     let populated: ReturnType<typeof populateReferenceValues> | undefined = undefined;
     if (client && reference?.collection) {
-      populated = populateReferenceValues(client, unpopulated, reference.collection, reference.fields);
+      populated = populateReferenceValues(
+        client,
+        partiallyPopulated.filter((v) => !v.label),
+        reference.collection,
+        reference.fields
+      );
     }
 
     this.#ydoc.transact(() => {
@@ -56,9 +61,9 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
       type.delete(0, type.toArray()?.length);
       this.#deleteDocFieldShares(key);
 
-      // push the unpopulated values
+      // push the partially populated values
       type.push(
-        unpopulated.map(({ _id, label }) => {
+        partiallyPopulated.map(({ _id, label }) => {
           return { value: _id, label: label || _id };
         })
       );
