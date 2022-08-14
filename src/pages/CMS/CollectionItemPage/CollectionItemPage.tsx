@@ -99,6 +99,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const navigate = useNavigate();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
+  const isUnsaved = props.y.unsavedFields.length !== 0;
   const [
     {
       schemaDef,
@@ -150,9 +151,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   if (docName.includes('undefined')) docName = collectionName;
 
   // set the document title
-  const title = `${itemState.isUnsaved ? '*' : ''}${docName}${
-    itemState.isUnsaved ? ' - Unsaved Changes' : ''
-  } - Cristata`;
+  const title = `${isUnsaved ? '*' : ''}${docName}${isUnsaved ? ' - Unsaved Changes' : ''} - Cristata`;
   if (document.title !== title) document.title = title;
 
   // calculate publish permissions
@@ -852,7 +851,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     return (
       <>
         {Windows}
-        <ReactRouterPrompt when={itemState.isUnsaved}>
+        <ReactRouterPrompt when={isUnsaved}>
           {({ isActive, onConfirm, onCancel }) =>
             isActive ? (
               <PlainModal

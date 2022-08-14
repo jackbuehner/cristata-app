@@ -46,6 +46,7 @@ interface UseActionsReturn {
 
 function useActions(params: UseActionsParams): UseActionsReturn {
   const client = useApolloClient();
+  const isUnsaved = params.y.unsavedFields.length !== 0;
 
   const idKey = params.idKey || '_id';
 
@@ -253,11 +254,11 @@ function useActions(params: UseActionsParams): UseActionsReturn {
             undefined,
             params.idKey
           ),
-        disabled: !params.state.isUnsaved || params.actionAccess?.modify !== true,
+        disabled: !isUnsaved || params.actionAccess?.modify !== true,
         'data-tip':
           params.actionAccess?.modify !== true
             ? `You cannot save this document because you do not have permission.`
-            : !params.state.isUnsaved
+            : !isUnsaved
             ? `There are no changes to save.`
             : undefined,
       },
@@ -281,6 +282,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     archiveItem,
     client,
     hideItem,
+    isUnsaved,
     params,
     showPublishModal,
     showShareModal,
