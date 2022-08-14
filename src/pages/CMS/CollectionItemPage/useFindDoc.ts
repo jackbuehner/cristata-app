@@ -69,6 +69,8 @@ function useFindDoc(
     )
   );
 
+  const [shouldAddToY, setShouldAddToY] = useState(true);
+
   // get the item
   const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
@@ -88,7 +90,6 @@ function useFindDoc(
   // only added data to yjs shared types
   // once the ydoc has initialy connected
   // and there are no other clients
-  const [shouldAddToY, setShouldAddToY] = useState(true);
   useEffect(() => {
     if (y?.initialSynced && shouldAddToY && req.data) {
       if (y?.awareness.length === 1) {
