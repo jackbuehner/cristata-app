@@ -39,11 +39,14 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
         partiallyPopulated.push({ _id: v });
       } else {
         partiallyPopulated.push({
+          ...v,
           _id: (v[reference?.fields?._id || '_id'] as string | undefined) || v._id,
           label: (v[reference?.fields?.name || 'name'] as string | undefined) || v.label,
         });
       }
     });
+
+    console.log(key, partiallyPopulated, value);
 
     // populate values
     let populated: ReturnType<typeof populateReferenceValues> | undefined = undefined;
@@ -63,8 +66,8 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
 
       // push the partially populated values
       type.push(
-        partiallyPopulated.map(({ _id, label }) => {
-          return { value: _id, label: label || _id };
+        partiallyPopulated.map(({ _id, label, ...rest }) => {
+          return { value: _id, label: label || _id, ...rest };
         })
       );
     });
