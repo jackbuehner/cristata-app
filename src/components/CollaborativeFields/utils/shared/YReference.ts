@@ -3,7 +3,7 @@ import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/gen
 import * as Y from 'yjs';
 import { populateReferenceValues } from '../../../ContentField/populateReferenceValues';
 
-type UnpopulatedValue = { _id: string; label?: string };
+type UnpopulatedValue = { _id: string; label?: string; [key: string]: unknown };
 
 /**
  * Reference fields are stored as an
@@ -36,9 +36,12 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
     let unpopulated: UnpopulatedValue[] = [];
     value?.forEach((v) => {
       if (typeof v === 'string') {
-        unpopulated.push({ _id: v, label: v });
+        unpopulated.push({ _id: v });
       } else {
-        unpopulated.push(v);
+        unpopulated.push({
+          _id: (v[reference?.fields?._id || '_id'] as string | undefined) || v._id,
+          label: (v[reference?.fields?.name || 'name'] as string | undefined) || v.label,
+        });
       }
     });
 
