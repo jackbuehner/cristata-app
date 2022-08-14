@@ -44,7 +44,6 @@ const Integer = Text.extend({
 
               // replace invalid characters and then insert the string
               json.content[0].content[0].text = text.replace(/[^0-9]/g, '');
-              console.log(text, json.content[0].content[0].text);
               view.dispatch(tr.replaceSelection(Slice.fromJSON(schema, json)));
               return true;
             }
@@ -86,7 +85,6 @@ const Float = Text.extend({
 
               // replace invalid characters and then insert the string
               json.content[0].content[0].text = text.replace(/(?<=(.*\..*))\./g, '');
-              console.log(text, json.content[0].content[0].text);
               view.dispatch(tr.replaceSelection(Slice.fromJSON(schema, json)));
               return true;
             }

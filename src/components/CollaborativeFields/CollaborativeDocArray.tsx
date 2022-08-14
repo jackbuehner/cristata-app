@@ -210,8 +210,6 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                                 childrenYjsFieldKeys.forEach((key) => {
                                   props.y.ydoc?.share.delete(key);
                                 });
-
-                                console.log(`__docArray.‾‾${props.stateFieldKey}‾‾.${uuid}`);
                               }}
                             >
                               <Dismiss24Regular />

@@ -113,7 +113,6 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
   useEffect(() => {
     if (__unsavedFields) {
       const handleChange = () => {
-        console.log(__unsavedFields.toArray());
         setUnsavedFields(__unsavedFields.toArray() || []);
       };
       __unsavedFields.observe(handleChange);

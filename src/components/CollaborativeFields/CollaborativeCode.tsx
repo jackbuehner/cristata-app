@@ -156,7 +156,6 @@ const EditorComponent = styled.div<{
 
   ${({ awarenessProfiles, theme }) => {
     return awarenessProfiles.map(([clientId, profile]) => {
-      console.log(clientId, profile.user);
       return `
         .yRemoteSelection-${clientId} {
           background-color: ${Color(profile.user.color || 'orange')
