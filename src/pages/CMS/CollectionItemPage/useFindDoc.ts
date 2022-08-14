@@ -51,29 +51,7 @@ function useFindDoc(
             ...merge(
               {
                 [accessor]: true,
-                timestamps: {
-                  created_at: true,
-                  modified_at: true,
-                },
-                people: {
-                  watching: {
-                    _id: true,
-                  },
-                },
-                archived: true,
               },
-              withPermissions
-                ? {
-                    permissions: {
-                      users: {
-                        _id: true,
-                        name: true,
-                        photo: true,
-                      },
-                      teams: true,
-                    },
-                  }
-                : {},
               ...schemaDef.map(docDefsToQueryObject)
             ),
           },

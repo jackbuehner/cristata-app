@@ -158,9 +158,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                         photo: true,
                       },
                     },
-                    timestamps: {
-                      modified_at: true,
-                    },
                   },
                   // fields used in the table columns
                   ...schemaDef.map(docDefsToQueryObject)
@@ -399,6 +396,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           .filter(([key]) => {
             if (key === 'permissions.users') return false;
             if (key === 'permissions.teams') return false;
+            if (key === 'people.created_by') return false;
+            if (key === 'people.last_modified_by') return false;
+            if (key === 'timestamps.modified_at') return false;
             return true;
           })
           .map(([key, def]): CustomColumn | null => {
