@@ -1,5 +1,6 @@
 import * as Y from 'yjs';
 import { editorExtensions } from '../../editorExtensions';
+import { getTipTapEditorJson } from './getTipTapEditorJson';
 import { setTipTapXMLFragment } from './setTipTapXMLFragment';
 
 type Option = { value: string | number; label: string; disabled?: boolean };
@@ -54,6 +55,15 @@ class YString<K extends string, V extends string | undefined | null> {
 
   has(key: K): boolean {
     return this.#ydoc.share.has(key);
+  }
+
+  get(key: K, isArray: false, isRichText: boolean): string;
+  get(key: K, isArray: true, isRichText: false): Option[];
+  get(key: K, isArray: boolean, isRichText: boolean): string | Option[] {
+    if (isArray) return this.#ydoc.getArray<Option>(key).toArray();
+    if (isRichText)
+      return getTipTapEditorJson(key, this.#ydoc, editorExtensions[isRichText ? 'tiptap' : 'text']);
+    return this.#ydoc.getXmlFragment(key).toDOM().textContent || '';
   }
 
   delete(key: K): void {

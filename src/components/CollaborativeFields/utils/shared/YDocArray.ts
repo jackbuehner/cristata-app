@@ -55,6 +55,11 @@ class YDocArray<K extends string, V extends Record<string, any>[]> {
     return this.#ydoc.share.has(key);
   }
 
+  get(key: K): Record<string, unknown>[] {
+    const type = this.#ydoc.getArray<Record<string, unknown>>(key);
+    return type.toArray();
+  }
+
   delete(key: K): void {
     this.#ydoc.share.delete(key);
   }

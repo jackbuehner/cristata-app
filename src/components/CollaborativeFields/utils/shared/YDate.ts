@@ -38,6 +38,10 @@ class YDate<K extends string, V extends string | undefined | null> {
     return this.#ydoc.share.has(key);
   }
 
+  get(key: K): string {
+    return this.#ydoc.getText(key).toJSON();
+  }
+
   delete(key: K): void {
     this.#ydoc.share.delete(key);
   }

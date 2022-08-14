@@ -46,8 +46,6 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
       }
     });
 
-    console.log(key, partiallyPopulated, value);
-
     // populate values
     let populated: ReturnType<typeof populateReferenceValues> | undefined = undefined;
     if (client && reference?.collection) {
@@ -96,6 +94,10 @@ class YReference<K extends string, V extends string[] | UnpopulatedValue[] | und
 
   has(key: K): boolean {
     return this.#ydoc.share.has(key);
+  }
+
+  get(key: K): Record<string, 'value' | 'label' | unknown>[] {
+    return this.#ydoc.getArray<Record<string, 'value' | 'label' | unknown>>(key).toArray();
   }
 
   delete(key: K): void {

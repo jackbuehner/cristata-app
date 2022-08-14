@@ -54,6 +54,13 @@ class YInteger<K extends string, V extends number | undefined | null> {
     return this.#ydoc.share.has(key);
   }
 
+  get(key: K, isArray: false): number;
+  get(key: K, isArray: true): Option[];
+  get(key: K, isArray: boolean): number | Option[] {
+    if (isArray) return this.#ydoc.getArray<Option>(key).toArray();
+    return parseFloat(this.#ydoc.getXmlFragment(key).toDOM().textContent || '');
+  }
+
   delete(key: K): void {
     this.#ydoc.share.delete(key);
   }
