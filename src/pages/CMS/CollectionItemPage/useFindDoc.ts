@@ -70,15 +70,25 @@ function useFindDoc(
   const [shouldAddToY, setShouldAddToY] = useState(true);
 
   // get the item
-  const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
+  const {
+    loading,
+    error,
+    refetch: apolloRefetch,
+    networkStatus,
+    ...req
+  } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
     fetchPolicy: doNothing ? 'cache-only' : 'cache-and-network',
-    onCompleted(data) {
-      // reset the check for whether the data
-      // should be injected into the ydoc
-      setShouldAddToY(true);
-    },
   });
+
+  const refetch = (variables?: Partial<OperationVariables>) => {
+    // reset the check for whether the data
+    // should be injected into the ydoc
+    setShouldAddToY(true);
+
+    // refech the data
+    return apolloRefetch(variables);
+  };
 
   // only added data to yjs shared types
   // once the ydoc is connected, has
