@@ -1,8 +1,10 @@
 import { DependencyList, useEffect, useRef, useState } from 'react';
+import { IndexeddbPersistence } from 'y-indexeddb';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
-import { IndexeddbPersistence } from 'y-indexeddb';
 import * as Y from 'yjs';
+import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import { getYFields } from '../../../pages/CMS/CollectionItemPage/getYFields';
 import { useAwareness } from './useAwareness';
 
 class YProvider {
@@ -59,7 +61,7 @@ class YProvider {
   }
 }
 
-function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): UseYReturn {
+function useY({ name: docName, user, schemaDef }: UseYProps, deps: DependencyList = []): UseYReturn {
   const [ydoc, setYdoc] = useState<Y.Doc>();
   const providerRef = useRef(new YProvider());
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
@@ -122,7 +124,7 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
     }
   });
 
-  return {
+  const retObj = {
     ydoc: ydoc,
     provider: webProvider,
     connected: connected,
@@ -130,12 +132,29 @@ function useY({ name: docName, user }: UseYProps, deps: DependencyList = []): Us
     awareness: synced && connected ? awareness : [],
     initialSynced: synced,
     unsavedFields: unsavedFields,
+    data: {},
   };
+
+  const [sharedValues, setSharedValues] = useState<Record<string, unknown>>({});
+  useEffect(() => {
+    if (ydoc && schemaDef) {
+      const handle = () => {
+        setSharedValues(getYFields(retObj, schemaDef));
+      };
+      ydoc.on('update', handle);
+      return () => {
+        ydoc.off('update', handle);
+      };
+    }
+  });
+
+  return { ...retObj, data: sharedValues };
 }
 
 interface UseYProps {
   name: string;
   user?: ReturnType<typeof useAwareness>[0];
+  schemaDef?: DeconstructedSchemaDefType;
 }
 
 interface IYSettingsMap {
@@ -151,6 +170,7 @@ interface EntryY {
   awareness: ReturnType<typeof useAwareness>;
   initialSynced: boolean;
   unsavedFields: string[];
+  data: Record<string, unknown>;
 }
 
 interface FieldY extends EntryY {

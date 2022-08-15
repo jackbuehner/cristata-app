@@ -63,6 +63,7 @@ interface CollectionItemPageProps {}
 function CollectionItemPage(props: CollectionItemPageProps) {
   const authUserState = useAppSelector((state) => state.authUser);
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
+  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
   // get the session id from sessionstorage
   const sessionId = sessionStorage.getItem('sessionId');
@@ -79,7 +80,8 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   };
 
   // connect to other clients with yjs for collaborative editing
-  const y = useY({ name: pluralize.singular(collection) + item_id, user }); // create or load y
+  const [{ schemaDef }] = useCollectionSchemaConfig(collectionName);
+  const y = useY({ name: pluralize.singular(collection) + item_id, user, schemaDef }); // create or load y
 
   return <CollectionItemPageContent y={y} user={user} />;
 }
