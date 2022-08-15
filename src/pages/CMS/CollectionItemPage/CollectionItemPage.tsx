@@ -358,6 +358,9 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       // if a field is readonly, add readonly to the field name
       if (readOnly) fieldName += ' (read only)';
 
+      // prevent the fields from being edited when any of the following are true
+      const disabled = locked || loading || isLoading || !!error || readOnly || !props.y.connected;
+
       // use this key for yjs shared type key for doc array contents
       // so there shared type for each field in the array is unique
       // for the array and array doc
@@ -383,7 +386,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             y={fieldY}
             label={label}
             description={description}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             key={key}
             stateFieldKey={key}
             schemaDefs={processSchemaDef(def.docs)}
@@ -430,7 +433,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 docName={`${collection}.${item_id}`}
                 title={title}
                 options={def.field.tiptap}
-                isDisabled={locked || isLoading || publishLocked ? true : isHTML ? true : def.field.readonly}
+                isDisabled={disabled || publishLocked ? true : isHTML ? true : def.field.readonly}
                 showLoading={isLoading}
                 isMaximized={isMaximized}
                 forceMax={fs === 'force'}
@@ -470,7 +473,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               description={def.field?.description}
               y={fieldY}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
               collection={pluralize.singular(collection)}
               reference={def.field?.reference}
@@ -488,7 +491,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             // disable when the api requires the field to always have a value but a default
             // value for when no specific photo is selected is not defined
-            disabled={locked || loading || !!error || readOnly || (def.required && def.default === undefined)}
+            disabled={disabled || (def.required && def.default === undefined)}
             isEmbedded={props.isEmbedded}
             collection={pluralize.singular(collection)}
             reference={def.field?.reference}
@@ -506,7 +509,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             type={'md'}
             y={fieldY}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -524,7 +527,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               y={fieldY}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -537,7 +540,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={def.field?.description}
             y={fieldY}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -552,7 +555,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={def.field?.description}
             y={fieldY}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -571,7 +574,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               options={options}
               number={'integer'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -583,7 +586,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={def.field?.description}
             y={fieldY}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -602,7 +605,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               options={options}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -615,7 +618,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={def.field?.description}
             y={fieldY}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -633,7 +636,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               y={fieldY}
               options={options}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -645,7 +648,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={def.field?.description}
             y={fieldY}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -664,7 +667,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               options={options}
               number={'integer'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -677,7 +680,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             y={fieldY}
             number={'integer'}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -696,7 +699,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               options={options}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={locked || loading || !!error || readOnly}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
@@ -709,7 +712,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             y={fieldY}
             number={'decimal'}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -724,7 +727,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={def.field?.description}
             y={fieldY}
             color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={locked || loading || !!error || readOnly}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
             placeholder={'Pick a time'}
           />
