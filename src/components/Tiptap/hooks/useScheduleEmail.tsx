@@ -12,16 +12,20 @@ import { generateEmailHTML } from '../components/Backstage/downloadEmailHTML';
 import { DateTime as Luxon } from 'luxon';
 import { db } from '../../../utils/axios/db';
 import { toast } from 'react-toastify';
+import { EntryY } from './useY';
+import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 
 function useScheduleEmailWindow(
   editor: Editor | null,
+  y: EntryY,
   iframehtmlstring: string
 ): [React.ReactNode, () => void, () => void] {
   const [Window, showModal, hideModal] = useWindowModal(() => {
-    const cmsItemState = useAppSelector((state) => state.cmsItem);
     const authUserState = useAppSelector((state) => state.authUser);
     const theme = useTheme() as themeType;
-    const isPublished = cmsItemState.fields.stage === 5.2;
+    const collection = y.ydoc?.getMap('settings').get('collection');
+    const [{ options }] = useCollectionSchemaConfig(collection);
+    const isPublished = y.data.stage === 5.2;
 
     // get the available contact lists and display them for selection
     // before sending the email campaign
@@ -67,7 +71,7 @@ function useScheduleEmailWindow(
     };
 
     // email subject
-    const defaultName = cmsItemState.fields.name;
+    const defaultName = `${y.data[options?.nameField || 'name']}`;
     const [subject, setSubject] = useState(defaultName);
     const handleSubjectChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setSubject(e.currentTarget.value);
@@ -82,11 +86,7 @@ function useScheduleEmailWindow(
 
     let generatedHTML = '';
     if (editor) {
-      generatedHTML = generateEmailHTML(
-        editor,
-        iframehtmlstring,
-        `${subject} [${cmsItemState.fields._id.slice(-6)}]`
-      );
+      generatedHTML = generateEmailHTML(editor, iframehtmlstring, `${subject} [${`${y.data._id}`.slice(-6)}]`);
     }
 
     return {

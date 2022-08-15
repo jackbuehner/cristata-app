@@ -1157,6 +1157,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               ) : null}
             </ToolbarRow>
             <SendToolbarRow
+              y={props.y}
               isActive={activeTab === 'email'}
               editor={editor}
               iframehtmlstring={props.iframehtmlstring || ''}
