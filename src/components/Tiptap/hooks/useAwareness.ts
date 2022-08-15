@@ -6,17 +6,10 @@ import { WebrtcProvider } from 'y-webrtc';
  * from the same session removed from the array.
  */
 function useAwareness(props: UseAwarenessProps): AwarenessType[] {
-  // set local user awareness field with user details
-  useEffect(() => {
-    if (props.user && props.provider) {
-      props.provider.awareness.setLocalStateField('user', props.user);
-    }
-  }, [props.provider, props.user]);
-
   // keep awareness state in sync with awareness values
   const [awareness, setAwareness] = useState<AwarenessType[]>([]);
   useEffect(() => {
-    if (props.provider?.awareness) {
+    if (props.provider) {
       const pa = props.provider.awareness;
 
       const handleUpdate = () => {
@@ -51,6 +44,16 @@ function useAwareness(props: UseAwarenessProps): AwarenessType[] {
       };
     }
   });
+
+  // set local user awareness field with user details
+  useEffect(() => {
+    if (props.user && props.provider) {
+      // note: the change event is only fired if the serialized user object
+      // is different, so it is okay to set this whenever the user object
+      // changes (even if the serialized value does not change)
+      props.provider.awareness.setLocalStateField('user', props.user);
+    }
+  }, [props.provider, props.user]);
 
   // return the array of unique and complete awareness objects
   return awareness;
