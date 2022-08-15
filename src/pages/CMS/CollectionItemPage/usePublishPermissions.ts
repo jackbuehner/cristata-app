@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import { get as getProperty } from 'object-path';
-import { CmsItemState } from '../../../redux/slices/cmsItemSlice';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
 interface UsePublishPermissionsParams {
   publishActionAccess?: boolean;
   isPublishableCollection: boolean;
-  itemStateFields: CmsItemState['fields'];
+  itemStateFields: Record<string, unknown>;
   schemaDef: DeconstructedSchemaDefType;
 }
 

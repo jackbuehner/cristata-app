@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import { get as getProperty } from 'object-path';
-import { CmsItemState } from '../../../redux/slices/cmsItemSlice';
 import { AuthUserState } from '../../../redux/slices/authUserSlice';
 
 interface UseWatchingParams {
   authUserState: AuthUserState;
   mandatoryWatchersKeys: string[];
-  itemStateFields: CmsItemState['fields'];
+  itemStateFields: Record<string, unknown>;
 }
 
 interface UseWatchingReturn {
