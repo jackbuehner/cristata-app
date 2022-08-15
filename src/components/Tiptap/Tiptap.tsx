@@ -3,8 +3,6 @@ import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
 import { LinearProgress } from '@rmwc/linear-progress';
-import Collaboration from '@tiptap/extension-collaboration';
-import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Editor, EditorContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
@@ -98,13 +96,6 @@ const Tiptap = (props: ITiptap) => {
     editable: !props.isDisabled,
     extensions: [
       ...editorExtensions.tiptap,
-      Collaboration.configure({
-        document: ydoc,
-        field: props.y.field,
-      }),
-      CollaborationCursor.configure({
-        provider: provider,
-      }),
       Placeholder.configure({
         placeholder: ({ editor }) => {
           if (editor.state.selection.from <= 1) return 'Write something...';

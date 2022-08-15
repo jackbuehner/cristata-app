@@ -1,7 +1,5 @@
 import styled from '@emotion/styled/macro';
 import { Editor } from '@tiptap/core';
-import Collaboration from '@tiptap/extension-collaboration';
-import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import { EditorContent, JSONContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
@@ -25,16 +23,7 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
     field: props.y.field,
     provider: props.y.provider,
     editable: !props.disabled,
-    extensions: [
-      ...editorExtensions.text,
-      Collaboration.configure({
-        document: props.y.ydoc,
-        field: props.y.field,
-      }),
-      CollaborationCursor.configure({
-        provider: props.y.provider,
-      }),
-    ],
+    extensions: editorExtensions.text,
     onUpdate({ editor }) {
       onUpdate(editor);
       onUpdateDelayed(editor);

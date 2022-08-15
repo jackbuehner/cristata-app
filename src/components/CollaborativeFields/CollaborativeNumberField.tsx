@@ -1,7 +1,5 @@
 import styled from '@emotion/styled/macro';
 import { Editor } from '@tiptap/core';
-import Collaboration from '@tiptap/extension-collaboration';
-import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import { EditorContent, JSONContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
@@ -26,16 +24,7 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
     field: props.y.field,
     provider: props.y.provider,
     editable: !props.disabled,
-    extensions: [
-      ...editorExtensions[props.allowDecimals ? 'float' : 'integer'],
-      Collaboration.configure({
-        document: props.y.ydoc,
-        field: props.y.field,
-      }),
-      CollaborationCursor.configure({
-        provider: props.y.provider,
-      }),
-    ],
+    extensions: editorExtensions[props.allowDecimals ? 'float' : 'integer'],
     onUpdate({ editor }) {
       onUpdate(editor);
       onUpdateDelayed(editor);
