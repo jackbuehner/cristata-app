@@ -377,6 +377,7 @@ const Tiptap = (props: ITiptap) => {
                   src={props.options.metaFrame}
                   tiptapwidth={tiptapWidth}
                   setIframehtmlstring={setIframehtmlstring}
+                  y={props.y}
                 />
               ) : null}
 

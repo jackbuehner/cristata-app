@@ -1,17 +1,17 @@
 import styled from '@emotion/styled/macro';
 import IframeResizer from 'iframe-resizer-react';
 import { useEffect, useRef } from 'react';
-import { useAppSelector } from '../../../../redux/hooks';
 import { isJSON } from '../../../../utils/isJSON';
+import { EntryY } from '../../hooks/useY';
 
 interface ExternalFrameProps {
   src: string;
   tiptapwidth: number;
   setIframehtmlstring: React.Dispatch<React.SetStateAction<string>>;
+  y: EntryY;
 }
 
-function ExternalFrame({ src, tiptapwidth, setIframehtmlstring }: ExternalFrameProps) {
-  const state = useAppSelector(({ cmsItem }) => cmsItem);
+function ExternalFrame({ src, tiptapwidth, setIframehtmlstring, ...props }: ExternalFrameProps) {
   const iframe = useRef<any>(null);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ function ExternalFrame({ src, tiptapwidth, setIframehtmlstring }: ExternalFrameP
       if (e.data === 'connected' && iframe.current) {
         iframe.current.sendMessage({
           type: 'fields',
-          fields: state.fields,
+          fields: props.y.fullData,
         });
       }
       if (isJSON(e.data)) {
@@ -46,12 +46,12 @@ function ExternalFrame({ src, tiptapwidth, setIframehtmlstring }: ExternalFrameP
     return () => {
       window.removeEventListener('message', reportMessages);
     };
-  }, [setIframehtmlstring, src, state.fields]);
+  }, [setIframehtmlstring, src, props.y.fullData]);
 
   if (iframe.current) {
     iframe.current.sendMessage({
       type: 'fields',
-      fields: state.fields,
+      fields: props.y.fullData,
     });
   }
 
