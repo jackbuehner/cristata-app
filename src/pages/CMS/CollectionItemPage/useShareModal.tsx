@@ -10,7 +10,7 @@ import { CollaborativeFieldWrapper, CollaborativeReferenceMany } from '../../../
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setField, setUnsavedPermissionField } from '../../../redux/slices/cmsItemSlice';
+import { setField, setIsLoading, setUnsavedPermissionField } from '../../../redux/slices/cmsItemSlice';
 import { server } from '../../../utils/constants';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
@@ -55,28 +55,8 @@ function useShareModal(
       users: { _id: string; name: string; photo?: string; color: string }[];
       teams: { _id: string; name?: string; color: string }[];
     } = {
-      users:
-        getProperty(itemState.fields, 'permissions.users')?.map(
-          (user: {
-            _id: string;
-            name?: string;
-            label?: string;
-            photo?: string;
-          }): { _id: string; label?: string; photo?: string; color: string } => ({
-            ...user,
-            label: user.name || user.label,
-            color: colorHash.hex(user._id),
-          })
-        ) || [],
-      teams:
-        getProperty(itemState.fields, 'permissions.teams')
-          ?.filter((_id: string | { _id: string; label: string }) => !!_id)
-          .map((_id: string | { _id: string; label: string }) => {
-            if (typeof _id === 'string') {
-              return { _id, color: colorHash.hex(_id) };
-            }
-            return { _id: _id._id, label: _id.label, color: colorHash.hex(_id._id) };
-          }) || [],
+      users: getProperty(y.data, 'permissions.users') || [],
+      teams: getProperty(y.data, 'permissions.teams') || [],
     };
 
     if (collection && itemId) {
@@ -89,10 +69,11 @@ function useShareModal(
           color: isFs ? 'blue' : color,
           onClick: async () => {
             return await saveChanges(
+              y,
               client,
               collection,
               itemId,
-              { dispatch, state: itemState, refetch: () => null },
+              (isLoading: boolean) => dispatch(setIsLoading(isLoading)),
               {},
               true
             );
@@ -134,7 +115,7 @@ function useShareModal(
                 y={{ ...y, field: 'permissions.users', user }}
                 label={'Users'}
                 color={isFs ? 'blue' : color}
-                disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
+                disabled={itemState.isLoading || JSON.stringify(y.data) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'User'}
                 onChange={(newValues) => {
@@ -157,7 +138,7 @@ function useShareModal(
                 y={{ ...y, field: 'permissions.teams', user }}
                 label={'Teams'}
                 color={isFs ? 'blue' : color}
-                disabled={itemState.isLoading || JSON.stringify(itemState.fields) === JSON.stringify({})}
+                disabled={itemState.isLoading || JSON.stringify(y.data) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'Team'}
                 onChange={(newValues) => {

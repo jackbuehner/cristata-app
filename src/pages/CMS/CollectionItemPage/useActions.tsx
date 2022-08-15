@@ -47,11 +47,13 @@ interface UseActionsReturn {
 function useActions(params: UseActionsParams): UseActionsReturn {
   const client = useApolloClient();
   const isUnsaved = params.y.unsavedFields.length !== 0;
+  const data = params.y.data;
 
   const idKey = params.idKey || '_id';
 
   const [ShareWindow, showShareModal] = useShareModal(params.y, params.collectionName, params.itemId);
   const [PublishWindow, showPublishModal] = usePublishModal(
+    params.y,
     client,
     params.collectionName,
     params.itemId,
@@ -185,8 +187,8 @@ function useActions(params: UseActionsParams): UseActionsReturn {
 
   const allHaveAccess =
     params.withPermissions === false ||
-    getProperty(params.state.fields, 'permissions.teams')?.includes('000000000000000000000000') ||
-    getProperty(params.state.fields, 'permissions.users')?.includes('000000000000000000000000');
+    getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
+    getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
 
   // create the actions for this document based on the current user's
   // permissions status and the current doc's status
@@ -229,11 +231,11 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         disabled: params.actionAccess?.hide !== true,
       },
       {
-        label: params.state.fields.archived ? 'Remove from archive' : 'Archive',
+        label: data.archived ? 'Remove from archive' : 'Archive',
         type: 'button',
-        icon: params.state.fields.archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
-        action: () => archiveItem(params.state.fields.archived ? false : true),
-        color: params.state.fields.archived ? 'primary' : 'yellow',
+        icon: data.archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
+        action: () => archiveItem(data.archived ? false : true),
+        color: data.archived ? 'primary' : 'yellow',
         disabled: params.actionAccess?.archive !== true,
       },
       {
@@ -242,14 +244,11 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         icon: 'Save24Regular',
         action: () =>
           saveChanges(
+            params.y,
             client,
             params.collectionName,
             params.itemId,
-            {
-              dispatch: params.dispatch,
-              refetch: params.refetchData,
-              state: params.state,
-            },
+            (isLoading: boolean) => params.dispatch(setIsLoading(isLoading)),
             undefined,
             undefined,
             params.idKey
@@ -281,6 +280,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     allHaveAccess,
     archiveItem,
     client,
+    data.archived,
     hideItem,
     isUnsaved,
     params,
