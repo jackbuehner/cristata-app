@@ -72,6 +72,7 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
           color={props.color}
           onChange={onUpdate}
           checked={checked}
+          disabled={props.disabled}
         />
       </CollaborativeFieldWrapper>
     );
