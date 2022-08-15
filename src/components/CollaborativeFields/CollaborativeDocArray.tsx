@@ -205,11 +205,13 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                               color={'red'}
                               disabled={props.disabled}
                               onClick={() => {
-                                yarray?.delete(index);
+                                if (!props.disabled) {
+                                  yarray?.delete(index);
 
-                                childrenYjsFieldKeys.forEach((key) => {
-                                  props.y.ydoc?.share.delete(key);
-                                });
+                                  childrenYjsFieldKeys.forEach((key) => {
+                                    props.y.ydoc?.share.delete(key);
+                                  });
+                                }
                               }}
                             >
                               <Dismiss24Regular />
@@ -220,11 +222,13 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                                 color={props.color || 'primary'}
                                 disabled={props.disabled}
                                 onClick={() => {
-                                  const { __collapsed, ...rest } = arr[index];
-                                  y.ydoc?.transact(() => {
-                                    yarray?.delete(index); // remove existing value
-                                    yarray?.insert(index, [rest]); // add the value back but not collapse
-                                  });
+                                  if (!props.disabled) {
+                                    const { __collapsed, ...rest } = arr[index];
+                                    y.ydoc?.transact(() => {
+                                      yarray?.delete(index); // remove existing value
+                                      yarray?.insert(index, [rest]); // add the value back but not collapse
+                                    });
+                                  }
                                 }}
                               >
                                 <ChevronDown24Regular />
@@ -235,10 +239,12 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                                 color={props.color || 'primary'}
                                 disabled={props.disabled}
                                 onClick={() => {
-                                  y.ydoc?.transact(() => {
-                                    yarray?.delete(index); // remove existing value
-                                    yarray?.insert(index, [{ ...arr[index], __collapsed: true }]); // add the value back but not collapse
-                                  });
+                                  if (!props.disabled) {
+                                    y.ydoc?.transact(() => {
+                                      yarray?.delete(index); // remove existing value
+                                      yarray?.insert(index, [{ ...arr[index], __collapsed: true }]); // add the value back but not collapse
+                                    });
+                                  }
                                 }}
                               >
                                 <ChevronUp24Regular />
@@ -250,7 +256,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                     </Draggable>
                   );
                 })}
-                <Button onClick={addDoc} height={`28px`} width={`100%`}>
+                <Button onClick={addDoc} height={`28px`} width={`100%`} disabled={props.disabled}>
                   Add document
                 </Button>
               </>
