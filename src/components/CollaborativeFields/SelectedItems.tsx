@@ -104,8 +104,10 @@ function SelectedItems(props: SelectedItemsProps) {
                           disabled={props.disabled}
                           onClick={() => {
                             props.ydoc.transact(() => {
-                              if (!props.disabled) yarray.delete(index);
-                              utils.setUnsaved(props.ydoc, props.fieldName.split('‾‾')[1] || props.fieldName);
+                              if (!props.disabled) {
+                                yarray.delete(index);
+                                utils.setUnsaved(props.ydoc, props.fieldName.split('‾‾')[1] || props.fieldName);
+                              }
                             });
                           }}
                         >
