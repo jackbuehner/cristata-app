@@ -79,7 +79,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   // connect to other clients with yjs for collaborative editing
   const [{ schemaDef }] = useCollectionSchemaConfig(collectionName);
-  const y = useY({ name: pluralize.singular(collection) + item_id, user, schemaDef }); // create or load y
+  const y = useY({ collection: pluralize.singular(collection), id: item_id, user, schemaDef }); // create or load y
 
   return <CollectionItemPageContent y={y} user={user} />;
 }

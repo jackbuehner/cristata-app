@@ -1,3 +1,4 @@
+import pluralize from 'pluralize';
 import { DependencyList, useEffect, useRef, useState } from 'react';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
@@ -61,7 +62,7 @@ class YProvider {
   }
 }
 
-function useY({ name: docName, user, schemaDef }: UseYProps, deps: DependencyList = []): UseYReturn {
+function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyList = []): UseYReturn {
   const [ydoc, setYdoc] = useState<Y.Doc>();
   const providerRef = useRef(new YProvider());
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
@@ -73,23 +74,25 @@ function useY({ name: docName, user, schemaDef }: UseYProps, deps: DependencyLis
     const y = providerRef.current;
 
     const tenant = localStorage.getItem('tenant');
-    y.create(`${tenant}.${docName}`).then((data) => {
+    y.create(`${tenant}.${collection}.${id}`).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
         setLocalProvider(data.localProvider);
 
         // create a setting map for this document (used to sync settings accross all editors)
-        setSettingsMap(ydoc?.getMap<IYSettingsMap>('__settings'));
+        const settingsMap = ydoc?.getMap<IYSettingsMap>('__settings');
+        settingsMap?.set('collection', pluralize.singular(collection));
+        setSettingsMap(settingsMap);
       }
     });
 
     return () => {
-      y.delete(`${tenant}.${docName}`);
+      y.delete(`${tenant}.${collection}.${id}`);
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [docName, ...deps]);
+  }, [collection, id, ...deps]);
 
   const awareness = useAwareness({ provider: webProvider, user }); // get list of who is editing the doc
 
@@ -155,13 +158,15 @@ function useY({ name: docName, user, schemaDef }: UseYProps, deps: DependencyLis
 }
 
 interface UseYProps {
-  name: string;
+  collection: string;
+  id: string;
   user?: ReturnType<typeof useAwareness>[0];
   schemaDef?: DeconstructedSchemaDefType;
 }
 
 interface IYSettingsMap {
   trackChanges?: boolean;
+  collection: string;
 }
 
 type UseYReturn = EntryY;
