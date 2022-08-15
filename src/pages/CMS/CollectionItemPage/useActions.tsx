@@ -10,7 +10,7 @@ import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { Action } from '../../../redux/slices/appbarSlice';
-import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { saveChanges } from './saveChanges';
 import { usePublishModal } from './usePublishModal';
@@ -28,7 +28,6 @@ interface UseActionsParams {
   collectionName: string;
   itemId: string;
   dispatch: ReturnType<typeof useAppDispatch>;
-  state: CmsItemState;
   refetchData: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
   navigate: NavigateFunction;
   publishStage?: number;

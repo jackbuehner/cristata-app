@@ -11,13 +11,12 @@ import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { clearUnsavedFields, setFields, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { addToY } from './addToY';
 
 function useFindDoc(
@@ -34,7 +33,6 @@ function useFindDoc(
   error: ApolloError | undefined;
   refetch: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
 } {
-  const itemState = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
   const client = useApolloClient();
 
@@ -76,11 +74,6 @@ function useFindDoc(
     notifyOnNetworkStatusChange: true,
     fetchPolicy: doNothing ? 'cache-only' : 'cache-and-network',
     onCompleted(data) {
-      // save the item to redux
-      if (data?.[queryName] && doNothing !== true) {
-        dispatch(setFields(data[queryName]));
-      }
-
       // reset the check for whether the data
       // should be injected into the ydoc
       setShouldAddToY(true);
@@ -110,15 +103,6 @@ function useFindDoc(
       dispatch(setIsLoading(false));
     }
   }, [dispatch, doNothing, loading, networkStatus]);
-
-  // on first load, clear the exist fields in redux
-  const isSameDoc = getProperty(itemState.fields, accessor) === item_id;
-  useEffect(() => {
-    if (loading && doNothing !== true && !isSameDoc) {
-      dispatch(clearUnsavedFields());
-      dispatch(setFields({}));
-    }
-  }, [accessor, dispatch, doNothing, isSameDoc, itemState.fields, item_id, loading, networkStatus]);
 
   return { actionAccess, loading, error, refetch };
 }

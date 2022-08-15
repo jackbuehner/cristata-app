@@ -10,7 +10,7 @@ import { CollaborativeFieldWrapper, CollaborativeReferenceMany } from '../../../
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setField, setIsLoading, setUnsavedPermissionField } from '../../../redux/slices/cmsItemSlice';
+import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { server } from '../../../utils/constants';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
@@ -118,17 +118,6 @@ function useShareModal(
                 disabled={itemState.isLoading || JSON.stringify(y.data) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'User'}
-                onChange={(newValues) => {
-                  if (newValues !== undefined) {
-                    dispatch(
-                      setUnsavedPermissionField(
-                        newValues.map((v) => v._id),
-                        'permissions.users'
-                      )
-                    );
-                    dispatch(setField(newValues, 'permissions.users', 'reference', false));
-                  }
-                }}
                 noDrag
               />
             ) : null}
@@ -141,17 +130,6 @@ function useShareModal(
                 disabled={itemState.isLoading || JSON.stringify(y.data) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'Team'}
-                onChange={(newValues) => {
-                  if (newValues !== undefined) {
-                    dispatch(
-                      setUnsavedPermissionField(
-                        newValues.map((v) => v._id),
-                        'permissions.teams'
-                      )
-                    );
-                    dispatch(setField(newValues, 'permissions.teams', 'reference', false));
-                  }
-                }}
                 noDrag
               />
             ) : null}

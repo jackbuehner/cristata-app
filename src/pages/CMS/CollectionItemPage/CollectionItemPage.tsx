@@ -40,12 +40,10 @@ import {
 } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
-import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { server } from '../../../utils/constants';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
-import { isJSON } from '../../../utils/isJSON';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { FullScreenSplash } from './FullScreenSplash';
@@ -93,7 +91,7 @@ interface CollectionItemPageContentProps {
 }
 
 function CollectionItemPageContent(props: CollectionItemPageContentProps) {
-  const itemState = useAppSelector((state) => state.cmsItem);
+  const isLoading = useAppSelector((state) => state.cmsItem.isLoading);
   const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
@@ -128,7 +126,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     props.y
   );
 
-  const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
+  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({});
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -144,11 +142,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
     for (const key of schemaKeys) {
       if (docName.includes(`%${key}%`)) {
-        docName = docName.replaceAll(`%${key}%`, getProperty(itemState.fields, key));
+        docName = docName.replaceAll(`%${key}%`, getProperty(props.y.data, key));
       }
     }
   } else {
-    docName = getProperty(itemState.fields, options?.nameField || 'name') || docName;
+    docName = getProperty(props.y.data, options?.nameField || 'name') || docName;
   }
   if (docName.includes('undefined')) docName = collectionName;
 
@@ -163,7 +161,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     lastStage: publishStage,
   } = usePublishPermissions({
     isPublishableCollection,
-    itemStateFields: itemState.fields,
+    itemStateFields: props.y.data,
     schemaDef,
     publishActionAccess: actionAccess?.publish,
   });
@@ -175,7 +173,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   // calculate user watching status
   const { isWatching, isMandatoryWatcher, mandatoryWatchersList } = useWatching({
     authUserState,
-    itemStateFields: itemState.fields,
+    itemStateFields: props.y.data,
     mandatoryWatchersKeys: collectionOptions?.mandatoryWatchers || [],
   });
 
@@ -184,7 +182,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     y: props.y,
     actionAccess,
     canPublish,
-    state: itemState,
     collectionName,
     itemId: item_id,
     dispatch,
@@ -206,44 +203,45 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     y: props.y,
     user: props.user,
     docInfo: {
-      _id: getProperty(itemState.fields, by?.one || '_id'),
-      createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
-      modifiedAt: getProperty(itemState.fields, 'timestamps.modified_at'),
+      _id: getProperty(props.y.data, by?.one || '_id'),
+      createdAt: getProperty(props.y.data, 'timestamps.created_at'),
+      modifiedAt: getProperty(props.y.data, 'timestamps.modified_at'),
     },
-    stage: !!getProperty(itemState.fields, 'stage')
+    stage: !!getProperty(props.y.data, 'stage')
       ? {
-          current: getProperty(itemState.fields, 'stage'),
+          current: getProperty(props.y.data, 'stage'),
           options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
           key: 'stage',
         }
       : null,
     permissions:
       withPermissions === false ||
-      getProperty(itemState.fields, 'permissions.teams')?.includes('000000000000000000000000') ||
-      getProperty(itemState.fields, 'permissions.users')?.includes('000000000000000000000000')
+      getProperty(props.y.data, 'permissions.teams')?.includes('000000000000000000000000') ||
+      getProperty(props.y.data, 'permissions.users')?.includes('000000000000000000000000')
         ? null
         : {
             users:
-              getProperty(itemState.fields, 'permissions.users')?.map(
+              getProperty(props.y.fullData, 'permissions.users')?.map(
                 (user: {
-                  _id: string;
+                  value: string;
                   name?: string;
                   label?: string;
                   photo?: string;
                 }): { _id: string; name: string; photo?: string; color: string } => ({
                   ...user,
+                  _id: user.value,
                   name: user.name || user.label || 'User',
-                  color: colorHash.hex(user._id),
+                  color: colorHash.hex(user.value || '0'),
                 })
               ) || [],
             teams:
-              getProperty(itemState.fields, 'permissions.teams')
-                ?.filter((_id: string | { _id: string; label: string }) => !!_id)
-                .map((_id: string | { _id: string; label: string }) => {
-                  if (typeof _id === 'string') {
-                    return { _id, color: colorHash.hex(_id) };
+              getProperty(props.y.fullData, 'permissions.teams')
+                ?.filter((_id: string | { value: string; label: string }) => !!_id)
+                .map((value: string | { value: string; label: string }) => {
+                  if (typeof value === 'string') {
+                    return { _id: value, color: colorHash.hex(value || '0') };
                   }
-                  return { _id: _id._id, label: _id.label, color: colorHash.hex(_id._id) };
+                  return { _id: value.value, label: value.label, color: colorHash.hex(value.value || '0') };
                 }) || [],
           },
     previewUrl: options?.previewUrl,
@@ -288,21 +286,13 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     );
   }, [dispatch, quickActions, refetch, showActionDropdown]);
 
-  const locked = publishLocked || (itemState.fields.archived as boolean);
+  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
   if (schemaDef) {
     // go through the schemaDef and convert JSON types with mutliple fields to individual fields
     const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON');
-
-    // convert JSON data to POJO data in state
-    JSONFields.forEach(([key]) => {
-      if (isJSON(getProperty(itemState.fields, key))) {
-        const parsed = JSON.parse(getProperty(itemState.fields, key));
-        dispatch(setField(parsed, key, 'default', false));
-      }
-    });
 
     // push subfields on JSON fields into the schemaDef array
     // so they can appear as regular fields in the UI
@@ -399,11 +389,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             schemaDefs={processSchemaDef(def.docs)}
             processSchemaDef={processSchemaDef}
             renderFields={renderFields}
-            onChange={(newValues) => {
-              // do not pass `inArrayKey` because the state update for docarrays
-              // already includes the entire array
-              if (!readOnly) dispatch(setField(newValues, key, 'docarray'));
-            }}
           />
         );
       }
@@ -428,7 +413,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         if (props.isEmbedded) return <></>;
 
         // get the HTML
-        const isHTML = def.field.tiptap.isHTMLkey && getProperty(itemState.fields, def.field.tiptap.isHTMLkey);
+        const isHTML = def.field.tiptap.isHTMLkey && getProperty(props.y.data, def.field.tiptap.isHTMLkey);
 
         return (
           <Field
@@ -445,24 +430,16 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 docName={`${collection}.${item_id}`}
                 title={title}
                 options={def.field.tiptap}
-                isDisabled={
-                  locked || itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly
-                }
-                showLoading={itemState.isLoading}
+                isDisabled={locked || isLoading || publishLocked ? true : isHTML ? true : def.field.readonly}
+                showLoading={isLoading}
                 isMaximized={isMaximized}
                 forceMax={fs === 'force'}
-                onDebouncedChange={(editorJson, storedJson) => {
-                  const isDefaultJson = editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
-                  if (!isDefaultJson && editorJson && editorJson !== storedJson) {
-                    dispatch(setField(editorJson, key, 'tiptap', undefined, inArrayKey));
-                  }
-                }}
                 actions={actions}
-                layout={itemState.fields.layout}
+                layout={`${props.y.data.layout}`}
                 message={
                   publishLocked
                     ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
-                    : itemState.fields.archived
+                    : props.y.data.archived
                     ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
                     : undefined
                 }
@@ -497,10 +474,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               isEmbedded={props.isEmbedded}
               collection={pluralize.singular(collection)}
               reference={def.field?.reference}
-              onChange={(newValues) => {
-                if (newValues !== undefined && !readOnly)
-                  dispatch(setField(newValues, key, 'reference', undefined, inArrayKey));
-              }}
             />
           );
         }
@@ -519,11 +492,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             isEmbedded={props.isEmbedded}
             collection={pluralize.singular(collection)}
             reference={def.field?.reference}
-            onChange={(newValue) => {
-              const defaultValue = def.required ? def.default : null;
-              if (!readOnly)
-                dispatch(setField(newValue || defaultValue, key, 'reference', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -540,10 +508,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onChange={(value) => {
-              if (value !== undefined && !readOnly)
-                dispatch(setField(value, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -562,11 +526,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
             />
           );
         }
@@ -580,10 +539,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onDebouncedChange={(content, text) => {
-              if (text !== undefined && !readOnly)
-                dispatch(setField(text, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -599,10 +554,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onChange={(checked) => {
-              if (checked !== undefined && !readOnly)
-                dispatch(setField(checked, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -622,11 +573,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(parseInt(newValue), key, 'default', undefined, inArrayKey));
-              }}
             />
           );
         }
@@ -639,10 +585,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onDebouncedChange={(content, number) => {
-              if (number !== undefined && !readOnly)
-                dispatch(setField(number, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -662,11 +604,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(parseFloat(newValue), key, 'default', undefined, inArrayKey));
-              }}
             />
           );
         }
@@ -680,10 +617,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onDebouncedChange={(content, number) => {
-              if (number !== undefined && !readOnly)
-                dispatch(setField(number, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -702,11 +635,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
-              onChange={(values) => {
-                const newValue = values.map(({ value }) => value);
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
             />
           );
         }
@@ -719,11 +647,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onChange={(values) => {
-              const newValue = values.map(({ value }) => value);
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -743,11 +666,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
-              onChange={(values) => {
-                const newValue = values.map(({ value }) => parseInt(value));
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
             />
           );
         }
@@ -761,11 +679,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onChange={(values) => {
-              const newValue = values.map(({ value }) => parseInt(value));
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -785,11 +698,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={locked || loading || !!error || readOnly}
               isEmbedded={props.isEmbedded}
-              onChange={(values) => {
-                const newValue = values.map(({ value }) => parseFloat(value));
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
             />
           );
         }
@@ -803,11 +711,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             color={props.isEmbedded ? 'blue' : 'primary'}
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
-            onChange={(values) => {
-              const newValue = values.map(({ value }) => parseFloat(value));
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -824,10 +727,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             disabled={locked || loading || !!error || readOnly}
             isEmbedded={props.isEmbedded}
             placeholder={'Pick a time'}
-            onChange={(date) => {
-              if (date && !readOnly)
-                dispatch(setField(date.toUTC().toISO(), key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -846,7 +745,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       );
     };
 
-    if ((!itemState || JSON.stringify(itemState.fields) === JSON.stringify({})) && !navigator.onLine) {
+    if (
+      (!props.y.connected || !props.y.initialSynced || JSON.stringify(props.y.data) === JSON.stringify({})) &&
+      !navigator.onLine
+    ) {
       return <Offline variant={'centered'} />;
     }
 
@@ -881,7 +783,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         </ReactRouterPrompt>
         {!props.isEmbedded && isMaximized ? null : null}
         <FullScreenSplash isLoading={isMaximized && !hasLoadedAtLeastOnce} />
-        {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
+        {isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
               {publishLocked && !props.isEmbedded && fs !== '1' ? (
@@ -890,7 +792,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                   publish permissions.
                 </Notice>
               ) : null}
-              {itemState.fields.archived && !props.isEmbedded && fs !== '1' ? (
+              {props.y.data.archived && !props.isEmbedded && fs !== '1' ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it is archived.
                   <Button

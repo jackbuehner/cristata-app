@@ -133,13 +133,16 @@ function useY({ name: docName, user, schemaDef }: UseYProps, deps: DependencyLis
     initialSynced: synced,
     unsavedFields: unsavedFields,
     data: {},
+    fullData: {},
   };
 
   const [sharedValues, setSharedValues] = useState<Record<string, unknown>>({});
+  const [sharedValuesInternal, setSharedValuesInternal] = useState<Record<string, unknown>>({});
   useEffect(() => {
     if (ydoc && schemaDef) {
       const handle = () => {
         setSharedValues(getYFields(retObj, schemaDef));
+        setSharedValuesInternal(getYFields(retObj, schemaDef, { retainReferenceObjects: true }));
       };
       ydoc.on('update', handle);
       return () => {
@@ -148,7 +151,7 @@ function useY({ name: docName, user, schemaDef }: UseYProps, deps: DependencyLis
     }
   });
 
-  return { ...retObj, data: sharedValues };
+  return { ...retObj, data: sharedValues, fullData: sharedValuesInternal };
 }
 
 interface UseYProps {
@@ -171,6 +174,7 @@ interface EntryY {
   initialSynced: boolean;
   unsavedFields: string[];
   data: Record<string, unknown>;
+  fullData: Record<string, unknown>;
 }
 
 interface FieldY extends EntryY {

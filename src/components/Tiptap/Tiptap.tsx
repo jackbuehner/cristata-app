@@ -14,8 +14,6 @@ import packageJson from '../../../package.json';
 import { tiptapOptions } from '../../config';
 import { CollectionItemPageContent } from '../../pages/CMS/CollectionItemPage';
 import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
-import { useAppDispatch } from '../../redux/hooks';
-import { setField } from '../../redux/slices/cmsItemSlice';
 import { themeType } from '../../utils/theme/theme';
 import { editorExtensions } from '../CollaborativeFields/editorExtensions';
 import utils from '../CollaborativeFields/utils';
@@ -53,7 +51,6 @@ interface ITiptap {
 }
 
 const Tiptap = (props: ITiptap) => {
-  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const { search } = useLocation();
   const { ydoc, provider, awareness: awarenessProfiles } = props.y;
@@ -173,8 +170,9 @@ const Tiptap = (props: ITiptap) => {
   const layout: string | undefined = props.layout || 'standard';
   const layoutOptions = props.options?.layouts?.options || [];
   const setLayout = (layout: string) => {
-    if (props.options?.layouts) {
-      dispatch(setField(layout, props.options.layouts.key));
+    if (props.options?.layouts && props.y.ydoc) {
+      const string = new utils.shared.String(props.y.ydoc);
+      string.set(props.options.layouts.key, [layout], props.options.layouts.options);
     }
   };
 

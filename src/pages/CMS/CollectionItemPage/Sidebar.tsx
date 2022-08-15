@@ -17,8 +17,6 @@ import { populateReferenceValues } from '../../../components/ContentField/popula
 import { useAwareness } from '../../../components/Tiptap/hooks';
 import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useForceUpdate } from '../../../hooks/useForceUpdate';
-import { useAppDispatch } from '../../../redux/hooks';
-import { setField } from '../../../redux/slices/cmsItemSlice';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
@@ -49,7 +47,6 @@ interface SidebarProps {
 }
 
 function Sidebar(props: SidebarProps) {
-  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const client = useApolloClient();
   const forceUpdate = useForceUpdate();
@@ -138,10 +135,6 @@ function Sidebar(props: SidebarProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={props.loading}
               isEmbedded
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue) dispatch(setField(newValue, props.stage!.key));
-              }}
             />
           ) : (
             <CollaborativeSelectOne
@@ -156,10 +149,6 @@ function Sidebar(props: SidebarProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={props.loading}
               isEmbedded
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue) dispatch(setField(newValue, props.stage!.key));
-              }}
             />
           )}
         </>
