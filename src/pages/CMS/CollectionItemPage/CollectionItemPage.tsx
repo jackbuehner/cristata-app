@@ -280,11 +280,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           type: 'icon',
           icon: 'MoreHorizontal24Regular',
           action: showActionDropdown,
-          onAuxClick: () => refetch(),
+          onAuxClick: () => (props?.y.awareness.length !== 1 ? refetch() : null),
         },
       ])
     );
-  }, [dispatch, quickActions, refetch, showActionDropdown]);
+  }, [dispatch, props.y.awareness.length, quickActions, refetch, showActionDropdown]);
 
   const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
 
