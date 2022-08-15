@@ -93,6 +93,7 @@ const Tiptap = (props: ITiptap) => {
   // create the editor
   const editor = useTipTapEditor({
     document: ydoc,
+    field: props.y.field,
     provider: provider,
     editable: !props.isDisabled,
     extensions: [

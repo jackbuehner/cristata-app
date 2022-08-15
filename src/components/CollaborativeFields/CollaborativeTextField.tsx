@@ -22,6 +22,7 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
   // create the editor
   const editor = useTipTapEditor({
     document: props.y.ydoc,
+    field: props.y.field,
     provider: props.y.provider,
     editable: !props.disabled,
     extensions: [
