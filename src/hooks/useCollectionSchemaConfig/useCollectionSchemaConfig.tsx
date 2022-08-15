@@ -40,10 +40,11 @@ function useCollectionSchemaConfig(name: string): [
     const schemaDef: SchemaDefType = JSON.parse(schemaDefJson);
 
     // ensure these fields are fetched when retreiving a document
-    setProperty(schemaDef, 'timestamps.created_at', { type: 'Date' });
-    setProperty(schemaDef, 'timestamps.modified_at', { type: 'Date' });
-    setProperty(schemaDef, 'people.watching', { type: ['[User]', ['ObjectId']] });
-    setProperty(schemaDef, 'archived', { type: 'Boolean' });
+    const hidden = { field: { hidden: true }, column: { hidden: true } };
+    setProperty(schemaDef, 'timestamps.created_at', { type: 'Date', ...hidden });
+    setProperty(schemaDef, 'timestamps.modified_at', { type: 'Date', ...hidden });
+    setProperty(schemaDef, 'people.watching', { type: ['[User]', ['ObjectId']], ...hidden });
+    setProperty(schemaDef, 'archived', { type: 'Boolean', ...hidden });
     if (withPermissions) {
       setProperty(schemaDef, 'permissions.users', {
         type: ['[User]', ['ObjectId']],
