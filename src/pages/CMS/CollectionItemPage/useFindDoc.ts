@@ -81,10 +81,11 @@ function useFindDoc(
   });
 
   // only added data to yjs shared types
-  // once the ydoc has initialy connected
-  // and there are no other clients
+  // once the ydoc is connected, has
+  // initially synced, and there are no
+  // other clients
   useEffect(() => {
-    if (y?.initialSynced && shouldAddToY && req.data) {
+    if (y?.connected && y.initialSynced && shouldAddToY && req.data) {
       if (y?.awareness.length === 1) {
         addToY(y, schemaDef, client, req.data[queryName]);
       }
