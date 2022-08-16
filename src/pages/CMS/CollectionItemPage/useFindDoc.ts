@@ -17,7 +17,6 @@ import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
-import { addToY } from './addToY';
 
 function useFindDoc(
   collection: string,
@@ -95,9 +94,9 @@ function useFindDoc(
   // initially synced, and there are no
   // other clients
   useEffect(() => {
-    if (y?.connected && y.initialSynced && shouldAddToY && req.data) {
+    if (y?.connected && y.initialSynced && shouldAddToY && Object.keys(req.data[queryName] || {}).length > 0) {
       if (y?.awareness.length === 1) {
-        addToY(y, schemaDef, client, req.data[queryName]);
+        y.addData(req.data[queryName]);
       }
       setShouldAddToY(false);
     }
