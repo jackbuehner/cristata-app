@@ -197,7 +197,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         label: 'Discard changes & refresh',
         type: 'icon',
         icon: 'ArrowClockwise24Regular',
-        action: () => (params.y.awareness.length !== 1 ? params.refetchData() : null),
+        action: () => (params.y.awareness.length === 1 ? params.refetchData() : null),
         disabled: params.y.awareness.length !== 1,
         'data-tip':
           params.y.awareness.length !== 1

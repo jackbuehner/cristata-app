@@ -280,7 +280,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           type: 'icon',
           icon: 'MoreHorizontal24Regular',
           action: showActionDropdown,
-          onAuxClick: () => (props?.y.awareness.length !== 1 ? refetch() : null),
+          onAuxClick: () => (props?.y.awareness.length === 1 ? refetch() : null),
         },
       ])
     );
