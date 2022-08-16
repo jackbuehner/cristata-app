@@ -164,11 +164,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     title += docName;
 
     // show written note about unsaved status
-    if (isUnsaved) {
-      if (isLoading && isUnsaved) title += ' - Saving';
-      else if (isLoading) title += ' - Syncing';
-      else if (!autosave) title += ' - Unsaved Changes';
-    }
+    if (isLoading && isUnsaved) title += ' - Saving';
+    else if (isLoading) title += ' - Syncing';
+    else if (autosave && isUnsaved) title += ' - Pending';
+    else if (!autosave && isUnsaved) title += ' - Unsaved Changes';
 
     // always end with Cristata
     title += ' - Cristata';
