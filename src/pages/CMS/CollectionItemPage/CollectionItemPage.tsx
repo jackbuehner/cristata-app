@@ -758,32 +758,38 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     return (
       <>
         {Windows}
-        <ReactRouterPrompt when={isUnsaved}>
-          {({ isActive, onConfirm, onCancel }) =>
-            isActive ? (
-              <PlainModal
-                title={'Are you sure?'}
-                text={'You have unsaved changes that may be lost.'}
-                hideModal={() => onCancel(true)}
-                cancelButton={{
-                  text: 'Go back',
-                  onClick: () => {
-                    onCancel(true);
-                    return true;
-                  },
-                }}
-                continueButton={{
-                  color: 'red',
-                  text: 'Yes, discard changes',
-                  onClick: () => {
-                    onConfirm(true);
-                    return true;
-                  },
-                }}
-              />
-            ) : null
-          }
-        </ReactRouterPrompt>
+        {!props.isEmbedded ? (
+          <ReactRouterPrompt
+            when={(currentLocation, nextLocation) => {
+              return isUnsaved && currentLocation.pathname !== nextLocation.pathname;
+            }}
+          >
+            {({ isActive, onConfirm, onCancel }) =>
+              isActive ? (
+                <PlainModal
+                  title={'Are you sure?'}
+                  text={'You have unsaved changes that may be lost.'}
+                  hideModal={() => onCancel(true)}
+                  cancelButton={{
+                    text: 'Go back',
+                    onClick: () => {
+                      onCancel(true);
+                      return true;
+                    },
+                  }}
+                  continueButton={{
+                    color: 'red',
+                    text: 'Yes, discard changes',
+                    onClick: () => {
+                      onConfirm(true);
+                      return true;
+                    },
+                  }}
+                />
+              ) : null
+            }
+          </ReactRouterPrompt>
+        ) : null}
         {!props.isEmbedded && isMaximized ? null : null}
         <FullScreenSplash isLoading={isMaximized && !hasLoadedAtLeastOnce} />
         {isLoading && !hasLoadedAtLeastOnce ? null : (

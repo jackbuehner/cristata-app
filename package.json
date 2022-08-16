@@ -57,7 +57,7 @@
     "react-redux": "^7.2.5",
     "react-remark": "^2.1.0",
     "react-router-dom": "^6.2.1",
-    "react-router-prompt": "^0.1.0",
+    "react-router-prompt": "^0.2.1",
     "react-scripts": "5.0.1",
     "react-select": "^4.3.1",
     "react-skeleton-loader": "^1.0.4",
