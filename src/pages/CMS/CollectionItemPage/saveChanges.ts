@@ -64,7 +64,8 @@ async function saveChanges(
         setIsLoading(false);
       })
       .then(() => {
-        toast.success(`Changes successfully saved.`);
+        // hide toast when autosave is enabled
+        if (!isAutosaveEnabled) toast.success(`Changes successfully saved.`);
 
         // clear unsaved fields array
         const __unsavedFields = y.ydoc?.getArray('__unsavedFields');
