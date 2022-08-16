@@ -66,6 +66,11 @@ async function saveChanges(
       })
       .then(() => {
         toast.success(`Changes successfully saved.`);
+
+        // clear unsaved fields array
+        const __unsavedFields = y.ydoc?.getArray('__unsavedFields');
+        __unsavedFields?.delete(0, __unsavedFields.toArray().length);
+
         return true;
       })
       .catch((error: ApolloError) => {
