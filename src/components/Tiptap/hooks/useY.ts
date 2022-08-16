@@ -7,7 +7,8 @@ import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { getYFields } from '../../../pages/CMS/CollectionItemPage/getYFields';
+import { addToY } from '../../../pages/CMS/CollectionItemPage/addToY';
+import { getYFields, GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { useAwareness } from './useAwareness';
@@ -150,14 +151,26 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     roomDetails: { collection, id },
     client,
     setLoading,
+    addData(inputData: any) {
+      if (schemaDef) {
+        addToY(this, schemaDef, this.client, inputData);
+        handleDocUpdate();
+      }
+    },
+    getData(opts?: GetYFieldsOptions) {
+      if (schemaDef) {
+        return getYFields(this, schemaDef, opts);
+      }
+      return {};
+    },
   };
 
   const [sharedValues, setSharedValues] = useState<Record<string, unknown>>({});
   const [sharedValuesInternal, setSharedValuesInternal] = useState<Record<string, unknown>>({});
   const handleDocUpdate = AwesomeDebouncePromise(async () => {
     if (schemaDef) {
-      setSharedValues(getYFields(retObj, schemaDef));
-      setSharedValuesInternal(getYFields(retObj, schemaDef, { retainReferenceObjects: true }));
+      setSharedValues(retObj.getData());
+      setSharedValuesInternal(retObj.getData({ retainReferenceObjects: true }));
     }
   }, 300);
   useEffect(() => {
@@ -198,6 +211,8 @@ interface EntryY {
   roomDetails: { collection: string; id: string };
   client: ApolloClient<object>;
   setLoading: (loading: boolean) => void;
+  addData: (inputData: any) => void;
+  getData: (opts?: GetYFieldsOptions) => any;
 }
 
 interface FieldY extends EntryY {
