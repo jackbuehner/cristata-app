@@ -2,7 +2,7 @@ import { ApolloError, gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { get as getProperty, set as setProperty } from 'object-path';
 import { toast } from 'react-toastify';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { isObject } from '../../../utils/isObject';
 import { uncapitalize } from '../../../utils/uncapitalize';
 
@@ -19,10 +19,12 @@ async function saveChanges(
   idKey = '_id'
 ): Promise<boolean> {
   const data = y.data;
-  const unsavedFields = y.unsavedFields;
-  const isUnsaved = unsavedFields.length > 0;
+  const unsavedFields = y.ydoc?.getArray<string>('__unsavedFields') || [];
 
-  if (y.roomDetails.collection && y.roomDetails.id && isUnsaved) {
+  const ySettingsMap = y.ydoc?.getMap<IYSettingsMap>('__settings');
+  const isAutosaveEnabled: boolean | undefined | null = ySettingsMap?.get('autosave');
+
+  if (y.roomDetails.collection && y.roomDetails.id) {
     setIsLoading(true);
 
     // create the mutation
