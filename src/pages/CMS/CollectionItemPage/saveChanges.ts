@@ -1,4 +1,4 @@
-import { ApolloClient, ApolloError, gql } from '@apollo/client';
+import { ApolloError, gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { get as getProperty, set as setProperty } from 'object-path';
 import { toast } from 'react-toastify';
@@ -13,10 +13,7 @@ import { uncapitalize } from '../../../utils/uncapitalize';
  */
 async function saveChanges(
   y: EntryY,
-  client: ApolloClient<object>,
-  collectionName: string,
-  itemId: string,
-  setIsLoading: (isLoading: boolean) => void,
+  setIsLoading: (isLoading: boolean) => void = y.setLoading,
   extraData: { [key: string]: any } = {},
   permissionsOnly: boolean = false,
   idKey = '_id'
@@ -25,16 +22,16 @@ async function saveChanges(
   const unsavedFields = y.unsavedFields;
   const isUnsaved = unsavedFields.length > 0;
 
-  if (collectionName && itemId && isUnsaved) {
+  if (y.roomDetails.collection && y.roomDetails.id && isUnsaved) {
     setIsLoading(true);
 
     // create the mutation
     const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
-      if (collectionName === 'Setting') input = JSON.stringify(input);
+      if (y.roomDetails.collection === 'Setting') input = JSON.stringify(input);
       return gql(
         jsonToGraphQLQuery({
           mutation: {
-            [`${uncapitalize(collectionName)}Modify`]: {
+            [`${uncapitalize(y.roomDetails.collection)}Modify`]: {
               __args: {
                 [idKey]: id,
                 input: input,
@@ -55,11 +52,11 @@ async function saveChanges(
     // modify the item in the database
     const config = {
       mutation: MODIFY_ITEM(
-        itemId,
+        y.roomDetails.id,
         permissionsOnly && isObject(data.permissions) ? data.permissions : { ...unsavedData, ...extraData }
       ),
     };
-    return await client
+    return await y.client
       .mutate(config)
       .then(() => {
         setIsLoading(false);

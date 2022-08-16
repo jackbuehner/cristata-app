@@ -1,3 +1,4 @@
+import { ApolloClient, useApolloClient } from '@apollo/client';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import pluralize from 'pluralize';
 import { DependencyList, useEffect, useRef, useState } from 'react';
@@ -7,6 +8,8 @@ import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { getYFields } from '../../../pages/CMS/CollectionItemPage/getYFields';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { useAwareness } from './useAwareness';
 
 class YProvider {
@@ -128,6 +131,12 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     }
   });
 
+  const client = useApolloClient();
+  const dispatch = useAppDispatch();
+  const setLoading = (loading: boolean) => {
+    dispatch(setIsLoading(loading));
+  };
+
   const retObj = {
     ydoc: ydoc,
     provider: webProvider,
@@ -138,6 +147,9 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     unsavedFields: unsavedFields,
     data: {},
     fullData: {},
+    roomDetails: { collection, id },
+    client,
+    setLoading,
   };
 
   const [sharedValues, setSharedValues] = useState<Record<string, unknown>>({});
@@ -183,6 +195,9 @@ interface EntryY {
   unsavedFields: string[];
   data: Record<string, unknown>;
   fullData: Record<string, unknown>;
+  roomDetails: { collection: string; id: string };
+  client: ApolloClient<object>;
+  setLoading: (loading: boolean) => void;
 }
 
 interface FieldY extends EntryY {

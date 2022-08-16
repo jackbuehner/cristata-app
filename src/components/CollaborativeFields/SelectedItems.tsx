@@ -15,6 +15,7 @@ import * as Y from 'yjs';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
+import { EntryY } from '../Tiptap/hooks/useY';
 import { Value } from './CollaborativeCombobox';
 import utils from './utils';
 
@@ -23,14 +24,14 @@ interface SelectedItemsProps {
   fieldName: string;
   font?: keyof themeType['font'];
   color?: colorType;
-  ydoc: Y.Doc;
+  y: Omit<EntryY, 'ydoc'> & { ydoc: Y.Doc };
   noDrag?: boolean;
   disabled?: boolean;
 }
 
 function SelectedItems(props: SelectedItemsProps) {
   const theme = useTheme();
-  const yarray = props.ydoc.getArray<Value<string>>(props.fieldName);
+  const yarray = props.y.ydoc.getArray<Value<string>>(props.fieldName);
   const forceUpdate = useForceUpdate();
 
   // keep track of the selected values shared type
@@ -73,9 +74,9 @@ function SelectedItems(props: SelectedItemsProps) {
                 theme.mode === 'dark' ? Color(theme.color.neutral.dark[100]).lighten(0.4).string() : undefined,
             }}
             onClick={() => {
-              props.ydoc.transact(() => {
+              props.y.ydoc.transact(() => {
                 yarray.delete(0, yarray.length);
-                utils.setUnsaved(props.ydoc, props.fieldName.split('‾‾')[1] || props.fieldName);
+                utils.setUnsaved(props.y, props.fieldName.split('‾‾')[1] || props.fieldName);
               });
             }}
           >
@@ -103,10 +104,10 @@ function SelectedItems(props: SelectedItemsProps) {
                           color={props.color || 'primary'}
                           disabled={props.disabled}
                           onClick={() => {
-                            props.ydoc.transact(() => {
+                            props.y.ydoc.transact(() => {
                               if (!props.disabled) {
                                 yarray.delete(index);
-                                utils.setUnsaved(props.ydoc, props.fieldName.split('‾‾')[1] || props.fieldName);
+                                utils.setUnsaved(props.y, props.fieldName.split('‾‾')[1] || props.fieldName);
                               }
                             });
                           }}

@@ -76,7 +76,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
     const items = yarray?.toArray();
     if (from !== undefined && to !== undefined && yarray && items) {
       props.y.ydoc?.transact(() => {
-        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
 
         // remove from existing location
         yarray.delete(from);
@@ -100,7 +100,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
 
     props.y.ydoc?.transact(() => {
       yarray?.push([newEmptyDoc]);
-      utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+      utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
     });
   };
 

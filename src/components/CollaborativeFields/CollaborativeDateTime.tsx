@@ -56,7 +56,7 @@ function CollaborativeDateTime(props: CollaborativeDateTimeProps) {
             y.ydoc?.transact(() => {
               yText.delete(0, yText.toJSON().length);
               yText.insert(0, date?.toISOString() || '');
-              utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+              utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
             });
           }
         }}

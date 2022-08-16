@@ -32,7 +32,7 @@ import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
 import { useAwareness, useY } from '../../../components/Tiptap/hooks';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
   DeconstructedSchemaDefType,
@@ -151,7 +151,30 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   if (docName.includes('undefined')) docName = collectionName;
 
   // set the document title
-  const title = `${isUnsaved ? '*' : ''}${docName}${isUnsaved ? ' - Unsaved Changes' : ''} - Cristata`;
+  const title = (() => {
+    let title = '';
+
+    const ySettingsMap = props.y.ydoc?.getMap<IYSettingsMap>('__settings');
+    const autosave: boolean | undefined | null = ySettingsMap?.get('autosave');
+
+    // show asterisk in front when unsaved
+    if (isUnsaved && !autosave) title += '*';
+
+    // show document name in the title
+    title += docName;
+
+    // show written note about unsaved status
+    if (isUnsaved) {
+      if (isLoading && isUnsaved) title += ' - Saving';
+      else if (isLoading) title += ' - Syncing';
+      else if (!autosave) title += ' - Unsaved Changes';
+    }
+
+    // always end with Cristata
+    title += ' - Cristata';
+
+    return title;
+  })();
   if (document.title !== title) document.title = title;
 
   // calculate publish permissions

@@ -68,11 +68,11 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
   useEffect(() => {
     if (editor) {
       const handleKeyDown = () => {
-        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
       };
       editor.onKeyDown(handleKeyDown);
     }
-  }, [editor, props.y.field, props.y.ydoc]);
+  }, [editor, props.y]);
 
   const awareness = y.provider?.awareness;
   const [awarenessProfiles, setAwarenessProfiles] = useState<AwarenessProfiles>();

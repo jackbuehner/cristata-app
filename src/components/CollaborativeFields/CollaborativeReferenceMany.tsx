@@ -31,7 +31,7 @@ function CollaborativeReferenceMany(props: CollaborativeReferenceManyProps) {
     const items = yarray?.toArray();
     if (from !== undefined && to !== undefined && yarray && items) {
       y.ydoc?.transact(() => {
-        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
 
         // remove from existing location
         yarray.delete(from);
@@ -67,7 +67,7 @@ function CollaborativeReferenceMany(props: CollaborativeReferenceManyProps) {
           onDragEnd={onDragEnd}
           fieldName={y.field}
           font={props.font}
-          ydoc={y.ydoc}
+          y={{ ...y, ydoc: y.ydoc }}
           color={props.color}
           noDrag={props.noDrag}
           collection={props.collection}

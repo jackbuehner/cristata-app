@@ -58,7 +58,7 @@ function CollaborativeReferenceOne(props: CollaborativeReferenceOneProps) {
           onDragEnd={() => null}
           fieldName={y.field}
           font={props.font}
-          ydoc={y.ydoc}
+          y={{ ...y, ydoc: y.ydoc }}
           color={props.color}
           noDrag
           many={false}

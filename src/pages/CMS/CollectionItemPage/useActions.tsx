@@ -246,17 +246,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         label: 'Save',
         type: 'button',
         icon: 'Save24Regular',
-        action: () =>
-          saveChanges(
-            params.y,
-            client,
-            params.collectionName,
-            params.itemId,
-            (isLoading: boolean) => params.dispatch(setIsLoading(isLoading)),
-            undefined,
-            undefined,
-            params.idKey
-          ),
+        action: () => saveChanges(params.y, undefined, undefined, undefined, params.idKey),
         disabled: !isUnsaved || params.actionAccess?.modify !== true,
         'data-tip':
           params.actionAccess?.modify !== true
@@ -283,7 +273,6 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   }, [
     allHaveAccess,
     archiveItem,
-    client,
     data.archived,
     hideItem,
     isUnsaved,

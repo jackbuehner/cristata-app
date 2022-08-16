@@ -107,7 +107,7 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
 
         // push the new value into the end of the array
         yarray.push([replaceCircular({ ...option, value: option.value, label: option.label })]);
-        utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
       });
     }
   };
