@@ -67,7 +67,7 @@ function useFindDoc(
     )
   );
 
-  const [shouldAddToY, setShouldAddToY] = useState(true);
+  const [shouldAddToY, setShouldAddToY] = useState(y?.unsavedFields.length === 0);
 
   // get the item
   const {
