@@ -100,28 +100,30 @@ function Sidebar(props: SidebarProps) {
         <div>Last updated</div>
         <div>{formatISODate(props.docInfo.modifiedAt, undefined, undefined, true)}</div>
       </DocInfoRow>
-      <DocInfoRow
-        theme={theme}
-        style={{
-          flexDirection: 'row-reverse',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          gap: 10,
-          marginTop: 10,
-        }}
-      >
-        <label htmlFor={'autosave'} style={{ userSelect: 'none' }}>
-          Autosave
-        </label>
-        <Checkbox
-          isChecked={!!ySettingsMap?.get('autosave')}
-          id={'autosave'}
-          onChange={(e) => {
-            ySettingsMap?.set('autosave', e.currentTarget.checked);
-            forceUpdate();
+      {true ? null : (
+        <DocInfoRow
+          theme={theme}
+          style={{
+            flexDirection: 'row-reverse',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 10,
+            marginTop: 10,
           }}
-        />
-      </DocInfoRow>
+        >
+          <label htmlFor={'autosave'} style={{ userSelect: 'none' }}>
+            Autosave
+          </label>
+          <Checkbox
+            isChecked={!!ySettingsMap?.get('autosave')}
+            id={'autosave'}
+            onChange={(e) => {
+              ySettingsMap?.set('autosave', e.currentTarget.checked);
+              forceUpdate();
+            }}
+          />
+        </DocInfoRow>
+      )}
       {props.stage ? (
         <>
           <SectionTitle theme={theme}>Stage</SectionTitle>
