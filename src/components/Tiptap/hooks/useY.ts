@@ -1,3 +1,4 @@
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import pluralize from 'pluralize';
 import { DependencyList, useEffect, useRef, useState } from 'react';
 import { IndexeddbPersistence } from 'y-indexeddb';
@@ -141,15 +142,17 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
 
   const [sharedValues, setSharedValues] = useState<Record<string, unknown>>({});
   const [sharedValuesInternal, setSharedValuesInternal] = useState<Record<string, unknown>>({});
+  const handleDocUpdate = AwesomeDebouncePromise(async () => {
+    if (schemaDef) {
+      setSharedValues(getYFields(retObj, schemaDef));
+      setSharedValuesInternal(getYFields(retObj, schemaDef, { retainReferenceObjects: true }));
+    }
+  }, 300);
   useEffect(() => {
     if (ydoc && schemaDef) {
-      const handle = () => {
-        setSharedValues(getYFields(retObj, schemaDef));
-        setSharedValuesInternal(getYFields(retObj, schemaDef, { retainReferenceObjects: true }));
-      };
-      ydoc.on('update', handle);
+      ydoc.on('update', handleDocUpdate);
       return () => {
-        ydoc.off('update', handle);
+        ydoc.off('update', handleDocUpdate);
       };
     }
   });
