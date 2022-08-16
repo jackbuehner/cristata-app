@@ -407,9 +407,9 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       // hide all fields except the body tiptap field when
       // the body tiptap field is maximized
       // (to prevent duplicate fields; tiptap embeds the fields in a pane)
-      // if (isMaximized && !(key === 'body' && def.field?.tiptap) && !props.isEmbedded) {
-      //   return <></>;
-      // }
+      if (isMaximized && !(key === 'body' && def.field?.tiptap) && !props.isEmbedded) {
+        return <></>;
+      }
 
       // body field as tiptap editor
       if (key === 'body' && def.field?.tiptap) {
@@ -824,7 +824,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 {processSchemaDef(schemaDef).map(renderFields)}
               </div>
             </div>
-            {contentWidth <= 700 ? null : <Sidebar {...sidebarProps} />}
+            {!props.isEmbedded && contentWidth > 700 ? <Sidebar {...sidebarProps} /> : null}
           </ContentWrapper>
         )}
       </>
