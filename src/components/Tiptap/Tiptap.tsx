@@ -105,6 +105,12 @@ const Tiptap = (props: ITiptap) => {
       onUpdateDelayed(editor);
     },
     editorProps: {
+      handleKeyDown(view, event) {
+        if (event.key === 'Backspace') {
+          utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+        }
+        return false;
+      },
       handleTextInput() {
         utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
         return false;

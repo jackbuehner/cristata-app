@@ -31,6 +31,9 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
     editorProps: {
       handleKeyDown(view, event) {
         onKeyDown?.(event);
+        if (event.key === 'Backspace') {
+          utils.setUnsaved(props.y.ydoc, props.y.field.split('‾‾')[1] || props.y.field);
+        }
         return false;
       },
       handleTextInput() {
