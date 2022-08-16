@@ -52,18 +52,7 @@ function usePublishModal(
 
           if (publishStage) {
             const isPublished = !!(await publishItem()).data;
-            const isStageSet = await saveChanges(
-              y,
-              client,
-              collectionName,
-              itemId,
-              setIsLoading,
-              {
-                stage: publishStage,
-              },
-              false,
-              idKey
-            );
+            const isStageSet = await saveChanges(y, setIsLoading, { stage: publishStage }, false, idKey);
 
             // return whether the action was successful
             setIsLoading(false);
