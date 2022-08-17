@@ -11,6 +11,8 @@ import { addToY } from '../../../pages/CMS/CollectionItemPage/addToY';
 import { getYFields, GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { capitalize } from '../../../utils/capitalize';
+import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { useAwareness } from './useAwareness';
 
 class YProvider {
@@ -73,13 +75,14 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
   const [localProvider, setLocalProvider] = useState<IndexeddbPersistence>();
   const [, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
+  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
   useEffect(() => {
     let mounted = true;
     const y = providerRef.current;
 
     const tenant = localStorage.getItem('tenant');
-    y.create(`${tenant}.${collection}.${id}`).then((data) => {
+    y.create(`${tenant}.${collectionName}.${id}`).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
@@ -87,13 +90,13 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
 
         // create a setting map for this document (used to sync settings accross all editors)
         const settingsMap = ydoc?.getMap<IYSettingsMap>('__settings');
-        settingsMap?.set('collection', pluralize.singular(collection));
+        settingsMap?.set('collection', collectionName);
         setSettingsMap(settingsMap);
       }
     });
 
     return () => {
-      y.delete(`${tenant}.${collection}.${id}`);
+      y.delete(`${tenant}.${collectionName}.${id}`);
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,7 +151,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     unsavedFields: unsavedFields,
     data: {},
     fullData: {},
-    roomDetails: { collection, id },
+    roomDetails: { collection: collectionName, id },
     client,
     setLoading,
     addData(inputData: any) {
