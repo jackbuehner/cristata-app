@@ -39,9 +39,9 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
       const el = node.current;
       monaco.editor.defineTheme('cristata-code-dark', cristataCodeDarkTheme);
       setModel(monaco.editor.createModel('', language, undefined));
-      setEditor(monaco.editor.create(el, { theme: 'cristata-code-dark' }));
+      setEditor(monaco.editor.create(el, { theme: 'cristata-code-dark', readOnly: props.disabled }));
     }
-  }, [language, monaco, editor]);
+  }, [language, monaco, editor, props.disabled]);
 
   // bind yjs to the monaco editor
   useEffect(() => {
@@ -50,6 +50,12 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
       setBinding(new MonacoBinding(ySharedType, model, new Set([editor]), y.provider.awareness));
     }
   }, [binding, editor, model, y.provider, ySharedType]);
+
+  useEffect(() => {
+    if (editor) {
+      editor.updateOptions({ readOnly: props.disabled });
+    }
+  }, [editor, props.disabled]);
 
   // send changes to parent when yjs shared type changes
   const [value, setValue] = useState('');
