@@ -172,8 +172,10 @@ function addToY(
           // the value in an array since the SelectOne and ReferenceOne fields
           // require the value to be in an array
           string.set(key, Array.isArray(validValue) ? validValue : [validValue], options);
+        } else if (def.field?.markdown) {
+          string.set(key, validValue, 'code');
         } else {
-          string.set(key, validValue, !!def.field?.tiptap);
+          string.set(key, validValue, 'tiptap');
         }
       }
     } catch (error) {
@@ -182,10 +184,7 @@ function addToY(
         throw new Error(
           `Validation error on field "${key}" of type "${schemaType}${
             isArray ? ' (Array)' : ''
-          }" when adding value to document:\n${JSON.stringify(error.issues)}`,
-          {
-            cause: error,
-          }
+          }" when adding value to document:\n${JSON.stringify(error.issues)}`
         );
       }
     }

@@ -22,11 +22,13 @@ class YString<K extends string, V extends string | undefined | null> {
     this.#ydoc = ydoc;
   }
 
-  set(key: K, value: V, opt1?: boolean): Node;
+  set(key: K, value: V, opt1?: 'code'): string;
+  set(key: K, value: V, opt1?: 'tiptap'): Node;
   set(key: K, value: V[], opt1?: Option[]): Option[];
-  set(key: K, value: V | V[], opt1?: Option[] | boolean): Node | Option[] {
+  set(key: K, value: V | V[], opt1?: Option[] | 'code' | 'tiptap'): string | Node | Option[] {
     const options = Array.isArray(opt1) ? opt1 : undefined;
-    const isRichText = typeof opt1 === 'boolean' ? opt1 : undefined;
+    const isRichText = opt1 === 'tiptap';
+    const isCode = opt1 === 'code';
 
     if (Array.isArray(value)) {
       // get/create the shared type
@@ -50,6 +52,19 @@ class YString<K extends string, V extends string | undefined | null> {
       return type.toArray();
     }
 
+    if (isCode) {
+      // get/create the shared type
+      const type = this.#ydoc.getText(key);
+
+      // clear existing values
+      type.delete(0, type.length);
+
+      // set new values
+      type.insert(0, value || '');
+
+      return type.toJSON();
+    }
+
     return setTipTapXMLFragment(key, value, this.#ydoc, editorExtensions[isRichText ? 'tiptap' : 'text']);
   }
 
@@ -57,12 +72,13 @@ class YString<K extends string, V extends string | undefined | null> {
     return this.#ydoc.share.has(key);
   }
 
-  get(key: K, isArray: false, isRichText: boolean): string;
-  get(key: K, isArray: true, isRichText: false): Option[];
-  get(key: K, isArray: boolean, isRichText: boolean): string | Option[] {
+  get(key: K, isArray: false, isRichText: boolean, isCode: boolean): string;
+  get(key: K, isArray: true, isRichText: false, isCode: false): Option[];
+  get(key: K, isArray: boolean, isRichText: boolean, isCode: boolean): string | Option[] {
     if (isArray) return this.#ydoc.getArray<Option>(key).toArray();
     if (isRichText)
       return getTipTapEditorJson(key, this.#ydoc, editorExtensions[isRichText ? 'tiptap' : 'text']);
+    if (isCode) return this.#ydoc.getText(key).toJSON();
     return this.#ydoc.getXmlFragment(key).toDOM().textContent || '';
   }
 

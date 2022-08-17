@@ -104,10 +104,12 @@ function getYFields(y: EntryY, schemaDef: DeconstructedSchemaDefType, opts?: Get
     if (schemaType === 'String') {
       const string = new fieldUtils.shared.String(y.ydoc);
       if (isArray || options || reference) {
-        const ids = string.get(key, true, false).map(({ value }) => value);
+        const ids = string.get(key, true, false, false).map(({ value }) => value);
         setProperty(data, key, isArray ? ids : ids[0]);
+      } else if (def.field?.markdown) {
+        setProperty(data, key, string.get(key, false, false, true));
       } else {
-        setProperty(data, key, string.get(key, false, !!def.field?.tiptap));
+        setProperty(data, key, string.get(key, false, !!def.field?.tiptap, false));
       }
     }
   });
