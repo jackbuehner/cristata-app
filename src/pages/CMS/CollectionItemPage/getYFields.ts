@@ -2,23 +2,24 @@ import {
   isTypeTuple,
   MongooseSchemaType,
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
-import { set as setProperty } from 'object-path';
+import { get as getProperty, set as setProperty } from 'object-path';
 import fieldUtils from '../../../components/CollaborativeFields/utils';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import {
+  DeconstructedSchemaDefType,
+  parseSchemaDefType,
+} from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
 interface GetYFieldsOptions {
-  retainReferenceObjects: boolean;
+  retainReferenceObjects?: boolean;
+  keepJsonParsed?: boolean;
 }
 
-function getYFields(y: EntryY, schemaDef: DeconstructedSchemaDefType, opts?: GetYFieldsOptions) {
+function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opts?: GetYFieldsOptions) {
+  const schemaDef = JSON.parse(JSON.stringify(_schemaDef)) as DeconstructedSchemaDefType;
   const data: any = {};
 
-  // const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON').map(([key, def]) => key);
-
-  // JSONFields.forEach((key) => {
-  //   data[key] = JSON.parse(getProperty(data, key));
-  // });
+  const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON');
 
   schemaDef.forEach(([key, def]) => {
     if (!y.ydoc) return;
@@ -112,6 +113,28 @@ function getYFields(y: EntryY, schemaDef: DeconstructedSchemaDefType, opts?: Get
         setProperty(data, key, string.get(key, false, !!def.field?.tiptap, false));
       }
     }
+  });
+
+  JSONFields.forEach(([key, def]) => {
+    // find the set of fields that are meant for this specific document
+    // by finding a matching name or name === 'default'
+    const match =
+      def.field?.custom?.find(({ name }) => name === data['name']) || // TODO: support any name field
+      def.field?.custom?.find(({ name }) => name === 'default');
+
+    // push the matching subfields onto the schemaDef variable
+    // so that they can have a shared type created
+    if (match) {
+      const defs = parseSchemaDefType(match.fields, key);
+      const values = getYFields(y, defs, opts);
+      defs.forEach(([key]) => {
+        // set the data for each key
+        setProperty(data, key, getProperty(values, key));
+      });
+    }
+
+    // stringify the JSON field values
+    if (!opts?.keepJsonParsed) setProperty(data, key, JSON.stringify(getProperty(data, key)));
   });
 
   return data;

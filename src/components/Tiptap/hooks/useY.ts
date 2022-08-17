@@ -173,7 +173,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
   const handleDocUpdate = AwesomeDebouncePromise(async () => {
     if (schemaDef) {
       setSharedValues(retObj.getData());
-      setSharedValuesInternal(retObj.getData({ retainReferenceObjects: true }));
+      setSharedValuesInternal(retObj.getData({ retainReferenceObjects: true, keepJsonParsed: true }));
     }
   }, 300);
   useEffect(() => {
