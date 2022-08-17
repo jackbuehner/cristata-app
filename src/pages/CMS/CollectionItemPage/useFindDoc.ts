@@ -94,7 +94,12 @@ function useFindDoc(
   // initially synced, and there are no
   // other clients
   useEffect(() => {
-    if (y?.connected && y.initialSynced && shouldAddToY && Object.keys(req.data[queryName] || {}).length > 0) {
+    if (
+      y?.connected &&
+      y.initialSynced &&
+      shouldAddToY &&
+      Object.keys(req.data?.[queryName] || {}).length > 0
+    ) {
       if (y?.awareness.length === 1) {
         y.addData(req.data[queryName]);
       }
