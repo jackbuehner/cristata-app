@@ -74,7 +74,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
     const from = result.source.index;
     const to = result.destination?.index;
     const items = yarray?.toArray();
-    if (from !== undefined && to !== undefined && yarray && items) {
+    if (from !== undefined && to !== undefined && yarray && items && !props.disabled) {
       props.y.ydoc?.transact(() => {
         utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
 
@@ -184,7 +184,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                     <Draggable draggableId={uuid} index={index} key={uuid}>
                       {(provided) => (
                         <Group key={uuid} theme={theme} ref={provided.innerRef} {...provided.draggableProps}>
-                          <DragHandle dragHandleProps={provided.dragHandleProps} />
+                          <DragHandle dragHandleProps={provided.dragHandleProps} disabled={props.disabled} />
                           {isCollasped ? (
                             <GroupContent>
                               {collapsedContentRows.map(({ label, value }, index) => {
@@ -340,9 +340,9 @@ const IconGroup = styled.div<{ theme: themeType }>`
   }
 `;
 
-function DragHandle(props: { dragHandleProps?: DraggableProvidedDragHandleProps }) {
+function DragHandle(props: { dragHandleProps?: DraggableProvidedDragHandleProps; disabled?: boolean }) {
   return (
-    <DragHandleComponent {...props.dragHandleProps}>
+    <DragHandleComponent {...props.dragHandleProps} style={props.disabled ? { display: 'none' } : undefined}>
       <ReOrderDotsHorizontal24Regular />
     </DragHandleComponent>
   );
