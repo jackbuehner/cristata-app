@@ -374,7 +374,12 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     ): JSX.Element => {
       const [key, def] = input;
 
-      const readOnly = def.field?.readonly === true || def.modifiable !== true;
+      const isSubDocArray = def.type === 'DocArray';
+
+      const readOnly =
+        def.field?.readonly === true || isSubDocArray
+          ? def.docs?.[0]?.[1]?.modifiable !== true
+          : def.modifiable !== true;
       let fieldName = def.field?.label || key;
 
       // if a field is readonly, add readonly to the field name
@@ -393,7 +398,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       // pass this to every collaborative field so it can communicate with yjs
       const fieldY = { ...props.y, field: docArrayYjsKey || key, user: props.user };
 
-      const isSubDocArray = def.type === 'DocArray';
       if (isSubDocArray) {
         // do not show hidden subdoc arrays
         const isHidden =
