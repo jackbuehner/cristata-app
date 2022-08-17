@@ -83,7 +83,7 @@ class YReference<
           // ensure that the correct value is replaced
           // (in case the order of values has changed)
           const replaceIndex = type.toArray().findIndex(({ value }) => value === _id);
-          if (replaceIndex) {
+          if (replaceIndex !== -1) {
             this.#ydoc.transact(() => {
               type.delete(replaceIndex);
               type.insert(replaceIndex, [{ value: _id, label }]);
