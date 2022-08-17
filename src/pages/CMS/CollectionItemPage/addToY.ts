@@ -81,7 +81,7 @@ function addToY(
 
     if (schemaType === 'DocArray') {
       const validator = z.record(z.any()).array();
-      const validValue = validator.parse(getProperty(data, key));
+        const validValue = validator.parse(getProperty(data, key) || []);
 
       const array = new fieldUtils.shared.DocArray(y.ydoc);
       const [, generatedUuids] = array.set(key, validValue);
