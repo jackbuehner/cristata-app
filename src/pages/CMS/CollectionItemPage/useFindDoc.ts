@@ -17,6 +17,7 @@ import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import * as Y from 'yjs';
 
 function useFindDoc(
   collection: string,
@@ -48,6 +49,7 @@ function useFindDoc(
             ...merge(
               {
                 [accessor]: true,
+                yState: true,
               },
               ...schemaDef.map(docDefsToQueryObject)
             ),
@@ -78,6 +80,13 @@ function useFindDoc(
   } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
     fetchPolicy: doNothing ? 'cache-only' : 'cache-and-network',
+    onCompleted(data) {
+      // if the data contains a doc state, apply it
+      if (y?.ydoc && data?.[queryName]?.yState) {
+        const yState = Uint8Array.from(atob(data[queryName].yState), (c) => c.charCodeAt(0));
+        Y.applyUpdate(y.ydoc, yState);
+      }
+    },
   });
 
   const refetch = (variables?: Partial<OperationVariables>) => {
@@ -86,19 +95,26 @@ function useFindDoc(
     setShouldAddToY(true);
 
     // refech the data
-    return apolloRefetch(variables);
+    return apolloRefetch(variables).then((data) => {
+      if (y?.awareness.length === 1 && y?.connected && req.data?.[queryName]) {
+        y.addData(req.data[queryName]);
+      }
+      return data;
+    });
   };
 
   // only added data to yjs shared types
   // once the ydoc is connected, has
   // initially synced, and there are no
-  // other clients
+  // other clients, and the data does not
+  // contain a ydoc
   useEffect(() => {
     if (
       y?.connected &&
       y.initialSynced &&
       shouldAddToY &&
-      Object.keys(req.data?.[queryName] || {}).length > 0
+      !req.data?.[queryName]?.yState &&
+      !req.data?.[queryName]?.yState
     ) {
       if (y?.awareness.length === 1) {
         y.addData(req.data[queryName]);

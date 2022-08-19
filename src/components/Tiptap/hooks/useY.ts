@@ -96,6 +96,8 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     });
 
     return () => {
+      localProvider?.clearData();
+
       y.delete(`${tenant}.${collectionName}.${id}`);
       mounted = false;
     };
@@ -154,6 +156,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     roomDetails: { collection: collectionName, id },
     client,
     setLoading,
+    localProvider,
     addData(inputData: any) {
       if (schemaDef) {
         addToY(this, schemaDef, this.client, inputData);
@@ -213,6 +216,7 @@ interface EntryY {
   fullData: Record<string, unknown>;
   roomDetails: { collection: string; id: string };
   client: ApolloClient<object>;
+  localProvider?: IndexeddbPersistence;
   setLoading: (loading: boolean) => void;
   addData: (inputData: any) => void;
   getData: (opts?: GetYFieldsOptions) => any;

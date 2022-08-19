@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { isObject } from '../../../utils/isObject';
 import { uncapitalize } from '../../../utils/uncapitalize';
+import * as Y from 'yjs';
 
 /**
  * Save changes to the database.
@@ -50,6 +51,7 @@ async function saveChanges(
     unsavedFields.forEach((key) => {
       setProperty(unsavedData, key, getProperty(data, key));
     });
+    if (y.ydoc) unsavedData.yState = Buffer.from(Y.encodeStateAsUpdate(y.ydoc)).toString('base64');
 
     // modify the item in the database
     const config = {
