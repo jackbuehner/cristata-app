@@ -113,6 +113,7 @@ function useFindDoc(
       y?.connected &&
       y.initialSynced &&
       shouldAddToY &&
+      req.data &&
       !req.data?.[queryName]?.yState &&
       !req.data?.[queryName]?.yState
     ) {
