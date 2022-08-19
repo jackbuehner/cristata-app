@@ -3,6 +3,7 @@ import { Editor } from '@tiptap/react';
 import { useAppSelector } from '../../../../redux/hooks';
 import { server } from '../../../../utils/constants';
 import { useScheduleEmailWindow } from '../../hooks/useScheduleEmail';
+import { FieldY } from '../../hooks/useY';
 import { downloadEmailHTML } from '../Backstage/downloadEmailHTML';
 import { ToolbarRow } from './ToolbarRow';
 import { ToolbarRowButton } from './ToolbarRowButton';
@@ -12,13 +13,17 @@ interface SendToolbarRowProps {
   isActive: boolean;
   isDisabled: boolean;
   iframehtmlstring: string;
+  y: FieldY;
 }
 
 function SendToolbarRow({ editor, isActive, ...props }: SendToolbarRowProps) {
-  const cmsItemState = useAppSelector((state) => state.cmsItem);
   const authUserState = useAppSelector((state) => state.authUser);
-  const isPublished = cmsItemState.fields.stage === 5.2;
-  const [ScheduleEmailWindow, showScheduleEmailWindow] = useScheduleEmailWindow(editor, props.iframehtmlstring);
+  const isPublished = props.y.data.stage === 5.2;
+  const [ScheduleEmailWindow, showScheduleEmailWindow] = useScheduleEmailWindow(
+    editor,
+    props.y,
+    props.iframehtmlstring
+  );
 
   const handleSendEmailClick = () => {
     if (

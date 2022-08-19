@@ -31,7 +31,7 @@ import {
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
 } from '../../../../graphql/queries';
 import { useDropdown } from '../../../../hooks/useDropdown';
-import { CollectionItemPage } from '../../../../pages/CMS/CollectionItemPage';
+import { CollectionItemPageContent } from '../../../../pages/CMS/CollectionItemPage';
 import { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
 import { themeType } from '../../../../utils/theme/theme';
 import { Text } from '../../../ContentField';
@@ -41,6 +41,8 @@ import { Menu } from '../../../Menu';
 import { PlainModal } from '../../../Modal';
 import { Select } from '../../../Select';
 import { CommentPanel } from '../../extension-power-comment';
+import { useAwareness } from '../../hooks';
+import { FieldY } from '../../hooks/useY';
 import { BackIcon, BoldIcon, ItalicsIcon, RedoIcon, StrikeIcon, UnderlineIcon } from './../../Icons';
 import {
   AcceptRevision20Icon,
@@ -84,12 +86,7 @@ interface IToolbar {
   };
   awarenessProfiles?: { name: string; color: string; sessionId: string; photo: string }[];
   tiptapWidth: number;
-  user: {
-    name: string;
-    color: string;
-    sessionId: string;
-    photo: string;
-  };
+  user: ReturnType<typeof useAwareness>[0];
   toggleTrackChanges: () => void;
   trackChanges: boolean;
   isSidebarOpen: boolean;
@@ -103,6 +100,7 @@ interface IToolbar {
   options?: tiptapOptions;
   compact?: boolean;
   iframehtmlstring?: string;
+  y: FieldY;
 }
 
 function Toolbar({ editor, isMax, ...props }: IToolbar) {
@@ -727,7 +725,9 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     } else {
                       props.setIsSidebarOpen(true);
                       props.setSidebarTitle('Document properties');
-                      props.setSidebarContent(<CollectionItemPage isEmbedded />);
+                      props.setSidebarContent(
+                        <CollectionItemPageContent isEmbedded y={props.y} user={props.user} />
+                      );
                       params.set('props', '1');
                       params.set('comments', '0');
                       navigate(pathname + '?' + params.toString() + hash, { replace: true });
@@ -980,18 +980,19 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 <ToolbarRowButton
                   onClick={() => {
                     // insert comment
-                    editor
-                      .chain()
-                      .focus()
-                      .setComment({
-                        color: props.user.color,
-                        commenter: {
-                          name: props.user.name,
-                          photo: props.user.photo,
-                        },
-                        sessionId: props.user.sessionId,
-                      })
-                      .run();
+                    if (props.user)
+                      editor
+                        .chain()
+                        .focus()
+                        .setComment({
+                          color: props.user.color,
+                          commenter: {
+                            name: props.user.name,
+                            photo: props.user.photo,
+                          },
+                          sessionId: props.user.sessionId,
+                        })
+                        .run();
 
                     // open comment panel
                     props.setIsSidebarOpen(true);
@@ -1005,6 +1006,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   icon={<CommentAdd20Regular />}
                   disabled={
                     props.isDisabled ||
+                    !props.user ||
                     !editor.can().setComment({
                       color: '',
                       commenter: {
@@ -1105,18 +1107,19 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   <ToolbarRowButton
                     onClick={() => {
                       // insert comment
-                      editor
-                        .chain()
-                        .focus()
-                        .setComment({
-                          color: props.user.color,
-                          commenter: {
-                            name: props.user.name,
-                            photo: props.user.photo,
-                          },
-                          sessionId: props.user.sessionId,
-                        })
-                        .run();
+                      if (props.user)
+                        editor
+                          .chain()
+                          .focus()
+                          .setComment({
+                            color: props.user.color,
+                            commenter: {
+                              name: props.user.name,
+                              photo: props.user.photo,
+                            },
+                            sessionId: props.user.sessionId,
+                          })
+                          .run();
 
                       // open comment panel
                       props.setIsSidebarOpen(true);
@@ -1130,6 +1133,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     icon={<CommentAdd20Regular />}
                     disabled={
                       props.isDisabled ||
+                      !props.user ||
                       !editor.can().setComment({
                         color: '',
                         commenter: {
@@ -1153,6 +1157,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               ) : null}
             </ToolbarRow>
             <SendToolbarRow
+              y={props.y}
               isActive={activeTab === 'email'}
               editor={editor}
               iframehtmlstring={props.iframehtmlstring || ''}

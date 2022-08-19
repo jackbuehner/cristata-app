@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { themeType } from '../../../../utils/theme/theme';
 import { SidebarHeader } from './SidebarHeader';
 import { Children, cloneElement } from 'react';
+import { useAwareness } from '../../hooks';
+import { EntryY } from '../../hooks/useY';
 
 interface I_SIDEBAR {
   theme: themeType;
@@ -44,12 +46,8 @@ interface ISidebar {
   header: string;
   setHeader: React.Dispatch<React.SetStateAction<string>>;
   editor: Editor | null;
-  user: {
-    name: string;
-    color: string;
-    sessionId: string;
-    photo: string;
-  };
+  y: EntryY;
+  user: ReturnType<typeof useAwareness>[0];
 }
 
 function Sidebar(props: ISidebar) {
@@ -75,6 +73,7 @@ function Sidebar(props: ISidebar) {
                 return cloneElement(child, {
                   editor: props.editor,
                   user: props.user,
+                  y: props.y,
                 });
               })
             : null}

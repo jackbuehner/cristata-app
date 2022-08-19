@@ -1,0 +1,638 @@
+diff --git a/node_modules/react-router-prompt/dist/hooks/use-confirm.d.ts b/node_modules/react-router-prompt/dist/hooks/use-confirm.d.ts
+index aea8695..25890ab 100644
+--- a/node_modules/react-router-prompt/dist/hooks/use-confirm.d.ts
++++ b/node_modules/react-router-prompt/dist/hooks/use-confirm.d.ts
+@@ -1,12 +1,14 @@
++import { Transition } from "history";
++import { ReactRouterPromptProps } from "..";
+ declare interface InitialStateType {
+     isActive: boolean;
+     hasConfirmed: boolean;
+-    proceed: (value: unknown) => void;
+-    cancel: (value: unknown) => void;
++    proceed: () => void;
++    cancel: () => void;
+ }
+ declare interface ConfirmLeaveReturnType extends InitialStateType {
+-    onConfirm: () => Promise<boolean>;
++    onConfirm: (tx: Transition) => Promise<boolean | "noReset">;
+     resetConfirmation: () => void;
+ }
+-declare const useConfirm: () => ConfirmLeaveReturnType;
++declare const useConfirm: (when: ReactRouterPromptProps["when"]) => ConfirmLeaveReturnType;
+ export default useConfirm;
+diff --git a/node_modules/react-router-prompt/dist/index.d.ts b/node_modules/react-router-prompt/dist/index.d.ts
+index d92280f..86afb04 100644
+--- a/node_modules/react-router-prompt/dist/index.d.ts
++++ b/node_modules/react-router-prompt/dist/index.d.ts
+@@ -1,6 +1,7 @@
+ import React from "react";
+-declare type ReactRouterPromptProps = {
+-    when: boolean;
++import { Action, Location } from "history";
++export declare type ReactRouterPromptProps = {
++    when: boolean | ((currentLocation: Location, nextLocation: Location, _action: Action) => boolean);
+     children: (data: {
+         isActive: boolean;
+         onCancel: (value: unknown) => void;
+diff --git a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js
+index 33e7cb4..7189fd7 100644
+--- a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js
++++ b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js
+@@ -406,6 +406,34 @@ function _extends() {
+   return _extends.apply(this, arguments);
+ }
+ 
++function useBlocker(blocker, when) {
++  if (when === void 0) {
++    when = true;
++  }
++
++  var _useContext = React.useContext(reactRouterDom.UNSAFE_NavigationContext),
++      navigator = _useContext.navigator;
++
++  React.useEffect(function () {
++    if (!when) return; // @ts-ignore
++
++    var unblock = navigator.block(function (tx) {
++      var autoUnblockingTx = _extends({}, tx, {
++        retry: function retry() {
++          // Automatically unblock the transition so it can play all the way
++          // through before retrying it. TODO: Figure out how to re-enable
++          // this block if the transition is cancelled for some reason.
++          unblock();
++          tx.retry();
++        }
++      });
++
++      blocker(autoUnblockingTx);
++    });
++    return unblock;
++  }, [navigator, blocker, when]);
++}
++
+ var noop = function noop() {
+   /*No Operation*/
+ };
+@@ -417,11 +445,27 @@ var initialConfirmState = {
+   cancel: noop
+ };
+ 
+-var useConfirm = function useConfirm() {
++var useConfirm = function useConfirm(when) {
+   var _useState = React.useState(initialConfirmState),
+       confirm = _useState[0],
+-      setConfirm = _useState[1];
+-
++      setConfirm = _useState[1]; // Create a location object that includes the router's `basename` in
++  // the pathname since the blocker location object includes `basename`.
++
++
++  var _useLocation = reactRouterDom.useLocation(),
++      hash = _useLocation.hash,
++      key = _useLocation.key,
++      search = _useLocation.search,
++      state = _useLocation.state;
++
++  var pathname = window.location.pathname;
++  var location = {
++    hash: hash,
++    key: key,
++    pathname: pathname,
++    search: search,
++    state: state
++  };
+   React.useEffect(function () {
+     if (confirm.isActive) {
+       window.onbeforeunload = function () {
+@@ -433,29 +477,44 @@ var useConfirm = function useConfirm() {
+       if (confirm.isActive) window.onbeforeunload = null;
+     };
+   }, [confirm]);
+-  var onConfirm = React.useCallback(function () {
++  var onConfirm = React.useCallback(function (tx) {
+     var promise = new Promise(function (resolve, reject) {
+       setConfirm(function (prevState) {
+         return _extends({}, prevState, {
+           isActive: true,
+-          proceed: resolve,
+-          cancel: reject
++          proceed: function proceed() {
++            return resolve(true);
++          },
++          cancel: function cancel() {
++            return reject();
++          }
+         });
+-      });
++      }); // Go ahead and resolve the promise when the `when` function
++      // returns `false`, which means the prompt should not be displayed
++      // and navigation should occur.
++
++      if (typeof when === "function") {
++        if (!when(location, tx.location, tx.action)) {
++          // Use "noReset" to ensure that `resetConfirmation()` is not executed,
++          // which would cause an infinite loop when attempting to navigate
++          // with the forward and back buttons in the browser.
++          resolve("noReset");
++        }
++      }
+     });
+-    return promise.then(function () {
++    return promise.then(function (result) {
+       setConfirm(_extends({}, confirm, {
+         isActive: false,
+         hasConfirmed: true
+       }));
+-      return true;
++      return result;
+     }, function () {
+       setConfirm(_extends({}, confirm, {
+         isActive: false
+       }));
+       return false;
+     });
+-  }, [confirm]);
++  }, [confirm, location, when]);
+   var resetConfirmation = React.useCallback(function () {
+     setConfirm(initialConfirmState);
+   }, []);
+@@ -465,34 +524,6 @@ var useConfirm = function useConfirm() {
+   });
+ };
+ 
+-function useBlocker(blocker, when) {
+-  if (when === void 0) {
+-    when = true;
+-  }
+-
+-  var _useContext = React.useContext(reactRouterDom.UNSAFE_NavigationContext),
+-      navigator = _useContext.navigator;
+-
+-  React.useEffect(function () {
+-    if (!when) return; // @ts-ignore
+-
+-    var unblock = navigator.block(function (tx) {
+-      var autoUnblockingTx = _extends({}, tx, {
+-        retry: function retry() {
+-          // Automatically unblock the transition so it can play all the way
+-          // through before retrying it. TODO: Figure out how to re-enable
+-          // this block if the transition is cancelled for some reason.
+-          unblock();
+-          tx.retry();
+-        }
+-      });
+-
+-      blocker(autoUnblockingTx);
+-    });
+-    return unblock;
+-  }, [navigator, blocker, when]);
+-}
+-
+ /**
+  * A replacement component for the react-router `Prompt`.
+  * Allows for more flexible dialogs.
+@@ -515,7 +546,7 @@ var ReactRouterPrompt = function ReactRouterPrompt(_ref) {
+   var when = _ref.when,
+       children = _ref.children;
+ 
+-  var _useConfirm = useConfirm(),
++  var _useConfirm = useConfirm(when),
+       isActive = _useConfirm.isActive,
+       proceed = _useConfirm.proceed,
+       cancel = _useConfirm.cancel,
+@@ -523,28 +554,25 @@ var ReactRouterPrompt = function ReactRouterPrompt(_ref) {
+       hasConfirmed = _useConfirm.hasConfirmed,
+       resetConfirmation = _useConfirm.resetConfirmation;
+ 
+-  var blocker = React.useCallback(
+-  /*#__PURE__*/
+-  // @ts-ignore
+-  function () {
++  var blocker = React.useCallback( /*#__PURE__*/function () {
+     var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(tx) {
++      var result;
+       return _regeneratorRuntime().wrap(function _callee$(_context) {
+         while (1) {
+           switch (_context.prev = _context.next) {
+             case 0:
+               _context.next = 2;
+-              return onConfirm();
++              return onConfirm(tx);
+ 
+             case 2:
+-              if (!_context.sent) {
+-                _context.next = 5;
+-                break;
+-              }
++              result = _context.sent;
+ 
+-              resetConfirmation();
+-              tx.retry();
++              if (result) {
++                if (result !== "noReset") resetConfirmation();
++                tx.retry();
++              }
+ 
+-            case 5:
++            case 4:
+             case "end":
+               return _context.stop();
+           }
+diff --git a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js.map b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js.map
+index 04bb513..78e9d92 100644
+--- a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js.map
++++ b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.development.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"react-router-prompt.cjs.development.js","sources":["../src/hooks/use-confirm.ts","../src/hooks/use-blocker.ts","../src/index.tsx"],"sourcesContent":["import { useState, useEffect, useCallback } from \"react\";\n\nconst noop = () => {\n  /*No Operation*/\n};\n\nconst initialConfirmState = {\n  isActive: false,\n  hasConfirmed: false,\n  proceed: noop,\n  cancel: noop,\n};\n\ndeclare interface InitialStateType {\n  isActive: boolean;\n  hasConfirmed: boolean;\n  proceed: (value: unknown) => void;\n  cancel: (value: unknown) => void;\n}\n\ndeclare interface ConfirmLeaveReturnType extends InitialStateType {\n  onConfirm: () => Promise<boolean>;\n  resetConfirmation: () => void;\n}\n\nconst useConfirm = (): ConfirmLeaveReturnType => {\n  const [confirm, setConfirm] = useState<InitialStateType>(initialConfirmState);\n\n  useEffect(() => {\n    if (confirm.isActive) {\n      window.onbeforeunload = (): boolean => {\n        return false;\n      };\n    }\n\n    return (): void => {\n      if (confirm.isActive) window.onbeforeunload = null;\n    };\n  }, [confirm]);\n\n  const onConfirm = useCallback(() => {\n    const promise = new Promise((resolve, reject) => {\n      setConfirm((prevState: InitialStateType) => ({\n        ...prevState,\n        isActive: true,\n        proceed: resolve,\n        cancel: reject,\n      }));\n    });\n\n    return promise.then(\n      () => {\n        setConfirm({ ...confirm, isActive: false, hasConfirmed: true });\n        return true;\n      },\n      () => {\n        setConfirm({ ...confirm, isActive: false });\n        return false;\n      }\n    );\n  }, [confirm]);\n\n  const resetConfirmation = useCallback(() => {\n    setConfirm(initialConfirmState);\n  }, []);\n\n  return {\n    ...confirm,\n    onConfirm,\n    resetConfirmation,\n  };\n};\n\nexport default useConfirm;\n","import { useContext, useEffect } from \"react\";\nimport { Blocker, Transition } from \"history\";\n// @ts-ignore\nimport { UNSAFE_NavigationContext as NavigationContext } from \"react-router-dom\";\n\nfunction useBlocker(blocker: Blocker, when = true) {\n  const { navigator } = useContext(NavigationContext);\n\n  useEffect(() => {\n    if (!when) return;\n\n    // @ts-ignore\n    const unblock = navigator.block((tx: Transition) => {\n      const autoUnblockingTx = {\n        ...tx,\n        retry() {\n          // Automatically unblock the transition so it can play all the way\n          // through before retrying it. TODO: Figure out how to re-enable\n          // this block if the transition is cancelled for some reason.\n          unblock();\n          tx.retry();\n        },\n      };\n\n      blocker(autoUnblockingTx);\n    });\n\n    return unblock;\n  }, [navigator, blocker, when]);\n}\n\nexport default useBlocker;\n","import React, { useCallback } from \"react\";\n\nimport useConfirm from \"./hooks/use-confirm\";\nimport useBlocker from \"./hooks/use-blocker\";\n\ntype ReactRouterPromptProps = {\n  when: boolean;\n  children: (data: {\n    isActive: boolean;\n    onCancel: (value: unknown) => void;\n    onConfirm: (value: unknown) => void;\n  }) => React.ReactNode;\n};\n\n/**\n * A replacement component for the react-router `Prompt`.\n * Allows for more flexible dialogs.\n *\n * @example\n * <ReactRouterPrompt when={isDirty}>\n *   {({isActive, onConfirm, onCancel}) => (\n *     <Modal show={isActive}>\n *       <div>\n *         <p>Do you really want to leave?</p>\n *         <button onClick={onCancel}>Cancel</button>\n *         <button onClick={onConfirm}>Ok</button>\n *       </div>\n *     </Modal>\n *   )}\n * </ReactRouterPrompt>\n */\n\nconst ReactRouterPrompt: React.FC<ReactRouterPromptProps> = ({\n  when,\n  children,\n}) => {\n  const {\n    isActive,\n    proceed,\n    cancel,\n    onConfirm,\n    hasConfirmed,\n    resetConfirmation,\n  } = useConfirm();\n\n  const blocker = useCallback(\n    // @ts-ignore\n    async tx => {\n      if (await onConfirm()) {\n        resetConfirmation();\n        tx.retry();\n      }\n    },\n    [resetConfirmation, onConfirm]\n  );\n\n  useBlocker(blocker, when && !hasConfirmed);\n\n  return (\n    <div>\n      {children({\n        isActive,\n        onConfirm: proceed,\n        onCancel: cancel,\n      })}\n    </div>\n  );\n};\n\nexport default ReactRouterPrompt;\n"],"names":["noop","initialConfirmState","isActive","hasConfirmed","proceed","cancel","useConfirm","useState","confirm","setConfirm","useEffect","window","onbeforeunload","onConfirm","useCallback","promise","Promise","resolve","reject","prevState","then","resetConfirmation","useBlocker","blocker","when","useContext","NavigationContext","navigator","unblock","block","tx","autoUnblockingTx","retry","ReactRouterPrompt","children","React","onCancel"],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"react-router-prompt.cjs.development.js","sources":["../src/hooks/use-blocker.ts","../src/hooks/use-confirm.ts","../src/index.tsx"],"sourcesContent":["import { useContext, useEffect } from \"react\";\r\nimport { Blocker, Transition } from \"history\";\r\n// @ts-ignore\r\nimport { UNSAFE_NavigationContext as NavigationContext } from \"react-router-dom\";\r\n\r\nfunction useBlocker(blocker: Blocker, when = true) {\r\n  const { navigator } = useContext(NavigationContext);\r\n\r\n  useEffect(() => {\r\n    if (!when) return;\r\n\r\n    // @ts-ignore\r\n    const unblock = navigator.block((tx: Transition) => {\r\n      const autoUnblockingTx = {\r\n        ...tx,\r\n        retry() {\r\n          // Automatically unblock the transition so it can play all the way\r\n          // through before retrying it. TODO: Figure out how to re-enable\r\n          // this block if the transition is cancelled for some reason.\r\n          unblock();\r\n          tx.retry();\r\n        },\r\n      };\r\n\r\n      blocker(autoUnblockingTx);\r\n    });\r\n\r\n    return unblock;\r\n  }, [navigator, blocker, when]);\r\n}\r\n\r\nexport default useBlocker;\r\n","import { Transition } from \"history\";\r\nimport { useState, useEffect, useCallback } from \"react\";\r\nimport { useLocation } from \"react-router-dom\";\r\nimport { ReactRouterPromptProps } from \"..\";\r\n\r\nconst noop = () => {\r\n  /*No Operation*/\r\n};\r\n\r\nconst initialConfirmState = {\r\n  isActive: false,\r\n  hasConfirmed: false,\r\n  proceed: noop,\r\n  cancel: noop,\r\n};\r\n\r\ndeclare interface InitialStateType {\r\n  isActive: boolean;\r\n  hasConfirmed: boolean;\r\n  proceed: () => void;\r\n  cancel: () => void;\r\n}\r\n\r\ndeclare interface ConfirmLeaveReturnType extends InitialStateType {\r\n  onConfirm: (tx: Transition) => Promise<boolean | \"noReset\">;\r\n  resetConfirmation: () => void;\r\n}\r\n\r\nconst useConfirm = (\r\n  when: ReactRouterPromptProps[\"when\"]\r\n): ConfirmLeaveReturnType => {\r\n  const [confirm, setConfirm] = useState<InitialStateType>(initialConfirmState);\r\n\r\n  // Create a location object that includes the router's `basename` in\r\n  // the pathname since the blocker location object includes `basename`.\r\n  const { hash, key, search, state } = useLocation();\r\n  const { pathname } = window.location;\r\n  const location = { hash, key, pathname, search, state };\r\n\r\n  useEffect(() => {\r\n    if (confirm.isActive) {\r\n      window.onbeforeunload = (): boolean => {\r\n        return false;\r\n      };\r\n    }\r\n\r\n    return (): void => {\r\n      if (confirm.isActive) window.onbeforeunload = null;\r\n    };\r\n  }, [confirm]);\r\n\r\n  const onConfirm = useCallback(\r\n    (tx: Transition) => {\r\n      const promise = new Promise<\"noReset\" | true>((resolve, reject) => {\r\n        setConfirm((prevState: InitialStateType) => ({\r\n          ...prevState,\r\n          isActive: true,\r\n          proceed: () => resolve(true),\r\n          cancel: () => reject(),\r\n        }));\r\n\r\n        // Go ahead and resolve the promise when the `when` function\r\n        // returns `false`, which means the prompt should not be displayed\r\n        // and navigation should occur.\r\n        if (typeof when === \"function\") {\r\n          if (!when(location, tx.location, tx.action)) {\r\n            // Use \"noReset\" to ensure that `resetConfirmation()` is not executed,\r\n            // which would cause an infinite loop when attempting to navigate\r\n            // with the forward and back buttons in the browser.\r\n            resolve(\"noReset\");\r\n          }\r\n        }\r\n      });\r\n\r\n      return promise.then(\r\n        result => {\r\n          setConfirm({ ...confirm, isActive: false, hasConfirmed: true });\r\n          return result;\r\n        },\r\n        () => {\r\n          setConfirm({ ...confirm, isActive: false });\r\n          return false;\r\n        }\r\n      );\r\n    },\r\n    [confirm, location, when]\r\n  );\r\n\r\n  const resetConfirmation = useCallback(() => {\r\n    setConfirm(initialConfirmState);\r\n  }, []);\r\n\r\n  return {\r\n    ...confirm,\r\n    onConfirm,\r\n    resetConfirmation,\r\n  };\r\n};\r\n\r\nexport default useConfirm;\r\n","import React, { useCallback } from \"react\";\r\nimport { Action, Location, Transition } from \"history\";\r\n\r\nimport useBlocker from \"./hooks/use-blocker\";\r\nimport useConfirm from \"./hooks/use-confirm\";\r\n\r\nexport type ReactRouterPromptProps = {\r\n  when:\r\n    | boolean\r\n    | ((\r\n        currentLocation: Location,\r\n        nextLocation: Location,\r\n        _action: Action\r\n      ) => boolean);\r\n  children: (data: {\r\n    isActive: boolean;\r\n    onCancel: (value: unknown) => void;\r\n    onConfirm: (value: unknown) => void;\r\n  }) => React.ReactNode;\r\n};\r\n\r\n/**\r\n * A replacement component for the react-router `Prompt`.\r\n * Allows for more flexible dialogs.\r\n *\r\n * @example\r\n * <ReactRouterPrompt when={isDirty}>\r\n *   {({isActive, onConfirm, onCancel}) => (\r\n *     <Modal show={isActive}>\r\n *       <div>\r\n *         <p>Do you really want to leave?</p>\r\n *         <button onClick={onCancel}>Cancel</button>\r\n *         <button onClick={onConfirm}>Ok</button>\r\n *       </div>\r\n *     </Modal>\r\n *   )}\r\n * </ReactRouterPrompt>\r\n */\r\n\r\nconst ReactRouterPrompt: React.FC<ReactRouterPromptProps> = ({\r\n  when,\r\n  children,\r\n}) => {\r\n  const {\r\n    isActive,\r\n    proceed,\r\n    cancel,\r\n    onConfirm,\r\n    hasConfirmed,\r\n    resetConfirmation,\r\n  } = useConfirm(when);\r\n\r\n  const blocker = useCallback(\r\n    async (tx: Transition) => {\r\n      const result = await onConfirm(tx);\r\n      if (result) {\r\n        if (result !== \"noReset\") resetConfirmation();\r\n        tx.retry();\r\n      }\r\n    },\r\n    [resetConfirmation, onConfirm]\r\n  );\r\n\r\n  useBlocker(blocker, when && !hasConfirmed);\r\n\r\n  return (\r\n    <div>\r\n      {children({\r\n        isActive,\r\n        onConfirm: proceed,\r\n        onCancel: cancel,\r\n      })}\r\n    </div>\r\n  );\r\n};\r\n\r\nexport default ReactRouterPrompt;\r\n"],"names":["useBlocker","blocker","when","useContext","NavigationContext","navigator","useEffect","unblock","block","tx","autoUnblockingTx","retry","noop","initialConfirmState","isActive","hasConfirmed","proceed","cancel","useConfirm","useState","confirm","setConfirm","useLocation","hash","key","search","state","pathname","window","location","onbeforeunload","onConfirm","useCallback","promise","Promise","resolve","reject","prevState","action","then","result","resetConfirmation","ReactRouterPrompt","children","React","onCancel"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAKA,SAASA,UAAT,CAAoBC,OAApB,EAAsCC,IAAtC;MAAsCA;IAAAA,OAAO;;;EAC3C,kBAAsBC,gBAAU,CAACC,uCAAD,CAAhC;MAAQC,SAAR,eAAQA,SAAR;;EAEAC,eAAS,CAAC;IACR,IAAI,CAACJ,IAAL,EAAW;;IAGX,IAAMK,OAAO,GAAGF,SAAS,CAACG,KAAV,CAAgB,UAACC,EAAD;MAC9B,IAAMC,gBAAgB,gBACjBD,EADiB;QAEpBE,KAFoB;;;;UAMlBJ,OAAO;UACPE,EAAE,CAACE,KAAH;;QAPJ;;MAWAV,OAAO,CAACS,gBAAD,CAAP;KAZc,CAAhB;IAeA,OAAOH,OAAP;GAnBO,EAoBN,CAACF,SAAD,EAAYJ,OAAZ,EAAqBC,IAArB,CApBM,CAAT;AAqBD;;ACxBD,IAAMU,IAAI,GAAG,SAAPA,IAAO;;AAEZ,CAFD;;AAIA,IAAMC,mBAAmB,GAAG;EAC1BC,QAAQ,EAAE,KADgB;EAE1BC,YAAY,EAAE,KAFY;EAG1BC,OAAO,EAAEJ,IAHiB;EAI1BK,MAAM,EAAEL;AAJkB,CAA5B;;AAmBA,IAAMM,UAAU,GAAG,SAAbA,UAAa,CACjBhB,IADiB;EAGjB,gBAA8BiB,cAAQ,CAAmBN,mBAAnB,CAAtC;MAAOO,OAAP;MAAgBC,UAAhB;;;;EAIA,mBAAqCC,0BAAW,EAAhD;MAAQC,IAAR,gBAAQA,IAAR;MAAcC,GAAd,gBAAcA,GAAd;MAAmBC,MAAnB,gBAAmBA,MAAnB;MAA2BC,KAA3B,gBAA2BA,KAA3B;;EACA,IAAQC,QAAR,GAAqBC,MAAM,CAACC,QAA5B,CAAQF,QAAR;EACA,IAAME,QAAQ,GAAG;IAAEN,IAAI,EAAJA,IAAF;IAAQC,GAAG,EAAHA,GAAR;IAAaG,QAAQ,EAARA,QAAb;IAAuBF,MAAM,EAANA,MAAvB;IAA+BC,KAAK,EAALA;GAAhD;EAEApB,eAAS,CAAC;IACR,IAAIc,OAAO,CAACN,QAAZ,EAAsB;MACpBc,MAAM,CAACE,cAAP,GAAwB;QACtB,OAAO,KAAP;OADF;;;IAKF,OAAO;MACL,IAAIV,OAAO,CAACN,QAAZ,EAAsBc,MAAM,CAACE,cAAP,GAAwB,IAAxB;KADxB;GAPO,EAUN,CAACV,OAAD,CAVM,CAAT;EAYA,IAAMW,SAAS,GAAGC,iBAAW,CAC3B,UAACvB,EAAD;IACE,IAAMwB,OAAO,GAAG,IAAIC,OAAJ,CAA8B,UAACC,OAAD,EAAUC,MAAV;MAC5Cf,UAAU,CAAC,UAACgB,SAAD;QAAA,oBACNA,SADM;UAETvB,QAAQ,EAAE,IAFD;UAGTE,OAAO,EAAE;YAAA,OAAMmB,OAAO,CAAC,IAAD,CAAb;WAHA;UAITlB,MAAM,EAAE;YAAA,OAAMmB,MAAM,EAAZ;;;OAJA,CAAV;;;;MAUA,IAAI,OAAOlC,IAAP,KAAgB,UAApB,EAAgC;QAC9B,IAAI,CAACA,IAAI,CAAC2B,QAAD,EAAWpB,EAAE,CAACoB,QAAd,EAAwBpB,EAAE,CAAC6B,MAA3B,CAAT,EAA6C;;;;UAI3CH,OAAO,CAAC,SAAD,CAAP;;;KAhBU,CAAhB;IAqBA,OAAOF,OAAO,CAACM,IAAR,CACL,UAAAC,MAAM;MACJnB,UAAU,cAAMD,OAAN;QAAeN,QAAQ,EAAE,KAAzB;QAAgCC,YAAY,EAAE;SAAxD;MACA,OAAOyB,MAAP;KAHG,EAKL;MACEnB,UAAU,cAAMD,OAAN;QAAeN,QAAQ,EAAE;SAAnC;MACA,OAAO,KAAP;KAPG,CAAP;GAvByB,EAkC3B,CAACM,OAAD,EAAUS,QAAV,EAAoB3B,IAApB,CAlC2B,CAA7B;EAqCA,IAAMuC,iBAAiB,GAAGT,iBAAW,CAAC;IACpCX,UAAU,CAACR,mBAAD,CAAV;GADmC,EAElC,EAFkC,CAArC;EAIA,oBACKO,OADL;IAEEW,SAAS,EAATA,SAFF;IAGEU,iBAAiB,EAAjBA;;AAEH,CArED;;ACPA;;;;;;;;;;;;;;;;;;AAkBA,IAAMC,iBAAiB,GAAqC,SAAtDA,iBAAsD;MAC1DxC,YAAAA;MACAyC,gBAAAA;;EAEA,kBAOIzB,UAAU,CAAChB,IAAD,CAPd;MACEY,QADF,eACEA,QADF;MAEEE,OAFF,eAEEA,OAFF;MAGEC,MAHF,eAGEA,MAHF;MAIEc,SAJF,eAIEA,SAJF;MAKEhB,YALF,eAKEA,YALF;MAME0B,iBANF,eAMEA,iBANF;;EASA,IAAMxC,OAAO,GAAG+B,iBAAW;IAAA,uEACzB,iBAAOvB,EAAP;MAAA;MAAA;QAAA;UAAA;YAAA;cAAA;cAAA,OACuBsB,SAAS,CAACtB,EAAD,CADhC;;YAAA;cACQ+B,MADR;;cAEE,IAAIA,MAAJ,EAAY;gBACV,IAAIA,MAAM,KAAK,SAAf,EAA0BC,iBAAiB;gBAC3ChC,EAAE,CAACE,KAAH;;;YAJJ;YAAA;cAAA;;;;KADyB;;IAAA;MAAA;;OAQzB,CAAC8B,iBAAD,EAAoBV,SAApB,CARyB,CAA3B;EAWA/B,UAAU,CAACC,OAAD,EAAUC,IAAI,IAAI,CAACa,YAAnB,CAAV;EAEA,OACE6B,4BAAA,MAAA,MAAA,EACGD,QAAQ,CAAC;IACR7B,QAAQ,EAARA,QADQ;IAERiB,SAAS,EAAEf,OAFH;IAGR6B,QAAQ,EAAE5B;GAHH,CADX,CADF;AASD,CAnCD;;;;"}
+\ No newline at end of file
+diff --git a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js
+index 83fed3c..0e1137d 100644
+--- a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js
++++ b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js
+@@ -1,2 +1,2 @@
+-"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var t,r=require("react"),e=(t=r)&&"object"==typeof t&&"default"in t?t.default:t,n=require("react-router-dom");function o(){o=function(){return t};var t={},r=Object.prototype,e=r.hasOwnProperty,n="function"==typeof Symbol?Symbol:{},i=n.iterator||"@@iterator",a=n.asyncIterator||"@@asyncIterator",c=n.toStringTag||"@@toStringTag";function u(t,r,e){return Object.defineProperty(t,r,{value:e,enumerable:!0,configurable:!0,writable:!0}),t[r]}try{u({},"")}catch(t){u=function(t,r,e){return t[r]=e}}function f(t,r,e,n){var o=Object.create((r&&r.prototype instanceof h?r:h).prototype),i=new _(n||[]);return o._invoke=function(t,r,e){var n="suspendedStart";return function(o,i){if("executing"===n)throw new Error("Generator is already running");if("completed"===n){if("throw"===o)throw i;return{value:void 0,done:!0}}for(e.method=o,e.arg=i;;){var a=e.delegate;if(a){var c=x(a,e);if(c){if(c===l)continue;return c}}if("next"===e.method)e.sent=e._sent=e.arg;else if("throw"===e.method){if("suspendedStart"===n)throw n="completed",e.arg;e.dispatchException(e.arg)}else"return"===e.method&&e.abrupt("return",e.arg);n="executing";var u=s(t,r,e);if("normal"===u.type){if(n=e.done?"completed":"suspendedYield",u.arg===l)continue;return{value:u.arg,done:e.done}}"throw"===u.type&&(n="completed",e.method="throw",e.arg=u.arg)}}}(t,e,i),o}function s(t,r,e){try{return{type:"normal",arg:t.call(r,e)}}catch(t){return{type:"throw",arg:t}}}t.wrap=f;var l={};function h(){}function v(){}function p(){}var d={};u(d,i,(function(){return this}));var y=Object.getPrototypeOf,g=y&&y(y(O([])));g&&g!==r&&e.call(g,i)&&(d=g);var m=p.prototype=h.prototype=Object.create(d);function w(t){["next","throw","return"].forEach((function(r){u(t,r,(function(t){return this._invoke(r,t)}))}))}function b(t,r){var n;this._invoke=function(o,i){function a(){return new r((function(n,a){!function n(o,i,a,c){var u=s(t[o],t,i);if("throw"!==u.type){var f=u.arg,l=f.value;return l&&"object"==typeof l&&e.call(l,"__await")?r.resolve(l.__await).then((function(t){n("next",t,a,c)}),(function(t){n("throw",t,a,c)})):r.resolve(l).then((function(t){f.value=t,a(f)}),(function(t){return n("throw",t,a,c)}))}c(u.arg)}(o,i,n,a)}))}return n=n?n.then(a,a):a()}}function x(t,r){var e=t.iterator[r.method];if(void 0===e){if(r.delegate=null,"throw"===r.method){if(t.iterator.return&&(r.method="return",r.arg=void 0,x(t,r),"throw"===r.method))return l;r.method="throw",r.arg=new TypeError("The iterator does not provide a 'throw' method")}return l}var n=s(e,t.iterator,r.arg);if("throw"===n.type)return r.method="throw",r.arg=n.arg,r.delegate=null,l;var o=n.arg;return o?o.done?(r[t.resultName]=o.value,r.next=t.nextLoc,"return"!==r.method&&(r.method="next",r.arg=void 0),r.delegate=null,l):o:(r.method="throw",r.arg=new TypeError("iterator result is not an object"),r.delegate=null,l)}function L(t){var r={tryLoc:t[0]};1 in t&&(r.catchLoc=t[1]),2 in t&&(r.finallyLoc=t[2],r.afterLoc=t[3]),this.tryEntries.push(r)}function E(t){var r=t.completion||{};r.type="normal",delete r.arg,t.completion=r}function _(t){this.tryEntries=[{tryLoc:"root"}],t.forEach(L,this),this.reset(!0)}function O(t){if(t){var r=t[i];if(r)return r.call(t);if("function"==typeof t.next)return t;if(!isNaN(t.length)){var n=-1,o=function r(){for(;++n<t.length;)if(e.call(t,n))return r.value=t[n],r.done=!1,r;return r.value=void 0,r.done=!0,r};return o.next=o}}return{next:j}}function j(){return{value:void 0,done:!0}}return v.prototype=p,u(m,"constructor",p),u(p,"constructor",v),v.displayName=u(p,c,"GeneratorFunction"),t.isGeneratorFunction=function(t){var r="function"==typeof t&&t.constructor;return!!r&&(r===v||"GeneratorFunction"===(r.displayName||r.name))},t.mark=function(t){return Object.setPrototypeOf?Object.setPrototypeOf(t,p):(t.__proto__=p,u(t,c,"GeneratorFunction")),t.prototype=Object.create(m),t},t.awrap=function(t){return{__await:t}},w(b.prototype),u(b.prototype,a,(function(){return this})),t.AsyncIterator=b,t.async=function(r,e,n,o,i){void 0===i&&(i=Promise);var a=new b(f(r,e,n,o),i);return t.isGeneratorFunction(e)?a:a.next().then((function(t){return t.done?t.value:a.next()}))},w(m),u(m,c,"Generator"),u(m,i,(function(){return this})),u(m,"toString",(function(){return"[object Generator]"})),t.keys=function(t){var r=[];for(var e in t)r.push(e);return r.reverse(),function e(){for(;r.length;){var n=r.pop();if(n in t)return e.value=n,e.done=!1,e}return e.done=!0,e}},t.values=O,_.prototype={constructor:_,reset:function(t){if(this.prev=0,this.next=0,this.sent=this._sent=void 0,this.done=!1,this.delegate=null,this.method="next",this.arg=void 0,this.tryEntries.forEach(E),!t)for(var r in this)"t"===r.charAt(0)&&e.call(this,r)&&!isNaN(+r.slice(1))&&(this[r]=void 0)},stop:function(){this.done=!0;var t=this.tryEntries[0].completion;if("throw"===t.type)throw t.arg;return this.rval},dispatchException:function(t){if(this.done)throw t;var r=this;function n(e,n){return a.type="throw",a.arg=t,r.next=e,n&&(r.method="next",r.arg=void 0),!!n}for(var o=this.tryEntries.length-1;o>=0;--o){var i=this.tryEntries[o],a=i.completion;if("root"===i.tryLoc)return n("end");if(i.tryLoc<=this.prev){var c=e.call(i,"catchLoc"),u=e.call(i,"finallyLoc");if(c&&u){if(this.prev<i.catchLoc)return n(i.catchLoc,!0);if(this.prev<i.finallyLoc)return n(i.finallyLoc)}else if(c){if(this.prev<i.catchLoc)return n(i.catchLoc,!0)}else{if(!u)throw new Error("try statement without catch or finally");if(this.prev<i.finallyLoc)return n(i.finallyLoc)}}}},abrupt:function(t,r){for(var n=this.tryEntries.length-1;n>=0;--n){var o=this.tryEntries[n];if(o.tryLoc<=this.prev&&e.call(o,"finallyLoc")&&this.prev<o.finallyLoc){var i=o;break}}i&&("break"===t||"continue"===t)&&i.tryLoc<=r&&r<=i.finallyLoc&&(i=null);var a=i?i.completion:{};return a.type=t,a.arg=r,i?(this.method="next",this.next=i.finallyLoc,l):this.complete(a)},complete:function(t,r){if("throw"===t.type)throw t.arg;return"break"===t.type||"continue"===t.type?this.next=t.arg:"return"===t.type?(this.rval=this.arg=t.arg,this.method="return",this.next="end"):"normal"===t.type&&r&&(this.next=r),l},finish:function(t){for(var r=this.tryEntries.length-1;r>=0;--r){var e=this.tryEntries[r];if(e.finallyLoc===t)return this.complete(e.completion,e.afterLoc),E(e),l}},catch:function(t){for(var r=this.tryEntries.length-1;r>=0;--r){var e=this.tryEntries[r];if(e.tryLoc===t){var n=e.completion;if("throw"===n.type){var o=n.arg;E(e)}return o}}throw new Error("illegal catch attempt")},delegateYield:function(t,r,e){return this.delegate={iterator:O(t),resultName:r,nextLoc:e},"next"===this.method&&(this.arg=void 0),l}},t}function i(t,r,e,n,o,i,a){try{var c=t[i](a),u=c.value}catch(t){return void e(t)}c.done?r(u):Promise.resolve(u).then(n,o)}function a(){return(a=Object.assign?Object.assign.bind():function(t){for(var r=1;r<arguments.length;r++){var e=arguments[r];for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&(t[n]=e[n])}return t}).apply(this,arguments)}var c=function(){},u={isActive:!1,hasConfirmed:!1,proceed:c,cancel:c};exports.default=function(t){var c=t.when,f=t.children,s=function(){var t=r.useState(u),e=t[0],n=t[1];r.useEffect((function(){return e.isActive&&(window.onbeforeunload=function(){return!1}),function(){e.isActive&&(window.onbeforeunload=null)}}),[e]);var o=r.useCallback((function(){return new Promise((function(t,r){n((function(e){return a({},e,{isActive:!0,proceed:t,cancel:r})}))})).then((function(){return n(a({},e,{isActive:!1,hasConfirmed:!0})),!0}),(function(){return n(a({},e,{isActive:!1})),!1}))}),[e]),i=r.useCallback((function(){n(u)}),[]);return a({},e,{onConfirm:o,resetConfirmation:i})}(),l=s.isActive,h=s.proceed,v=s.cancel,p=s.onConfirm,d=s.hasConfirmed,y=s.resetConfirmation;return function(t,e){void 0===e&&(e=!0);var o=r.useContext(n.UNSAFE_NavigationContext).navigator;r.useEffect((function(){if(e){var r=o.block((function(e){var n=a({},e,{retry:function(){r(),e.retry()}});t(n)}));return r}}),[o,t,e])}(r.useCallback(function(){var t,r=(t=o().mark((function t(r){return o().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:return t.next=2,p();case 2:if(!t.sent){t.next=5;break}y(),r.retry();case 5:case"end":return t.stop()}}),t)})),function(){var r=this,e=arguments;return new Promise((function(n,o){var a=t.apply(r,e);function c(t){i(a,n,o,c,u,"next",t)}function u(t){i(a,n,o,c,u,"throw",t)}c(void 0)}))});return function(t){return r.apply(this,arguments)}}(),[y,p]),c&&!d),e.createElement("div",null,f({isActive:l,onConfirm:h,onCancel:v}))};
++"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var t,e=require("react"),r=(t=e)&&"object"==typeof t&&"default"in t?t.default:t,n=require("react-router-dom");function o(){o=function(){return t};var t={},e=Object.prototype,r=e.hasOwnProperty,n="function"==typeof Symbol?Symbol:{},i=n.iterator||"@@iterator",a=n.asyncIterator||"@@asyncIterator",c=n.toStringTag||"@@toStringTag";function u(t,e,r){return Object.defineProperty(t,e,{value:r,enumerable:!0,configurable:!0,writable:!0}),t[e]}try{u({},"")}catch(t){u=function(t,e,r){return t[e]=r}}function f(t,e,r,n){var o=Object.create((e&&e.prototype instanceof l?e:l).prototype),i=new _(n||[]);return o._invoke=function(t,e,r){var n="suspendedStart";return function(o,i){if("executing"===n)throw new Error("Generator is already running");if("completed"===n){if("throw"===o)throw i;return{value:void 0,done:!0}}for(r.method=o,r.arg=i;;){var a=r.delegate;if(a){var c=x(a,r);if(c){if(c===h)continue;return c}}if("next"===r.method)r.sent=r._sent=r.arg;else if("throw"===r.method){if("suspendedStart"===n)throw n="completed",r.arg;r.dispatchException(r.arg)}else"return"===r.method&&r.abrupt("return",r.arg);n="executing";var u=s(t,e,r);if("normal"===u.type){if(n=r.done?"completed":"suspendedYield",u.arg===h)continue;return{value:u.arg,done:r.done}}"throw"===u.type&&(n="completed",r.method="throw",r.arg=u.arg)}}}(t,r,i),o}function s(t,e,r){try{return{type:"normal",arg:t.call(e,r)}}catch(t){return{type:"throw",arg:t}}}t.wrap=f;var h={};function l(){}function v(){}function p(){}var d={};u(d,i,(function(){return this}));var y=Object.getPrototypeOf,m=y&&y(y(O([])));m&&m!==e&&r.call(m,i)&&(d=m);var g=p.prototype=l.prototype=Object.create(d);function w(t){["next","throw","return"].forEach((function(e){u(t,e,(function(t){return this._invoke(e,t)}))}))}function b(t,e){var n;this._invoke=function(o,i){function a(){return new e((function(n,a){!function n(o,i,a,c){var u=s(t[o],t,i);if("throw"!==u.type){var f=u.arg,h=f.value;return h&&"object"==typeof h&&r.call(h,"__await")?e.resolve(h.__await).then((function(t){n("next",t,a,c)}),(function(t){n("throw",t,a,c)})):e.resolve(h).then((function(t){f.value=t,a(f)}),(function(t){return n("throw",t,a,c)}))}c(u.arg)}(o,i,n,a)}))}return n=n?n.then(a,a):a()}}function x(t,e){var r=t.iterator[e.method];if(void 0===r){if(e.delegate=null,"throw"===e.method){if(t.iterator.return&&(e.method="return",e.arg=void 0,x(t,e),"throw"===e.method))return h;e.method="throw",e.arg=new TypeError("The iterator does not provide a 'throw' method")}return h}var n=s(r,t.iterator,e.arg);if("throw"===n.type)return e.method="throw",e.arg=n.arg,e.delegate=null,h;var o=n.arg;return o?o.done?(e[t.resultName]=o.value,e.next=t.nextLoc,"return"!==e.method&&(e.method="next",e.arg=void 0),e.delegate=null,h):o:(e.method="throw",e.arg=new TypeError("iterator result is not an object"),e.delegate=null,h)}function L(t){var e={tryLoc:t[0]};1 in t&&(e.catchLoc=t[1]),2 in t&&(e.finallyLoc=t[2],e.afterLoc=t[3]),this.tryEntries.push(e)}function E(t){var e=t.completion||{};e.type="normal",delete e.arg,t.completion=e}function _(t){this.tryEntries=[{tryLoc:"root"}],t.forEach(L,this),this.reset(!0)}function O(t){if(t){var e=t[i];if(e)return e.call(t);if("function"==typeof t.next)return t;if(!isNaN(t.length)){var n=-1,o=function e(){for(;++n<t.length;)if(r.call(t,n))return e.value=t[n],e.done=!1,e;return e.value=void 0,e.done=!0,e};return o.next=o}}return{next:j}}function j(){return{value:void 0,done:!0}}return v.prototype=p,u(g,"constructor",p),u(p,"constructor",v),v.displayName=u(p,c,"GeneratorFunction"),t.isGeneratorFunction=function(t){var e="function"==typeof t&&t.constructor;return!!e&&(e===v||"GeneratorFunction"===(e.displayName||e.name))},t.mark=function(t){return Object.setPrototypeOf?Object.setPrototypeOf(t,p):(t.__proto__=p,u(t,c,"GeneratorFunction")),t.prototype=Object.create(g),t},t.awrap=function(t){return{__await:t}},w(b.prototype),u(b.prototype,a,(function(){return this})),t.AsyncIterator=b,t.async=function(e,r,n,o,i){void 0===i&&(i=Promise);var a=new b(f(e,r,n,o),i);return t.isGeneratorFunction(r)?a:a.next().then((function(t){return t.done?t.value:a.next()}))},w(g),u(g,c,"Generator"),u(g,i,(function(){return this})),u(g,"toString",(function(){return"[object Generator]"})),t.keys=function(t){var e=[];for(var r in t)e.push(r);return e.reverse(),function r(){for(;e.length;){var n=e.pop();if(n in t)return r.value=n,r.done=!1,r}return r.done=!0,r}},t.values=O,_.prototype={constructor:_,reset:function(t){if(this.prev=0,this.next=0,this.sent=this._sent=void 0,this.done=!1,this.delegate=null,this.method="next",this.arg=void 0,this.tryEntries.forEach(E),!t)for(var e in this)"t"===e.charAt(0)&&r.call(this,e)&&!isNaN(+e.slice(1))&&(this[e]=void 0)},stop:function(){this.done=!0;var t=this.tryEntries[0].completion;if("throw"===t.type)throw t.arg;return this.rval},dispatchException:function(t){if(this.done)throw t;var e=this;function n(r,n){return a.type="throw",a.arg=t,e.next=r,n&&(e.method="next",e.arg=void 0),!!n}for(var o=this.tryEntries.length-1;o>=0;--o){var i=this.tryEntries[o],a=i.completion;if("root"===i.tryLoc)return n("end");if(i.tryLoc<=this.prev){var c=r.call(i,"catchLoc"),u=r.call(i,"finallyLoc");if(c&&u){if(this.prev<i.catchLoc)return n(i.catchLoc,!0);if(this.prev<i.finallyLoc)return n(i.finallyLoc)}else if(c){if(this.prev<i.catchLoc)return n(i.catchLoc,!0)}else{if(!u)throw new Error("try statement without catch or finally");if(this.prev<i.finallyLoc)return n(i.finallyLoc)}}}},abrupt:function(t,e){for(var n=this.tryEntries.length-1;n>=0;--n){var o=this.tryEntries[n];if(o.tryLoc<=this.prev&&r.call(o,"finallyLoc")&&this.prev<o.finallyLoc){var i=o;break}}i&&("break"===t||"continue"===t)&&i.tryLoc<=e&&e<=i.finallyLoc&&(i=null);var a=i?i.completion:{};return a.type=t,a.arg=e,i?(this.method="next",this.next=i.finallyLoc,h):this.complete(a)},complete:function(t,e){if("throw"===t.type)throw t.arg;return"break"===t.type||"continue"===t.type?this.next=t.arg:"return"===t.type?(this.rval=this.arg=t.arg,this.method="return",this.next="end"):"normal"===t.type&&e&&(this.next=e),h},finish:function(t){for(var e=this.tryEntries.length-1;e>=0;--e){var r=this.tryEntries[e];if(r.finallyLoc===t)return this.complete(r.completion,r.afterLoc),E(r),h}},catch:function(t){for(var e=this.tryEntries.length-1;e>=0;--e){var r=this.tryEntries[e];if(r.tryLoc===t){var n=r.completion;if("throw"===n.type){var o=n.arg;E(r)}return o}}throw new Error("illegal catch attempt")},delegateYield:function(t,e,r){return this.delegate={iterator:O(t),resultName:e,nextLoc:r},"next"===this.method&&(this.arg=void 0),h}},t}function i(t,e,r,n,o,i,a){try{var c=t[i](a),u=c.value}catch(t){return void r(t)}c.done?e(u):Promise.resolve(u).then(n,o)}function a(){return(a=Object.assign?Object.assign.bind():function(t){for(var e=1;e<arguments.length;e++){var r=arguments[e];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(t[n]=r[n])}return t}).apply(this,arguments)}var c=function(){},u={isActive:!1,hasConfirmed:!1,proceed:c,cancel:c};exports.default=function(t){var c=t.when,f=t.children,s=function(t){var r=e.useState(u),o=r[0],i=r[1],c=n.useLocation(),f={hash:c.hash,key:c.key,pathname:window.location.pathname,search:c.search,state:c.state};e.useEffect((function(){return o.isActive&&(window.onbeforeunload=function(){return!1}),function(){o.isActive&&(window.onbeforeunload=null)}}),[o]);var s=e.useCallback((function(e){return new Promise((function(r,n){i((function(t){return a({},t,{isActive:!0,proceed:function(){return r(!0)},cancel:function(){return n()}})})),"function"==typeof t&&(t(f,e.location,e.action)||r("noReset"))})).then((function(t){return i(a({},o,{isActive:!1,hasConfirmed:!0})),t}),(function(){return i(a({},o,{isActive:!1})),!1}))}),[o,f,t]),h=e.useCallback((function(){i(u)}),[]);return a({},o,{onConfirm:s,resetConfirmation:h})}(c),h=s.isActive,l=s.proceed,v=s.cancel,p=s.onConfirm,d=s.hasConfirmed,y=s.resetConfirmation;return function(t,r){void 0===r&&(r=!0);var o=e.useContext(n.UNSAFE_NavigationContext).navigator;e.useEffect((function(){if(r){var e=o.block((function(r){var n=a({},r,{retry:function(){e(),r.retry()}});t(n)}));return e}}),[o,t,r])}(e.useCallback(function(){var t,e=(t=o().mark((function t(e){var r;return o().wrap((function(t){for(;;)switch(t.prev=t.next){case 0:return t.next=2,p(e);case 2:(r=t.sent)&&("noReset"!==r&&y(),e.retry());case 4:case"end":return t.stop()}}),t)})),function(){var e=this,r=arguments;return new Promise((function(n,o){var a=t.apply(e,r);function c(t){i(a,n,o,c,u,"next",t)}function u(t){i(a,n,o,c,u,"throw",t)}c(void 0)}))});return function(t){return e.apply(this,arguments)}}(),[y,p]),c&&!d),r.createElement("div",null,f({isActive:h,onConfirm:l,onCancel:v}))};
+ //# sourceMappingURL=react-router-prompt.cjs.production.min.js.map
+diff --git a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js.map b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js.map
+index 61d4f2c..3f6424c 100644
+--- a/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js.map
++++ b/node_modules/react-router-prompt/dist/react-router-prompt.cjs.production.min.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"react-router-prompt.cjs.production.min.js","sources":["../src/hooks/use-confirm.ts","../src/index.tsx","../src/hooks/use-blocker.ts"],"sourcesContent":["import { useState, useEffect, useCallback } from \"react\";\n\nconst noop = () => {\n  /*No Operation*/\n};\n\nconst initialConfirmState = {\n  isActive: false,\n  hasConfirmed: false,\n  proceed: noop,\n  cancel: noop,\n};\n\ndeclare interface InitialStateType {\n  isActive: boolean;\n  hasConfirmed: boolean;\n  proceed: (value: unknown) => void;\n  cancel: (value: unknown) => void;\n}\n\ndeclare interface ConfirmLeaveReturnType extends InitialStateType {\n  onConfirm: () => Promise<boolean>;\n  resetConfirmation: () => void;\n}\n\nconst useConfirm = (): ConfirmLeaveReturnType => {\n  const [confirm, setConfirm] = useState<InitialStateType>(initialConfirmState);\n\n  useEffect(() => {\n    if (confirm.isActive) {\n      window.onbeforeunload = (): boolean => {\n        return false;\n      };\n    }\n\n    return (): void => {\n      if (confirm.isActive) window.onbeforeunload = null;\n    };\n  }, [confirm]);\n\n  const onConfirm = useCallback(() => {\n    const promise = new Promise((resolve, reject) => {\n      setConfirm((prevState: InitialStateType) => ({\n        ...prevState,\n        isActive: true,\n        proceed: resolve,\n        cancel: reject,\n      }));\n    });\n\n    return promise.then(\n      () => {\n        setConfirm({ ...confirm, isActive: false, hasConfirmed: true });\n        return true;\n      },\n      () => {\n        setConfirm({ ...confirm, isActive: false });\n        return false;\n      }\n    );\n  }, [confirm]);\n\n  const resetConfirmation = useCallback(() => {\n    setConfirm(initialConfirmState);\n  }, []);\n\n  return {\n    ...confirm,\n    onConfirm,\n    resetConfirmation,\n  };\n};\n\nexport default useConfirm;\n","import React, { useCallback } from \"react\";\n\nimport useConfirm from \"./hooks/use-confirm\";\nimport useBlocker from \"./hooks/use-blocker\";\n\ntype ReactRouterPromptProps = {\n  when: boolean;\n  children: (data: {\n    isActive: boolean;\n    onCancel: (value: unknown) => void;\n    onConfirm: (value: unknown) => void;\n  }) => React.ReactNode;\n};\n\n/**\n * A replacement component for the react-router `Prompt`.\n * Allows for more flexible dialogs.\n *\n * @example\n * <ReactRouterPrompt when={isDirty}>\n *   {({isActive, onConfirm, onCancel}) => (\n *     <Modal show={isActive}>\n *       <div>\n *         <p>Do you really want to leave?</p>\n *         <button onClick={onCancel}>Cancel</button>\n *         <button onClick={onConfirm}>Ok</button>\n *       </div>\n *     </Modal>\n *   )}\n * </ReactRouterPrompt>\n */\n\nconst ReactRouterPrompt: React.FC<ReactRouterPromptProps> = ({\n  when,\n  children,\n}) => {\n  const {\n    isActive,\n    proceed,\n    cancel,\n    onConfirm,\n    hasConfirmed,\n    resetConfirmation,\n  } = useConfirm();\n\n  const blocker = useCallback(\n    // @ts-ignore\n    async tx => {\n      if (await onConfirm()) {\n        resetConfirmation();\n        tx.retry();\n      }\n    },\n    [resetConfirmation, onConfirm]\n  );\n\n  useBlocker(blocker, when && !hasConfirmed);\n\n  return (\n    <div>\n      {children({\n        isActive,\n        onConfirm: proceed,\n        onCancel: cancel,\n      })}\n    </div>\n  );\n};\n\nexport default ReactRouterPrompt;\n","import { useContext, useEffect } from \"react\";\nimport { Blocker, Transition } from \"history\";\n// @ts-ignore\nimport { UNSAFE_NavigationContext as NavigationContext } from \"react-router-dom\";\n\nfunction useBlocker(blocker: Blocker, when = true) {\n  const { navigator } = useContext(NavigationContext);\n\n  useEffect(() => {\n    if (!when) return;\n\n    // @ts-ignore\n    const unblock = navigator.block((tx: Transition) => {\n      const autoUnblockingTx = {\n        ...tx,\n        retry() {\n          // Automatically unblock the transition so it can play all the way\n          // through before retrying it. TODO: Figure out how to re-enable\n          // this block if the transition is cancelled for some reason.\n          unblock();\n          tx.retry();\n        },\n      };\n\n      blocker(autoUnblockingTx);\n    });\n\n    return unblock;\n  }, [navigator, blocker, when]);\n}\n\nexport default useBlocker;\n"],"names":["noop","initialConfirmState","isActive","hasConfirmed","proceed","cancel","when","children","useState","confirm","setConfirm","useEffect","window","onbeforeunload","onConfirm","useCallback","Promise","resolve","reject","prevState","then","resetConfirmation","useConfirm","blocker","navigator","useContext","NavigationContext","unblock","block","tx","autoUnblockingTx","retry","useBlocker","_context","React","onCancel"],"mappings":"u0NAEA,IAAMA,EAAO,aAIPC,EAAsB,CAC1BC,UAAU,EACVC,cAAc,EACdC,QAASJ,EACTK,OAAQL,mBCsBkD,gBAC1DM,IAAAA,KACAC,IAAAA,WDTiB,WACjB,MAA8BC,WAA2BP,GAAlDQ,OAASC,OAEhBC,aAAU,WAOR,OANIF,EAAQP,WACVU,OAAOC,eAAiB,WACtB,OAAO,IAIJ,WACDJ,EAAQP,WAAUU,OAAOC,eAAiB,SAE/C,CAACJ,IAEJ,IAAMK,EAAYC,eAAY,WAU5B,OATgB,IAAIC,SAAQ,SAACC,EAASC,GACpCR,GAAW,SAACS,GAAD,YACNA,GACHjB,UAAU,EACVE,QAASa,EACTZ,OAAQa,UAIGE,MACb,WAEE,OADAV,OAAgBD,GAASP,UAAU,EAAOC,cAAc,MACjD,KAET,WAEE,OADAO,OAAgBD,GAASP,UAAU,MAC5B,OAGV,CAACO,IAEEY,EAAoBN,eAAY,WACpCL,EAAWT,KACV,IAEH,YACKQ,GACHK,UAAAA,EACAO,kBAAAA,IC1BEC,GANFpB,IAAAA,SACAE,IAAAA,QACAC,IAAAA,OACAS,IAAAA,UACAX,IAAAA,aACAkB,IAAAA,kBAgBF,OCrDF,SAAoBE,EAAkBjB,YAAAA,IAAAA,GAAO,GAC3C,IAAQkB,EAAcC,aAAWC,4BAAzBF,UAERb,aAAU,WACR,GAAKL,EAAL,CAGA,IAAMqB,EAAUH,EAAUI,OAAM,SAACC,GAC/B,IAAMC,OACDD,GACHE,iBAIEJ,IACAE,EAAGE,WAIPR,EAAQO,MAGV,OAAOH,KACN,CAACH,EAAWD,EAASjB,ID4BxB0B,CAXgBjB,cAAW,WAAA,qBAEzB,WAAMc,GAAN,6BAAA,OAAA,sBAAA,OAAA,OAAAI,SACYnB,IADZ,OAAA,YAAAmB,SAAA,MAEIZ,IACAQ,EAAGE,QAHP,OAAA,UAAA,wMAFyB,mBAAA,gCAAA,GAQzB,CAACV,EAAmBP,IAGFR,IAASH,GAG3B+B,2BACG3B,EAAS,CACRL,SAAAA,EACAY,UAAWV,EACX+B,SAAU9B"}
+\ No newline at end of file
++{"version":3,"file":"react-router-prompt.cjs.production.min.js","sources":["../src/hooks/use-confirm.ts","../src/index.tsx","../src/hooks/use-blocker.ts"],"sourcesContent":["import { Transition } from \"history\";\r\nimport { useState, useEffect, useCallback } from \"react\";\r\nimport { useLocation } from \"react-router-dom\";\r\nimport { ReactRouterPromptProps } from \"..\";\r\n\r\nconst noop = () => {\r\n  /*No Operation*/\r\n};\r\n\r\nconst initialConfirmState = {\r\n  isActive: false,\r\n  hasConfirmed: false,\r\n  proceed: noop,\r\n  cancel: noop,\r\n};\r\n\r\ndeclare interface InitialStateType {\r\n  isActive: boolean;\r\n  hasConfirmed: boolean;\r\n  proceed: () => void;\r\n  cancel: () => void;\r\n}\r\n\r\ndeclare interface ConfirmLeaveReturnType extends InitialStateType {\r\n  onConfirm: (tx: Transition) => Promise<boolean | \"noReset\">;\r\n  resetConfirmation: () => void;\r\n}\r\n\r\nconst useConfirm = (\r\n  when: ReactRouterPromptProps[\"when\"]\r\n): ConfirmLeaveReturnType => {\r\n  const [confirm, setConfirm] = useState<InitialStateType>(initialConfirmState);\r\n\r\n  // Create a location object that includes the router's `basename` in\r\n  // the pathname since the blocker location object includes `basename`.\r\n  const { hash, key, search, state } = useLocation();\r\n  const { pathname } = window.location;\r\n  const location = { hash, key, pathname, search, state };\r\n\r\n  useEffect(() => {\r\n    if (confirm.isActive) {\r\n      window.onbeforeunload = (): boolean => {\r\n        return false;\r\n      };\r\n    }\r\n\r\n    return (): void => {\r\n      if (confirm.isActive) window.onbeforeunload = null;\r\n    };\r\n  }, [confirm]);\r\n\r\n  const onConfirm = useCallback(\r\n    (tx: Transition) => {\r\n      const promise = new Promise<\"noReset\" | true>((resolve, reject) => {\r\n        setConfirm((prevState: InitialStateType) => ({\r\n          ...prevState,\r\n          isActive: true,\r\n          proceed: () => resolve(true),\r\n          cancel: () => reject(),\r\n        }));\r\n\r\n        // Go ahead and resolve the promise when the `when` function\r\n        // returns `false`, which means the prompt should not be displayed\r\n        // and navigation should occur.\r\n        if (typeof when === \"function\") {\r\n          if (!when(location, tx.location, tx.action)) {\r\n            // Use \"noReset\" to ensure that `resetConfirmation()` is not executed,\r\n            // which would cause an infinite loop when attempting to navigate\r\n            // with the forward and back buttons in the browser.\r\n            resolve(\"noReset\");\r\n          }\r\n        }\r\n      });\r\n\r\n      return promise.then(\r\n        result => {\r\n          setConfirm({ ...confirm, isActive: false, hasConfirmed: true });\r\n          return result;\r\n        },\r\n        () => {\r\n          setConfirm({ ...confirm, isActive: false });\r\n          return false;\r\n        }\r\n      );\r\n    },\r\n    [confirm, location, when]\r\n  );\r\n\r\n  const resetConfirmation = useCallback(() => {\r\n    setConfirm(initialConfirmState);\r\n  }, []);\r\n\r\n  return {\r\n    ...confirm,\r\n    onConfirm,\r\n    resetConfirmation,\r\n  };\r\n};\r\n\r\nexport default useConfirm;\r\n","import React, { useCallback } from \"react\";\r\nimport { Action, Location, Transition } from \"history\";\r\n\r\nimport useBlocker from \"./hooks/use-blocker\";\r\nimport useConfirm from \"./hooks/use-confirm\";\r\n\r\nexport type ReactRouterPromptProps = {\r\n  when:\r\n    | boolean\r\n    | ((\r\n        currentLocation: Location,\r\n        nextLocation: Location,\r\n        _action: Action\r\n      ) => boolean);\r\n  children: (data: {\r\n    isActive: boolean;\r\n    onCancel: (value: unknown) => void;\r\n    onConfirm: (value: unknown) => void;\r\n  }) => React.ReactNode;\r\n};\r\n\r\n/**\r\n * A replacement component for the react-router `Prompt`.\r\n * Allows for more flexible dialogs.\r\n *\r\n * @example\r\n * <ReactRouterPrompt when={isDirty}>\r\n *   {({isActive, onConfirm, onCancel}) => (\r\n *     <Modal show={isActive}>\r\n *       <div>\r\n *         <p>Do you really want to leave?</p>\r\n *         <button onClick={onCancel}>Cancel</button>\r\n *         <button onClick={onConfirm}>Ok</button>\r\n *       </div>\r\n *     </Modal>\r\n *   )}\r\n * </ReactRouterPrompt>\r\n */\r\n\r\nconst ReactRouterPrompt: React.FC<ReactRouterPromptProps> = ({\r\n  when,\r\n  children,\r\n}) => {\r\n  const {\r\n    isActive,\r\n    proceed,\r\n    cancel,\r\n    onConfirm,\r\n    hasConfirmed,\r\n    resetConfirmation,\r\n  } = useConfirm(when);\r\n\r\n  const blocker = useCallback(\r\n    async (tx: Transition) => {\r\n      const result = await onConfirm(tx);\r\n      if (result) {\r\n        if (result !== \"noReset\") resetConfirmation();\r\n        tx.retry();\r\n      }\r\n    },\r\n    [resetConfirmation, onConfirm]\r\n  );\r\n\r\n  useBlocker(blocker, when && !hasConfirmed);\r\n\r\n  return (\r\n    <div>\r\n      {children({\r\n        isActive,\r\n        onConfirm: proceed,\r\n        onCancel: cancel,\r\n      })}\r\n    </div>\r\n  );\r\n};\r\n\r\nexport default ReactRouterPrompt;\r\n","import { useContext, useEffect } from \"react\";\r\nimport { Blocker, Transition } from \"history\";\r\n// @ts-ignore\r\nimport { UNSAFE_NavigationContext as NavigationContext } from \"react-router-dom\";\r\n\r\nfunction useBlocker(blocker: Blocker, when = true) {\r\n  const { navigator } = useContext(NavigationContext);\r\n\r\n  useEffect(() => {\r\n    if (!when) return;\r\n\r\n    // @ts-ignore\r\n    const unblock = navigator.block((tx: Transition) => {\r\n      const autoUnblockingTx = {\r\n        ...tx,\r\n        retry() {\r\n          // Automatically unblock the transition so it can play all the way\r\n          // through before retrying it. TODO: Figure out how to re-enable\r\n          // this block if the transition is cancelled for some reason.\r\n          unblock();\r\n          tx.retry();\r\n        },\r\n      };\r\n\r\n      blocker(autoUnblockingTx);\r\n    });\r\n\r\n    return unblock;\r\n  }, [navigator, blocker, when]);\r\n}\r\n\r\nexport default useBlocker;\r\n"],"names":["noop","initialConfirmState","isActive","hasConfirmed","proceed","cancel","when","children","useState","confirm","setConfirm","useLocation","location","hash","key","pathname","window","search","state","useEffect","onbeforeunload","onConfirm","useCallback","tx","Promise","resolve","reject","prevState","action","then","result","resetConfirmation","useConfirm","blocker","navigator","useContext","NavigationContext","unblock","block","autoUnblockingTx","retry","useBlocker","_context","React","onCancel"],"mappings":"u0NAKA,IAAMA,EAAO,aAIPC,EAAsB,CAC1BC,UAAU,EACVC,cAAc,EACdC,QAASJ,EACTK,OAAQL,mBC0BkD,gBAC1DM,IAAAA,KACAC,IAAAA,WDbiB,SACjBD,GAEA,MAA8BE,WAA2BP,GAAlDQ,OAASC,SAIqBC,gBAE/BC,EAAW,CAAEC,OAFXA,KAEiBC,MAFXA,IAEgBC,SADTC,OAAOJ,SAApBG,SACgCE,SAFrBA,OAE6BC,QAFrBA,OAI3BC,aAAU,WAOR,OANIV,EAAQP,WACVc,OAAOI,eAAiB,WACtB,OAAO,IAIJ,WACDX,EAAQP,WAAUc,OAAOI,eAAiB,SAE/C,CAACX,IAEJ,IAAMY,EAAYC,eAChB,SAACC,GAsBC,OArBgB,IAAIC,SAA0B,SAACC,EAASC,GACtDhB,GAAW,SAACiB,GAAD,YACNA,GACHzB,UAAU,EACVE,QAAS,WAAA,OAAMqB,GAAQ,IACvBpB,OAAQ,WAAA,OAAMqB,UAMI,mBAATpB,IACJA,EAAKM,EAAUW,EAAGX,SAAUW,EAAGK,SAIlCH,EAAQ,eAKCI,MACb,SAAAC,GAEE,OADApB,OAAgBD,GAASP,UAAU,EAAOC,cAAc,KACjD2B,KAET,WAEE,OADApB,OAAgBD,GAASP,UAAU,MAC5B,OAIb,CAACO,EAASG,EAAUN,IAGhByB,EAAoBT,eAAY,WACpCZ,EAAWT,KACV,IAEH,YACKQ,GACHY,UAAAA,EACAU,kBAAAA,IC7CEC,CAAW1B,GANbJ,IAAAA,SACAE,IAAAA,QACAC,IAAAA,OACAgB,IAAAA,UACAlB,IAAAA,aACA4B,IAAAA,kBAgBF,OC5DF,SAAoBE,EAAkB3B,YAAAA,IAAAA,GAAO,GAC3C,IAAQ4B,EAAcC,aAAWC,4BAAzBF,UAERf,aAAU,WACR,GAAKb,EAAL,CAGA,IAAM+B,EAAUH,EAAUI,OAAM,SAACf,GAC/B,IAAMgB,OACDhB,GACHiB,iBAIEH,IACAd,EAAGiB,WAIPP,EAAQM,MAGV,OAAOF,KACN,CAACH,EAAWD,EAAS3B,IDmCxBmC,CAXgBnB,yBAAW,qBACzB,WAAOC,GAAP,MAAA,6BAAA,OAAA,sBAAA,OAAA,OAAAmB,SACuBrB,EAAUE,GADjC,QACQO,YAEW,YAAXA,GAAsBC,IAC1BR,EAAGiB,SAJP,OAAA,UAAA,wMADyB,mBAAA,mCAQzB,CAACT,EAAmBV,IAGFf,IAASH,GAG3BwC,2BACGpC,EAAS,CACRL,SAAAA,EACAmB,UAAWjB,EACXwC,SAAUvC"}
+\ No newline at end of file
+diff --git a/node_modules/react-router-prompt/dist/react-router-prompt.esm.js b/node_modules/react-router-prompt/dist/react-router-prompt.esm.js
+index e13e7a7..73ddc6c 100644
+--- a/node_modules/react-router-prompt/dist/react-router-prompt.esm.js
++++ b/node_modules/react-router-prompt/dist/react-router-prompt.esm.js
+@@ -1,5 +1,5 @@
+-import React, { useState, useEffect, useCallback, useContext } from 'react';
+-import { UNSAFE_NavigationContext } from 'react-router-dom';
++import React, { useContext, useEffect, useState, useCallback } from 'react';
++import { UNSAFE_NavigationContext, useLocation } from 'react-router-dom';
+ 
+ function _regeneratorRuntime() {
+   /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
+@@ -399,6 +399,34 @@ function _extends() {
+   return _extends.apply(this, arguments);
+ }
+ 
++function useBlocker(blocker, when) {
++  if (when === void 0) {
++    when = true;
++  }
++
++  var _useContext = useContext(UNSAFE_NavigationContext),
++      navigator = _useContext.navigator;
++
++  useEffect(function () {
++    if (!when) return; // @ts-ignore
++
++    var unblock = navigator.block(function (tx) {
++      var autoUnblockingTx = _extends({}, tx, {
++        retry: function retry() {
++          // Automatically unblock the transition so it can play all the way
++          // through before retrying it. TODO: Figure out how to re-enable
++          // this block if the transition is cancelled for some reason.
++          unblock();
++          tx.retry();
++        }
++      });
++
++      blocker(autoUnblockingTx);
++    });
++    return unblock;
++  }, [navigator, blocker, when]);
++}
++
+ var noop = function noop() {
+   /*No Operation*/
+ };
+@@ -410,11 +438,27 @@ var initialConfirmState = {
+   cancel: noop
+ };
+ 
+-var useConfirm = function useConfirm() {
++var useConfirm = function useConfirm(when) {
+   var _useState = useState(initialConfirmState),
+       confirm = _useState[0],
+-      setConfirm = _useState[1];
+-
++      setConfirm = _useState[1]; // Create a location object that includes the router's `basename` in
++  // the pathname since the blocker location object includes `basename`.
++
++
++  var _useLocation = useLocation(),
++      hash = _useLocation.hash,
++      key = _useLocation.key,
++      search = _useLocation.search,
++      state = _useLocation.state;
++
++  var pathname = window.location.pathname;
++  var location = {
++    hash: hash,
++    key: key,
++    pathname: pathname,
++    search: search,
++    state: state
++  };
+   useEffect(function () {
+     if (confirm.isActive) {
+       window.onbeforeunload = function () {
+@@ -426,29 +470,44 @@ var useConfirm = function useConfirm() {
+       if (confirm.isActive) window.onbeforeunload = null;
+     };
+   }, [confirm]);
+-  var onConfirm = useCallback(function () {
++  var onConfirm = useCallback(function (tx) {
+     var promise = new Promise(function (resolve, reject) {
+       setConfirm(function (prevState) {
+         return _extends({}, prevState, {
+           isActive: true,
+-          proceed: resolve,
+-          cancel: reject
++          proceed: function proceed() {
++            return resolve(true);
++          },
++          cancel: function cancel() {
++            return reject();
++          }
+         });
+-      });
++      }); // Go ahead and resolve the promise when the `when` function
++      // returns `false`, which means the prompt should not be displayed
++      // and navigation should occur.
++
++      if (typeof when === "function") {
++        if (!when(location, tx.location, tx.action)) {
++          // Use "noReset" to ensure that `resetConfirmation()` is not executed,
++          // which would cause an infinite loop when attempting to navigate
++          // with the forward and back buttons in the browser.
++          resolve("noReset");
++        }
++      }
+     });
+-    return promise.then(function () {
++    return promise.then(function (result) {
+       setConfirm(_extends({}, confirm, {
+         isActive: false,
+         hasConfirmed: true
+       }));
+-      return true;
++      return result;
+     }, function () {
+       setConfirm(_extends({}, confirm, {
+         isActive: false
+       }));
+       return false;
+     });
+-  }, [confirm]);
++  }, [confirm, location, when]);
+   var resetConfirmation = useCallback(function () {
+     setConfirm(initialConfirmState);
+   }, []);
+@@ -458,34 +517,6 @@ var useConfirm = function useConfirm() {
+   });
+ };
+ 
+-function useBlocker(blocker, when) {
+-  if (when === void 0) {
+-    when = true;
+-  }
+-
+-  var _useContext = useContext(UNSAFE_NavigationContext),
+-      navigator = _useContext.navigator;
+-
+-  useEffect(function () {
+-    if (!when) return; // @ts-ignore
+-
+-    var unblock = navigator.block(function (tx) {
+-      var autoUnblockingTx = _extends({}, tx, {
+-        retry: function retry() {
+-          // Automatically unblock the transition so it can play all the way
+-          // through before retrying it. TODO: Figure out how to re-enable
+-          // this block if the transition is cancelled for some reason.
+-          unblock();
+-          tx.retry();
+-        }
+-      });
+-
+-      blocker(autoUnblockingTx);
+-    });
+-    return unblock;
+-  }, [navigator, blocker, when]);
+-}
+-
+ /**
+  * A replacement component for the react-router `Prompt`.
+  * Allows for more flexible dialogs.
+@@ -508,7 +539,7 @@ var ReactRouterPrompt = function ReactRouterPrompt(_ref) {
+   var when = _ref.when,
+       children = _ref.children;
+ 
+-  var _useConfirm = useConfirm(),
++  var _useConfirm = useConfirm(when),
+       isActive = _useConfirm.isActive,
+       proceed = _useConfirm.proceed,
+       cancel = _useConfirm.cancel,
+@@ -516,28 +547,25 @@ var ReactRouterPrompt = function ReactRouterPrompt(_ref) {
+       hasConfirmed = _useConfirm.hasConfirmed,
+       resetConfirmation = _useConfirm.resetConfirmation;
+ 
+-  var blocker = useCallback(
+-  /*#__PURE__*/
+-  // @ts-ignore
+-  function () {
++  var blocker = useCallback( /*#__PURE__*/function () {
+     var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(tx) {
++      var result;
+       return _regeneratorRuntime().wrap(function _callee$(_context) {
+         while (1) {
+           switch (_context.prev = _context.next) {
+             case 0:
+               _context.next = 2;
+-              return onConfirm();
++              return onConfirm(tx);
+ 
+             case 2:
+-              if (!_context.sent) {
+-                _context.next = 5;
+-                break;
+-              }
++              result = _context.sent;
+ 
+-              resetConfirmation();
+-              tx.retry();
++              if (result) {
++                if (result !== "noReset") resetConfirmation();
++                tx.retry();
++              }
+ 
+-            case 5:
++            case 4:
+             case "end":
+               return _context.stop();
+           }
+diff --git a/node_modules/react-router-prompt/dist/react-router-prompt.esm.js.map b/node_modules/react-router-prompt/dist/react-router-prompt.esm.js.map
+index fc1f42c..8476f45 100644
+--- a/node_modules/react-router-prompt/dist/react-router-prompt.esm.js.map
++++ b/node_modules/react-router-prompt/dist/react-router-prompt.esm.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"react-router-prompt.esm.js","sources":["../src/hooks/use-confirm.ts","../src/hooks/use-blocker.ts","../src/index.tsx"],"sourcesContent":["import { useState, useEffect, useCallback } from \"react\";\n\nconst noop = () => {\n  /*No Operation*/\n};\n\nconst initialConfirmState = {\n  isActive: false,\n  hasConfirmed: false,\n  proceed: noop,\n  cancel: noop,\n};\n\ndeclare interface InitialStateType {\n  isActive: boolean;\n  hasConfirmed: boolean;\n  proceed: (value: unknown) => void;\n  cancel: (value: unknown) => void;\n}\n\ndeclare interface ConfirmLeaveReturnType extends InitialStateType {\n  onConfirm: () => Promise<boolean>;\n  resetConfirmation: () => void;\n}\n\nconst useConfirm = (): ConfirmLeaveReturnType => {\n  const [confirm, setConfirm] = useState<InitialStateType>(initialConfirmState);\n\n  useEffect(() => {\n    if (confirm.isActive) {\n      window.onbeforeunload = (): boolean => {\n        return false;\n      };\n    }\n\n    return (): void => {\n      if (confirm.isActive) window.onbeforeunload = null;\n    };\n  }, [confirm]);\n\n  const onConfirm = useCallback(() => {\n    const promise = new Promise((resolve, reject) => {\n      setConfirm((prevState: InitialStateType) => ({\n        ...prevState,\n        isActive: true,\n        proceed: resolve,\n        cancel: reject,\n      }));\n    });\n\n    return promise.then(\n      () => {\n        setConfirm({ ...confirm, isActive: false, hasConfirmed: true });\n        return true;\n      },\n      () => {\n        setConfirm({ ...confirm, isActive: false });\n        return false;\n      }\n    );\n  }, [confirm]);\n\n  const resetConfirmation = useCallback(() => {\n    setConfirm(initialConfirmState);\n  }, []);\n\n  return {\n    ...confirm,\n    onConfirm,\n    resetConfirmation,\n  };\n};\n\nexport default useConfirm;\n","import { useContext, useEffect } from \"react\";\nimport { Blocker, Transition } from \"history\";\n// @ts-ignore\nimport { UNSAFE_NavigationContext as NavigationContext } from \"react-router-dom\";\n\nfunction useBlocker(blocker: Blocker, when = true) {\n  const { navigator } = useContext(NavigationContext);\n\n  useEffect(() => {\n    if (!when) return;\n\n    // @ts-ignore\n    const unblock = navigator.block((tx: Transition) => {\n      const autoUnblockingTx = {\n        ...tx,\n        retry() {\n          // Automatically unblock the transition so it can play all the way\n          // through before retrying it. TODO: Figure out how to re-enable\n          // this block if the transition is cancelled for some reason.\n          unblock();\n          tx.retry();\n        },\n      };\n\n      blocker(autoUnblockingTx);\n    });\n\n    return unblock;\n  }, [navigator, blocker, when]);\n}\n\nexport default useBlocker;\n","import React, { useCallback } from \"react\";\n\nimport useConfirm from \"./hooks/use-confirm\";\nimport useBlocker from \"./hooks/use-blocker\";\n\ntype ReactRouterPromptProps = {\n  when: boolean;\n  children: (data: {\n    isActive: boolean;\n    onCancel: (value: unknown) => void;\n    onConfirm: (value: unknown) => void;\n  }) => React.ReactNode;\n};\n\n/**\n * A replacement component for the react-router `Prompt`.\n * Allows for more flexible dialogs.\n *\n * @example\n * <ReactRouterPrompt when={isDirty}>\n *   {({isActive, onConfirm, onCancel}) => (\n *     <Modal show={isActive}>\n *       <div>\n *         <p>Do you really want to leave?</p>\n *         <button onClick={onCancel}>Cancel</button>\n *         <button onClick={onConfirm}>Ok</button>\n *       </div>\n *     </Modal>\n *   )}\n * </ReactRouterPrompt>\n */\n\nconst ReactRouterPrompt: React.FC<ReactRouterPromptProps> = ({\n  when,\n  children,\n}) => {\n  const {\n    isActive,\n    proceed,\n    cancel,\n    onConfirm,\n    hasConfirmed,\n    resetConfirmation,\n  } = useConfirm();\n\n  const blocker = useCallback(\n    // @ts-ignore\n    async tx => {\n      if (await onConfirm()) {\n        resetConfirmation();\n        tx.retry();\n      }\n    },\n    [resetConfirmation, onConfirm]\n  );\n\n  useBlocker(blocker, when && !hasConfirmed);\n\n  return (\n    <div>\n      {children({\n        isActive,\n        onConfirm: proceed,\n        onCancel: cancel,\n      })}\n    </div>\n  );\n};\n\nexport default ReactRouterPrompt;\n"],"names":["noop","initialConfirmState","isActive","hasConfirmed","proceed","cancel","useConfirm","useState","confirm","setConfirm","useEffect","window","onbeforeunload","onConfirm","useCallback","promise","Promise","resolve","reject","prevState","then","resetConfirmation","useBlocker","blocker","when","useContext","NavigationContext","navigator","unblock","block","tx","autoUnblockingTx","retry","ReactRouterPrompt","children","React","onCancel"],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"react-router-prompt.esm.js","sources":["../src/hooks/use-blocker.ts","../src/hooks/use-confirm.ts","../src/index.tsx"],"sourcesContent":["import { useContext, useEffect } from \"react\";\r\nimport { Blocker, Transition } from \"history\";\r\n// @ts-ignore\r\nimport { UNSAFE_NavigationContext as NavigationContext } from \"react-router-dom\";\r\n\r\nfunction useBlocker(blocker: Blocker, when = true) {\r\n  const { navigator } = useContext(NavigationContext);\r\n\r\n  useEffect(() => {\r\n    if (!when) return;\r\n\r\n    // @ts-ignore\r\n    const unblock = navigator.block((tx: Transition) => {\r\n      const autoUnblockingTx = {\r\n        ...tx,\r\n        retry() {\r\n          // Automatically unblock the transition so it can play all the way\r\n          // through before retrying it. TODO: Figure out how to re-enable\r\n          // this block if the transition is cancelled for some reason.\r\n          unblock();\r\n          tx.retry();\r\n        },\r\n      };\r\n\r\n      blocker(autoUnblockingTx);\r\n    });\r\n\r\n    return unblock;\r\n  }, [navigator, blocker, when]);\r\n}\r\n\r\nexport default useBlocker;\r\n","import { Transition } from \"history\";\r\nimport { useState, useEffect, useCallback } from \"react\";\r\nimport { useLocation } from \"react-router-dom\";\r\nimport { ReactRouterPromptProps } from \"..\";\r\n\r\nconst noop = () => {\r\n  /*No Operation*/\r\n};\r\n\r\nconst initialConfirmState = {\r\n  isActive: false,\r\n  hasConfirmed: false,\r\n  proceed: noop,\r\n  cancel: noop,\r\n};\r\n\r\ndeclare interface InitialStateType {\r\n  isActive: boolean;\r\n  hasConfirmed: boolean;\r\n  proceed: () => void;\r\n  cancel: () => void;\r\n}\r\n\r\ndeclare interface ConfirmLeaveReturnType extends InitialStateType {\r\n  onConfirm: (tx: Transition) => Promise<boolean | \"noReset\">;\r\n  resetConfirmation: () => void;\r\n}\r\n\r\nconst useConfirm = (\r\n  when: ReactRouterPromptProps[\"when\"]\r\n): ConfirmLeaveReturnType => {\r\n  const [confirm, setConfirm] = useState<InitialStateType>(initialConfirmState);\r\n\r\n  // Create a location object that includes the router's `basename` in\r\n  // the pathname since the blocker location object includes `basename`.\r\n  const { hash, key, search, state } = useLocation();\r\n  const { pathname } = window.location;\r\n  const location = { hash, key, pathname, search, state };\r\n\r\n  useEffect(() => {\r\n    if (confirm.isActive) {\r\n      window.onbeforeunload = (): boolean => {\r\n        return false;\r\n      };\r\n    }\r\n\r\n    return (): void => {\r\n      if (confirm.isActive) window.onbeforeunload = null;\r\n    };\r\n  }, [confirm]);\r\n\r\n  const onConfirm = useCallback(\r\n    (tx: Transition) => {\r\n      const promise = new Promise<\"noReset\" | true>((resolve, reject) => {\r\n        setConfirm((prevState: InitialStateType) => ({\r\n          ...prevState,\r\n          isActive: true,\r\n          proceed: () => resolve(true),\r\n          cancel: () => reject(),\r\n        }));\r\n\r\n        // Go ahead and resolve the promise when the `when` function\r\n        // returns `false`, which means the prompt should not be displayed\r\n        // and navigation should occur.\r\n        if (typeof when === \"function\") {\r\n          if (!when(location, tx.location, tx.action)) {\r\n            // Use \"noReset\" to ensure that `resetConfirmation()` is not executed,\r\n            // which would cause an infinite loop when attempting to navigate\r\n            // with the forward and back buttons in the browser.\r\n            resolve(\"noReset\");\r\n          }\r\n        }\r\n      });\r\n\r\n      return promise.then(\r\n        result => {\r\n          setConfirm({ ...confirm, isActive: false, hasConfirmed: true });\r\n          return result;\r\n        },\r\n        () => {\r\n          setConfirm({ ...confirm, isActive: false });\r\n          return false;\r\n        }\r\n      );\r\n    },\r\n    [confirm, location, when]\r\n  );\r\n\r\n  const resetConfirmation = useCallback(() => {\r\n    setConfirm(initialConfirmState);\r\n  }, []);\r\n\r\n  return {\r\n    ...confirm,\r\n    onConfirm,\r\n    resetConfirmation,\r\n  };\r\n};\r\n\r\nexport default useConfirm;\r\n","import React, { useCallback } from \"react\";\r\nimport { Action, Location, Transition } from \"history\";\r\n\r\nimport useBlocker from \"./hooks/use-blocker\";\r\nimport useConfirm from \"./hooks/use-confirm\";\r\n\r\nexport type ReactRouterPromptProps = {\r\n  when:\r\n    | boolean\r\n    | ((\r\n        currentLocation: Location,\r\n        nextLocation: Location,\r\n        _action: Action\r\n      ) => boolean);\r\n  children: (data: {\r\n    isActive: boolean;\r\n    onCancel: (value: unknown) => void;\r\n    onConfirm: (value: unknown) => void;\r\n  }) => React.ReactNode;\r\n};\r\n\r\n/**\r\n * A replacement component for the react-router `Prompt`.\r\n * Allows for more flexible dialogs.\r\n *\r\n * @example\r\n * <ReactRouterPrompt when={isDirty}>\r\n *   {({isActive, onConfirm, onCancel}) => (\r\n *     <Modal show={isActive}>\r\n *       <div>\r\n *         <p>Do you really want to leave?</p>\r\n *         <button onClick={onCancel}>Cancel</button>\r\n *         <button onClick={onConfirm}>Ok</button>\r\n *       </div>\r\n *     </Modal>\r\n *   )}\r\n * </ReactRouterPrompt>\r\n */\r\n\r\nconst ReactRouterPrompt: React.FC<ReactRouterPromptProps> = ({\r\n  when,\r\n  children,\r\n}) => {\r\n  const {\r\n    isActive,\r\n    proceed,\r\n    cancel,\r\n    onConfirm,\r\n    hasConfirmed,\r\n    resetConfirmation,\r\n  } = useConfirm(when);\r\n\r\n  const blocker = useCallback(\r\n    async (tx: Transition) => {\r\n      const result = await onConfirm(tx);\r\n      if (result) {\r\n        if (result !== \"noReset\") resetConfirmation();\r\n        tx.retry();\r\n      }\r\n    },\r\n    [resetConfirmation, onConfirm]\r\n  );\r\n\r\n  useBlocker(blocker, when && !hasConfirmed);\r\n\r\n  return (\r\n    <div>\r\n      {children({\r\n        isActive,\r\n        onConfirm: proceed,\r\n        onCancel: cancel,\r\n      })}\r\n    </div>\r\n  );\r\n};\r\n\r\nexport default ReactRouterPrompt;\r\n"],"names":["useBlocker","blocker","when","useContext","NavigationContext","navigator","useEffect","unblock","block","tx","autoUnblockingTx","retry","noop","initialConfirmState","isActive","hasConfirmed","proceed","cancel","useConfirm","useState","confirm","setConfirm","useLocation","hash","key","search","state","pathname","window","location","onbeforeunload","onConfirm","useCallback","promise","Promise","resolve","reject","prevState","action","then","result","resetConfirmation","ReactRouterPrompt","children","React","onCancel"],"mappings":"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"}
+\ No newline at end of file
+diff --git a/node_modules/react-router-prompt/src/hooks/use-confirm.ts b/node_modules/react-router-prompt/src/hooks/use-confirm.ts
+index 84f3248..ab772af 100644
+--- a/node_modules/react-router-prompt/src/hooks/use-confirm.ts
++++ b/node_modules/react-router-prompt/src/hooks/use-confirm.ts
+@@ -1,4 +1,7 @@
++import { Transition } from "history";
+ import { useState, useEffect, useCallback } from "react";
++import { useLocation } from "react-router-dom";
++import { ReactRouterPromptProps } from "..";
+ 
+ const noop = () => {
+   /*No Operation*/
+@@ -14,18 +17,26 @@ const initialConfirmState = {
+ declare interface InitialStateType {
+   isActive: boolean;
+   hasConfirmed: boolean;
+-  proceed: (value: unknown) => void;
+-  cancel: (value: unknown) => void;
++  proceed: () => void;
++  cancel: () => void;
+ }
+ 
+ declare interface ConfirmLeaveReturnType extends InitialStateType {
+-  onConfirm: () => Promise<boolean>;
++  onConfirm: (tx: Transition) => Promise<boolean | "noReset">;
+   resetConfirmation: () => void;
+ }
+ 
+-const useConfirm = (): ConfirmLeaveReturnType => {
++const useConfirm = (
++  when: ReactRouterPromptProps["when"]
++): ConfirmLeaveReturnType => {
+   const [confirm, setConfirm] = useState<InitialStateType>(initialConfirmState);
+ 
++  // Create a location object that includes the router's `basename` in
++  // the pathname since the blocker location object includes `basename`.
++  const { hash, key, search, state } = useLocation();
++  const { pathname } = window.location;
++  const location = { hash, key, pathname, search, state };
++
+   useEffect(() => {
+     if (confirm.isActive) {
+       window.onbeforeunload = (): boolean => {
+@@ -38,27 +49,42 @@ const useConfirm = (): ConfirmLeaveReturnType => {
+     };
+   }, [confirm]);
+ 
+-  const onConfirm = useCallback(() => {
+-    const promise = new Promise((resolve, reject) => {
+-      setConfirm((prevState: InitialStateType) => ({
+-        ...prevState,
+-        isActive: true,
+-        proceed: resolve,
+-        cancel: reject,
+-      }));
+-    });
++  const onConfirm = useCallback(
++    (tx: Transition) => {
++      const promise = new Promise<"noReset" | true>((resolve, reject) => {
++        setConfirm((prevState: InitialStateType) => ({
++          ...prevState,
++          isActive: true,
++          proceed: () => resolve(true),
++          cancel: () => reject(),
++        }));
+ 
+-    return promise.then(
+-      () => {
+-        setConfirm({ ...confirm, isActive: false, hasConfirmed: true });
+-        return true;
+-      },
+-      () => {
+-        setConfirm({ ...confirm, isActive: false });
+-        return false;
+-      }
+-    );
+-  }, [confirm]);
++        // Go ahead and resolve the promise when the `when` function
++        // returns `false`, which means the prompt should not be displayed
++        // and navigation should occur.
++        if (typeof when === "function") {
++          if (!when(location, tx.location, tx.action)) {
++            // Use "noReset" to ensure that `resetConfirmation()` is not executed,
++            // which would cause an infinite loop when attempting to navigate
++            // with the forward and back buttons in the browser.
++            resolve("noReset");
++          }
++        }
++      });
++
++      return promise.then(
++        result => {
++          setConfirm({ ...confirm, isActive: false, hasConfirmed: true });
++          return result;
++        },
++        () => {
++          setConfirm({ ...confirm, isActive: false });
++          return false;
++        }
++      );
++    },
++    [confirm, location, when]
++  );
+ 
+   const resetConfirmation = useCallback(() => {
+     setConfirm(initialConfirmState);
+diff --git a/node_modules/react-router-prompt/src/index.tsx b/node_modules/react-router-prompt/src/index.tsx
+index effaa04..cbd69cc 100644
+--- a/node_modules/react-router-prompt/src/index.tsx
++++ b/node_modules/react-router-prompt/src/index.tsx
+@@ -1,10 +1,17 @@
+ import React, { useCallback } from "react";
++import { Action, Location, Transition } from "history";
+ 
+-import useConfirm from "./hooks/use-confirm";
+ import useBlocker from "./hooks/use-blocker";
++import useConfirm from "./hooks/use-confirm";
+ 
+-type ReactRouterPromptProps = {
+-  when: boolean;
++export type ReactRouterPromptProps = {
++  when:
++    | boolean
++    | ((
++        currentLocation: Location,
++        nextLocation: Location,
++        _action: Action
++      ) => boolean);
+   children: (data: {
+     isActive: boolean;
+     onCancel: (value: unknown) => void;
+@@ -41,13 +48,13 @@ const ReactRouterPrompt: React.FC<ReactRouterPromptProps> = ({
+     onConfirm,
+     hasConfirmed,
+     resetConfirmation,
+-  } = useConfirm();
++  } = useConfirm(when);
+ 
+   const blocker = useCallback(
+-    // @ts-ignore
+-    async tx => {
+-      if (await onConfirm()) {
+-        resetConfirmation();
++    async (tx: Transition) => {
++      const result = await onConfirm(tx);
++      if (result) {
++        if (result !== "noReset") resetConfirmation();
+         tx.retry();
+       }
+     },

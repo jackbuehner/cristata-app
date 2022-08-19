@@ -9,14 +9,18 @@ import {
 import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
+import ReactTooltip from 'react-tooltip';
 import { Button, buttonEffect } from '../../../components/Button';
-import { SelectOne } from '../../../components/ContentField';
+import { Checkbox } from '../../../components/Checkbox';
+import { CollaborativeSelectOne } from '../../../components/CollaborativeFields';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setField } from '../../../redux/slices/cmsItemSlice';
+import { useAwareness } from '../../../components/Tiptap/hooks';
+import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
+import { useForceUpdate } from '../../../hooks/useForceUpdate';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
+import { GetYFieldsOptions } from './getYFields';
 
 interface SidebarProps {
   docInfo: {
@@ -37,13 +41,17 @@ interface SidebarProps {
   isEmbedded?: boolean;
   previewUrl?: string;
   compact?: boolean;
+  y: EntryY;
+  user?: ReturnType<typeof useAwareness>[0];
+  getFieldValues: (opts: GetYFieldsOptions) => any;
 }
 
 function Sidebar(props: SidebarProps) {
-  const itemState = useAppSelector((state) => state.cmsItem);
-  const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
   const client = useApolloClient();
+  const forceUpdate = useForceUpdate();
+
+  ReactTooltip.rebuild();
 
   const [teams, setTeams] = useState<{ _id: string; name: string; color: string }[] | undefined>(undefined);
   useEffect(() => {
@@ -79,6 +87,8 @@ function Sidebar(props: SidebarProps) {
     };
   }, [client, props.permissions, teams]);
 
+  const ySettingsMap = props.y.ydoc?.getMap<IYSettingsMap>('__settings');
+
   return (
     <Container theme={theme} compact={props.compact}>
       <SectionTitle theme={theme}>Document Information</SectionTitle>
@@ -90,42 +100,80 @@ function Sidebar(props: SidebarProps) {
         <div>Last updated</div>
         <div>{formatISODate(props.docInfo.modifiedAt, undefined, undefined, true)}</div>
       </DocInfoRow>
+      {true ? null : (
+        <DocInfoRow
+          theme={theme}
+          style={{
+            flexDirection: 'row-reverse',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 10,
+            marginTop: 10,
+          }}
+        >
+          <label htmlFor={'autosave'} style={{ userSelect: 'none' }}>
+            Autosave
+          </label>
+          <Checkbox
+            isChecked={!!ySettingsMap?.get('autosave')}
+            id={'autosave'}
+            onChange={(e) => {
+              ySettingsMap?.set('autosave', e.currentTarget.checked);
+              forceUpdate();
+            }}
+          />
+        </DocInfoRow>
+      )}
       {props.stage ? (
         <>
           <SectionTitle theme={theme}>Stage</SectionTitle>
           {typeof props.stage.current === 'string' && typeof props.stage.options[0].value === 'string' ? (
-            <SelectOne
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'String'}
-              options={props.stage.options}
+            <CollaborativeSelectOne
               label={'Stage'}
-              value={(props.stage.options as StringOption[]).find(
-                ({ value }) => value === props.stage!.current
-              )}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue) dispatch(setField(newValue, props.stage!.key));
-              }}
+              y={{ ...props.y, field: props.stage.key, user: props.user }}
+              options={props.stage.options as StringOption[]}
+              color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={props.loading}
+              isEmbedded
             />
           ) : (
-            <SelectOne
+            <CollaborativeSelectOne
+              label={'Stage'}
+              y={{ ...props.y, field: props.stage.key, user: props.user }}
+              options={(props.stage.options as NumberOption[]).map((opt) => ({
+                ...opt,
+                value: opt.value.toString(),
+                label: opt.label.toString(),
+              }))}
+              number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={props.stage.options}
-              label={'__in-select'}
-              value={(props.stage.options as NumberOption[]).find(
-                ({ value }) => value === props.stage!.current
-              )}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue) dispatch(setField(newValue, props.stage!.key));
-              }}
               disabled={props.loading}
+              isEmbedded
             />
           )}
         </>
       ) : null}
+      {props.isEmbedded ? null : (
+        <>
+          <SectionTitle theme={theme}>Current editors</SectionTitle>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 6, flexWrap: 'wrap', minHeight: 28 }}>
+            {props.y.awareness?.map((profile, index) => {
+              return (
+                <AwarenessPhoto
+                  key={index}
+                  photo={profile.photo}
+                  color={profile.color}
+                  data-tip={profile.name}
+                  data-delay-show={0}
+                  data-effect={'solid'}
+                  data-place={'bottom'}
+                  data-offset={`{ 'bottom': 4 }`}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
       {props.previewUrl ? (
         <>
           <SectionTitle theme={theme}>Preview</SectionTitle>
@@ -135,15 +183,17 @@ function Sidebar(props: SidebarProps) {
             onClick={() =>
               window.open(
                 props.previewUrl +
-                  `?data=${encodeURIComponent(JSONCrush.crush(JSON.stringify(itemState.fields)))}`,
+                  `?data=${encodeURIComponent(
+                    JSONCrush.crush(JSON.stringify(props.getFieldValues({ retainReferenceObjects: true })))
+                  )}`,
                 `sidebar_preview` + props.docInfo._id,
                 'location=no'
               )
             }
             onAuxClick={() => {
-              console.log(JSONCrush.crush(encodeURIComponent(JSON.stringify(itemState.fields))));
-              console.log(JSONCrush.crush(JSON.stringify(itemState.fields)));
-              console.log(JSON.stringify(itemState.fields));
+              const values = props.getFieldValues({ retainReferenceObjects: true });
+              console.log(JSONCrush.crush(JSON.stringify(values)));
+              console.log(values);
             }}
           >
             Open preview
@@ -243,10 +293,10 @@ const DocInfoRow = styled.div<{ theme: themeType }>`
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  > div:nth-of-type(1) {
+  > *:nth-of-type(1) {
     color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
   }
-  > div:nth-of-type(2) {
+  > *:nth-of-type(2) {
     color: ${({ theme }) => theme.color.neutral[theme.mode][1000]};
   }
 `;
@@ -304,6 +354,24 @@ const TeamIcon = styled(PeopleTeam16Regular)<{ theme: themeType; color: string }
     width: 16px;
     height: 16px;
   }
+`;
+
+const AwarenessPhoto = styled.div<{ color: string; photo: string }>`
+  width: 24px;
+  height: 24px;
+  border: 2px solid ${({ color }) => color};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: ${({ theme }) => theme.font.headline};
+  border-radius: 50%;
+  font-size: 14px;
+  background-color: ${({ color }) => Color(color).alpha(0.4).string()};
+  background-image: url('${({ photo }) => photo}');
+  user-select: none;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
+  background-position: center;
+  background-size: cover;
 `;
 
 export { Sidebar };

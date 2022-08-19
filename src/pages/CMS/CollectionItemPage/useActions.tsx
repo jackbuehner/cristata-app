@@ -6,16 +6,18 @@ import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { Action } from '../../../redux/slices/appbarSlice';
-import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { saveChanges } from './saveChanges';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
 
 interface UseActionsParams {
+  y: EntryY;
   actionAccess: Record<keyof CollectionPermissions, boolean | undefined> | undefined;
   canPublish: boolean;
   watch: {
@@ -26,7 +28,6 @@ interface UseActionsParams {
   collectionName: string;
   itemId: string;
   dispatch: ReturnType<typeof useAppDispatch>;
-  state: CmsItemState;
   refetchData: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
   navigate: NavigateFunction;
   publishStage?: number;
@@ -44,11 +45,14 @@ interface UseActionsReturn {
 
 function useActions(params: UseActionsParams): UseActionsReturn {
   const client = useApolloClient();
+  const isUnsaved = params.y.unsavedFields.length !== 0;
+  const data = params.y.data;
 
   const idKey = params.idKey || '_id';
 
-  const [ShareWindow, showShareModal] = useShareModal(params.collectionName, params.itemId);
+  const [ShareWindow, showShareModal] = useShareModal(params.y, params.collectionName, params.itemId);
   const [PublishWindow, showPublishModal] = usePublishModal(
+    params.y,
     client,
     params.collectionName,
     params.itemId,
@@ -182,8 +186,8 @@ function useActions(params: UseActionsParams): UseActionsReturn {
 
   const allHaveAccess =
     params.withPermissions === false ||
-    getProperty(params.state.fields, 'permissions.teams')?.includes('000000000000000000000000') ||
-    getProperty(params.state.fields, 'permissions.users')?.includes('000000000000000000000000');
+    getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
+    getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
 
   // create the actions for this document based on the current user's
   // permissions status and the current doc's status
@@ -193,7 +197,12 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         label: 'Discard changes & refresh',
         type: 'icon',
         icon: 'ArrowClockwise24Regular',
-        action: () => params.refetchData(),
+        action: () => (params.y.awareness.length === 1 ? params.refetchData() : null),
+        disabled: params.y.awareness.length !== 1,
+        'data-tip':
+          params.y.awareness.length !== 1
+            ? `You cannot discard changes when there are other people editing this document.`
+            : undefined,
       },
       {
         label: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'Stop watching' : 'Watch',
@@ -226,36 +235,23 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         disabled: params.actionAccess?.hide !== true,
       },
       {
-        label: params.state.fields.archived ? 'Remove from archive' : 'Archive',
+        label: data.archived ? 'Remove from archive' : 'Archive',
         type: 'button',
-        icon: params.state.fields.archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
-        action: () => archiveItem(params.state.fields.archived ? false : true),
-        color: params.state.fields.archived ? 'primary' : 'yellow',
+        icon: data.archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
+        action: () => archiveItem(data.archived ? false : true),
+        color: data.archived ? 'primary' : 'yellow',
         disabled: params.actionAccess?.archive !== true,
       },
       {
         label: 'Save',
         type: 'button',
         icon: 'Save24Regular',
-        action: () =>
-          saveChanges(
-            client,
-            params.collectionName,
-            params.itemId,
-            {
-              dispatch: params.dispatch,
-              refetch: params.refetchData,
-              state: params.state,
-            },
-            undefined,
-            undefined,
-            params.idKey
-          ),
-        disabled: !params.state.isUnsaved || params.actionAccess?.modify !== true,
+        action: () => saveChanges(params.y, undefined, undefined, undefined, params.idKey),
+        disabled: !isUnsaved || params.actionAccess?.modify !== true,
         'data-tip':
           params.actionAccess?.modify !== true
             ? `You cannot save this document because you do not have permission.`
-            : !params.state.isUnsaved
+            : !isUnsaved
             ? `There are no changes to save.`
             : undefined,
       },
@@ -277,8 +273,9 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   }, [
     allHaveAccess,
     archiveItem,
-    client,
+    data.archived,
     hideItem,
+    isUnsaved,
     params,
     showPublishModal,
     showShareModal,

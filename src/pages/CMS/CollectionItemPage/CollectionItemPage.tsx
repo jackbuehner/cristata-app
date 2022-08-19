@@ -3,7 +3,6 @@ import styled from '@emotion/styled/macro';
 import {
   isTypeTuple,
   MongooseSchemaType,
-  NumberOption,
   StringOption,
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import Color from 'color';
@@ -17,22 +16,23 @@ import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
 import { Button } from '../../../components/Button';
 import {
-  Checkbox,
-  Code,
-  DateTime,
-  DocArray,
-  Number,
-  ReferenceMany,
-  ReferenceOne,
-  SelectMany,
-  SelectOne,
-  Text,
-} from '../../../components/ContentField';
+  CollaborativeCheckbox,
+  CollaborativeCode,
+  CollaborativeDateTime,
+  CollaborativeDocArray,
+  CollaborativeNumberField,
+  CollaborativeReferenceMany,
+  CollaborativeReferenceOne,
+  CollaborativeSelectMany,
+  CollaborativeSelectOne,
+  CollaborativeTextField,
+} from '../../../components/CollaborativeFields';
 import { Field } from '../../../components/ContentField/Field';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
-import { useY } from '../../../components/Tiptap/hooks';
+import { useAwareness, useY } from '../../../components/Tiptap/hooks';
+import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
   DeconstructedSchemaDefType,
@@ -40,15 +40,14 @@ import {
 } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
-import { setField } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { server } from '../../../utils/constants';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
-import { isJSON } from '../../../utils/isJSON';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { FullScreenSplash } from './FullScreenSplash';
+import { getYFields, GetYFieldsOptions } from './getYFields';
 import { Sidebar } from './Sidebar';
 import { useActions } from './useActions';
 import { useFindDoc } from './useFindDoc';
@@ -57,12 +56,42 @@ import { useWatching } from './useWatching';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
-interface CollectionItemPageProps {
+interface CollectionItemPageProps {}
+
+function CollectionItemPage(props: CollectionItemPageProps) {
+  const authUserState = useAppSelector((state) => state.authUser);
+  let { collection, item_id } = useParams() as { collection: string; item_id: string };
+  const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
+
+  // get the session id from sessionstorage
+  const sessionId = sessionStorage.getItem('sessionId');
+
+  // get the current tenant name
+  const tenant = localStorage.getItem('tenant');
+
+  // create a user object for the current user (for yjs)
+  const user = {
+    name: authUserState.name,
+    color: colorHash.hex(authUserState._id),
+    sessionId: sessionId || '',
+    photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
+  };
+
+  // connect to other clients with yjs for collaborative editing
+  const [{ schemaDef }] = useCollectionSchemaConfig(collectionName);
+  const y = useY({ collection: pluralize.singular(collection), id: item_id, user, schemaDef }); // create or load y
+
+  return <CollectionItemPageContent y={y} user={user} />;
+}
+
+interface CollectionItemPageContentProps {
+  y: EntryY;
+  user: ReturnType<typeof useAwareness>[0];
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
 }
 
-function CollectionItemPage(props: CollectionItemPageProps) {
-  const itemState = useAppSelector((state) => state.cmsItem);
+function CollectionItemPageContent(props: CollectionItemPageContentProps) {
+  const isLoading = useAppSelector((state) => state.cmsItem.isLoading);
   const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
@@ -70,6 +99,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const navigate = useNavigate();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
+  const isUnsaved = props.y.unsavedFields.length !== 0;
   const [
     {
       schemaDef,
@@ -80,16 +110,23 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       options,
     },
   ] = useCollectionSchemaConfig(collectionName);
+
+  // function to get the values of the fields that can be used
+  // when sending changes to the database or opening previews
+  const getFieldValues = (opts: GetYFieldsOptions) => getYFields(props.y, schemaDef, opts);
+
+  // put the document in redux state and ydoc
   const { actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
     schemaDef,
     withPermissions,
     props.isEmbedded || by === null || false,
-    by?.one
+    by?.one,
+    props.y
   );
 
-  const hasLoadedAtLeastOnce = JSON.stringify(itemState.fields) !== JSON.stringify({});
+  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({});
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -105,22 +142,39 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
     for (const key of schemaKeys) {
       if (docName.includes(`%${key}%`)) {
-        docName = docName.replaceAll(`%${key}%`, getProperty(itemState.fields, key));
+        docName = docName.replaceAll(`%${key}%`, getProperty(props.y.data, key));
       }
     }
   } else {
-    docName = getProperty(itemState.fields, options?.nameField || 'name') || docName;
+    docName = getProperty(props.y.data, options?.nameField || 'name') || docName;
   }
   if (docName.includes('undefined')) docName = collectionName;
 
   // set the document title
-  const title = `${itemState.isUnsaved ? '*' : ''}${docName}${
-    itemState.isUnsaved ? ' - Unsaved Changes' : ''
-  } - Cristata`;
-  if (document.title !== title) document.title = title;
+  const title = (() => {
+    let title = '';
 
-  // get the session id from sessionstorage
-  const sessionId = sessionStorage.getItem('sessionId');
+    const ySettingsMap = props.y.ydoc?.getMap<IYSettingsMap>('__settings');
+    const autosave: boolean | undefined | null = ySettingsMap?.get('autosave');
+
+    // show asterisk in front when unsaved
+    if (isUnsaved && !autosave) title += '*';
+
+    // show document name in the title
+    title += docName;
+
+    // show written note about unsaved status
+    if (isLoading && isUnsaved) title += ' - Saving';
+    else if (isLoading) title += ' - Syncing';
+    else if (autosave && isUnsaved) title += ' - Pending';
+    else if (!autosave && isUnsaved) title += ' - Unsaved Changes';
+
+    // always end with Cristata
+    title += ' - Cristata';
+
+    return title;
+  })();
+  if (document.title !== title) document.title = title;
 
   // calculate publish permissions
   const {
@@ -129,26 +183,27 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     lastStage: publishStage,
   } = usePublishPermissions({
     isPublishableCollection,
-    itemStateFields: itemState.fields,
+    itemStateFields: props.y.data,
     schemaDef,
     publishActionAccess: actionAccess?.publish,
   });
 
   // fs search param
   const fs = new URLSearchParams(search).get('fs');
+  const isMaximized = fs === '1' || fs === 'force';
 
   // calculate user watching status
   const { isWatching, isMandatoryWatcher, mandatoryWatchersList } = useWatching({
     authUserState,
-    itemStateFields: itemState.fields,
+    itemStateFields: props.y.data,
     mandatoryWatchersKeys: collectionOptions?.mandatoryWatchers || [],
   });
 
   // determine the actions for this document
   const { actions, quickActions, showActionDropdown, Windows } = useActions({
+    y: props.y,
     actionAccess,
     canPublish,
-    state: itemState,
     collectionName,
     itemId: item_id,
     dispatch,
@@ -167,48 +222,52 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
+    y: props.y,
+    user: props.user,
     docInfo: {
-      _id: getProperty(itemState.fields, by?.one || '_id'),
-      createdAt: getProperty(itemState.fields, 'timestamps.created_at'),
-      modifiedAt: getProperty(itemState.fields, 'timestamps.modified_at'),
+      _id: getProperty(props.y.data, by?.one || '_id'),
+      createdAt: getProperty(props.y.data, 'timestamps.created_at'),
+      modifiedAt: getProperty(props.y.data, 'timestamps.modified_at'),
     },
-    stage: !!getProperty(itemState.fields, 'stage')
+    stage: !!getProperty(props.y.data, 'stage')
       ? {
-          current: getProperty(itemState.fields, 'stage'),
+          current: getProperty(props.y.data, 'stage'),
           options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
           key: 'stage',
         }
       : null,
     permissions:
       withPermissions === false ||
-      getProperty(itemState.fields, 'permissions.teams')?.includes('000000000000000000000000') ||
-      getProperty(itemState.fields, 'permissions.users')?.includes('000000000000000000000000')
+      getProperty(props.y.data, 'permissions.teams')?.includes('000000000000000000000000') ||
+      getProperty(props.y.data, 'permissions.users')?.includes('000000000000000000000000')
         ? null
         : {
             users:
-              getProperty(itemState.fields, 'permissions.users')?.map(
+              getProperty(props.y.fullData, 'permissions.users')?.map(
                 (user: {
-                  _id: string;
+                  value: string;
                   name?: string;
                   label?: string;
                   photo?: string;
                 }): { _id: string; name: string; photo?: string; color: string } => ({
                   ...user,
+                  _id: user.value,
                   name: user.name || user.label || 'User',
-                  color: colorHash.hex(user._id),
+                  color: colorHash.hex(user.value || '0'),
                 })
               ) || [],
             teams:
-              getProperty(itemState.fields, 'permissions.teams')
-                ?.filter((_id: string | { _id: string; label: string }) => !!_id)
-                .map((_id: string | { _id: string; label: string }) => {
-                  if (typeof _id === 'string') {
-                    return { _id, color: colorHash.hex(_id) };
+              getProperty(props.y.fullData, 'permissions.teams')
+                ?.filter((_id: string | { value: string; label: string }) => !!_id)
+                .map((value: string | { value: string; label: string }) => {
+                  if (typeof value === 'string') {
+                    return { _id: value, color: colorHash.hex(value || '0') };
                   }
-                  return { _id: _id._id, label: _id.label, color: colorHash.hex(_id._id) };
+                  return { _id: value.value, label: value.label, color: colorHash.hex(value.value || '0') };
                 }) || [],
           },
     previewUrl: options?.previewUrl,
+    getFieldValues,
   };
 
   // keep loading state synced
@@ -243,29 +302,19 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           type: 'icon',
           icon: 'MoreHorizontal24Regular',
           action: showActionDropdown,
-          onAuxClick: () => refetch(),
+          onAuxClick: () => (props?.y.awareness.length === 1 ? refetch() : null),
         },
       ])
     );
-  }, [dispatch, quickActions, refetch, showActionDropdown]);
+  }, [dispatch, props.y.awareness.length, quickActions, refetch, showActionDropdown]);
 
-  const locked = publishLocked || (itemState.fields.archived as boolean);
-
-  const [, , , , y] = useY({ name: pluralize.singular(collection) + item_id }); // create or load y
+  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
   if (schemaDef) {
     // go through the schemaDef and convert JSON types with mutliple fields to individual fields
     const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON');
-
-    // convert JSON data to POJO data in state
-    JSONFields.forEach(([key]) => {
-      if (isJSON(getProperty(itemState.fields, key))) {
-        const parsed = JSON.parse(getProperty(itemState.fields, key));
-        dispatch(setField(parsed, key, 'default', false));
-      }
-    });
 
     // push subfields on JSON fields into the schemaDef array
     // so they can appear as regular fields in the UI
@@ -316,30 +365,39 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       );
     };
 
-    const tenant = localStorage.getItem('tenant');
-
-    const user = {
-      name: authUserState.name,
-      color: colorHash.hex(authUserState._id),
-      sessionId: sessionId || '',
-      photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
-    };
-
     const renderFields = (
       input: DeconstructedSchemaDefType[0],
       index: number,
       arr: DeconstructedSchemaDefType,
-      inArrayKey?: string
+      inArrayKey?: string,
+      yjsDocArrayConfig?: { __uuid: string; parentKey: string; childKey: string }
     ): JSX.Element => {
       const [key, def] = input;
 
-      const readOnly = def.field?.readonly === true;
+      const isSubDocArray = def.type === 'DocArray';
+
+      const readOnly =
+        def.field?.readonly === true || isSubDocArray
+          ? def.docs?.[0]?.[1]?.modifiable !== true
+          : def.modifiable !== true;
       let fieldName = def.field?.label || key;
 
       // if a field is readonly, add readonly to the field name
       if (readOnly) fieldName += ' (read only)';
 
-      const isSubDocArray = def.type === 'DocArray';
+      // prevent the fields from being edited when any of the following are true
+      const disabled = locked || loading || isLoading || !!error || readOnly || !props.y.connected;
+
+      // use this key for yjs shared type key for doc array contents
+      // so there shared type for each field in the array is unique
+      // for the array and array doc
+      const docArrayYjsKey = yjsDocArrayConfig
+        ? `__docArray.‾‾${yjsDocArrayConfig.parentKey}‾‾.${yjsDocArrayConfig.__uuid}.${yjsDocArrayConfig.childKey}`
+        : undefined;
+
+      // pass this to every collaborative field so it can communicate with yjs
+      const fieldY = { ...props.y, field: docArrayYjsKey || key, user: props.user };
+
       if (isSubDocArray) {
         // do not show hidden subdoc arrays
         const isHidden =
@@ -350,21 +408,16 @@ function CollectionItemPage(props: CollectionItemPageProps) {
         const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field
           ?.description;
         return (
-          <DocArray
+          <CollaborativeDocArray
+            y={fieldY}
             label={label}
             description={description}
-            disabled={locked || loading || !!error}
+            disabled={disabled}
             key={key}
             stateFieldKey={key}
-            data={getProperty(itemState.fields, key)}
             schemaDefs={processSchemaDef(def.docs)}
             processSchemaDef={processSchemaDef}
             renderFields={renderFields}
-            onChange={(newValues) => {
-              // do not pass `inArrayKey` because the state update for docarrays
-              // already includes the entire array
-              if (!readOnly) dispatch(setField(newValues, key, 'docarray'));
-            }}
           />
         );
       }
@@ -377,13 +430,19 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // to users in the CMS UI
       if (key.includes('#')) return <></>;
 
+      // hide all fields except the body tiptap field when
+      // the body tiptap field is maximized
+      // (to prevent duplicate fields; tiptap embeds the fields in a pane)
+      if (isMaximized && !(key === 'body' && def.field?.tiptap) && !props.isEmbedded) {
+        return <></>;
+      }
+
       // body field as tiptap editor
       if (key === 'body' && def.field?.tiptap) {
         if (props.isEmbedded) return <></>;
 
         // get the HTML
-        const isHTML = def.field.tiptap.isHTMLkey && getProperty(itemState.fields, def.field.tiptap.isHTMLkey);
-        const html = isHTML ? (getProperty(itemState.fields, key) as string) : undefined;
+        const isHTML = def.field.tiptap.isHTMLkey && getProperty(props.y.data, def.field.tiptap.isHTMLkey);
 
         return (
           <Field
@@ -395,32 +454,21 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           >
             <EmbeddedFieldContainer theme={theme}>
               <Tiptap
-                y={{ ...y, field: key, user }}
+                y={fieldY}
+                user={props.user}
                 docName={`${collection}.${item_id}`}
                 title={title}
                 options={def.field.tiptap}
-                isDisabled={
-                  locked || itemState.isLoading || publishLocked ? true : isHTML ? true : def.field.readonly
-                }
-                showLoading={itemState.isLoading}
-                html={html}
-                isMaximized={fs === '1' || fs === 'force'}
+                isDisabled={disabled || publishLocked ? true : isHTML ? true : def.field.readonly}
+                showLoading={isLoading}
+                isMaximized={isMaximized}
                 forceMax={fs === 'force'}
-                onDebouncedChange={(editorJson, storedJson) => {
-                  const isDefaultJson = editorJson === `[{"type":"paragraph","attrs":{"class":null}}]`;
-                  if (!isDefaultJson && editorJson && editorJson !== storedJson) {
-                    dispatch(setField(editorJson, key, 'tiptap', undefined, inArrayKey));
-                  }
-                }}
-                currentJsonInState={
-                  JSON.stringify(itemState.fields) === '{}' ? null : getProperty(itemState.fields, key)
-                }
                 actions={actions}
-                layout={itemState.fields.layout}
+                layout={`${props.y.data.layout}`}
                 message={
                   publishLocked
                     ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
-                    : itemState.fields.archived
+                    : props.y.data.archived
                     ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
                     : undefined
                 }
@@ -444,77 +492,35 @@ function CollectionItemPage(props: CollectionItemPageProps) {
           : def.field!.reference!.collection!;
 
         if (isArrayType) {
-          const stateValue = getProperty(itemState.fields, key);
-          let rawValues: Record<string, string>[] = [];
-
-          if (stateValue && Array.isArray(stateValue)) {
-            rawValues = stateValue.map((val: string | number | Record<string, string>) => {
-              if (typeof val === 'object') {
-                return val;
-              }
-              return { _id: `${val}` };
-            });
-          }
-
-          const values: { _id: string; label?: string }[] =
-            rawValues
-              .filter((s: Record<string, unknown>): s is Record<string, string> =>
-                Object.keys(s).every(([, value]) => typeof value === 'string')
-              )
-              .map((value) => {
-                const _id = value?.[def.field?.reference?.fields?._id || '_id'];
-                const label = value?.[def.field?.reference?.fields?.name || 'name'];
-                return { _id, label };
-              }) || [];
           return (
-            <ReferenceMany
+            <CollaborativeReferenceMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
               label={fieldName}
               description={def.field?.description}
-              values={values}
-              disabled={locked || loading || !!error}
+              y={fieldY}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
               collection={pluralize.singular(collection)}
               reference={def.field?.reference}
-              onChange={(newValues) => {
-                if (newValues !== undefined && !readOnly)
-                  dispatch(setField(newValues, key, 'reference', undefined, inArrayKey));
-              }}
             />
           );
         }
 
-        const value =
-          getProperty(itemState.fields, key)?._id && getProperty(itemState.fields, key)?.label
-            ? (getProperty(itemState.fields, key) as { _id: string; label: string })
-            : getProperty(itemState.fields, key)?._id
-            ? {
-                _id: getProperty(itemState.fields, key)?._id,
-                label: getProperty(itemState.fields, key)?.[def.field?.reference?.fields?.name || 'name'],
-              }
-            : typeof getProperty(itemState.fields, key) === 'string'
-            ? { _id: getProperty(itemState.fields, key) }
-            : undefined;
-
         return (
-          <ReferenceOne
+          <CollaborativeReferenceOne
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            // only show the value if it is not null, undefined, or an empty string
-            value={value?._id ? value : null}
+            y={fieldY}
+            // only show the value if it is truthy
+            color={props.isEmbedded ? 'blue' : 'primary'}
             // disable when the api requires the field to always have a value but a default
             // value for when no specific photo is selected is not defined
-            disabled={locked || loading || !!error || (def.required && def.default === undefined)}
+            disabled={disabled || (def.required && def.default === undefined)}
             isEmbedded={props.isEmbedded}
             collection={pluralize.singular(collection)}
             reference={def.field?.reference}
-            onChange={(newValue) => {
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue || def.default, key, 'reference', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -522,19 +528,15 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // markdown fields
       if (type === 'String' && def.field?.markdown) {
         return (
-          <Code
+          <CollaborativeCode
             key={index}
-            type={'md'}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
-            disabled={locked || loading || !!error}
+            type={'md'}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
-            onChange={(newValue) => {
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -542,41 +544,30 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // plain text fields
       if (type === 'String') {
         if (def.field?.options) {
-          const currentPropertyValue = getProperty(itemState.fields, key);
-          const options = def.field.options as NumberOption[];
+          const options = def.field.options as StringOption[];
           return (
-            <SelectOne
+            <CollaborativeSelectOne
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'String'}
-              options={options}
               label={fieldName}
-              description={def.field.description}
-              value={options.find(({ value }) => value === currentPropertyValue)}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, undefined, undefined, inArrayKey));
-              }}
-              disabled={locked || loading || !!error}
+              description={def.field?.description}
+              y={fieldY}
+              options={options}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
         }
+
         return (
-          <Text
+          <CollaborativeTextField
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.value;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -584,19 +575,14 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // checkbox
       if (type === 'Boolean') {
         return (
-          <Checkbox
+          <CollaborativeCheckbox
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            checked={!!getProperty(itemState.fields, key)}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.checked;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -604,42 +590,30 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // integer fields
       if (type === 'Number') {
         if (def.field?.options) {
-          const currentPropertyValue = getProperty(itemState.fields, key);
-          const options = def.field.options as NumberOption[];
+          const options = def.field.options.map((opt) => ({ ...opt, value: opt.toString() }));
           return (
-            <SelectOne
+            <CollaborativeSelectOne
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Int'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              value={options.find(({ value }) => value === currentPropertyValue)}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
-              disabled={locked || loading || !!error}
+              y={fieldY}
+              options={options}
+              number={'integer'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <Number
+          <CollaborativeNumberField
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Int'}
             label={fieldName}
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.valueAsNumber;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
@@ -647,84 +621,60 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       // float fields
       if (type === 'Float') {
         if (def.field?.options) {
-          const currentPropertyValue = getProperty(itemState.fields, key);
-          const options = def.field.options as NumberOption[];
+          const options = def.field.options.map((opt) => ({ ...opt, value: opt.value.toString() }));
           return (
-            <SelectOne
+            <CollaborativeSelectOne
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              value={options.find(({ value }) => value === currentPropertyValue)}
-              onChange={(value) => {
-                const newValue = value?.value;
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
-              disabled={locked || loading || !!error}
+              y={fieldY}
+              options={options}
+              number={'decimal'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <Number
+          <CollaborativeNumberField
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Float'}
             label={fieldName}
+            allowDecimals
             description={def.field?.description}
-            value={getProperty(itemState.fields, key)}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
-            onChange={(e) => {
-              const newValue = e.currentTarget.valueAsNumber;
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
           />
         );
       }
 
       // array of strings
       if (type?.[0] === 'String') {
-        const currentPropertyValues: string[] = getProperty(itemState.fields, key) || [];
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
-            <SelectMany
+            <CollaborativeSelectMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              values={options.filter(({ value }) => currentPropertyValues.includes(value))}
-              onChange={(values) => {
-                const newValue = values.map(({ value }) => value);
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
-              disabled={locked || loading || !!error}
+              y={fieldY}
+              options={options}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <SelectMany
+          <CollaborativeSelectMany
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'String'}
             label={fieldName}
             description={def.field?.description}
-            values={currentPropertyValues.map((value) => ({ value, label: value }))}
-            onChange={(values) => {
-              const newValue = values.map(({ value }) => value);
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -732,44 +682,31 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // array of integers
       if (type?.[0] === 'Number') {
-        const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
-            <SelectMany
+            <CollaborativeSelectMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Int'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              values={options.filter(({ value }) =>
-                currentPropertyValues.map((value) => value.toString()).includes(value)
-              )}
-              onChange={(values) => {
-                const newValue = values.map(({ value }) => value);
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
-              disabled={locked || loading || !!error}
+              y={fieldY}
+              options={options}
+              number={'integer'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <SelectMany
+          <CollaborativeSelectMany
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Int'}
             label={fieldName}
             description={def.field?.description}
-            values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
-            onChange={(values) => {
-              const newValue = values.map(({ value }) => value);
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            number={'integer'}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -777,44 +714,31 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // array of floats
       if (type?.[0] === 'Float') {
-        const currentPropertyValues: number[] = getProperty(itemState.fields, key) || [];
         if (def.field?.options) {
           const options = def.field.options as StringOption[];
           return (
-            <SelectMany
+            <CollaborativeSelectMany
               key={index}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              type={'Float'}
-              options={options}
               label={fieldName}
               description={def.field?.description}
-              values={options.filter(({ value }) =>
-                currentPropertyValues.map((value) => value.toString()).includes(value)
-              )}
-              onChange={(values) => {
-                const newValue = values.map(({ value }) => value);
-                if (newValue !== undefined && !readOnly)
-                  dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-              }}
-              disabled={locked || loading || !!error}
+              y={fieldY}
+              options={options}
+              number={'decimal'}
+              color={props.isEmbedded ? 'blue' : 'primary'}
+              disabled={disabled}
               isEmbedded={props.isEmbedded}
             />
           );
         }
         return (
-          <SelectMany
+          <CollaborativeSelectMany
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            type={'Float'}
             label={fieldName}
             description={def.field?.description}
-            values={currentPropertyValues.map((value) => ({ value, label: value.toString() }))}
-            onChange={(values) => {
-              const newValue = values.map(({ value }) => value);
-              if (newValue !== undefined && !readOnly)
-                dispatch(setField(newValue, key, 'default', undefined, inArrayKey));
-            }}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            number={'decimal'}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
           />
         );
@@ -822,23 +746,16 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
       // plain text fields
       if (type === 'Date') {
-        const currentTimestamp: string | undefined = getProperty(itemState.fields, key);
         return (
-          <DateTime
+          <CollaborativeDateTime
             key={index}
-            color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
-            value={
-              !currentTimestamp || currentTimestamp === '0001-01-01T01:00:00.000Z' ? null : currentTimestamp
-            }
-            onChange={(date) => {
-              if (date && !readOnly)
-                dispatch(setField(date.toUTC().toISO(), key, 'default', undefined, inArrayKey));
-            }}
-            placeholder={'Pick a time'}
-            disabled={locked || loading || !!error}
+            y={fieldY}
+            color={props.isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
             isEmbedded={props.isEmbedded}
+            placeholder={'Pick a time'}
           />
         );
       }
@@ -857,42 +774,51 @@ function CollectionItemPage(props: CollectionItemPageProps) {
       );
     };
 
-    if ((!itemState || JSON.stringify(itemState.fields) === JSON.stringify({})) && !navigator.onLine) {
+    if (
+      (!props.y.connected || !props.y.initialSynced || JSON.stringify(props.y.data) === JSON.stringify({})) &&
+      !navigator.onLine
+    ) {
       return <Offline variant={'centered'} />;
     }
 
     return (
       <>
         {Windows}
-        <ReactRouterPrompt when={itemState.isUnsaved}>
-          {({ isActive, onConfirm, onCancel }) =>
-            isActive ? (
-              <PlainModal
-                title={'Are you sure?'}
-                text={'You have unsaved changes that may be lost.'}
-                hideModal={() => onCancel(true)}
-                cancelButton={{
-                  text: 'Go back',
-                  onClick: () => {
-                    onCancel(true);
-                    return true;
-                  },
-                }}
-                continueButton={{
-                  color: 'red',
-                  text: 'Yes, discard changes',
-                  onClick: () => {
-                    onConfirm(true);
-                    return true;
-                  },
-                }}
-              />
-            ) : null
-          }
-        </ReactRouterPrompt>
-        {!props.isEmbedded && (fs === 'force' || fs === '1') ? null : null}
-        <FullScreenSplash isLoading={(fs === 'force' || fs === '1') && !hasLoadedAtLeastOnce} />
-        {itemState.isLoading && !hasLoadedAtLeastOnce ? null : (
+        {!props.isEmbedded ? (
+          <ReactRouterPrompt
+            when={(currentLocation, nextLocation) => {
+              return isUnsaved && currentLocation.pathname !== nextLocation.pathname;
+            }}
+          >
+            {({ isActive, onConfirm, onCancel }) =>
+              isActive ? (
+                <PlainModal
+                  title={'Are you sure?'}
+                  text={'You have unsaved changes that may be lost.'}
+                  hideModal={() => onCancel(true)}
+                  cancelButton={{
+                    text: 'Go back',
+                    onClick: () => {
+                      onCancel(true);
+                      return true;
+                    },
+                  }}
+                  continueButton={{
+                    color: 'red',
+                    text: 'Yes, discard changes',
+                    onClick: () => {
+                      onConfirm(true);
+                      return true;
+                    },
+                  }}
+                />
+              ) : null
+            }
+          </ReactRouterPrompt>
+        ) : null}
+        {!props.isEmbedded && isMaximized ? null : null}
+        <FullScreenSplash isLoading={isMaximized && !hasLoadedAtLeastOnce} />
+        {isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
               {publishLocked && !props.isEmbedded && fs !== '1' ? (
@@ -901,7 +827,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                   publish permissions.
                 </Notice>
               ) : null}
-              {itemState.fields.archived && !props.isEmbedded && fs !== '1' ? (
+              {props.y.data.archived && !props.isEmbedded && fs !== '1' ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it is archived.
                   <Button
@@ -924,7 +850,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
                 {processSchemaDef(schemaDef).map(renderFields)}
               </div>
             </div>
-            {contentWidth <= 700 ? null : <Sidebar {...sidebarProps} />}
+            {!props.isEmbedded && contentWidth > 700 ? <Sidebar {...sidebarProps} /> : null}
           </ContentWrapper>
         )}
       </>
@@ -1010,4 +936,4 @@ const Notice = styled.div<{ theme: themeType }>`
   box-sizing: border-box;
 `;
 
-export { CollectionItemPage };
+export { CollectionItemPage, CollectionItemPageContent };

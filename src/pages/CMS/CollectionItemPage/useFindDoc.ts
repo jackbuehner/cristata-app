@@ -4,18 +4,20 @@ import {
   gql,
   NetworkStatus,
   OperationVariables,
+  useApolloClient,
   useQuery,
 } from '@apollo/client';
-import { jsonToGraphQLQuery } from 'json-to-graphql-query';
-import { merge } from 'merge-anything';
 import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setIsLoading, setFields, clearUnsavedFields } from '../../../redux/slices/cmsItemSlice';
-import { useEffect } from 'react';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
-import { get as getProperty } from 'object-path';
+import { useEffect, useState } from 'react';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import * as Y from 'yjs';
 
 function useFindDoc(
   collection: string,
@@ -23,15 +25,16 @@ function useFindDoc(
   schemaDef: DeconstructedSchemaDefType,
   withPermissions: boolean,
   doNothing = false,
-  accessor = '_id'
+  accessor = '_id',
+  y?: EntryY
 ): {
   actionAccess?: Record<CollectionPermissionsActions, boolean | undefined>;
   loading: boolean;
   error: ApolloError | undefined;
   refetch: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
 } {
-  const itemState = useAppSelector((state) => state.cmsItem);
   const dispatch = useAppDispatch();
+  const client = useApolloClient();
 
   const queryName = pluralize.singular(collection);
 
@@ -46,29 +49,8 @@ function useFindDoc(
             ...merge(
               {
                 [accessor]: true,
-                timestamps: {
-                  created_at: true,
-                  modified_at: true,
-                },
-                people: {
-                  watching: {
-                    _id: true,
-                  },
-                },
-                archived: true,
+                yState: true,
               },
-              withPermissions
-                ? {
-                    permissions: {
-                      users: {
-                        _id: true,
-                        name: true,
-                        photo: true,
-                      },
-                      teams: true,
-                    },
-                  }
-                : {},
               ...schemaDef.map(docDefsToQueryObject)
             ),
           },
@@ -86,17 +68,60 @@ function useFindDoc(
     )
   );
 
+  const [shouldAddToY, setShouldAddToY] = useState(y?.unsavedFields.length === 0);
+
   // get the item
-  const { loading, error, refetch, networkStatus, ...req } = useQuery(GENERATED_ITEM_QUERY, {
+  const {
+    loading,
+    error,
+    refetch: apolloRefetch,
+    networkStatus,
+    ...req
+  } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
     fetchPolicy: doNothing ? 'cache-only' : 'cache-and-network',
     onCompleted(data) {
-      // save the item to redux
-      if (data?.[queryName] && doNothing !== true) {
-        dispatch(setFields(data[queryName]));
+      // if the data contains a doc state, apply it
+      if (y?.ydoc && data?.[queryName]?.yState) {
+        const yState = Uint8Array.from(atob(data[queryName].yState), (c) => c.charCodeAt(0));
+        Y.applyUpdate(y.ydoc, yState);
       }
     },
   });
+
+  const refetch = (variables?: Partial<OperationVariables>) => {
+    // reset the check for whether the data
+    // should be injected into the ydoc
+    setShouldAddToY(true);
+
+    // refech the data
+    return apolloRefetch(variables).then((data) => {
+      if (y?.awareness.length === 1 && y?.connected && req.data?.[queryName]) {
+        y.addData(req.data[queryName]);
+      }
+      return data;
+    });
+  };
+
+  // only added data to yjs shared types
+  // once the ydoc is connected, has
+  // initially synced, and there are no
+  // other clients, and the data does not
+  // contain a ydoc
+  useEffect(() => {
+    if (
+      y?.connected &&
+      y.initialSynced &&
+      shouldAddToY &&
+      !req.data?.[queryName]?.yState &&
+      !req.data?.[queryName]?.yState
+    ) {
+      if (y?.awareness.length === 1) {
+        y.addData(req.data[queryName]);
+      }
+      setShouldAddToY(false);
+    }
+  }, [client, queryName, req.data, schemaDef, shouldAddToY, y]);
 
   let actionAccess: Record<CollectionPermissionsActions, boolean | undefined> | undefined =
     req.data?.[queryName + 'ActionAccess'];
@@ -109,15 +134,6 @@ function useFindDoc(
       dispatch(setIsLoading(false));
     }
   }, [dispatch, doNothing, loading, networkStatus]);
-
-  // on first load, clear the exist fields in redux
-  const isSameDoc = getProperty(itemState.fields, accessor) === item_id;
-  useEffect(() => {
-    if (loading && doNothing !== true && !isSameDoc) {
-      dispatch(clearUnsavedFields());
-      dispatch(setFields({}));
-    }
-  }, [accessor, dispatch, doNothing, isSameDoc, itemState.fields, item_id, loading, networkStatus]);
 
   return { actionAccess, loading, error, refetch };
 }

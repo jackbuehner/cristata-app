@@ -6,6 +6,7 @@ import {
   SchemaDefType,
   SchemaType,
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { set as setProperty } from 'object-path';
 
 /**
  * Gets the collection config for the specified collection.
@@ -35,7 +36,26 @@ function useCollectionSchemaConfig(name: string): [
       generationOptions,
       by,
     } = res.data.configuration.collection;
+
     const schemaDef: SchemaDefType = JSON.parse(schemaDefJson);
+
+    // ensure these fields are fetched when retreiving a document
+    const hidden = { field: { hidden: true }, column: { hidden: true } };
+    setProperty(schemaDef, 'timestamps.created_at', { type: 'Date', ...hidden });
+    setProperty(schemaDef, 'timestamps.modified_at', { type: 'Date', ...hidden });
+    setProperty(schemaDef, 'people.watching', { type: ['[User]', ['ObjectId']], ...hidden });
+    setProperty(schemaDef, 'archived', { type: 'Boolean', ...hidden });
+    if (withPermissions) {
+      setProperty(schemaDef, 'permissions.users', {
+        type: ['[User]', ['ObjectId']],
+        field: { reference: { forceLoadFields: ['photo'] } },
+      });
+      setProperty(schemaDef, 'permissions.teams', {
+        type: ['String'],
+        field: { reference: { collection: 'Team', fields: { _id: '_id', name: 'name' } } },
+      });
+    }
+
     return [
       {
         schemaDef: parseSchemaDefType(schemaDef),

@@ -1,1 +1,1 @@
-export { CollectionItemPage } from './CollectionItemPage';
+export { CollectionItemPage, CollectionItemPageContent } from './CollectionItemPage';

@@ -1,9 +1,11 @@
-import { ApolloClient, ApolloError, gql } from '@apollo/client';
+import { ApolloError, gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
+import { get as getProperty, set as setProperty } from 'object-path';
 import { toast } from 'react-toastify';
-import { useAppDispatch } from '../../../redux/hooks';
-import { CmsItemState, setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
+import { isObject } from '../../../utils/isObject';
 import { uncapitalize } from '../../../utils/uncapitalize';
+import * as Y from 'yjs';
 
 /**
  * Save changes to the database.
@@ -11,24 +13,28 @@ import { uncapitalize } from '../../../utils/uncapitalize';
  * @returns true if successful; false if error
  */
 async function saveChanges(
-  client: ApolloClient<object>,
-  collectionName: string,
-  itemId: string,
-  data: { dispatch: ReturnType<typeof useAppDispatch>; state: CmsItemState; refetch: () => void },
+  y: EntryY,
+  setIsLoading: (isLoading: boolean) => void = y.setLoading,
   extraData: { [key: string]: any } = {},
   permissionsOnly: boolean = false,
   idKey = '_id'
 ): Promise<boolean> {
-  if (collectionName && itemId) {
-    data.dispatch(setIsLoading(true));
+  const data = y.data;
+  const unsavedFields = y.ydoc?.getArray<string>('__unsavedFields') || [];
+
+  const ySettingsMap = y.ydoc?.getMap<IYSettingsMap>('__settings');
+  const isAutosaveEnabled: boolean | undefined | null = ySettingsMap?.get('autosave');
+
+  if (y.roomDetails.collection && y.roomDetails.id) {
+    setIsLoading(true);
 
     // create the mutation
     const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
-      if (collectionName === 'Setting') input = JSON.stringify(input);
+      if (y.roomDetails.collection === 'Setting') input = JSON.stringify(input);
       return gql(
         jsonToGraphQLQuery({
           mutation: {
-            [`${uncapitalize(collectionName)}Modify`]: {
+            [`${uncapitalize(y.roomDetails.collection)}Modify`]: {
               __args: {
                 [idKey]: id,
                 input: input,
@@ -40,23 +46,33 @@ async function saveChanges(
       );
     };
 
+    // extract the fields that are unsaved
+    const unsavedData: typeof data = {};
+    unsavedFields.forEach((key) => {
+      setProperty(unsavedData, key, getProperty(data, key));
+    });
+    if (y.ydoc) unsavedData.yState = Buffer.from(Y.encodeStateAsUpdate(y.ydoc)).toString('base64');
+
     // modify the item in the database
     const config = {
       mutation: MODIFY_ITEM(
-        itemId,
-        permissionsOnly
-          ? data.state.unsavedPermissions
-          : { ...data.state.unsavedFields, ...data.state.tipTapFields, ...extraData }
+        y.roomDetails.id,
+        permissionsOnly && isObject(data.permissions) ? data.permissions : { ...unsavedData, ...extraData }
       ),
     };
-    return await client
+    return await y.client
       .mutate(config)
       .then(() => {
-        data.dispatch(setIsLoading(false));
+        setIsLoading(false);
       })
       .then(() => {
-        toast.success(`Changes successfully saved.`);
-        data.refetch();
+        // hide toast when autosave is enabled
+        if (!isAutosaveEnabled) toast.success(`Changes successfully saved.`);
+
+        // clear unsaved fields array
+        const __unsavedFields = y.ydoc?.getArray('__unsavedFields');
+        __unsavedFields?.delete(0, __unsavedFields.toArray().length);
+
         return true;
       })
       .catch((error: ApolloError) => {

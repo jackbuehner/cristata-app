@@ -4,13 +4,14 @@ import { useTheme } from '@emotion/react';
 import { get as getProperty } from 'object-path';
 import { useState } from 'react';
 import { DateTime, Text } from '../../../components/ContentField';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { saveChanges } from './saveChanges';
 
 function usePublishModal(
+  y: EntryY,
   client: ApolloClient<object>,
   collectionName: string,
   itemId: string,
@@ -19,13 +20,11 @@ function usePublishModal(
   idKey = '_id'
 ): [React.ReactNode, () => void, () => void] {
   const [Window, showModal, hideModal] = useWindowModal(() => {
-    const state = useAppSelector((state) => state.cmsItem);
-    const dispatch = useAppDispatch();
     const theme = useTheme() as themeType;
 
     const [confirm, setConfirm] = useState<string>('');
     const [timestamp, setTimestamp] = useState<string>(
-      getProperty(state.fields, 'timestamps.published_at') as string
+      getProperty(y.data, 'timestamps.published_at') as string
     );
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -53,17 +52,7 @@ function usePublishModal(
 
           if (publishStage) {
             const isPublished = !!(await publishItem()).data;
-            const isStageSet = await saveChanges(
-              client,
-              collectionName,
-              itemId,
-              { dispatch, state, refetch },
-              {
-                stage: publishStage,
-              },
-              false,
-              idKey
-            );
+            const isStageSet = await saveChanges(y, setIsLoading, { stage: publishStage }, false, idKey);
 
             // return whether the action was successful
             setIsLoading(false);

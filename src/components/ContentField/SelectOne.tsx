@@ -57,6 +57,7 @@ function SelectOne({ onChange, ...props }: SelectOneProps) {
       <Field
         label={props.label}
         description={props.description}
+        disabled={props.disabled}
         color={props.color}
         font={props.font}
         isEmbedded={props.isEmbedded}
@@ -84,12 +85,14 @@ function SelectOne({ onChange, ...props }: SelectOneProps) {
       <Field
         label={props.label}
         description={props.description}
+        disabled={props.disabled}
         color={props.color}
         font={props.font}
         isEmbedded={props.isEmbedded}
       >
         <div style={{ position: 'relative' }}>
           <Text
+            disabled={props.disabled}
             style={{ paddingRight: '42px' }}
             color={props.color}
             font={props.font}
@@ -112,12 +115,14 @@ function SelectOne({ onChange, ...props }: SelectOneProps) {
       <Field
         label={props.label}
         description={props.description}
+        disabled={props.disabled}
         color={props.color}
         font={props.font}
         isEmbedded={props.isEmbedded}
       >
         <div style={{ position: 'relative' }}>
           <Number
+            disabled={props.disabled}
             style={{ paddingRight: '42px' }}
             type={props.type}
             color={props.color}
