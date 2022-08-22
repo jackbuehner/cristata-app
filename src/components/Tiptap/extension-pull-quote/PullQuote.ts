@@ -34,9 +34,7 @@ const PullQuote = Node.create<PullQuoteOptions>({
         renderHTML: (attributes) => ({
           'data-wrap-position': attributes.position,
         }),
-        parseHTML: (element) => ({
-          position: element.getAttribute('data-wrap-position') || 'right',
-        }),
+        parseHTML: (element) => element.getAttribute('data-wrap-position') || 'right',
       },
     };
   },

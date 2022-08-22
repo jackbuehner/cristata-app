@@ -34,9 +34,7 @@ const SweepwidgetWidget = Node.create<SweepwidgetWidgetOptions>({
         renderHTML: (attributes) => ({
           'data-id': attributes.id,
         }),
-        parseHTML: (element) => ({
-          id: element.getAttribute('data-id') || 'undefined',
-        }),
+        parseHTML: (element) => element.getAttribute('data-id') || 'undefined',
       },
     };
   },

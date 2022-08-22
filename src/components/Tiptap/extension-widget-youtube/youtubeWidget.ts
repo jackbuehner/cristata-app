@@ -34,18 +34,14 @@ const YoutubeWidget = Node.create<YoutubeWidgetOptions>({
         renderHTML: (attributes) => ({
           'data-video-id': attributes.videoId,
         }),
-        parseHTML: (element) => ({
-          videoId: element.getAttribute('data-video-id') || 'undefined',
-        }),
+        parseHTML: (element) => element.getAttribute('data-video-id') || 'undefined',
       },
       showCaption: {
         default: false,
         renderHTML: (attributes) => ({
           'data-show-caption': attributes.showCaption,
         }),
-        parseHTML: (element) => ({
-          showCaption: element.getAttribute('data-show-caption') || false,
-        }),
+        parseHTML: (element) => element.getAttribute('data-show-caption') || false,
       },
     };
   },

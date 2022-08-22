@@ -71,9 +71,7 @@ const Deletion = Mark.create<DeletionOptions>({
             style: `color: ${attributes.color}; text-decoration: line-through`,
           };
         },
-        parseHTML: (element) => ({
-          color: element.style.color || '#d0021b',
-        }),
+        parseHTML: (element) => element.style.color || '#d0021b',
       },
       user: {
         default: 'Unknown User',
@@ -81,28 +79,21 @@ const Deletion = Mark.create<DeletionOptions>({
           'data-user': attributes.user,
           title: `Change by ${attributes.user} at ${attributes.timestamp}`,
         }),
-        parseHTML: (element) => {
-          const user = element.getAttribute('data-user');
-          return { user };
-        },
+        parseHTML: (element) => element.getAttribute('data-user'),
       },
       timestamp: {
         default: new Date().toISOString(),
         renderHTML: (attributes) => ({
           'data-timestamp': attributes.timestamp,
         }),
-        parseHTML: (element) => ({
-          timestamp: element.getAttribute('data-timestamp') || new Date(0).toISOString(),
-        }),
+        parseHTML: (element) => element.getAttribute('data-timestamp') || new Date(0).toISOString(),
       },
       uuid: {
         default: uuidv4(),
         renderHTML: (attributes) => ({
           'data-uuid': attributes.uuid,
         }),
-        parseHTML: (element) => ({
-          uuid: element.getAttribute('data-uuid') || uuidv4(),
-        }),
+        parseHTML: (element) => element.getAttribute('data-uuid') || uuidv4(),
       },
     };
   },

@@ -54,9 +54,7 @@ const Comment = Node.create<CommentOptions>({
             style: `background-color: ${Color(attributes.color).alpha(attributes.alpha).string()}`,
           };
         },
-        parseHTML: (element) => ({
-          color: element.style.backgroundColor || '#faf0a2',
-        }),
+        parseHTML: (element) => element.style.backgroundColor || '#faf0a2',
       },
       alpha: {
         default: 0.15,
@@ -66,18 +64,14 @@ const Comment = Node.create<CommentOptions>({
         renderHTML: (attributes) => ({
           'data-message': attributes.message,
         }),
-        parseHTML: (element) => ({
-          message: element.getAttribute('data-message') || '',
-        }),
+        parseHTML: (element) => element.getAttribute('data-message') || '',
       },
       timestamp: {
         default: new Date().toISOString(),
         renderHTML: (attributes) => ({
           'data-timestamp': attributes.timestamp,
         }),
-        parseHTML: (element) => ({
-          timestamp: element.getAttribute('data-timestamp') || new Date(0).toISOString(),
-        }),
+        parseHTML: (element) => element.getAttribute('data-timestamp') || new Date(0).toISOString(),
       },
       commenter: {
         default: {
@@ -93,9 +87,7 @@ const Comment = Node.create<CommentOptions>({
             attr ||
               '{ "name": "Unknown Commenter", "photo": "https://avatars.githubusercontent.com/u/69555023" }'
           );
-          return {
-            commenter: commenter,
-          };
+          return commenter;
         },
       },
       uuid: {
@@ -103,9 +95,7 @@ const Comment = Node.create<CommentOptions>({
         renderHTML: (attributes) => ({
           'data-uuid': attributes.uuid,
         }),
-        parseHTML: (element) => ({
-          uuid: element.getAttribute('data-uuid') || uuidv4(),
-        }),
+        parseHTML: (element) => element.getAttribute('data-uuid') || uuidv4(),
       },
     };
   },

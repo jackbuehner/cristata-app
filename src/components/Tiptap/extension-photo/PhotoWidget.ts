@@ -34,45 +34,35 @@ const PhotoWidget = Node.create<PhotoWidgetOptions>({
         renderHTML: (attributes) => ({
           'data-photo-id': attributes.photoId,
         }),
-        parseHTML: (element) => ({
-          photoId: element.getAttribute('data-photo-id') || '',
-        }),
+        parseHTML: (element) => element.getAttribute('data-photo-id') || '',
       },
       photoUrl: {
         default: '',
         renderHTML: (attributes) => ({
           'data-photo-url': attributes.photoUrl,
         }),
-        parseHTML: (element) => ({
-          photoUrl: element.getAttribute('data-photo-url') || '',
-        }),
+        parseHTML: (element) => element.getAttribute('data-photo-url') || '',
       },
       photoCredit: {
         default: '',
         renderHTML: (attributes) => ({
           'data-photo-credit': attributes.photoCredit,
         }),
-        parseHTML: (element) => ({
-          photoCredit: element.getAttribute('data-photo-credit') || '',
-        }),
+        parseHTML: (element) => element.getAttribute('data-photo-credit') || '',
       },
       showCaption: {
         default: false,
         renderHTML: (attributes) => ({
           'data-show-caption': attributes.showCaption,
         }),
-        parseHTML: (element) => ({
-          showCaption: element.getAttribute('data-show-caption') || false,
-        }),
+        parseHTML: (element) => element.getAttribute('data-show-caption') || false,
       },
       position: {
         default: 'center',
         renderHTML: (attributes) => ({
           'data-wrap-position': attributes.position,
         }),
-        parseHTML: (element) => ({
-          position: element.getAttribute('data-wrap-position') || 'center',
-        }),
+        parseHTML: (element) => element.getAttribute('data-wrap-position') || 'center',
       },
     };
   },
