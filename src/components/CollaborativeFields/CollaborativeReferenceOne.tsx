@@ -24,7 +24,9 @@ function CollaborativeReferenceOne(props: CollaborativeReferenceOneProps) {
 
   // toggle to show/hide the combobox (via css)
   // so that it is hidden when an item is selected
-  const [visible, setVisible] = useState(getProperty(y.data, y.field)?.length === 0);
+  const [visible, setVisible] = useState(
+    getProperty(y.data, y.field)?.length === 0 || !getProperty(y.data, y.field)
+  );
 
   const Content = (
     <div style={{ position: 'relative' }}>
