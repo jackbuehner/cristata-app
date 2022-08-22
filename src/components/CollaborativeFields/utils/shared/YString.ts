@@ -72,12 +72,12 @@ class YString<K extends string, V extends string | undefined | null> {
     return this.#ydoc.share.has(key);
   }
 
-  get(key: K, isArray: false, isRichText: boolean, isCode: boolean): string;
-  get(key: K, isArray: true, isRichText: false, isCode: false): Option[];
-  get(key: K, isArray: boolean, isRichText: boolean, isCode: boolean): string | Option[] {
+  async get(key: K, isArray: false, isRichText: boolean, isCode: boolean): Promise<string>;
+  async get(key: K, isArray: true, isRichText: false, isCode: false): Promise<Option[]>;
+  async get(key: K, isArray: boolean, isRichText: boolean, isCode: boolean): Promise<string | Option[]> {
     if (isArray) return this.#ydoc.getArray<Option>(key).toArray();
     if (isRichText)
-      return getTipTapEditorJson(key, this.#ydoc, editorExtensions[isRichText ? 'tiptap' : 'text']);
+      return await getTipTapEditorJson(key, this.#ydoc, editorExtensions[isRichText ? 'tiptap' : 'text']);
     if (isCode) return this.#ydoc.getText(key).toJSON();
     return this.#ydoc.getXmlFragment(key).toDOM().textContent || '';
   }

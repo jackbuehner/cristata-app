@@ -163,9 +163,9 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
         handleDocUpdate();
       }
     },
-    getData(opts?: GetYFieldsOptions) {
+    async getData(opts?: GetYFieldsOptions) {
       if (schemaDef) {
-        return getYFields(this, schemaDef, opts);
+        return await getYFields(this, schemaDef, opts);
       }
       return {};
     },
@@ -175,8 +175,8 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
   const [sharedValuesInternal, setSharedValuesInternal] = useState<Record<string, unknown>>({});
   const handleDocUpdate = AwesomeDebouncePromise(async () => {
     if (schemaDef) {
-      setSharedValues(retObj.getData());
-      setSharedValuesInternal(retObj.getData({ retainReferenceObjects: true, keepJsonParsed: true }));
+      setSharedValues(await retObj.getData());
+      setSharedValuesInternal(await retObj.getData({ retainReferenceObjects: true, keepJsonParsed: true }));
     }
   }, 300);
   useEffect(() => {

@@ -2,23 +2,31 @@ import Collaboration from '@tiptap/extension-collaboration';
 import { Editor, Extensions } from '@tiptap/react';
 import * as Y from 'yjs';
 
-function getTipTapEditorJson(field: string, document: Y.Doc, extensions: Extensions): string {
+function getTipTapEditorJson(field: string, document: Y.Doc, extensions: Extensions): Promise<string> {
   // get current value
   const current = document.getXmlFragment(field);
 
-  // set value in tiptap
-  const tiptap = new Editor({
-    extensions: [...extensions, Collaboration.configure({ fragment: current })],
+  let tiptap: Editor;
+
+  const promise = new Promise<string>((resolve, reject) => {
+    // initialize an editor using the current fragment
+    tiptap = new Editor({
+      extensions: [...extensions, Collaboration.configure({ fragment: current })],
+      onUpdate({ editor }) {
+        // get the current json from the editor
+        const json = JSON.stringify(tiptap.getJSON().content);
+
+        // resolve with editor json
+        resolve(json);
+      },
+    });
+  }).finally(() => {
+    // destroy tiptap editor
+    tiptap.destroy();
   });
 
-  // get the current json from the editor
-  const json = JSON.stringify(tiptap.getJSON().content);
-
-  // destroy tiptap editor
-  tiptap.destroy();
-
-  // return json
-  return json;
+  // return promise
+  return promise;
 }
 
 export { getTipTapEditorJson };

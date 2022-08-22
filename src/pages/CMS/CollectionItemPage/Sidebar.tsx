@@ -43,7 +43,7 @@ interface SidebarProps {
   compact?: boolean;
   y: EntryY;
   user?: ReturnType<typeof useAwareness>[0];
-  getFieldValues: (opts: GetYFieldsOptions) => any;
+  getFieldValues: (opts: GetYFieldsOptions) => Promise<any>;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -180,18 +180,20 @@ function Sidebar(props: SidebarProps) {
           <Button
             width={'100%'}
             icon={<Open24Regular />}
-            onClick={() =>
+            onClick={async () =>
               window.open(
                 props.previewUrl +
                   `?data=${encodeURIComponent(
-                    JSONCrush.crush(JSON.stringify(props.getFieldValues({ retainReferenceObjects: true })))
+                    JSONCrush.crush(
+                      JSON.stringify(await props.getFieldValues({ retainReferenceObjects: true }))
+                    )
                   )}`,
                 `sidebar_preview` + props.docInfo._id,
                 'location=no'
               )
             }
-            onAuxClick={() => {
-              const values = props.getFieldValues({ retainReferenceObjects: true });
+            onAuxClick={async () => {
+              const values = await props.getFieldValues({ retainReferenceObjects: true });
               console.log(JSONCrush.crush(JSON.stringify(values)));
               console.log(values);
             }}

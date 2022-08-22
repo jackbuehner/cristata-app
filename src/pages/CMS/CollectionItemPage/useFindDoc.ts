@@ -79,7 +79,7 @@ function useFindDoc(
     ...req
   } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: doNothing ? 'cache-only' : 'cache-and-network',
+    fetchPolicy: doNothing ? 'cache-only' : 'no-cache',
     onCompleted(data) {
       // if the data contains a doc state, apply it
       if (y?.ydoc && data?.[queryName]?.yState) {
@@ -96,7 +96,12 @@ function useFindDoc(
 
     // refech the data
     return apolloRefetch(variables).then((data) => {
-      if (y?.awareness.length === 1 && y?.connected && req.data?.[queryName]) {
+      if (
+        y?.awareness.length === 1 &&
+        y?.connected &&
+        req.data?.[queryName] &&
+        !req.data?.[queryName]?.yState
+      ) {
         y.addData(req.data[queryName]);
       }
       return data;
@@ -113,8 +118,7 @@ function useFindDoc(
       y?.connected &&
       y.initialSynced &&
       shouldAddToY &&
-      req.data &&
-      !req.data?.[queryName]?.yState &&
+      req.data?.[queryName] &&
       !req.data?.[queryName]?.yState
     ) {
       if (y?.awareness.length === 1) {

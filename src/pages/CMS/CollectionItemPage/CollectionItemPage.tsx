@@ -113,7 +113,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   // function to get the values of the fields that can be used
   // when sending changes to the database or opening previews
-  const getFieldValues = (opts: GetYFieldsOptions) => getYFields(props.y, schemaDef, opts);
+  const getFieldValues = async (opts: GetYFieldsOptions) => await getYFields(props.y, schemaDef, opts);
 
   // put the document in redux state and ydoc
   const { actionAccess, loading, error, refetch } = useFindDoc(
