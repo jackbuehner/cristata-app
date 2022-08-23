@@ -57,7 +57,9 @@ async function saveChanges(
     const config = {
       mutation: MODIFY_ITEM(
         y.roomDetails.id,
-        permissionsOnly && isObject(data.permissions) ? data.permissions : { ...unsavedData, ...extraData }
+        permissionsOnly && isObject(data.permissions)
+          ? { permissions: data.permissions }
+          : { ...unsavedData, ...extraData }
       ),
     };
     return await y.client
