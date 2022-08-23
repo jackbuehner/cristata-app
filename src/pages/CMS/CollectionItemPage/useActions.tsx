@@ -194,14 +194,14 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   const actions = useCallback(() => {
     const actions: (Action | null)[] = [
       {
-        label: 'Discard changes & refresh',
+        label: 'Revert local changes',
         type: 'icon',
-        icon: 'ArrowClockwise24Regular',
+        icon: 'ArrowReset24Regular',
         action: () => (params.y.awareness.length === 1 ? params.refetchData() : null),
         disabled: params.y.awareness.length !== 1,
         'data-tip':
           params.y.awareness.length !== 1
-            ? `You cannot discard changes when there are other people editing this document.`
+            ? `You cannot revert changes when there are other people editing this document.`
             : undefined,
       },
       {
