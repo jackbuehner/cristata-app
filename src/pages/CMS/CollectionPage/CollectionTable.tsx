@@ -676,32 +676,34 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         {DeleteWindow}
         {ArchiveWindow}
         <CollectionTableFilterRow schemaDef={schemaDef} collectionName={props.collection} />
-        <Table
-          data={{
-            // when data is undefined, generate placeholder rows
-            data: !docs ? Array(rowDisplayCountEstimate).fill({}) : (docs as { [key: string]: any }[]),
-            loading,
-            error,
-          }}
-          showSkeleton={!docs || networkStatus === NetworkStatus.refetch}
-          columns={columns}
-          row={row}
-          sort={sort}
-          setSort={setSort}
-          setPrevSort={setPrevSort}
-          id={props.collection}
-          footer={
-            docs && data && docs.length < data.totalDocs ? (
-              <div ref={SpinnerRef}>
-                <Spinner theme={theme} />
-              </div>
-            ) : null
-          }
-          ref={TableRef}
-          openOnDoubleClick
-          selectedIdsState={props.selectedIdsState}
-          lastSelectedIdState={props.lastSelectedIdState}
-        />
+        <div style={{ height: 'calc(100% - 36px)' }}>
+          <Table
+            data={{
+              // when data is undefined, generate placeholder rows
+              data: !docs ? Array(rowDisplayCountEstimate).fill({}) : (docs as { [key: string]: any }[]),
+              loading,
+              error,
+            }}
+            showSkeleton={!docs || networkStatus === NetworkStatus.refetch}
+            columns={columns}
+            row={row}
+            sort={sort}
+            setSort={setSort}
+            setPrevSort={setPrevSort}
+            id={props.collection}
+            footer={
+              docs && data && docs.length < data.totalDocs ? (
+                <div ref={SpinnerRef}>
+                  <Spinner theme={theme} />
+                </div>
+              ) : null
+            }
+            ref={TableRef}
+            openOnDoubleClick
+            selectedIdsState={props.selectedIdsState}
+            lastSelectedIdState={props.lastSelectedIdState}
+          />
+        </div>
         <Global
           styles={css`
             .table-row-cell-checkbox {
