@@ -169,6 +169,33 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
       }
       return {};
     },
+    setState(state: Uint8Array, revert?: boolean) {
+      if (ydoc) {
+        if (revert) {
+          const tempdoc = new Y.Doc();
+          Y.applyUpdate(tempdoc, state);
+
+          // We cannot simply replace `ydoc` because we have to sync with other clients.
+          // Replacing `ydoc` would be similar to doing `git reset --hard $SNAPSHOT && git push --force`.
+          // Instead, we compute an "anti-operation" of all the changes made since that snapshot.
+          // This ends up being similar to `git revert $SNAPSHOT..HEAD`.
+          const currentStateVector = Y.encodeStateVector(ydoc);
+          const remoteStateVector = Y.encodeStateVector(tempdoc);
+
+          // create undo command encompassing all changes since taking snapshot
+          const changesSinceRemote = Y.encodeStateAsUpdate(ydoc, remoteStateVector);
+          const um = new Y.UndoManager(Array.from(tempdoc.share.values()));
+          Y.applyUpdate(tempdoc, changesSinceRemote);
+          um.undo(); // undo changes so `tempdoc` is the value of the remote doc, but it is newer and will overwrite unsaved changes
+
+          // apply undo command to ydoc
+          const revertChangesSinceRemote = Y.encodeStateAsUpdate(tempdoc, currentStateVector);
+          Y.applyUpdate(ydoc, revertChangesSinceRemote);
+        } else {
+          Y.applyUpdate(ydoc, state);
+        }
+      }
+    },
   };
 
   const [sharedValues, setSharedValues] = useState<Record<string, unknown>>({});
@@ -220,6 +247,7 @@ interface EntryY {
   setLoading: (loading: boolean) => void;
   addData: (inputData: any) => void;
   getData: (opts?: GetYFieldsOptions) => any;
+  setState: (state: Uint8Array, revert?: boolean) => void;
 }
 
 interface FieldY extends EntryY {
