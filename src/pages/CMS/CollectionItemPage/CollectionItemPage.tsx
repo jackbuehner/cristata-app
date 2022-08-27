@@ -795,8 +795,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             {({ isActive, onConfirm, onCancel }) =>
               isActive ? (
                 <PlainModal
-                  title={'Are you sure?'}
-                  text={'You have unsaved changes that may be lost.'}
+                  title={'Lose your changes?'}
+                  text={
+                    'You have unsaved changes that may be lost. We will try to save them, but they might not be here when you return.'
+                  }
                   hideModal={() => onCancel(true)}
                   cancelButton={{
                     text: 'Go back',
@@ -807,7 +809,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                   }}
                   continueButton={{
                     color: 'red',
-                    text: 'Yes, discard changes',
+                    text: 'Yes, potentially lose changes',
                     onClick: () => {
                       onConfirm(true);
                       return true;
