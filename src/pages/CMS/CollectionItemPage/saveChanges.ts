@@ -51,12 +51,16 @@ async function saveChanges(
     unsavedFields.forEach((key) => {
       setProperty(unsavedData, key, getProperty(data, key));
     });
-    //TODO: Wrap in try catch, and create new ydoc with field values if something went wrong?
-    //TODO: or check that state can be encode as update when receiving from api
-    //TODO: and create new ydoc if failed.
-    //TODO: Also probably just move a lot of the fields logic to the server so the sent ydoc is
-    //TODO: always a complete ydoc.
-    if (y.ydoc) unsavedData.yState = Buffer.from(Y.encodeStateAsUpdate(y.ydoc)).toString('base64');
+
+    // encode the entire ydoc state to send to the server
+    // so it can be merged with the server's ydoc
+    try {
+      if (y.ydoc) unsavedData.yState = Buffer.from(Y.encodeStateAsUpdate(y.ydoc)).toString('base64');
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+      toast.error('The document on this device is corrupted and could not be saved');
+    }
 
     // modify the item in the database
     const config = {
