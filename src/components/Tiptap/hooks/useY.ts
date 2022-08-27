@@ -7,7 +7,6 @@ import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { addToY } from '../../../pages/CMS/CollectionItemPage/addToY';
 import { getYFields, GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
@@ -157,12 +156,6 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     client,
     setLoading,
     localProvider,
-    addData(inputData: any) {
-      if (schemaDef) {
-        addToY(this, schemaDef, this.client, inputData);
-        handleDocUpdate();
-      }
-    },
     async getData(opts?: GetYFieldsOptions) {
       if (schemaDef) {
         return await getYFields(this, schemaDef, opts);
@@ -245,7 +238,6 @@ interface EntryY {
   client: ApolloClient<object>;
   localProvider?: IndexeddbPersistence;
   setLoading: (loading: boolean) => void;
-  addData: (inputData: any) => void;
   getData: (opts?: GetYFieldsOptions) => any;
   setState: (state: Uint8Array, revert?: boolean) => void;
 }

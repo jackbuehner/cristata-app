@@ -4,7 +4,6 @@ import {
   gql,
   NetworkStatus,
   OperationVariables,
-  useApolloClient,
   useQuery,
 } from '@apollo/client';
 import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
@@ -33,7 +32,6 @@ function useFindDoc(
   refetch: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
 } {
   const dispatch = useAppDispatch();
-  const client = useApolloClient();
 
   const queryName = pluralize.singular(collection);
 
@@ -67,8 +65,6 @@ function useFindDoc(
     )
   );
 
-  const [shouldAddToY, setShouldAddToY] = useState(y?.unsavedFields.length === 0);
-
   // track how many times the doc has been refreshed
   const [count, setCount] = useState(0);
 
@@ -101,43 +97,11 @@ function useFindDoc(
   const refetch = (variables?: Partial<OperationVariables>) => {
     setCount((count) => count + 1);
 
-    // reset the check for whether the data
-    // should be injected into the ydoc
-    setShouldAddToY(true);
-
     // refech the data
     return apolloRefetch(variables).then((data) => {
-      if (
-        y?.awareness.length === 1 &&
-        y?.connected &&
-        req.data?.[queryName] &&
-        !req.data?.[queryName]?.yState
-      ) {
-        y.addData(req.data[queryName]);
-      }
       return data;
     });
   };
-
-  // only added data to yjs shared types
-  // once the ydoc is connected, has
-  // initially synced, and there are no
-  // other clients, and the data does not
-  // contain a ydoc
-  useEffect(() => {
-    if (
-      y?.connected &&
-      y.initialSynced &&
-      shouldAddToY &&
-      req.data?.[queryName] &&
-      !req.data?.[queryName]?.yState
-    ) {
-      if (y?.awareness.length === 1) {
-        y.addData(req.data[queryName]);
-      }
-      setShouldAddToY(false);
-    }
-  }, [client, queryName, req.data, schemaDef, shouldAddToY, y]);
 
   let actionAccess: Record<CollectionPermissionsActions, boolean | undefined> | undefined =
     req.data?.[queryName + 'ActionAccess'];
