@@ -26,6 +26,7 @@ function useFindDoc(
   accessor = '_id',
   y?: EntryY
 ): {
+  data?: any;
   actionAccess?: Record<CollectionPermissionsActions, boolean | undefined>;
   loading: boolean;
   error: ApolloError | undefined;
@@ -89,8 +90,6 @@ function useFindDoc(
         const yState = Uint8Array.from(atob(data[queryName].yState), (c) => c.charCodeAt(0));
         y.setState(yState, shouldRevert);
       }
-
-      console.log(count);
     },
   });
 
@@ -115,7 +114,7 @@ function useFindDoc(
     }
   }, [dispatch, doNothing, loading, networkStatus]);
 
-  return { actionAccess, loading, error, refetch };
+  return { actionAccess, loading, error, refetch, data: req.data?.[queryName] };
 }
 
 function docDefsToQueryObject(
