@@ -49,7 +49,7 @@ function useFindDoc(
                 [accessor]: true,
                 yState: true,
               },
-              ...schemaDef.map(docDefsToQueryObject)
+              ...schemaDef.map(docDefsToQueryObjectLight)
             ),
           },
           [queryName + 'ActionAccess']: {
@@ -153,6 +153,38 @@ function docDefsToQueryObject(
   }
 
   return deepen({ [key]: true });
+}
+
+function docDefsToQueryObjectLight(
+  input: DeconstructedSchemaDefType[0],
+  index: number,
+  arr: DeconstructedSchemaDefType
+): ReturnType<typeof deepen> {
+  const [key, def] = input;
+
+  const isSubDocArray = def.type === 'DocArray';
+  const isObjectType = isTypeTuple(def.type);
+
+  // get the reference fields that are forced by the config
+  if (isObjectType && def.field?.reference) {
+    return merge(
+      {},
+      ...(def.field.reference.forceLoadFields || []).map((field) => deepen({ [key + '.' + field]: true }))
+    );
+  }
+
+  // send subdoc arrays through this function
+  if (isSubDocArray) {
+    return merge<Record<string, never>, Record<string, never>[]>(
+      {},
+      ...def.docs.map(([key, def], index, arr) => {
+        return docDefsToQueryObject([key, def], index, arr);
+      })
+    );
+  }
+
+  // require the _id field if no other field is required in the def
+  return deepen({ _id: true });
 }
 
 export function deepen(obj: Record<string, boolean | { __aliasFor: string } | string | number>) {
