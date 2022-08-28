@@ -7,6 +7,7 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import Color from 'color';
 import ColorHash from 'color-hash';
+import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { Fragment, useEffect, useState } from 'react';
@@ -111,12 +112,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     },
   ] = useCollectionSchemaConfig(collectionName);
 
-  // function to get the values of the fields that can be used
-  // when sending changes to the database or opening previews
-  const getFieldValues = async (opts: GetYFieldsOptions) => await getYFields(props.y, schemaDef, opts);
-
   // put the document in redux state and ydoc
-  const { actionAccess, loading, error, refetch } = useFindDoc(
+  const { data, actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
     schemaDef,
@@ -125,6 +122,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     by?.one,
     props.y
   );
+
+  // function to get the values of the fields for previews (used in sidebar)
+  const getFieldValues = async (opts: GetYFieldsOptions) => {
+    return merge(data, { yState: undefined }, await getYFields(props.y, schemaDef, opts));
+  };
 
   const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({});
 
