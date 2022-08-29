@@ -51,7 +51,16 @@ async function saveChanges(
     unsavedFields.forEach((key) => {
       setProperty(unsavedData, key, getProperty(data, key));
     });
-    if (y.ydoc) unsavedData.yState = Buffer.from(Y.encodeStateAsUpdate(y.ydoc)).toString('base64');
+
+    // encode the entire ydoc state to send to the server
+    // so it can be merged with the server's ydoc
+    try {
+      if (y.ydoc) unsavedData.yState = Buffer.from(Y.encodeStateAsUpdate(y.ydoc)).toString('base64');
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+      toast.error('The document on this device is corrupted and could not be saved');
+    }
 
     // modify the item in the database
     const config = {

@@ -7,6 +7,7 @@ import {
 } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import Color from 'color';
 import ColorHash from 'color-hash';
+import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { Fragment, useEffect, useState } from 'react';
@@ -111,12 +112,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     },
   ] = useCollectionSchemaConfig(collectionName);
 
-  // function to get the values of the fields that can be used
-  // when sending changes to the database or opening previews
-  const getFieldValues = async (opts: GetYFieldsOptions) => await getYFields(props.y, schemaDef, opts);
-
   // put the document in redux state and ydoc
-  const { actionAccess, loading, error, refetch } = useFindDoc(
+  const { data, actionAccess, loading, error, refetch } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
     schemaDef,
@@ -125,6 +122,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     by?.one,
     props.y
   );
+
+  // function to get the values of the fields for previews (used in sidebar)
+  const getFieldValues = async (opts: GetYFieldsOptions) => {
+    return merge(data, { yState: undefined }, await getYFields(props.y, schemaDef, opts));
+  };
 
   const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({});
 
@@ -372,6 +374,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       inArrayKey?: string,
       yjsDocArrayConfig?: { __uuid: string; parentKey: string; childKey: string }
     ): JSX.Element => {
+      const reactKey = `${index}.${collectionName}.${item_id}`;
+
       const [key, def] = input;
 
       const isSubDocArray = def.type === 'DocArray';
@@ -402,7 +406,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         // do not show hidden subdoc arrays
         const isHidden =
           def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.hidden || false;
-        if (isHidden) return <Fragment key={index}></Fragment>;
+        if (isHidden) return <Fragment key={reactKey}></Fragment>;
 
         const label = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.label || key;
         const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field
@@ -446,7 +450,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
         return (
           <Field
-            key={index}
+            key={reactKey}
             color={props.isEmbedded ? 'blue' : 'primary'}
             label={fieldName}
             description={def.field?.description}
@@ -494,7 +498,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         if (isArrayType) {
           return (
             <CollaborativeReferenceMany
-              key={index}
+              key={reactKey}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
@@ -509,7 +513,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
         return (
           <CollaborativeReferenceOne
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -529,7 +533,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       if (type === 'String' && def.field?.markdown) {
         return (
           <CollaborativeCode
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             type={'md'}
@@ -547,7 +551,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           const options = def.field.options as StringOption[];
           return (
             <CollaborativeSelectOne
-              key={index}
+              key={reactKey}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
@@ -561,7 +565,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
         return (
           <CollaborativeTextField
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -576,7 +580,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       if (type === 'Boolean') {
         return (
           <CollaborativeCheckbox
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -593,7 +597,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           const options = def.field.options.map((opt) => ({ ...opt, value: opt.toString() }));
           return (
             <CollaborativeSelectOne
-              key={index}
+              key={reactKey}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
@@ -607,7 +611,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         }
         return (
           <CollaborativeNumberField
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -624,7 +628,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           const options = def.field.options.map((opt) => ({ ...opt, value: opt.value.toString() }));
           return (
             <CollaborativeSelectOne
-              key={index}
+              key={reactKey}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
@@ -638,7 +642,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         }
         return (
           <CollaborativeNumberField
-            key={index}
+            key={reactKey}
             label={fieldName}
             allowDecimals
             description={def.field?.description}
@@ -656,7 +660,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           const options = def.field.options as StringOption[];
           return (
             <CollaborativeSelectMany
-              key={index}
+              key={reactKey}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
@@ -669,7 +673,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         }
         return (
           <CollaborativeSelectMany
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -686,7 +690,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           const options = def.field.options as StringOption[];
           return (
             <CollaborativeSelectMany
-              key={index}
+              key={reactKey}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
@@ -700,7 +704,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         }
         return (
           <CollaborativeSelectMany
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -718,7 +722,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           const options = def.field.options as StringOption[];
           return (
             <CollaborativeSelectMany
-              key={index}
+              key={reactKey}
               label={fieldName}
               description={def.field?.description}
               y={fieldY}
@@ -732,7 +736,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         }
         return (
           <CollaborativeSelectMany
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -748,7 +752,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       if (type === 'Date') {
         return (
           <CollaborativeDateTime
-            key={index}
+            key={reactKey}
             label={fieldName}
             description={def.field?.description}
             y={fieldY}
@@ -763,7 +767,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       // fallback
       return (
         <Field
-          key={index}
+          key={reactKey}
           color={props.isEmbedded ? 'blue' : 'primary'}
           label={fieldName}
           description={def.field?.description}
@@ -793,8 +797,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             {({ isActive, onConfirm, onCancel }) =>
               isActive ? (
                 <PlainModal
-                  title={'Are you sure?'}
-                  text={'You have unsaved changes that may be lost.'}
+                  title={'Lose your changes?'}
+                  text={
+                    'You have unsaved changes that may be lost. We will try to save them, but they might not be here when you return.'
+                  }
                   hideModal={() => onCancel(true)}
                   cancelButton={{
                     text: 'Go back',
@@ -805,7 +811,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                   }}
                   continueButton={{
                     color: 'red',
-                    text: 'Yes, discard changes',
+                    text: 'Yes, potentially lose changes',
                     onClick: () => {
                       onConfirm(true);
                       return true;

@@ -57,11 +57,22 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
 
       if (schemaType === 'DocArray') {
         const array = new fieldUtils.shared.DocArray(y.ydoc);
-        setProperty(
-          data,
-          key,
-          array.get(key).map(({ __uuid, ...rest }) => rest)
-        );
+
+        // get the value of the shared type as an array of objects
+        let arrayValue: Record<string, unknown>[] = [];
+        if (def.docs) {
+          const namedSubdocSchemas = def.docs.filter(([docKey]) => !docKey.includes('#'));
+          arrayValue = await array.get(key, { y, opts, schema: namedSubdocSchemas });
+        } else {
+          arrayValue = await array.get(key);
+        }
+
+        // remove the uuid
+        arrayValue = arrayValue.map(({ __uuid, ...rest }) => rest);
+
+        // insert the value of this field into the data object that
+        // is returned by this function
+        setProperty(data, key, arrayValue);
       }
 
       if (schemaType === 'Float') {
