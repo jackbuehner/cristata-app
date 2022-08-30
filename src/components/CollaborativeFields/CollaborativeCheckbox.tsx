@@ -36,7 +36,7 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
 
   // create an update function
   const onUpdate = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    if (props.onChange && y.ydoc) {
+    if (y.ydoc) {
       const checked = evt.currentTarget.checked;
 
       // store change in ydoc shared type for checkbox fields
@@ -44,7 +44,7 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
       utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
 
       // send the change to the parent
-      props.onChange(checked);
+      props.onChange?.(checked);
     }
   };
 
