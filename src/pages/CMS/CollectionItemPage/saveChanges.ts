@@ -57,12 +57,37 @@ async function saveChanges(
 
     // encode the entire ydoc state to send to the server
     // so it can be merged with the server's ydoc
-    try {
-      if (y.ydoc) unsavedData.yState = Buffer.from(Y.encodeStateAsUpdate(y.ydoc)).toString('base64');
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-      toast.error('The document on this device is corrupted and could not be saved');
+    if (y.ydoc) {
+      try {
+        let update: Uint8Array | undefined = undefined;
+        let b64update: string | undefined = undefined;
+
+        try {
+          update = Y.encodeStateAsUpdate(y.ydoc);
+        } catch (error) {
+          console.error(error);
+          setIsLoading(false);
+          toast.error('The document on this device is corrupted and could not be saved');
+        }
+
+        if (update) {
+          try {
+            b64update = Buffer.from(update).toString('base64');
+          } catch (error) {
+            console.error(error);
+            setIsLoading(false);
+            toast.error('The document on this device could not be saved because it cannot be encoded');
+          }
+        }
+
+        if (b64update) {
+          unsavedData.yState = b64update;
+        }
+      } catch (error) {
+        console.error(error);
+        setIsLoading(false);
+        toast.error('The document on this device has an unexpected error and cannot be saved');
+      }
     }
 
     // modify the item in the database
