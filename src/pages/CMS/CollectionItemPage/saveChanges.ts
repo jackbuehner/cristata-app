@@ -49,7 +49,10 @@ async function saveChanges(
     // extract the fields that are unsaved
     const unsavedData: typeof data = {};
     unsavedFields.forEach((key) => {
-      setProperty(unsavedData, key, getProperty(data, key));
+      // exclude interal fields (start with __)
+      if (key.indexOf('__') !== 0) {
+        setProperty(unsavedData, key, getProperty(data, key));
+      }
     });
 
     // encode the entire ydoc state to send to the server
