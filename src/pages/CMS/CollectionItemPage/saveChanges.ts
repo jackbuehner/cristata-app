@@ -101,7 +101,7 @@ async function saveChanges(
     };
     return await y.client
       .mutate(config)
-      .then(() => {
+      .finally(() => {
         setIsLoading(false);
       })
       .then(() => {
