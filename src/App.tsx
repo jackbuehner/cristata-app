@@ -7,18 +7,18 @@ import { ModalProvider } from 'react-modal-hook';
 import { Provider as ReduxProvider } from 'react-redux';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
+import { PersistGate } from 'redux-persist/integration/react';
 import './App.css';
 import { ToastContainer } from './components/ToastContainer';
 import { createClient } from './graphql/client';
 import { DropdownProvider } from './hooks/useDropdown';
 import { PickTenant } from './pages/PickTenant';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
-import { SignIn, SignOut } from './pages/SignIn';
-import { store, persistor } from './redux/store';
+import { SignOut } from './pages/SignIn';
+import { persistor, store } from './redux/store';
 import { db } from './utils/axios/db';
 import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
-import { PersistGate } from 'redux-persist/integration/react';
 
 /* prettier-ignore */ const Protected = loadable(() => import(/* webpackChunkName: "ProtectedRoutes" */'./Protected'), { resolveComponent: ({ Protected }) => Protected });
 /* prettier-ignore */ const SplashScreen = loadable(() => import(/* webpackChunkName: "SplashScreen" */'./components/SplashScreen'), { resolveComponent: ({ SplashScreen }) => SplashScreen });
@@ -113,7 +113,6 @@ function App() {
                     persistentChildren={
                       <Routes>
                         <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
-                        <Route path={`/sign-in`} element={<SignIn user={user} loadingUser={loadingUser} />} />
                         <Route path={`/sign-out`} element={<SignOut />} />
                         <Route path={`*`} element={<></>} />
                       </Routes>

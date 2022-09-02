@@ -64,8 +64,14 @@ function SplashScreen(props: ISplashScreen) {
       const is403 = props.error.message.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
       if (is403 && location.pathname.indexOf(`/sign-in`) !== 0) {
-        localStorage.setItem('auth.redirect_after', `${location.pathname}${location.hash}${location.search}`);
-        navigate(`/sign-in`);
+        const tenant = localStorage.getItem('tenant');
+        if (tenant) {
+          window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
+            tenant || ''
+          }?return=${encodeURIComponent(window.location.href)}`;
+        } else {
+          window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}`;
+        }
       }
     }
   }, [
@@ -92,24 +98,35 @@ function SplashScreen(props: ISplashScreen) {
       // get the location state
       const locState = location.state as { step?: string } | undefined;
 
+      const logout = () => {
+        const tenant = localStorage.getItem('tenant');
+        window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
+          tenant || ''
+        }/sign-out?return=${encodeURIComponent(window.location.href)}`;
+      };
+
       // user needs to change password
       if ((props.user.next_step === 'change_password' && !locState) || locState?.step === 'change_password') {
-        navigate('/sign-in', { state: { username: props.user.email, step: 'change_password' } });
+        logout();
       }
       // user needs to create a password
       else if (!props.user.methods.includes('local')) {
         if (!locState || (locState.step !== 'migrate_email_sent' && locState.step !== 'migrate_to_local')) {
-          navigate('/sign-in', { state: { step: 'migrate_to_local' } });
+          logout();
         }
       }
-      // redirect to user's desired page if there are not other login steps
-      else if (!props.user.next_step && location.pathname.indexOf(`/sign-in`) === 0) {
-        const redirect = localStorage.getItem('auth.redirect_after') || '/';
-        navigate(!redirect.includes('/sign-in') ? redirect : '/'); // redirect
-        localStorage.removeItem('auth.redirect_after'); // remove redirect url from localstorage
-      }
     }
-  }, [props.user, navigate, dispatch, location.state, location.pathname, searchParams, props.bypassAuthLogic]);
+  }, [
+    props.user,
+    navigate,
+    dispatch,
+    location.state,
+    location.pathname,
+    searchParams,
+    props.bypassAuthLogic,
+    location.hash,
+    location.search,
+  ]);
 
   // set the session id
   useEffect(() => {

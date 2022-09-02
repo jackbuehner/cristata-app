@@ -328,12 +328,10 @@ function ProfilePage() {
               type: 'button',
               icon: 'Key20Regular',
               action: () => {
-                navigate('/sign-in', {
-                  state: {
-                    step: 'change_password',
-                    username: profile?.email,
-                  },
-                });
+                const tenant = localStorage.getItem('tenant');
+                window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
+                  tenant || ''
+                }/change-password?return=${encodeURIComponent(window.location.href)}`;
               },
             }
           : null,
