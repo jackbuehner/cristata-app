@@ -20,7 +20,7 @@ async function saveChanges(
   idKey = '_id'
 ): Promise<boolean> {
   const data = y.data;
-  const unsavedFields = y.ydoc?.getArray<string>('__unsavedFields') || [];
+  const unsavedFields = y.ydoc?.getArray<string>('__unsavedFields').toArray() || [];
 
   const ySettingsMap = y.ydoc?.getMap<IYSettingsMap>('__settings');
   const isAutosaveEnabled: boolean | undefined | null = ySettingsMap?.get('autosave');
@@ -30,7 +30,6 @@ async function saveChanges(
 
     // create the mutation
     const MODIFY_ITEM = (id: string, input: Record<string, unknown> | string) => {
-      if (y.roomDetails.collection === 'Setting') input = JSON.stringify(input);
       return gql(
         jsonToGraphQLQuery({
           mutation: {
@@ -52,6 +51,19 @@ async function saveChanges(
       // exclude interal fields (start with __)
       if (key.indexOf('__') !== 0) {
         setProperty(unsavedData, key, getProperty(data, key));
+      }
+    });
+
+    // convert branching json fields to json
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === '__toJSON') {
+        const toJSONKeys = Object.entries(value as Record<string, boolean>)
+          .filter(([, v]) => v === true)
+          .map(([k]) => k);
+        toJSONKeys.forEach((jsonKey) => {
+          setProperty(unsavedData, jsonKey, JSON.stringify(getProperty(unsavedData, jsonKey)));
+        });
+        delete unsavedData.jsonKey;
       }
     });
 

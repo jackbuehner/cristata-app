@@ -141,14 +141,17 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
       if (match) {
         const defs = parseSchemaDefType(match.fields, key);
         const values = await getYFields(y, defs, opts);
-        defs.forEach(([key]) => {
+        defs.forEach(([subvalueKey]) => {
           // set the data for each key
-          setProperty(data, key, getProperty(values, key));
+          setProperty(data, subvalueKey, getProperty(values, subvalueKey));
         });
+        setProperty(data, '__toJSON.' + key, true);
       }
 
       // stringify the JSON field values
-      if (!opts?.keepJsonParsed) setProperty(data, key, JSON.stringify(getProperty(data, key)));
+      if (!opts?.keepJsonParsed && !match) {
+        setProperty(data, key, JSON.stringify(getProperty(data, key)));
+      }
     })
   );
 
