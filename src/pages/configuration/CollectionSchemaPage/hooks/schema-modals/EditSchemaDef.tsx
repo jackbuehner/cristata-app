@@ -55,6 +55,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
   const isDocArray = props.id.includes('.0.#label');
   const isInDocArray = props.id.includes('.0.') && !props.id.includes('.0.#label');
   const isMarkdown = type === 'String' && def?.field?.markdown;
+  const isReferenceOne = def?.type && isTypeTuple(def.type) && def.type[1] === 'ObjectId';
 
   return (
     <div>
@@ -235,7 +236,9 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 isEmbedded
                 label={'Make this field required'}
                 description={
-                  'Prevent saving an entry if this field is not defined. Empty text fields are considered to be defined.'
+                  isReferenceOne
+                    ? 'Prevent saving an entry if this field is not defined. This field will be disabled if you require it but do not set a default value.'
+                    : 'Prevent saving an entry if this field is not defined. Empty text fields are considered to be defined.'
                 }
                 checked={def?.required === true}
                 onChange={(e) => dispatch(setRootSchemaProperty(props.id, `required`, e.currentTarget.checked))}
@@ -360,7 +363,6 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               </>
             </Field>
             {!isBranching &&
-            !isInBranch &&
             !isDocArray &&
             (type === 'String' ||
               type === 'Number' ||
@@ -368,6 +370,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               type === 'Float' ||
               type === 'Boolean' ||
               type === 'Date' ||
+              type === 'Reference' ||
               (isTypeTuple(def?.type) && type === 'ObjectId') ||
               type === 'Strings' ||
               type === 'Numbers' ||
