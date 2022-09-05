@@ -1,6 +1,5 @@
 import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { get as getProperty } from 'object-path';
-import { useState } from 'react';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { useOptions } from '../ContentField/useOptions';
 import { CollaborativeCombobox, PopulatedRefValue, Values } from './CollaborativeCombobox';
@@ -22,11 +21,8 @@ function CollaborativeReferenceOne(props: CollaborativeReferenceOneProps) {
   // based on a provided search string
   const [searchValue, setSearchValue, { options, loading }] = useOptions(props.collection, props.reference);
 
-  // toggle to show/hide the combobox (via css)
-  // so that it is hidden when an item is selected
-  const [visible, setVisible] = useState(
-    getProperty(y.data, y.field)?.length === 0 || !getProperty(y.data, y.field)
-  );
+  // hide the combobox (via css) when an item is selected
+  const visible = getProperty(y.fullData, y.field)?.length === 0 || !getProperty(y.fullData, y.field);
 
   const Content = (
     <div style={{ position: 'relative' }}>
@@ -41,10 +37,8 @@ function CollaborativeReferenceOne(props: CollaborativeReferenceOneProps) {
           onChange={(values) => {
             const firstValue = values[0];
             if (firstValue) {
-              setVisible(false);
               props.onChange?.({ ...firstValue, _id: firstValue.value.toString() });
             } else {
-              setVisible(true);
               props.onChange?.(null);
             }
           }}
