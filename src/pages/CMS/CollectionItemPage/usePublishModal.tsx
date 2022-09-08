@@ -3,6 +3,8 @@ import { ApolloClient, gql, useMutation } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import { get as getProperty } from 'object-path';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
+import utils from '../../../components/CollaborativeFields/utils';
 import { DateTime, Text } from '../../../components/ContentField';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
@@ -52,11 +54,23 @@ function usePublishModal(
 
           if (publishStage) {
             const isPublished = !!(await publishItem()).data;
+
+            try {
+              if (y.ydoc) {
+                new utils.shared.Float(y.ydoc).set('stage', publishStage);
+              }
+            } catch (error) {
+              toast.warn('Could not set stage in syncronized state, but the document will still be published.');
+              console.error(error);
+            }
             const isStageSet = await saveChanges(y, setIsLoading, { stage: publishStage }, false, idKey);
 
             // return whether the action was successful
             setIsLoading(false);
-            if (isStageSet === true && isPublished === true) return true;
+            if (isStageSet === true && isPublished === true) {
+              toast.success('Published document');
+              return true;
+            }
           }
 
           return false;
