@@ -17,7 +17,6 @@ import { useAwareness } from './useAwareness';
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};
   #webProviders: Record<string, WebrtcProvider> = {};
-  #localProviders: Record<string, IndexeddbPersistence> = {};
 
   async create(name: string) {
     if (!this.has(name)) {
@@ -36,9 +35,7 @@ class YProvider {
       }
       // @ts-expect-error all properties are actually optional
       const webProvider = new WebrtcProvider(name, ydoc, providerOptions);
-      const localProvider = new IndexeddbPersistence(name, ydoc);
       this.#webProviders[name] = webProvider;
-      this.#localProviders[name] = localProvider;
     }
 
     return this.get(name);
@@ -47,9 +44,8 @@ class YProvider {
   get(name: string) {
     const ydoc = this.#ydocs[name];
     const webProvider = this.#webProviders[name];
-    const localProvider = this.#localProviders[name];
 
-    return { ydoc, webProvider, localProvider };
+    return { ydoc, webProvider };
   }
 
   has(name: string): boolean {
@@ -62,8 +58,6 @@ class YProvider {
       delete this.#ydocs[name];
       this.#webProviders[name].destroy();
       delete this.#webProviders[name];
-      this.#localProviders[name].destroy();
-      delete this.#localProviders[name];
     }
   }
 }
@@ -72,7 +66,6 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
   const [ydoc, setYdoc] = useState<Y.Doc>();
   const providerRef = useRef(new YProvider());
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
-  const [localProvider, setLocalProvider] = useState<IndexeddbPersistence>();
   const [, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
@@ -85,7 +78,6 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
-        setLocalProvider(data.localProvider);
 
         // create a setting map for this document (used to sync settings accross all editors)
         const settingsMap = ydoc?.getMap<IYSettingsMap>('__settings');
@@ -95,8 +87,6 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     });
 
     return () => {
-      localProvider?.clearData();
-
       y.delete(`${tenant}.${collectionName}.${id}`);
       mounted = false;
     };
@@ -110,13 +100,9 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
   const [synced, setSynced] = useState(false);
   useEffect(() => {
     if (!synced && awareness.length > 0) {
-      const handleSync = () => setSynced(true);
-      localProvider?.on('synced', handleSync);
-      return () => {
-        localProvider?.off('synced', handleSync);
-      };
+      setSynced(true);
     }
-  }, [awareness, localProvider, synced, webProvider, ydoc]);
+  }, [awareness, synced, webProvider, ydoc]);
 
   // the web provider is connected when there is a room
   // and the web provider is set to be connected
@@ -155,7 +141,6 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     roomDetails: { collection: collectionName, id },
     client,
     setLoading,
-    localProvider,
     async getData(opts?: GetYFieldsOptions) {
       if (schemaDef) {
         return await getYFields(this, schemaDef, opts);
