@@ -34,7 +34,7 @@ import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
 import { useAwareness, useY } from '../../../components/Tiptap/hooks';
-import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
   DeconstructedSchemaDefType,
@@ -101,7 +101,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const navigate = useNavigate();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
-  const isUnsaved = props.y.unsavedFields.length !== 0;
   const [
     {
       schemaDef,
@@ -114,7 +113,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   ] = useCollectionSchemaConfig(collectionName);
 
   // put the document in redux state and ydoc
-  const { data, actionAccess, loading, error, refetch } = useFindDoc(
+  const { data, actionAccess, loading, error } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
     schemaDef,
@@ -157,20 +156,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const title = (() => {
     let title = '';
 
-    const ySettingsMap = props.y.ydoc?.getMap<IYSettingsMap>('__settings');
-    const autosave: boolean | undefined | null = ySettingsMap?.get('autosave');
-
-    // show asterisk in front when unsaved
-    if (isUnsaved && !autosave) title += '*';
-
     // show document name in the title
     title += docName;
 
     // show written note about unsaved status
-    if (isLoading && isUnsaved) title += ' - Saving';
-    else if (isLoading) title += ' - Syncing';
-    else if (autosave && isUnsaved) title += ' - Pending';
-    else if (!autosave && isUnsaved) title += ' - Unsaved Changes';
+    if (isLoading) title += ' - Syncing';
 
     // always end with Cristata
     title += ' - Cristata';
@@ -210,7 +200,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     collectionName,
     itemId: item_id,
     dispatch,
-    refetchData: refetch,
     watch: {
       isMandatoryWatcher: isMandatoryWatcher || false,
       isWatching: isWatching || false,
@@ -305,11 +294,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           type: 'icon',
           icon: 'MoreHorizontal24Regular',
           action: showActionDropdown,
-          onAuxClick: () => (props?.y.awareness.length === 1 ? refetch() : null),
         },
       ])
     );
-  }, [dispatch, props.y.awareness.length, quickActions, refetch, showActionDropdown]);
+  }, [dispatch, props.y.awareness.length, quickActions, showActionDropdown]);
 
   const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
 
@@ -795,7 +783,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         {!props.isEmbedded ? (
           <ReactRouterPrompt
             when={(currentLocation, nextLocation) => {
-              return isUnsaved && currentLocation.pathname !== nextLocation.pathname;
+              return !props.y.wsProvider?.synced && currentLocation.pathname !== nextLocation.pathname;
             }}
           >
             {({ isActive, onConfirm, onCancel }) =>

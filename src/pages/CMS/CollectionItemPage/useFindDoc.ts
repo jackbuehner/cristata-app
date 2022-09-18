@@ -1,11 +1,4 @@
-import {
-  ApolloError,
-  ApolloQueryResult,
-  gql,
-  NetworkStatus,
-  OperationVariables,
-  useQuery,
-} from '@apollo/client';
+import { ApolloError, gql, NetworkStatus, useQuery } from '@apollo/client';
 import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
@@ -30,7 +23,6 @@ function useFindDoc(
   actionAccess?: Record<CollectionPermissionsActions, boolean | undefined>;
   loading: boolean;
   error: ApolloError | undefined;
-  refetch: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
 } {
   const dispatch = useAppDispatch();
 
@@ -77,13 +69,6 @@ function useFindDoc(
     fetchPolicy: doNothing ? 'cache-only' : 'no-cache',
   });
 
-  const refetch = (variables?: Partial<OperationVariables>) => {
-    // refech the data
-    return apolloRefetch(variables).then((data) => {
-      return data;
-    });
-  };
-
   let actionAccess: Record<CollectionPermissionsActions, boolean | undefined> | undefined =
     req.data?.[queryName + 'ActionAccess'];
 
@@ -96,7 +81,7 @@ function useFindDoc(
     }
   }, [dispatch, doNothing, loading, networkStatus]);
 
-  return { actionAccess, loading, error, refetch, data: req.data?.[queryName] };
+  return { actionAccess, loading, error, data: req.data?.[queryName] };
 }
 
 function docDefsToQueryObject(

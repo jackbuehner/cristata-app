@@ -10,14 +10,12 @@ import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { saveChanges } from './saveChanges';
 
 function usePublishModal(
   y: EntryY,
   client: ApolloClient<object>,
   collectionName: string,
   itemId: string,
-  refetch: () => void,
   publishStage?: number,
   idKey = '_id'
 ): [React.ReactNode, () => void, () => void] {
@@ -63,11 +61,21 @@ function usePublishModal(
               toast.warn('Could not set stage in syncronized state, but the document will still be published.');
               console.error(error);
             }
-            const isStageSet = await saveChanges(y, setIsLoading, { stage: publishStage }, false, idKey);
+
+            try {
+              if (y.ydoc) {
+                new utils.shared.Date(y.ydoc).set('timestamps.published_at', timestamp);
+              }
+            } catch (error) {
+              toast.warn(
+                'Could not set publish time in syncronized state, but the document will still be published.'
+              );
+              console.error(error);
+            }
 
             // return whether the action was successful
             setIsLoading(false);
-            if (isStageSet === true && isPublished === true) {
+            if (isPublished === true) {
               toast.success('Published document');
               return true;
             }
@@ -112,7 +120,7 @@ function usePublishModal(
         </>
       ),
     };
-  }, [client, collectionName, itemId, refetch, publishStage, idKey]);
+  }, [client, collectionName, itemId, publishStage, idKey]);
 
   return [Window, showModal, hideModal];
 }

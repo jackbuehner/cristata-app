@@ -1,4 +1,4 @@
-import { ApolloQueryResult, gql, OperationVariables, useApolloClient } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/api/types/config';
 import { get as getProperty } from 'object-path';
 import { useCallback } from 'react';
@@ -12,7 +12,6 @@ import { useAppDispatch } from '../../../redux/hooks';
 import { Action } from '../../../redux/slices/appbarSlice';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { saveChanges } from './saveChanges';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
 
@@ -28,7 +27,6 @@ interface UseActionsParams {
   collectionName: string;
   itemId: string;
   dispatch: ReturnType<typeof useAppDispatch>;
-  refetchData: (variables?: Partial<OperationVariables> | undefined) => Promise<ApolloQueryResult<any>>;
   navigate: NavigateFunction;
   publishStage?: number;
   withPermissions: boolean;
@@ -45,7 +43,6 @@ interface UseActionsReturn {
 
 function useActions(params: UseActionsParams): UseActionsReturn {
   const client = useApolloClient();
-  const isUnsaved = params.y.unsavedFields.length !== 0;
   const data = params.y.data;
 
   const idKey = params.idKey || '_id';
@@ -56,7 +53,6 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     client,
     params.collectionName,
     params.itemId,
-    params.refetchData,
     params.publishStage,
     idKey
   );
@@ -121,7 +117,6 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           params.dispatch(setIsLoading(false));
         })
         .then(({ data }) => {
-          params.refetchData();
           if (data[`${uncapitalize(params.collectionName)}Archive`].archived)
             toast.success(`Item successfully archived.`);
           else toast.success(`Item successfully removed from the archive.`);
@@ -174,7 +169,6 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           } else {
             toast.success(`You are no longer watching this item.`);
           }
-          params.refetchData();
         })
         .catch((err) => {
           console.error(err);
@@ -193,17 +187,6 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   // permissions status and the current doc's status
   const actions = useCallback(() => {
     const actions: (Action | null)[] = [
-      {
-        label: 'Revert local changes',
-        type: 'icon',
-        icon: 'ArrowReset24Regular',
-        action: () => (params.y.awareness.length === 1 ? params.refetchData() : null),
-        disabled: params.y.awareness.length !== 1,
-        'data-tip':
-          params.y.awareness.length !== 1
-            ? `You cannot revert changes when there are other people editing this document.`
-            : undefined,
-      },
       {
         label: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'Stop watching' : 'Watch',
         type: 'button',
@@ -242,19 +225,6 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         color: data.archived ? 'primary' : 'yellow',
         disabled: params.actionAccess?.archive !== true,
       },
-      {
-        label: 'Save',
-        type: 'button',
-        icon: 'Save24Regular',
-        action: () => saveChanges(params.y, undefined, undefined, undefined, params.idKey),
-        disabled: !isUnsaved || params.actionAccess?.modify !== true,
-        'data-tip':
-          params.actionAccess?.modify !== true
-            ? `You cannot save this document because you do not have permission.`
-            : !isUnsaved
-            ? `There are no changes to save.`
-            : undefined,
-      },
       allHaveAccess
         ? null
         : {
@@ -275,7 +245,6 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     archiveItem,
     data.archived,
     hideItem,
-    isUnsaved,
     params,
     showPublishModal,
     showShareModal,
@@ -294,7 +263,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         }}
         items={
           actions
-            .filter((action) => action.label !== 'Save' && action.label !== 'Share')
+            .filter((action) => action.label !== 'Publish' && action.label !== 'Share')
             .map((action) => {
               return {
                 onClick: (e) => action.action(e),
@@ -310,12 +279,12 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     );
   });
 
-  // create a list that only includes save and share actions
+  // create a list that only includes publish and share actions
   // so that these actions can be used in conjunction with
   // the dropdown
   const quickActions = [
-    actions.find((action) => action?.label === 'Save'),
     actions.find((action) => action?.label === 'Share'),
+    actions.find((action) => action?.label === 'Publish'),
   ].filter((action): action is Action => !!action);
 
   return {

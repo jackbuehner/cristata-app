@@ -257,7 +257,7 @@ const Tiptap = (props: ITiptap) => {
                 {
                   label: 'Save',
                   icon: <Save20Regular />,
-                  disabled: false,
+                  disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || true,
                   action: props.actions?.find((action) => action?.label === 'Save')?.action || (() => null),
                 },
                 {
