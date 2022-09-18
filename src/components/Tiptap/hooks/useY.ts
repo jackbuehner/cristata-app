@@ -1,8 +1,8 @@
 import { ApolloClient, useApolloClient } from '@apollo/client';
+import { HocuspocusProvider, WebSocketStatus } from '@hocuspocus/provider';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import pluralize from 'pluralize';
 import { DependencyList, useEffect, useRef, useState } from 'react';
-import { IndexeddbPersistence } from 'y-indexeddb';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
@@ -17,6 +17,7 @@ import { useAwareness } from './useAwareness';
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};
   #webProviders: Record<string, WebrtcProvider> = {};
+  #wsProviders: Record<string, HocuspocusProvider> = {};
 
   async create(name: string) {
     if (!this.has(name)) {
@@ -36,6 +37,14 @@ class YProvider {
       // @ts-expect-error all properties are actually optional
       const webProvider = new WebrtcProvider(name, ydoc, providerOptions);
       this.#webProviders[name] = webProvider;
+
+      // register with a Hocuspocus server provider
+      const wsProvider = new HocuspocusProvider({
+        url: `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_HOCUSPOCUS_BASE_URL}`,
+        name,
+        document: ydoc,
+      });
+      this.#wsProviders[name] = wsProvider;
     }
 
     return this.get(name);
@@ -44,8 +53,9 @@ class YProvider {
   get(name: string) {
     const ydoc = this.#ydocs[name];
     const webProvider = this.#webProviders[name];
+    const wsProvider = this.#wsProviders[name];
 
-    return { ydoc, webProvider };
+    return { ydoc, webProvider, wsProvider };
   }
 
   has(name: string): boolean {
@@ -58,6 +68,8 @@ class YProvider {
       delete this.#ydocs[name];
       this.#webProviders[name].destroy();
       delete this.#webProviders[name];
+      this.#wsProviders[name].destroy();
+      delete this.#wsProviders[name];
     }
   }
 }
@@ -66,6 +78,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
   const [ydoc, setYdoc] = useState<Y.Doc>();
   const providerRef = useRef(new YProvider());
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
+  const [wsProvider, setWsProvider] = useState<HocuspocusProvider>();
   const [, setSettingsMap] = useState<Y.Map<IYSettingsMap>>();
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
@@ -78,6 +91,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
+        setWsProvider(data.wsProvider);
 
         // create a setting map for this document (used to sync settings accross all editors)
         const settingsMap = ydoc?.getMap<IYSettingsMap>('__settings');
@@ -93,20 +107,36 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collection, id, ...deps]);
 
-  const awareness = useAwareness({ provider: webProvider, user }); // get list of who is editing the doc
+  const awareness = useAwareness({ provider: wsProvider, user }); // get list of who is editing the doc
 
   // consider synced once the local provider is connected
   // and the web provider awareness has propogated (at least one array value)
   const [synced, setSynced] = useState(false);
   useEffect(() => {
-    if (!synced && awareness.length > 0) {
+    if (
+      !synced &&
+      awareness.length > 0 &&
+      wsProvider?.status === WebSocketStatus.Connected &&
+      wsProvider?.synced
+    ) {
       setSynced(true);
     }
-  }, [awareness, synced, webProvider, ydoc]);
+  }, [awareness, synced, wsProvider?.status, wsProvider?.synced, ydoc]);
+
+  const [wsStatus, setWsStatus] = useState<WebSocketStatus>(wsProvider?.status || WebSocketStatus.Disconnected);
+  useEffect(() => {
+    const handle = ({ status }: { status: WebSocketStatus }) => {
+      setWsStatus(status);
+    };
+    wsProvider?.on('status', handle);
+    return () => {
+      wsProvider?.off('status');
+    };
+  });
 
   // the web provider is connected when there is a room
   // and the web provider is set to be connected
-  const connected = (webProvider?.room && webProvider.shouldConnect) || undefined;
+  const rtcConnected = (webProvider?.room && webProvider.shouldConnect) || undefined;
 
   const __unsavedFields = ydoc?.getArray<string>('__unsavedFields');
   const [unsavedFields, setUnsavedFields] = useState(__unsavedFields?.toArray() || []);
@@ -131,9 +161,11 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
   const retObj = {
     ydoc: ydoc,
     provider: webProvider,
-    connected: connected,
+    wsProvider: wsProvider,
+    rtcConnected: rtcConnected,
+    wsStatus: wsStatus,
     // hide awareness if web or local provider is not connected
-    awareness: synced && connected ? awareness : [],
+    awareness: synced && rtcConnected ? awareness : [],
     initialSynced: synced,
     unsavedFields: unsavedFields,
     data: {},
@@ -213,7 +245,9 @@ type UseYReturn = EntryY;
 interface EntryY {
   ydoc: Y.Doc | undefined;
   provider: WebrtcProvider | undefined;
-  connected: boolean | undefined;
+  wsProvider: HocuspocusProvider | undefined;
+  rtcConnected: boolean | undefined;
+  wsStatus: WebSocketStatus;
   awareness: ReturnType<typeof useAwareness>;
   initialSynced: boolean;
   unsavedFields: string[];
@@ -221,7 +255,6 @@ interface EntryY {
   fullData: Record<string, unknown>;
   roomDetails: { collection: string; id: string };
   client: ApolloClient<object>;
-  localProvider?: IndexeddbPersistence;
   setLoading: (loading: boolean) => void;
   getData: (opts?: GetYFieldsOptions) => any;
   setState: (state: Uint8Array, revert?: boolean) => void;

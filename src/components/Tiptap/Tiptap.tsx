@@ -2,6 +2,7 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
+import { WebSocketStatus } from '@hocuspocus/provider';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Editor, EditorContent } from '@tiptap/react';
@@ -140,7 +141,14 @@ const Tiptap = (props: ITiptap) => {
   if (editor) editor.storage.currentJson = props.currentJsonInState;
 
   // do not consider connected until editor is created, ydoc is available, and the provider is connected
-  const isConnected = provider?.connected && ydoc && editor !== null;
+  const isConnected = props.y.wsStatus === WebSocketStatus.Connected && ydoc && editor !== null;
+  const isConnecting = props.y.wsStatus === WebSocketStatus.Connecting;
+  const [hasConnectedBefore, setHasConnectedBefore] = useState(false);
+  useEffect(() => {
+    if (props.y.wsStatus === WebSocketStatus.Connected && ydoc && editor !== null && props.y.initialSynced) {
+      setHasConnectedBefore(true);
+    }
+  }, [editor, props.y.initialSynced, props.y.wsStatus, ydoc]);
 
   // if the document is empty, use the json/html from the api instead (if available)
   if (editor && ydoc) {
@@ -357,7 +365,13 @@ const Tiptap = (props: ITiptap) => {
               `}
             >
               {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
-              {isConnected !== true ? (
+              {hasConnectedBefore && !isConnected ? (
+                <Noticebar theme={theme}>
+                  Connection lost. You may lose data if you close the editor before reconnecting.{' '}
+                  {isConnecting ? 'Attempting to reconnect...' : ''}
+                </Noticebar>
+              ) : null}
+              {!hasConnectedBefore ? (
                 <div
                   style={{
                     display: 'flex',
@@ -366,9 +380,11 @@ const Tiptap = (props: ITiptap) => {
                     alignItems: 'center',
                     color: theme.color.neutral[theme.mode][1500],
                     fontFamily: theme.font.detail,
+                    height: '100%',
+                    justifyContent: 'center',
                   }}
                 >
-                  {isConnected === undefined ? (
+                  {isConnecting ? (
                     <>
                       <Spinner color={'neutral'} colorShade={1500} size={30} />
                       <div>Connecting...</div>
@@ -387,9 +403,7 @@ const Tiptap = (props: ITiptap) => {
                 />
               ) : null}
 
-              {isConnected === true ? (
-                <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} />
-              ) : null}
+              {hasConnectedBefore ? <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} /> : null}
             </div>
           </ErrorBoundary>
           <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
@@ -423,11 +437,7 @@ const Tiptap = (props: ITiptap) => {
                 {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
               </StatusbarBlock>
               <StatusbarBlock>
-                {isConnected === true
-                  ? 'Connected'
-                  : isConnected === undefined
-                  ? 'Connecting...'
-                  : 'Failed to connect'}
+                {isConnected === true ? 'Connected' : isConnecting ? 'Connecting...' : 'Failed to connect'}
               </StatusbarBlock>
             </>
           </Statusbar>

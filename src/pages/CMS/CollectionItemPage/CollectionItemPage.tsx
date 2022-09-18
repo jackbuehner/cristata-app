@@ -1,5 +1,6 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { WebSocketStatus } from '@hocuspocus/provider';
 import {
   isTypeTuple,
   MongooseSchemaType,
@@ -128,7 +129,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     return merge(data, { yState: undefined }, await getYFields(props.y, schemaDef, opts));
   };
 
-  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({});
+  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({}) && props.y.initialSynced;
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -390,7 +391,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       if (readOnly) fieldName += ' (read only)';
 
       // prevent the fields from being edited when any of the following are true
-      const disabled = locked || loading || isLoading || !!error || readOnly || !props.y.connected;
+      const disabled =
+        locked || loading || isLoading || !!error || readOnly || props.y.wsStatus !== WebSocketStatus.Connected;
 
       // use this key for yjs shared type key for doc array contents
       // so there shared type for each field in the array is unique
@@ -779,7 +781,9 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     };
 
     if (
-      (!props.y.connected || !props.y.initialSynced || JSON.stringify(props.y.data) === JSON.stringify({})) &&
+      (props.y.wsStatus !== WebSocketStatus.Connected ||
+        !props.y.initialSynced ||
+        JSON.stringify(props.y.data) === JSON.stringify({})) &&
       !navigator.onLine
     ) {
       return <Offline variant={'centered'} />;
@@ -827,6 +831,12 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         {isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
+              {props.y.wsStatus === WebSocketStatus.Disconnected ? (
+                <Notice theme={theme}>
+                  <b>Currently not connected.</b> If you leave before your connection is restored, you may lose
+                  data.
+                </Notice>
+              ) : null}
               {publishLocked && !props.isEmbedded && fs !== '1' ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it has been published and you do not have

@@ -26,27 +26,27 @@ interface CollaborativeFieldWrapperProps {
 function CollaborativeFieldWrapper(props: CollaborativeFieldWrapperProps) {
   const theme = useTheme() as themeType;
 
-  const { field: yFieldName, provider, user } = props.y;
+  const { field: yFieldName, wsProvider, user } = props.y;
 
   const handleFocus = () => {
     const focused = new Set((user?.__focused as string[]) || []);
     focused.add(yFieldName);
-    provider?.awareness.setLocalStateField('focused', Array.from(focused));
+    wsProvider?.awareness.setLocalStateField('focused', Array.from(focused));
   };
 
   const handleBlur = () => {
     const focused = new Set((user?.__focused as string[]) || []);
     focused.delete(yFieldName);
-    provider?.awareness.setLocalStateField('focused', Array.from(focused));
+    wsProvider?.awareness.setLocalStateField('focused', Array.from(focused));
   };
 
   // the users who have declared that they are focused on this field
   const [focusedUsers, setFocusedUsers] = useState<ReturnType<typeof useAwareness>>([]);
   useEffect(() => {
-    if (provider) {
+    if (wsProvider) {
       const listener = () => {
         const allAwarenessValues: ReturnType<typeof useAwareness> = Array.from(
-          provider.awareness.getStates().values()
+          wsProvider.awareness.getStates().values()
         )
           .filter((value) => value.user)
           .map((value) => ({ ...value.user, __focused: value.focused || [] }));
@@ -73,11 +73,11 @@ function CollaborativeFieldWrapper(props: CollaborativeFieldWrapperProps) {
 
         setFocusedUsers(awareness);
       };
-      provider.awareness.on('change', listener);
+      wsProvider.awareness.on('change', listener);
 
-      return () => provider?.awareness.off('change', listener);
+      return () => wsProvider?.awareness.off('change', listener);
     }
-  }, [provider, yFieldName]);
+  }, [wsProvider, yFieldName]);
 
   return (
     <CollaborativeFieldWrapperComponent

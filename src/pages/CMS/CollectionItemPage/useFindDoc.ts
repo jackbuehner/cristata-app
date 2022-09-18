@@ -11,7 +11,7 @@ import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch } from '../../../redux/hooks';
@@ -47,7 +47,6 @@ function useFindDoc(
             ...merge(
               {
                 [accessor]: true,
-                yState: true,
               },
               ...schemaDef.map(docDefsToQueryObjectLight)
             ),
@@ -66,9 +65,6 @@ function useFindDoc(
     )
   );
 
-  // track how many times the doc has been refreshed
-  const [count, setCount] = useState(0);
-
   // get the item
   const {
     loading,
@@ -79,23 +75,9 @@ function useFindDoc(
   } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
     fetchPolicy: doNothing ? 'cache-only' : 'no-cache',
-    onCompleted(data) {
-      // we should revert to remote state on subsequent refreshes,
-      // but we do not revert on the first load so that there is
-      // a chance to save local changes that were not previously saved
-      const shouldRevert = count > 0;
-
-      // if the data contains a doc state, apply it
-      if (y?.ydoc && data?.[queryName]?.yState) {
-        const yState = Uint8Array.from(atob(data[queryName].yState), (c) => c.charCodeAt(0));
-        y.setState(yState, shouldRevert);
-      }
-    },
   });
 
   const refetch = (variables?: Partial<OperationVariables>) => {
-    setCount((count) => count + 1);
-
     // refech the data
     return apolloRefetch(variables).then((data) => {
       return data;
