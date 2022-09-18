@@ -827,7 +827,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           </ReactRouterPrompt>
         ) : null}
         {!props.isEmbedded && isMaximized ? null : null}
-        <FullScreenSplash isLoading={isMaximized && !hasLoadedAtLeastOnce} />
+        <FullScreenSplash
+          isLoading={isMaximized && !hasLoadedAtLeastOnce}
+          message={'Connecting to the server'}
+        />
         {isLoading && !hasLoadedAtLeastOnce ? null : (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
