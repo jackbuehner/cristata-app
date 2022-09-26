@@ -109,19 +109,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
 
   const awareness = useAwareness({ provider: wsProvider, user }); // get list of who is editing the doc
 
-  // consider synced once the local provider is connected
-  // and the web provider awareness has propogated (at least one array value)
-  const [synced, setSynced] = useState(false);
-  useEffect(() => {
-    if (
-      !synced &&
-      awareness.length > 0 &&
-      wsProvider?.status === WebSocketStatus.Connected &&
-      wsProvider?.synced
-    ) {
-      setSynced(true);
-    }
-  }, [awareness, synced, wsProvider?.status, wsProvider?.synced, ydoc]);
+  const synced = wsProvider?.status === WebSocketStatus.Connected && wsProvider?.synced;
 
   const [wsStatus, setWsStatus] = useState<WebSocketStatus>(wsProvider?.status || WebSocketStatus.Disconnected);
   useEffect(() => {
@@ -166,7 +154,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     wsStatus: wsStatus,
     // hide awareness if web or local provider is not connected
     awareness: synced && rtcConnected ? awareness : [],
-    initialSynced: synced,
+    synced: synced,
     unsavedFields: unsavedFields,
     data: {},
     fullData: {},
@@ -249,7 +237,7 @@ interface EntryY {
   rtcConnected: boolean | undefined;
   wsStatus: WebSocketStatus;
   awareness: ReturnType<typeof useAwareness>;
-  initialSynced: boolean;
+  synced: boolean;
   unsavedFields: string[];
   data: Record<string, unknown>;
   fullData: Record<string, unknown>;

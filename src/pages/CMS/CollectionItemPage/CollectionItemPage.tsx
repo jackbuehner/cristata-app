@@ -128,7 +128,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     return merge(data, { yState: undefined }, await getYFields(props.y, schemaDef, opts));
   };
 
-  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({}) && props.y.initialSynced;
+  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({}) && props.y.synced;
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -770,7 +770,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
     if (
       (props.y.wsStatus !== WebSocketStatus.Connected ||
-        !props.y.initialSynced ||
+        !props.y.synced ||
         JSON.stringify(props.y.data) === JSON.stringify({})) &&
       !navigator.onLine
     ) {

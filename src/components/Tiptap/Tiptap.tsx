@@ -145,10 +145,10 @@ const Tiptap = (props: ITiptap) => {
   const isConnecting = props.y.wsStatus === WebSocketStatus.Connecting;
   const [hasConnectedBefore, setHasConnectedBefore] = useState(false);
   useEffect(() => {
-    if (props.y.wsStatus === WebSocketStatus.Connected && ydoc && editor !== null && props.y.initialSynced) {
+    if (props.y.wsStatus === WebSocketStatus.Connected && ydoc && editor !== null && props.y.synced) {
       setHasConnectedBefore(true);
     }
-  }, [editor, props.y.initialSynced, props.y.wsStatus, ydoc]);
+  }, [editor, props.y.synced, props.y.wsStatus, ydoc]);
 
   // if the document is empty, use the json/html from the api instead (if available)
   if (editor && ydoc) {
