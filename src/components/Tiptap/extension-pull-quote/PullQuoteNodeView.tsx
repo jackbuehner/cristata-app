@@ -22,11 +22,7 @@ function PullQuoteNodeView(props: IPullQuoteNodeView) {
         onMouseOver={() => setIsMouseOver(true)}
         onMouseOut={() => setIsMouseOver(false)}
       >
-        <WidgetLabel
-          isVisible={isMouseOver}
-          data-drag-handle
-          draggable={props.extension.config.draggable ? true : false}
-        >
+        <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
           Pull Quote
         </WidgetLabel>
         <WidgetActions

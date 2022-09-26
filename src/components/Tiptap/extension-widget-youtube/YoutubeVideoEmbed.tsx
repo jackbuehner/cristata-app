@@ -80,11 +80,7 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
           allow={'autoplay; encrypted-media'}
           allowFullScreen
         />
-        <WidgetLabel
-          isVisible={isMouseOver}
-          data-drag-handle
-          draggable={props.extension.config.draggable ? true : false}
-        >
+        <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
           YouTube
         </WidgetLabel>
         <WidgetActions

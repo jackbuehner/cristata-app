@@ -143,11 +143,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
           src={photo?.photo_url}
           alt={''}
         />
-        <WidgetLabel
-          isVisible={isMouseOver}
-          data-drag-handle
-          draggable={props.extension.config.draggable ? true : false}
-        >
+        <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
           Photo
         </WidgetLabel>
         <WidgetActions

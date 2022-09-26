@@ -73,11 +73,7 @@ function Sweepwidget(props: ISweepwidget) {
           `}
           style={{ border: 'none', width: '100%', minWidth: '100%' }}
         />
-        <WidgetLabel
-          isVisible={isMouseOver}
-          data-drag-handle
-          draggable={props.extension.config.draggable ? true : false}
-        >
+        <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
           SweepWidget
         </WidgetLabel>
         <WidgetActions
