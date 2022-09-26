@@ -43,6 +43,7 @@ interface SidebarProps {
   compact?: boolean;
   y: EntryY;
   user?: ReturnType<typeof useAwareness>[0];
+  disabled?: boolean;
   getFieldValues: (opts: GetYFieldsOptions) => Promise<any>;
 }
 
@@ -129,16 +130,14 @@ function Sidebar(props: SidebarProps) {
           <SectionTitle theme={theme}>Stage</SectionTitle>
           {typeof props.stage.current === 'string' && typeof props.stage.options[0].value === 'string' ? (
             <CollaborativeSelectOne
-              label={'Stage'}
               y={{ ...props.y, field: props.stage.key, user: props.user }}
               options={props.stage.options as StringOption[]}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={props.loading}
+              disabled={props.loading || props.disabled}
               isEmbedded
             />
           ) : (
             <CollaborativeSelectOne
-              label={'Stage'}
               y={{ ...props.y, field: props.stage.key, user: props.user }}
               options={(props.stage.options as NumberOption[]).map((opt) => ({
                 ...opt,
@@ -147,7 +146,7 @@ function Sidebar(props: SidebarProps) {
               }))}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={props.loading}
+              disabled={props.loading || props.disabled}
               isEmbedded
             />
           )}

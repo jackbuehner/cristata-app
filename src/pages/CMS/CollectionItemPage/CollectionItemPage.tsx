@@ -212,6 +212,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     idKey: by?.one,
   });
 
+  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
+
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
     y: props.y,
@@ -259,6 +261,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 }) || [],
           },
     previewUrl: options?.previewUrl,
+    disabled: locked || loading || isLoading || !!error || props.y.wsStatus !== WebSocketStatus.Connected,
     getFieldValues,
   };
 
@@ -298,8 +301,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       ])
     );
   }, [dispatch, props.y.awareness.length, quickActions, showActionDropdown]);
-
-  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
