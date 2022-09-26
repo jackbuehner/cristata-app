@@ -17,7 +17,6 @@ import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { EntryY } from '../Tiptap/hooks/useY';
 import { Value } from './CollaborativeCombobox';
-import utils from './utils';
 
 interface SelectedItemsProps {
   onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
@@ -76,7 +75,6 @@ function SelectedItems(props: SelectedItemsProps) {
             onClick={() => {
               props.y.ydoc.transact(() => {
                 yarray.delete(0, yarray.length);
-                utils.setUnsaved(props.y, props.fieldName.split('‾‾')[1] || props.fieldName);
               });
             }}
           >
@@ -107,7 +105,6 @@ function SelectedItems(props: SelectedItemsProps) {
                             props.y.ydoc.transact(() => {
                               if (!props.disabled) {
                                 yarray.delete(index);
-                                utils.setUnsaved(props.y, props.fieldName.split('‾‾')[1] || props.fieldName);
                               }
                             });
                           }}

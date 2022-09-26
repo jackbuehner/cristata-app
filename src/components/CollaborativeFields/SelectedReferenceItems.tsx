@@ -19,7 +19,6 @@ import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { EntryY } from '../Tiptap/hooks/useY';
 import { Value } from './CollaborativeCombobox';
-import utils from './utils';
 
 interface SelectedReferenceItemsProps {
   onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
@@ -83,7 +82,6 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
             onClick={() => {
               props.y.ydoc.transact(() => {
                 yarray.delete(0, yarray.length);
-                utils.setUnsaved(props.y, props.fieldName.split('‾‾')[1] || props.fieldName);
               });
             }}
           >
@@ -144,7 +142,6 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
                             props.y.ydoc.transact(() => {
                               if (!props.disabled) {
                                 yarray.delete(index);
-                                utils.setUnsaved(props.y, props.fieldName.split('‾‾')[1] || props.fieldName);
                               }
                             });
                           }}

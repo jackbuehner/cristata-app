@@ -6,7 +6,6 @@ import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { colorType } from '../../utils/theme/theme';
 import { useTipTapEditor } from '../Tiptap/hooks';
 import { editorExtensions } from './editorExtensions';
-import utils from './utils';
 
 interface CollaborativeNumberFieldProps extends CollaborativeFieldProps {
   allowDecimals?: boolean;
@@ -32,13 +31,6 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
     editorProps: {
       handleKeyDown(view, event) {
         onKeyDown?.(event);
-        if (event.key === 'Backspace') {
-          utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
-        }
-        return false;
-      },
-      handleTextInput() {
-        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
         return false;
       },
     },

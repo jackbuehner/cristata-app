@@ -1,6 +1,5 @@
-import { setUnsaved } from './setUnsaved';
 import { shared } from './shared';
 
-const utils = { setUnsaved, shared };
+const utils = { shared };
 
 export default utils;

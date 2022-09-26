@@ -41,7 +41,6 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
 
       // store change in ydoc shared type for checkbox fields
       sharedType?.set(y.field, checked);
-      utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
 
       // send the change to the parent
       props.onChange?.(checked);
