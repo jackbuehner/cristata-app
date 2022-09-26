@@ -21,7 +21,7 @@ function CollaborativeCheckbox(props: CollaborativeCheckboxProps) {
   // keep track of the checked status in the checkbox field shared type
   const [checked, setChecked] = useState(sharedType?.get(y.field) || undefined);
   useEffect(() => {
-    const handleChange = (evt: YMapEvent<Record<string, boolean>>) => {
+    const handleChange = (evt: YMapEvent<Record<string, boolean | null | undefined>>) => {
       const change = evt.changes.keys.get(y.field);
       if (change) {
         if (change.action === 'delete') setChecked(undefined);

@@ -25,7 +25,6 @@ import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
-import { Value } from './CollaborativeCombobox';
 import utils from './utils';
 
 interface CollaborativeDocArrayProps extends CollaborativeFieldProps {
@@ -54,7 +53,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
     if (yarray) {
       setArr(yarray.toArray());
 
-      const handleChange = (evt: Y.YArrayEvent<Value<string>>) => {
+      const handleChange = (evt: Y.YArrayEvent<Record<string, unknown>>) => {
         if (evt.changes.delta) {
           setArr(yarray.toArray());
 
