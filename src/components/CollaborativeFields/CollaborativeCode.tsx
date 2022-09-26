@@ -101,6 +101,7 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
         height={props.height || 300}
         tabIndex={tabIndex}
         awarenessProfiles={awarenessProfiles || []}
+        disabled={props.disabled}
       />
       {tabIndex === 1 ? (
         <MdPreview color={props.color} height={props.height || 300}>
@@ -126,6 +127,7 @@ const EditorComponent = styled.div<{
   height: number;
   tabIndex: number;
   awarenessProfiles: AwarenessProfiles;
+  disabled?: boolean;
 }>`
   display: ${({ tabIndex }) => (tabIndex === 0 ? 'block' : 'none')};
   height: ${({ height }) => height}px;
@@ -134,17 +136,24 @@ const EditorComponent = styled.div<{
   box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][400]} 0px 0px 0px 1px inset;
   transition: box-shadow 240ms;
   box-sizing: border-box;
-  &:hover {
-    box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
-  }
-  &:focus-within {
-    outline: none;
-    box-shadow: ${({ theme, color }) => {
-        if (color === 'neutral') color = undefined;
-        return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
-      }}
-      0px 0px 0px 2px inset;
-  }
+  ${({ theme, color, disabled }) => {
+    if (disabled !== true) {
+      return `
+        &:hover {
+          box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+        }
+        &:focus-within {
+          outline: none;
+          box-shadow: ${(() => {
+            if (color === 'neutral') color = undefined;
+            return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
+          })()}
+            0px 0px 0px 2px inset;
+        }
+      `;
+    }
+    return 'cursor: not-allowed;';
+  }}
   > *,
   .overflow-guard {
     max-height: ${({ height }) => height - 4}px !important;

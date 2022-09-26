@@ -95,17 +95,24 @@ const CollaborativeDateTimeComponent = styled(DatePicker)<{
   box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][400]} 0px 0px 0px 1px inset !important;
   transition: box-shadow 240ms !important;
   background: none !important;
-  &:hover {
-    box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset !important;
-  }
-  &:focus-within {
-    outline: none !important;
-    box-shadow: ${({ theme, themeColor: color }) => {
-        if (color === 'neutral') color = undefined;
-        return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
-      }}
-      0px 0px 0px 2px inset !important;
-  }
+  ${({ theme, themeColor: color, disabled }) => {
+    if (disabled !== true) {
+      return `
+        &:hover {
+          box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset !important;
+        }
+        &:focus-within {
+          outline: none;
+          box-shadow: ${(() => {
+            if (color === 'neutral') color = undefined;
+            return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
+          })()}
+            0px 0px 0px 2px inset !important;
+        }
+      `;
+    }
+    return 'cursor: not-allowed;';
+  }}
 
   > .ant-picker-input > input,
   > .ant-picker-input > input[disabled] {

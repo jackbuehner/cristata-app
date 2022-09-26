@@ -95,11 +95,16 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
             <DragZone ref={provided.innerRef} {...provided.droppableProps}>
               {selected.map(({ value: _id, label }, index) => {
                 return (
-                  <Draggable draggableId={_id.toString()} index={index} key={index + _id.toString()}>
+                  <Draggable
+                    draggableId={_id.toString()}
+                    isDragDisabled={props.noDrag || props.disabled}
+                    index={index}
+                    key={index + _id.toString()}
+                  >
                     {(provided) => (
                       <SelectItem ref={provided.innerRef} {...provided.draggableProps} theme={theme}>
-                        {props.noDrag || props.disabled ? null : (
-                          <DragHandle dragHandleProps={provided.dragHandleProps} />
+                        {props.noDrag ? null : (
+                          <DragHandle dragHandleProps={provided.dragHandleProps} disabled={props.disabled} />
                         )}
                         <SelectContent>
                           <SelectText font={props.font}>{label}</SelectText>
@@ -212,15 +217,15 @@ const SelectText = styled.div<{ font?: keyof themeType['font'] }>`
   }
 `;
 
-function DragHandle(props: { dragHandleProps?: DraggableProvidedDragHandleProps }) {
+function DragHandle(props: { dragHandleProps?: DraggableProvidedDragHandleProps; disabled?: boolean }) {
   return (
-    <DragHandleComponent {...props.dragHandleProps}>
+    <DragHandleComponent {...props.dragHandleProps} disabled={props.disabled}>
       <ReOrderDotsHorizontal24Regular />
     </DragHandleComponent>
   );
 }
 
-const DragHandleComponent = styled.span`
+const DragHandleComponent = styled.span<{ disabled?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -229,6 +234,9 @@ const DragHandleComponent = styled.span`
   min-height: 38px;
   border-right: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
   flex-shrink: 0;
+  color: ${({ theme, disabled }) =>
+    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'default')};
 `;
 
 const IconWrapper = styled.span<{ color: colorType; disabled?: boolean }>`
@@ -245,6 +253,9 @@ const IconWrapper = styled.span<{ color: colorType; disabled?: boolean }>`
   margin: 0 1px 0 0;
   border-left: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][200]};
   border-radius: ${({ theme }) => theme.radius};
+  color: ${({ theme, disabled }) =>
+    disabled ? theme.color.neutral[theme.mode][600] : theme.color.neutral[theme.mode][1400]};
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'default')};
   > svg {
     width: 16px;
     height: 16px;
