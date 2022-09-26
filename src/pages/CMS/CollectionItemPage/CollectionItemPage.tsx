@@ -192,6 +192,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     mandatoryWatchersKeys: collectionOptions?.mandatoryWatchers || [],
   });
 
+  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
+
   // determine the actions for this document
   const { actions, quickActions, showActionDropdown, Windows } = useActions({
     y: props.y,
@@ -210,9 +212,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     withPermissions,
     isEmbedded: props.isEmbedded,
     idKey: by?.one,
+    loadingOrError: loading || isLoading || !!error || props.y.wsStatus !== WebSocketStatus.Connected,
+    locked: publishLocked || (props.y.data.locked as boolean | undefined | null) || false,
+    archived: (props.y.data.archived as boolean | undefined | null) || false,
+    hidden: (props.y.data.hidden as boolean | undefined | null) || false,
   });
-
-  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
@@ -463,6 +467,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 message={
                   publishLocked
                     ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
+                    : props.y.data.hidden
+                    ? 'This document is opened in read-only mode because it is deleted. Restore it from the deleted items to edit.'
                     : props.y.data.archived
                     ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
                     : undefined
@@ -850,6 +856,24 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                     disabled={actions.findIndex((a) => a.label === 'Remove from archive') === -1}
                   >
                     Remove from archive
+                  </Button>
+                </Notice>
+              ) : null}
+              {props.y.data.hidden && !props.isEmbedded && fs !== '1' ? (
+                <Notice theme={theme}>
+                  This document is opened in read-only mode because it is deleted.
+                  <Button
+                    height={26}
+                    cssExtra={css`
+                      display: inline-block;
+                      margin: 4px 8px;
+                    `}
+                    onClick={(e) => {
+                      actions.find((a) => a.label === 'Restore from deleted items')?.action(e);
+                    }}
+                    disabled={actions.findIndex((a) => a.label === 'Restore from deleted items') === -1}
+                  >
+                    Restore from deleted items
                   </Button>
                 </Notice>
               ) : null}

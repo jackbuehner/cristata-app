@@ -32,6 +32,10 @@ interface UseActionsParams {
   withPermissions: boolean;
   isEmbedded?: boolean;
   idKey?: string;
+  locked?: boolean;
+  archived?: boolean;
+  hidden?: boolean;
+  loadingOrError?: boolean;
 }
 
 interface UseActionsReturn {
@@ -65,36 +69,43 @@ function useActions(params: UseActionsParams): UseActionsReturn {
    * "soft" deletion that can be undone because the data is not actually
    * deleted.
    */
-  const hideItem = useCallback(() => {
-    params.dispatch(setIsLoading(true));
+  const hideItem = useCallback(
+    (hide = true) => {
+      params.dispatch(setIsLoading(true));
 
-    const HIDE_ITEM = gql`mutation {
-      ${uncapitalize(params.collectionName)}Hide(${idKey || '_id'}: "${params.itemId}") {
+      const HIDE_ITEM = gql`mutation {
+      ${uncapitalize(params.collectionName)}Hide(${idKey || '_id'}: "${params.itemId}", hide: ${hide}) {
         hidden
       }
     }`;
 
-    client
-      .mutate({ mutation: HIDE_ITEM })
-      .then(() => {
-        params.dispatch(setIsLoading(false));
-        if (window.name === '') {
-          // redirect to home page if an unnamed window
-          toast.success(`Item successfully hidden.`);
-          params.navigate('/');
-        } else {
-          // otherwise, this window was opened by the unnamed window
-          // and should be closed once the item is hidden
-          window.alert(`Item successfully hidden. This window will close.`);
-          window.close();
-        }
-      })
-      .catch((err) => {
-        params.dispatch(setIsLoading(false));
-        console.error(err);
-        toast.error(`Failed to hide item. \n ${err.message}`);
-      });
-  }, [client, idKey, params]);
+      client
+        .mutate({ mutation: HIDE_ITEM })
+        .then(() => {
+          params.dispatch(setIsLoading(false));
+          if (hide) {
+            if (window.name === '') {
+              // redirect to home page if an unnamed window
+              toast.success(`Document successfully hidden.`);
+              params.navigate('/');
+            } else {
+              // otherwise, this window was opened by the unnamed window
+              // and should be closed once the item is hidden
+              window.alert(`Document successfully hidden. This window will close.`);
+              window.close();
+            }
+          } else {
+            toast.success(`Document successfully restored.`);
+          }
+        })
+        .catch((err) => {
+          params.dispatch(setIsLoading(false));
+          console.error(err);
+          toast.error(`Failed to document item. \n ${err.message}`);
+        });
+    },
+    [client, idKey, params]
+  );
 
   /**
    * Set whether the item is archived.
@@ -192,7 +203,13 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         type: 'button',
         icon: params.watch.isWatching || params.watch.isMandatoryWatcher ? 'EyeOff20Regular' : 'Eye24Regular',
         action: () => toggleWatchItem(!params.watch.isWatching),
-        disabled: params.watch.isMandatoryWatcher || params.actionAccess?.watch !== true,
+        disabled:
+          params.watch.isMandatoryWatcher ||
+          params.actionAccess?.watch !== true ||
+          params.loadingOrError ||
+          params.archived ||
+          params.locked ||
+          params.hidden,
         'data-tip': params.watch.isMandatoryWatcher
           ? `You cannot stop watching this document because you are in one of the following groups: ${params.watch.mandatoryWatchersList}`
           : undefined,
@@ -203,27 +220,34 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         icon: 'CloudArrowUp24Regular',
         action: () => showPublishModal(),
         color: 'success',
-        disabled: params.canPublish !== true,
+        disabled:
+          params.canPublish !== true ||
+          params.loadingOrError ||
+          params.archived ||
+          params.locked ||
+          params.hidden,
         'data-tip':
           params.canPublish !== true
             ? `You cannot publish this document because you do not have permission.`
             : undefined,
       },
       {
-        label: 'Delete',
+        label: params.hidden ? 'Restore from deleted items' : 'Delete',
         type: 'button',
-        icon: 'Delete24Regular',
-        action: () => hideItem(),
-        color: 'red',
-        disabled: params.actionAccess?.hide !== true,
+        icon: params.hidden ? 'DeleteOff24Regular' : 'Delete24Regular',
+        action: () => hideItem(params.hidden ? false : true),
+        color: params.hidden ? 'primary' : 'red',
+        disabled:
+          params.actionAccess?.hide !== true || params.loadingOrError || params.archived || params.locked,
       },
       {
-        label: data.archived ? 'Remove from archive' : 'Archive',
+        label: params.archived ? 'Remove from archive' : 'Archive',
         type: 'button',
-        icon: data.archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
-        action: () => archiveItem(data.archived ? false : true),
-        color: data.archived ? 'primary' : 'yellow',
-        disabled: params.actionAccess?.archive !== true,
+        icon: params.archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
+        action: () => archiveItem(params.archived ? false : true),
+        color: params.archived ? 'primary' : 'yellow',
+        disabled:
+          params.actionAccess?.archive !== true || params.loadingOrError || params.locked || params.hidden,
       },
       allHaveAccess
         ? null
@@ -232,7 +256,12 @@ function useActions(params: UseActionsParams): UseActionsReturn {
             type: 'button',
             icon: 'Share24Regular',
             action: () => showShareModal(),
-            disabled: params.actionAccess?.modify !== true,
+            disabled:
+              params.actionAccess?.modify !== true ||
+              params.loadingOrError ||
+              params.archived ||
+              params.locked ||
+              params.hidden,
             'data-tip':
               params.actionAccess?.modify !== true
                 ? `You cannot share this document because you do not have permission to modify it.`
@@ -240,16 +269,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           },
     ];
     return actions.filter((action): action is Action => !!action);
-  }, [
-    allHaveAccess,
-    archiveItem,
-    data.archived,
-    hideItem,
-    params,
-    showPublishModal,
-    showShareModal,
-    toggleWatchItem,
-  ])();
+  }, [allHaveAccess, archiveItem, hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
 
   // create a dropdown with all actions except save and publish
   const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {

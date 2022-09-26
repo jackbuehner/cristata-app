@@ -45,6 +45,8 @@ function useCollectionSchemaConfig(name: string): [
     setProperty(schemaDef, 'timestamps.modified_at', { type: 'Date', ...hidden });
     setProperty(schemaDef, 'people.watching', { type: ['[User]', ['ObjectId']], ...hidden });
     setProperty(schemaDef, 'archived', { type: 'Boolean', ...hidden });
+    setProperty(schemaDef, 'hidden', { type: 'Boolean', ...hidden });
+    setProperty(schemaDef, 'locked', { type: 'Boolean', ...hidden });
     if (withPermissions) {
       setProperty(schemaDef, 'permissions.users', {
         type: ['[User]', ['ObjectId']],
