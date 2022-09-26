@@ -37,11 +37,11 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
 
   // set the photo url and credit attributes
   useEffect(() => {
-    if (photo) {
+    if (photo && props.editor.isEditable) {
       if (photo.photo_url) updateAttributes({ photoUrl: photo.photo_url });
       if (photo.people?.photo_created_by) updateAttributes({ photoCredit: photo.people.photo_created_by });
     }
-  }, [photo, updateAttributes]);
+  }, [photo, props.editor.isEditable, updateAttributes]);
 
   // insert photo widget
   const [showPhotoWidgetModal, hidePhotoWidgetModal] = useModal(() => {
@@ -60,7 +60,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             updateAttributes({ photoId: photoId, position: photoPos });
             return true;
           },
-          disabled: photoId.length < 1,
+          disabled: photoId.length < 1 || !props.editor.isEditable,
         }}
       >
         <ErrorBoundary fallback={<div>Error loading async select field</div>}>
@@ -161,16 +161,19 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
               icon: <TextDescription20Regular />,
               label: 'Toggle caption',
               onClick: () => updateAttributes({ showCaption: !props.node.attrs.showCaption }),
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Edit16Regular />,
               label: 'Change photo',
               onClick: showPhotoWidgetModal,
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Delete16Regular />,
               label: 'Remove widget',
               onClick: props.deleteNode,
+              disabled: !props.editor.isEditable,
             },
           ]}
         ></WidgetActions>

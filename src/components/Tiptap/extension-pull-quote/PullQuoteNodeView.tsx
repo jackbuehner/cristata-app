@@ -39,16 +39,19 @@ function PullQuoteNodeView(props: IPullQuoteNodeView) {
                   icon: <AlignLeft20Regular />,
                   label: 'Align left',
                   onClick: () => updateAttributes({ position: 'left' }),
+                  disabled: !props.editor.isEditable,
                 }
               : {
                   icon: <AlignRight20Regular />,
                   label: 'Align right',
                   onClick: () => updateAttributes({ position: 'right' }),
+                  disabled: !props.editor.isEditable,
                 },
             {
               icon: <Delete16Regular />,
               label: 'Remove widget',
               onClick: props.deleteNode,
+              disabled: !props.editor.isEditable,
             },
           ]}
         />

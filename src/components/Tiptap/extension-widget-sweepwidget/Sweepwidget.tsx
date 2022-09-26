@@ -37,7 +37,7 @@ function Sweepwidget(props: ISweepwidget) {
             props.updateAttributes({ id: idValue });
             return true;
           },
-          disabled: idValue.length < 1,
+          disabled: idValue.length < 1 || !props.editor.isEditable,
         }}
       >
         <TextInput
@@ -96,11 +96,13 @@ function Sweepwidget(props: ISweepwidget) {
               icon: <Edit16Regular />,
               label: 'Change giveaway ID',
               onClick: showEditModal,
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Delete16Regular />,
               label: 'Remove widget',
               onClick: props.deleteNode,
+              disabled: !props.editor.isEditable,
             },
           ]}
         ></WidgetActions>

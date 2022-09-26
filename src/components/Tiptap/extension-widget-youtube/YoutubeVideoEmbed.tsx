@@ -50,7 +50,7 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
             props.updateAttributes({ videoId: idValue });
             return true;
           },
-          disabled: idValue.length < 1 || idValue === props.node.attrs.videoId,
+          disabled: idValue.length < 1 || idValue === props.node.attrs.videoId || !props.editor.isEditable,
         }}
       >
         <TextInput
@@ -103,16 +103,19 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
               icon: <TextDescription20Regular />,
               label: 'Toggle caption',
               onClick: () => props.updateAttributes({ showCaption: !props.node.attrs.showCaption }),
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Edit16Regular />,
               label: 'Change video settings',
               onClick: showEditModal,
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Delete16Regular />,
               label: 'Remove widget',
               onClick: props.deleteNode,
+              disabled: !props.editor.isEditable,
             },
           ]}
         ></WidgetActions>
