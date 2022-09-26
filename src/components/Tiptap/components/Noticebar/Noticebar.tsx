@@ -1,8 +1,7 @@
 import styled from '@emotion/styled';
 import Color from 'color';
-import { themeType } from '../../../../utils/theme/theme';
 
-const Noticebar = styled.div<{ theme: themeType }>`
+const Noticebar = styled.div<{ z?: number }>`
   font-family: ${({ theme }) => theme.font.detail};
   background-color: ${({ theme }) =>
     theme.mode === 'light' ? Color(theme.color.orange[800]).lighten(0.64).hex() : theme.color.orange[1400]};
@@ -12,7 +11,7 @@ const Noticebar = styled.div<{ theme: themeType }>`
   top: 0;
   margin: 0;
   width: 100%;
-  z-index: 99;
+  z-index: ${({ z }) => z || 99};
   box-sizing: border-box;
 `;
 

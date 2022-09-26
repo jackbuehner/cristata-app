@@ -360,9 +360,9 @@ const Tiptap = (props: ITiptap) => {
                 flex-grow: 1;
               `}
             >
-              {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
+              {props.message ? <Noticebar z={1}>{props.message}</Noticebar> : null}
               {hasConnectedBefore && !isConnected ? (
-                <Noticebar theme={theme}>
+                <Noticebar>
                   Connection lost. You may lose data if you close the editor before reconnecting.{' '}
                   {isConnecting ? 'Attempting to reconnect...' : ''}
                 </Noticebar>
