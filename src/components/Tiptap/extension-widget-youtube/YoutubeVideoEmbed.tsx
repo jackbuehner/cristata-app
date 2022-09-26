@@ -65,7 +65,7 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
   }, [props.node.attrs.videoId]);
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper contentEditable={false}>
       <WidgetWrapper
         ref={widgetRef}
         onMouseOver={() => setIsMouseOver(true)}
@@ -79,11 +79,9 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
           frameBorder={0}
           allow={'autoplay; encrypted-media'}
           allowFullScreen
-          contentEditable={false}
         />
         <WidgetLabel
           isVisible={isMouseOver}
-          contentEditable={false}
           data-drag-handle
           draggable={props.extension.config.draggable ? true : false}
         >
@@ -91,7 +89,6 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
         </WidgetLabel>
         <WidgetActions
           isVisible={isMouseOver}
-          contentEditable={false}
           actions={[
             {
               icon: <Open16Regular />,
@@ -118,19 +115,38 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
               disabled: !props.editor.isEditable,
             },
           ]}
-        ></WidgetActions>
-        <EditableContent show={props.node.attrs.showCaption} />
+        />
+        <EditableContent
+          contentEditable={props.node.attrs.showCaption}
+          show={props.node.attrs.showCaption}
+          showPlaceholder={props.node.textContent.length === 0}
+        />
       </WidgetWrapper>
     </NodeViewWrapper>
   );
 }
 
-const EditableContent = styled(NodeViewContent)<{ show: boolean }>`
+const EditableContent = styled(NodeViewContent)<{ show: boolean; showPlaceholder: boolean }>`
   display: ${({ show }) => (show ? 'block' : 'none')};
   margin: -10px 0 10px 0;
   color: #666;
   font-size: 90%;
   text-align: center;
+
+  // show placeholder message when empty
+  > div::before {
+    content: '${({ showPlaceholder }) => (showPlaceholder ? 'Type a caption...' : '')}';
+    position: absolute;
+    color: ${({ theme }) => theme.color.neutral[theme.mode][600]};
+    pointer-events: none;
+    height: 0;
+    transform: translateX(-50%);
+  }
+
+  // hide focus outline on content inside document frame
+  &:focus {
+    outline: none;
+  }
 `;
 
 export { YoutubeVideoEmbed };
