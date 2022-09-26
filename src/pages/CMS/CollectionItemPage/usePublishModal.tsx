@@ -2,7 +2,7 @@
 import { ApolloClient, gql, useMutation } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import { get as getProperty } from 'object-path';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import utils from '../../../components/CollaborativeFields/utils';
 import { DateTime, Text } from '../../../components/ContentField';
@@ -23,9 +23,19 @@ function usePublishModal(
     const theme = useTheme() as themeType;
 
     const [confirm, setConfirm] = useState<string>('');
-    const [timestamp, setTimestamp] = useState<string>(
-      getProperty(y.data, 'timestamps.published_at') as string
+
+    const [timestamp, setTimestamp] = useState<string | undefined>();
+    useEffect(
+      () => {
+        if (!timestamp) {
+          setTimestamp(getProperty(y.data, 'timestamps.published_at') as string | undefined);
+        }
+      },
+      // `y.data` ACTUALLY WILL rerender the component when it changes
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [timestamp, y.data]
     );
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const PUBLISH_ITEM = gql`mutation {
@@ -55,7 +65,11 @@ function usePublishModal(
 
             try {
               if (y.ydoc) {
-                new utils.shared.Float(y.ydoc).set('stage', publishStage);
+                new utils.shared.Float(y.ydoc).set(
+                  'stage',
+                  [publishStage],
+                  [{ value: publishStage?.toString(), label: 'Published' }]
+                );
               }
             } catch (error) {
               toast.warn('Could not set stage in syncronized state, but the document will still be published.');
@@ -102,7 +116,7 @@ function usePublishModal(
             description={
               'This data can be any time in the past or future. Content will not appear until the date has occured.'
             }
-            value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestamp}
+            value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestamp || null}
             onChange={(date) => {
               if (date) setTimestamp(date.toUTC().toISO());
             }}
