@@ -110,7 +110,14 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
 
   const awareness = useAwareness({ provider: wsProvider, user }); // get list of who is editing the doc
 
-  const synced = wsProvider?.status === WebSocketStatus.Connected && wsProvider?.synced;
+  // consider synced once the websocket provider is connected
+  // and the web provider awareness has propogated (at least one array value)
+  const [synced, setSynced] = useState(false);
+  useEffect(() => {
+    if (!synced && awareness.length > 0 && wsProvider?.status === WebSocketStatus.Connected) {
+      setSynced(true);
+    }
+  }, [awareness, synced, wsProvider?.status, wsProvider?.synced, ydoc]);
 
   const [wsStatus, setWsStatus] = useState<WebSocketStatus>(wsProvider?.status || WebSocketStatus.Disconnected);
   useEffect(() => {
