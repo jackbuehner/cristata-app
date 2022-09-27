@@ -1,8 +1,8 @@
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { EditorOptions } from '@tiptap/core';
-import Collaboration, { CollaborationOptions } from '@tiptap/extension-collaboration';
-import CollaborationCursor, { CollaborationCursorOptions } from '@tiptap/extension-collaboration-cursor';
-import { Editor, Extension } from '@tiptap/react';
+import Collaboration from '@tiptap/extension-collaboration';
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
+import { Editor } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useEffect, useRef, useState } from 'react';
 import { WebrtcProvider } from 'y-webrtc';
@@ -27,32 +27,32 @@ const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): 
   useEffect(() => {
     if (typeof window === undefined) return; // server; ignore
     if (editorRef.current?.isDestroyed) return; // attempted to update options after editor was destroyed; this shouldn't occur.
+    if (!options.document) return; // yjs doc is required; ignore
+    if (!options.provider) return; // collaboration provider is required; ignore
+    if (!options.field) return; // yjs shared type field name is required; ignore
 
-    if (
-      !editorRef.current &&
-      typeof window !== undefined &&
-      options.document &&
-      options.provider &&
-      options.field
-    ) {
+    // construct editor options that include collaboration
+    const editorOptions = {
+      ...options,
+      extensions: [
+        ...(options.extensions || [])
+          .filter((ext) => ext.name !== 'collaboration')
+          .filter((ext) => ext.name !== 'collaborationCursor'),
+        // support collaboration
+        Collaboration.configure({
+          document: options.document,
+          field: options.field || 'default',
+        }),
+        // show cursor locations when collaborating
+        CollaborationCursor.configure({
+          provider: options.provider,
+        }),
+      ],
+    };
+
+    if (!editorRef.current) {
       // create editor on initial browser render
-      editorRef.current = new Editor({
-        ...options,
-        extensions: [
-          ...(options.extensions || [])
-            .filter((ext) => ext.name !== 'collaboration')
-            .filter((ext) => ext.name !== 'collaborationCursor'),
-          // support collaboration
-          Collaboration.configure({
-            document: options.document,
-            field: options.field || 'default',
-          }),
-          // show cursor locations when collaborating
-          CollaborationCursor.configure({
-            provider: options.provider,
-          }),
-        ],
-      });
+      editorRef.current = new Editor(editorOptions);
 
       // get the ydoc shared type
       const sharedType = options.document?.getXmlFragment(options.field);
@@ -77,21 +77,7 @@ const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): 
 
     if (editorRef.current) {
       // update options
-      editorRef.current.setOptions(options);
-
-      // update collaboration extensions with latest document, field, and provider
-      const extensions = editorRef.current.extensionManager.extensions;
-      type CE = Extension<CollaborationOptions, any> | undefined;
-      type CCE = Extension<CollaborationCursorOptions, any> | undefined;
-      const collaborationExtension = extensions.find((ext) => ext.name === 'collaboration') as CE;
-      const collaborationCursorExtension = extensions.find((ext) => ext.name === 'collaborationCursor') as CCE;
-      if (collaborationExtension) {
-        collaborationExtension.options.document = options.document;
-        collaborationExtension.options.field = options.field || 'default';
-      }
-      if (collaborationCursorExtension) {
-        collaborationCursorExtension.options.provider = options.provider;
-      }
+      editorRef.current.setOptions(editorOptions);
     }
   }, [forceUpdate, options]);
 
@@ -101,7 +87,7 @@ const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): 
       editorRef.current?.destroy();
       editorRef.current = null;
     };
-  }, []);
+  }, [options.document, options.field, options.provider]);
 
   return editorRef.current;
 };
