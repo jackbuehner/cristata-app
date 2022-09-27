@@ -20,7 +20,7 @@ function CollaborativeTextField(props: CollaborativeTextFieldProps) {
   const editor = useTipTapEditor({
     document: props.y.ydoc,
     field: props.y.field,
-    provider: props.y.provider,
+    provider: props.y.wsProvider,
     editable: !props.disabled,
     extensions: editorExtensions.text,
     onUpdate({ editor }) {

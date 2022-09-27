@@ -21,7 +21,7 @@ function CollaborativeNumberField(props: CollaborativeNumberFieldProps) {
   const editor = useTipTapEditor({
     document: props.y.ydoc,
     field: props.y.field,
-    provider: props.y.provider,
+    provider: props.y.wsProvider,
     editable: !props.disabled,
     extensions: editorExtensions[props.allowDecimals ? 'float' : 'integer'],
     onUpdate({ editor }) {

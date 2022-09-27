@@ -1,3 +1,4 @@
+import { HocuspocusProvider } from '@hocuspocus/provider';
 import { EditorOptions } from '@tiptap/core';
 import Collaboration, { CollaborationOptions } from '@tiptap/extension-collaboration';
 import CollaborationCursor, { CollaborationCursorOptions } from '@tiptap/extension-collaboration-cursor';
@@ -107,7 +108,7 @@ const useTipTapEditor = (options: Partial<EditorOptions> & EditorRequirements): 
 
 interface EditorRequirements {
   document: Y.Doc | undefined;
-  provider: WebrtcProvider | undefined;
+  provider: WebrtcProvider | HocuspocusProvider | undefined;
   field: string | undefined;
 }
 

@@ -25,19 +25,6 @@ class YProvider {
       const ydoc = new Y.Doc();
       this.#ydocs[name] = ydoc;
 
-      // register with a WebRTC provider
-      let providerOptions;
-      if (process.env.NODE_ENV === 'production') {
-        providerOptions = {
-          password: (await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))).toString(),
-        };
-      } else {
-        providerOptions = { password: name + 'cristata-development' };
-      }
-      // @ts-expect-error all properties are actually optional
-      const webProvider = new WebrtcProvider(name, ydoc, providerOptions);
-      this.#webProviders[name] = webProvider;
-
       // register with a Hocuspocus server provider
       const wsProvider = new HocuspocusProvider({
         url: `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_HOCUSPOCUS_BASE_URL}`,
@@ -45,6 +32,20 @@ class YProvider {
         document: ydoc,
       });
       this.#wsProviders[name] = wsProvider;
+
+      // register with a WebRTC provider
+      const providerOptions = {
+        awareness: wsProvider.awareness,
+        password: name + 'cristata-development',
+      };
+      if (process.env.NODE_ENV === 'production') {
+        providerOptions.password = (
+          await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))
+        ).toString();
+      }
+      // @ts-expect-error all properties are actually optional
+      const webProvider = new WebrtcProvider(name, ydoc, providerOptions);
+      this.#webProviders[name] = webProvider;
     }
 
     return this.get(name);
@@ -152,8 +153,8 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     wsProvider: wsProvider,
     rtcConnected: rtcConnected,
     wsStatus: wsStatus,
-    // hide awareness if web or local provider is not connected
-    awareness: synced && rtcConnected ? awareness : [],
+    // hide awareness if ws provider is not connected
+    awareness: synced ? awareness : [],
     synced: synced,
     unsavedFields: unsavedFields,
     data: {},

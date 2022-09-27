@@ -54,7 +54,7 @@ interface ITiptap {
 const Tiptap = (props: ITiptap) => {
   const theme = useTheme() as themeType;
   const { search } = useLocation();
-  const { ydoc, provider, awareness: awarenessProfiles } = props.y;
+  const { ydoc, wsProvider: provider, awareness: awarenessProfiles } = props.y;
   const ySettingsMap = ydoc?.getMap<IYSettingsMap>('__settings');
   const { observe, width: thisWidth } = useDimensions(); // monitor the dimensions of the editor
 
