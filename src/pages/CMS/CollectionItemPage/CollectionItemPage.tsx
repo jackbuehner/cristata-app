@@ -123,6 +123,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     props.y
   );
 
+  const docNotFound = !data && !loading;
+
   // function to get the values of the fields for previews (used in sidebar)
   const getFieldValues = async (opts: GetYFieldsOptions) => {
     return merge(data, { yState: undefined }, await getYFields(props.y, schemaDef, opts));
@@ -787,7 +789,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     return (
       <>
         {Windows}
-        {!props.isEmbedded ? (
+        {!props.isEmbedded && !docNotFound ? (
           <ReactRouterPrompt
             when={(currentLocation, nextLocation) => {
               return !props.y.wsProvider?.synced && currentLocation.pathname !== nextLocation.pathname;
@@ -823,10 +825,17 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         ) : null}
         {!props.isEmbedded && isMaximized ? null : null}
         <FullScreenSplash
-          isLoading={isMaximized && !hasLoadedAtLeastOnce}
+          isLoading={isMaximized && !hasLoadedAtLeastOnce && !docNotFound}
           message={'Connecting to the server'}
         />
-        {isLoading && !hasLoadedAtLeastOnce ? null : (
+        {docNotFound ? (
+          <NotFound>
+            <h2>
+              This document does not exist <i>or</i> you do not have access.
+            </h2>
+            <p>If you know this document exists, ask someone with access to grant you access.</p>
+          </NotFound>
+        ) : !isLoading && hasLoadedAtLeastOnce ? (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
               {props.y.wsStatus === WebSocketStatus.Disconnected ? (
@@ -884,7 +893,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             </div>
             {!props.isEmbedded && contentWidth > 700 ? <Sidebar {...sidebarProps} /> : null}
           </ContentWrapper>
-        )}
+        ) : null}
       </>
     );
   }
@@ -966,6 +975,12 @@ const Notice = styled.div<{ theme: themeType }>`
   width: 100%;
   z-index: 99;
   box-sizing: border-box;
+`;
+
+const NotFound = styled.div`
+  padding: 20px;
+  font-family: ${({ theme }) => theme.font.detail};
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
 `;
 
 export { CollectionItemPage, CollectionItemPageContent };
