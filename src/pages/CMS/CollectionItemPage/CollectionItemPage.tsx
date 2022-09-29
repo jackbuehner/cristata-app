@@ -123,7 +123,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     props.y
   );
 
-  const docNotFound = !data && !loading;
+  const docNotFound = !data && !loading && !props.isEmbedded;
 
   // function to get the values of the fields for previews (used in sidebar)
   const getFieldValues = async (opts: GetYFieldsOptions) => {
