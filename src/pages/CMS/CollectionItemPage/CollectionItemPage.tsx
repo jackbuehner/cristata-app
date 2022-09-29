@@ -30,6 +30,7 @@ import {
   CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
 import { Field } from '../../../components/ContentField/Field';
+import { Spinner } from '../../../components/Loading';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
@@ -823,7 +824,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             }
           </ReactRouterPrompt>
         ) : null}
-        {!props.isEmbedded && isMaximized ? null : null}
         <FullScreenSplash
           isLoading={isMaximized && !hasLoadedAtLeastOnce && !docNotFound}
           message={'Connecting to the server'}
@@ -838,7 +838,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         ) : !isLoading && hasLoadedAtLeastOnce ? (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
-              {props.y.wsStatus === WebSocketStatus.Disconnected ? (
+              {props.y.wsStatus !== WebSocketStatus.Connected ? (
                 <Notice theme={theme}>
                   <b>Currently not connected.</b> If you leave before your connection is restored, you may lose
                   data.
@@ -893,7 +893,25 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             </div>
             {!props.isEmbedded && contentWidth > 700 ? <Sidebar {...sidebarProps} /> : null}
           </ContentWrapper>
-        ) : null}
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              gap: 12,
+              flexDirection: 'column',
+              alignItems: 'center',
+              color: theme.color.neutral[theme.mode][1500],
+              fontFamily: theme.font.detail,
+              height: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            <>
+              <Spinner color={'neutral'} colorShade={1500} size={30} />
+              <div>Connecting...</div>
+            </>
+          </div>
+        )}
       </>
     );
   }
