@@ -27,7 +27,15 @@ import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Titlebar } from './components/Titlebar';
 import { Toolbar } from './components/Toolbar';
 import { CommentPanel } from './extension-power-comment';
-import { useAwareness, useDevTools, useSidebar, useTipTapEditor, useTrackChanges, useWordCount } from './hooks';
+import {
+  useAutosaveModal,
+  useAwareness,
+  useDevTools,
+  useSidebar,
+  useTipTapEditor,
+  useTrackChanges,
+  useWordCount,
+} from './hooks';
 import { FieldY, IYSettingsMap } from './hooks/useY';
 import './office-icon/colors1.css';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
@@ -199,8 +207,11 @@ const Tiptap = (props: ITiptap) => {
   // track iframe html content when it sends a copy
   const [iframehtmlstring, setIframehtmlstring] = useState<string>('');
 
+  const [AutosaveWindow, showAutosaveModal] = useAutosaveModal();
+
   return (
     <Container theme={theme} isMaximized={props.isMaximized || false} ref={observe}>
+      {AutosaveWindow}
       <div
         style={{
           position: 'relative',
@@ -253,8 +264,9 @@ const Tiptap = (props: ITiptap) => {
                 {
                   label: 'Save',
                   icon: <Save20Regular />,
-                  disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || true,
-                  action: props.actions?.find((action) => action?.label === 'Save')?.action || (() => null),
+                  disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || false,
+                  action:
+                    props.actions?.find((action) => action?.label === 'Save')?.action || showAutosaveModal,
                 },
                 {
                   label: 'Track changes',
