@@ -828,8 +828,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           </ReactRouterPrompt>
         ) : null}
         <FullScreenSplash
-          isLoading={isMaximized && !hasLoadedAtLeastOnce && !docNotFound}
-          message={'Connecting to the server'}
+          isLoading={isMaximized && (!hasLoadedAtLeastOnce || isLoading) && !docNotFound}
+          message={hasLoadedAtLeastOnce ? 'Checking permissions...' : 'Connecting to the server...'}
         />
         {docNotFound ? (
           <NotFound>
@@ -911,7 +911,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           >
             <>
               <Spinner color={'neutral'} colorShade={1500} size={30} />
-              <div>Connecting...</div>
+              {hasLoadedAtLeastOnce ? <div>Checking permissions...</div> : <div>Connecting...</div>}
             </>
           </div>
         )}
