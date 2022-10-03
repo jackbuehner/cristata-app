@@ -793,7 +793,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         {!props.isEmbedded && !docNotFound ? (
           <ReactRouterPrompt
             when={(currentLocation, nextLocation) => {
-              return !props.y.wsProvider?.synced && currentLocation.pathname !== nextLocation.pathname;
+              return (
+                props.y.wsStatus !== WebSocketStatus.Connected &&
+                currentLocation.pathname !== nextLocation.pathname
+              );
             }}
           >
             {({ isActive, onConfirm, onCancel }) =>
@@ -801,7 +804,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 <PlainModal
                   title={'Lose your changes?'}
                   text={
-                    'You have unsaved changes that may be lost. We will try to save them, but they might not be here when you return.'
+                    'You are not connected. You have unsynced changes that may be lost. Leaving before you reconnect will result in data loss.'
                   }
                   hideModal={() => onCancel(true)}
                   cancelButton={{
