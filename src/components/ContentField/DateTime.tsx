@@ -30,7 +30,7 @@ function DateTime(props: DateTimeProps) {
       >
         <DateTimeComponent
           id={props.label.replaceAll(' ', '-')}
-          value={moment(props.value)}
+          value={props.value ? moment(props.value) : null}
           onChange={(date) => {
             if (date) {
               props.onChange(Luxon.fromISO(date.toISOString()));
