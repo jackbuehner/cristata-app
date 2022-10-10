@@ -4,7 +4,6 @@ import { useTheme } from '@emotion/react';
 import { get as getProperty } from 'object-path';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import utils from '../../../components/CollaborativeFields/utils';
 import { DateTime, Text } from '../../../components/ContentField';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
@@ -60,41 +59,14 @@ function usePublishModal(
         onClick: async () => {
           setIsLoading(true);
 
-          if (publishStage) {
-            const isPublished = !!(await publishItem()).data;
+          const isPublished = !!(await publishItem()).data;
+          setIsLoading(false);
 
-            try {
-              if (y.ydoc) {
-                new utils.shared.Float(y.ydoc).set(
-                  'stage',
-                  [publishStage],
-                  [{ value: publishStage?.toString(), label: 'Published' }]
-                );
-              }
-            } catch (error) {
-              toast.warn('Could not set stage in syncronized state, but the document will still be published.');
-              console.error(error);
-            }
-
-            try {
-              if (y.ydoc) {
-                new utils.shared.Date(y.ydoc).set('timestamps.published_at', timestamp);
-              }
-            } catch (error) {
-              toast.warn(
-                'Could not set publish time in syncronized state, but the document will still be published.'
-              );
-              console.error(error);
-            }
-
-            // return whether the action was successful
-            setIsLoading(false);
-            if (isPublished === true) {
-              toast.success('Published document');
-              return true;
-            }
+          // return whether the action was successful
+          if (isPublished === true) {
+            toast.success('Published document');
+            return true;
           }
-
           return false;
         },
         disabled: confirm !== shortId,
@@ -134,7 +106,7 @@ function usePublishModal(
         </>
       ),
     };
-  }, [client, collectionName, itemId, publishStage, idKey]);
+  }, [client, collectionName, itemId, idKey]);
 
   return [Window, showModal, hideModal];
 }
