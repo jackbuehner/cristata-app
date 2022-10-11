@@ -5,7 +5,7 @@ function useAutosaveModal(): [React.ReactNode, () => void, () => void] {
   // create the modal
   const [Window, showModal, hideModal] = useWindowModal(() => {
     return {
-      title: `No need to autosave`,
+      title: `No need to manually save`,
       continueButton: { text: `Close` },
       cancelButton: null,
       windowOptions: { name: `no autosave` },
