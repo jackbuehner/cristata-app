@@ -84,7 +84,7 @@ function useFindDoc(
   return { actionAccess, loading, error, data: req.data?.[queryName] };
 }
 
-function docDefsToQueryObject(
+function docDefsToQueryObjectCols(
   input: DeconstructedSchemaDefType[0],
   index: number,
   arr: DeconstructedSchemaDefType
@@ -114,12 +114,17 @@ function docDefsToQueryObject(
     return merge<Record<string, never>, Record<string, never>[]>(
       {},
       ...def.docs.map(([key, def], index, arr) => {
-        return docDefsToQueryObject([key, def], index, arr);
+        return docDefsToQueryObjectCols([key, def], index, arr);
       })
     );
   }
 
-  return deepen({ [key]: true });
+  // only get the field if it is used in the table
+  if (def.column?.hidden !== true && !key.includes('#')) {
+    return deepen({ [key]: true });
+  }
+
+  return deepen({ _id: true });
 }
 
 function docDefsToQueryObjectLight(
@@ -145,7 +150,7 @@ function docDefsToQueryObjectLight(
     return merge<Record<string, never>, Record<string, never>[]>(
       {},
       ...def.docs.map(([key, def], index, arr) => {
-        return docDefsToQueryObject([key, def], index, arr);
+        return docDefsToQueryObjectLight([key, def], index, arr);
       })
     );
   }
@@ -176,4 +181,4 @@ export function deepen(obj: Record<string, boolean | { __aliasFor: string } | st
   return result;
 }
 
-export { useFindDoc, docDefsToQueryObject };
+export { useFindDoc, docDefsToQueryObjectCols };
