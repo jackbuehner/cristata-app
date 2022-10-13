@@ -12,7 +12,6 @@ import { HomeSectionHeading } from '../../components/Heading';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../redux/slices/appbarSlice';
 import { themeType } from '../../utils/theme/theme';
-import { AnalyticsChart } from './AnalyticsChart';
 import { RecentActivity } from './RecentActivity';
 import { Workflow } from './Workflow';
 import { CollectionRows } from './CollectionRows';
@@ -40,8 +39,21 @@ function HomePage() {
         <HomeSectionHeading icon={<AppFolder24Regular />}>Your apps</HomeSectionHeading>
         <AppsList />
       </div>
-      <div style={{ gridArea: 'analytics', paddingBottom: 0 }}>
-        <AnalyticsChart theme={theme}></AnalyticsChart>
+      <div style={{ gridArea: 'announcement' }}>
+        <HomeSectionHeading icon={<Megaphone24Regular />}>
+          Whats new to Cristata (Oct. 14, 2022)
+        </HomeSectionHeading>
+        <span style={{ fontStyle: 'italic', marginLeft: 36 }}>Auto-collaboration update</span>
+        <ol style={{ paddingInlineStart: 14, lineHeight: 1.5 }}>
+          <li>Documents now autosave! You will be able to access previous versions in a future update.</li>
+          <li>Collaboration works accross Wi-Fi networks.</li>
+          <li>Collaborate on any document field – not just the body field.</li>
+          <li>
+            You can no longer edit documents that have been archived or deleted to make it clear that they are
+            not public documents. You can easily unarchive and restore documents.
+          </li>
+          <li>A warning appears when editing a published document.</li>
+        </ol>
       </div>
       <div
         css={css`
@@ -60,13 +72,6 @@ function HomePage() {
         <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
         <Workflow />
       </div>
-      <div style={{ gridArea: 'announcement' }}>
-        <HomeSectionHeading icon={<Megaphone24Regular />}>Welcome to Cristata (Beta)</HomeSectionHeading>
-        <p>
-          The dashboard is still under construction, but the Content Manager (CMS), Teams, and Profiles are
-          already available. Access these tools by using the sidebar on the left.
-        </p>
-      </div>
       <CollectionRows firstRowIndex={4} />
     </Grid>
   );
@@ -81,24 +86,22 @@ const Grid = styled.div<{ theme: themeType }>`
   overflow: hidden auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: 1fr 400px 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-template-areas:
     'apps apps'
-    'analytics analytics'
-    'activity workflow'
     'announcement announcement'
+    'activity workflow'
     'row-4 row-4'
     'row-5 row-5'
     'row-6 row-6';
   @media (max-width: 600px) {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 1fr 1fr 1fr 1fr 300px 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas:
       'apps'
       'announcement'
       'activity'
       'workflow'
-      'analytics'
       'row-4'
       'row-5'
       'row-6';
