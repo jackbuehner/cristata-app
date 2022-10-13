@@ -475,6 +475,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                     ? 'This document is opened in read-only mode because it is deleted. Restore it from the deleted items to edit.'
                     : props.y.data.archived
                     ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
+                    : props.y.data.stage === publishStage
+                    ? 'This document is currently published. Changes will be publically reflected immediately.'
                     : undefined
                 }
                 compact={fs !== '1' && fs !== 'force'}
@@ -888,6 +890,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                   >
                     Restore from deleted items
                   </Button>
+                </Notice>
+              ) : null}
+              {props.y.data.stage === publishStage && !props.isEmbedded && fs !== '1' ? (
+                <Notice theme={theme}>
+                  This document is currently published. Changes will be publically reflected immediately.
                 </Notice>
               ) : null}
               <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
