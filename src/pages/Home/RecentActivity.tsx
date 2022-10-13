@@ -50,7 +50,7 @@ function RecentActivity() {
         // (this assumes that newsest items are added first)
         let closestMatch: mergedHistoryType | undefined = undefined;
         let closestMatchIndex: number = -1;
-        for (let j = 0; j < merged.length; j++) {
+        for (let j = merged.length - 1; j >= 0; j--) {
           const mergedElement = merged[j];
           if (mergedElement._id === unmergedElement._id) {
             closestMatch = mergedElement;
@@ -96,20 +96,6 @@ function RecentActivity() {
         const { user, action, ...rest } = unmergedElement; // destructure so that user and action are not pushed
         merged.push({ ...rest, actions: [action], users: [user] });
         return;
-
-        // if closest match exists and the actions are opposites,
-        // (e.g. archive and unarchive), delete the merged item
-        // if (actionsContainsOpposite(closestMatch.actions, unmergedElement.action)) {
-        //   merged.splice(closestMatchIndex);
-        //   return;
-        // }
-
-        // if closest match exists and the actions are compatable,
-        // we can merge them in the merged history array
-
-        // if this history item's _id matches the previous item's _id,
-        // AND they have the same action (e.g. patched vs published),
-        // we need to merge them in the merged history array
       });
     }
 
