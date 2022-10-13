@@ -142,8 +142,15 @@ function RecentActivity() {
       if (i <= -1) {
         filteredMerged.push(item);
       } else {
+        const dedupedUsers = Array.from(
+          new Set([
+            ...filteredMerged[i].users.map((user) => JSON.stringify(user)),
+            ...item.users.map((user) => JSON.stringify(user)),
+          ])
+        ).map((user) => JSON.parse(user));
+
         // merge users so no users are left out
-        filteredMerged[i].users = Array.from(new Set([...filteredMerged[i].users, ...item.users]));
+        filteredMerged[i].users = dedupedUsers;
       }
     });
 
