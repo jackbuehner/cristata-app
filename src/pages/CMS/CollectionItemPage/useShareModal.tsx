@@ -37,6 +37,7 @@ function useShareModal(
     name: authUserState.name,
     color: colorHash.hex(authUserState._id),
     sessionId: sessionId || '',
+    _id: authUserState._id,
     photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
   };
 

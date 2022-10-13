@@ -19,7 +19,7 @@ class YProvider {
   #webProviders: Record<string, WebrtcProvider> = {};
   #wsProviders: Record<string, HocuspocusProvider> = {};
 
-  async create(name: string) {
+  async create(name: string, _id: string) {
     if (!this.has(name)) {
       // create a new Y document
       const ydoc = new Y.Doc();
@@ -30,6 +30,7 @@ class YProvider {
         url: `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_HOCUSPOCUS_BASE_URL}`,
         name,
         document: ydoc,
+        parameters: { _id },
       });
       this.#wsProviders[name] = wsProvider;
 
@@ -88,7 +89,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     const y = providerRef.current;
 
     const tenant = localStorage.getItem('tenant');
-    y.create(`${tenant}.${collectionName}.${id}`).then((data) => {
+    y.create(`${tenant}.${collectionName}.${id}`, user._id).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
@@ -227,7 +228,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
 interface UseYProps {
   collection: string;
   id: string;
-  user?: ReturnType<typeof useAwareness>[0];
+  user: ReturnType<typeof useAwareness>[0];
   schemaDef?: DeconstructedSchemaDefType;
 }
 
