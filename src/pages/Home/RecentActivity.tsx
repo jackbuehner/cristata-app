@@ -12,6 +12,7 @@ import { camelToDashCase } from '../../utils/camelToDashCase';
 import { genAvatar } from '../../utils/genAvatar';
 import { themeType } from '../../utils/theme/theme';
 import { uncapitalize } from '../../utils/uncapitalize';
+import { listOxford } from '../../utils/listOxford';
 
 /**
  * Displays the recent actiivty in the CMS.
@@ -27,53 +28,118 @@ function RecentActivity() {
     fetchPolicy: 'cache-and-network',
   });
   const unmergedHistory = data?.collectionActivity.docs;
+
   const activity = (() => {
     type mergedHistoryType = {
       _id: HISTORY__DOC_TYPE['_id'];
       name: HISTORY__DOC_TYPE['name'];
       in: HISTORY__DOC_TYPE['in'];
       users: Array<HISTORY__DOC_TYPE['user']>;
-      action: HISTORY__DOC_TYPE['action'];
+      actions: Array<HISTORY__DOC_TYPE['action']>;
       at: HISTORY__DOC_TYPE['at'];
     };
 
     let merged: mergedHistoryType[] = [];
 
     if (unmergedHistory) {
-      for (let i = 0; i < unmergedHistory.length; i++) {
-        const prevElement = i > 0 ? unmergedHistory[i - 1] : undefined;
-        const element = unmergedHistory[i];
-
+      unmergedHistory.forEach((unmergedElement, i) => {
         // user must be defined
-        if (element.user) {
-          // if this history item's _id matches the previous item's _id,
-          // AND they have the same action (e.g. patched vs published),
-          // we need to merge them in the merged history array
-          if (element._id === prevElement?._id && element.action === prevElement.action) {
-            const mergedIndex = merged.findIndex((item) => item._id === element._id);
-            const userAlreadyInUsers = !!merged[mergedIndex].users
-              .filter((user) => !!user)
-              .find((user) => user._id === element.user._id);
-            merged[mergedIndex] = {
-              // use the existing matchign data (_id, name, in, etc.)
-              ...merged[mergedIndex],
-              // merge user from the current history item (in the loop) into the users array
-              users: userAlreadyInUsers
-                ? merged[mergedIndex].users
-                : [...merged[mergedIndex].users, element.user],
-              // use the most recent ISO date string
-              at: new Date(element.at) > new Date(merged[mergedIndex].at) ? element.at : merged[mergedIndex].at,
-            };
-          }
+        if (!unmergedElement.user) return;
 
-          // otherwise, add the element to the mergd history array
-          else {
-            const { user } = element; // destructure so that user is not pushed
-            merged.push({ ...element, users: [user] });
+        // try to find the closest history item with the same _id
+        // (this assumes that newsest items are added first)
+        let closestMatch: mergedHistoryType | undefined = undefined;
+        let closestMatchIndex: number = -1;
+        for (let j = 0; j < merged.length; j++) {
+          const mergedElement = merged[j];
+          if (mergedElement._id === unmergedElement._id) {
+            closestMatch = mergedElement;
+            closestMatchIndex = j;
+            break;
           }
         }
-      }
+
+        // if no match was found, add it to the merged history array
+        if (!closestMatch) {
+          const { user, action, ...rest } = unmergedElement; // destructure so that user and action are not pushed
+          merged.push({ ...rest, actions: [action], users: [user] });
+          return;
+        }
+
+        // if closest match exists and the actions are compatable, merge them
+        if (
+          actionsContainsSame(closestMatch.actions, unmergedElement.action) ||
+          actionsContainsOpposite(closestMatch.actions, unmergedElement.action)
+        ) {
+          // whether user needs to be added to users array
+          const userAlreadyInUsers = !!closestMatch.users
+            .filter((user) => !!user)
+            .find((user) => user._id === unmergedElement.user._id);
+
+          merged[closestMatchIndex] = {
+            // use the existing matching data (_id, name, in, etc.)
+            ...closestMatch,
+            // use the most recent ISO date string
+            at:
+              new Date(unmergedElement.at) > new Date(merged[closestMatchIndex].at)
+                ? unmergedElement.at
+                : merged[closestMatchIndex].at,
+            // merge actions with duplicates retained
+            actions: Array.from(new Set([...closestMatch.actions, unmergedElement.action])),
+            // merge user from the current history item (in the loop) into the users array
+            users: userAlreadyInUsers ? closestMatch.users : [...closestMatch.users, unmergedElement.user],
+          };
+          return;
+        }
+
+        // if no compatable actions were found, add it to the merged history array
+        const { user, action, ...rest } = unmergedElement; // destructure so that user and action are not pushed
+        merged.push({ ...rest, actions: [action], users: [user] });
+        return;
+
+        // if closest match exists and the actions are opposites,
+        // (e.g. archive and unarchive), delete the merged item
+        // if (actionsContainsOpposite(closestMatch.actions, unmergedElement.action)) {
+        //   merged.splice(closestMatchIndex);
+        //   return;
+        // }
+
+        // if closest match exists and the actions are compatable,
+        // we can merge them in the merged history array
+
+        // if this history item's _id matches the previous item's _id,
+        // AND they have the same action (e.g. patched vs published),
+        // we need to merge them in the merged history array
+      });
     }
+
+    /**
+     * Whether the actions array contains an opposite.
+     *
+     * An example opposite is archive and unarchive.
+     */
+    function actionsContainsOpposite(
+      mActions: mergedHistoryType['actions'],
+      nAction: mergedHistoryType['actions'][0]
+    ): boolean {
+      return mActions.some(
+        (mAction) => mAction.replace('un', '') === nAction.replace('un', '') && mAction !== nAction
+      );
+    }
+
+    /**
+     * Whether the actions array contains a match.
+     *
+     * An example opposite is archive and unarchive.
+     */
+    function actionsContainsSame(
+      mActions: mergedHistoryType['actions'],
+      nAction: mergedHistoryType['actions'][0]
+    ): boolean {
+      return mActions.some((mAction) => mAction === nAction);
+    }
+
+    console.log(merged);
 
     return merged;
   })();
@@ -88,14 +154,14 @@ function RecentActivity() {
     <>
       {
         // generate lines for each activity item
-        activity?.slice(0, 6).map((item) => {
-          let type = item.action;
+        activity?.slice(0, 6).map((item, index) => {
+          let types = item.actions;
           const at = item.at;
           const users = item.users;
 
           // rename history types
-          type =
-            type === 'patched'
+          types = types.map((type) => {
+            return type === 'patched'
               ? 'modified'
               : type === 'created'
               ? 'created'
@@ -108,9 +174,10 @@ function RecentActivity() {
               : type === 'unarchive'
               ? 'unarchived'
               : 'modified';
+          });
 
           return (
-            <ItemWrapper theme={theme} key={item._id + type + item.users.map((u) => u.name).join('')}>
+            <ItemWrapper theme={theme} key={index}>
               <Item>
                 <ListNames
                   NameComponent={Bold}
@@ -123,7 +190,7 @@ function RecentActivity() {
                   }))}
                   appendText={
                     <>
-                      <span> {type} </span>
+                      <span> {listOxford(types.reverse())} </span>
                       <ItemName
                         collectionName={capitalize(pluralize.singular(item.in))}
                         itemName={item.name}
