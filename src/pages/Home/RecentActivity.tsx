@@ -125,9 +125,29 @@ function RecentActivity() {
       return mActions.some((mAction) => mAction === nAction);
     }
 
-    console.log(merged);
+    // prefer the newest instance of an action where
+    // _id, in, and actions are the same and dates are recent (within 6 hours)
+    const filteredMerged: typeof merged = [];
+    merged.forEach((item) => {
+      const i = filteredMerged.findIndex((x) => {
+        return (
+          x._id === item._id &&
+          x.in === item.in &&
+          x.actions.every((action) => item.actions.includes(action)) &&
+          // 6 hours
+          new Date(x.at) < new Date(new Date(item.at).valueOf() + 1000 * 60 * 60 * 6) &&
+          x.users.every((user) => item.users.map((u) => u._id).includes(user._id))
+        );
+      });
+      if (i <= -1) {
+        filteredMerged.push(item);
+      } else {
+        // merge users so no users are left out
+        filteredMerged[i].users = Array.from(new Set([...filteredMerged[i].users, ...item.users]));
+      }
+    });
 
-    return merged;
+    return filteredMerged;
   })();
 
   // determine the largest amount of users in a single merged activity
