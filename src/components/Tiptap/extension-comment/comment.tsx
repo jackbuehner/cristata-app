@@ -211,7 +211,7 @@ const Comment = Node.create<CommentOptions>({
                   const start = tr.selection.$anchor.start();
 
                   // get the text nodes in the comment node
-                  const textNodes: ProsemirrorNode<any>[] = [];
+                  const textNodes: ProsemirrorNode[] = [];
                   comment.content.descendants((textNode) => {
                     textNodes.push(textNode);
                   });
@@ -255,12 +255,12 @@ const Comment = Node.create<CommentOptions>({
  * Get text nodes (recursively) from a slice.
  * @returns array of TextNodes; null if no nodes in slice
  */
-function textNodesFromSliceFirstChild(slice: Slice<any>) {
+function textNodesFromSliceFirstChild(slice: Slice) {
   /**
    * Find the text nodes in a slice.
    */
-  const findTextNodes = (node: ProsemirrorNode<any>) => {
-    const descendants: ProsemirrorNode<any>[] = [];
+  const findTextNodes = (node: ProsemirrorNode) => {
+    const descendants: ProsemirrorNode[] = [];
     node.descendants((childNode) => {
       descendants.push(childNode);
     });
@@ -272,7 +272,7 @@ function textNodesFromSliceFirstChild(slice: Slice<any>) {
 
       // if the child is not text and it has children, find the children's text nodes
       if (childNode.childCount !== 0) {
-        const childDescendants: ProsemirrorNode<any>[] = [];
+        const childDescendants: ProsemirrorNode[] = [];
         childNode.descendants((childNodeChildren) => {
           descendants.push(childNodeChildren);
         });
@@ -286,7 +286,7 @@ function textNodesFromSliceFirstChild(slice: Slice<any>) {
     return TextNodes.filter((x) => {
       // filter out undefined values
       return x !== undefined;
-    }) as unknown as ProsemirrorNode<any>[];
+    }) as unknown as ProsemirrorNode[];
   };
 
   // start the function that recursively looks for text nodes

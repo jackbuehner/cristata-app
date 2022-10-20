@@ -2,6 +2,10 @@ import Document from '@tiptap/extension-document';
 import FontFamily from '@tiptap/extension-font-family';
 import Link from '@tiptap/extension-link';
 import Paragraph from '@tiptap/extension-paragraph';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
 import Text from '@tiptap/extension-text';
 import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
@@ -122,6 +126,10 @@ const editorExtensions = {
     SweepwidgetWidget,
     YoutubeWidget,
     PhotoWidget,
+    Table.configure({ resizable: true }),
+    TableRow,
+    TableHeader,
+    TableCell,
   ],
   text: [ParagraphDocument, Paragraph, Text],
   float: [ParagraphDocument, Paragraph, Float],

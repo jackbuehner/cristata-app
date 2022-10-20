@@ -174,7 +174,7 @@ const Deletion = Mark.create<DeletionOptions>({
  */
 function setDeletionFunction(
   range: Range,
-  type: MarkType<any>,
+  type: MarkType,
   tr: Transaction,
   state: EditorState,
   dispatch?: DispatchFunction,
