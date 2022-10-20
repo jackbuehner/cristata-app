@@ -13,6 +13,7 @@ import {
   LineHorizontal120Regular,
   Link20Regular,
   Share20Regular,
+  TableAdd20Regular,
   TextBulletListLtr20Regular,
   TextNumberListLtr20Regular,
   TextQuote20Regular,
@@ -56,6 +57,7 @@ import {
 import './../../office-icon/colors1.css';
 import { Combobox } from './Combobox';
 import { SendToolbarRow } from './SendToolbarRow';
+import { TableToolbarRow } from './TableToolbarRow';
 import { ToolbarActionRowContainer } from './ToolbarActionRowContainer';
 import { ToolbarDivider } from './ToolbarDivider';
 import { ToolbarMeta } from './ToolbarMeta';
@@ -106,7 +108,9 @@ interface IToolbar {
 function Toolbar({ editor, isMax, ...props }: IToolbar) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'email'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'review' | 'email' | 'table'>(
+    'home'
+  );
   const { pathname, search, hash } = useLocation();
   const params = new URLSearchParams(search);
   const shareAction = props.actions?.find((action) => action?.label === 'Share') || undefined;
@@ -621,6 +625,14 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
     true
   );
 
+  // switch from table tab when table or table cell is deselected
+  const tableIsActive = editor?.can().deleteTable();
+  useEffect(() => {
+    if (activeTab === 'table' && !tableIsActive) {
+      setActiveTab('home');
+    }
+  }, [activeTab, tableIsActive]);
+
   if (!editor) {
     return null;
   }
@@ -674,6 +686,16 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               >
                 Email
               </ToolbarTabButton>
+              {tableIsActive ? (
+                <ToolbarTabButton
+                  theme={theme}
+                  color={'blue'}
+                  isActive={activeTab === 'table'}
+                  onClick={() => setActiveTab('table')}
+                >
+                  Table
+                </ToolbarTabButton>
+              ) : null}
             </ToolbarTabList>
           )}
 
@@ -976,6 +998,19 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   Pull quote
                 </ToolbarRowButton>
               ) : null}
+              {
+                // @ts-expect-error tables is a valid option, but not in the types
+                props.options?.features.tables ? (
+                  <ToolbarRowButton
+                    onClick={() => editor.chain().focus().insertTable().run()}
+                    isActive={false}
+                    icon={<TableAdd20Regular />}
+                    disabled={props.isDisabled}
+                  >
+                    Table
+                  </ToolbarRowButton>
+                ) : null
+              }
               {props.options?.features.comment ? (
                 <ToolbarRowButton
                   onClick={() => {
@@ -1163,6 +1198,14 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               iframehtmlstring={props.iframehtmlstring || ''}
               isDisabled={props.isDisabled || !editor}
             />
+            {tableIsActive ? (
+              <TableToolbarRow
+                y={props.y}
+                isActive={activeTab === 'table'}
+                editor={editor}
+                isDisabled={props.isDisabled || !editor}
+              />
+            ) : null}
           </ToolbarActionRowContainer>
         )}
       </TOOLBAR>
