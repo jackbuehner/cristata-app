@@ -13,13 +13,14 @@ import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { useAwareness } from './useAwareness';
+import packageJson from '../../../../package.json';
 
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};
   #webProviders: Record<string, WebrtcProvider> = {};
   #wsProviders: Record<string, HocuspocusProvider> = {};
 
-  async create(name: string, _id: string) {
+  async create(name: string, _id: string, appVersion: string) {
     if (!this.has(name)) {
       // create a new Y document
       const ydoc = new Y.Doc();
@@ -30,7 +31,7 @@ class YProvider {
         url: `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_HOCUSPOCUS_BASE_URL}`,
         name,
         document: ydoc,
-        parameters: { _id },
+        parameters: { _id, appVersion },
       });
       this.#wsProviders[name] = wsProvider;
 
@@ -89,7 +90,8 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     const y = providerRef.current;
 
     const tenant = localStorage.getItem('tenant');
-    y.create(`${tenant}.${collectionName}.${id}`, user._id).then((data) => {
+    const appVersion = packageJson.version;
+    y.create(`${tenant}.${collectionName}.${id}`, user._id, appVersion).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
