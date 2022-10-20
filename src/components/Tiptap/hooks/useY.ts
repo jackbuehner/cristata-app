@@ -38,7 +38,7 @@ class YProvider {
       // register with a WebRTC provider
       const providerOptions = {
         awareness: wsProvider.awareness,
-        password: name + 'cristata-development',
+        password: name + 'cristata-development' + packageJson.version,
       };
       if (process.env.NODE_ENV === 'production') {
         providerOptions.password = (
