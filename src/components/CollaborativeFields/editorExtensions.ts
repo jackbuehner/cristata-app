@@ -6,6 +6,10 @@ import Text from '@tiptap/extension-text';
 import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
 import { Slice } from 'prosemirror-model';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { ClassName } from '../Tiptap/extension-class-name';
@@ -120,6 +124,10 @@ const editorExtensions = {
     SweepwidgetWidget,
     YoutubeWidget,
     PhotoWidget,
+    Table,
+    TableRow,
+    TableHeader,
+    TableCell,
   ],
   text: [ParagraphDocument, Paragraph, Text],
   float: [ParagraphDocument, Paragraph, Float],
