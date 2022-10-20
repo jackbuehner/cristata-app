@@ -15,45 +15,42 @@ function PullQuoteNodeView(props: IPullQuoteNodeView) {
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper contentEditable={false}>
       <WidgetWrapper
         position={props.node.attrs.position}
         ref={widgetRef}
         onMouseOver={() => setIsMouseOver(true)}
         onMouseOut={() => setIsMouseOver(false)}
       >
-        <WidgetLabel
-          isVisible={isMouseOver}
-          contentEditable={false}
-          data-drag-handle
-          draggable={props.extension.config.draggable ? true : false}
-        >
+        <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
           Pull Quote
         </WidgetLabel>
         <WidgetActions
           isVisible={isMouseOver}
-          contentEditable={false}
           actions={[
             props.node.attrs.position === 'right'
               ? {
                   icon: <AlignLeft20Regular />,
                   label: 'Align left',
                   onClick: () => updateAttributes({ position: 'left' }),
+                  disabled: !props.editor.isEditable,
                 }
               : {
                   icon: <AlignRight20Regular />,
                   label: 'Align right',
                   onClick: () => updateAttributes({ position: 'right' }),
+                  disabled: !props.editor.isEditable,
                 },
             {
               icon: <Delete16Regular />,
               label: 'Remove widget',
               onClick: props.deleteNode,
+              disabled: !props.editor.isEditable,
             },
           ]}
         />
         <ContentWrapper>
-          <EditableContent />
+          <EditableContent contentEditable={true} />
         </ContentWrapper>
       </WidgetWrapper>
     </NodeViewWrapper>

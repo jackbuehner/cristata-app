@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { WebrtcProvider } from 'y-webrtc';
+import { HocuspocusProvider } from '@hocuspocus/provider';
 
 /**
  * Builds an array of objects of type `IAwarenessProfile` with duplicate values
@@ -60,7 +61,7 @@ function useAwareness(props: UseAwarenessProps): AwarenessType[] {
 }
 
 interface UseAwarenessProps {
-  provider: WebrtcProvider | undefined;
+  provider: WebrtcProvider | HocuspocusProvider | undefined;
   user?: AwarenessType;
 }
 
@@ -68,6 +69,7 @@ type AwarenessType = {
   name: string;
   color: string;
   sessionId: string;
+  _id: string;
   photo: string;
   [key: string]: unknown;
 };

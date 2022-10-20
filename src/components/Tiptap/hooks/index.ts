@@ -1,3 +1,4 @@
+export { useAutosaveModal } from './useAutosaveModal';
 export { useAwareness } from './useAwareness';
 export { useDevTools } from './useDevTools';
 export { useSidebar } from './useSidebar';

@@ -2,22 +2,19 @@
 import { ApolloClient, gql, useMutation } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import { get as getProperty } from 'object-path';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import utils from '../../../components/CollaborativeFields/utils';
 import { DateTime, Text } from '../../../components/ContentField';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { saveChanges } from './saveChanges';
 
 function usePublishModal(
   y: EntryY,
   client: ApolloClient<object>,
   collectionName: string,
   itemId: string,
-  refetch: () => void,
   publishStage?: number,
   idKey = '_id'
 ): [React.ReactNode, () => void, () => void] {
@@ -25,9 +22,19 @@ function usePublishModal(
     const theme = useTheme() as themeType;
 
     const [confirm, setConfirm] = useState<string>('');
-    const [timestamp, setTimestamp] = useState<string>(
-      getProperty(y.data, 'timestamps.published_at') as string
+
+    const [timestamp, setTimestamp] = useState<string | undefined>();
+    useEffect(
+      () => {
+        if (!timestamp) {
+          setTimestamp(getProperty(y.data, 'timestamps.published_at') as string | undefined);
+        }
+      },
+      // `y.data` ACTUALLY WILL rerender the component when it changes
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [timestamp, y.data]
     );
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const PUBLISH_ITEM = gql`mutation {
@@ -52,27 +59,14 @@ function usePublishModal(
         onClick: async () => {
           setIsLoading(true);
 
-          if (publishStage) {
-            const isPublished = !!(await publishItem()).data;
+          const isPublished = !!(await publishItem()).data;
+          setIsLoading(false);
 
-            try {
-              if (y.ydoc) {
-                new utils.shared.Float(y.ydoc).set('stage', publishStage);
-              }
-            } catch (error) {
-              toast.warn('Could not set stage in syncronized state, but the document will still be published.');
-              console.error(error);
-            }
-            const isStageSet = await saveChanges(y, setIsLoading, { stage: publishStage }, false, idKey);
-
-            // return whether the action was successful
-            setIsLoading(false);
-            if (isStageSet === true && isPublished === true) {
-              toast.success('Published document');
-              return true;
-            }
+          // return whether the action was successful
+          if (isPublished === true) {
+            toast.success('Published document');
+            return true;
           }
-
           return false;
         },
         disabled: confirm !== shortId,
@@ -94,7 +88,7 @@ function usePublishModal(
             description={
               'This data can be any time in the past or future. Content will not appear until the date has occured.'
             }
-            value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestamp}
+            value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestamp || null}
             onChange={(date) => {
               if (date) setTimestamp(date.toUTC().toISO());
             }}
@@ -112,7 +106,7 @@ function usePublishModal(
         </>
       ),
     };
-  }, [client, collectionName, itemId, refetch, publishStage, idKey]);
+  }, [client, collectionName, itemId, idKey]);
 
   return [Window, showModal, hideModal];
 }

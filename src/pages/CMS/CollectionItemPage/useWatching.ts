@@ -16,18 +16,12 @@ interface UseWatchingReturn {
 
 function useWatching(params: UseWatchingParams): UseWatchingReturn {
   return useMemo<UseWatchingReturn>(() => {
-    const watchers: string[] = (
-      (getProperty(params.itemStateFields, 'people.watching') as { _id: string }[]) || []
-    ).map(({ _id }) => _id);
+    const watchers: string[] = (getProperty(params.itemStateFields, 'people.watching') as string[]) || [];
 
-    const mandatoryWatchers = ([] as { _id: string }[]).concat
-      .apply(
-        [],
-        params.mandatoryWatchersKeys.map(
-          (key): { _id: string }[] => getProperty(params.itemStateFields, key) || []
-        )
-      )
-      .map(({ _id }) => _id);
+    const mandatoryWatchers = ([] as string[]).concat.apply(
+      [],
+      params.mandatoryWatchersKeys.map((key): string[] => getProperty(params.itemStateFields, key) || [])
+    );
 
     const isWatching: boolean | undefined =
       params.authUserState && watchers?.includes(params.authUserState._id);

@@ -135,12 +135,16 @@ function CommentContainer(props: ICommentContainer) {
         icon={<Comment20Regular />}
         onClick={toggleCard}
         onMouseEnter={() => {
-          setIsMouseOverToggle(true);
-          if (!isShown) props.updateAttributes({ alpha: 0.3 });
+          if (props.editor.isEditable) {
+            setIsMouseOverToggle(true);
+            if (!isShown) props.updateAttributes({ alpha: 0.3 });
+          }
         }}
         onMouseLeave={() => {
-          setIsMouseOverToggle(false);
-          if (!isShown) props.updateAttributes({ alpha: 0.15 });
+          if (props.editor.isEditable) {
+            setIsMouseOverToggle(false);
+            if (!isShown) props.updateAttributes({ alpha: 0.15 });
+          }
         }}
       />
       {isShown ? (
@@ -170,6 +174,7 @@ function CommentContainer(props: ICommentContainer) {
                   setMessage(props.node.attrs.message);
                   setIsEditMode(true);
                 }}
+                disabled={props.editor.isEditable}
               />
               <IconButton
                 icon={<Delete16Regular />}
@@ -191,6 +196,7 @@ function CommentContainer(props: ICommentContainer) {
                   }
                 `}
                 onClick={unsetComment}
+                disabled={props.editor.isEditable}
               />
               <IconButton
                 icon={<Dismiss16Regular />}
@@ -212,6 +218,7 @@ function CommentContainer(props: ICommentContainer) {
                   }
                 `}
                 onClick={toggleCard}
+                disabled={props.editor.isEditable}
               />
             </>
           )}
@@ -230,6 +237,7 @@ function CommentContainer(props: ICommentContainer) {
                 value={message}
                 ref={messageRef}
                 placeholder={`Type a comment`}
+                disabled={!props.editor.isEditable}
               />
               <ButtonRow>
                 <CommentIconButton
@@ -242,6 +250,7 @@ function CommentContainer(props: ICommentContainer) {
                     // otherwise, exit edit mode, which will cause the new message to be lost
                     setIsEditMode(false);
                   }}
+                  disabled={!props.editor.isEditable}
                 />
                 <CommentIconButton
                   theme={theme}
@@ -251,6 +260,7 @@ function CommentContainer(props: ICommentContainer) {
                     setIsEditMode(false);
                     saveCommentMessage();
                   }}
+                  disabled={!props.editor.isEditable}
                 />
               </ButtonRow>
             </>

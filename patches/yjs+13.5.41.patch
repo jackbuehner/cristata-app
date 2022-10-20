@@ -1,11 +1,11 @@
 diff --git a/node_modules/yjs/dist/src/types/YMap.d.ts b/node_modules/yjs/dist/src/types/YMap.d.ts
-index 1cc0391..1116c62 100644
+index bbb8de2..efa89ef 100644
 --- a/node_modules/yjs/dist/src/types/YMap.d.ts
 +++ b/node_modules/yjs/dist/src/types/YMap.d.ts
-@@ -70,17 +70,21 @@ export class YMap<MapType> extends AbstractType<YMapEvent<MapType>> implements I
+@@ -95,17 +95,21 @@ export class YMap<MapType> extends AbstractType<YMapEvent<MapType>> implements I
      /**
       * Adds or updates an element with a specified key and value.
-      * 
+      *
 +     * @template {keyof MapType} MKey
 +     *
       * @param {string} key The key of the element to add to this YMap

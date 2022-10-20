@@ -2,6 +2,7 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui/react-icons';
+import { WebSocketStatus } from '@hocuspocus/provider';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Editor, EditorContent } from '@tiptap/react';
@@ -26,7 +27,15 @@ import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Titlebar } from './components/Titlebar';
 import { Toolbar } from './components/Toolbar';
 import { CommentPanel } from './extension-power-comment';
-import { useAwareness, useDevTools, useSidebar, useTipTapEditor, useTrackChanges, useWordCount } from './hooks';
+import {
+  useAutosaveModal,
+  useAwareness,
+  useDevTools,
+  useSidebar,
+  useTipTapEditor,
+  useTrackChanges,
+  useWordCount,
+} from './hooks';
 import { FieldY, IYSettingsMap } from './hooks/useY';
 import './office-icon/colors1.css';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
@@ -53,7 +62,7 @@ interface ITiptap {
 const Tiptap = (props: ITiptap) => {
   const theme = useTheme() as themeType;
   const { search } = useLocation();
-  const { ydoc, provider, awareness: awarenessProfiles } = props.y;
+  const { ydoc, wsProvider: provider, awareness: awarenessProfiles } = props.y;
   const ySettingsMap = ydoc?.getMap<IYSettingsMap>('__settings');
   const { observe, width: thisWidth } = useDimensions(); // monitor the dimensions of the editor
 
@@ -106,13 +115,9 @@ const Tiptap = (props: ITiptap) => {
     },
     editorProps: {
       handleKeyDown(view, event) {
-        if (event.key === 'Backspace') {
-          utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
-        }
         return false;
       },
       handleTextInput() {
-        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
         return false;
       },
     },
@@ -140,7 +145,14 @@ const Tiptap = (props: ITiptap) => {
   if (editor) editor.storage.currentJson = props.currentJsonInState;
 
   // do not consider connected until editor is created, ydoc is available, and the provider is connected
-  const isConnected = provider?.connected && ydoc && editor !== null;
+  const isConnected = props.y.wsStatus === WebSocketStatus.Connected && ydoc && editor !== null;
+  const isConnecting = props.y.wsStatus === WebSocketStatus.Connecting;
+  const [hasConnectedBefore, setHasConnectedBefore] = useState(false);
+  useEffect(() => {
+    if (props.y.wsStatus === WebSocketStatus.Connected && ydoc && editor !== null && props.y.synced) {
+      setHasConnectedBefore(true);
+    }
+  }, [editor, props.y.synced, props.y.wsStatus, ydoc]);
 
   // if the document is empty, use the json/html from the api instead (if available)
   if (editor && ydoc) {
@@ -195,8 +207,11 @@ const Tiptap = (props: ITiptap) => {
   // track iframe html content when it sends a copy
   const [iframehtmlstring, setIframehtmlstring] = useState<string>('');
 
+  const [AutosaveWindow, showAutosaveModal] = useAutosaveModal();
+
   return (
     <Container theme={theme} isMaximized={props.isMaximized || false} ref={observe}>
+      {AutosaveWindow}
       <div
         style={{
           position: 'relative',
@@ -249,8 +264,9 @@ const Tiptap = (props: ITiptap) => {
                 {
                   label: 'Save',
                   icon: <Save20Regular />,
-                  disabled: false,
-                  action: props.actions?.find((action) => action?.label === 'Save')?.action || (() => null),
+                  disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || false,
+                  action:
+                    props.actions?.find((action) => action?.label === 'Save')?.action || showAutosaveModal,
                 },
                 {
                   label: 'Track changes',
@@ -356,8 +372,14 @@ const Tiptap = (props: ITiptap) => {
                 flex-grow: 1;
               `}
             >
-              {props.message ? <Noticebar theme={theme}>{props.message}</Noticebar> : null}
-              {isConnected !== true ? (
+              {props.message ? <Noticebar z={1}>{props.message}</Noticebar> : null}
+              {hasConnectedBefore && !isConnected ? (
+                <Noticebar>
+                  Connection lost. You may lose data if you close the editor before reconnecting.{' '}
+                  {isConnecting ? 'Attempting to reconnect...' : ''}
+                </Noticebar>
+              ) : null}
+              {!hasConnectedBefore ? (
                 <div
                   style={{
                     display: 'flex',
@@ -366,9 +388,11 @@ const Tiptap = (props: ITiptap) => {
                     alignItems: 'center',
                     color: theme.color.neutral[theme.mode][1500],
                     fontFamily: theme.font.detail,
+                    height: '100%',
+                    justifyContent: 'center',
                   }}
                 >
-                  {isConnected === undefined ? (
+                  {isConnecting ? (
                     <>
                       <Spinner color={'neutral'} colorShade={1500} size={30} />
                       <div>Connecting...</div>
@@ -387,9 +411,7 @@ const Tiptap = (props: ITiptap) => {
                 />
               ) : null}
 
-              {isConnected === true ? (
-                <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} />
-              ) : null}
+              {hasConnectedBefore ? <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} /> : null}
             </div>
           </ErrorBoundary>
           <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
@@ -423,11 +445,7 @@ const Tiptap = (props: ITiptap) => {
                 {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
               </StatusbarBlock>
               <StatusbarBlock>
-                {isConnected === true
-                  ? 'Connected'
-                  : isConnected === undefined
-                  ? 'Connecting...'
-                  : 'Failed to connect'}
+                {isConnected === true ? 'Connected' : isConnecting ? 'Connecting...' : 'Failed to connect'}
               </StatusbarBlock>
             </>
           </Statusbar>

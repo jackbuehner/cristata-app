@@ -13,7 +13,6 @@ import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { replaceCircular } from '../../utils/replaceCircular';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
-import utils from './utils';
 
 const isValidObjectId = mongoose.Types.ObjectId.isValid;
 
@@ -107,7 +106,6 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
 
         // push the new value into the end of the array
         yarray.push([replaceCircular({ ...option, value: option.value, label: option.label })]);
-        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
       });
     }
   };
@@ -267,6 +265,7 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
 const SelectComponent = styled(Select)<{
   color?: colorType;
   font?: keyof themeType['font'];
+  disabled?: boolean;
 }>`
   input[type='search'] {
     opacity: 1 !important;
@@ -285,17 +284,24 @@ const SelectComponent = styled(Select)<{
     font-family: ${({ theme, font }) => theme.font[font ? font : 'detail']};
     font-size: 14px;
     font-variant-numeric: lining-nums;
-    &:hover {
-      box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
-    }
-    &:focus {
-      outline: none;
-      box-shadow: ${({ theme, color }) => {
-          if (color === 'neutral') color = undefined;
-          return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
-        }}
-        0px 0px 0px 2px inset;
-    }
+    ${({ theme, color, disabled }) => {
+      if (disabled !== true) {
+        return `
+          &:hover {
+            box-shadow: ${theme.color.neutral[theme.mode][1000]} 0px 0px 0px 1px inset;
+          }
+          &:focus {
+            outline: none;
+            box-shadow: ${(() => {
+              if (color === 'neutral') color = undefined;
+              return theme.color[color || 'primary'][theme.mode === 'dark' ? 300 : 800];
+            })()}
+              0px 0px 0px 2px inset;
+          }
+        `;
+      }
+      return 'cursor: not-allowed;';
+    }}
     position: relative;
     z-index: 1;
   }

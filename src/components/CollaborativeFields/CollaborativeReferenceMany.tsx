@@ -4,7 +4,6 @@ import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { useOptions } from '../ContentField/useOptions';
 import { CollaborativeCombobox, PopulatedRefValue, Value, Values } from './CollaborativeCombobox';
 import { SelectedReferenceItems } from './SelectedReferenceItems';
-import utils from './utils';
 
 interface CollaborativeReferenceManyProps extends CollaborativeFieldProps {
   onChange?: (values: PopulatedRefValue[]) => void;
@@ -31,8 +30,6 @@ function CollaborativeReferenceMany(props: CollaborativeReferenceManyProps) {
     const items = yarray?.toArray();
     if (from !== undefined && to !== undefined && yarray && items) {
       y.ydoc?.transact(() => {
-        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
-
         // remove from existing location
         yarray.delete(from);
 

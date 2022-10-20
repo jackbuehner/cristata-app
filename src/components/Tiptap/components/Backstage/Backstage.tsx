@@ -190,17 +190,23 @@ const Container = styled.div<{ isOpen: boolean }>`
   bottom: 0;
   right: 0;
   z-index: 10;
-  background-color: ${({ theme }) =>
-    theme.mode === 'light'
-      ? theme.color.blue[800]
-      : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
   display: ${({ isOpen }) => (isOpen ? 'grid' : 'none')};
   grid-template-columns: 160px 1fr;
 `;
 
-const NavPane = styled.nav``;
+const NavPane = styled.nav`
+  background-color: ${({ theme }) =>
+    theme.mode === 'light'
+      ? theme.color.blue[800]
+      : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
+`;
 
-const View = styled.div``;
+const View = styled.div`
+  background-color: ${({ theme }) =>
+    theme.mode === 'light'
+      ? Color(theme.color.neutral.light[100]).lighten(0.04).string()
+      : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
+`;
 
 const NavButton = styled(Button)`
   height: 36px;
@@ -209,6 +215,7 @@ const NavButton = styled(Button)`
   border: 1px solid transparent;
   justify-content: flex-start;
   padding-left: 16px;
+  color: ${({ theme }) => theme.color.neutral.dark[1400]};
   span:first-of-type {
     width: 20px;
     height: 20px;

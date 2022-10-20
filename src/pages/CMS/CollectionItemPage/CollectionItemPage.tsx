@@ -1,5 +1,6 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { WebSocketStatus } from '@hocuspocus/provider';
 import {
   isTypeTuple,
   MongooseSchemaType,
@@ -29,11 +30,12 @@ import {
   CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
 import { Field } from '../../../components/ContentField/Field';
+import { Spinner } from '../../../components/Loading';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tiptap } from '../../../components/Tiptap';
 import { useAwareness, useY } from '../../../components/Tiptap/hooks';
-import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
+import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import {
   DeconstructedSchemaDefType,
@@ -75,6 +77,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
     name: authUserState.name,
     color: colorHash.hex(authUserState._id),
     sessionId: sessionId || '',
+    _id: authUserState._id,
     photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
   };
 
@@ -100,7 +103,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const navigate = useNavigate();
   let { collection, item_id } = useParams() as { collection: string; item_id: string };
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
-  const isUnsaved = props.y.unsavedFields.length !== 0;
   const [
     {
       schemaDef,
@@ -113,7 +115,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   ] = useCollectionSchemaConfig(collectionName);
 
   // put the document in redux state and ydoc
-  const { data, actionAccess, loading, error, refetch } = useFindDoc(
+  const { data, actionAccess, loading, error } = useFindDoc(
     uncapitalize(collectionName),
     item_id,
     schemaDef,
@@ -123,12 +125,14 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     props.y
   );
 
+  const docNotFound = !data && !loading && !props.isEmbedded;
+
   // function to get the values of the fields for previews (used in sidebar)
   const getFieldValues = async (opts: GetYFieldsOptions) => {
     return merge(data, { yState: undefined }, await getYFields(props.y, schemaDef, opts));
   };
 
-  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({});
+  const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({}) && props.y.synced;
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -156,20 +160,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const title = (() => {
     let title = '';
 
-    const ySettingsMap = props.y.ydoc?.getMap<IYSettingsMap>('__settings');
-    const autosave: boolean | undefined | null = ySettingsMap?.get('autosave');
-
-    // show asterisk in front when unsaved
-    if (isUnsaved && !autosave) title += '*';
-
     // show document name in the title
     title += docName;
 
     // show written note about unsaved status
-    if (isLoading && isUnsaved) title += ' - Saving';
-    else if (isLoading) title += ' - Syncing';
-    else if (autosave && isUnsaved) title += ' - Pending';
-    else if (!autosave && isUnsaved) title += ' - Unsaved Changes';
+    if (isLoading) title += ' - Syncing';
 
     // always end with Cristata
     title += ' - Cristata';
@@ -201,6 +196,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     mandatoryWatchersKeys: collectionOptions?.mandatoryWatchers || [],
   });
 
+  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
+
   // determine the actions for this document
   const { actions, quickActions, showActionDropdown, Windows } = useActions({
     y: props.y,
@@ -209,7 +206,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     collectionName,
     itemId: item_id,
     dispatch,
-    refetchData: refetch,
     watch: {
       isMandatoryWatcher: isMandatoryWatcher || false,
       isWatching: isWatching || false,
@@ -220,6 +216,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     withPermissions,
     isEmbedded: props.isEmbedded,
     idKey: by?.one,
+    loadingOrError: loading || isLoading || !!error || props.y.wsStatus !== WebSocketStatus.Connected,
+    locked: publishLocked || (props.y.data.locked as boolean | undefined | null) || false,
+    archived: (props.y.data.archived as boolean | undefined | null) || false,
+    hidden: (props.y.data.hidden as boolean | undefined | null) || false,
   });
 
   const sidebarProps = {
@@ -269,6 +269,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 }) || [],
           },
     previewUrl: options?.previewUrl,
+    disabled: locked || loading || isLoading || !!error || props.y.wsStatus !== WebSocketStatus.Connected,
     getFieldValues,
   };
 
@@ -304,13 +305,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           type: 'icon',
           icon: 'MoreHorizontal24Regular',
           action: showActionDropdown,
-          onAuxClick: () => (props?.y.awareness.length === 1 ? refetch() : null),
         },
       ])
     );
-  }, [dispatch, props.y.awareness.length, quickActions, refetch, showActionDropdown]);
-
-  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
+  }, [dispatch, props.y.awareness.length, quickActions, showActionDropdown]);
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
@@ -390,7 +388,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       if (readOnly) fieldName += ' (read only)';
 
       // prevent the fields from being edited when any of the following are true
-      const disabled = locked || loading || isLoading || !!error || readOnly || !props.y.connected;
+      const disabled =
+        locked || loading || isLoading || !!error || readOnly || props.y.wsStatus !== WebSocketStatus.Connected;
 
       // use this key for yjs shared type key for doc array contents
       // so there shared type for each field in the array is unique
@@ -472,8 +471,12 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 message={
                   publishLocked
                     ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
+                    : props.y.data.hidden
+                    ? 'This document is opened in read-only mode because it is deleted. Restore it from the deleted items to edit.'
                     : props.y.data.archived
                     ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
+                    : props.y.data.stage === publishStage
+                    ? 'This document is currently published. Changes will be publically reflected immediately.'
                     : undefined
                 }
                 compact={fs !== '1' && fs !== 'force'}
@@ -779,7 +782,9 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     };
 
     if (
-      (!props.y.connected || !props.y.initialSynced || JSON.stringify(props.y.data) === JSON.stringify({})) &&
+      (props.y.wsStatus !== WebSocketStatus.Connected ||
+        !props.y.synced ||
+        JSON.stringify(props.y.data) === JSON.stringify({})) &&
       !navigator.onLine
     ) {
       return <Offline variant={'centered'} />;
@@ -788,10 +793,13 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     return (
       <>
         {Windows}
-        {!props.isEmbedded ? (
+        {!props.isEmbedded && !docNotFound ? (
           <ReactRouterPrompt
             when={(currentLocation, nextLocation) => {
-              return isUnsaved && currentLocation.pathname !== nextLocation.pathname;
+              return (
+                props.y.wsStatus !== WebSocketStatus.Connected &&
+                currentLocation.pathname !== nextLocation.pathname
+              );
             }}
           >
             {({ isActive, onConfirm, onCancel }) =>
@@ -799,7 +807,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 <PlainModal
                   title={'Lose your changes?'}
                   text={
-                    'You have unsaved changes that may be lost. We will try to save them, but they might not be here when you return.'
+                    'You are not connected. You have unsynced changes that may be lost. Leaving before you reconnect will result in data loss.'
                   }
                   hideModal={() => onCancel(true)}
                   cancelButton={{
@@ -822,11 +830,26 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             }
           </ReactRouterPrompt>
         ) : null}
-        {!props.isEmbedded && isMaximized ? null : null}
-        <FullScreenSplash isLoading={isMaximized && !hasLoadedAtLeastOnce} />
-        {isLoading && !hasLoadedAtLeastOnce ? null : (
+        <FullScreenSplash
+          isLoading={isMaximized && (!hasLoadedAtLeastOnce || isLoading) && !docNotFound}
+          message={hasLoadedAtLeastOnce ? 'Checking permissions...' : 'Connecting to the server...'}
+        />
+        {docNotFound ? (
+          <NotFound>
+            <h2>
+              This document does not exist <i>or</i> you do not have access.
+            </h2>
+            <p>If you know this document exists, ask someone with access to grant you access.</p>
+          </NotFound>
+        ) : !isLoading && hasLoadedAtLeastOnce ? (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
+              {props.y.wsStatus !== WebSocketStatus.Connected ? (
+                <Notice theme={theme}>
+                  <b>Currently not connected.</b> If you leave before your connection is restored, you may lose
+                  data.
+                </Notice>
+              ) : null}
               {publishLocked && !props.isEmbedded && fs !== '1' ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it has been published and you do not have
@@ -851,6 +874,29 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                   </Button>
                 </Notice>
               ) : null}
+              {props.y.data.hidden && !props.isEmbedded && fs !== '1' ? (
+                <Notice theme={theme}>
+                  This document is opened in read-only mode because it is deleted.
+                  <Button
+                    height={26}
+                    cssExtra={css`
+                      display: inline-block;
+                      margin: 4px 8px;
+                    `}
+                    onClick={(e) => {
+                      actions.find((a) => a.label === 'Restore from deleted items')?.action(e);
+                    }}
+                    disabled={actions.findIndex((a) => a.label === 'Restore from deleted items') === -1}
+                  >
+                    Restore from deleted items
+                  </Button>
+                </Notice>
+              ) : null}
+              {props.y.data.stage === publishStage && !props.isEmbedded && fs !== '1' ? (
+                <Notice theme={theme}>
+                  This document is currently published. Changes will be publically reflected immediately.
+                </Notice>
+              ) : null}
               <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
                 {contentWidth <= 700 ? <Sidebar {...sidebarProps} compact={true} /> : null}
                 {processSchemaDef(schemaDef).map(renderFields)}
@@ -858,6 +904,24 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             </div>
             {!props.isEmbedded && contentWidth > 700 ? <Sidebar {...sidebarProps} /> : null}
           </ContentWrapper>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              gap: 12,
+              flexDirection: 'column',
+              alignItems: 'center',
+              color: theme.color.neutral[theme.mode][1500],
+              fontFamily: theme.font.detail,
+              height: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            <>
+              <Spinner color={'neutral'} colorShade={1500} size={30} />
+              {hasLoadedAtLeastOnce ? <div>Checking permissions...</div> : <div>Connecting...</div>}
+            </>
+          </div>
         )}
       </>
     );
@@ -940,6 +1004,12 @@ const Notice = styled.div<{ theme: themeType }>`
   width: 100%;
   z-index: 99;
   box-sizing: border-box;
+`;
+
+const NotFound = styled.div`
+  padding: 20px;
+  font-family: ${({ theme }) => theme.font.detail};
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
 `;
 
 export { CollectionItemPage, CollectionItemPageContent };

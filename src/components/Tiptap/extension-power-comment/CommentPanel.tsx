@@ -36,7 +36,7 @@ function CommentPanel({ editor, user }: CommentPanelProps) {
   const storage = editor?.storage.powerComment as CommentStorage | undefined;
   const comments = storage?.comments;
 
-  if (editor && user && editor.isEditable) {
+  if (editor) {
     return (
       <div style={{ paddingBottom: 250 }}>
         {comments?.map((comment, index) => {
@@ -65,7 +65,7 @@ interface CommentProps {
   dispatch: (tr: Transaction) => void;
   state: Editor['state'];
   editor: Editor;
-  user: {
+  user?: {
     name: string;
     color: string;
     sessionId: string;
@@ -79,9 +79,12 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
   const messageRef = useRef<HTMLTextAreaElement>(null);
   // control whether in edit mode
   const thisUserJustCreatedThisComment =
-    comment.attrs.sessionId === user.sessionId && comment.attrs.message === '';
+    comment.attrs.sessionId === user?.sessionId && comment.attrs.message === '';
   const [isEditMode, setIsEditMode] = useState<boolean>(thisUserJustCreatedThisComment);
   const [hideReplyButton, setHideReplyButton] = useState<boolean>(false);
+
+  // exit edit mode if document is not editable
+  if (isEditMode && !editor.isEditable) setIsEditMode(false);
 
   // track when the comment is focused
   const hasCursor = (() => {
@@ -187,30 +190,32 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
    * Adds an empty reply
    */
   const addNewReply = () => {
-    const uuid = uuidv4();
-    const wasAdded = editor
-      .chain()
-      .command((cp) => selectCommentText(cp))
-      .unsetMark('powerComment')
-      .setComment({
-        ...comment.attrs,
-        replies: [
-          ...comment.attrs.replies,
-          {
-            commenter: {
-              name: user.name,
-              photo: user.photo,
+    if (user) {
+      const uuid = uuidv4();
+      const wasAdded = editor
+        .chain()
+        .command((cp) => selectCommentText(cp))
+        .unsetMark('powerComment')
+        .setComment({
+          ...comment.attrs,
+          replies: [
+            ...comment.attrs.replies,
+            {
+              commenter: {
+                name: user.name,
+                photo: user.photo,
+              },
+              message: '',
+              timestamp: new Date().toISOString(),
+              uuid: uuid,
             },
-            message: '',
-            timestamp: new Date().toISOString(),
-            uuid: uuid,
-          },
-        ],
-      })
-      .focus()
-      .scrollIntoView()
-      .run();
-    if (wasAdded) setNewReplyUuid(uuid);
+          ],
+        })
+        .focus()
+        .scrollIntoView()
+        .run();
+      if (wasAdded) setNewReplyUuid(uuid);
+    }
   };
 
   const clearNewReplyUuid = () => {
@@ -253,12 +258,14 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
                 setIsEditMode(true);
                 setMessage(comment.attrs.message);
               },
+              disabled: !user || !editor.isEditable,
             },
             {
               label: 'Delete thread',
               color: 'red',
               icon: <Delete16Regular />,
               onClick: () => deleteThread(),
+              disabled: !user || !editor.isEditable,
             },
           ]}
         />
@@ -303,6 +310,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
             value={message}
             ref={messageRef}
             placeholder={`Type a comment`}
+            disabled={!user || !editor.isEditable}
           />
           <ButtonRow>
             <CommentIconButton
@@ -313,6 +321,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
                 if (message === '' && comment.attrs.replies.length === 0) deleteThread();
                 setIsEditMode(false);
               }}
+              disabled={!user || !editor.isEditable}
             />
             <CommentIconButton
               theme={theme}
@@ -322,6 +331,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
                 setIsEditMode(false);
                 saveCommentMessage();
               }}
+              disabled={!user || !editor.isEditable}
             />
           </ButtonRow>
         </>
@@ -367,7 +377,13 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
         <></>
       ) : (
         <div style={{ marginTop: 10, display: 'flex', justifyContent: 'right', marginRight: -2 }}>
-          <Button height={28} color={'blue'} icon={<ArrowReplyDown16Regular />} onClick={() => addNewReply()}>
+          <Button
+            height={28}
+            color={'blue'}
+            icon={<ArrowReplyDown16Regular />}
+            onClick={() => addNewReply()}
+            disabled={!user || !editor.isEditable}
+          >
             Reply
           </Button>
         </div>
@@ -403,6 +419,9 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
     else setHideReplyButton(false);
   }, [isEditMode, setHideReplyButton]);
 
+  // exit edit mode if document is not editable
+  if (isEditMode && !editor.isEditable) setIsEditMode(false);
+
   // the dropdown for the comment menu
   const [showCommentDropdown] = useDropdown(
     (triggerRect, dropdownRef) => {
@@ -420,12 +439,14 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
               color: 'blue',
               icon: <Edit16Regular />,
               onClick: () => setIsEditMode(true),
+              disabled: !editor.isEditable,
             },
             {
               label: 'Delete comment',
               color: 'red',
               icon: <Delete16Regular />,
               onClick: () => deleteCommentReply(),
+              disabled: !editor.isEditable,
             },
           ]}
         />
@@ -517,6 +538,7 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
             value={replyMessage}
             ref={messageRef}
             placeholder={`Type a comment`}
+            disabled={!editor.isEditable}
           />
           <ButtonRow>
             <CommentIconButton
@@ -527,6 +549,7 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
                 if (replyMessage === '') deleteCommentReply();
                 setIsEditMode(false);
               }}
+              disabled={!editor.isEditable}
             />
             <CommentIconButton
               theme={theme}
@@ -536,6 +559,7 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
                 setIsEditMode(false);
                 saveCommentReply();
               }}
+              disabled={!editor.isEditable}
             />
           </ButtonRow>
         </>

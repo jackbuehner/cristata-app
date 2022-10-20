@@ -5,6 +5,7 @@ import { themeType } from '../../../utils/theme/theme';
 
 interface IFullScreenSplash {
   isLoading: boolean;
+  message?: string;
 }
 
 function FullScreenSplash(props: IFullScreenSplash) {
@@ -61,6 +62,7 @@ function FullScreenSplash(props: IFullScreenSplash) {
       <Block theme={theme}>
         <Spinner size={32} color={'neutral'} colorShade={theme.mode === 'light' ? 100 : 1500} />
       </Block>
+      <Message>{props.message}</Message>
     </div>
   );
 }
@@ -73,6 +75,16 @@ const Block = styled.div<{ theme: themeType }>`
   gap: 10px;
   position: absolute;
   bottom: 100px;
+`;
+
+const Message = styled.div`
+  font-family: ${({ theme }) => theme.font.detail};
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  bottom: 60px;
 `;
 
 export { FullScreenSplash };

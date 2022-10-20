@@ -37,11 +37,11 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
 
   // set the photo url and credit attributes
   useEffect(() => {
-    if (photo) {
+    if (photo && props.editor.isEditable) {
       if (photo.photo_url) updateAttributes({ photoUrl: photo.photo_url });
       if (photo.people?.photo_created_by) updateAttributes({ photoCredit: photo.people.photo_created_by });
     }
-  }, [photo, updateAttributes]);
+  }, [photo, props.editor.isEditable, updateAttributes]);
 
   // insert photo widget
   const [showPhotoWidgetModal, hidePhotoWidgetModal] = useModal(() => {
@@ -60,7 +60,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             updateAttributes({ photoId: photoId, position: photoPos });
             return true;
           },
-          disabled: photoId.length < 1,
+          disabled: photoId.length < 1 || !props.editor.isEditable,
         }}
       >
         <ErrorBoundary fallback={<div>Error loading async select field</div>}>
@@ -126,7 +126,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
   }, [props.node.attrs.photoId, props.node.attrs.position]);
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper contentEditable={false}>
       <WidgetWrapper
         position={props.node.attrs.position}
         ref={widgetRef}
@@ -140,60 +140,78 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
                 ? '0 0 20px 0'
                 : '20px 0',
           }}
-          contentEditable={false}
           src={photo?.photo_url}
           alt={''}
         />
-        <WidgetLabel
-          isVisible={isMouseOver}
-          contentEditable={false}
-          data-drag-handle
-          draggable={props.extension.config.draggable ? true : false}
-        >
+        <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
           Photo
         </WidgetLabel>
         <WidgetActions
           isVisible={isMouseOver}
-          contentEditable={false}
           actions={[
             {
               active: props.node.attrs.showCaption,
               icon: <TextDescription20Regular />,
               label: 'Toggle caption',
               onClick: () => updateAttributes({ showCaption: !props.node.attrs.showCaption }),
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Edit16Regular />,
               label: 'Change photo',
               onClick: showPhotoWidgetModal,
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Delete16Regular />,
               label: 'Remove widget',
               onClick: props.deleteNode,
+              disabled: !props.editor.isEditable,
             },
           ]}
         ></WidgetActions>
-        <Caption show={props.node.attrs.showCaption?.toString()}>
-          <EditableContent show={props.node.attrs.showCaption?.toString()} />
-          <Source contentEditable={false}>{photo?.people.photo_created_by}</Source>
+        <Caption show={props.node.attrs.showCaption}>
+          <EditableContent
+            contentEditable={props.node.attrs.showCaption}
+            show={props.node.attrs.showCaption}
+            showPlaceholder={props.node.textContent.length === 0}
+          />
+          <Source>{photo?.people.photo_created_by}</Source>
         </Caption>
       </WidgetWrapper>
     </NodeViewWrapper>
   );
 }
 
-const EditableContent = styled(NodeViewContent)<{ show: string }>`
-  display: ${({ show }) => (show === 'true' ? 'inline-block' : 'none')};
+const EditableContent = styled(NodeViewContent)<{ show?: boolean; showPlaceholder: boolean }>`
+  display: ${({ show }) => (show ? 'inline-flex' : 'none')};
   color: #666;
   font-size: 90%;
   text-align: center;
+
+  // show placeholder message when empty
+  > div {
+    width: ${({ showPlaceholder }) => (showPlaceholder ? '112px' : 'unset')};
+  }
+  > div::before {
+    content: '${({ showPlaceholder }) => (showPlaceholder ? 'Type a caption...' : '')}';
+    position: absolute;
+    color: ${({ theme }) => theme.color.neutral[theme.mode][600]};
+    pointer-events: none;
+    height: 0;
+    transform: translateX(-50%);
+  }
+
+  // hide focus outline on content inside document frame
+  &:focus {
+    outline: none;
+  }
 `;
 
-const Caption = styled.div<{ show: string }>`
+const Caption = styled.div<{ show?: boolean }>`
   display: block;
-  text-align: ${({ show }) => (show === 'true' ? 'center' : 'right')};
-  margin: ${({ show }) => (show === 'true' ? `-10px 0 10px 0` : `-26px 0 10px 0`)};
+  text-align: ${({ show }) => (show === true ? 'center' : 'right')};
+  margin: ${({ show }) => (show === true ? `-10px 0 10px 0` : `-20px 0 10px 0`)};
   line-height: 1.3;
 `;
 

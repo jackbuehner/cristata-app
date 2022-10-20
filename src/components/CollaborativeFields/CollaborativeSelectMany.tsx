@@ -11,7 +11,6 @@ import {
 import { IconButton } from '../Button';
 import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 import { SelectedItems } from './SelectedItems';
-import utils from './utils';
 
 interface CollaborativeSelectManyProps
   extends CollaborativeFieldProps,
@@ -32,8 +31,6 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
     const items = yarray?.toArray();
     if (from !== undefined && to !== undefined && yarray && items) {
       y.ydoc?.transact(() => {
-        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
-
         // remove from existing location
         yarray.delete(from);
 
@@ -50,7 +47,6 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
     if (textValue !== '' && yarray && textFieldSharedType) {
       y.ydoc?.transact(() => {
         yarray.push([{ value: textValue, label: textValue }]);
-        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
         textFieldSharedType.delete(0, textFieldSharedType.toDOM().textContent?.length);
       });
       setTextValue('');
@@ -64,7 +60,6 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
     if (numberValue && yarray && numberFieldSharedType) {
       y.ydoc?.transact(() => {
         yarray.push([{ value: numberValue.toString(), label: textValue }]);
-        utils.setUnsaved(props.y, props.y.field.split('‾‾')[1] || props.y.field);
         numberFieldSharedType.delete(0, numberFieldSharedType.toDOM().textContent?.length);
       });
       setNumberValue(undefined);

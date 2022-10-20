@@ -20,7 +20,7 @@ const YoutubeWidget = Node.create<YoutubeWidgetOptions>({
 
   group: 'block',
 
-  draggable: false,
+  draggable: true,
 
   allowGapCursor: false,
 

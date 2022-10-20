@@ -8,12 +8,10 @@ import { Button } from '../../../components/Button';
 import { CollaborativeFieldWrapper, CollaborativeReferenceMany } from '../../../components/CollaborativeFields';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
+import { useAppSelector } from '../../../redux/hooks';
 import { server } from '../../../utils/constants';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
-import { saveChanges } from './saveChanges';
 
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
 
@@ -39,13 +37,13 @@ function useShareModal(
     name: authUserState.name,
     color: colorHash.hex(authUserState._id),
     sessionId: sessionId || '',
+    _id: authUserState._id,
     photo: `${server.location}/v3/${tenant}/user-photo/${authUserState._id}` || genAvatar(authUserState._id),
   };
 
   // create the modal
   const [Window, showModal, hideModal] = useWindowModal(() => {
     const itemState = useAppSelector((state) => state.cmsItem);
-    const dispatch = useAppDispatch();
     const theme = useTheme() as themeType;
     const linkRef = useRef<HTMLTextAreaElement>(null);
 
@@ -61,13 +59,10 @@ function useShareModal(
       return {
         title: `Share`,
         isLoading: itemState.isLoading,
-        cancelButton: { color: isFs ? 'blue' : color },
+        cancelButton: null,
         continueButton: {
-          text: 'Save changes',
+          text: 'Done',
           color: isFs ? 'blue' : color,
-          onClick: async () => {
-            return await saveChanges(y, (isLoading: boolean) => dispatch(setIsLoading(isLoading)), {}, true);
-          },
         },
         styleString: `width: 370px; background-color: ${
           theme.mode === 'dark' ? theme.color.neutral.dark[100] : `#ffffff`

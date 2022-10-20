@@ -37,7 +37,7 @@ function Sweepwidget(props: ISweepwidget) {
             props.updateAttributes({ id: idValue });
             return true;
           },
-          disabled: idValue.length < 1,
+          disabled: idValue.length < 1 || !props.editor.isEditable,
         }}
       >
         <TextInput
@@ -52,18 +52,16 @@ function Sweepwidget(props: ISweepwidget) {
   }, [props.node.attrs.id]);
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper contentEditable={false}>
       <WidgetWrapper
         ref={widgetRef}
         onMouseOver={() => setIsMouseOver(true)}
         onMouseOut={() => setIsMouseOver(false)}
-        contentEditable={false}
       >
         <IframeResizer
           autoResize={true}
           resizeFrom={'child'}
           checkOrigin={false}
-          contentEditable={false}
           srcDoc={`
             <head>
               <script type="text/javascript" src="./scripts/iframeResizer.contentWindow.min.js"></script>
@@ -75,17 +73,11 @@ function Sweepwidget(props: ISweepwidget) {
           `}
           style={{ border: 'none', width: '100%', minWidth: '100%' }}
         />
-        <WidgetLabel
-          isVisible={isMouseOver}
-          contentEditable={false}
-          data-drag-handle
-          draggable={props.extension.config.draggable ? true : false}
-        >
+        <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
           SweepWidget
         </WidgetLabel>
         <WidgetActions
           isVisible={isMouseOver}
-          contentEditable={false}
           actions={[
             {
               icon: <Open16Regular />,
@@ -96,11 +88,13 @@ function Sweepwidget(props: ISweepwidget) {
               icon: <Edit16Regular />,
               label: 'Change giveaway ID',
               onClick: showEditModal,
+              disabled: !props.editor.isEditable,
             },
             {
               icon: <Delete16Regular />,
               label: 'Remove widget',
               onClick: props.deleteNode,
+              disabled: !props.editor.isEditable,
             },
           ]}
         ></WidgetActions>

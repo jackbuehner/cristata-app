@@ -20,7 +20,7 @@ const PullQuote = Node.create<PullQuoteOptions>({
 
   group: 'block',
 
-  draggable: false,
+  draggable: true,
 
   allowGapCursor: false,
 

@@ -20,7 +20,7 @@ const SweepwidgetWidget = Node.create<SweepwidgetWidgetOptions>({
 
   group: 'block',
 
-  draggable: false,
+  draggable: true,
 
   allowGapCursor: false,
 

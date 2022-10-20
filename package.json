@@ -7,6 +7,7 @@
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
     "@fluentui/react-icons": "^2.0.173-rc.9",
+    "@hocuspocus/provider": "^1.0.0-alpha.40",
     "@loadable/component": "^5.15.2",
     "@material-ui/core": "^4.11.4",
     "@monaco-editor/react": "^4.4.4",

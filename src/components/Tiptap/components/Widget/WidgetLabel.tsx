@@ -48,7 +48,7 @@ const WidgetLabelComponent = styled.div<IWidgetLabelComponent>`
   font-weight: 700;
   font-family: ${({ theme }) => theme.font.detail};
   user-select: none;
-  cursor: ${({ draggable }) => (draggable ? 'all-scroll' : 'default')};
+  cursor: ${({ draggable }) => (draggable ? 'grab' : 'default')};
 `;
 
 export { WidgetLabel };

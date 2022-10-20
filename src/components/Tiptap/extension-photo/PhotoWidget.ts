@@ -20,7 +20,7 @@ const PhotoWidget = Node.create<PhotoWidgetOptions>({
 
   group: 'block',
 
-  draggable: false,
+  draggable: true,
 
   allowGapCursor: false,
 

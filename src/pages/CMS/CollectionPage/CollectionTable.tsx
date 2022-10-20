@@ -39,7 +39,7 @@ import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { docDefsToQueryObject } from '../CollectionItemPage/useFindDoc';
+import { docDefsToQueryObjectCols } from '../CollectionItemPage/useFindDoc';
 import { CollectionTableFilterRow } from './CollectionTableFilterRow';
 
 interface ICollectionTable {
@@ -160,7 +160,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                     },
                   },
                   // fields used in the table columns
-                  ...schemaDef.map(docDefsToQueryObject)
+                  ...schemaDef.map(docDefsToQueryObjectCols)
                 ),
               },
             },
