@@ -81,27 +81,17 @@ function useActions(params: UseActionsParams): UseActionsReturn {
 
       client
         .mutate({ mutation: HIDE_ITEM })
-        .then(() => {
+        .finally(() => {
           params.dispatch(setIsLoading(false));
-          if (hide) {
-            if (window.name === '') {
-              // redirect to home page if an unnamed window
-              toast.success(`Document successfully hidden.`);
-              params.navigate('/');
-            } else {
-              // otherwise, this window was opened by the unnamed window
-              // and should be closed once the item is hidden
-              window.alert(`Document successfully hidden. This window will close.`);
-              window.close();
-            }
-          } else {
-            toast.success(`Document successfully restored.`);
-          }
         })
         .catch((err) => {
           params.dispatch(setIsLoading(false));
           console.error(err);
-          toast.error(`Failed to document item. \n ${err.message}`);
+          if (hide) {
+            toast.error(`Failed to hide document. \n ${err.message}`);
+          } else {
+            toast.error(`Failed to restore document. \n ${err.message}`);
+          }
         });
     },
     [client, idKey, params]
@@ -127,14 +117,13 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         .finally(() => {
           params.dispatch(setIsLoading(false));
         })
-        .then(({ data }) => {
-          if (data[`${uncapitalize(params.collectionName)}Archive`].archived)
-            toast.success(`Item successfully archived.`);
-          else toast.success(`Item successfully removed from the archive.`);
-        })
         .catch((err) => {
           console.error(err);
-          toast.error(`Failed to archived item. \n ${err.message}`);
+          if (archive) {
+            toast.error(`Failed to archived document. \n ${err.message}`);
+          } else {
+            toast.error(`Failed to unarchive document. \n ${err.message}`);
+          }
         });
     },
     [client, idKey, params]
@@ -174,16 +163,13 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         .finally(() => {
           params.dispatch(setIsLoading(false));
         })
-        .then(() => {
-          if (mode === true) {
-            toast.success(`You are now watching this item.`);
-          } else {
-            toast.success(`You are no longer watching this item.`);
-          }
-        })
         .catch((err) => {
           console.error(err);
-          toast.error(`Failed to watch item. \n ${err.message}`);
+          if (mode) {
+            toast.error(`Failed to start watching this document. \n ${err.message}`);
+          } else {
+            toast.error(`Failed to stop watching this document. \n ${err.message}`);
+          }
         });
     },
     [client, idKey, params]
