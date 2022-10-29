@@ -187,7 +187,7 @@ function ProfilePage() {
           <SectionTitle theme={theme}>Contact Information</SectionTitle>
           <ItemGrid>
             <ItemLabel theme={theme}>Phone</ItemLabel>
-            <Item theme={theme}>{profile?.phone}</Item>
+            <Item theme={theme}>{profile?.phone !== 0 ? profile?.phone : ''}</Item>
             <ItemLabel theme={theme}>Email</ItemLabel>
             <Item theme={theme}>{profile?.email}</Item>
             <ItemLabel theme={theme}>Twitter</ItemLabel>
