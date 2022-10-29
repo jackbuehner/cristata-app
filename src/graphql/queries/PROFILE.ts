@@ -31,6 +31,14 @@ const PROFILE = gql(
           left_at: true,
           last_login_at: true,
         },
+        people: {
+          created_by: {
+            name: true,
+          },
+          last_modified_by: {
+            name: true,
+          },
+        },
         photo: true,
         teams: {
           __args: {
@@ -61,7 +69,7 @@ type PROFILE__TYPE =
 type PROFILE__DOC_TYPE = {
   _id: string;
   name: string;
-  phone?: string;
+  phone?: number;
   email?: string;
   twitter?: string;
   biography?: string;
@@ -78,6 +86,10 @@ type PROFILE__DOC_TYPE = {
     joined_at: string;
     left_at: string;
     last_login_at: string;
+  };
+  people: {
+    created_by: { name: string };
+    last_modified_by: { name: string };
   };
   retired?: boolean;
   slug: string;

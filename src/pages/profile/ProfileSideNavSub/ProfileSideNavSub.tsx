@@ -5,7 +5,6 @@ import styled from '@emotion/styled/macro';
 import {
   ArrowClockwise20Regular,
   Call24Regular,
-  Chat24Regular,
   CheckboxChecked20Regular,
   CheckboxUnchecked20Regular,
   Mail24Regular,
@@ -15,7 +14,7 @@ import {
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Color from 'color';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { Button, IconButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
 import { Menu } from '../../../components/Menu';
@@ -56,16 +55,6 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
           colorShade?: colorShade;
         }> = [];
         if (dropdownProfile.email) {
-          items.push({
-            label: 'Message',
-            icon: <Chat24Regular />,
-            onClick: () =>
-              window.open(
-                `https://teams.microsoft.com/l/chat/0/0?users=${
-                  dropdownProfile.email!.split('@')[0]
-                }@furman.edu`
-              ),
-          });
           items.push({
             label: 'Email',
             icon: <Mail24Regular />,
