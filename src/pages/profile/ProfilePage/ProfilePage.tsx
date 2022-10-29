@@ -201,7 +201,7 @@ function ProfilePage() {
             <Item theme={theme}>{profile?.current_title || `Employee`}</Item>
             <ItemLabel theme={theme}>Join date</ItemLabel>
             <Item theme={theme}>
-              {profile?.timestamps.joined_at
+              {profile?.timestamps.joined_at && profile.timestamps.joined_at !== '0001-01-01T01:00:00.000Z'
                 ? DateTime.fromISO(profile.timestamps.joined_at).toFormat(`dd LLLL yyyy`)
                 : ``}
             </Item>
