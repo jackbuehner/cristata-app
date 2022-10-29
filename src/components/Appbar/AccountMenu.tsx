@@ -48,6 +48,9 @@ function AccountMenu(props: AccountMenuProps) {
                       fontSize: 20,
                       color: theme.color.neutral[theme.mode][1400],
                       marginBottom: 4,
+                      display: 'block',
+                      textAlign: 'center',
+                      whiteSpace: 'pre-wrap',
                     }}
                   >
                     {profile?.name}
@@ -58,6 +61,9 @@ function AccountMenu(props: AccountMenuProps) {
                       fontWeight: 400,
                       fontSize: 12,
                       color: theme.color.neutral[theme.mode][1200],
+                      display: 'block',
+                      textAlign: 'center',
+                      whiteSpace: 'pre-wrap',
                     }}
                   >
                     {profile?.current_title || 'Employee'}
@@ -68,6 +74,9 @@ function AccountMenu(props: AccountMenuProps) {
                       fontWeight: 400,
                       fontSize: 12,
                       color: theme.color.neutral[theme.mode][1200],
+                      display: 'block',
+                      textAlign: 'center',
+                      whiteSpace: 'pre-wrap',
                     }}
                   >
                     {profile?.email}
@@ -103,7 +112,7 @@ function AccountMenu(props: AccountMenuProps) {
                 </div>
               ),
               noEffect: true,
-              height: 124,
+              height: profile?.current_title.length > 36 ? 140 : 124,
             },
           ]}
         />

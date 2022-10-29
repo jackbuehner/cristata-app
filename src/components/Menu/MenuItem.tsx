@@ -42,6 +42,8 @@ const MenuItemComponent = styled.li<IMenuItemComponent>`
           { base: 'transparent' },
           { base: '1px solid transparent' }
         )};
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const IconStyleWrapper = styled.span`
