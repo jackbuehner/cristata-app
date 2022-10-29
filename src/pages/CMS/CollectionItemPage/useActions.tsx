@@ -1,8 +1,9 @@
 import { gql, useApolloClient } from '@apollo/client';
 import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/api/types/config';
 import { get as getProperty } from 'object-path';
+import pluralize from 'pluralize';
 import { useCallback } from 'react';
-import { NavigateFunction } from 'react-router-dom';
+import { NavigateFunction, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
@@ -48,6 +49,8 @@ interface UseActionsReturn {
 function useActions(params: UseActionsParams): UseActionsReturn {
   const client = useApolloClient();
   const data = params.y.data;
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const idKey = params.idKey || '_id';
 
@@ -128,6 +131,36 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     },
     [client, idKey, params]
   );
+
+  /**
+   * Clones a document.
+   */
+  const cloneItem = useCallback(() => {
+    params.dispatch(setIsLoading(true));
+
+    const CLONE_ITEM = gql`mutation {
+      ${uncapitalize(params.collectionName)}Clone(${idKey || '_id'}: "${params.itemId}") {
+        ${idKey}
+      }
+    }`;
+
+    client
+      .mutate({ mutation: CLONE_ITEM })
+      .finally(() => {
+        params.dispatch(setIsLoading(false));
+      })
+      .then(({ data }) => {
+        const newDocId = data[`${uncapitalize(params.collectionName)}Clone`][`${idKey}`];
+        const newDocPath = `/cms/collection/${pluralize(
+          uncapitalize(params.collectionName)
+        )}/${newDocId}?${searchParams}`;
+        navigate(newDocPath);
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(`Failed to clone document. \n ${err.message}`);
+      });
+  }, [client, idKey, navigate, params, searchParams]);
 
   /**
    * Toggle whether the current user is watching this document.
@@ -235,6 +268,18 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         disabled:
           params.actionAccess?.archive !== true || params.loadingOrError || params.locked || params.hidden,
       },
+      {
+        label: 'Duplicate',
+        type: 'button',
+        icon: 'DocumentCopy24Regular',
+        action: () => cloneItem(),
+        disabled:
+          params.actionAccess?.modify !== true ||
+          params.loadingOrError ||
+          params.archived ||
+          params.locked ||
+          params.hidden,
+      },
       allHaveAccess
         ? null
         : {
@@ -255,7 +300,16 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           },
     ];
     return actions.filter((action): action is Action => !!action);
-  }, [allHaveAccess, archiveItem, hideItem, params, showPublishModal, showShareModal, toggleWatchItem])();
+  }, [
+    allHaveAccess,
+    archiveItem,
+    hideItem,
+    cloneItem,
+    params,
+    showPublishModal,
+    showShareModal,
+    toggleWatchItem,
+  ])();
 
   // create a dropdown with all actions except save and publish
   const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {
