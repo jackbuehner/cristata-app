@@ -61,7 +61,7 @@ type PROFILE__TYPE =
 type PROFILE__DOC_TYPE = {
   _id: string;
   name: string;
-  phone?: string;
+  phone?: number;
   email?: string;
   twitter?: string;
   biography?: string;
