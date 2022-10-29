@@ -234,8 +234,16 @@ function ProfilePage() {
           }
           {profile?.timestamps.modified_at ? (
             <LastEdited theme={theme}>
-              Last edited on{' '}
-              {DateTime.fromISO(profile.timestamps.modified_at).toFormat(`dd LLLL yyyy 'at' h:mm a`)}
+              Last edited on
+              {DateTime.fromISO(profile.timestamps.modified_at).toFormat(` dd LLLL yyyy 'at' h:mm a `)}
+              by {profile.people.last_modified_by?.name}
+            </LastEdited>
+          ) : null}
+          {profile?.timestamps.created_at ? (
+            <LastEdited theme={theme} style={{ marginTop: 4 }}>
+              Created on
+              {DateTime.fromISO(profile.timestamps.created_at).toFormat(` dd LLLL yyyy `)}
+              by {profile.people.created_by?.name}
             </LastEdited>
           ) : null}
         </ContentWrapper>
