@@ -112,7 +112,7 @@ function AccountMenu(props: AccountMenuProps) {
                 </div>
               ),
               noEffect: true,
-              height: profile?.current_title.length > 36 ? 140 : 124,
+              height: (profile?.current_title?.length || 0) > 36 ? 140 : 124,
             },
           ]}
         />
