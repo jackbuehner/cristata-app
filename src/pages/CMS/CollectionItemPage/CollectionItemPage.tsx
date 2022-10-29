@@ -312,6 +312,21 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
+  // use a keyboard shortcut to trigger whether hidden fields are shown
+  const [showHidden, setShowHidden] = useState(false);
+  useEffect(() => {
+    const listener = (ev: KeyboardEvent) => {
+      // ALT + SHIFT + H
+      if (ev.altKey && ev.shiftKey && ev.key === 'H') {
+        setShowHidden((showHidden) => !showHidden);
+      }
+    };
+    document.addEventListener('keyup', listener);
+    return () => {
+      document.removeEventListener('keyup', listener);
+    };
+  });
+
   if (schemaDef) {
     // go through the schemaDef and convert JSON types with mutliple fields to individual fields
     const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON');
@@ -349,6 +364,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           })
           // hide hidden fields
           .filter(([, def]) => {
+            if (showHidden) return true;
             return def.field?.hidden !== true;
           })
           // remove fields that are used in the sidebar
