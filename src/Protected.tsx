@@ -109,6 +109,7 @@ function Protected(props: ProtectedProps) {
                 <Route path={`collection/:collection`}>
                   <Route index element={<CollectionPage />} />
                   <Route path={`:item_id`} element={<CollectionItemPage />} />
+                  <Route path={`:item_id/version/:version_date`} element={<CollectionItemPage />} />
                 </Route>
                 <Route path={`photos/library`}>
                   <Route index element={<PhotoLibraryPage />} />

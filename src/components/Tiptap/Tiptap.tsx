@@ -374,7 +374,7 @@ const Tiptap = (props: ITiptap) => {
             >
               {props.message ? <Noticebar z={1}>{props.message}</Noticebar> : null}
               {hasConnectedBefore && !isConnected ? (
-                <Noticebar>
+                <Noticebar z={1}>
                   Connection lost. You may lose data if you close the editor before reconnecting.{' '}
                   {isConnecting ? 'Attempting to reconnect...' : ''}
                 </Noticebar>
