@@ -56,7 +56,6 @@ import {
 } from './../../office-icon';
 import './../../office-icon/colors1.css';
 import { Combobox } from './Combobox';
-import { SendToolbarRow } from './SendToolbarRow';
 import { TableToolbarRow } from './TableToolbarRow';
 import { ToolbarActionRowContainer } from './ToolbarActionRowContainer';
 import { ToolbarDivider } from './ToolbarDivider';
@@ -678,14 +677,14 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               >
                 Review
               </ToolbarTabButton>
-              <ToolbarTabButton
+              {/* <ToolbarTabButton
                 theme={theme}
                 color={'blue'}
                 isActive={activeTab === 'email'}
                 onClick={() => setActiveTab('email')}
               >
                 Email
-              </ToolbarTabButton>
+              </ToolbarTabButton> */}
               {tableIsActive ? (
                 <ToolbarTabButton
                   theme={theme}
@@ -1191,13 +1190,13 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 </>
               ) : null}
             </ToolbarRow>
-            <SendToolbarRow
+            {/* <SendToolbarRow
               y={props.y}
               isActive={activeTab === 'email'}
               editor={editor}
               iframehtmlstring={props.iframehtmlstring || ''}
               isDisabled={props.isDisabled || !editor}
-            />
+            /> */}
             {tableIsActive ? (
               <TableToolbarRow
                 y={props.y}
