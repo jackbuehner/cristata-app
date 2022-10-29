@@ -176,19 +176,6 @@ function ProfilePage() {
               <Title theme={theme}>{profile?.retired ? 'RETIRED' : profile?.current_title || 'Employee'}</Title>
               <ButtonRow>
                 {profile?.email ? (
-                  <Button
-                    onClick={() =>
-                      window.open(
-                        `https://teams.microsoft.com/l/chat/0/0?users=${
-                          profile.email!.split('@')[0]
-                        }@furman.edu`
-                      )
-                    }
-                  >
-                    Message
-                  </Button>
-                ) : null}
-                {profile?.email ? (
                   <Button onClick={() => (window.location.href = `mailto:${profile.email}`)}>Email</Button>
                 ) : null}
                 {profile?.phone ? (
