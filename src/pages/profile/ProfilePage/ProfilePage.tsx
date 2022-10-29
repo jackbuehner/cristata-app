@@ -102,7 +102,7 @@ function ProfilePage() {
               type: isSelf ? 'icon' : 'button',
               icon: 'Edit20Regular',
               action: showEditModal,
-              disabled: !canEdit,
+              disabled: !canEdit || loading,
             }
           : null,
         isSelf
@@ -120,7 +120,7 @@ function ProfilePage() {
           : null,
       ])
     );
-  }, [canEdit, dispatch, isSelf, navigate, profile?.email, showEditModal]);
+  }, [canEdit, dispatch, isSelf, loading, navigate, showEditModal]);
 
   if (!data && !navigator.onLine) {
     return <Offline variant={'centered'} key={0} />;
