@@ -194,7 +194,7 @@ function QueriesTab() {
                   onChange={(value) => {
                     if (value) {
                       const copy = JSON.parse(JSON.stringify(arr));
-                      copy[index].pipeline = value;
+                      copy[index].pipeline = JSON.parse(value);
                       dispatch(setCustomQueries(copy));
                     }
                   }}

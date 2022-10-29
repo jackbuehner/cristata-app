@@ -558,7 +558,8 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                         label={'Condition'}
                         value={JSON.stringify(def.setter.condition, null, 2)}
                         onChange={(value) => {
-                          if (value) dispatch(setRootSchemaProperty(props.id, `setter.condition`, value));
+                          if (value)
+                            dispatch(setRootSchemaProperty(props.id, `setter.condition`, JSON.parse(value)));
                         }}
                       />
                       <Code
@@ -567,7 +568,8 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                         label={'Value'}
                         value={JSON.stringify(def.setter.value, null, 2)}
                         onChange={(value) => {
-                          if (value) dispatch(setRootSchemaProperty(props.id, `setter.value`, value));
+                          if (value)
+                            dispatch(setRootSchemaProperty(props.id, `setter.value`, JSON.parse(value)));
                         }}
                       />
                     </IndentField>
