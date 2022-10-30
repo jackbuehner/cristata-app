@@ -292,6 +292,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       props.y.wsStatus !== WebSocketStatus.Connected ||
       isOldVersion,
     getFieldValues,
+    hideVersions: isOldVersion,
   };
 
   // keep loading state synced
