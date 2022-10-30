@@ -7,7 +7,6 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { Appbar } from './components/Appbar';
-import { CristataWebSocket } from './components/CristataWebSocket/CristataWebSocket';
 import { PageHead } from './components/PageHead';
 import { SideNavigation } from './components/SideNavigation';
 import { Titlebar } from './components/Titlebar';
@@ -75,7 +74,7 @@ function Protected(props: ProtectedProps) {
   const isOffline = navigator.onLine === false;
 
   return (
-    <CristataWebSocket>
+    <>
       {isCustomTitlebarVisible ? <Titlebar /> : null}
       <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
         {/** app bar */}
@@ -143,7 +142,7 @@ function Protected(props: ProtectedProps) {
           </Content>
         </Wrapper>
       </PageWrapper>
-    </CristataWebSocket>
+    </>
   );
 }
 
