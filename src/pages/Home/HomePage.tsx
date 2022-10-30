@@ -41,18 +41,11 @@ function HomePage() {
       </div>
       <div style={{ gridArea: 'announcement' }}>
         <HomeSectionHeading icon={<Megaphone24Regular />}>
-          Whats new to Cristata (Oct. 14, 2022)
+          Whats new to Cristata (Oct. 30, 2022)
         </HomeSectionHeading>
         <span style={{ fontStyle: 'italic', marginLeft: 36 }}>Auto-collaboration update</span>
         <ol style={{ paddingInlineStart: 14, lineHeight: 1.5 }}>
-          <li>Documents now autosave! You will be able to access previous versions in a future update.</li>
-          <li>Collaboration works accross Wi-Fi networks.</li>
-          <li>Collaborate on any document field – not just the body field.</li>
-          <li>
-            You can no longer edit documents that have been archived or deleted to make it clear that they are
-            not public documents. You can easily unarchive and restore documents.
-          </li>
-          <li>A warning appears when editing a published document.</li>
+          <li>View previous versions of documents. All saved editions are in the document sidebar.</li>
         </ol>
       </div>
       <div
