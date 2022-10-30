@@ -19,6 +19,7 @@ import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useForceUpdate } from '../../../hooks/useForceUpdate';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
+import { listOxford } from '../../../utils/listOxford';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { GetYFieldsOptions } from './getYFields';
 
@@ -285,11 +286,7 @@ function Sidebar(props: SidebarProps) {
               return (
                 <VersionCard key={index} onClick={onClick}>
                   <div>{formattedDate}</div>
-                  <div>
-                    {users.map((userDisplayName) => (
-                      <span>{userDisplayName}</span>
-                    ))}
-                  </div>
+                  <div>{listOxford(users)}</div>
                 </VersionCard>
               );
             })}
