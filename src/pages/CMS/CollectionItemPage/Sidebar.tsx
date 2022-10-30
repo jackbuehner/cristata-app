@@ -1,7 +1,7 @@
 import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
+import { ChevronUpDown24Regular, Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
 import {
   NumberOption,
   StringOption,
@@ -19,6 +19,7 @@ import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useForceUpdate } from '../../../hooks/useForceUpdate';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
+import { listOxford } from '../../../utils/listOxford';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { GetYFieldsOptions } from './getYFields';
 
@@ -45,6 +46,7 @@ interface SidebarProps {
   user?: ReturnType<typeof useAwareness>[0];
   disabled?: boolean;
   getFieldValues: (opts: GetYFieldsOptions) => Promise<any>;
+  hideVersions?: boolean;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -89,6 +91,11 @@ function Sidebar(props: SidebarProps) {
   }, [client, props.permissions, teams]);
 
   const ySettingsMap = props.y.ydoc?.getMap<IYSettingsMap>('__settings');
+
+  const versionsList = props.y.ydoc?.getArray<{ timestamp: string; users: ReturnType<typeof useAwareness> }>(
+    '__internal_versionsList'
+  );
+  const [truncateVersionsList, setTruncateVersionsList] = useState(true);
 
   return (
     <Container theme={theme} compact={props.compact}>
@@ -244,12 +251,62 @@ function Sidebar(props: SidebarProps) {
           })}
         </>
       ) : null}
+      {!props.isEmbedded && !props.compact && !props.hideVersions ? (
+        <>
+          <SectionTitle theme={theme}>Versions</SectionTitle>
+          {versionsList
+            ?.toArray()
+            .reverse()
+            .slice(0, truncateVersionsList ? 3 : undefined)
+            .map((version, index) => {
+              // format the date to only include the time when it is not a timestamp
+              // from a day with cosolidated versions
+              const formattedDate = (() => {
+                // time of day is empty for consolidated versions
+                if (version.timestamp.includes('T00:00:00.000Z')) {
+                  return formatISODate(version.timestamp, true, true, false);
+                }
+                return formatISODate(version.timestamp, true, true, true);
+              })();
+
+              // fall back to Unknown user when there are no users attributed to a version
+              const users = version.users.length > 0 ? version.users.map((user) => user.name) : ['Unknown'];
+
+              const onClick = () => {
+                const url = new URL(window.location.href);
+                url.pathname = url.pathname + '/version/' + version.timestamp;
+
+                window.open(
+                  url.toString(),
+                  `sidebar_version_open` + props.docInfo._id + version.timestamp,
+                  'location=no'
+                );
+              };
+
+              return (
+                <VersionCard key={index} onClick={onClick}>
+                  <div>{formattedDate}</div>
+                  <div>{listOxford(users)}</div>
+                </VersionCard>
+              );
+            })}
+          {truncateVersionsList ? (
+            <Button
+              width={'100%'}
+              icon={<ChevronUpDown24Regular />}
+              onClick={async () => setTruncateVersionsList(false)}
+            >
+              Show more versions
+            </Button>
+          ) : null}
+        </>
+      ) : null}
     </Container>
   );
 }
 
 const Container = styled.div<{ theme: themeType; compact?: boolean }>`
-  width: ${({ compact }) => (compact ? '100%' : '300px')};
+  width: ${({ compact }) => (compact ? '100%' : '310px')};
   background-color: ${({ theme, compact }) => {
     if (compact) {
       if (theme.mode === 'dark') return Color(theme.color.neutral[theme.mode][200]).alpha(0.3).string();
@@ -373,6 +430,34 @@ const AwarenessPhoto = styled.div<{ color: string; photo: string }>`
   color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
   background-position: center;
   background-size: cover;
+`;
+
+const VersionCard = styled.div`
+  padding: 10px;
+  font-family: ${({ theme }) => theme.font.detail};
+  font-size: 14px;
+  margin-bottom: 6px;
+  border-radius: ${({ theme }) => theme.radius};
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  user-select: none;
+  ${({ theme }) =>
+    buttonEffect('primary', theme.mode === 'light' ? 700 : 300, theme, false, {
+      base: 'transparent',
+    })}
+  box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][200]} 0px 0px 0px 1px inset;
+  background-color: ${({ theme }) =>
+    theme.mode === 'dark'
+      ? Color(theme.color.neutral.dark[100]).lighten(0.2).string()
+      : Color('#ffffff').darken(0.03).string()};
+  > *:nth-of-type(1) {
+    color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
+  }
+  > *:nth-of-type(2) {
+    color: ${({ theme }) => theme.color.neutral[theme.mode][1000]};
+  }
 `;
 
 export { Sidebar };

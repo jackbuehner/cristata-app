@@ -63,7 +63,11 @@ interface CollectionItemPageProps {}
 
 function CollectionItemPage(props: CollectionItemPageProps) {
   const authUserState = useAppSelector((state) => state.authUser);
-  let { collection, item_id } = useParams() as { collection: string; item_id: string };
+  let { collection, item_id, version_date } = useParams() as {
+    collection: string;
+    item_id: string;
+    version_date?: string;
+  };
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
   // get the session id from sessionstorage
@@ -83,7 +87,13 @@ function CollectionItemPage(props: CollectionItemPageProps) {
 
   // connect to other clients with yjs for collaborative editing
   const [{ schemaDef }] = useCollectionSchemaConfig(collectionName);
-  const y = useY({ collection: pluralize.singular(collection), id: item_id, user, schemaDef }); // create or load y
+  const y = useY({
+    collection: pluralize.singular(collection),
+    id: item_id,
+    versionDate: version_date,
+    user,
+    schemaDef,
+  }); // create or load y
 
   return <CollectionItemPageContent y={y} user={user} />;
 }
@@ -101,7 +111,12 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const theme = useTheme() as themeType;
   const { search } = useLocation();
   const navigate = useNavigate();
-  let { collection, item_id } = useParams() as { collection: string; item_id: string };
+  let { collection, item_id, version_date } = useParams() as {
+    collection: string;
+    item_id: string;
+    version_date?: string;
+  };
+  const isOldVersion = !!version_date;
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
   const [
     {
@@ -269,8 +284,15 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 }) || [],
           },
     previewUrl: options?.previewUrl,
-    disabled: locked || loading || isLoading || !!error || props.y.wsStatus !== WebSocketStatus.Connected,
+    disabled:
+      locked ||
+      loading ||
+      isLoading ||
+      !!error ||
+      props.y.wsStatus !== WebSocketStatus.Connected ||
+      isOldVersion,
     getFieldValues,
+    hideVersions: isOldVersion,
   };
 
   // keep loading state synced
@@ -287,28 +309,32 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     dispatch(setAppName(title.replace(' - Cristata', '')));
   }, [dispatch, title]);
   useEffect(() => {
-    dispatch(
-      setAppActions([
-        ...quickActions.map((action, index) => {
-          return {
-            label: action.label,
-            type: action.type,
-            icon: action.icon,
-            action: action.action,
-            color: action.color,
-            disabled: action.disabled,
-            'data-tip': action['data-tip'],
-          };
-        }),
-        {
-          label: 'More actions',
-          type: 'icon',
-          icon: 'MoreHorizontal24Regular',
-          action: showActionDropdown,
-        },
-      ])
-    );
-  }, [dispatch, props.y.awareness.length, quickActions, showActionDropdown]);
+    if (isOldVersion) {
+      dispatch(setAppActions([]));
+    } else {
+      dispatch(
+        setAppActions([
+          ...quickActions.map((action, index) => {
+            return {
+              label: action.label,
+              type: action.type,
+              icon: action.icon,
+              action: action.action,
+              color: action.color,
+              disabled: action.disabled,
+              'data-tip': action['data-tip'],
+            };
+          }),
+          {
+            label: 'More actions',
+            type: 'icon',
+            icon: 'MoreHorizontal24Regular',
+            action: showActionDropdown,
+          },
+        ])
+      );
+    }
+  }, [dispatch, props.y.awareness.length, quickActions, showActionDropdown, isOldVersion]);
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
@@ -405,7 +431,13 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
       // prevent the fields from being edited when any of the following are true
       const disabled =
-        locked || loading || isLoading || !!error || readOnly || props.y.wsStatus !== WebSocketStatus.Connected;
+        locked ||
+        loading ||
+        isLoading ||
+        !!error ||
+        readOnly ||
+        props.y.wsStatus !== WebSocketStatus.Connected ||
+        isOldVersion;
 
       // use this key for yjs shared type key for doc array contents
       // so there shared type for each field in the array is unique
@@ -482,10 +514,12 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                 showLoading={isLoading}
                 isMaximized={isMaximized}
                 forceMax={fs === 'force'}
-                actions={actions}
+                actions={isOldVersion ? [] : actions}
                 layout={`${props.y.data.layout}`}
                 message={
-                  publishLocked
+                  isOldVersion
+                    ? 'You are currently viewing an old version of this document. You cannot make edits.'
+                    : publishLocked
                     ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
                     : props.y.data.hidden
                     ? 'This document is opened in read-only mode because it is deleted. Restore it from the deleted items to edit.'
@@ -860,19 +894,27 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         ) : !isLoading && hasLoadedAtLeastOnce ? (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
-              {props.y.wsStatus !== WebSocketStatus.Connected ? (
+              {isOldVersion && !props.isEmbedded && fs !== '1' ? (
+                <Notice theme={theme}>
+                  You are currently viewing an old version of this document. You cannot make edits.
+                </Notice>
+              ) : null}
+              {props.y.wsStatus !== WebSocketStatus.Connected &&
+              !props.isEmbedded &&
+              fs !== '1' &&
+              !isOldVersion ? (
                 <Notice theme={theme}>
                   <b>Currently not connected.</b> If you leave before your connection is restored, you may lose
                   data.
                 </Notice>
               ) : null}
-              {publishLocked && !props.isEmbedded && fs !== '1' ? (
+              {publishLocked && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it has been published and you do not have
                   publish permissions.
                 </Notice>
               ) : null}
-              {props.y.data.archived && !props.isEmbedded && fs !== '1' ? (
+              {props.y.data.archived && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it is archived.
                   <Button
@@ -890,7 +932,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                   </Button>
                 </Notice>
               ) : null}
-              {props.y.data.hidden && !props.isEmbedded && fs !== '1' ? (
+              {props.y.data.hidden && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
                 <Notice theme={theme}>
                   This document is opened in read-only mode because it is deleted.
                   <Button
@@ -908,7 +950,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                   </Button>
                 </Notice>
               ) : null}
-              {props.y.data.stage === publishStage && !props.isEmbedded && fs !== '1' ? (
+              {props.y.data.stage === publishStage && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
                 <Notice theme={theme}>
                   This document is currently published. Changes will be publically reflected immediately.
                 </Notice>

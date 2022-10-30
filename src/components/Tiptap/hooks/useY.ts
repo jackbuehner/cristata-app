@@ -77,7 +77,10 @@ class YProvider {
   }
 }
 
-function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyList = []): UseYReturn {
+function useY(
+  { collection, id, versionDate, user, schemaDef }: UseYProps,
+  deps: DependencyList = []
+): UseYReturn {
   const [ydoc, setYdoc] = useState<Y.Doc>();
   const providerRef = useRef(new YProvider());
   const [webProvider, setWebProvider] = useState<WebrtcProvider>();
@@ -91,7 +94,10 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
 
     const tenant = localStorage.getItem('tenant');
     const appVersion = packageJson.version;
-    y.create(`${tenant}.${collectionName}.${id}`, user._id, appVersion).then((data) => {
+    const docName = versionDate
+      ? `${tenant}.${collectionName}.${id}.${versionDate}`
+      : `${tenant}.${collectionName}.${id}`;
+    y.create(docName, user._id, appVersion).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
@@ -105,7 +111,7 @@ function useY({ collection, id, user, schemaDef }: UseYProps, deps: DependencyLi
     });
 
     return () => {
-      y.delete(`${tenant}.${collectionName}.${id}`);
+      y.delete(docName);
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -231,6 +237,7 @@ interface UseYProps {
   collection: string;
   id: string;
   user: ReturnType<typeof useAwareness>[0];
+  versionDate?: string;
   schemaDef?: DeconstructedSchemaDefType;
 }
 
