@@ -1,5 +1,5 @@
 import { ApolloClient } from '@apollo/client';
-import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import * as Y from 'yjs';
 import { populateReferenceValues } from '../../../ContentField/populateReferenceValues';
 

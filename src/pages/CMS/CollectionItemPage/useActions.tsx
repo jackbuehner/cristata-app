@@ -1,5 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client';
-import { CollectionPermissions } from '@jackbuehner/cristata-api/dist/api/types/config';
+import type { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types/config';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useCallback } from 'react';

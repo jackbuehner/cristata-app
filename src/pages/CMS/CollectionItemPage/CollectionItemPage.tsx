@@ -1,11 +1,7 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { WebSocketStatus } from '@hocuspocus/provider';
-import {
-  isTypeTuple,
-  MongooseSchemaType,
-  StringOption,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { isTypeTuple, MongooseSchemaType, StringOption } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import ColorHash from 'color-hash';
 import { merge } from 'merge-anything';

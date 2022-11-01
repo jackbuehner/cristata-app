@@ -1,6 +1,6 @@
 import { ApolloError, gql, NetworkStatus, useQuery } from '@apollo/client';
-import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';

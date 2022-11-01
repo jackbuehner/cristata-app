@@ -1,5 +1,5 @@
 import { DocumentNode, gql, useApolloClient } from '@apollo/client';
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genCollection';
+import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
 import collectionSchema from '@jackbuehner/cristata-api/dist/json-schemas/collection.schema.json';
 import Editor, { Monaco } from '@monaco-editor/react';
 import { type editor } from 'monaco-editor';

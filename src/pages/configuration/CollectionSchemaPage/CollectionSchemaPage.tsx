@@ -1,6 +1,6 @@
 import { DocumentNode, gql, useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genCollection';
+import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
 import { SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';

@@ -1,10 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import {
-  isTypeTuple,
-  MongooseSchemaType,
-  SchemaDef,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { isTypeTuple, MongooseSchemaType, SchemaDef } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';

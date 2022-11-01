@@ -5,7 +5,7 @@ import {
   isSchemaRef,
   SchemaDefType,
   SchemaType,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+} from '@jackbuehner/cristata-generator-schema';
 import { set as setProperty } from 'object-path';
 
 /**

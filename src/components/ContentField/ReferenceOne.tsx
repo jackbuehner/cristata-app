@@ -2,7 +2,7 @@ import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss24Regular, Open24Regular } from '@fluentui/react-icons';
-import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';

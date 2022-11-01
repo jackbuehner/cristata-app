@@ -1,5 +1,5 @@
 import styled from '@emotion/styled/macro';
-import { isSchemaDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { isSchemaDef } from '@jackbuehner/cristata-generator-schema';
 import { useAppSelector } from '../../../redux/hooks';
 import { SidebarSchemaCard } from './SidebarSchemaCard';
 

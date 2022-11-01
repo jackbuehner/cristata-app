@@ -1,9 +1,6 @@
 import styled from '@emotion/styled/macro';
-import {
-  isSchemaDef,
-  isSchemaDefOrType,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/api/types/config';
+import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
+import { isSchemaDef, isSchemaDefOrType } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';
@@ -19,6 +16,7 @@ import {
 import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
+  setActionAccess,
   setCanPublish,
   setMandatoryWatchers,
   setName,
@@ -27,7 +25,6 @@ import {
   setRootSchemaProperty,
   setWatcherNotices,
   setWithPermissions,
-  setActionAccess,
 } from '../../../../redux/slices/collectionSlice';
 import { capitalize } from '../../../../utils/capitalize';
 import { colorType } from '../../../../utils/theme/theme';
