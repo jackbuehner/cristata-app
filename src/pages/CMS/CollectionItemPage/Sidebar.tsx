@@ -2,10 +2,7 @@ import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { ChevronUpDown24Regular, Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
-import {
-  NumberOption,
-  StringOption,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { NumberOption, StringOption } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';

@@ -1,4 +1,4 @@
-import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import { get as getProperty } from 'object-path';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { useOptions } from '../ContentField/useOptions';

@@ -6,18 +6,32 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { DateTime, Text } from '../../../components/ContentField';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
+import { RenderFields } from './CollectionItemPage';
 
-function usePublishModal(
-  y: EntryY,
-  client: ApolloClient<object>,
-  collectionName: string,
-  itemId: string,
-  publishStage?: number,
-  idKey = '_id'
-): [React.ReactNode, () => void, () => void] {
+interface UsePublishModal {
+  y: EntryY;
+  client: ApolloClient<object>;
+  collectionName: string;
+  itemId: string;
+  publishStage?: number;
+  idKey?: string;
+  processSchemaDef: (
+    schemaDef: DeconstructedSchemaDefType,
+    isPublishModal?: boolean
+  ) => DeconstructedSchemaDefType;
+  renderFields: RenderFields;
+  schemaDef: DeconstructedSchemaDefType;
+}
+
+function usePublishModal(params: UsePublishModal): [React.ReactNode, () => void, () => void] {
+  let { y, client, collectionName, itemId, idKey, processSchemaDef, renderFields, schemaDef } = params;
+
+  if (!idKey) idKey = '_id';
+
   const [Window, showModal, hideModal] = useWindowModal(() => {
     const theme = useTheme() as themeType;
 
@@ -83,6 +97,9 @@ function usePublishModal(
             able to unpublish this document.
           </p>
           <br />
+          {processSchemaDef(schemaDef, true).map((elem, index, arr) =>
+            renderFields(elem, index, arr, undefined, undefined, true)
+          )}
           <DateTime
             label={'Choose publish date and time'}
             description={

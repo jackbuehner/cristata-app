@@ -101,9 +101,9 @@ function App() {
       <ReduxProvider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <ThemeProvider theme={theme}>
-            <ModalProvider>
-              <DropdownProvider>
-                <Router basename={tenant}>
+            <DropdownProvider>
+              <Router basename={tenant}>
+                <ModalProvider>
                   <ToastContainer />
                   <SplashScreen
                     loading={loadingUser}
@@ -123,33 +123,33 @@ function App() {
                       <PickTenant tenant={tenant} setTenant={setTenant} />
                     ) : null}
                   </SplashScreen>
-                </Router>
+                </ModalProvider>
+              </Router>
 
-                <Global
-                  styles={css`
-                    .ReactModal__Overlay {
-                      opacity: 0;
-                      transition: opacity 240ms;
-                    }
+              <Global
+                styles={css`
+                  .ReactModal__Overlay {
+                    opacity: 0;
+                    transition: opacity 240ms;
+                  }
 
-                    .ReactModal__Overlay--after-open {
-                      opacity: 1;
-                    }
+                  .ReactModal__Overlay--after-open {
+                    opacity: 1;
+                  }
 
-                    .ReactModal__Content {
-                      opacity: 0;
-                      transform: translateY(-40px) scale(0.9);
-                      transition: transform 240ms, opacity 240ms;
-                    }
+                  .ReactModal__Content {
+                    opacity: 0;
+                    transform: translateY(-40px) scale(0.9);
+                    transition: transform 240ms, opacity 240ms;
+                  }
 
-                    .ReactModal__Content--after-open {
-                      opacity: 1;
-                      transform: translateY(0px) scale(1);
-                    }
-                  `}
-                />
-              </DropdownProvider>
-            </ModalProvider>
+                  .ReactModal__Content--after-open {
+                    opacity: 1;
+                    transform: translateY(0px) scale(1);
+                  }
+                `}
+              />
+            </DropdownProvider>
           </ThemeProvider>
         </PersistGate>
       </ReduxProvider>

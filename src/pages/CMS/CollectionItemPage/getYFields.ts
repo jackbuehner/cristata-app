@@ -1,7 +1,4 @@
-import {
-  isTypeTuple,
-  MongooseSchemaType,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { isTypeTuple, MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { get as getProperty, set as setProperty } from 'object-path';
 import fieldUtils from '../../../components/CollaborativeFields/utils';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';

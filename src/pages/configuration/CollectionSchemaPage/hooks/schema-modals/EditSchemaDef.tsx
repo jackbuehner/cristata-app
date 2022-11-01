@@ -1,10 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import {
-  isTypeTuple,
-  MongooseSchemaType,
-  SchemaDef,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { isTypeTuple, MongooseSchemaType, SchemaDef } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
@@ -158,7 +154,20 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                       </div>
                       <div style={{ flexGrow: 1 }}>
                         {type === 'String' || type === 'Strings' ? (
-                          <Text isEmbedded label={'Value'} value={option.value} />
+                          <Text
+                            isEmbedded
+                            label={'Value'}
+                            value={option.value}
+                            onChange={(e) =>
+                              dispatch(
+                                setRootSchemaProperty(
+                                  props.id,
+                                  `field.options.${index}.value`,
+                                  e.currentTarget.value
+                                )
+                              )
+                            }
+                          />
                         ) : (
                           <Number
                             isEmbedded
@@ -187,7 +196,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                               dispatch(
                                 setRootSchemaProperty(
                                   props.id,
-                                  `field.options.${index}.label`,
+                                  `field.options.${index}.disabled`,
                                   e.currentTarget.checked
                                 )
                               )
@@ -331,14 +340,32 @@ function EditSchemaDef(props: EditSchemaDefProps) {
             <Field isEmbedded label={'Visibility'}>
               <>
                 {!isBranching ? (
-                  <Checkbox
-                    isEmbedded
-                    label={'Hide from document editor'}
-                    checked={def?.field?.hidden === true}
-                    onChange={(e) =>
-                      dispatch(setRootSchemaProperty(props.id, `field.hidden`, e.currentTarget.checked))
-                    }
-                  />
+                  <>
+                    <Checkbox
+                      isEmbedded
+                      label={'Hide from document editor'}
+                      checked={def?.field?.hidden === true || def?.field?.hidden === 'publish-only'}
+                      onChange={(e) =>
+                        dispatch(setRootSchemaProperty(props.id, `field.hidden`, e.currentTarget.checked))
+                      }
+                    />
+                    {def?.field?.hidden === true || def?.field?.hidden === 'publish-only' ? (
+                      <IndentField color={'primary'}>
+                        <Checkbox
+                          isEmbedded
+                          label={'Show in publish prompt'}
+                          checked={def?.field?.hidden === 'publish-only'}
+                          onChange={(e) => {
+                            if (e.currentTarget.checked) {
+                              dispatch(setRootSchemaProperty(props.id, `field.hidden`, 'publish-only'));
+                            } else {
+                              dispatch(setRootSchemaProperty(props.id, `field.hidden`, true));
+                            }
+                          }}
+                        />
+                      </IndentField>
+                    ) : null}
+                  </>
                 ) : null}
                 {!isInBranch && !isDocArray && !isInDocArray ? (
                   <Checkbox

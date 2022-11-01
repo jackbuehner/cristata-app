@@ -1,11 +1,7 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { WebSocketStatus } from '@hocuspocus/provider';
-import {
-  isTypeTuple,
-  MongooseSchemaType,
-  StringOption,
-} from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { isTypeTuple, MongooseSchemaType, StringOption } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import ColorHash from 'color-hash';
 import { merge } from 'merge-anything';
@@ -52,7 +48,7 @@ import { uncapitalize } from '../../../utils/uncapitalize';
 import { FullScreenSplash } from './FullScreenSplash';
 import { getYFields, GetYFieldsOptions } from './getYFields';
 import { Sidebar } from './Sidebar';
-import { useActions } from './useActions';
+import { useActions, Action } from './useActions';
 import { useFindDoc } from './useFindDoc';
 import { usePublishPermissions } from './usePublishPermissions';
 import { useWatching } from './useWatching';
@@ -213,8 +209,484 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
 
+  // use a keyboard shortcut to trigger whether hidden fields are shown
+  const [showHidden, setShowHidden] = useState(false);
+  useEffect(() => {
+    const listener = (ev: KeyboardEvent) => {
+      // ALT + SHIFT + H
+      if (ev.altKey && ev.shiftKey && ev.key === 'H') {
+        setShowHidden((showHidden) => !showHidden);
+      }
+    };
+    document.addEventListener('keyup', listener);
+    return () => {
+      document.removeEventListener('keyup', listener);
+    };
+  });
+
+  const processSchemaDef = (
+    schemaDef: DeconstructedSchemaDefType,
+    isPublishModal?: boolean
+  ): DeconstructedSchemaDefType => {
+    return (
+      schemaDef
+        // sort fields to match their order
+        .sort((a, b) => {
+          if ((a[1].field?.order || 1000) > (b[1].field?.order || 1000)) return 1;
+          return -1;
+        })
+        // hide hidden fields
+        .filter(([, def]) => {
+          if (showHidden) return true;
+          if (isPublishModal) return def.field?.hidden === 'publish-only';
+          return def.field?.hidden !== true && def.field?.hidden !== 'publish-only';
+        })
+        // remove fields that are used in the sidebar
+        .filter(([key]) => {
+          if (key === 'stage') return false;
+          if (key === 'permissions.users') return false;
+          if (key === 'permissions.teams') return false;
+          return true;
+        })
+        // remove timestamps related to publishing
+        .filter(([key]) => {
+          return key !== 'timestamps.published_at' && key !== 'timestamps.updated_at';
+        })
+    );
+  };
+
+  let actions: Action[] = [];
+
+  const renderFields: RenderFields = (
+    input,
+    index,
+    arr,
+    inArrayKey,
+    yjsDocArrayConfig,
+    isEmbedded = props.isEmbedded
+  ) => {
+    const reactKey = `${index}.${collectionName}.${item_id}`;
+
+    const [key, def] = input;
+
+    const isSubDocArray = def.type === 'DocArray';
+
+    const readOnly =
+      def.field?.readonly === true || isSubDocArray
+        ? def.docs?.[0]?.[1]?.modifiable !== true
+        : def.modifiable !== true;
+    let fieldName = def.field?.label || key;
+
+    // if a field is readonly, add readonly to the field name
+    if (readOnly) fieldName += ' (read only)';
+
+    // prevent the fields from being edited when any of the following are true
+    const disabled =
+      locked ||
+      loading ||
+      isLoading ||
+      !!error ||
+      readOnly ||
+      props.y.wsStatus !== WebSocketStatus.Connected ||
+      isOldVersion;
+
+    // use this key for yjs shared type key for doc array contents
+    // so there shared type for each field in the array is unique
+    // for the array and array doc
+    const docArrayYjsKey = yjsDocArrayConfig
+      ? `__docArray.‾‾${yjsDocArrayConfig.parentKey}‾‾.${yjsDocArrayConfig.__uuid}.${yjsDocArrayConfig.childKey}`
+      : undefined;
+
+    // pass this to every collaborative field so it can communicate with yjs
+    const fieldY = { ...props.y, field: docArrayYjsKey || key, user: props.user };
+
+    if (isSubDocArray) {
+      // do not show hidden subdoc arrays
+      const isHidden = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.hidden || false;
+      if (isHidden) return <Fragment key={reactKey}></Fragment>;
+
+      const label = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.label || key;
+      const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.description;
+      return (
+        <CollaborativeDocArray
+          y={fieldY}
+          label={label}
+          description={description}
+          disabled={disabled}
+          key={key}
+          stateFieldKey={key}
+          schemaDefs={processSchemaDef(def.docs)}
+          processSchemaDef={processSchemaDef}
+          renderFields={renderFields}
+        />
+      );
+    }
+
+    const type: MongooseSchemaType = isTypeTuple(def.type) ? def.type[1] : def.type;
+
+    // do not render fields with # in their name
+    // because they are private fields that are used
+    // for various purposed not meant to be exposed
+    // to users in the CMS UI
+    if (key.includes('#')) return <></>;
+
+    // hide all fields except the body tiptap field when
+    // the body tiptap field is maximized
+    // (to prevent duplicate fields; tiptap embeds the fields in a pane)
+    if (isMaximized && !(key === 'body' && def.field?.tiptap) && !isEmbedded) {
+      return <></>;
+    }
+
+    // body field as tiptap editor
+    if (key === 'body' && def.field?.tiptap) {
+      if (isEmbedded) return <></>;
+
+      // get the HTML
+      const isHTML = def.field.tiptap.isHTMLkey && getProperty(props.y.data, def.field.tiptap.isHTMLkey);
+
+      return (
+        <Field
+          key={reactKey}
+          color={isEmbedded ? 'blue' : 'primary'}
+          label={fieldName}
+          description={def.field?.description}
+          isEmbedded={isEmbedded}
+        >
+          <EmbeddedFieldContainer theme={theme}>
+            <Tiptap
+              y={fieldY}
+              user={props.user}
+              docName={`${collection}.${item_id}`}
+              title={title}
+              options={def.field.tiptap}
+              isDisabled={disabled || publishLocked ? true : isHTML ? true : def.field.readonly}
+              showLoading={isLoading}
+              isMaximized={isMaximized}
+              forceMax={fs === 'force'}
+              actions={isOldVersion ? [] : actions}
+              layout={`${props.y.data.layout}`}
+              message={
+                isOldVersion
+                  ? 'You are currently viewing an old version of this document. You cannot make edits.'
+                  : publishLocked
+                  ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
+                  : props.y.data.hidden
+                  ? 'This document is opened in read-only mode because it is deleted. Restore it from the deleted items to edit.'
+                  : props.y.data.archived
+                  ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
+                  : props.y.data.stage === publishStage
+                  ? 'This document is currently published. Changes will be publically reflected immediately.'
+                  : undefined
+              }
+              compact={fs !== '1' && fs !== 'force'}
+            />
+          </EmbeddedFieldContainer>
+        </Field>
+      );
+    }
+
+    // reference
+    if (def.field?.reference?.collection || isTypeTuple(def.type)) {
+      //TODO: add property for adding filter and sort to the query
+
+      const isArrayType =
+        (isTypeTuple(def.type) && Array.isArray(def.type[1])) ||
+        (!isTypeTuple(def.type) && Array.isArray(def.type));
+
+      const collection = isTypeTuple(def.type)
+        ? def.type[0].replace('[', '').replace(']', '')
+        : def.field!.reference!.collection!;
+
+      if (isArrayType) {
+        return (
+          <CollaborativeReferenceMany
+            key={reactKey}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            color={isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
+            isEmbedded={isEmbedded}
+            collection={pluralize.singular(collection)}
+            reference={def.field?.reference}
+          />
+        );
+      }
+
+      return (
+        <CollaborativeReferenceOne
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          // only show the value if it is truthy
+          color={isEmbedded ? 'blue' : 'primary'}
+          // disable when the api requires the field to always have a value but a default
+          // value for when no specific photo is selected is not defined
+          disabled={disabled || (def.required && def.default === undefined)}
+          isEmbedded={isEmbedded}
+          collection={pluralize.singular(collection)}
+          reference={def.field?.reference}
+        />
+      );
+    }
+
+    // markdown fields
+    if (type === 'String' && def.field?.markdown) {
+      return (
+        <CollaborativeCode
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          type={'md'}
+          y={fieldY}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // plain text fields
+    if (type === 'String') {
+      if (def.field?.options) {
+        const options = def.field.options as StringOption[];
+        return (
+          <CollaborativeSelectOne
+            key={reactKey}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            options={options}
+            color={isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
+            isEmbedded={isEmbedded}
+          />
+        );
+      }
+
+      return (
+        <CollaborativeTextField
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // checkbox
+    if (type === 'Boolean') {
+      return (
+        <CollaborativeCheckbox
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // integer fields
+    if (type === 'Number') {
+      if (def.field?.options) {
+        const options = def.field.options.map((opt) => ({ ...opt, value: opt.toString() }));
+        return (
+          <CollaborativeSelectOne
+            key={reactKey}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            options={options}
+            number={'integer'}
+            color={isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
+            isEmbedded={isEmbedded}
+          />
+        );
+      }
+      return (
+        <CollaborativeNumberField
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // float fields
+    if (type === 'Float') {
+      if (def.field?.options) {
+        const options = def.field.options.map((opt) => ({ ...opt, value: opt.value.toString() }));
+        return (
+          <CollaborativeSelectOne
+            key={reactKey}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            options={options}
+            number={'decimal'}
+            color={isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
+            isEmbedded={isEmbedded}
+          />
+        );
+      }
+      return (
+        <CollaborativeNumberField
+          key={reactKey}
+          label={fieldName}
+          allowDecimals
+          description={def.field?.description}
+          y={fieldY}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // array of strings
+    if (type?.[0] === 'String') {
+      if (def.field?.options) {
+        const options = def.field.options as StringOption[];
+        return (
+          <CollaborativeSelectMany
+            key={reactKey}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            options={options}
+            color={isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
+            isEmbedded={isEmbedded}
+          />
+        );
+      }
+      return (
+        <CollaborativeSelectMany
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // array of integers
+    if (type?.[0] === 'Number') {
+      if (def.field?.options) {
+        const options = def.field.options as StringOption[];
+        return (
+          <CollaborativeSelectMany
+            key={reactKey}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            options={options}
+            number={'integer'}
+            color={isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
+            isEmbedded={isEmbedded}
+          />
+        );
+      }
+      return (
+        <CollaborativeSelectMany
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          number={'integer'}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // array of floats
+    if (type?.[0] === 'Float') {
+      if (def.field?.options) {
+        const options = def.field.options as StringOption[];
+        return (
+          <CollaborativeSelectMany
+            key={reactKey}
+            label={fieldName}
+            description={def.field?.description}
+            y={fieldY}
+            options={options}
+            number={'decimal'}
+            color={isEmbedded ? 'blue' : 'primary'}
+            disabled={disabled}
+            isEmbedded={isEmbedded}
+          />
+        );
+      }
+      return (
+        <CollaborativeSelectMany
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          number={'decimal'}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+        />
+      );
+    }
+
+    // plain text fields
+    if (type === 'Date') {
+      return (
+        <CollaborativeDateTime
+          key={reactKey}
+          label={fieldName}
+          description={def.field?.description}
+          y={fieldY}
+          color={isEmbedded ? 'blue' : 'primary'}
+          disabled={disabled}
+          isEmbedded={isEmbedded}
+          placeholder={'Pick a time'}
+        />
+      );
+    }
+
+    // fallback
+    return (
+      <Field
+        key={reactKey}
+        color={isEmbedded ? 'blue' : 'primary'}
+        label={fieldName}
+        description={def.field?.description}
+        isEmbedded={isEmbedded}
+      >
+        <code>{JSON.stringify(def, null, 2)}</code>
+      </Field>
+    );
+  };
+
   // determine the actions for this document
-  const { actions, quickActions, showActionDropdown, Windows } = useActions({
+  const {
+    actions: _actions,
+    quickActions,
+    showActionDropdown,
+    Windows,
+  } = useActions({
     y: props.y,
     actionAccess,
     canPublish,
@@ -235,7 +707,11 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     locked: publishLocked || (props.y.data.locked as boolean | undefined | null) || false,
     archived: (props.y.data.archived as boolean | undefined | null) || false,
     hidden: (props.y.data.hidden as boolean | undefined | null) || false,
+    processSchemaDef,
+    renderFields,
+    schemaDef,
   });
+  actions = _actions;
 
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
@@ -338,21 +814,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
-  // use a keyboard shortcut to trigger whether hidden fields are shown
-  const [showHidden, setShowHidden] = useState(false);
-  useEffect(() => {
-    const listener = (ev: KeyboardEvent) => {
-      // ALT + SHIFT + H
-      if (ev.altKey && ev.shiftKey && ev.key === 'H') {
-        setShowHidden((showHidden) => !showHidden);
-      }
-    };
-    document.addEventListener('keyup', listener);
-    return () => {
-      document.removeEventListener('keyup', listener);
-    };
-  });
-
   if (schemaDef) {
     // go through the schemaDef and convert JSON types with mutliple fields to individual fields
     const JSONFields = schemaDef.filter(([key, def]) => def.type === 'JSON');
@@ -379,457 +840,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         def.field.hidden = true;
       }
     });
-
-    const processSchemaDef = (schemaDef: DeconstructedSchemaDefType): DeconstructedSchemaDefType => {
-      return (
-        schemaDef
-          // sort fields to match their order
-          .sort((a, b) => {
-            if ((a[1].field?.order || 1000) > (b[1].field?.order || 1000)) return 1;
-            return -1;
-          })
-          // hide hidden fields
-          .filter(([, def]) => {
-            if (showHidden) return true;
-            return def.field?.hidden !== true;
-          })
-          // remove fields that are used in the sidebar
-          .filter(([key]) => {
-            if (key === 'stage') return false;
-            if (key === 'permissions.users') return false;
-            if (key === 'permissions.teams') return false;
-            return true;
-          })
-          // remove timestamps related to publishing
-          .filter(([key]) => {
-            return key !== 'timestamps.published_at' && key !== 'timestamps.updated_at';
-          })
-      );
-    };
-
-    const renderFields = (
-      input: DeconstructedSchemaDefType[0],
-      index: number,
-      arr: DeconstructedSchemaDefType,
-      inArrayKey?: string,
-      yjsDocArrayConfig?: { __uuid: string; parentKey: string; childKey: string }
-    ): JSX.Element => {
-      const reactKey = `${index}.${collectionName}.${item_id}`;
-
-      const [key, def] = input;
-
-      const isSubDocArray = def.type === 'DocArray';
-
-      const readOnly =
-        def.field?.readonly === true || isSubDocArray
-          ? def.docs?.[0]?.[1]?.modifiable !== true
-          : def.modifiable !== true;
-      let fieldName = def.field?.label || key;
-
-      // if a field is readonly, add readonly to the field name
-      if (readOnly) fieldName += ' (read only)';
-
-      // prevent the fields from being edited when any of the following are true
-      const disabled =
-        locked ||
-        loading ||
-        isLoading ||
-        !!error ||
-        readOnly ||
-        props.y.wsStatus !== WebSocketStatus.Connected ||
-        isOldVersion;
-
-      // use this key for yjs shared type key for doc array contents
-      // so there shared type for each field in the array is unique
-      // for the array and array doc
-      const docArrayYjsKey = yjsDocArrayConfig
-        ? `__docArray.‾‾${yjsDocArrayConfig.parentKey}‾‾.${yjsDocArrayConfig.__uuid}.${yjsDocArrayConfig.childKey}`
-        : undefined;
-
-      // pass this to every collaborative field so it can communicate with yjs
-      const fieldY = { ...props.y, field: docArrayYjsKey || key, user: props.user };
-
-      if (isSubDocArray) {
-        // do not show hidden subdoc arrays
-        const isHidden =
-          def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.hidden || false;
-        if (isHidden) return <Fragment key={reactKey}></Fragment>;
-
-        const label = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field?.label || key;
-        const description = def.docs.find(([subkey, def]) => subkey === `${key}.#label`)?.[1].field
-          ?.description;
-        return (
-          <CollaborativeDocArray
-            y={fieldY}
-            label={label}
-            description={description}
-            disabled={disabled}
-            key={key}
-            stateFieldKey={key}
-            schemaDefs={processSchemaDef(def.docs)}
-            processSchemaDef={processSchemaDef}
-            renderFields={renderFields}
-          />
-        );
-      }
-
-      const type: MongooseSchemaType = isTypeTuple(def.type) ? def.type[1] : def.type;
-
-      // do not render fields with # in their name
-      // because they are private fields that are used
-      // for various purposed not meant to be exposed
-      // to users in the CMS UI
-      if (key.includes('#')) return <></>;
-
-      // hide all fields except the body tiptap field when
-      // the body tiptap field is maximized
-      // (to prevent duplicate fields; tiptap embeds the fields in a pane)
-      if (isMaximized && !(key === 'body' && def.field?.tiptap) && !props.isEmbedded) {
-        return <></>;
-      }
-
-      // body field as tiptap editor
-      if (key === 'body' && def.field?.tiptap) {
-        if (props.isEmbedded) return <></>;
-
-        // get the HTML
-        const isHTML = def.field.tiptap.isHTMLkey && getProperty(props.y.data, def.field.tiptap.isHTMLkey);
-
-        return (
-          <Field
-            key={reactKey}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            label={fieldName}
-            description={def.field?.description}
-            isEmbedded={props.isEmbedded}
-          >
-            <EmbeddedFieldContainer theme={theme}>
-              <Tiptap
-                y={fieldY}
-                user={props.user}
-                docName={`${collection}.${item_id}`}
-                title={title}
-                options={def.field.tiptap}
-                isDisabled={disabled || publishLocked ? true : isHTML ? true : def.field.readonly}
-                showLoading={isLoading}
-                isMaximized={isMaximized}
-                forceMax={fs === 'force'}
-                actions={isOldVersion ? [] : actions}
-                layout={`${props.y.data.layout}`}
-                message={
-                  isOldVersion
-                    ? 'You are currently viewing an old version of this document. You cannot make edits.'
-                    : publishLocked
-                    ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
-                    : props.y.data.hidden
-                    ? 'This document is opened in read-only mode because it is deleted. Restore it from the deleted items to edit.'
-                    : props.y.data.archived
-                    ? 'This document is opened in read-only mode because it is archived. Remove it from the archive to edit.'
-                    : props.y.data.stage === publishStage
-                    ? 'This document is currently published. Changes will be publically reflected immediately.'
-                    : undefined
-                }
-                compact={fs !== '1' && fs !== 'force'}
-              />
-            </EmbeddedFieldContainer>
-          </Field>
-        );
-      }
-
-      // reference
-      if (def.field?.reference?.collection || isTypeTuple(def.type)) {
-        //TODO: add property for adding filter and sort to the query
-
-        const isArrayType =
-          (isTypeTuple(def.type) && Array.isArray(def.type[1])) ||
-          (!isTypeTuple(def.type) && Array.isArray(def.type));
-
-        const collection = isTypeTuple(def.type)
-          ? def.type[0].replace('[', '').replace(']', '')
-          : def.field!.reference!.collection!;
-
-        if (isArrayType) {
-          return (
-            <CollaborativeReferenceMany
-              key={reactKey}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={disabled}
-              isEmbedded={props.isEmbedded}
-              collection={pluralize.singular(collection)}
-              reference={def.field?.reference}
-            />
-          );
-        }
-
-        return (
-          <CollaborativeReferenceOne
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            // only show the value if it is truthy
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            // disable when the api requires the field to always have a value but a default
-            // value for when no specific photo is selected is not defined
-            disabled={disabled || (def.required && def.default === undefined)}
-            isEmbedded={props.isEmbedded}
-            collection={pluralize.singular(collection)}
-            reference={def.field?.reference}
-          />
-        );
-      }
-
-      // markdown fields
-      if (type === 'String' && def.field?.markdown) {
-        return (
-          <CollaborativeCode
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            type={'md'}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // plain text fields
-      if (type === 'String') {
-        if (def.field?.options) {
-          const options = def.field.options as StringOption[];
-          return (
-            <CollaborativeSelectOne
-              key={reactKey}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              options={options}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={disabled}
-              isEmbedded={props.isEmbedded}
-            />
-          );
-        }
-
-        return (
-          <CollaborativeTextField
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // checkbox
-      if (type === 'Boolean') {
-        return (
-          <CollaborativeCheckbox
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // integer fields
-      if (type === 'Number') {
-        if (def.field?.options) {
-          const options = def.field.options.map((opt) => ({ ...opt, value: opt.toString() }));
-          return (
-            <CollaborativeSelectOne
-              key={reactKey}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              options={options}
-              number={'integer'}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={disabled}
-              isEmbedded={props.isEmbedded}
-            />
-          );
-        }
-        return (
-          <CollaborativeNumberField
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // float fields
-      if (type === 'Float') {
-        if (def.field?.options) {
-          const options = def.field.options.map((opt) => ({ ...opt, value: opt.value.toString() }));
-          return (
-            <CollaborativeSelectOne
-              key={reactKey}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              options={options}
-              number={'decimal'}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={disabled}
-              isEmbedded={props.isEmbedded}
-            />
-          );
-        }
-        return (
-          <CollaborativeNumberField
-            key={reactKey}
-            label={fieldName}
-            allowDecimals
-            description={def.field?.description}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // array of strings
-      if (type?.[0] === 'String') {
-        if (def.field?.options) {
-          const options = def.field.options as StringOption[];
-          return (
-            <CollaborativeSelectMany
-              key={reactKey}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              options={options}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={disabled}
-              isEmbedded={props.isEmbedded}
-            />
-          );
-        }
-        return (
-          <CollaborativeSelectMany
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // array of integers
-      if (type?.[0] === 'Number') {
-        if (def.field?.options) {
-          const options = def.field.options as StringOption[];
-          return (
-            <CollaborativeSelectMany
-              key={reactKey}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              options={options}
-              number={'integer'}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={disabled}
-              isEmbedded={props.isEmbedded}
-            />
-          );
-        }
-        return (
-          <CollaborativeSelectMany
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            number={'integer'}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // array of floats
-      if (type?.[0] === 'Float') {
-        if (def.field?.options) {
-          const options = def.field.options as StringOption[];
-          return (
-            <CollaborativeSelectMany
-              key={reactKey}
-              label={fieldName}
-              description={def.field?.description}
-              y={fieldY}
-              options={options}
-              number={'decimal'}
-              color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={disabled}
-              isEmbedded={props.isEmbedded}
-            />
-          );
-        }
-        return (
-          <CollaborativeSelectMany
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            number={'decimal'}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-          />
-        );
-      }
-
-      // plain text fields
-      if (type === 'Date') {
-        return (
-          <CollaborativeDateTime
-            key={reactKey}
-            label={fieldName}
-            description={def.field?.description}
-            y={fieldY}
-            color={props.isEmbedded ? 'blue' : 'primary'}
-            disabled={disabled}
-            isEmbedded={props.isEmbedded}
-            placeholder={'Pick a time'}
-          />
-        );
-      }
-
-      // fallback
-      return (
-        <Field
-          key={reactKey}
-          color={props.isEmbedded ? 'blue' : 'primary'}
-          label={fieldName}
-          description={def.field?.description}
-          isEmbedded={props.isEmbedded}
-        >
-          <code>{JSON.stringify(def, null, 2)}</code>
-        </Field>
-      );
-    };
 
     if (
       (props.y.wsStatus !== WebSocketStatus.Connected ||
@@ -1069,5 +1079,14 @@ const NotFound = styled.div`
   font-family: ${({ theme }) => theme.font.detail};
   color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
 `;
+
+export type RenderFields = (
+  input: DeconstructedSchemaDefType[0],
+  index: number,
+  arr: DeconstructedSchemaDefType,
+  inArrayKey?: string,
+  yjsDocArrayConfig?: { __uuid: string; parentKey: string; childKey: string },
+  isEmbedded?: boolean
+) => JSX.Element;
 
 export { CollectionItemPage, CollectionItemPageContent };

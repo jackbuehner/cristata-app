@@ -1,9 +1,7 @@
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genCollection';
-import { isTypeTuple } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
-import { parseSchemaComponents } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genTypeDefs/parseSchemaComponents';
+import { isTypeTuple, parseSchemaComponents, SchemaDefType } from '@jackbuehner/cristata-generator-schema';
 
 const getFieldTypes = (
-  schema: GenCollectionInput['schemaDef'],
+  schema: SchemaDefType,
   excludeArrays: boolean = true,
   prefix?: { id: string }
 ): [string, string, string][] => {

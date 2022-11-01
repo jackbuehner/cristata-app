@@ -1,4 +1,4 @@
-import { FieldDef } from '@jackbuehner/cristata-api/dist/api/graphql/helpers/generators/genSchema';
+import { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { useOptions } from '../ContentField/useOptions';
