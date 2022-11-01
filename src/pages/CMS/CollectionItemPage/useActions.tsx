@@ -8,11 +8,13 @@ import { toast } from 'react-toastify';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { Action } from '../../../redux/slices/appbarSlice';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
+import { RenderFields } from './CollectionItemPage';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
 
@@ -37,6 +39,12 @@ interface UseActionsParams {
   archived?: boolean;
   hidden?: boolean;
   loadingOrError?: boolean;
+  schemaDef: DeconstructedSchemaDefType;
+  processSchemaDef: (
+    schemaDef: DeconstructedSchemaDefType,
+    isPublishModal?: boolean
+  ) => DeconstructedSchemaDefType;
+  renderFields: RenderFields;
 }
 
 interface UseActionsReturn {
@@ -55,14 +63,17 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   const idKey = params.idKey || '_id';
 
   const [ShareWindow, showShareModal] = useShareModal(params.y, params.collectionName, params.itemId);
-  const [PublishWindow, showPublishModal] = usePublishModal(
-    params.y,
+  const [PublishWindow, showPublishModal] = usePublishModal({
+    y: params.y,
     client,
-    params.collectionName,
-    params.itemId,
-    params.publishStage,
-    idKey
-  );
+    collectionName: params.collectionName,
+    itemId: params.itemId,
+    publishStage: params.publishStage,
+    idKey,
+    schemaDef: params.schemaDef,
+    processSchemaDef: params.processSchemaDef,
+    renderFields: params.renderFields,
+  });
 
   /**
    * Set the item to be hidden.
