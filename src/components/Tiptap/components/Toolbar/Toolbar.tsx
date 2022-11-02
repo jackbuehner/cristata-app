@@ -727,7 +727,11 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                       background-position: center;
                       background-size: cover;
                     `}
-                    title={profile.name}
+                    data-tip={profile.name}
+                    data-delay-show={0}
+                    data-effect={'solid'}
+                    data-place={'bottom'}
+                    data-offset={`{ 'bottom': 4 }`}
                   ></div>
                 );
               })}
@@ -758,6 +762,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   data-tip={`${
                     props.isSidebarOpen && props.sidebarTitle === 'Document properties' ? 'Hide' : 'Show'
                   } document properties`}
+                  data-delay-show={0}
+                  data-effect={'solid'}
+                  data-place={'bottom'}
+                  data-offset={`{ 'bottom': 4 }`}
                 />
                 <ToolbarMetaIconButton
                   icon={<CommentMultiple20Regular />}
@@ -781,6 +789,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   data-tip={`${
                     props.isSidebarOpen && props.sidebarTitle === 'Comments' ? 'Hide' : 'Show'
                   } comments`}
+                  data-delay-show={0}
+                  data-effect={'solid'}
+                  data-place={'bottom'}
+                  data-offset={`{ 'bottom': 4 }`}
                 />
                 {shareAction ? (
                   <ToolbarMetaIconButton
@@ -789,6 +801,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     onClick={(e) => shareAction.action(e)}
                     isActive={false}
                     data-tip={`Share this document`}
+                    data-delay-show={0}
+                    data-effect={'solid'}
+                    data-place={'bottom'}
+                    data-offset={`{ 'bottom': 4 }`}
                   />
                 ) : null}
               </>
@@ -802,6 +818,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
                 color={'blue'}
                 data-tip={(isMax ? 'Minimize' : 'Maximize') + ' editor'}
+                data-delay-show={0}
+                data-effect={'solid'}
+                data-place={'bottom'}
+                data-offset={`{ 'bottom': 4 }`}
               />
             ) : null}
           </ToolbarMeta>
