@@ -171,6 +171,13 @@ function Sidebar(props: SidebarProps) {
                   data-effect={'solid'}
                   data-place={'bottom'}
                   data-offset={`{ 'bottom': 4 }`}
+                  onClick={() => {
+                    window.open(
+                      `/profile/${profile._id}`,
+                      'sidebar_user' + props.docInfo._id + profile._id,
+                      'location=no'
+                    );
+                  }}
                 />
               );
             })}
@@ -412,9 +419,8 @@ const TeamIcon = styled(PeopleTeam16Regular)<{ theme: themeType; color: string }
 `;
 
 const AwarenessPhoto = styled.div<{ color: string; photo: string }>`
-  width: 24px;
-  height: 24px;
-  border: 2px solid ${({ color }) => color};
+  width: 28px;
+  height: 28px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -427,6 +433,19 @@ const AwarenessPhoto = styled.div<{ color: string; photo: string }>`
   color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
   background-position: center;
   background-size: cover;
+  transition: 120ms;
+  box-shadow: inset 0 0 0 2px ${({ color }) => color};
+  &:hover {
+    background-blend-mode: overlay;
+    border-radius: ${({ theme }) => theme.radius};
+    box-shadow: inset 0 0 0 2px ${({ color }) => color},
+      0 0 3px 0.5px ${({ color }) => Color(color).darken(0.3).string()};
+    background-color: ${({ color }) => Color(color).alpha(0.45).string()};
+  }
+  &:active {
+    background-blend-mode: overlay;
+    background-color: ${({ color }) => Color(color).alpha(0.7).string()};
+  }
 `;
 
 const VersionCard = styled.div`

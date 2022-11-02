@@ -85,7 +85,7 @@ interface IToolbar {
     options: { value: string; label: string }[];
     setLayout: (layout: string) => void;
   };
-  awarenessProfiles?: { name: string; color: string; sessionId: string; photo: string }[];
+  awarenessProfiles?: ReturnType<typeof useAwareness>;
   tiptapWidth: number;
   user: ReturnType<typeof useAwareness>[0];
   toggleTrackChanges: () => void;
@@ -708,31 +708,23 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             >
               {props.awarenessProfiles?.map((profile, index) => {
                 return (
-                  <div
+                  <AwarenessPhoto
                     key={index}
-                    css={css`
-                      width: 24px;
-                      height: 24px;
-                      border: 2px solid ${profile.color};
-                      display: flex;
-                      justify-content: center;
-                      align-items: center;
-                      font-family: ${theme.font.headline};
-                      border-radius: 50%;
-                      font-size: 14px;
-                      background-color: ${Color(profile.color).alpha(0.4).string()};
-                      background-image: url('${profile.photo}');
-                      user-select: none;
-                      color: ${theme.color.neutral[theme.mode][1200]};
-                      background-position: center;
-                      background-size: cover;
-                    `}
+                    photo={profile.photo}
+                    color={profile.color}
                     data-tip={profile.name}
                     data-delay-show={0}
                     data-effect={'solid'}
                     data-place={'bottom'}
                     data-offset={`{ 'bottom': 4 }`}
-                  ></div>
+                    onClick={() => {
+                      window.open(
+                        `/profile/${profile._id}`,
+                        'tiptap_awareness_user' + profile._id,
+                        'location=no'
+                      );
+                    }}
+                  />
                 );
               })}
             </div>
@@ -1232,5 +1224,35 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
     </>
   );
 }
+
+const AwarenessPhoto = styled.div<{ color: string; photo: string }>`
+  width: 28px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: ${({ theme }) => theme.font.headline};
+  border-radius: 50%;
+  font-size: 14px;
+  background-color: ${({ color }) => Color(color).alpha(0.4).string()};
+  background-image: url('${({ photo }) => photo}');
+  user-select: none;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1200]};
+  background-position: center;
+  background-size: cover;
+  transition: 120ms;
+  box-shadow: inset 0 0 0 2px ${({ color }) => color};
+  &:hover {
+    background-blend-mode: overlay;
+    border-radius: ${({ theme }) => theme.radius};
+    box-shadow: inset 0 0 0 2px ${({ color }) => color},
+      0 0 3px 0.5px ${({ color }) => Color(color).darken(0.3).string()};
+    background-color: ${({ color }) => Color(color).alpha(0.45).string()};
+  }
+  &:active {
+    background-blend-mode: overlay;
+    background-color: ${({ color }) => Color(color).alpha(0.7).string()};
+  }
+`;
 
 export { Toolbar };
