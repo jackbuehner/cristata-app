@@ -13,7 +13,8 @@ import { server } from '../../../utils/constants';
 import { genAvatar } from '../../../utils/genAvatar';
 import { colorType, themeType } from '../../../utils/theme/theme';
 
-const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
+// @ts-expect-error 'bkdr' is a vlid hash config value
+const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
 function useShareModal(
   y: EntryY,

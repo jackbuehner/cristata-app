@@ -53,7 +53,8 @@ import { useFindDoc } from './useFindDoc';
 import { usePublishPermissions } from './usePublishPermissions';
 import { useWatching } from './useWatching';
 
-const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
+// @ts-expect-error 'bkdr' is a vlid hash config value
+const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
 interface CollectionItemPageProps {}
 

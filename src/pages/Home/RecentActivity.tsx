@@ -279,7 +279,9 @@ interface IListNames {
 
 function ListNames(props: IListNames) {
   const theme = useTheme() as themeType;
-  const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5 });
+
+  // @ts-expect-error 'bkdr' is a vlid hash config value
+  const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
   // shows a list of photos that overlap each other
   // automatically sets z-index to ensure first photo is on top and last photo is on bottom

@@ -15,7 +15,8 @@ function genAvatar(
   size = 120,
   type: 'beam' | 'bauhaus' | 'pixel' | 'marble' | 'ring' | 'sunset' = 'beam'
 ) {
-  const colorHash = new ColorHash({ saturation: 0.6, lightness: 0.7 }); // note that this config is different than the one that picks the user accent color
+  // @ts-expect-error 'bkdr' is a vlid hash config value
+  const colorHash = new ColorHash({ saturation: 0.6, lightness: 0.7, hash: 'bkdr' }); // note that this config is different than the one that picks the user accent color
 
   const colors = [
     colorHash.hex(id),
