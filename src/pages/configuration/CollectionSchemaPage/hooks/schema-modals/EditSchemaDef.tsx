@@ -1,6 +1,12 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { isTypeTuple, MongooseSchemaType, SchemaDef } from '@jackbuehner/cristata-generator-schema';
+import { Dismiss24Regular } from '@fluentui/react-icons';
+import {
+  isTypeTuple,
+  MongooseSchemaType,
+  NumberOption,
+  SchemaDef,
+} from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
@@ -19,7 +25,6 @@ import {
   Text,
 } from '../../../../../components/ContentField';
 import { Field } from '../../../../../components/ContentField/Field';
-import FluentIcon from '../../../../../components/FluentIcon';
 import { Tab, TabBar } from '../../../../../components/Tabs';
 import { useAppSelector } from '../../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
@@ -53,6 +58,68 @@ function EditSchemaDef(props: EditSchemaDefProps) {
   const isMarkdown = type === 'String' && def?.field?.markdown;
   const isReferenceOne = def?.type && isTypeTuple(def.type) && def.type[1] === 'ObjectId';
 
+  const isStageField = props.id === 'stage' && type === 'Float';
+
+  const onOptionChange = {
+    setLabel: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
+      dispatch(setRootSchemaProperty(props.id, `field.options.${index}.label`, e.currentTarget.value));
+    },
+    setValueStr: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
+      dispatch(setRootSchemaProperty(props.id, `field.options.${index}.value`, e.currentTarget.value));
+    },
+    setValueNum: (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+      dispatch(setRootSchemaProperty(props.id, `field.options.${index}.value`, e.currentTarget.value));
+    },
+    setDisabled: (e: React.ChangeEvent<HTMLInputElement>, index: number, invert: boolean = false) => {
+      dispatch(
+        setRootSchemaProperty(
+          props.id,
+          `field.options.${index}.disabled`,
+          invert ? !e.currentTarget.checked : e.currentTarget.checked
+        )
+      );
+    },
+  };
+
+  type Chip = {
+    value: string | number;
+    label?: string;
+    color?:
+      | 'primary'
+      | 'danger'
+      | 'success'
+      | 'red'
+      | 'orange'
+      | 'yellow'
+      | 'green'
+      | 'blue'
+      | 'turquoise'
+      | 'indigo'
+      | 'violet'
+      | 'neutral';
+  };
+  const getStage = (options: NumberOption[], findValue: number, chips?: boolean | Chip[]) => {
+    return options
+      .map(
+        (
+          opt,
+          index
+        ): NumberOption & {
+          index: number;
+          chipIndex?: number;
+          chip?: Chip;
+        } => {
+          if (Array.isArray(chips)) {
+            const chipIndex = chips.findIndex((chip) => chip.value === opt.value);
+            const chip = chips[chipIndex];
+            return { ...opt, index, chipIndex, chip };
+          }
+          return { ...opt, index };
+        }
+      )
+      .filter((opt) => opt.value === findValue);
+  };
+
   return (
     <div>
       <TabBar
@@ -72,30 +139,32 @@ function EditSchemaDef(props: EditSchemaDefProps) {
       <div style={{ padding: '20px 24px' }}>
         {activeTab === 0 ? (
           <>
-            <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
-              <div style={{ flex: 3 }}>
-                <Text
-                  isEmbedded
-                  label={'Display name'}
-                  value={def?.field?.label}
-                  onChange={(e) => {
-                    if (props.setName) props.setName(e.currentTarget.value);
-                    dispatch(setRootSchemaProperty(props.id, 'field.label', e.currentTarget.value));
-                  }}
-                />
+            {!isStageField ? (
+              <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+                <div style={{ flex: 3 }}>
+                  <Text
+                    isEmbedded
+                    label={'Display name'}
+                    value={def?.field?.label}
+                    onChange={(e) => {
+                      if (props.setName) props.setName(e.currentTarget.value);
+                      dispatch(setRootSchemaProperty(props.id, 'field.label', e.currentTarget.value));
+                    }}
+                  />
+                </div>
+                <div style={{ flex: 2 }}>
+                  <Text
+                    isEmbedded
+                    label={'Short display name'}
+                    value={def?.column?.label}
+                    onChange={(e) =>
+                      dispatch(setRootSchemaProperty(props.id, 'column.label', e.currentTarget.value))
+                    }
+                  />
+                </div>
               </div>
-              <div style={{ flex: 2 }}>
-                <Text
-                  isEmbedded
-                  label={'Short display name'}
-                  value={def?.column?.label}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, 'column.label', e.currentTarget.value))
-                  }
-                />
-              </div>
-            </div>
-            {!isBranching ? (
+            ) : null}
+            {!isBranching && !isStageField ? (
               <Text
                 isEmbedded
                 label={'Description'}
@@ -108,6 +177,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
             ) : null}
             {!isDocArray &&
             !isMarkdown &&
+            !isStageField &&
             (type === 'String' ||
               type === 'Strings' ||
               type === 'Number' ||
@@ -132,110 +202,285 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               </Field>
             ) : null}
             {!!def?.field?.options ? (
-              <IndentField color={'primary'}>
-                {def.field.options.map((option, index, arr) => {
-                  return (
-                    <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
-                      <div style={{ flexGrow: 1 }}>
-                        <Text
-                          isEmbedded
-                          label={'Label'}
-                          value={option.label}
-                          onChange={(e) =>
-                            dispatch(
-                              setRootSchemaProperty(
-                                props.id,
-                                `field.options.${index}.label`,
-                                e.currentTarget.value
-                              )
-                            )
-                          }
-                        />
-                      </div>
-                      <div style={{ flexGrow: 1 }}>
-                        {type === 'String' || type === 'Strings' ? (
-                          <Text
-                            isEmbedded
-                            label={'Value'}
-                            value={option.value}
-                            onChange={(e) =>
-                              dispatch(
-                                setRootSchemaProperty(
-                                  props.id,
-                                  `field.options.${index}.value`,
-                                  e.currentTarget.value
-                                )
-                              )
-                            }
-                          />
-                        ) : (
-                          <Number
-                            isEmbedded
-                            type={type === 'Number' || type === 'Numbers' ? 'Int' : 'Float'}
-                            label={'Value'}
-                            value={option.value}
-                            onChange={(e) =>
-                              dispatch(
-                                setRootSchemaProperty(
-                                  props.id,
-                                  `field.options.${index}.value`,
-                                  e.currentTarget.value
-                                )
-                              )
-                            }
-                          />
-                        )}
-                      </div>
-                      <div style={{ flexGrow: 1 }}>
-                        <Field isEmbedded label={'Disabled'}>
+              isStageField ? (
+                <>
+                  {getStage(def.field.options as NumberOption[], 1.1, def.column?.chips).map((option, key) => {
+                    return (
+                      <Field isEmbedded label={'Planning (1.1)'} key={key}>
+                        <>
                           <Checkbox
                             isEmbedded
-                            label={''}
-                            checked={option.disabled}
-                            onChange={(e) =>
-                              dispatch(
-                                setRootSchemaProperty(
-                                  props.id,
-                                  `field.options.${index}.disabled`,
-                                  e.currentTarget.checked
-                                )
-                              )
-                            }
+                            label={'Enable this stage'}
+                            checked={option.disabled !== true}
+                            onChange={(e) => onOptionChange.setDisabled(e, option.index, true)}
                           />
-                        </Field>
-                      </div>
-                      <IconButtonWrapper
-                        color={'red'}
-                        onClick={() => {
-                          dispatch(
-                            setRootSchemaProperty(props.id, `field.options`, [
-                              ...arr.slice(0, index),
-                              ...arr.slice(index + 1),
-                            ])
+                          {option.disabled !== true ? (
+                            <IndentField color={'primary'}>
+                              <Text
+                                isEmbedded
+                                label={'Label'}
+                                value={option.label}
+                                onChange={(e) => onOptionChange.setLabel(e, option.index)}
+                              />
+                            </IndentField>
+                          ) : null}
+                        </>
+                      </Field>
+                    );
+                  })}
+                  {getStage(def.field.options as NumberOption[], 2.1, def.column?.chips).map((option, key) => {
+                    return (
+                      <Field isEmbedded label={'Draft (2.1)'} key={key}>
+                        <>
+                          <Checkbox
+                            isEmbedded
+                            label={'Enable this stage'}
+                            checked={option.disabled !== true}
+                            onChange={(e) => onOptionChange.setDisabled(e, option.index, true)}
+                          />
+                          {option.disabled !== true ? (
+                            <IndentField color={'primary'}>
+                              <Text
+                                isEmbedded
+                                label={'Label'}
+                                value={option.label}
+                                onChange={(e) => onOptionChange.setLabel(e, option.index)}
+                              />
+                            </IndentField>
+                          ) : null}
+                        </>
+                      </Field>
+                    );
+                  })}
+                  {getStage(def.field.options as NumberOption[], 3.1, def.column?.chips).map((option, key) => {
+                    return (
+                      <Field isEmbedded label={'Pending Review (3.1)'} key={key}>
+                        <>
+                          <Checkbox
+                            isEmbedded
+                            label={'Enable this stage'}
+                            checked={option.disabled !== true}
+                            onChange={(e) => onOptionChange.setDisabled(e, option.index, true)}
+                          />
+                          {option.disabled !== true ? (
+                            <IndentField color={'primary'}>
+                              <Text
+                                isEmbedded
+                                label={'Label'}
+                                value={option.label}
+                                onChange={(e) => onOptionChange.setLabel(e, option.index)}
+                              />
+                            </IndentField>
+                          ) : null}
+                        </>
+                      </Field>
+                    );
+                  })}
+                  {getStage(def.field.options as NumberOption[], 4.1, def.column?.chips).map((option, key) => {
+                    return (
+                      <Field isEmbedded label={'Ready (4.1)'} key={key}>
+                        <>
+                          <Checkbox
+                            isEmbedded
+                            label={'Enable this stage'}
+                            checked={option.disabled !== true}
+                            onChange={(e) => onOptionChange.setDisabled(e, option.index, true)}
+                          />
+                          {option.disabled !== true ? (
+                            <IndentField color={'primary'}>
+                              <Text
+                                isEmbedded
+                                label={'Label'}
+                                value={option.label}
+                                onChange={(e) => onOptionChange.setLabel(e, option.index)}
+                              />
+                            </IndentField>
+                          ) : null}
+                        </>
+                      </Field>
+                    );
+                  })}
+                  {getStage(def.field.options as NumberOption[], 5.2, def.column?.chips).map((option, key) => {
+                    return (
+                      <Field
+                        isEmbedded
+                        label={'Published (5.2)'}
+                        key={key}
+                        description={
+                          'This stage can be enabled or disabled by toggling the "Allow items to be published" option in the collection options.'
+                        }
+                      >
+                        <>
+                          <IndentField color={'primary'}>
+                            <Text
+                              isEmbedded
+                              label={'Label'}
+                              value={option.label}
+                              onChange={(e) => onOptionChange.setLabel(e, option.index)}
+                            />
+                          </IndentField>
+                        </>
+                      </Field>
+                    );
+                  })}
+                  <Field isEmbedded label={'Custom stages'}>
+                    <IndentField color={'primary'}>
+                      {(def.field.options as NumberOption[])
+                        .map((opt, index): NumberOption & { index: number } => ({ ...opt, index }))
+                        .filter(
+                          (opt) =>
+                            opt.value !== 1.1 &&
+                            opt.value !== 2.1 &&
+                            opt.value !== 3.1 &&
+                            opt.value > 1.1 &&
+                            opt.value < 4
+                        )
+                        .map(({ index, ...option }, key, arr) => {
+                          return (
+                            <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }} key={key}>
+                              <div style={{ flexGrow: 1 }}>
+                                <Text
+                                  isEmbedded
+                                  label={'Label'}
+                                  value={option.label}
+                                  onChange={(e) => onOptionChange.setLabel(e, index)}
+                                />
+                              </div>
+                              <div style={{ flexGrow: 1 }}>
+                                {type === 'String' || type === 'Strings' ? (
+                                  <Text
+                                    isEmbedded
+                                    label={'Value'}
+                                    value={option.value}
+                                    onChange={(e) => onOptionChange.setValueStr(e, index)}
+                                  />
+                                ) : (
+                                  <Number
+                                    isEmbedded
+                                    type={type === 'Number' || type === 'Numbers' ? 'Int' : 'Float'}
+                                    label={'Value'}
+                                    value={option.value}
+                                    onChange={(e) => onOptionChange.setValueNum(e, index)}
+                                  />
+                                )}
+                              </div>
+                              <div style={{ flexGrow: 1 }}>
+                                <Field isEmbedded label={'Disabled'}>
+                                  <Checkbox
+                                    isEmbedded
+                                    label={''}
+                                    checked={option.disabled}
+                                    onChange={(e) => onOptionChange.setDisabled(e, index)}
+                                  />
+                                </Field>
+                              </div>
+                              <IconButtonWrapper
+                                color={'red'}
+                                onClick={() => {
+                                  dispatch(
+                                    setRootSchemaProperty(props.id, `field.options`, [
+                                      ...arr.slice(0, index),
+                                      ...arr.slice(index + 1),
+                                    ])
+                                  );
+                                }}
+                              >
+                                <Dismiss24Regular />
+                              </IconButtonWrapper>
+                            </div>
                           );
+                        })}
+                      <Button
+                        onClick={() => {
+                          if (def?.field?.options && Array.isArray(def.field.options)) {
+                            dispatch(
+                              setRootSchemaProperty(props.id, `field.options`, [
+                                ...def.field.options,
+                                { value: '', label: '' },
+                              ])
+                            );
+                          }
                         }}
                       >
-                        <FluentIcon name={'Dismiss24Regular'} />
-                      </IconButtonWrapper>
-                    </div>
-                  );
-                })}
+                        Add option
+                      </Button>
+                    </IndentField>
+                  </Field>
+                </>
+              ) : (
+                <IndentField color={'primary'}>
+                  {def.field.options.map((option, index, arr) => {
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+                        <div style={{ flexGrow: 1 }}>
+                          <Text
+                            isEmbedded
+                            label={'Label'}
+                            value={option.label}
+                            onChange={(e) => onOptionChange.setLabel(e, index)}
+                          />
+                        </div>
+                        <div style={{ flexGrow: 1 }}>
+                          {type === 'String' || type === 'Strings' ? (
+                            <Text
+                              isEmbedded
+                              label={'Value'}
+                              value={option.value}
+                              onChange={(e) => onOptionChange.setValueStr(e, index)}
+                            />
+                          ) : (
+                            <Number
+                              isEmbedded
+                              type={type === 'Number' || type === 'Numbers' ? 'Int' : 'Float'}
+                              label={'Value'}
+                              value={option.value}
+                              onChange={(e) => onOptionChange.setValueNum(e, index)}
+                            />
+                          )}
+                        </div>
+                        <div style={{ flexGrow: 1 }}>
+                          <Field isEmbedded label={'Disabled'}>
+                            <Checkbox
+                              isEmbedded
+                              label={''}
+                              checked={option.disabled}
+                              onChange={(e) => onOptionChange.setDisabled(e, index)}
+                            />
+                          </Field>
+                        </div>
+                        <IconButtonWrapper
+                          color={'red'}
+                          onClick={() => {
+                            dispatch(
+                              setRootSchemaProperty(props.id, `field.options`, [
+                                ...arr.slice(0, index),
+                                ...arr.slice(index + 1),
+                              ])
+                            );
+                          }}
+                        >
+                          <Dismiss24Regular />
+                        </IconButtonWrapper>
+                      </div>
+                    );
+                  })}
 
-                <Button
-                  onClick={() => {
-                    if (def?.field?.options && Array.isArray(def.field.options)) {
-                      dispatch(
-                        setRootSchemaProperty(props.id, `field.options`, [
-                          ...def.field.options,
-                          { value: '', label: '' },
-                        ])
-                      );
-                    }
-                  }}
-                >
-                  Add option
-                </Button>
-              </IndentField>
+                  <Button
+                    onClick={() => {
+                      if (def?.field?.options && Array.isArray(def.field.options)) {
+                        dispatch(
+                          setRootSchemaProperty(props.id, `field.options`, [
+                            ...def.field.options,
+                            { value: '', label: '' },
+                          ])
+                        );
+                      }
+                    }}
+                  >
+                    Add option
+                  </Button>
+                </IndentField>
+              )
             ) : null}
           </>
         ) : activeTab === 1 ? (
@@ -253,7 +498,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 onChange={(e) => dispatch(setRootSchemaProperty(props.id, `required`, e.currentTarget.checked))}
               />
             ) : null}
-            {!isBranching && !isInBranch && !isDocArray ? (
+            {!isBranching && !isInBranch && !isDocArray && !isStageField ? (
               <Checkbox
                 isEmbedded
                 label={'Set this field as unique'}
@@ -262,7 +507,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 onChange={(e) => dispatch(setRootSchemaProperty(props.id, `unique`, e.currentTarget.checked))}
               />
             ) : null}
-            {!isBranching && !isInBranch && !isDocArray && !isMarkdown ? (
+            {!isBranching && !isInBranch && !isDocArray && !isMarkdown && !isStageField ? (
               <Checkbox
                 isEmbedded
                 label={'Require this field to match a specific pattern'}
@@ -339,7 +584,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
             ) : null}
             <Field isEmbedded label={'Visibility'}>
               <>
-                {!isBranching ? (
+                {!isBranching && !isStageField ? (
                   <>
                     <Checkbox
                       isEmbedded
@@ -377,7 +622,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                     }
                   />
                 ) : null}
-                {!isBranching && !isDocArray ? (
+                {!isBranching && !isDocArray && !isStageField ? (
                   <Checkbox
                     isEmbedded
                     label={'Make this field read only'}
@@ -472,6 +717,16 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                                 setRootSchemaProperty(props.id, `default`, e.currentTarget.valueAsNumber)
                               );
                             }}
+                          />
+                        ) : isStageField ? (
+                          <SelectOne
+                            isEmbedded
+                            label={'Default value'}
+                            type={'Float'}
+                            options={def?.field?.options}
+                            value={(def?.field?.options as NumberOption[])?.find(
+                              (opt) => opt.value === def.default
+                            )}
                           />
                         ) : typeof def.default === 'number' && type === 'Float' ? (
                           <Number
@@ -605,17 +860,19 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               </Field>
             ) : null}
             <div style={{ display: 'flex', flexDirection: 'row', gap: 20 }}>
-              <div style={{ flexGrow: 1 }}>
-                <Number
-                  isEmbedded
-                  type={'Int'}
-                  label={'Field order'}
-                  value={def?.field?.order}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, `field.order`, e.currentTarget.value))
-                  }
-                />
-              </div>
+              {!isStageField ? (
+                <div style={{ flexGrow: 1 }}>
+                  <Number
+                    isEmbedded
+                    type={'Int'}
+                    label={'Field order'}
+                    value={def?.field?.order}
+                    onChange={(e) =>
+                      dispatch(setRootSchemaProperty(props.id, `field.order`, e.currentTarget.value))
+                    }
+                  />
+                </div>
+              ) : null}
               {!isInBranch && !isDocArray && !isInDocArray ? (
                 <div style={{ flexGrow: 1 }}>
                   <Number
@@ -760,7 +1017,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                             );
                           }}
                         >
-                          <FluentIcon name={'Dismiss24Regular'} />
+                          <Dismiss24Regular />
                         </IconButtonWrapper>
                       </div>
                     );
