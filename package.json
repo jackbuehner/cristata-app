@@ -119,7 +119,7 @@
   "devDependencies": {
     "@griffel/react": "^1.2.0",
     "@jackbuehner/cristata-api": "^7.3.3",
-    "@jackbuehner/cristata-generator-schema": "^2.2.1",
+    "@jackbuehner/cristata-generator-schema": "^2.4.0",
     "@jackbuehner/cristata-utils": "^2.0.2",
     "@types/color": "^3.0.1",
     "@types/color-hash": "^1.0.0",

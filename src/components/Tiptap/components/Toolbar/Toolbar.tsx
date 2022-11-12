@@ -1009,19 +1009,16 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   Pull quote
                 </ToolbarRowButton>
               ) : null}
-              {
-                // @ts-expect-error tables is a valid option, but not in the types
-                props.options?.features.tables ? (
-                  <ToolbarRowButton
-                    onClick={() => editor.chain().focus().insertTable().run()}
-                    isActive={false}
-                    icon={<TableAdd20Regular />}
-                    disabled={props.isDisabled}
-                  >
-                    Table
-                  </ToolbarRowButton>
-                ) : null
-              }
+              {props.options?.features.tables ? (
+                <ToolbarRowButton
+                  onClick={() => editor.chain().focus().insertTable().run()}
+                  isActive={false}
+                  icon={<TableAdd20Regular />}
+                  disabled={props.isDisabled}
+                >
+                  Table
+                </ToolbarRowButton>
+              ) : null}
               {props.options?.features.comment ? (
                 <ToolbarRowButton
                   onClick={() => {
