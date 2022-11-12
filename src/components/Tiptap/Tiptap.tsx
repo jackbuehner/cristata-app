@@ -483,23 +483,21 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
   padding: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `24px 20px` : `68px 88px`)};
   margin: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `0 auto` : `20px auto`)};
   .ProseMirror {
-    font-family: Georgia, Times, 'Times New Roman', serif;
-    color: #3a3a3a;
-    font-size: 17px;
-    line-height: 1.7;
-    font-weight: 400;
-    font-variant-numeric: lining-nums;
     *::selection {
       background-color: #c4dffc;
     }
+
     // only use bottom margin for paragraphs
     p {
       margin-top: 0;
       margin-bottom: 10px;
     }
+
+    // no paragraph margin for list items
     li > p {
       margin-bottom: 0;
     }
+
     // show placeholder message when the editor is empty
     p.is-empty:first-of-type::before {
       content: attr(data-placeholder);
@@ -512,23 +510,6 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
     addition {
       color: #d0021b;
       border-bottom: 1px solid #d0021b;
-    }
-
-    // headings
-    h1 {
-      font-size: 24px;
-      font-weight: 400;
-      margin: 10px 0;
-    }
-    h2 {
-      font-size: 20px;
-      font-weight: 400;
-      margin: 10px 0;
-    }
-    h3 {
-      font-size: 17px;
-      font-weight: 400;
-      margin: 10px 0;
     }
 
     // title and subtitle
@@ -556,18 +537,6 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
       text-indent: -20px;
     }
 
-    // divider
-    hr::before {
-      content: '•  •  •';
-      display: flex;
-      justify-content: center;
-      white-space: pre;
-      margin: 10px;
-    }
-    hr {
-      border: none;
-    }
-
     // tables
     table {
       border-collapse: collapse;
@@ -581,7 +550,6 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
         border: 2px solid #ced4da;
         box-sizing: border-box;
         min-width: 1em;
-        padding: 3px 5px;
         position: relative;
         vertical-align: top;
 
