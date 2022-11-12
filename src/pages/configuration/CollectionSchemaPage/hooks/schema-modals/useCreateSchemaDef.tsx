@@ -119,6 +119,10 @@ function useCreateSchemaDef(
                 dispatch(setRootSchemaProperty(path + '.field', 'markdown', true));
               }
 
+              if (type === 'richtext') {
+                dispatch(setRootSchemaProperty(path + '.field', 'tiptap.features', {}));
+              }
+
               setIsCreated(true);
               return false;
             },
