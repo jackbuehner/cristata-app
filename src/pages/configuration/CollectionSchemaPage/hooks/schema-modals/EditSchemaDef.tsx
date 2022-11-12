@@ -2,6 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { Dismiss24Regular } from '@fluentui/react-icons';
 import {
+  deconstructSchema,
   isTypeTuple,
   MongooseSchemaType,
   NumberOption,
@@ -42,6 +43,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
   const state = useAppSelector(({ collectionConfig }) => collectionConfig);
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<number>(0);
+  const deconstructedSchema = deconstructSchema(state.collection?.schemaDef || {});
   const def: SchemaDef | undefined = getProperty(state.collection?.schemaDef || {}, `${props.id}`);
   const schemaType: MongooseSchemaType | undefined = def
     ? isTypeTuple(def.type)
@@ -56,6 +58,14 @@ function EditSchemaDef(props: EditSchemaDefProps) {
   const isDocArray = props.id.includes('.0.#label');
   const isInDocArray = props.id.includes('.0.') && !props.id.includes('.0.#label');
   const isMarkdown = type === 'String' && def?.field?.markdown;
+  const isRichText =
+    type === 'String' &&
+    !isInBranch &&
+    !isDocArray &&
+    !isInDocArray &&
+    !isMarkdown &&
+    def?.field?.tiptap &&
+    props.id === 'body';
   const isReferenceOne = def?.type && isTypeTuple(def.type) && def.type[1] === 'ObjectId';
 
   const isStageField = props.id === 'stage' && type === 'Float';
@@ -135,6 +145,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
         <Tab>Options</Tab>
         <Tab>Validations</Tab>
         <Tab>Advanced</Tab>
+        {isRichText ? <Tab>Editor</Tab> : null}
       </TabBar>
       <div style={{ padding: '20px 24px' }}>
         {activeTab === 0 ? (
@@ -556,7 +567,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
               </IndentField>
             ) : null}
           </>
-        ) : (
+        ) : activeTab === 2 ? (
           <>
             {!isBranching && !isInBranch && !isDocArray && !isInDocArray ? (
               <Field isEmbedded label={'Search and sort'}>
@@ -1043,28 +1054,374 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 </>
               </IndentField>
             ) : null}
-            {!isInBranch &&
-            !isDocArray &&
-            !isInDocArray &&
-            !isMarkdown &&
-            type === 'String' &&
-            props.id === 'body' ? (
+          </>
+        ) : isRichText ? (
+          <>
+            <Field
+              isEmbedded
+              label={'Features'}
+              description={
+                'Enable and disable editor features. ' +
+                'By default, only plain text is supported. ' +
+                'Disabling a feature will not remove existing cases of it ' +
+                '(e.g. existing bold text will not dissapear if bold functionality is disabled.'
+              }
+            >
               <>
-                <Text
+                <Checkbox
                   isEmbedded
-                  label={'Tiptap meta frame URL'}
-                  description={
-                    'Render this URL in an iFrame above the editor body. Field data is provided via <code>Window.postMessage()</code> and can be captured and rendered by adding a listener for messages. Include the <a href="https://github.com/davidjbradshaw/iframe-resizer">iframe-resizer</a> content script to allow the iframe to automatically resize to fit the content inside the iframe.                              '
-                  }
-                  value={def?.field?.tiptap?.metaFrame}
-                  onChange={(e) =>
-                    dispatch(setRootSchemaProperty(props.id, `field.tiptap.metaFrame`, e.currentTarget.value))
-                  }
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Bold text'}
+                  checked={!!def.field?.tiptap?.features?.bold}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `field.tiptap.features.bold`, e.currentTarget.checked)
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Italicized text'}
+                  checked={!!def.field?.tiptap?.features?.italic}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `field.tiptap.features.italic`, e.currentTarget.checked)
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Text underline'}
+                  checked={!!def.field?.tiptap?.features?.underline}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.underline`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Text strikethough'}
+                  checked={!!def.field?.tiptap?.features?.strike}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `field.tiptap.features.strike`, e.currentTarget.checked)
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Code blocks and inline code'}
+                  checked={!!def.field?.tiptap?.features?.code}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `field.tiptap.features.code`, e.currentTarget.checked)
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Bullet lists'}
+                  checked={!!def.field?.tiptap?.features?.bulletList}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.bulletList`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Ordered lists'}
+                  checked={!!def.field?.tiptap?.features?.orderedList}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.orderedList`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Text style picker (p, h2, h3, etc.)'}
+                  checked={!!def.field?.tiptap?.features?.textStylePicker}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.textStylePicker`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Horizontal rules'}
+                  checked={!!def.field?.tiptap?.features?.horizontalRule}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.horizontalRule`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Photo widgets'}
+                  checked={!!def.field?.tiptap?.features?.widgets?.photoWidget}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.widgets.photoWidget`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Sweepwidget sweepstake widgets'}
+                  checked={!!def.field?.tiptap?.features?.widgets?.sweepwidget}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.widgets.sweepwidget`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'YouTube embeds'}
+                  checked={!!def.field?.tiptap?.features?.widgets?.youtube}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.widgets.youtube`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Hyperlinks'}
+                  checked={!!def.field?.tiptap?.features?.link}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `field.tiptap.features.link`, e.currentTarget.checked)
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Comments'}
+                  checked={!!def.field?.tiptap?.features?.comment}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `field.tiptap.features.comment`, e.currentTarget.checked)
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Track changes'}
+                  checked={!!def.field?.tiptap?.features?.trackChanges}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.trackChanges`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Pull quotes (callout text)'}
+                  checked={!!def.field?.tiptap?.features?.pullQuote}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.pullQuote`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Tables'}
+                  checked={!!def.field?.tiptap?.features?.tables}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(props.id, `field.tiptap.features.tables`, e.currentTarget.checked)
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Font family picker'}
+                  checked={!!def.field?.tiptap?.features?.fontFamilyPicker}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.fontFamilyPicker`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
+                />
+                <Checkbox
+                  isEmbedded
+                  style={{ padding: '0 0 10px 0' }}
+                  label={'Font size picker'}
+                  checked={!!def.field?.tiptap?.features?.fontSizePicker}
+                  onChange={(e) => {
+                    dispatch(
+                      setRootSchemaProperty(
+                        props.id,
+                        `field.tiptap.features.fontSizePicker`,
+                        e.currentTarget.checked
+                      )
+                    );
+                  }}
                 />
               </>
+            </Field>
+            {def.field?.tiptap?.features?.fontFamilyPicker ? (
+              <SelectMany
+                isEmbedded
+                label={'Permitted fonts'}
+                type={'String'}
+                values={(def.field?.tiptap?.features.fontFamilies || []).map(({ name, label }) => ({
+                  value: name,
+                  label: label || name,
+                }))}
+                onChange={(values) => {
+                  const families = values.map(({ value, label }) => ({ name: value.toString(), label }));
+                  dispatch(setRootSchemaProperty(props.id, `field.tiptap.features.fontFamilies`, families));
+                }}
+              />
             ) : null}
+            {def.field?.tiptap?.features?.fontSizePicker ? (
+              <SelectMany
+                isEmbedded
+                label={'Permitted font sizes'}
+                type={'String'}
+                values={(def.field?.tiptap?.features.fontSizes || []).map((value) => ({ value, label: value }))}
+                onChange={(values) => {
+                  const sizes = values.map(({ value, label }) => value.toString());
+                  dispatch(setRootSchemaProperty(props.id, `field.tiptap.features.fontSizes`, sizes));
+                }}
+              />
+            ) : null}
+            <Text
+              isEmbedded
+              label={'Meta frame URL'}
+              description={
+                'Render this URL in an iFrame above the editor body. ' +
+                'Field data is provided via <code>Window.postMessage()</code> ' +
+                'and can be captured and rendered by adding a listener for messages. ' +
+                'Include the <a href="https://github.com/davidjbradshaw/iframe-resizer">iframe-resizer</a> content script ' +
+                'to allow the iframe to automatically resize to fit the content inside the iframe.'
+              }
+              value={def?.field?.tiptap?.metaFrame}
+              onChange={(e) =>
+                dispatch(setRootSchemaProperty(props.id, `field.tiptap.metaFrame`, e.currentTarget.value))
+              }
+            />
+            <Code
+              isEmbedded
+              label={'Editor styles'}
+              description={
+                'Custom CSS styles that will be applied to the editor content. ' +
+                'Nested selectors are supported. ' +
+                'Use <code>.ProseMirror</code> as the root selector. ' +
+                'Selectors not staring with <code>.ProseMirror</code> will be ignored.'
+              }
+              type={'less'}
+              value={def?.field?.tiptap?.css || ''}
+              onChange={(value) => dispatch(setRootSchemaProperty(props.id, `field.tiptap.css`, value))}
+            />
+            <Field
+              isEmbedded
+              label={'Data attribute fields'}
+              description={
+                'Add a data attribute to the <code>.ProseMirror</code> element ' +
+                'with the value of the selected field. ' +
+                'This can be used to apply different css based on the values of fields. ' +
+                'Value lengths must be less than 25 characters.'
+              }
+            >
+              <>
+                {deconstructedSchema
+                  .map(([key, _def]): [typeof key, typeof _def, MongooseSchemaType | 'DocArray'] => {
+                    const type: MongooseSchemaType | 'DocArray' = isTypeTuple(_def.type)
+                      ? _def.type[1]
+                      : _def.type;
+                    return [key, _def, type];
+                  })
+                  .filter(([key, _def, type]) => type === 'String' || type === 'Float' || type === 'Number')
+                  .map(([key, _def, type], index) => (
+                    <Checkbox
+                      isEmbedded
+                      label={_def.field?.label || key}
+                      key={index}
+                      style={{ padding: 0, paddingBottom: 10 }}
+                      checked={def.field?.tiptap?.pmAttrFields?.includes(key) || false}
+                      onChange={(e) => {
+                        let pmAttrFields: string[] = [...(def.field?.tiptap?.pmAttrFields || [])];
+
+                        if (e.currentTarget.checked) pmAttrFields.push(key);
+                        else pmAttrFields = pmAttrFields.filter((fieldKey) => fieldKey !== key);
+
+                        dispatch(setRootSchemaProperty(props.id, `field.tiptap.pmAttrFields`, pmAttrFields));
+                      }}
+                    />
+                  ))}
+              </>
+            </Field>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );
