@@ -5,9 +5,10 @@ import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui
 import { WebSocketStatus } from '@hocuspocus/provider';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Editor, EditorContent } from '@tiptap/react';
+import { Editor, EditorContent, PureEditorContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { useEffect, useMemo, useState } from 'react';
+import { get as getProperty } from 'object-path';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useLocation } from 'react-router-dom';
@@ -208,6 +209,20 @@ const Tiptap = (props: ITiptap) => {
   const [iframehtmlstring, setIframehtmlstring] = useState<string>('');
 
   const [AutosaveWindow, showAutosaveModal] = useAutosaveModal();
+
+  const contentRef = useRef<PureEditorContent>(null);
+
+  // set data attributes for fields specified in `pmAttrFields`
+  (props.options?.pmAttrFields || []).forEach((fieldKey) => {
+    const value = getProperty(props.y.data, fieldKey);
+
+    if (value > 24) return;
+    if (typeof value !== 'string' && typeof value !== 'number') return;
+
+    contentRef.current?.editorContentRef.current
+      ?.querySelector('.ProseMirror')
+      ?.setAttribute(`data-${fieldKey}`, value);
+  });
 
   return (
     <Container theme={theme} isMaximized={props.isMaximized || false} ref={observe}>
@@ -411,7 +426,9 @@ const Tiptap = (props: ITiptap) => {
                 />
               ) : null}
 
-              {hasConnectedBefore ? <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} /> : null}
+              {hasConnectedBefore ? (
+                <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} ref={contentRef} />
+              ) : null}
             </div>
           </ErrorBoundary>
           <ErrorBoundary fallback={<div>Error loading sidebar</div>}>
