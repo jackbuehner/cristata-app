@@ -427,7 +427,13 @@ const Tiptap = (props: ITiptap) => {
               ) : null}
 
               {hasConnectedBefore ? (
-                <Content editor={editor} theme={theme} tiptapwidth={tiptapWidth} ref={contentRef} />
+                <Content
+                  editor={editor}
+                  theme={theme}
+                  tiptapwidth={tiptapWidth}
+                  ref={contentRef}
+                  ProseMirrorCSS={props.options?.css}
+                />
               ) : null}
             </div>
           </ErrorBoundary>
@@ -491,7 +497,7 @@ const Container = styled.div<{ theme: themeType; isMaximized: boolean }>`
     isMaximized ? `position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1000` : 'z-index: 1'};
 `;
 
-const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>`
+const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType; ProseMirrorCSS?: string }>`
   max-width: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `unset` : `768px`)};
   width: ${({ tiptapwidth }) => (tiptapwidth <= 680 ? `100%` : `calc(100% - 40px)`)};
   box-sizing: border-box;
@@ -618,6 +624,10 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType }>
       cursor: col-resize;
     }
   }
+  ${({ ProseMirrorCSS }) => {
+    if (ProseMirrorCSS?.indexOf('.ProseMirror') === 0) return ProseMirrorCSS;
+    return '';
+  }}
 `;
 
 const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType }>`
