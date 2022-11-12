@@ -9,7 +9,7 @@ import { Field, FieldProps } from './Field';
 import { Remark } from 'react-remark';
 
 interface TextProps extends Omit<FieldProps, 'children'> {
-  type: 'json' | 'md';
+  type: 'json' | 'md' | 'css' | 'less';
   value: string;
   onValidate?: (markers: editor.IMarker[]) => void;
   onChange?: (value: string | undefined) => void;
