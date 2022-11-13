@@ -1,6 +1,7 @@
 import { useApolloClient } from '@apollo/client';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import { Checkbox } from '../../components/Checkbox';
 import { InputGroup } from '../../components/InputGroup';
 import { Label } from '../../components/Label';
 import { TextInput } from '../../components/TextInput';
@@ -28,6 +29,8 @@ function useInviteUserModal(): [React.ReactNode, () => void, () => void] {
     const [phone, setPhone] = useState<string>();
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [title, setTitle] = useState<string>();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [retired, setRetired] = useState<boolean>();
 
     /**
      * Creates a new user.
@@ -44,6 +47,7 @@ function useInviteUserModal(): [React.ReactNode, () => void, () => void] {
             email,
             current_title: title,
             phone,
+            retired,
           },
         })
         .then((res) => {
@@ -137,6 +141,21 @@ function useInviteUserModal(): [React.ReactNode, () => void, () => void] {
               id={'title'}
               value={title}
               onChange={(e) => setTitle(e.currentTarget.value)}
+              isDisabled={isLoading}
+            />
+          </InputGroup>
+          <InputGroup type={`checkbox`}>
+            <Label
+              htmlFor={`deactivate-field`}
+              description={`Whether this user can sign in to Cristata. An invitation email will not be sent if the user is deactivated. They can be reactivated later, and a invitation can also be sent later (do not create a duplicate user account).`}
+            >
+              Deactivated
+            </Label>
+            <Checkbox
+              name={'deactivate-field'}
+              id={'deactivate-field'}
+              isChecked={retired}
+              onChange={(e) => setRetired(e.currentTarget.checked)}
               isDisabled={isLoading}
             />
           </InputGroup>

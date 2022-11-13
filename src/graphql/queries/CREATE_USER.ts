@@ -13,8 +13,9 @@ const CREATE_USER = gql(
         name: 'String!',
         username: 'String!',
         slug: 'String!',
-        email: 'String!',
-        current_title: 'String!',
+        email: 'String',
+        current_title: 'String',
+        retired: 'Boolean',
       },
       userCreate: {
         __args: {
@@ -23,6 +24,7 @@ const CREATE_USER = gql(
           slug: new VariableType('slug'),
           email: new VariableType('email'),
           current_title: new VariableType('current_title'),
+          retired: new VariableType('retired'),
         },
         _id: true,
       },
