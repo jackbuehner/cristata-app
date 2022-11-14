@@ -20,7 +20,7 @@ import { Spinner } from '../Loading';
 interface ISplashScreen {
   loading: boolean; // loading status of api request for user
   error?: AxiosError<any>; // error for api request
-  user: {
+  user?: {
     email: string;
     methods: string[];
     name: string;
@@ -28,6 +28,7 @@ interface ISplashScreen {
     teams: string[];
     two_factor_authentication: boolean;
     username?: string;
+    tenant: string;
     _id: string;
     next_step?: string;
     constantcontact?: {
@@ -59,11 +60,18 @@ function SplashScreen(props: ISplashScreen) {
 
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
+    const tenant = localStorage.getItem('tenant');
+    const isWrongTenant = props.user?.tenant !== tenant;
+
     // store where the user should be redirected
-    if (props.error && props.bypassAuthLogic !== true && searchParams.get('from') !== 'sign-out') {
-      const is403 = props.error.message.indexOf('403') !== -1;
+    if (
+      (props.error || isWrongTenant) &&
+      props.bypassAuthLogic !== true &&
+      searchParams.get('from') !== 'sign-out'
+    ) {
+      const is403 = isWrongTenant || props.error?.message.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
-      if (is403 && location.pathname.indexOf(`/sign-in`) !== 0) {
+      if ((is403 || isWrongTenant) && location.pathname.indexOf(`/sign-in`) !== 0) {
         const tenant = localStorage.getItem('tenant');
         if (tenant) {
           window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
@@ -82,6 +90,7 @@ function SplashScreen(props: ISplashScreen) {
     location.search,
     props.bypassAuthLogic,
     searchParams,
+    props.user?.tenant,
   ]);
 
   useEffect(() => {
