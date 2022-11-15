@@ -61,7 +61,7 @@ function SplashScreen(props: ISplashScreen) {
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
     const tenant = localStorage.getItem('tenant');
-    const isWrongTenant = props.user?.tenant !== tenant;
+    const isWrongTenant = props.user ? props.user.tenant !== tenant : false;
 
     // store where the user should be redirected
     if (
@@ -90,7 +90,7 @@ function SplashScreen(props: ISplashScreen) {
     location.search,
     props.bypassAuthLogic,
     searchParams,
-    props.user?.tenant,
+    props.user,
   ]);
 
   useEffect(() => {
