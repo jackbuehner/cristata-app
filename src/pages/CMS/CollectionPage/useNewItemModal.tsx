@@ -32,7 +32,10 @@ function useNewItemModal(
     // no longer matches state
     const [state, setState] = useState<Record<string, boolean | number | string | undefined>>({});
     useEffect(() => {
-      const sameKeys = requiredFields.map(([key]) => key).every((key) => Object.keys(state).includes(key));
+      // check whether we need to reset the state because the requiredFields have changed
+      const sameKeys =
+        requiredFields.length === Object.keys(state).length &&
+        requiredFields.map(([key]) => key).every((key) => Object.keys(state).includes(key));
 
       if (!sameKeys)
         setState(
@@ -241,7 +244,7 @@ function useNewItemModal(
                   />
                 );
               }
-              return <></>;
+              return <>Field for {fieldName} missing</>;
             })}
         </>
       ),
