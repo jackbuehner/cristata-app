@@ -99,28 +99,26 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
     });
   };
 
-  const docFieldGroups: FunctionComponentElement<Record<string, unknown>>[][] = arr.map(
-    ({ __uuid }, groupIndex) => {
-      const groupFields = props.processSchemaDef(props.schemaDefs).map(([subkey, subdef], index, arr) => {
-        const fieldElem = props.renderFields(
-          [subkey.replace(props.stateFieldKey, `${props.stateFieldKey}.${groupIndex}`), subdef],
-          index,
-          arr,
-          props.stateFieldKey,
-          // doc array options for yjs
-          {
-            __uuid: __uuid as string, // identify sub fields by uuid
-            parentKey: props.stateFieldKey, // the key of the doc array that contains the doc
-            childKey: subkey.replace(props.stateFieldKey + '.', ''),
-          }
-        );
+  const docFieldGroups: FunctionComponentElement<Record<string, unknown>>[][] = arr.map(({ __uuid }) => {
+    const groupFields = props.processSchemaDef(props.schemaDefs).map(([subkey, subdef], index, arr) => {
+      const fieldElem = props.renderFields(
+        [subkey.replace(props.stateFieldKey, `${props.stateFieldKey}`), subdef],
+        index,
+        arr,
+        props.stateFieldKey,
+        // doc array options for yjs
+        {
+          __uuid: __uuid as string, // identify sub fields by uuid
+          parentKey: props.stateFieldKey, // the key of the doc array that contains the doc
+          childKey: subkey.replace(props.stateFieldKey + '.', ''),
+        }
+      );
 
-        return React.cloneElement(fieldElem, { isEmbedded: true });
-      });
+      return React.cloneElement(fieldElem, { isEmbedded: true });
+    });
 
-      return groupFields;
-    }
-  );
+    return groupFields;
+  });
 
   return (
     <CollaborativeFieldWrapper
