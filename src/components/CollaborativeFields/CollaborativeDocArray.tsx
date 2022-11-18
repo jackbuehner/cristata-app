@@ -180,7 +180,7 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                       } => !!_
                     );
                   return (
-                    <Draggable draggableId={uuid} index={index} key={uuid}>
+                    <Draggable draggableId={uuid} index={index} key={index + uuid}>
                       {(provided) => (
                         <Group key={uuid} theme={theme} ref={provided.innerRef} {...provided.draggableProps}>
                           <DragHandle dragHandleProps={provided.dragHandleProps} disabled={props.disabled} />
