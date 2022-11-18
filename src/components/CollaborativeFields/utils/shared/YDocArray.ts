@@ -64,7 +64,7 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
     populate?: { schema: DeconstructedSchemaDefType; y: EntryY; opts?: GetYFieldsOptions }
   ): Promise<Record<string, unknown>[]> {
     const type = this.#ydoc.getArray<Record<string, unknown> & { uuid: string }>(key);
-    const arr = type.toArray();
+    const arr = type.toArray().filter((v) => !!v);
 
     // populate values
     if (populate) {
