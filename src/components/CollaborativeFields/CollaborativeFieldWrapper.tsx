@@ -98,8 +98,8 @@ function CollaborativeFieldWrapper(props: CollaborativeFieldWrapperProps) {
               htmlFor={props.label.replaceAll(' ', '-')}
             >
               {props.label}{' '}
-              {focusedUsers.map((user) => (
-                <FocusBullet key={user.sessionId} user={user} />
+              {focusedUsers.map((user, index) => (
+                <FocusBullet key={index} user={user} />
               ))}
             </Label>
           </LabelRow>
