@@ -144,16 +144,17 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                     .filter((key) => !!key);
                   const collapsedContentRows = group
                     .map(({ props }) => {
+                      const y = props.y as CollaborativeDocArrayProps['y'] | undefined;
+
                       const label =
                         typeof getProperty(props, 'label') === 'string'
                           ? (getProperty(props, 'label') as string)
                           : undefined;
-                      let value =
-                        typeof getProperty(props, 'value') === 'string'
-                          ? (getProperty(props, 'value') as string)
-                          : typeof getProperty(props, 'value') === 'number'
-                          ? (getProperty(props, 'value') as number)
-                          : undefined;
+
+                      let value = (y?.ydoc?.toJSON() || {})[y?.field || ''] || '';
+                      if (Array.isArray(value)) value = `${value.length} items`;
+                      if (typeof value !== 'string') value = '';
+                      value = value.replace(/<.*?>/g, '');
 
                       if (label && value) {
                         // convert value to formatted date if it is a ISO string
@@ -162,9 +163,12 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                             ...DateTime.DATETIME_HUGE,
                             timeZoneName: 'short',
                           });
+                      }
 
+                      if (label) {
                         return { label, value };
                       }
+
                       return null;
                     })
                     .filter(
