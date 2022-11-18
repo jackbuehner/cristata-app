@@ -201,10 +201,12 @@ function CollaborativeDocArray(props: CollaborativeDocArrayProps) {
                               disabled={props.disabled}
                               onClick={() => {
                                 if (!props.disabled) {
-                                  yarray?.delete(index);
+                                  yarray?.delete(index, 1);
 
                                   childrenYjsFieldKeys.forEach((key) => {
-                                    props.y.ydoc?.share.delete(key);
+                                    if (props.y.ydoc?.share.has(key)) {
+                                      props.y.ydoc?.share.delete(key);
+                                    }
                                   });
                                 }
                               }}
