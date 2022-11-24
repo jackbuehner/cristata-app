@@ -1,12 +1,18 @@
+import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
+import axios from 'axios';
 import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
+import { v4 as uuidv4 } from 'uuid';
 import { Menu } from '../../../components/Menu';
 import { mongoFilterType } from '../../../graphql/client';
+import { SIGN_S3, SIGN_S3__DOC_TYPE, SIGN_S3__TYPE } from '../../../graphql/queries';
+import { CREATE_FILE, CREATE_FILE__TYPE } from '../../../graphql/queries/CREATE_FILE';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName, setAppSearchShown } from '../../../redux/slices/appbarSlice';
@@ -66,6 +72,8 @@ function CollectionPage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const location = useLocation();
+  const client = useApolloClient();
+  const tenant = localStorage.getItem('tenant');
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -173,6 +181,12 @@ function CollectionPage() {
     true
   );
 
+  // create a ref for the actual input element and provide a function to click it
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+  const upload = () => {
+    uploadInputRef?.current?.click();
+  };
+
   // track table items that have been selected
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [lastSelectedId, setLastSelectedId] = useState<string>();
@@ -184,9 +198,25 @@ function CollectionPage() {
     dispatch(setAppLoading(isLoading));
   }, [dispatch, isLoading]);
 
+  // keep track of the upload progress
+  const [uploadProgress, setUploadProgress] = useState<number>(0); // should be between 0 and 1
+
+  // keep track of the upload status
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  useEffect(() => {
+    if (uploadProgress > 0 && uploadProgress < 1)
+      setUploadStatus(`Uploading (${(uploadProgress * 100).toFixed(0)}%)...`);
+  }, [uploadProgress]);
+
+  const [canCreate, setCanCreate] = useState(tableRef.current?.getPermissions()?.create);
+  useEffect(() => {
+    setCanCreate(tableRef.current?.getPermissions()?.create);
+  }, [isLoading]);
+
   // configure app bar
   useEffect(() => {
     dispatch(setAppName(pageTitle));
+    dispatch(setAppName(`${pageTitle}${uploadStatus ? ` - ${uploadStatus}` : ``}`));
     dispatch(
       setAppActions([
         {
@@ -196,9 +226,11 @@ function CollectionPage() {
           action: () => dispatch(setAppSearchShown(true)),
         },
         {
-          label: 'Create new',
+          label: collectionName === 'File' ? 'Upload' : 'Create new',
           type: 'button',
-          action: createNew,
+          action: collectionName === 'File' ? upload : createNew,
+          icon: collectionName === 'File' ? 'ArrowUpload20Regular' : undefined,
+          disabled: !!isLoading || !!uploadStatus || !navigator.onLine || !canCreate,
         },
         {
           label: 'Tools',
@@ -221,10 +253,124 @@ function CollectionPage() {
         },
       ])
     );
-  }, [createNew, dispatch, pageTitle, showToolsDropdown]);
+  }, [canCreate, collectionName, createNew, dispatch, isLoading, pageTitle, showToolsDropdown, uploadStatus]);
+
+  /**
+   * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
+   */
+  const getSignedRequest = async (file: File) => {
+    return client
+      .mutate<SIGN_S3__TYPE>({
+        mutation: SIGN_S3,
+        variables: {
+          fileName: uuidv4(),
+          fileType: file.type,
+          s3Bucket: `app.cristata.${tenant}.files`,
+        },
+      })
+      .then((data) => {
+        if (!data.errors && !data.data) throw new Error('signed url was not sent by the server');
+        return data.data?.s3Sign as SIGN_S3__DOC_TYPE;
+      })
+      .then((data) => data)
+      .catch((error) => {
+        console.error(error);
+        setIsLoading(false);
+        setUploadStatus(null);
+        toast.error(`Failed to get signed s3 url: ${error.message}`);
+        return { signedRequest: undefined, location: undefined };
+      });
+  };
+
+  /**
+   * Uploads the file to the s3 bucket using the signed request url
+   */
+  const uploadFile = async (file: File, signedRequest: string) => {
+    return axios
+      .put(signedRequest, file, {
+        headers: { 'Content-Type': file.type, 'x-amz-acl': 'public-read' },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.lengthComputable) setUploadProgress(progressEvent.loaded / progressEvent.total);
+        },
+      })
+      .then(() => {
+        setUploadProgress(0);
+        return true;
+      })
+      .catch((error) => {
+        setUploadProgress(0);
+        setIsLoading(false);
+        setUploadStatus(null);
+        console.error(error);
+        toast.error(`Failed to upload file with signed s3 url: ${error}`);
+        return false;
+      });
+  };
+
+  /**
+   * adds a new file to s3 and the database
+   */
+  const addNewFile = async (file: File) => {
+    setIsLoading(true);
+
+    // get the signed request url and the target url for the file
+    setUploadStatus('Preparing to upload...');
+    const { signedRequest, location: fileUrl } = await getSignedRequest(file);
+
+    if (signedRequest && fileUrl) {
+      // upload the file to s3
+      const isUploaded = await uploadFile(file, signedRequest);
+
+      if (isUploaded) {
+        setUploadStatus('Finishing upload...');
+        await client
+          .mutate<CREATE_FILE__TYPE>({
+            mutation: CREATE_FILE,
+            variables: {
+              name: file.name,
+              file_type: file.type,
+              size_bytes: file.size,
+              location: fileUrl,
+            },
+          })
+          .then((res) => {
+            const _id = res.data?.fileCreate._id;
+
+            setIsLoading(false);
+            setUploadStatus(null);
+            tableRef.current?.refetchData();
+
+            // open the document
+            if (_id) {
+              navigate(`/cms/collection/files/${_id}`);
+            }
+          })
+          .catch((error) => {
+            setIsLoading(false);
+            setUploadStatus(null);
+            tableRef.current?.refetchData();
+
+            // log and toast errors
+            console.error(error.graphQLErrors?.[0]?.message || error.message);
+            toast.error(error.graphQLErrors?.[0]?.message || error.message);
+          });
+      }
+    }
+  };
+
   return (
     <>
       {NewItemWindow}
+      <input
+        ref={uploadInputRef}
+        type={`file`}
+        onChange={async (e) => {
+          if (e.target.files) {
+            addNewFile(e.target.files[0]);
+          }
+        }}
+        style={{ display: 'none' }}
+      />
       <TableWrapper theme={theme}>
         <CollectionTable
           collection={collectionName}

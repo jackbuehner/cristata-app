@@ -31,6 +31,13 @@ function ConfigurationNavigation() {
         >
           Secrets
         </SideNavSubButton>
+        <SideNavHeading>System collections</SideNavHeading>
+        <SideNavSubButton
+          Icon={<FluentIcon name={'CircleSmall20Filled'} />}
+          to={`/configuration/system-collection/File/action-access`}
+        >
+          Files
+        </SideNavSubButton>
         <SideNavHeading>Schemas</SideNavHeading>
         {(!collections || collections?.length === 0) && !navigator.onLine ? (
           <Offline variant={'small'} />

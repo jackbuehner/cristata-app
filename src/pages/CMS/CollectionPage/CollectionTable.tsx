@@ -6,7 +6,6 @@ import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-generator-schema';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
@@ -33,6 +32,7 @@ import { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
+import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
@@ -65,6 +65,13 @@ interface ICollectionTableImperative {
    * Reset the table sort filters back to default.
    */
   resetSort(): void;
+  getPermissions():
+    | undefined
+    | {
+        archive?: boolean;
+        hide?: boolean;
+        create?: boolean;
+      };
 }
 
 const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>(
@@ -113,7 +120,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     }, [defaultSort, props.collection, sort]);
 
     // get the schema for the collection so we can get the required fields and create the correct columns
-    const [{ schemaDef, by }] = useCollectionSchemaConfig(props.collection);
+    const [{ schemaDef, by, options }] = useCollectionSchemaConfig(props.collection);
 
     // generate a GraphQL API query based on the collection
     const GENERATED_COLLECTION_QUERY = gql(
@@ -155,11 +162,19 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                         photo: true,
                       },
                     },
+                    timestamps: {
+                      modified_at: true,
+                    },
                   },
                   // fields used in the table columns
                   ...schemaDef.map(docDefsToQueryObjectCols)
                 ),
               },
+            },
+            [uncapitalize(props.collection) + 'ActionAccess']: {
+              archive: true,
+              hide: true,
+              create: true,
             },
           },
         },
@@ -228,12 +243,23 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       resetSort() {
         setSort({});
       },
+      getPermissions() {
+        const actionAccess = queryData?.[uncapitalize(props.collection) + 'ActionAccess'];
+
+        return {
+          archive: options?.disableArchiveMutation || !actionAccess?.archive ? false : true,
+          create: options?.disableCreateMutation || !actionAccess?.create ? false : true,
+          hide: options?.disableHideMutation || !actionAccess?.hide ? false : true,
+        };
+      },
     }));
 
     type CustomColumn = Column & { isSortable: boolean };
 
     const accessor = (data: any, key: string, def: SchemaDef) => {
       const fieldData = getProperty(data, key);
+
+      if (fieldData === null || fieldData === undefined) return '';
 
       if (def.column?.reference?.collection || isTypeTuple(def.type)) {
         const collection = isTypeTuple(def.type)
@@ -309,8 +335,8 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
       if (typeof fieldData === 'string') {
         if (def.type === 'Date') {
-          const date = DateTime.fromISO(fieldData).toFormat(`LLL. dd, yyyy`);
-          if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
+          const date = formatISODate(fieldData, false, true, true);
+          if (fieldData === '0001-01-01T01:00:00.000+00:00') return <span></span>; // this is the default date
           return <span style={{ fontSize: 14 }}>{date}</span>;
         }
 
@@ -446,7 +472,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           })
           .filter((x): x is CustomColumn => !!x),
         {
-          Header: 'Created by',
+          Header: props.collection === 'File' ? 'Uploaded by' : 'Created by',
           id: 'people.created_by',
           accessor: (data) => accessor(data, 'people.created_by', { type: ['User', 'ObjectId'] }),
           width: 150,
@@ -463,11 +489,11 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           Header: 'Last modified',
           id: 'timestamps.modified_at',
           accessor: (data) => accessor(data, 'timestamps.modified_at', { type: 'Date' }),
-          width: 150,
+          width: 190,
           isSortable: true,
         },
       ];
-    }, [props.lastSelectedIdState, props.selectedIdsState, schemaDef]);
+    }, [props.collection, props.lastSelectedIdState, props.selectedIdsState, schemaDef]);
 
     // create a ref for the spinner that appears when more rows can be loaded
     const SpinnerRef = useRef<HTMLDivElement>(null);
@@ -714,7 +740,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         />
         <BulkActions theme={theme} show={selectedIds.length > 0}>
           {searchParams.get('archived')?.toLowerCase() === 'true' ||
-          searchParams.get('!archived')?.toLowerCase() === 'false' ? null : (
+          searchParams.get('!archived')?.toLowerCase() === 'false' ||
+          !queryData?.[uncapitalize(props.collection) + 'ActionAccess']?.archive ||
+          options?.disableArchiveMutation ? null : (
             <Button
               icon={<Archive20Regular />}
               backgroundColor={{ base: 'transparent' }}
@@ -726,17 +754,20 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
               Archive
             </Button>
           )}
-          <Button
-            icon={<Delete20Regular />}
-            color={'red'}
-            backgroundColor={{ base: 'transparent' }}
-            border={{ base: '1px solid transparent' }}
-            height={42}
-            disabled={selectedIds.length < 1}
-            onClick={showDeleteModal}
-          >
-            Delete
-          </Button>
+          {!queryData?.[uncapitalize(props.collection) + 'ActionAccess']?.hide ||
+          options?.disableHideMutation ? null : (
+            <Button
+              icon={<Delete20Regular />}
+              color={'red'}
+              backgroundColor={{ base: 'transparent' }}
+              border={{ base: '1px solid transparent' }}
+              height={42}
+              disabled={selectedIds.length < 1}
+              onClick={showDeleteModal}
+            >
+              Delete
+            </Button>
+          )}
           <Button
             icon={<Open20Regular />}
             backgroundColor={{ base: 'transparent' }}

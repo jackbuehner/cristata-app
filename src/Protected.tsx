@@ -24,6 +24,7 @@ import { themeType } from './utils/theme/theme';
 /* prettier-ignore */ const BillingServiceUsagePage = loadable(() => import(/* webpackChunkName: "BillingServiceUsagePage" */'./pages/configuration'), { resolveComponent: (c) => c.BillingServiceUsagePage });
 /* prettier-ignore */ const CollectionSchemaPageOld = loadable(() => import(/* webpackChunkName: "CollectionSchemaPage" */'./pages/configuration'), { resolveComponent: (c) => c.CollectionSchemaPageOld });
 /* prettier-ignore */ const CollectionSchemaPage = loadable(() => import(/* webpackChunkName: "CollectionSchemaPageVisual" */'./pages/configuration'), { resolveComponent: (c) => c.CollectionSchemaPage });
+/* prettier-ignore */ const SystemCollectionConfigPage = loadable(() => import(/* webpackChunkName: "SystemCollectionConfigPage" */'./pages/configuration'), { resolveComponent: (c) => c.SystemCollectionPage });
 /* prettier-ignore */ const ConfigurationNavigation = loadable(() => import(/* webpackChunkName: "ConfigurationNavigation" */'./pages/configuration'), { resolveComponent: (c) => c.ConfigurationNavigation });
 /* prettier-ignore */ const TokenSecretsPage = loadable(() => import(/* webpackChunkName: "TokenSecretsPage" */'./pages/configuration'), { resolveComponent: (c) => c.TokenSecretsPage });
 /* prettier-ignore */ const FathomEmbed = loadable(() => import(/* webpackChunkName: "FathomEmbed" */'./pages/embeds'), { resolveComponent: (c) => c.FathomEmbed });
@@ -136,6 +137,10 @@ function Protected(props: ProtectedProps) {
                 </Route>
                 <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
                 <Route path={`schema/:collection/code`} element={<CollectionSchemaPageOld />} />
+                <Route
+                  path={`system-collection/:collection/action-access`}
+                  element={<SystemCollectionConfigPage />}
+                />
               </Route>
               <Route path={`/`} element={<HomePage />} />
             </Routes>

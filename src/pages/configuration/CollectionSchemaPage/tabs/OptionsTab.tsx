@@ -1,5 +1,4 @@
 import styled from '@emotion/styled/macro';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { isSchemaDef, isSchemaDefOrType } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
@@ -16,7 +15,6 @@ import {
 import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
-  setActionAccess,
   setCanPublish,
   setMandatoryWatchers,
   setName,
@@ -26,9 +24,9 @@ import {
   setWatcherNotices,
   setWithPermissions,
 } from '../../../../redux/slices/collectionSlice';
-import { capitalize } from '../../../../utils/capitalize';
 import { colorType } from '../../../../utils/theme/theme';
 import { useConfirmDelete } from '../hooks/useConfirmDelete';
+import { ActionAccessCard } from './ActionAccessCard';
 import { getFieldTypes } from './getFieldTypes';
 
 interface OptionsTabProps {}
@@ -46,7 +44,6 @@ function OptionsTab(props: OptionsTabProps) {
   const withPermissions = state.collection?.withPermissions;
   const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
   const watcherNotices = state.collection?.options?.watcherNotices;
-  const actionAccess = state.collection?.actionAccess;
 
   const fieldTypes = getFieldTypes(state.collection?.schemaDef || {}, true);
   const dateFields = fieldTypes.filter(([key, label, type]) => type === 'Date');
@@ -381,77 +378,7 @@ function OptionsTab(props: OptionsTabProps) {
           </IndentField>
         ) : null}
       </Card>
-      <Card>
-        <CardLabel>Action access</CardLabel>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          {(
-            [
-              'get',
-              'create',
-              'modify',
-              'hide',
-              'lock',
-              'watch',
-              'archive',
-              'delete',
-              canPublish ? 'publish' : null,
-              'bypassDocPermissions',
-            ] as unknown as CollectionPermissionsActions[]
-          )
-            .filter((a) => !!a)
-            .map((action) => {
-              return (
-                <Card key={'action'} noMargin>
-                  <CardLabel>{capitalize(action)}</CardLabel>
-                  <ReferenceMany
-                    isEmbedded
-                    label={`Users`}
-                    values={
-                      actionAccess?.[action]?.users.map((user) =>
-                        user === 0 ? { _id: 'any', label: 'Any user' } : { _id: user }
-                      ) || []
-                    }
-                    injectOptions={[{ value: 'any', label: 'Any user' }]}
-                    collection={'User'}
-                    onChange={(newValues) => {
-                      const current = actionAccess?.[action];
-                      if (newValues !== undefined && current) {
-                        dispatch(
-                          setActionAccess(action, {
-                            users: newValues.map((value) => (value._id === 'any' ? 0 : value._id)),
-                            teams: current.teams,
-                          })
-                        );
-                      }
-                    }}
-                  />
-                  <ReferenceMany
-                    isEmbedded
-                    label={`Teams`}
-                    values={
-                      actionAccess?.[action]?.teams.map((team) =>
-                        team === 0 ? { _id: 'any', label: 'Any team' } : { _id: team }
-                      ) || []
-                    }
-                    injectOptions={[{ value: 'any', label: 'Any team' }]}
-                    collection={'Team'}
-                    onChange={(newValues) => {
-                      const current = actionAccess?.[action];
-                      if (newValues !== undefined && current) {
-                        dispatch(
-                          setActionAccess(action, {
-                            users: current.users,
-                            teams: newValues.map((value) => (value._id === 'any' ? 0 : value._id)),
-                          })
-                        );
-                      }
-                    }}
-                  />
-                </Card>
-              );
-            })}
-        </div>
-      </Card>
+      <ActionAccessCard />
       <Card>
         <CardLabel>Danger zone</CardLabel>
         {DangerDeleteWindow}

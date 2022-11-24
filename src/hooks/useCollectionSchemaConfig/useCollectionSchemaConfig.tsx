@@ -18,7 +18,15 @@ function useCollectionSchemaConfig(name: string): [
     schemaDef: DeconstructedSchemaDefType;
     canPublish: boolean;
     withPermissions: boolean;
-    options?: { mandatoryWatchers?: string[]; previewUrl?: string; nameField?: string };
+    options?: {
+      mandatoryWatchers?: string[];
+      previewUrl?: string;
+      nameField?: string;
+      disableCreateMutation?: boolean;
+      disableHideMutation?: boolean;
+      disableArchiveMutation?: boolean;
+      disablePublishMutation?: boolean;
+    };
     by: { one: string; many: string } | null;
   },
   ApolloError | undefined,
@@ -83,6 +91,10 @@ interface QueryType {
       schemaDef: string; // JSON
       generationOptions?: {
         mandatoryWatchers?: string[];
+        disableCreateMutation?: boolean;
+        disableHideMutation?: boolean;
+        disableArchiveMutation?: boolean;
+        disablePublishMutation?: boolean;
       };
       by: {
         one: string;
@@ -105,6 +117,10 @@ function queryString(name: string): DocumentNode {
             mandatoryWatchers
             previewUrl
             nameField
+            disableCreateMutation
+            disableHideMutation
+            disableArchiveMutation
+            disablePublishMutation
           }
           by {
             one
