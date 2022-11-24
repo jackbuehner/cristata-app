@@ -253,7 +253,7 @@ function CollectionPage() {
         },
       ])
     );
-  }, [collectionName, createNew, dispatch, isLoading, pageTitle, showToolsDropdown, uploadStatus]);
+  }, [canCreate, collectionName, createNew, dispatch, isLoading, pageTitle, showToolsDropdown, uploadStatus]);
 
   /**
    * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
