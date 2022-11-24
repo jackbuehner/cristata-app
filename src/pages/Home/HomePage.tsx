@@ -41,10 +41,17 @@ function HomePage() {
       </div>
       <div style={{ gridArea: 'announcement' }}>
         <HomeSectionHeading icon={<Megaphone24Regular />}>
-          Whats new to Cristata (Oct. 30, 2022)
+          What's new to Cristata (Nov. 24, 2022)
         </HomeSectionHeading>
-        <span style={{ fontStyle: 'italic', marginLeft: 36 }}>Auto-collaboration update</span>
         <ol style={{ paddingInlineStart: 14, lineHeight: 1.5 }}>
+          <li>
+            Upload files to the Files collection. Every uploaded files recieves a link to view/download the
+            file.
+          </li>
+          <li>
+            Stage field configuration in the schema editor in easier to configure. Redundant options are now
+            consolidated.
+          </li>
           <li>View previous versions of documents. All saved editions are in the document sidebar.</li>
         </ol>
       </div>
