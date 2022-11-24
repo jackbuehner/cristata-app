@@ -208,6 +208,11 @@ function CollectionPage() {
       setUploadStatus(`Uploading (${(uploadProgress * 100).toFixed(0)}%)...`);
   }, [uploadProgress]);
 
+  const [canCreate, setCanCreate] = useState(tableRef.current?.getPermissions()?.create);
+  useEffect(() => {
+    setCanCreate(tableRef.current?.getPermissions()?.create);
+  }, [isLoading]);
+
   // configure app bar
   useEffect(() => {
     dispatch(setAppName(pageTitle));
@@ -225,7 +230,7 @@ function CollectionPage() {
           type: 'button',
           action: collectionName === 'File' ? upload : createNew,
           icon: collectionName === 'File' ? 'ArrowUpload20Regular' : undefined,
-          disabled: !!isLoading || !!uploadStatus || !navigator.onLine,
+          disabled: !!isLoading || !!uploadStatus || !navigator.onLine || !canCreate,
         },
         {
           label: 'Tools',
