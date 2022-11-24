@@ -6,7 +6,6 @@ import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-generator-schema';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
@@ -33,6 +32,7 @@ import { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
+import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
 import { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
@@ -154,6 +154,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                         name: true,
                         photo: true,
                       },
+                    },
+                    timestamps: {
+                      modified_at: true,
                     },
                   },
                   // fields used in the table columns
@@ -309,8 +312,8 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
       if (typeof fieldData === 'string') {
         if (def.type === 'Date') {
-          const date = DateTime.fromISO(fieldData).toFormat(`LLL. dd, yyyy`);
-          if (date === 'Dec. 31, 0000') return <span></span>; // this is the default date
+          const date = formatISODate(fieldData, false, true, true);
+          if (fieldData === '0001-01-01T01:00:00.000+00:00') return <span></span>; // this is the default date
           return <span style={{ fontSize: 14 }}>{date}</span>;
         }
 
@@ -463,7 +466,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           Header: 'Last modified',
           id: 'timestamps.modified_at',
           accessor: (data) => accessor(data, 'timestamps.modified_at', { type: 'Date' }),
-          width: 150,
+          width: 190,
           isSortable: true,
         },
       ];
