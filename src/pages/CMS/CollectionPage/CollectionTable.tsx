@@ -238,6 +238,8 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     const accessor = (data: any, key: string, def: SchemaDef) => {
       const fieldData = getProperty(data, key);
 
+      if (fieldData === null || fieldData === undefined) return '';
+
       if (def.column?.reference?.collection || isTypeTuple(def.type)) {
         const collection = isTypeTuple(def.type)
           ? def.type[0].replace('[', '').replace(']', '')
