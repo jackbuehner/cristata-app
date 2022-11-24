@@ -15,6 +15,16 @@ function ActionAccessCard(props: ActionAccessCardProps) {
 
   const canPublish = state.collection?.canPublish;
   const actionAccess = state.collection?.actionAccess;
+  const disableFindOneQuery = state.collection?.options?.disableFindOneQuery;
+  const disableFindManyQuery = state.collection?.options?.disableFindManyQuery;
+  const disableCreateMutation = state.collection?.options?.disableCreateMutation;
+  const disableModifyMutation = state.collection?.options?.disableModifyMutation;
+  const disableHideMutation = state.collection?.options?.disableHideMutation;
+  const disableArchiveMutation = state.collection?.options?.disableArchiveMutation;
+  const disableLockMutation = state.collection?.options?.disableLockMutation;
+  const disableWatchMutation = state.collection?.options?.disableWatchMutation;
+  const disableDeleteMutation = state.collection?.options?.disableDeleteMutation;
+  const disablePublishMutation = state.collection?.options?.disablePublishMutation;
 
   return (
     <Card>
@@ -25,16 +35,16 @@ function ActionAccessCard(props: ActionAccessCardProps) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {(
           [
-            'get',
-            'create',
-            'modify',
-            'hide',
-            'lock',
-            'watch',
-            'archive',
-            'delete',
-            canPublish ? 'publish' : null,
-            'bypassDocPermissions',
+            disableFindOneQuery !== true || disableFindManyQuery !== true ? 'get' : null,
+            disableCreateMutation !== true ? 'create' : null,
+            disableModifyMutation !== true ? 'modify' : null,
+            disableHideMutation !== true ? 'hide' : null,
+            disableLockMutation !== true ? 'lock' : null,
+            disableWatchMutation !== true ? 'watch' : null,
+            disableArchiveMutation !== true ? 'archive' : null,
+            disableDeleteMutation !== true ? 'delete' : null,
+            canPublish && disablePublishMutation !== true ? 'publish' : null,
+            disableFindOneQuery !== true || disableFindManyQuery !== true ? 'bypassDocPermissions' : null,
           ] as unknown as CollectionPermissionsActions[]
         )
           .filter((a) => !!a)
