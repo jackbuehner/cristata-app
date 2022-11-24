@@ -449,7 +449,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           })
           .filter((x): x is CustomColumn => !!x),
         {
-          Header: 'Created by',
+          Header: props.collection === 'File' ? 'Uploaded by' : 'Created by',
           id: 'people.created_by',
           accessor: (data) => accessor(data, 'people.created_by', { type: ['User', 'ObjectId'] }),
           width: 150,
@@ -470,7 +470,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
           isSortable: true,
         },
       ];
-    }, [props.lastSelectedIdState, props.selectedIdsState, schemaDef]);
+    }, [props.collection, props.lastSelectedIdState, props.selectedIdsState, schemaDef]);
 
     // create a ref for the spinner that appears when more rows can be loaded
     const SpinnerRef = useRef<HTMLDivElement>(null);
