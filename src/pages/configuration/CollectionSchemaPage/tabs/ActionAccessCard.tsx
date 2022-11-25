@@ -125,11 +125,11 @@ function ActionAccessCard(props: ActionAccessCardProps) {
                   collection={'User'}
                   onChange={(newValues) => {
                     const current = actionAccess?.[action];
-                    if (newValues !== undefined && current) {
+                    if (newValues !== undefined) {
                       dispatch(
                         setActionAccess(action, {
                           users: newValues.map((value) => (value._id === 'any' ? 0 : value._id)),
-                          teams: current.teams,
+                          teams: current?.teams || [],
                         })
                       );
                     }
@@ -147,10 +147,10 @@ function ActionAccessCard(props: ActionAccessCardProps) {
                   collection={'Team'}
                   onChange={(newValues) => {
                     const current = actionAccess?.[action];
-                    if (newValues !== undefined && current) {
+                    if (newValues !== undefined) {
                       dispatch(
                         setActionAccess(action, {
-                          users: current.users,
+                          users: current?.users || [],
                           teams: newValues.map((value) => (value._id === 'any' ? 0 : value._id)),
                         })
                       );
