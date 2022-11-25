@@ -639,7 +639,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                     label={'Make this field read only'}
                     checked={def?.modifiable === false}
                     onChange={(e) =>
-                      dispatch(setRootSchemaProperty(props.id, `modifiable`, e.currentTarget.checked))
+                      dispatch(setRootSchemaProperty(props.id, `modifiable`, !e.currentTarget.checked))
                     }
                   />
                 ) : null}
