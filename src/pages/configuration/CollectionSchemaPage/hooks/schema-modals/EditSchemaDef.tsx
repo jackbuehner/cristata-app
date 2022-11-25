@@ -30,6 +30,7 @@ import { Tab, TabBar } from '../../../../../components/Tabs';
 import { useAppSelector } from '../../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
 import { camelToDashCase } from '../../../../../utils/camelToDashCase';
+import { notEmpty } from '../../../../../utils/notEmpty';
 import { colorType } from '../../../../../utils/theme/theme';
 import { uncapitalize } from '../../../../../utils/uncapitalize';
 
@@ -1420,6 +1421,49 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                   ))}
               </>
             </Field>
+            <SelectOne
+              isEmbedded
+              label={'Not editible prosemirror JSON'}
+              description={
+                'Select a boolean field that indicates if the data in this field ' +
+                'is not prosemirror JSON (or at least should not be editable). ' +
+                'This boolean field is usually not available for manipulation by ' +
+                'content editors, and is usually set when importing data from a ' +
+                'different database that stored body content as HTML or Markdown.'
+              }
+              type={'String'}
+              options={[
+                def?.field?.tiptap?.isHTMLkey ? { label: 'Clear value', value: '__unset' } : null,
+                ...deconstructedSchema
+                  .map(([key, _def]): [typeof key, typeof _def, MongooseSchemaType | 'DocArray'] => {
+                    const type: MongooseSchemaType | 'DocArray' = isTypeTuple(_def.type)
+                      ? _def.type[1]
+                      : _def.type;
+                    return [key, _def, type];
+                  })
+                  .filter(([key, _def, type]) => type === 'Boolean')
+                  .map(([key, _def, type], index) => ({ value: key, label: _def.field?.label || key })),
+              ].filter(notEmpty)}
+              value={
+                def?.field?.tiptap?.isHTMLkey
+                  ? {
+                      value: def.field.tiptap.isHTMLkey,
+                      label:
+                        deconstructedSchema.find(([key]) => key === def.field?.tiptap?.isHTMLkey)?.[1]?.field
+                          ?.label || def.field.tiptap.isHTMLkey,
+                    }
+                  : { label: '', value: '__unset' }
+              }
+              onChange={(value) => {
+                if (value) {
+                  if (value.value === '__unset') {
+                    dispatch(setRootSchemaProperty(props.id, `field.tiptap.isHTMLkey`, undefined));
+                  } else {
+                    dispatch(setRootSchemaProperty(props.id, `field.tiptap.isHTMLkey`, value.value));
+                  }
+                }
+              }}
+            />
           </>
         ) : null}
       </div>
