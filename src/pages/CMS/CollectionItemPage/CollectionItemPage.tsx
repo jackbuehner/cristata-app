@@ -721,7 +721,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     y: props.y,
     user: props.user,
     docInfo: {
-      _id: getProperty(props.y.data, by?.one || '_id'),
+      _id: item_id,
       createdAt: getProperty(props.y.data, 'timestamps.created_at'),
       modifiedAt: getProperty(props.y.data, 'timestamps.modified_at'),
     },

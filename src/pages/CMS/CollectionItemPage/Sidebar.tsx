@@ -98,6 +98,10 @@ function Sidebar(props: SidebarProps) {
     <Container theme={theme} compact={props.compact}>
       <SectionTitle theme={theme}>Document Information</SectionTitle>
       <DocInfoRow theme={theme}>
+        <div>ID</div>
+        <div>{props.docInfo._id.slice(0, 24)}</div>
+      </DocInfoRow>
+      <DocInfoRow theme={theme}>
         <div>Created</div>
         <div>{formatISODate(props.docInfo.createdAt, undefined, undefined, true)}</div>
       </DocInfoRow>
