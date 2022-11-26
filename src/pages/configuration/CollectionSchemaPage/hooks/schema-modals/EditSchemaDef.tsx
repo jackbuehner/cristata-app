@@ -880,7 +880,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                     label={'Field order'}
                     value={def?.field?.order}
                     onChange={(e) =>
-                      dispatch(setRootSchemaProperty(props.id, `field.order`, e.currentTarget.value))
+                      dispatch(setRootSchemaProperty(props.id, `field.order`, e.currentTarget.valueAsNumber))
                     }
                   />
                 </div>
@@ -893,7 +893,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                     label={'Column order'}
                     value={def?.column?.order}
                     onChange={(e) =>
-                      dispatch(setRootSchemaProperty(props.id, `column.order`, e.currentTarget.value))
+                      dispatch(setRootSchemaProperty(props.id, `column.order`, e.currentTarget.valueAsNumber))
                     }
                   />
                 </div>
@@ -906,7 +906,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                 label={'Column width'}
                 value={def?.column?.width || 150}
                 onChange={(e) =>
-                  dispatch(setRootSchemaProperty(props.id, `column.width`, e.currentTarget.value))
+                  dispatch(setRootSchemaProperty(props.id, `column.width`, e.currentTarget.valueAsNumber))
                 }
               />
             ) : null}
