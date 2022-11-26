@@ -123,6 +123,30 @@ function useCreateSchemaDef(
                 dispatch(setRootSchemaProperty(path + '.field', 'tiptap.features', {}));
               }
 
+              if (newId === 'stage') {
+                // force these values for stage
+                dispatch(setRootSchemaProperty(path, 'multiple', true));
+                dispatch(
+                  setRootSchemaProperty(path, 'field.options', [
+                    { value: 1.1, label: 'Planning' },
+                    { value: 2.1, label: 'Draft' },
+                    { value: 3.1, label: 'Pending Review' },
+                    { value: 4.1, label: 'Ready' },
+                    { value: 5.2, label: 'Published' },
+                  ])
+                );
+                dispatch(setRootSchemaProperty(path, 'default', 1.1));
+                dispatch(
+                  setRootSchemaProperty(path, 'column.chips', [
+                    { value: 1.1, label: 'Planning', color: 'neutral' },
+                    { value: 2.1, label: 'Draft', color: 'indigo' },
+                    { value: 3.1, label: 'Review', color: 'red' },
+                    { value: 4.1, label: 'Ready', color: 'orange' },
+                    { value: 5.2, label: 'Published', color: 'green' },
+                  ])
+                );
+              }
+
               setIsCreated(true);
               return false;
             },
@@ -132,7 +156,8 @@ function useCreateSchemaDef(
               !newName ||
               !state.collection ||
               !!idAlreadyExists ||
-              (parsedType === 'Reference' && !referenceType),
+              (parsedType === 'Reference' && !referenceType) ||
+              (newId === 'stage' && parsedType !== 'Float'),
           }
         : { text: 'Close' },
       children:
@@ -159,8 +184,13 @@ function useCreateSchemaDef(
               label={'Display name'}
               value={newName}
               onChange={(e) => {
-                setNewName(e.currentTarget.value);
-                setNewId(slugify(e.currentTarget.value, '_'));
+                if (e.currentTarget.value.toLowerCase() === 'stage') {
+                  setNewName('Stage');
+                  setNewId('stage');
+                } else {
+                  setNewName(e.currentTarget.value);
+                  setNewId(slugify(e.currentTarget.value, '_'));
+                }
               }}
             />
             {type === 'richtext' ? null : (
@@ -186,7 +216,10 @@ function useCreateSchemaDef(
                 }}
               />
             )}
-            {type === 'text' || type === 'number' || type === 'decimal' || type === 'reference' ? (
+            {type === 'text' ||
+            type === 'number' ||
+            (type === 'decimal' && newId !== 'stage') || // hide for stage values since it it forced
+            type === 'reference' ? (
               <Field isEmbedded label={'Validations'}>
                 <>
                   <Checkbox
