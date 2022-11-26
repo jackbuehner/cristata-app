@@ -150,6 +150,7 @@ function useCreateSchemaDef(
             <SidebarSchemaCard label={'Reference'} icon={'reference'} onClick={() => setType('reference')} />
             <SidebarSchemaCard label={'Date and time'} icon={'datetime'} onClick={() => setType('datetime')} />
             {/* <SidebarSchemaCard label={'ObjectID'} icon={'objectid'} onClick={() => setType('objectid')} /> */}
+            <SidebarSchemaCard label={'Document array'} icon={'docarray'} />
           </div>
         ) : !isCreated ? (
           <div style={{ padding: '20px 24px' }}>
