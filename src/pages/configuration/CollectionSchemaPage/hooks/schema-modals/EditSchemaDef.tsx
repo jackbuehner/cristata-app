@@ -79,7 +79,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
       dispatch(setRootSchemaProperty(props.id, `field.options.${index}.value`, e.currentTarget.value));
     },
     setValueNum: (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-      dispatch(setRootSchemaProperty(props.id, `field.options.${index}.value`, e.currentTarget.value));
+      dispatch(setRootSchemaProperty(props.id, `field.options.${index}.value`, e.currentTarget.valueAsNumber));
     },
     setDisabled: (e: React.ChangeEvent<HTMLInputElement>, index: number, invert: boolean = false) => {
       dispatch(
@@ -995,7 +995,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                                   setRootSchemaProperty(
                                     props.id,
                                     `column.chips.${index}.value`,
-                                    e.currentTarget.value
+                                    e.currentTarget.valueAsNumber
                                   )
                                 )
                               }
