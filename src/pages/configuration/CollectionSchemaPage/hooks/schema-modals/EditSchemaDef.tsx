@@ -739,6 +739,11 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                             value={(def?.field?.options as NumberOption[])?.find(
                               (opt) => opt.value === def.default
                             )}
+                            onChange={(value) => {
+                              if (value?.value && typeof value.value === 'number') {
+                                dispatch(setRootSchemaProperty(props.id, `default`, value.value));
+                              }
+                            }}
                           />
                         ) : typeof def.default === 'number' && type === 'Float' ? (
                           <Number
