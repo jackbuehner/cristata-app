@@ -714,6 +714,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   });
   actions = _actions;
 
+  const stageDef = schemaDef.find(([key, def]) => key === 'stage')?.[1];
+
   const sidebarProps = {
     isEmbedded: props.isEmbedded,
     y: props.y,
@@ -723,7 +725,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       createdAt: getProperty(props.y.data, 'timestamps.created_at'),
       modifiedAt: getProperty(props.y.data, 'timestamps.modified_at'),
     },
-    stage: !!getProperty(props.y.data, 'stage')
+    stage: stageDef
       ? {
           current: getProperty(props.y.data, 'stage'),
           options: schemaDef.find(([key, def]) => key === 'stage')?.[1].field?.options || [],
