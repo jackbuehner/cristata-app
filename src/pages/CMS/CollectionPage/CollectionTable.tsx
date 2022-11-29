@@ -782,8 +782,26 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
               window.open(`/${tenant}${href}`, row.windowName, 'location=no');
             }}
           >
-            Open
+            Open in Editor
           </Button>
+          {props.collection === 'File' ? (
+            <Button
+              icon={<Open20Regular />}
+              backgroundColor={{ base: 'transparent' }}
+              border={{ base: '1px solid transparent' }}
+              height={42}
+              disabled={selectedIds.length !== 1}
+              onClick={(e) => {
+                const _id = docs.find((doc: { _id: string }) => doc._id === selectedIds[0])?.[
+                  row.hrefSuffixKey
+                ];
+                const href = `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/filestore/${tenant}/${_id}`;
+                window.open(href, row.windowName + 'preview', 'location=no');
+              }}
+            >
+              Open preview
+            </Button>
+          ) : null}
         </BulkActions>
       </ErrorBoundary>
     );

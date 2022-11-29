@@ -25,6 +25,8 @@ interface SidebarProps {
     _id: string;
     createdAt: string;
     modifiedAt: string;
+    collectionName: string;
+    tenant: string;
   };
   stage: {
     current: string | number;
@@ -213,6 +215,21 @@ function Sidebar(props: SidebarProps) {
             }}
           >
             Open preview
+          </Button>
+        </>
+      ) : null}
+      {props.docInfo.collectionName ? (
+        <>
+          <SectionTitle theme={theme}>Download</SectionTitle>
+          <Button
+            width={'100%'}
+            icon={<Open24Regular />}
+            onClick={async () => {
+              const href = `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/filestore/${props.docInfo.tenant}/${props.docInfo._id}`;
+              window.open(href, `sidebar_preview` + props.docInfo._id + 'File', 'location=no');
+            }}
+          >
+            Open file for download
           </Button>
         </>
       ) : null}

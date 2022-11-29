@@ -108,6 +108,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const theme = useTheme() as themeType;
   const { search } = useLocation();
   const navigate = useNavigate();
+  const tenant = localStorage.getItem('tenant') || '';
   let { collection, item_id, version_date } = useParams() as {
     collection: string;
     item_id: string;
@@ -724,6 +725,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       _id: item_id,
       createdAt: getProperty(props.y.data, 'timestamps.created_at'),
       modifiedAt: getProperty(props.y.data, 'timestamps.modified_at'),
+      collectionName,
+      tenant,
     },
     stage: stageDef
       ? {
