@@ -78,6 +78,7 @@ function useCreateSchemaDef(
       })),
       { value: 'User', label: 'User' },
       { value: 'Team', label: 'Team' },
+      { value: 'File', label: 'File' },
     ];
     const [referenceType, setReferenceType] = useState<string>(referenceOptions[0]?.value || 'User');
 
