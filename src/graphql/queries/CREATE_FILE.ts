@@ -13,14 +13,14 @@ const CREATE_FILE = gql(
         name: 'String!',
         file_type: 'String!',
         size_bytes: 'Int!',
-        location: 'String!',
+        uuid: 'String!',
       },
       fileCreate: {
         __args: {
           name: new VariableType('name'),
           file_type: new VariableType('file_type'),
           size_bytes: new VariableType('size_bytes'),
-          location: new VariableType('location'),
+          uuid: new VariableType('uuid'),
         },
         _id: true,
       },

@@ -258,12 +258,12 @@ function CollectionPage() {
   /**
    * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
    */
-  const getSignedRequest = async (file: File) => {
+  const getSignedRequest = async (file: File, uuid: string) => {
     return client
       .mutate<SIGN_S3__TYPE>({
         mutation: SIGN_S3,
         variables: {
-          fileName: uuidv4(),
+          fileName: uuid || file.name,
           fileType: file.type,
           s3Bucket: `app.cristata.${tenant}.files`,
         },
@@ -312,10 +312,11 @@ function CollectionPage() {
    */
   const addNewFile = async (file: File) => {
     setIsLoading(true);
+    const uuid = uuidv4();
 
     // get the signed request url and the target url for the file
     setUploadStatus('Preparing to upload...');
-    const { signedRequest, location: fileUrl } = await getSignedRequest(file);
+    const { signedRequest, location: fileUrl } = await getSignedRequest(file, uuid);
 
     if (signedRequest && fileUrl) {
       // upload the file to s3
@@ -330,7 +331,7 @@ function CollectionPage() {
               name: file.name,
               file_type: file.type,
               size_bytes: file.size,
-              location: fileUrl,
+              uuid: uuid,
             },
           })
           .then((res) => {
