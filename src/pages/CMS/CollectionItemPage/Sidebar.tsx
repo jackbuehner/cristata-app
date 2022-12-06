@@ -218,7 +218,7 @@ function Sidebar(props: SidebarProps) {
           </Button>
         </>
       ) : null}
-      {props.docInfo.collectionName ? (
+      {props.docInfo.collectionName === 'File' ? (
         <>
           <SectionTitle theme={theme}>Download</SectionTitle>
           <Button
