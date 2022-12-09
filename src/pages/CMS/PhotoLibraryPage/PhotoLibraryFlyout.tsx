@@ -60,16 +60,14 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
           </Url>
           <SectionTitle theme={theme}>Details</SectionTitle>
           <Details theme={theme}>
-            <Label>Location</Label>
-            <Item>
-              {photo.photo_url.replace('https://', '').split('.')[0] /* get the location from the URL */}
-            </Item>
+            <Label>Uploaded by</Label>
+            <Item>{photo.people.created_by.name}</Item>
             <Label>Source</Label>
             <Item>{photo.people.photo_created_by}</Item>
             <Label>Type</Label>
             <Item>{photo.file_type}</Item>
             <Label>Dimensions</Label>
-            <Item>{`${photo.dimensions.x} x ${photo.dimensions.y}`}</Item>
+            <Item>{`${photo.width} x ${photo.height}`}</Item>
             <Label>ID</Label>
             <Item>{photo._id}</Item>
           </Details>

@@ -1,39 +1,35 @@
-import { toast } from 'react-toastify';
-import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios';
-import { useRef, useState } from 'react';
-import { useEffect } from 'react';
-import { themeType } from '../../../utils/theme/theme';
+import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { CircularProgress } from '@material-ui/core';
+import axios from 'axios';
 import Color from 'color';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
+import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
-import { ApolloError, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
+import { v4 as uuidv4 } from 'uuid';
+import { Chip } from '../../../components/Chip';
+import FluentIcon from '../../../components/FluentIcon';
+import { Menu } from '../../../components/Menu';
+import { Offline } from '../../../components/Offline';
+import { mongoFilterType } from '../../../graphql/client';
 import {
   CREATE_PHOTO,
   CREATE_PHOTO__TYPE,
-  MODIFY_PHOTO,
-  MODIFY_PHOTO__TYPE,
+  CREATE_PHOTO__VARIABLES,
   PHOTOS_BASIC,
   PHOTOS_BASIC__TYPE,
-  SIGN_S3,
-  SIGN_S3__DOC_TYPE,
-  SIGN_S3__TYPE,
 } from '../../../graphql/queries';
-import { CircularProgress } from '@material-ui/core';
-import { useAppDispatch } from '../../../redux/hooks';
-import { setAppLoading, setAppName, setAppActions, setAppSearchShown } from '../../../redux/slices/appbarSlice';
-import { Offline } from '../../../components/Offline';
-import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilterRow';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
-import { mongoFilterType } from '../../../graphql/client';
-import { isJSON } from '../../../utils/isJSON';
-import { Chip } from '../../../components/Chip';
 import { useDropdown } from '../../../hooks/useDropdown';
-import { Menu } from '../../../components/Menu';
-import FluentIcon from '../../../components/FluentIcon';
+import { useAppDispatch } from '../../../redux/hooks';
+import { setAppActions, setAppLoading, setAppName, setAppSearchShown } from '../../../redux/slices/appbarSlice';
+import { getSignedRequest } from '../../../utils/getSignedRequest';
+import { isJSON } from '../../../utils/isJSON';
+import { themeType } from '../../../utils/theme/theme';
+import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilterRow';
+import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 
 function PhotoLibraryPage() {
   const dispatch = useAppDispatch();
@@ -173,33 +169,6 @@ function PhotoLibraryPage() {
   ]);
 
   /**
-   * Gets a signed request and file url for a file that needs to be uploaded to the s3 bucket
-   */
-  const getSignedRequest = async (file: File) => {
-    return client
-      .mutate<SIGN_S3__TYPE>({
-        mutation: SIGN_S3,
-        variables: {
-          fileName: uuidv4(),
-          fileType: file.type,
-          s3Bucket: tenant === 'paladin-news' ? 'paladin-photo-library' : `app.cristata.${tenant}.photos`,
-        },
-      })
-      .then((data) => {
-        if (!data.errors && !data.data) throw new Error('signed url was not sent by the server');
-        return data.data?.s3Sign as SIGN_S3__DOC_TYPE;
-      })
-      .then((data) => data)
-      .catch((error) => {
-        console.error(error);
-        setIsLoading(false);
-        setUploadStatus(null);
-        toast.error(`Failed to get signed s3 url: ${error.message}`);
-        return { signedRequest: undefined, location: undefined };
-      });
-  };
-
-  /**
    * Uploads the file to the s3 bucket using the signed request url
    */
   const uploadFile = async (file: File, signedRequest: string) => {
@@ -263,77 +232,71 @@ function PhotoLibraryPage() {
    */
   const addNewFile = async (file: File) => {
     setIsLoading(true);
+    const s3Bucket = tenant === 'paladin-news' ? 'paladin-photo-library' : `app.cristata.${tenant}.photos`;
+    const uuid = uuidv4();
 
     // get the signed request url and the target url for the file
     setUploadStatus('Preparing to upload...');
-    const { signedRequest, location: photoUrl } = await getSignedRequest(file);
+    const [{ signedRequest }, srError] = await getSignedRequest({ uuid, client, file, s3Bucket });
+
+    if (!signedRequest) {
+      toast.error(`Failed to get signed s3 url: ${srError.message}`);
+      return;
+    }
 
     // get the image dimensions
     setUploadStatus('Calculating photo information...');
     const imageDimensions = getImageDimensions(file);
 
-    if (signedRequest && photoUrl) {
-      // upload the file to s3
-      const isUploaded = await uploadFile(file, signedRequest);
+    // upload the file to s3
+    const isUploaded = await uploadFile(file, signedRequest);
 
-      if (isUploaded) {
-        setUploadStatus('Finishing upload...');
-        await client
-          .mutate<CREATE_PHOTO__TYPE>({
-            mutation: CREATE_PHOTO,
-            variables: { name: file.name },
-          })
-          .then((res) => {
-            // save the _id of the new photo
-            const _id = res.data?.photoCreate._id;
+    if (isUploaded) {
+      setUploadStatus('Finishing upload...');
+      await client
+        .mutate<CREATE_PHOTO__TYPE, CREATE_PHOTO__VARIABLES>({
+          mutation: CREATE_PHOTO,
+          variables: {
+            name: file.name,
+            file_type: file.type,
+            size_bytes: file.size,
+            uuid: uuid,
+            width: imageDimensions?.x || 0,
+            height: imageDimensions?.y || 0,
+          },
+        })
+        .then((res) => {
+          // the _id of the new photo
+          const _id = res.data?.photoCreate._id;
 
-            if (_id) {
-              client
-                .mutate<MODIFY_PHOTO__TYPE>({
-                  mutation: MODIFY_PHOTO,
-                  variables: {
-                    _id,
-                    input: {
-                      file_type: file.type,
-                      photo_url: photoUrl,
-                      dimensions: {
-                        x: imageDimensions?.x,
-                        y: imageDimensions?.y,
-                      },
-                      size: file.size,
-                    },
-                  },
-                })
-                .then(() => {
-                  setIsLoading(false);
-                  setUploadStatus(null);
+          setIsLoading(false);
+          setUploadStatus(null);
 
-                  // refresh the page of photos with the new photo
-                  refetch();
+          // refresh the page of photos with the new photo
+          refetch();
 
-                  // open the photo metadata
-                  navigate(`/cms/photos/library/${_id}`);
-                })
-                .catch((error: ApolloError) => {
-                  setIsLoading(false);
-                  setUploadStatus(null);
+          // open the photo metadata
+          if (_id) navigate(`/cms/photos/library/${_id}`);
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          setUploadStatus(null);
 
-                  // refresh the page of photos with the new photo
-                  refetch();
+          // refresh the page of photos with the new photo
+          refetch();
 
-                  // log and toast errors
-                  console.error(error.graphQLErrors?.[0]?.message || error.message);
-                  toast.error(error.graphQLErrors?.[0]?.message || error.message);
-                });
-            }
-          })
-          .catch((error) => {
+          // log and toast errors
+          if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+            console.error(error.graphQLErrors?.[0]?.message || error.message);
+            toast.error(error.graphQLErrors?.[0]?.message || error.message);
+          } else if (error.networkError?.result?.errors?.[0]) {
+            console.error(error.networkError?.result?.errors?.[0]?.message || error.message);
+            toast.error(error.networkError?.result?.errors?.[0]?.message || error.message);
+          } else {
             console.error(error);
-            setIsLoading(false);
-            setUploadStatus(null);
             toast.error(`Failed to store photo details in database: ${error}`);
-          });
-      }
+          }
+        });
     }
   };
 

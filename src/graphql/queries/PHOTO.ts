@@ -29,7 +29,7 @@ const PHOTO = gql(
             _id: true,
             name: true,
           },
-          uploaded_by: {
+          created_by: {
             _id: true,
             name: true,
           },
@@ -40,19 +40,11 @@ const PHOTO = gql(
           photo_created_by: true,
         },
         file_type: true,
-        dimensions: {
-          x: true,
-          y: true,
-        },
+        width: true,
+        height: true,
         timestamps: {
           created_at: true,
           modified_at: true,
-        },
-        permissions: {
-          teams: true,
-          users: {
-            _id: true,
-          },
         },
       },
     },
@@ -81,7 +73,7 @@ type PHOTO__DOC_TYPE = {
       _id: string;
       name: string;
     }[];
-    uploaded_by: {
+    created_by: {
       _id: string;
       name: string;
     };
@@ -92,17 +84,11 @@ type PHOTO__DOC_TYPE = {
     photo_created_by: string;
   };
   file_type: string;
-  dimensions: {
-    x: number;
-    y: number;
-  };
+  width: number;
+  height: number;
   timestamps: {
     created_at: string; // ISO date
     modified_at: string; // ISO date
-  };
-  permissions: {
-    teams: string[];
-    users: number[];
   };
 };
 
