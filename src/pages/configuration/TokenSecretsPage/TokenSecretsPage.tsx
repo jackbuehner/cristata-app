@@ -29,15 +29,11 @@ function TokenSecretsPage() {
   }, [dispatch, loading]);
 
   // store secrets in state
-  const [awsAccessKeyId, setAwsAccessKeyId] = useState('');
-  const [awsAccessKeySecret, setAwsAccessKeySecret] = useState('');
   const [fathomSiteId, setFathomSiteId] = useState('');
   const [fathomDashboardPassword, setFathomDashboardPassword] = useState('');
   const [areSecretsShown, setAreSecretsShown] = useState(false);
   useEffect(() => {
     if (data) {
-      setAwsAccessKeyId(data.secrets.aws?.accessKeyId || '');
-      setAwsAccessKeySecret(data.secrets.aws?.secretAccessKey || '');
       setFathomSiteId(data.secrets.fathom?.siteId || '');
       setFathomDashboardPassword(data.secrets.fathom?.dashboardPassword || '');
     }
@@ -63,8 +59,6 @@ function TokenSecretsPage() {
             client
               .mutate<SaveMutationType>({
                 mutation: saveMutationString([
-                  { key: 'aws.accessKeyId', value: awsAccessKeyId },
-                  { key: 'aws.secretAccessKey', value: awsAccessKeySecret },
                   { key: 'fathom.siteId', value: fathomSiteId },
                   { key: 'fathom.dashboardPassword', value: fathomDashboardPassword },
                 ]),
@@ -82,7 +76,7 @@ function TokenSecretsPage() {
         },
       ])
     );
-  }, [awsAccessKeyId, awsAccessKeySecret, client, dispatch, fathomDashboardPassword, fathomSiteId, refetch]);
+  }, [client, dispatch, fathomDashboardPassword, fathomSiteId, refetch]);
 
   if (!data && !navigator.onLine) {
     return <Offline variant={'centered'} />;
@@ -108,20 +102,6 @@ function TokenSecretsPage() {
               {areSecretsShown ? `Hide secrets` : `Show secrets`}
             </Button>
           </div>
-          <Text
-            label={`AWS access key ID`}
-            value={areSecretsShown ? awsAccessKeyId : '**********'}
-            onChange={(e) => (areSecretsShown ? setAwsAccessKeyId(e.currentTarget.value) : null)}
-            disabled={!areSecretsShown}
-            isEmbedded
-          />
-          <Text
-            label={`AWS access key secret`}
-            value={areSecretsShown ? awsAccessKeySecret : '**********'}
-            onChange={(e) => (areSecretsShown ? setAwsAccessKeySecret(e.currentTarget.value) : null)}
-            disabled={!areSecretsShown}
-            isEmbedded
-          />
           <Text
             label={`Fathom site ID`}
             value={areSecretsShown ? fathomSiteId : '**********'}

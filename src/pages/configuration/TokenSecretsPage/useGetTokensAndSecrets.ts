@@ -23,10 +23,6 @@ interface QueryType {
   configuration: {
     security: {
       secrets: {
-        aws?: {
-          accessKeyId: string;
-          secretAccessKey: string;
-        };
         fathom?: {
           siteId: string;
           dashboardPassword: string;
@@ -51,10 +47,6 @@ function queryString(): DocumentNode {
         security {
           introspection
           secrets {
-            aws {
-              accessKeyId
-              secretAccessKey
-            }
             fathom {
               dashboardPassword
               siteId
