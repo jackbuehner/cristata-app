@@ -36,7 +36,13 @@ function ConfigurationNavigation() {
           Icon={<FluentIcon name={'CircleSmall20Filled'} />}
           to={`/configuration/system-collection/File/action-access`}
         >
-          Files
+          File
+        </SideNavSubButton>
+        <SideNavSubButton
+          Icon={<FluentIcon name={'CircleSmall20Filled'} />}
+          to={`/configuration/system-collection/Photo/action-access`}
+        >
+          Photo
         </SideNavSubButton>
         <SideNavHeading>Schemas</SideNavHeading>
         {(!collections || collections?.length === 0) && !navigator.onLine ? (

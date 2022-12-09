@@ -30,6 +30,15 @@ function SystemCollectionPage() {
     }
   }, [_refetch, dispatch]);
 
+  // set the redux collection state on first load
+  useEffect(() => {
+    if (raw) {
+      if (!state.collection || (state.collection && state.collection.name !== raw.name)) {
+        dispatch(setCollection(raw));
+      }
+    }
+  }, [dispatch, raw, state.collection]);
+
   // set document title
   useEffect(() => {
     if (raw) document.title = `Edit system collection options - ${raw.name}`;
