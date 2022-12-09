@@ -94,7 +94,7 @@ function docDefsToQueryObjectCols(
   const isSubDocArray = def.type === 'DocArray';
   const isObjectType = isTypeTuple(def.type);
 
-  if (isObjectType) {
+  if (isObjectType && def.column?.hidden !== true) {
     // if there is a reference definition, use the fields in the def
     if (def.field?.reference) {
       return merge(
