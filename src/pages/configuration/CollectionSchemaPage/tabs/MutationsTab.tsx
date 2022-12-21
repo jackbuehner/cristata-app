@@ -88,6 +88,11 @@ function MutationsTab() {
       </Card>
       <Card>
         <CardLabel>Custom mutations</CardLabel>
+        {incActionTypes.length < 1 ? (
+          <CardLabelCaption>
+            No fields were found that are compatable with currently available custom mutations.
+          </CardLabelCaption>
+        ) : null}
         {customMutations?.map((cm, index, arr) => {
           if (cm) {
             return (
@@ -179,6 +184,7 @@ function MutationsTab() {
           return null;
         })}
         <Button
+          disabled={incActionTypes.length < 1}
           onClick={() => {
             const newM = {
               name: 'customMutation',
@@ -194,7 +200,7 @@ function MutationsTab() {
             else dispatch(setCustomMutations([...customMutations, newM]));
           }}
         >
-          Add custom query
+          Add custom mutation
         </Button>
       </Card>
     </div>
@@ -233,6 +239,17 @@ const CardLabel = styled.div`
   font-size: 16px;
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   margin: 0 0 16px 0;
+`;
+
+const CardLabelCaption = styled.div`
+  line-height: 15px;
+  font-family: ${({ theme }) => theme.font.detail};
+  font-size: 13px;
+  font-variant-numeric: lining-nums;
+  font-weight: 500;
+  color: ${({ theme }) => theme.color.neutral[theme.mode][1100]};
+  margin: -12px 0 16px 0;
+  user-select: none;
 `;
 
 const IndentField = styled.div<{ color: colorType }>`
