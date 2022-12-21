@@ -185,6 +185,21 @@ function QueriesTab() {
                     />
                   </IndentField>
                 ) : null}
+                <Checkbox
+                  isEmbedded
+                  label={'Make this query publically available'}
+                  description={`This query will not require Cristata authentication. 'Public' is appended to the query name when this is enabled`}
+                  checked={cq.public}
+                  onChange={(e) => {
+                    const copy = JSON.parse(JSON.stringify(arr));
+                    if (e.currentTarget.checked) {
+                      copy[index].public = true;
+                    } else {
+                      copy[index].public = false;
+                    }
+                    dispatch(setCustomQueries(copy));
+                  }}
+                />
                 <Code
                   isEmbedded
                   type={'json'}
