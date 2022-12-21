@@ -37,7 +37,7 @@ function Field(props: FieldProps) {
               style={props.labelStyle}
               htmlFor={props.label.replaceAll(' ', '-')}
             >
-              {props.label}
+              {props.label.split('‗‗')[0]}
             </Label>
           </LabelRow>
           {props.description ? (

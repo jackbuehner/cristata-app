@@ -99,7 +99,7 @@ function MutationsTab() {
               <Card color={'primary'}>
                 <Text
                   isEmbedded
-                  label={'Name'}
+                  label={`Name‗‗${index}`}
                   description={`camelCase name of the custom mutation.
                     The mutation name will be capitalized and the name of the collection will be prepended to the mutation name.
                     For example, <code>myCustomMutation</code> becomes <code>${uncapitalize(
@@ -115,7 +115,7 @@ function MutationsTab() {
                 />
                 <Text
                   isEmbedded
-                  label={'Description'}
+                  label={`Description‗‗${index}`}
                   description={`The description of the mutation. Be sure to use a helpful description so someone else can know what this mutation does. Can be seen in GraphQL introspection.`}
                   value={cm.description}
                   onChange={(e) => {
@@ -126,7 +126,7 @@ function MutationsTab() {
                 />
                 <SelectOne
                   isEmbedded
-                  label={'Action'}
+                  label={`Action‗‗${index}`}
                   description={'The action performed by this query'}
                   type={'String'}
                   options={actionOptions}
@@ -146,7 +146,7 @@ function MutationsTab() {
                   <IndentField color={'primary'}>
                     <SelectOne
                       isEmbedded
-                      label={'Field to increment'}
+                      label={`Field to increment‗‗${index}`}
                       description={'Increment any numeric field by one (1).'}
                       type={'String'}
                       options={incActionOptions}

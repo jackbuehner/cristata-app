@@ -84,7 +84,7 @@ function QueriesTab() {
               <Card color={'primary'}>
                 <Text
                   isEmbedded
-                  label={'Name'}
+                  label={`Name‗‗${index}`}
                   description={`camelCase name of the custom query.
                     The query name will be capitalized and the name of the collection will be prepended to the query name.
                     For example, <code>myCustomQuery</code> becomes <code>${uncapitalize(
@@ -100,7 +100,7 @@ function QueriesTab() {
                 />
                 <Text
                   isEmbedded
-                  label={'Description'}
+                  label={`Description‗‗${index}`}
                   description={`The description of the query. Be sure to use a helpful description so someone else can know what this query does. Can be seen in GraphQL introspection.`}
                   value={cq.description}
                   onChange={(e) => {
@@ -109,11 +109,11 @@ function QueriesTab() {
                     dispatch(setCustomQueries(copy));
                   }}
                 />
-                <Field isEmbedded label={'Query input'}>
+                <Field isEmbedded label={`Query input‗‗${index}`}>
                   <>
                     <Checkbox
                       isEmbedded
-                      label={'Accept input arguments'}
+                      label={`Accept input arguments‗‗${index}`}
                       checked={cq.accepts !== undefined}
                       onChange={(e) => {
                         const copy = JSON.parse(JSON.stringify(arr));
@@ -129,7 +129,7 @@ function QueriesTab() {
                       <IndentField color={'primary'}>
                         <Text
                           isEmbedded
-                          label={'Accepts'}
+                          label={`Accepts‗‗${index}`}
                           description={`A string list of arguments for the query.\nExample: <code>name: String!, slug: String</code>`}
                           value={cq.accepts}
                           onChange={(e) => {
@@ -144,7 +144,7 @@ function QueriesTab() {
                 </Field>
                 <Text
                   isEmbedded
-                  label={'Return type'}
+                  label={`Return type‗‗${index}`}
                   description={`An un-named object type that represents the returned values from the pipeline.
                     If you want to specify a type that already exists, provide it without curly brackets.
                     Example: <code>{ _id: Float!, count: Int! }</code>
@@ -158,7 +158,7 @@ function QueriesTab() {
                 />
                 <Checkbox
                   isEmbedded
-                  label={'Return a specific path'}
+                  label={`Return a specific path‗‗${index}`}
                   description={`Choose a specific path from the pipeline result to send to clients.`}
                   checked={cq.path !== undefined}
                   onChange={(e) => {
@@ -175,7 +175,7 @@ function QueriesTab() {
                   <IndentField color={'primary'}>
                     <Text
                       isEmbedded
-                      label={'Path'}
+                      label={`Path‗‗${index}`}
                       value={cq.path}
                       onChange={(e) => {
                         const copy = JSON.parse(JSON.stringify(arr));
@@ -187,7 +187,7 @@ function QueriesTab() {
                 ) : null}
                 <Checkbox
                   isEmbedded
-                  label={'Make this query publically available'}
+                  label={`Make this query publically available‗‗${index}`}
                   description={`This query will not require Cristata authentication. 'Public' is appended to the query name when this is enabled`}
                   checked={cq.public}
                   onChange={(e) => {
@@ -203,7 +203,7 @@ function QueriesTab() {
                 <Code
                   isEmbedded
                   type={'json'}
-                  label={'Pipeline'}
+                  label={`Pipeline‗‗${index}`}
                   description={`A MongoDB aggregation pipeline. Pipelines always return an array of results. <a href="https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/#aggregation-pipeline-stages">Pipeline stage reference</a>`}
                   value={typeof cq.pipeline === 'string' ? cq.pipeline : JSON.stringify(cq.pipeline, null, 2)}
                   onChange={(value) => {
