@@ -98,13 +98,13 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
       <EditorComponent
         ref={node}
         color={props.color}
-        height={props.height || 300}
+        height={props.height || 350}
         tabIndex={tabIndex}
         awarenessProfiles={awarenessProfiles || []}
         disabled={props.disabled}
       />
       {tabIndex === 1 ? (
-        <MdPreview color={props.color} height={props.height || 300}>
+        <MdPreview color={props.color} height={props.height || 350}>
           <Remark>{value}</Remark>
         </MdPreview>
       ) : null}
@@ -221,6 +221,7 @@ const MdPreview = styled.div<{
   box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][400]} 0px 0px 0px 1px inset;
   transition: box-shadow 240ms;
   box-sizing: border-box;
+  overflow: auto;
 `;
 
 type AwarenessProfiles = Array<[number, { user: ReturnType<typeof useAwareness>[0]; [key: string]: any }]>;
