@@ -180,7 +180,9 @@ function useY(
     setLoading,
     async getData(opts?: GetYFieldsOptions) {
       if (schemaDef) {
-        return await getYFields(this, schemaDef, opts);
+        const res = await getYFields(this, schemaDef, opts);
+        res._id = id;
+        return res;
       }
       return {};
     },
