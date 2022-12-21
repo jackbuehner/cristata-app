@@ -17,6 +17,7 @@ interface CollaborativeCodeProps extends CollaborativeFieldProps {
   onValidate?: (markers: editor.IMarker[]) => void;
   onChange?: (value: string | undefined) => void;
   height?: number;
+  showPreviewTab?: boolean;
 }
 
 function CollaborativeCode(props: CollaborativeCodeProps) {
@@ -86,7 +87,7 @@ function CollaborativeCode(props: CollaborativeCodeProps) {
 
   const Component = (
     <>
-      {props.type === 'md' ? (
+      {props.type === 'md' && props.showPreviewTab !== false ? (
         <TabBar
           activeTabIndex={tabIndex}
           onActivate={(evt: { detail: { index: SetStateAction<number> } }) => setTabIndex(evt.detail.index)}
