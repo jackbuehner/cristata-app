@@ -246,6 +246,13 @@ export const collectionSlice = createSlice({
         }
       },
     },
+    setDynamicPreviewHref: (state, action: PayloadAction<string | undefined>) => {
+      if (state.collection) {
+        if (!state.collection.options) state.collection.options = {};
+        state.collection.options.dynamicPreviewHref = action.payload;
+        state.isUnsaved = true;
+      }
+    },
   },
 });
 
@@ -295,6 +302,7 @@ export const {
   setRootSchemaProperty,
   setDefaultQueryOption,
   setDefaultMutationOption,
+  setDynamicPreviewHref,
 } = collectionSlice.actions;
 
 export default collectionSlice.reducer;

@@ -16,6 +16,7 @@ import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
   setCanPublish,
+  setDynamicPreviewHref,
   setMandatoryWatchers,
   setName,
   setNavLabel,
@@ -44,6 +45,7 @@ function OptionsTab(props: OptionsTabProps) {
   const withPermissions = state.collection?.withPermissions;
   const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
   const watcherNotices = state.collection?.options?.watcherNotices;
+  const dynamicPreviewHref = state.collection?.options?.dynamicPreviewHref || '';
 
   const fieldTypes = getFieldTypes(state.collection?.schemaDef || {}, true);
   const dateFields = fieldTypes.filter(([key, label, type]) => type === 'Date');
@@ -271,6 +273,23 @@ function OptionsTab(props: OptionsTabProps) {
           ) : null}
         </Card>
       ) : null}
+      <Card>
+        <CardLabel>Previews</CardLabel>
+        <Text
+          isEmbedded
+          label={'Preview tab location (URL)'}
+          description={
+            'Render this URL in an iframe in preview tab of the document editor. ' +
+            'Field data is provided via <code>Window.postMessage()</code> ' +
+            'and can be captured and rendered by adding a listener for messages. ' +
+            'Include the <a href="https://github.com/davidjbradshaw/iframe-resizer">iframe-resizer</a> content script ' +
+            'to allow the iframe to automatically resize to fit the content inside the iframe. ' +
+            'The provided URL should be a valid input to <code>new window.URL()</code>.'
+          }
+          value={dynamicPreviewHref}
+          onChange={(e) => dispatch(setDynamicPreviewHref(e.currentTarget.value))}
+        />
+      </Card>
       <Card>
         <CardLabel>More options</CardLabel>
         {canPublish !== undefined ? (

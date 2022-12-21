@@ -21,6 +21,7 @@ function useCollectionSchemaConfig(name: string): [
     options?: {
       mandatoryWatchers?: string[];
       previewUrl?: string;
+      dynamicPreviewHref?: string;
       nameField?: string;
       disableCreateMutation?: boolean;
       disableHideMutation?: boolean;
@@ -116,6 +117,7 @@ function queryString(name: string): DocumentNode {
           generationOptions {
             mandatoryWatchers
             previewUrl
+            dynamicPreviewHref
             nameField
             disableCreateMutation
             disableHideMutation
