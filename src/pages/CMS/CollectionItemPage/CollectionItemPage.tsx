@@ -7,7 +7,7 @@ import ColorHash from 'color-hash';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, SetStateAction, useEffect, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
@@ -47,11 +47,13 @@ import { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { FullScreenSplash } from './FullScreenSplash';
 import { getYFields, GetYFieldsOptions } from './getYFields';
+import { PreviewFrame } from './PreviewFrame';
 import { Sidebar } from './Sidebar';
 import { useActions, Action } from './useActions';
 import { useFindDoc } from './useFindDoc';
 import { usePublishPermissions } from './usePublishPermissions';
 import { useWatching } from './useWatching';
+import { Tab, TabBar } from '../../../components/Tabs';
 
 // @ts-expect-error 'bkdr' is a vlid hash config value
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
@@ -226,6 +228,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     };
   });
 
+  const [tabIndex, setTabIndex] = useState<number>(0);
+
   const processSchemaDef = (
     schemaDef: DeconstructedSchemaDefType,
     isPublishModal?: boolean
@@ -258,6 +262,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   };
 
   let actions: Action[] = [];
+
+  const previewUrl = options?.dynamicPreviewHref;
 
   const renderFields: RenderFields = (
     input,
@@ -438,13 +444,14 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       return (
         <CollaborativeCode
           key={reactKey}
-          label={fieldName}
+          label={fieldName + ' (Markdown)'}
           description={def.field?.description}
           type={'md'}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
+          showPreviewTab={!previewUrl}
         />
       );
     }
@@ -910,70 +917,104 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         ) : !isLoading && hasLoadedAtLeastOnce ? (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
-              {isOldVersion && !props.isEmbedded && fs !== '1' ? (
-                <Notice theme={theme}>
-                  You are currently viewing an old version of this document. You cannot make edits.
-                </Notice>
-              ) : null}
-              {props.y.wsStatus !== WebSocketStatus.Connected &&
-              !props.isEmbedded &&
-              fs !== '1' &&
-              !isOldVersion ? (
-                <Notice theme={theme}>
-                  <b>Currently not connected.</b> If you leave before your connection is restored, you may lose
-                  data.
-                </Notice>
-              ) : null}
-              {publishLocked && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
-                <Notice theme={theme}>
-                  This document is opened in read-only mode because it has been published and you do not have
-                  publish permissions.
-                </Notice>
-              ) : null}
-              {props.y.data.archived && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
-                <Notice theme={theme}>
-                  This document is opened in read-only mode because it is archived.
-                  <Button
-                    height={26}
-                    cssExtra={css`
-                      display: inline-block;
-                      margin: 4px 8px;
-                    `}
-                    onClick={(e) => {
-                      actions.find((a) => a.label === 'Remove from archive')?.action(e);
+              {previewUrl ? (
+                <div>
+                  <TabBar
+                    activeTabIndex={tabIndex}
+                    onActivate={(evt: { detail: { index: SetStateAction<number> } }) =>
+                      setTabIndex(evt.detail.index)
+                    }
+                    style={{
+                      borderBottom: `1px solid ${theme.color.neutral[theme.mode][200]}`,
+                      backgroundColor: theme.mode === 'light' ? 'white' : theme.color.neutral[theme.mode][100],
                     }}
-                    disabled={actions.findIndex((a) => a.label === 'Remove from archive') === -1}
                   >
-                    Remove from archive
-                  </Button>
-                </Notice>
+                    <Tab>Compose</Tab>
+                    <Tab>Preview</Tab>
+                  </TabBar>
+                </div>
               ) : null}
-              {props.y.data.hidden && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
-                <Notice theme={theme}>
-                  This document is opened in read-only mode because it is deleted.
-                  <Button
-                    height={26}
-                    cssExtra={css`
-                      display: inline-block;
-                      margin: 4px 8px;
-                    `}
-                    onClick={(e) => {
-                      actions.find((a) => a.label === 'Restore from deleted items')?.action(e);
-                    }}
-                    disabled={actions.findIndex((a) => a.label === 'Restore from deleted items') === -1}
-                  >
-                    Restore from deleted items
-                  </Button>
-                </Notice>
-              ) : null}
-              {props.y.data.stage === publishStage && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
-                <Notice theme={theme}>
-                  This document is currently published. Changes will be publically reflected immediately.
-                </Notice>
-              ) : null}
-              <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
-                {contentWidth <= 700 ? <Sidebar {...sidebarProps} compact={true} /> : null}
-                {processSchemaDef(schemaDef).map(renderFields)}
+              <div
+                style={{
+                  height: previewUrl ? 'calc(100% - 49px)' : '100%',
+                  overflow: 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div style={{ display: tabIndex === 0 || !previewUrl ? 'block' : 'none', flexGrow: 1 }}>
+                  {isOldVersion && !props.isEmbedded && fs !== '1' ? (
+                    <Notice theme={theme}>
+                      You are currently viewing an old version of this document. You cannot make edits.
+                    </Notice>
+                  ) : null}
+                  {props.y.wsStatus !== WebSocketStatus.Connected &&
+                  !props.isEmbedded &&
+                  fs !== '1' &&
+                  !isOldVersion ? (
+                    <Notice theme={theme}>
+                      <b>Currently not connected.</b> If you leave before your connection is restored, you may
+                      lose data.
+                    </Notice>
+                  ) : null}
+                  {publishLocked && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
+                    <Notice theme={theme}>
+                      This document is opened in read-only mode because it has been published and you do not
+                      have publish permissions.
+                    </Notice>
+                  ) : null}
+                  {props.y.data.archived && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
+                    <Notice theme={theme}>
+                      This document is opened in read-only mode because it is archived.
+                      <Button
+                        height={26}
+                        cssExtra={css`
+                          display: inline-block;
+                          margin: 4px 8px;
+                        `}
+                        onClick={(e) => {
+                          actions.find((a) => a.label === 'Remove from archive')?.action(e);
+                        }}
+                        disabled={actions.findIndex((a) => a.label === 'Remove from archive') === -1}
+                      >
+                        Remove from archive
+                      </Button>
+                    </Notice>
+                  ) : null}
+                  {props.y.data.hidden && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
+                    <Notice theme={theme}>
+                      This document is opened in read-only mode because it is deleted.
+                      <Button
+                        height={26}
+                        cssExtra={css`
+                          display: inline-block;
+                          margin: 4px 8px;
+                        `}
+                        onClick={(e) => {
+                          actions.find((a) => a.label === 'Restore from deleted items')?.action(e);
+                        }}
+                        disabled={actions.findIndex((a) => a.label === 'Restore from deleted items') === -1}
+                      >
+                        Restore from deleted items
+                      </Button>
+                    </Notice>
+                  ) : null}
+                  {props.y.data.stage === publishStage && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
+                    <Notice theme={theme}>
+                      This document is currently published. Changes will be publically reflected immediately.
+                    </Notice>
+                  ) : null}
+
+                  <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
+                    {contentWidth <= 700 ? <Sidebar {...sidebarProps} compact={true} /> : null}
+                    {processSchemaDef(schemaDef).map(renderFields)}
+                  </div>
+                </div>
+                {previewUrl ? (
+                  <div style={{ display: tabIndex === 1 ? 'block' : 'none', flexGrow: 1, background: 'white' }}>
+                    <PreviewFrame src={previewUrl} y={props.y} />
+                  </div>
+                ) : null}
               </div>
             </div>
             {!props.isEmbedded && contentWidth > 700 ? <Sidebar {...sidebarProps} /> : null}
