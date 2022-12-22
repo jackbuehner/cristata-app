@@ -782,6 +782,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       isOldVersion,
     getFieldValues,
     hideVersions: isOldVersion,
+    previewFrame:
+      previewUrl && props.isEmbedded && (fs === '1' || fs === 'force') ? (
+        <PreviewFrame src={previewUrl} y={props.y} />
+      ) : undefined,
   };
 
   // keep loading state synced

@@ -6,11 +6,13 @@ import { NumberOption, StringOption } from '@jackbuehner/cristata-generator-sche
 import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
+import { useModal } from 'react-modal-hook';
 import ReactTooltip from 'react-tooltip';
 import { Button, buttonEffect } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { CollaborativeSelectOne } from '../../../components/CollaborativeFields';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
+import { PlainModal } from '../../../components/Modal';
 import { useAwareness } from '../../../components/Tiptap/hooks';
 import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useForceUpdate } from '../../../hooks/useForceUpdate';
@@ -46,6 +48,7 @@ interface SidebarProps {
   disabled?: boolean;
   getFieldValues: (opts: GetYFieldsOptions) => Promise<any>;
   hideVersions?: boolean;
+  previewFrame?: React.ReactNode;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -95,6 +98,41 @@ function Sidebar(props: SidebarProps) {
     '__internal_versionsList'
   );
   const [truncateVersionsList, setTruncateVersionsList] = useState(true);
+
+  const [openPreview, hidePreview] = useModal(() => {
+    return (
+      <PlainModal
+        title='Preview'
+        hideModal={() => hidePreview()}
+        cancelButton={null}
+        continueButton={{ text: 'Close' }}
+        styleString={`
+          width: 90vw;
+          background-color: ${theme.mode === 'dark' ? theme.color.neutral.dark[100] : 'white'};
+          > ha[class*='PlainModalTitle'] {
+            border-color: ${theme.color.neutral[theme.mode][200]};
+          }
+          > div[class*='PlainModalContent'] {
+            padding: 0;
+            height: 90vh;
+            > p {
+              height: 100%;
+              display: flex;
+              flex-direction: column;
+              > iframe {
+                flex-grow: 1;
+              }
+            }
+          }
+          > div[class*='ActionRow'] {
+            border-color: ${theme.color.neutral[theme.mode][200]};
+          }
+        `}
+      >
+        {props.isEmbedded ? props.previewFrame || null : null}
+      </PlainModal>
+    );
+  });
 
   return (
     <Container theme={theme} compact={props.compact}>
@@ -190,32 +228,40 @@ function Sidebar(props: SidebarProps) {
           </div>
         </>
       )}
-      {props.previewUrl ? (
+      {props.previewUrl || props.previewFrame ? (
         <>
           <SectionTitle theme={theme}>Preview</SectionTitle>
-          <Button
-            width={'100%'}
-            icon={<Open24Regular />}
-            onClick={async () =>
-              window.open(
-                props.previewUrl +
-                  `?data=${encodeURIComponent(
-                    JSONCrush.crush(
-                      JSON.stringify(await props.getFieldValues({ retainReferenceObjects: true }))
-                    )
-                  )}`,
-                `sidebar_preview` + props.docInfo._id,
-                'location=no'
-              )
-            }
-            onAuxClick={async () => {
-              const values = await props.getFieldValues({ retainReferenceObjects: true });
-              console.log(JSONCrush.crush(JSON.stringify(values)));
-              console.log(values);
-            }}
-          >
-            Open preview
-          </Button>
+          {props.previewFrame ? (
+            <>
+              <Button width={'100%'} icon={<Open24Regular />} onClick={openPreview}>
+                Open preview
+              </Button>
+            </>
+          ) : props.previewUrl ? (
+            <Button
+              width={'100%'}
+              icon={<Open24Regular />}
+              onClick={async () =>
+                window.open(
+                  props.previewUrl +
+                    `?data=${encodeURIComponent(
+                      JSONCrush.crush(
+                        JSON.stringify(await props.getFieldValues({ retainReferenceObjects: true }))
+                      )
+                    )}`,
+                  `sidebar_preview` + props.docInfo._id,
+                  'location=no'
+                )
+              }
+              onAuxClick={async () => {
+                const values = await props.getFieldValues({ retainReferenceObjects: true });
+                console.log(JSONCrush.crush(JSON.stringify(values)));
+                console.log(values);
+              }}
+            >
+              Open preview
+            </Button>
+          ) : null}
         </>
       ) : null}
       {props.docInfo.collectionName === 'File' ? (
