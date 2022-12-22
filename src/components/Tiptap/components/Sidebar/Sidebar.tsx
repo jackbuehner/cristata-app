@@ -35,6 +35,8 @@ const Container = styled.div`
   width: 100%;
   > div {
     padding: 12px;
+    height: 100%;
+    box-sizing: border-box;
   }
 `;
 

@@ -917,7 +917,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         ) : !isLoading && hasLoadedAtLeastOnce ? (
           <ContentWrapper theme={theme} ref={contentRef}>
             <div style={{ minWidth: 0, overflow: 'auto', flexGrow: 1 }}>
-              {previewUrl ? (
+              {previewUrl && !props.isEmbedded ? (
                 <div>
                   <TabBar
                     activeTabIndex={tabIndex}
@@ -1010,7 +1010,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                     {processSchemaDef(schemaDef).map(renderFields)}
                   </div>
                 </div>
-                {previewUrl ? (
+                {previewUrl && !props.isEmbedded ? (
                   <div style={{ display: tabIndex === 1 ? 'block' : 'none', flexGrow: 1, background: 'white' }}>
                     <PreviewFrame src={previewUrl} y={props.y} />
                   </div>
