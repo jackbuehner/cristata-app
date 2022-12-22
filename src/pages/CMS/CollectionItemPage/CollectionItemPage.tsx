@@ -1010,7 +1010,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                     {processSchemaDef(schemaDef).map(renderFields)}
                   </div>
                 </div>
-                {previewUrl && !props.isEmbedded ? (
+                {previewUrl && !props.isEmbedded && fs !== '1' ? (
                   <div style={{ display: tabIndex === 1 ? 'block' : 'none', flexGrow: 1, background: 'white' }}>
                     <PreviewFrame src={previewUrl} y={props.y} />
                   </div>
