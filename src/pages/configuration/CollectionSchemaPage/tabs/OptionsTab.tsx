@@ -97,12 +97,12 @@ function OptionsTab(props: OptionsTabProps) {
             onChange={(e) => dispatch(setName(e.currentTarget.value))}
           />
         ) : null}
-        {navLabel ? (
+        {name ? (
           <Text
             isEmbedded
             label={'Plural label'}
             description={`In certain places within Cristata, this label will be used for plural instances of this collection's name.\n<i>To organize this collection into a specific scope, prepend the plural label with <code>Scope::</code>. Scopes have no impact on the data of this collection, but they can help users understand which collections are related.</i>`}
-            value={navLabel}
+            value={navLabel || name}
             onChange={(e) => dispatch(setNavLabel(e.currentTarget.value))}
           />
         ) : null}
