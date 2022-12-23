@@ -21,6 +21,7 @@ import { genAvatar } from '../../../utils/genAvatar';
 import { listOxford } from '../../../utils/listOxford';
 import { colorType, themeType } from '../../../utils/theme/theme';
 import { GetYFieldsOptions } from './getYFields';
+import { PreviewFrame } from './PreviewFrame';
 
 interface SidebarProps {
   docInfo: {
@@ -42,6 +43,7 @@ interface SidebarProps {
   loading?: boolean;
   isEmbedded?: boolean;
   previewUrl?: string;
+  dynamicPreviewUrl?: string;
   compact?: boolean;
   y: EntryY;
   user?: ReturnType<typeof useAwareness>[0];
@@ -108,13 +110,15 @@ function Sidebar(props: SidebarProps) {
         continueButton={{ text: 'Close' }}
         styleString={`
           width: 90vw;
+          height: 90vh;
+          display: flex;
+          flex-direction: column;
           background-color: ${theme.mode === 'dark' ? theme.color.neutral.dark[100] : 'white'};
           > ha[class*='PlainModalTitle'] {
             border-color: ${theme.color.neutral[theme.mode][200]};
           }
           > div[class*='PlainModalContent'] {
             padding: 0;
-            height: 90vh;
             > p {
               height: 100%;
               display: flex;
@@ -129,10 +133,12 @@ function Sidebar(props: SidebarProps) {
           }
         `}
       >
-        {props.isEmbedded ? props.previewFrame || null : null}
+        {props.isEmbedded && props.dynamicPreviewUrl ? (
+          <PreviewFrame src={props.dynamicPreviewUrl} y={props.y} />
+        ) : null}
       </PlainModal>
     );
-  });
+  }, [props.y, props.dynamicPreviewUrl, props.isEmbedded]);
 
   return (
     <Container theme={theme} compact={props.compact}>
@@ -228,10 +234,10 @@ function Sidebar(props: SidebarProps) {
           </div>
         </>
       )}
-      {props.previewUrl || props.previewFrame ? (
+      {props.previewUrl || (props.isEmbedded && props.dynamicPreviewUrl) ? (
         <>
           <SectionTitle theme={theme}>Preview</SectionTitle>
-          {props.previewFrame ? (
+          {props.isEmbedded && props.dynamicPreviewUrl ? (
             <>
               <Button width={'100%'} icon={<Open24Regular />} onClick={openPreview}>
                 Open preview
