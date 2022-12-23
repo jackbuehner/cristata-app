@@ -93,6 +93,12 @@ export const collectionSlice = createSlice({
         state.isUnsaved = true;
       }
     },
+    resetAccessor: (state) => {
+      if (state.collection) {
+        state.collection.by = undefined;
+        state.isUnsaved = true;
+      }
+    },
     setAccessor: {
       prepare: (payload: [string, SchemaType], type: 'one' | 'many' | 'all') => {
         return { payload, type, meta: { type } };
@@ -103,7 +109,9 @@ export const collectionSlice = createSlice({
       ) => {
         if (state.collection) {
           // check the existing value
-          const existing = original(state.collection.by) || ['_id', 'ObjectId'];
+          const existing = (
+            state.collection.by ? original(state.collection.by) : ['_id', 'ObjectId']
+          ) as Required<GenCollectionInput>['by'];
 
           // check whether it specifically defines the one and many accessors
           // or just uses the same values for each
@@ -319,6 +327,7 @@ export const {
   setDefaultMutationOption,
   setPreviewUrl,
   setDynamicPreviewHref,
+  resetAccessor,
 } = collectionSlice.actions;
 
 export default collectionSlice.reducer;

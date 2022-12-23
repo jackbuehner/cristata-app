@@ -4,9 +4,9 @@ const getFieldTypes = (
   schema: SchemaDefType,
   excludeArrays: boolean = true,
   prefix?: { id: string }
-): [string, string, string][] => {
+): [string, string, string, boolean][] => {
   const { schemaDefs, schemaRefs, arraySchemas, nestedSchemas } = parseSchemaComponents(schema);
-  const returnValue: [string, string, string][] = [];
+  const returnValue: [string, string, string, boolean][] = [];
 
   schemaDefs.forEach(([key, def]) => {
     const schemaType = isTypeTuple(def.type) ? def.type[0] : def.type;
@@ -15,7 +15,7 @@ const getFieldTypes = (
 
     const id = prefix ? `${prefix.id}.${key}` : key;
 
-    returnValue.push([id, def.field?.label || id, type]);
+    returnValue.push([id, def.field?.label || id, type, def.unique || false]);
   });
 
   schemaRefs.forEach(([key, ref]) => {
@@ -25,7 +25,7 @@ const getFieldTypes = (
 
     const id = prefix ? `${prefix.id}.${key}` : key;
 
-    returnValue.push([id, id, type]);
+    returnValue.push([id, id, type, false]);
   });
 
   if (!excludeArrays) {

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled/macro';
-import { isSchemaDef, isSchemaDefOrType } from '@jackbuehner/cristata-generator-schema';
+import { isSchemaDef, isSchemaDefOrType, SchemaType } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';
@@ -15,6 +15,8 @@ import {
 import { Field } from '../../../../components/ContentField/Field';
 import { useAppSelector } from '../../../../redux/hooks';
 import {
+  resetAccessor,
+  setAccessor,
   setCanPublish,
   setDynamicPreviewHref,
   setMandatoryWatchers,
@@ -27,6 +29,7 @@ import {
   setWatcherNotices,
   setWithPermissions,
 } from '../../../../redux/slices/collectionSlice';
+import { hasKey } from '../../../../utils/hasKey';
 import { colorType } from '../../../../utils/theme/theme';
 import { useConfirmDelete } from '../hooks/useConfirmDelete';
 import { ActionAccessCard } from './ActionAccessCard';
@@ -51,9 +54,20 @@ function OptionsTab(props: OptionsTabProps) {
   const previewUrl = state.collection?.options?.previewUrl || '';
   const dynamicPreviewHref = state.collection?.options?.dynamicPreviewHref || '';
 
+  const by = (() => {
+    if (!state.collection?.by) {
+      return undefined;
+    } else if (Array.isArray(state.collection.by)) {
+      return { one: state.collection.by, many: state.collection.by };
+    }
+    return state.collection.by;
+  })();
+
   const fieldTypes = getFieldTypes(state.collection?.schemaDef || {}, true);
   const dateFields = fieldTypes.filter(([key, label, type]) => type === 'Date');
   const stringFields = fieldTypes.filter(([key, label, type]) => type === 'String');
+  const intFields = fieldTypes.filter(([key, label, type]) => type === 'Int');
+  const floatFields = fieldTypes.filter(([key, label, type]) => type === 'Float');
   const objectIdFields = fieldTypes.filter(([key, label, type]) => type === 'ObjectId');
   const objectIdsFields = fieldTypes.filter(([key, label, type]) => type === 'ObjectIds');
 
@@ -432,6 +446,89 @@ function OptionsTab(props: OptionsTabProps) {
             />
           </IndentField>
         ) : null}
+        <Checkbox
+          isEmbedded
+          label={'Use a custom accessor for querying and mutating documents in this collection'}
+          checked={!!by}
+          onChange={(e) => {
+            if (e.currentTarget.checked) {
+              dispatch(setAccessor(['_id', 'ObjectId'], 'all'));
+            } else {
+              dispatch(resetAccessor());
+            }
+          }}
+        />
+        {!!by
+          ? (() => {
+              const fieldOptions = [
+                { value: '_id', label: 'Primary key (_id) [unique]', type: 'ObjectId' },
+                ...stringFields.map(([key, label, , unique]) => ({
+                  value: key,
+                  label: `${label ? `${label} (${key})` : key}${unique ? ' [unique]' : ''}`,
+                  type: 'String',
+                })),
+                ...intFields.map(([key, label, , unique]) => ({
+                  value: key,
+                  label: `${label ? `${label} (${key})` : key}${unique ? ' [unique]' : ''}`,
+                  type: 'Int',
+                })),
+                ...floatFields.map(([key, label, , unique]) => ({
+                  value: key,
+                  label: `${label ? `${label} (${key})` : key}${unique ? ' [unique]' : ''}`,
+                  type: 'Float',
+                })),
+              ];
+              const fieldOptionsMultiple = [
+                { value: '_id', label: 'Primary key (_ids) [unique]', type: 'ObjectId' },
+                ...stringFields.map(([key, label, , unique]) => ({
+                  value: key,
+                  label: `${label ? `${label} (${key}s)` : key + 's'}${unique ? ' [unique]' : ''}`,
+                  type: 'String',
+                })),
+                ...intFields.map(([key, label, , unique]) => ({
+                  value: key,
+                  label: `${label ? `${label} (${key}s)` : key + 's'}${unique ? ' [unique]' : ''}`,
+                  type: 'Int',
+                })),
+                ...floatFields.map(([key, label, , unique]) => ({
+                  value: key,
+                  label: `${label ? `${label} (${key}s)` : key + 's'}${unique ? ' [unique]' : ''}`,
+                  type: 'Float',
+                })),
+              ];
+              return (
+                <IndentField color={'primary'}>
+                  <CardLabel style={{ marginTop: 10, fontSize: 14 }}>Configure email alerts</CardLabel>
+                  <SelectOne
+                    isEmbedded
+                    label={'Single document accessor'}
+                    description={`Choose which field is the identifier field for querying and mutating a single document. To avoid conflicts, choose an accessor that guarantees unique values. The default is <code>_id</code>.`}
+                    type={'String'}
+                    options={fieldOptions}
+                    value={fieldOptions.find((a) => a.value === by.one[0]) || fieldOptions[0]}
+                    onChange={(opt) => {
+                      if (opt && typeof opt.value === 'string' && hasKey(opt, 'type')) {
+                        dispatch(setAccessor([opt.value, opt.type as SchemaType], 'one'));
+                      }
+                    }}
+                  />
+                  <SelectOne
+                    isEmbedded
+                    label={'Multiple documents accessor'}
+                    description={`Choose which field is the identifier field for querying and mutating multiple documents. To avoid conflicts, choose an accessor that guarantees unique values. The default is <code>_ids</code>.`}
+                    type={'String'}
+                    options={fieldOptionsMultiple}
+                    value={fieldOptionsMultiple.find((a) => a.value === by.many[0]) || fieldOptionsMultiple[0]}
+                    onChange={(opt) => {
+                      if (opt && typeof opt.value === 'string' && hasKey(opt, 'type')) {
+                        dispatch(setAccessor([opt.value, opt.type as SchemaType], 'many'));
+                      }
+                    }}
+                  />
+                </IndentField>
+              );
+            })()
+          : null}
       </Card>
       <ActionAccessCard />
       <Card>
