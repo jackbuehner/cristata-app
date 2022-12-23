@@ -124,6 +124,21 @@ function MutationsTab() {
                     dispatch(setCustomMutations(copy));
                   }}
                 />
+                <Checkbox
+                  isEmbedded
+                  label={`Make this mutation publically available‗‗${index}`}
+                  description={`This mutation will not require Cristata authentication. 'Public' is appended to the mutation name when this is enabled`}
+                  checked={cm.public}
+                  onChange={(e) => {
+                    const copy = JSON.parse(JSON.stringify(arr));
+                    if (e.currentTarget.checked) {
+                      copy[index].public = true;
+                    } else {
+                      copy[index].public = false;
+                    }
+                    dispatch(setCustomMutations(copy));
+                  }}
+                />
                 <SelectOne
                   isEmbedded
                   label={`Action‗‗${index}`}
