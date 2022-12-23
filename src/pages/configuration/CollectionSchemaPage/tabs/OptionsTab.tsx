@@ -21,6 +21,7 @@ import {
   setName,
   setNameField,
   setNavLabel,
+  setPreviewUrl,
   setPublicRules,
   setRootSchemaProperty,
   setWatcherNotices,
@@ -47,6 +48,7 @@ function OptionsTab(props: OptionsTabProps) {
   const withPermissions = state.collection?.withPermissions;
   const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
   const watcherNotices = state.collection?.options?.watcherNotices;
+  const previewUrl = state.collection?.options?.previewUrl || '';
   const dynamicPreviewHref = state.collection?.options?.dynamicPreviewHref || '';
 
   const fieldTypes = getFieldTypes(state.collection?.schemaDef || {}, true);
@@ -299,7 +301,7 @@ function OptionsTab(props: OptionsTabProps) {
           isEmbedded
           label={'Preview tab location (URL)'}
           description={
-            'Render this URL in an iframe in preview tab of the document editor. ' +
+            'Render this URL in an iframe in the preview tab of the document editor. ' +
             'Field data is provided via <code>Window.postMessage()</code> ' +
             'and can be captured and rendered by adding a listener for messages. ' +
             'Include the <a href="https://github.com/davidjbradshaw/iframe-resizer">iframe-resizer</a> content script ' +
@@ -308,6 +310,20 @@ function OptionsTab(props: OptionsTabProps) {
           }
           value={dynamicPreviewHref}
           onChange={(e) => dispatch(setDynamicPreviewHref(e.currentTarget.value))}
+        />
+        <Text
+          isEmbedded
+          label={'Preview popup location (URL) (Deprecated)'}
+          description={
+            'Open this URL as a popup via a preview option that appears in the document editor sidebar. \n' +
+            'Document data is provided in the `data` parameter in the URL search string, appended to the URL you provide. ' +
+            'Data is compacted into a URL-friendly string with <a href="https://github.com/KilledByAPixel/JSONCrush">JSONCrush</a>. ' +
+            'It is your responsibility to use <code>JSONCrush.uncrush()</code> on the provided data and validate that the data is ' +
+            'in the expected format.\n' +
+            'The provided URL should be a valid input to <code>new window.URL()</code>.'
+          }
+          value={previewUrl}
+          onChange={(e) => dispatch(setPreviewUrl(e.currentTarget.value))}
         />
       </Card>
       <Card>

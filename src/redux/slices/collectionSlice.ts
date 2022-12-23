@@ -253,6 +253,13 @@ export const collectionSlice = createSlice({
         }
       },
     },
+    setPreviewUrl: (state, action: PayloadAction<string | undefined>) => {
+      if (state.collection) {
+        if (!state.collection.options) state.collection.options = {};
+        state.collection.options.previewUrl = action.payload;
+        state.isUnsaved = true;
+      }
+    },
     setDynamicPreviewHref: (state, action: PayloadAction<string | undefined>) => {
       if (state.collection) {
         if (!state.collection.options) state.collection.options = {};
@@ -310,6 +317,7 @@ export const {
   setRootSchemaProperty,
   setDefaultQueryOption,
   setDefaultMutationOption,
+  setPreviewUrl,
   setDynamicPreviewHref,
 } = collectionSlice.actions;
 
