@@ -19,6 +19,7 @@ import {
   setDynamicPreviewHref,
   setMandatoryWatchers,
   setName,
+  setNameField,
   setNavLabel,
   setPublicRules,
   setRootSchemaProperty,
@@ -41,6 +42,7 @@ function OptionsTab(props: OptionsTabProps) {
   const rootSchemaDef = state.collection?.schemaDef;
   const name = state.collection?.name;
   const navLabel = state.collection?.navLabel;
+  const nameField = state.collection?.options?.nameField;
   const canPublish = state.collection?.canPublish;
   const withPermissions = state.collection?.withPermissions;
   const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
@@ -106,6 +108,24 @@ function OptionsTab(props: OptionsTabProps) {
             onChange={(e) => dispatch(setNavLabel(e.currentTarget.value))}
           />
         ) : null}
+
+        <Text
+          isEmbedded
+          label={'Document name template'}
+          description={
+            "This template will be used for a document's name when it is opened in the document editor.\n\n" +
+            'The default template is <code>name</code>, which means that the value of the <code>name</code> ' +
+            'field will be used as the displayed document name.\n' +
+            "To use the value of a different field as the document's name, type the API name of that field.\n\n" +
+            'Multiple fields can be used in conjunction with fixed text by providing a value where ' +
+            'valid API names are surrounded by <code>%</code>.\n' +
+            'For example, in a schema with a String name field and an Integer version count field, ' +
+            '<code>%name% → version %version_number%</code> might become <code>Test document → version 7</code>.\n\n' +
+            'Only String, Integer, and Float fields can be used.'
+          }
+          value={nameField || 'name'}
+          onChange={(e) => dispatch(setNameField(e.currentTarget.value))}
+        />
       </Card>
       {publicRules !== undefined ? (
         <Card>

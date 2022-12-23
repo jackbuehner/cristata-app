@@ -80,6 +80,13 @@ export const collectionSlice = createSlice({
         state.isUnsaved = true;
       }
     },
+    setNameField: (state, action: PayloadAction<NonNullable<GenCollectionInput['options']>['nameField']>) => {
+      if (state.collection) {
+        if (!state.collection.options) state.collection.options = {};
+        state.collection.options.nameField = action.payload;
+        state.isUnsaved = true;
+      }
+    },
     setRootSchemaDef: (state, action: PayloadAction<GenCollectionInput['schemaDef']>) => {
       if (state.collection) {
         state.collection.schemaDef = action.payload;
@@ -291,6 +298,7 @@ export const {
   setWithPermissions,
   setName,
   setNavLabel,
+  setNameField,
   setRootSchemaDef,
   setAccessor,
   setPublicRules,
