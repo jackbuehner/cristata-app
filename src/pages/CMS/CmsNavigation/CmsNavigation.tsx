@@ -21,19 +21,56 @@ function CmsNavigation(props: CmsNavigationProps) {
       {cmsNav?.map((group, index) => {
         return (
           <Fragment key={index}>
+            {group.label === 'Collections' ? (
+              <>
+                <SideNavHeading className={'not-header'}>Files</SideNavHeading>
+                {group.items
+                  .filter((item) => item.label === 'Files' || item.label === 'Photo library')
+                  .map((item, index) => {
+                    return (
+                      <SideNavSubButton
+                        key={index}
+                        Icon={
+                          <FluentIcon
+                            key={index}
+                            name={
+                              item.label === 'Files'
+                                ? 'Folder24Regular'
+                                : item.label === 'Photo library'
+                                ? 'TabDesktopImage24Regular'
+                                : item.icon
+                            }
+                          />
+                        }
+                        to={item.to}
+                        setIsNavVisibleM={props.setIsNavVisibleM}
+                      >
+                        {item.label}
+                      </SideNavSubButton>
+                    );
+                  })}
+              </>
+            ) : null}
             <SideNavHeading className={'not-header'}>{group.label}</SideNavHeading>
-            {group.items.map((item, index) => {
-              return (
-                <SideNavSubButton
-                  key={index}
-                  Icon={<FluentIcon key={index} name={item.icon} />}
-                  to={item.to}
-                  setIsNavVisibleM={props.setIsNavVisibleM}
-                >
-                  {item.label}
-                </SideNavSubButton>
-              );
-            })}
+            {group.items
+              .filter((item) => {
+                if (group.label === 'Collections') {
+                  return item.label !== 'Files' && item.label !== 'Photo library';
+                }
+                return true;
+              })
+              .map((item, index) => {
+                return (
+                  <SideNavSubButton
+                    key={index}
+                    Icon={<FluentIcon key={index} name={item.icon} />}
+                    to={item.to}
+                    setIsNavVisibleM={props.setIsNavVisibleM}
+                  >
+                    {item.label}
+                  </SideNavSubButton>
+                );
+              })}
           </Fragment>
         );
       })}

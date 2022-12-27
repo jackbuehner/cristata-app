@@ -335,6 +335,23 @@ function ContentManagementSystemPage() {
           </Button>
         </div>
       </Card>
+      <Card label={'Default navigation pane groups'}>
+        <Checkbox
+          isEmbedded
+          label={'Show all collections in a group at the bottom of the navigation pane.'}
+          description={
+            'A collection is hidden if the currently authenticated user does not have the ability to view documents in the collection.'
+          }
+          checked
+          disabled
+        />
+        <Checkbox
+          isEmbedded
+          label={'Show the File and Photo collections separate from tenant-defined collections'}
+          checked
+          disabled
+        />
+      </Card>
     </div>
   );
 
