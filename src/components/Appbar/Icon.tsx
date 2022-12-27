@@ -113,6 +113,11 @@ const ICON_COMPONENT = styled.div<{
     width: 22px;
     height: 22px;
     transform: rotate(-45deg);
+    color: ${({ theme, color, isCustomTitlebarVisible }) => {
+      if (color === 'neutral') return theme.color.neutral[theme.mode][1400];
+      else if (isCustomTitlebarVisible) return theme.color.neutral.dark[100];
+      return theme.color.neutral[theme.mode][100];
+    }};
     fill: ${({ theme, color, isCustomTitlebarVisible }) => {
       if (color === 'neutral') return theme.color.neutral[theme.mode][1400];
       else if (isCustomTitlebarVisible) return theme.color.neutral.dark[100];
