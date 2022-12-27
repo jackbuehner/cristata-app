@@ -262,6 +262,88 @@ function Playground({ setThemeMode }: PlaygroundProps) {
           .graphiql-container .tabs {
             border-top: none;
           }
+
+          /* documentation explorer */
+          .graphiql-container {
+            .docExplorerWrap,
+            .doc-explorer,
+            .doc-explorer-contents {
+              background-color: ${theme.color.neutral.dark[100]};
+              color: ${theme.color.neutral.dark[1400]};
+            }
+
+            .doc-explorer-title {
+              font-size: 16px;
+              font-family: ${theme.font.headline};
+              height: 48px;
+            }
+
+            button.docExplorerHide {
+              visibility: visible;
+              color: ${theme.color.neutral.dark[600]};
+              border-radius: 0;
+              width: 35px;
+              height: 35px;
+              margin: -2px;
+              padding: 10px;
+              &:hover {
+                background-color: ${Color(theme.color.neutral.dark[300]).alpha(0.3).string()};
+              }
+            }
+
+            .doc-explorer-contents {
+              border-top: 1px solid ${theme.color.neutral.dark[200]};
+            }
+
+            .doc-category-title {
+              color: ${theme.color.neutral.dark[1100]};
+              border-bottom: 1px solid ${theme.color.neutral.dark[200]};
+              font-family: ${theme.font.detail};
+              font-weight: 600;
+              letter-spacing: 2px;
+            }
+
+            .search-box {
+              border-bottom: 1px solid ${theme.color.neutral.dark[200]};
+              .search-box-clear {
+                color: ${theme.color.neutral.dark[1400]};
+                background-color: ${theme.color.neutral.dark[400]};
+              }
+            }
+
+            .doc-explorer-back {
+              color: #61afef;
+            }
+
+            .keyword {
+              font-family: monospace;
+              color: #e06c75;
+            }
+
+            .type-name {
+              font-family: monospace;
+              color: #e5c07b;
+            }
+
+            .field-name {
+              font-family: monospace;
+              color: #61afef;
+            }
+
+            .arg-name {
+              font-family: monospace;
+              color: #c678dd;
+            }
+
+            .field-short-description {
+              color: ${theme.color.neutral.dark[1200]};
+            }
+
+            input {
+              background-color: ${theme.color.neutral.dark[100]};
+              color: ${theme.color.neutral.dark[1400]};
+            }
+          }
         `}
       >
         <GraphiQL
