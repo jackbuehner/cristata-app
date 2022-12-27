@@ -1,6 +1,7 @@
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import styled from '@emotion/styled/macro';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Color from 'color';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -10,7 +11,15 @@ import { serializeError } from 'serialize-error';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import fetch2, { RequestInit2 } from './utils/fetch2';
 import { theme } from './utils/theme';
+
+const queryClient = new QueryClient();
+
+declare global {
+  function fetch2(input: string | URL, opts?: RequestInit2): Promise<Response>;
+}
+window.fetch2 = fetch2;
 
 const appTheme = theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
@@ -103,22 +112,24 @@ ReactDOM.render(
       })}
     >
       <ErrorBoundary FallbackComponent={AppErrorFallback}>
-        <App />
-        <Tooltip
-          place={'bottom'}
-          effect={'float'}
-          delayShow={600}
-          delayHide={100}
-          theme={theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}
-          overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
-            if (place === desiredPlace && effect === 'float')
-              return {
-                top: pos.top + 2,
-                left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
-              };
-            return pos;
-          }}
-        />
+        <QueryClientProvider client={queryClient}>
+          <App />
+          <Tooltip
+            place={'bottom'}
+            effect={'float'}
+            delayShow={600}
+            delayHide={100}
+            theme={theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}
+            overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
+              if (place === desiredPlace && effect === 'float')
+                return {
+                  top: pos.top + 2,
+                  left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
+                };
+              return pos;
+            }}
+          />
+        </QueryClientProvider>
       </ErrorBoundary>
     </CacheProvider>
   </React.StrictMode>,

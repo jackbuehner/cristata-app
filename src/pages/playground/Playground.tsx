@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import { createGraphiQLFetcher } from '@graphiql/toolkit';
-import axios from 'axios';
 import Color from 'color';
 import GraphiQL from 'graphiql';
 import 'graphiql/graphiql.css';
@@ -54,12 +53,15 @@ function Playground({ setThemeMode }: PlaygroundProps) {
 
   useEffect(() => {
     if (tenant) {
-      axios
-        .post(`${server.location}/v3/${tenant}`, {
-          query: getIntrospectionQuery(),
-        })
+      fetch(`${server.location}/v3/${tenant}`, {
+        method: 'POST',
+        body: JSON.stringify({ query: getIntrospectionQuery() }),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then((res) => res.json())
         .then(({ data }) => {
-          dispatch(setSchema(buildClientSchema(data.data)));
+          dispatch(setSchema(buildClientSchema(data)));
         });
     }
   }, [dispatch, tenant]);

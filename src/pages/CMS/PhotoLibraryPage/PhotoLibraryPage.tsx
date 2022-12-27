@@ -2,7 +2,6 @@ import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
 import { CircularProgress } from '@material-ui/core';
-import axios from 'axios';
 import Color from 'color';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -172,13 +171,15 @@ function PhotoLibraryPage() {
    * Uploads the file to the s3 bucket using the signed request url
    */
   const uploadFile = async (file: File, signedRequest: string) => {
-    return axios
-      .put(signedRequest, file, {
-        headers: { 'Content-Type': file.type, 'x-amz-acl': 'public-read' },
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.lengthComputable) setUploadProgress(progressEvent.loaded / progressEvent.total);
-        },
-      })
+    return fetch2(signedRequest, {
+      method: 'PUT',
+      body: file,
+      credentials: 'omit',
+      headers: { 'Content-Type': file.type, 'x-amz-acl': 'public-read' },
+      onUploadProgress(evt, progress) {
+        setUploadProgress(progress || 0);
+      },
+    })
       .then(() => {
         setUploadProgress(0);
         return true;
@@ -188,7 +189,7 @@ function PhotoLibraryPage() {
         setIsLoading(false);
         setUploadStatus(null);
         console.error(error);
-        toast.error(`Failed to upload file with signed s3 url: ${error}`);
+        toast.error(`Failed to upload file with signed s3 url: ${error?.message || JSON.stringify(error)}`);
         return false;
       });
   };

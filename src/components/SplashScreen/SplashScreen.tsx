@@ -1,8 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { AxiosError } from 'axios';
 import { useEffect, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
 import {
   setAuthProvider,
@@ -19,7 +18,7 @@ import { Spinner } from '../Loading';
 
 interface ISplashScreen {
   loading: boolean; // loading status of api request for user
-  error?: AxiosError<any>; // error for api request
+  error?: any; // error for api request
   user?: {
     email: string;
     methods: string[];
@@ -69,7 +68,7 @@ function SplashScreen(props: ISplashScreen) {
       props.bypassAuthLogic !== true &&
       searchParams.get('from') !== 'sign-out'
     ) {
-      const is403 = isWrongTenant || props.error?.message.indexOf('403') !== -1;
+      const is403 = isWrongTenant || props.error?.message?.indexOf('403') !== -1;
       // if the error is a 403 (not authenticated), redirect to sign in page
       if ((is403 || isWrongTenant) && location.pathname.indexOf(`/sign-in`) !== 0) {
         const tenant = localStorage.getItem('tenant');
@@ -155,7 +154,7 @@ function SplashScreen(props: ISplashScreen) {
   const hideSplashScreen =
     props.bypassAuthLogic === true ||
     (!props.error && !props.loading) ||
-    (props.error && props.error.message.indexOf('403') !== -1);
+    (props.error && props.error.message?.indexOf('403') !== -1);
 
   return (
     <>

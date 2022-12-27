@@ -1,19 +1,16 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useTheme } from '@emotion/react';
+import { Editor } from '@tiptap/react';
+import { DateTime as Luxon } from 'luxon';
 import { useEffect, useState } from 'react';
+import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppSelector } from '../../../redux/hooks';
-import useAxios from 'axios-hooks';
-import { Field } from '../../ContentField/Field';
-import { Checkbox, DateTime, SelectOne, Text } from '../../ContentField';
-import { useTheme } from '@emotion/react';
 import { themeType } from '../../../utils/theme/theme';
-import { Editor } from '@tiptap/react';
+import { Checkbox, DateTime, SelectOne, Text } from '../../ContentField';
+import { Field } from '../../ContentField/Field';
 import { generateEmailHTML } from '../components/Backstage/downloadEmailHTML';
-import { DateTime as Luxon } from 'luxon';
-import { db } from '../../../utils/axios/db';
-import { toast } from 'react-toastify';
 import { EntryY } from './useY';
-import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 
 function useScheduleEmailWindow(
   editor: Editor | null,
@@ -34,6 +31,7 @@ function useScheduleEmailWindow(
 
     // track loading state so there is a visiual indication when
     // something is happening
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     // get the available sned and reply addresses
@@ -94,36 +92,36 @@ function useScheduleEmailWindow(
       isLoading: isLoading,
       continueButton: {
         text: 'Schedule send',
-        onClick: async () => {
-          if (isPublished && subject && senderName && senderEmail && replyEmail && selectedLists.length > 0) {
-            return await sendEmail(
-              subject,
-              senderEmail,
-              replyEmail,
-              senderName,
-              generatedHTML,
-              selectedLists,
-              timestamp
-            )
-              .finally(() => {
-                setIsLoading(false);
-              })
-              .then(({ data }) => {
-                toast.success('Email scheduled successfully. Click to open a report.', {
-                  onClick: () => {
-                    window.open(data.details);
-                  },
-                });
-                return true;
-              })
-              .catch((error) => {
-                console.error(error);
-                toast.error(`Failed to schedule email: ${error.message}`);
-                return false;
-              });
-          }
-          return false;
-        },
+        // onClick: async () => {
+        //   if (isPublished && subject && senderName && senderEmail && replyEmail && selectedLists.length > 0) {
+        //     return await sendEmail(
+        //       subject,
+        //       senderEmail,
+        //       replyEmail,
+        //       senderName,
+        //       generatedHTML,
+        //       selectedLists,
+        //       timestamp
+        //     )
+        //       .finally(() => {
+        //         setIsLoading(false);
+        //       })
+        //       .then(({ data }) => {
+        //         toast.success('Email scheduled successfully. Click to open a report.', {
+        //           onClick: () => {
+        //             window.open(data.details);
+        //           },
+        //         });
+        //         return true;
+        //       })
+        //       .catch((error) => {
+        //         console.error(error);
+        //         toast.error(`Failed to schedule email: ${error.message}`);
+        //         return false;
+        //       });
+        //   }
+        //   return false;
+        // },
         disabled:
           !isPublished || !subject || !senderName || !senderEmail || !replyEmail || selectedLists.length === 0,
       },
@@ -254,7 +252,8 @@ function fetchContactLists() {
     };
   };
 
-  return useAxios<ContactListsResponse>('/constant-contact/contact_lists');
+  return [{ data: [] } as { data: ContactListsResponse }];
+  // return useAxios<ContactListsResponse>('/constant-contact/contact_lists');
 }
 
 function fetchAccountSenders() {
@@ -268,35 +267,36 @@ function fetchAccountSenders() {
     pending_roles: ('CONTACT' | 'BILLING' | 'JOURNALING' | 'REPLT_TO' | 'OTHER')[];
   }[];
 
-  return useAxios<AccountSendersResponse>('/constant-contact/account_emails?confirm_status=CONFIRMED');
+  return [{ data: [] } as { data: AccountSendersResponse }];
+  // return useAxios<AccountSendersResponse>('/constant-contact/account_emails?confirm_status=CONFIRMED');
 }
 
-async function sendEmail(
-  subject: string,
-  senderEmail: string,
-  replyEmail: string,
-  senderName: string,
-  html: string,
-  contactLists: string[],
-  scheduleTimestamp: string | null
-) {
-  const utcNow = Luxon.fromJSDate(new Date()).setZone('utc').toFormat('yyyy-MM-dd HH:mm:ss');
-  return db.post('/constant-contact/emails', {
-    name: `${subject.slice(0, 56)} [${utcNow}]`,
-    contact_list_ids: contactLists,
-    scheduled_date: scheduleTimestamp || '0',
-    email_campaign_activities: [
-      {
-        format_type: 5,
-        from_email: senderEmail,
-        reply_to_email: replyEmail,
-        from_name: senderName,
-        subject: subject,
-        html_content: html + '[[trackingImage]]',
-        preheader: '',
-      },
-    ],
-  });
-}
+// async function sendEmail(
+//   subject: string,
+//   senderEmail: string,
+//   replyEmail: string,
+//   senderName: string,
+//   html: string,
+//   contactLists: string[],
+//   scheduleTimestamp: string | null
+// ) {
+//   const utcNow = Luxon.fromJSDate(new Date()).setZone('utc').toFormat('yyyy-MM-dd HH:mm:ss');
+//   return db.post('/constant-contact/emails', {
+//     name: `${subject.slice(0, 56)} [${utcNow}]`,
+//     contact_list_ids: contactLists,
+//     scheduled_date: scheduleTimestamp || '0',
+//     email_campaign_activities: [
+//       {
+//         format_type: 5,
+//         from_email: senderEmail,
+//         reply_to_email: replyEmail,
+//         from_name: senderName,
+//         subject: subject,
+//         html_content: html + '[[trackingImage]]',
+//         preheader: '',
+//       },
+//     ],
+//   });
+// }
 
 export { useScheduleEmailWindow };

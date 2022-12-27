@@ -1,7 +1,7 @@
 import { ApolloProvider } from '@apollo/client';
 import { css, Global, ThemeProvider } from '@emotion/react';
 import loadable from '@loadable/component';
-import useAxios, { configure } from 'axios-hooks';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { ModalProvider } from 'react-modal-hook';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -16,7 +16,6 @@ import { PickTenant } from './pages/PickTenant';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { SignOut } from './pages/SignIn';
 import { persistor, store } from './redux/store';
-import { db } from './utils/axios/db';
 import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
 
@@ -26,20 +25,26 @@ import { theme as themeC } from './utils/theme/theme';
 Protected.preload();
 SplashScreen.preload();
 
-// configure axios global settings
-configure({ axios: db });
-
 export interface IGridCols {
   side: number;
   sideSub: number;
 }
 
 function App() {
-  let [{ data: user, loading: loadingUser, error: errorUser }, refetchUser] = useAxios({
-    url: '/auth',
-    baseURL: server.location,
-    withCredentials: true,
-    method: 'GET',
+  const {
+    data: user,
+    isLoading: loadingUser,
+    error: errorUser,
+    refetch: refetchUser,
+  } = useQuery({
+    queryKey: ['authUserData'],
+    cacheTime: 0,
+    queryFn: () =>
+      fetch(`${server.location}/auth`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      }).then((res) => res.json()),
   });
 
   const [tenant, setTenant] = useState<string>(localStorage.getItem('tenant') || '');
