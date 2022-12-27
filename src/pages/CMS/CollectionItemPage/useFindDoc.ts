@@ -159,7 +159,7 @@ function docDefsToQueryObjectLight(
   return deepen({ _id: true });
 }
 
-export function deepen(obj: Record<string, boolean | { __aliasFor: string } | string | number>) {
+export function deepen(obj: Record<string, boolean | { __aliasFor: string } | string | number | string[]>) {
   const result: Record<string, never> = {};
 
   // For each object path (property key) in the object

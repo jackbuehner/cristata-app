@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
-import { Checkbox, DateTime, Number, ReferenceOne, Text } from '../../../components/ContentField';
+import { Checkbox, DateTime, Number, ReferenceOne, SelectMany, Text } from '../../../components/ContentField';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
@@ -30,7 +30,7 @@ function useNewItemModal(
 
     // create a state object for storing the field values that resets whenever required fields
     // no longer matches state
-    const [state, setState] = useState<Record<string, boolean | number | string | undefined>>({});
+    const [state, setState] = useState<Record<string, boolean | number | string | undefined | string[]>>({});
     useEffect(() => {
       // check whether we need to reset the state because the requiredFields have changed
       const sameKeys =
@@ -240,6 +240,34 @@ function useNewItemModal(
                     onChange={(e) => {
                       const newValue = e.currentTarget.value;
                       if (newValue !== undefined) setState({ ...state, [key]: newValue });
+                    }}
+                  />
+                );
+              }
+              if (type[0] === 'String') {
+                const values = (() => {
+                  const provided = state[key];
+
+                  if (Array.isArray(provided) && provided.every((value) => typeof value === 'string')) {
+                    return (provided as string[]).map((value) => ({ value: value, label: value }));
+                  }
+
+                  return [];
+                })();
+
+                return (
+                  <SelectMany
+                    key={index}
+                    label={fieldName}
+                    description={def.field?.description}
+                    values={values}
+                    type={'String'}
+                    options={def.field?.options}
+                    disabled={loading}
+                    isEmbedded
+                    onChange={(newValues) => {
+                      if (newValues !== undefined)
+                        setState({ ...state, [key]: newValues.map((v) => `${v.value}`) });
                     }}
                   />
                 );
