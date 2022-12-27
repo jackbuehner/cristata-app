@@ -48,6 +48,7 @@ function Playground({ setThemeMode }: PlaygroundProps) {
 
   const fetcher = createGraphiQLFetcher({
     url: `${server.location}/v3/${tenant}`,
+    // @ts-ignore
     fetch: fetchWithCredentials,
   });
 
@@ -271,7 +272,13 @@ function Playground({ setThemeMode }: PlaygroundProps) {
           onEditQuery={(query) => dispatch(setQuery(query))}
           defaultQuery={defaultQuery}
           defaultVariableEditorOpen={true}
-          tabs={true}
+          tabs={{
+            onTabChange: () => {
+              if (graphiqlRef.current) {
+                dispatch(setQuery(graphiqlRef.current.state.query));
+              }
+            },
+          }}
         >
           <GraphiQL.Toolbar />
         </GraphiQL>
