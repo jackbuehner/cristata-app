@@ -31,6 +31,10 @@ function ConfigurationNavigation() {
         >
           Secrets
         </SideNavSubButton>
+        <SideNavHeading>Apps</SideNavHeading>
+        <SideNavSubButton Icon={<FluentIcon name={'ContentView20Regular'} />} to={`/configuration/app/cms`}>
+          Content Management System
+        </SideNavSubButton>
         <SideNavHeading>System collections</SideNavHeading>
         <SideNavSubButton
           Icon={<FluentIcon name={'CircleSmall20Filled'} />}
