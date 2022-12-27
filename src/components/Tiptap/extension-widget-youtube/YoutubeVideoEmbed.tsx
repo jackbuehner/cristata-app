@@ -2,7 +2,7 @@ import styled from '@emotion/styled/macro';
 import { Delete16Regular, Edit16Regular, Open16Regular, TextDescription20Regular } from '@fluentui/react-icons';
 import { NodeViewWrapper, NodeViewProps, Node, NodeViewContent } from '@tiptap/react';
 import { useRef, useState } from 'react';
-import { useModal } from 'react-modal-hook';
+import { useModal } from '@cristata/react-modal-hook';
 import { PlainModal } from '../../Modal';
 import { TextInput } from '../../TextInput';
 import { WidgetWrapper, WidgetActions, WidgetLabel } from '../components/Widget';

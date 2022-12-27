@@ -6,7 +6,7 @@ import { NumberOption, StringOption } from '@jackbuehner/cristata-generator-sche
 import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
-import { useModal } from 'react-modal-hook';
+import { useModal } from '@cristata/react-modal-hook';
 import ReactTooltip from 'react-tooltip';
 import { Button, buttonEffect } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';

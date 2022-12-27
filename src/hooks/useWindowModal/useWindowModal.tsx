@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled/macro';
-import { useModal } from 'react-modal-hook';
+import { useModal } from '@cristata/react-modal-hook';
 import { PlainModal } from '../../components/Modal';
 import { IPlainModal } from '../../components/Modal/PlainModal';
 import { themeType } from '../../utils/theme/theme';

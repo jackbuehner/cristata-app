@@ -22,7 +22,7 @@ import { Editor } from '@tiptap/react';
 import Color from 'color';
 import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from 'react-modal-hook';
+import { useModal } from '@cristata/react-modal-hook';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { tiptapOptions } from '../../../../config';

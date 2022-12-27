@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import { Column, useFilters, useSortBy, useTable } from 'react-table';
 import { TableDiv } from './_TableDiv';
 import { TableRow } from './_TableRow';
@@ -10,7 +9,7 @@ import { ChevronDown16Regular, ChevronUp16Regular } from '@fluentui/react-icons'
 import { buttonEffect } from '../Button';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import Skeleton from 'react-skeleton-loader';
+import Skeleton from '@cristata/react-skeleton-loader';
 import { ApolloError } from '@apollo/client';
 import { merge } from 'merge-anything';
 import { mongoSortType } from '../../graphql/client';
@@ -21,7 +20,7 @@ interface ITable {
   data: {
     data: { [key: string]: any }[];
     loading: boolean;
-    error: AxiosError<any> | ApolloError | undefined;
+    error: Error | ApolloError | undefined;
   };
   showSkeleton?: boolean;
   columns: Array<Column & { isSortable: boolean }>;

@@ -2,7 +2,7 @@ import { Delete16Regular, Edit16Regular, Open16Regular } from '@fluentui/react-i
 import { NodeViewWrapper, NodeViewProps, Node } from '@tiptap/react';
 import IframeResizer from 'iframe-resizer-react';
 import { useRef, useState } from 'react';
-import { useModal } from 'react-modal-hook';
+import { useModal } from '@cristata/react-modal-hook';
 import { PlainModal } from '../../Modal';
 import { TextInput } from '../../TextInput';
 import { WidgetWrapper, WidgetActions, WidgetLabel } from '../components/Widget';

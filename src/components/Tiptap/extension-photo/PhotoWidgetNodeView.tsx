@@ -4,7 +4,7 @@ import { Delete16Regular, Edit16Regular, TextDescription20Regular } from '@fluen
 import { NodeViewWrapper, NodeViewProps, Node, NodeViewContent } from '@tiptap/react';
 import { useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from 'react-modal-hook';
+import { useModal } from '@cristata/react-modal-hook';
 import { ClientConsumer } from '../../../graphql/client';
 import {
   PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
