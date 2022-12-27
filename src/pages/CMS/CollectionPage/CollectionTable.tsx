@@ -29,6 +29,7 @@ import { Chip } from '../../../components/Chip';
 import { Offline } from '../../../components/Offline';
 import { Table } from '../../../components/Table';
 import { mongoFilterType, mongoSortType } from '../../../graphql/client';
+import { useCacheWithExpiration } from '../../../hooks/useCacheWithExpiration';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
@@ -182,7 +183,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       )
     );
 
-    const defaultLimit = rowDisplayCountEstimate + 20;
+    const defaultLimit = 20;
     const [limit, setLimit] = useState<number>(defaultLimit);
     const [prevSort, setPrevSort] = useState<mongoSortType>(defaultSort);
 
@@ -192,6 +193,12 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     }, [limit, prevSort, sort]);
 
     // get the collection data
+    const fetchPolicy = useCacheWithExpiration(
+      1000 * 60,
+      `${props.collection}_table_${JSON.stringify(props.filter || {})}_${JSON.stringify(
+        sort || defaultSort || {}
+      )}`
+    );
     const {
       data: queryData,
       loading,
@@ -201,8 +208,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       fetchMore,
     } = useQuery(GENERATED_COLLECTION_QUERY, {
       notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'cache-and-network',
-      variables: { limit: queryLimit },
+      fetchPolicy: fetchPolicy,
+      nextFetchPolicy: 'network-only',
+      variables: { limit: queryLimit, offset: 0 },
       onCompleted: (queryData) => {
         const data = queryData?.[uncapitalize(pluralize(props.collection))];
 
@@ -236,6 +244,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // make functions available to the parent element via a ref
     useImperativeHandle(ref, () => ({
       refetchData() {
+        setLimit(defaultLimit);
         refetch();
         setSelectedIds([]);
         setLastSelectedId(undefined);
@@ -521,12 +530,27 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                     limit: 10,
                     offset: docs.length,
                   },
+
+                  updateQuery(previousQueryResult: any, { fetchMoreResult }) {
+                    if (!fetchMoreResult) return previousQueryResult;
+
+                    return {
+                      ...previousQueryResult,
+                      [uncapitalize(pluralize(props.collection))]: {
+                        ...(previousQueryResult?.[uncapitalize(pluralize(props.collection))] || {}),
+                        docs: [
+                          ...(previousQueryResult?.[uncapitalize(pluralize(props.collection))]?.docs || []),
+                          ...(fetchMoreResult?.[uncapitalize(pluralize(props.collection))]?.docs || []),
+                        ],
+                      },
+                    };
+                  },
                 });
                 // increase the limit so that the correct amount of rows are loaded when the filter or sort order changes
                 setLimit(limit + 10);
                 setPrevSort(sort);
               }
-            } else {
+            } else if (loading && networkStatus === NetworkStatus.refetch) {
               // make spinner invisible until it is intersecting enough
               if (SpinnerRef.current) SpinnerRef.current.style.opacity = '0';
             }
@@ -538,7 +562,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       return () => {
         if (observer) observer.disconnect();
       };
-    }, [docs, docs?.length, fetchMore, limit, loading, networkStatus, sort]);
+    }, [docs, fetchMore, limit, loading, networkStatus, props.collection, sort]);
 
     // modal for deleting selected items
     const [DeleteWindow, showDeleteModal] = useWindowModal(
@@ -673,7 +697,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
               setPrevSort={setPrevSort}
               id={props.collection}
               footer={
-                docs && data && docs.length < data.totalDocs ? (
+                docs && data && docs.length <= data.totalDocs ? (
                   <div ref={SpinnerRef}>
                     <Spinner theme={theme} />
                   </div>
