@@ -96,9 +96,6 @@ function Playground({ setThemeMode }: PlaygroundProps) {
             >
               Prettify
             </Button>
-            <Button onClick={() => graphiqlRef.current?.handleToggleHistory()} data-tip={'Show History'}>
-              History
-            </Button>
             <Button onClick={() => graphiqlRef.current?.handleToggleDocs()} data-tip={'Toggle Docs'}>
               Docs
             </Button>
