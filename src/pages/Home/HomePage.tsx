@@ -20,6 +20,7 @@ import { AppsList } from './AppsList';
 function HomePage() {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
+  const tenant = localStorage?.getItem('tenant');
 
   // set document title
   useEffect(() => {
@@ -34,7 +35,7 @@ function HomePage() {
   }, [dispatch]);
 
   return (
-    <Grid theme={theme}>
+    <Grid tenant={tenant}>
       <div style={{ gridArea: 'apps' }}>
         <HomeSectionHeading icon={<AppFolder24Regular />}>Your apps</HomeSectionHeading>
         <AppsList />
@@ -68,16 +69,18 @@ function HomePage() {
         <HomeSectionHeading icon={<Pulse24Regular />}>Recent activty</HomeSectionHeading>
         <RecentActivity />
       </div>
-      <div style={{ gridArea: 'workflow' }}>
-        <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
-        <Workflow />
-      </div>
+      {tenant === 'paladin-news' ? (
+        <div style={{ gridArea: 'workflow' }}>
+          <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
+          <Workflow />
+        </div>
+      ) : null}
       <CollectionRows firstRowIndex={4} />
     </Grid>
   );
 }
 
-const Grid = styled.div<{ theme: themeType }>`
+const Grid = styled.div<{ tenant: string | null | undefined }>`
   height: 100%;
   @media (max-width: 600px) {
     height: ${({ theme }) => `calc(100% - ${theme.dimensions.bottomNav.height})`};
@@ -90,7 +93,7 @@ const Grid = styled.div<{ theme: themeType }>`
   grid-template-areas:
     'apps apps'
     'announcement announcement'
-    'activity workflow'
+    ${({ tenant }) => (tenant === 'paladin-news' ? "'activity workflow'" : "'activity activity'")}
     'row-4 row-4'
     'row-5 row-5'
     'row-6 row-6';
