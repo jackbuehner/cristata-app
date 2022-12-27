@@ -42,7 +42,7 @@ const TEAM = gql(
 
 type TEAM__TYPE =
   | {
-      team: TEAM__DOC_TYPE;
+      team?: TEAM__DOC_TYPE;
     }
   | undefined;
 
@@ -50,8 +50,8 @@ type TEAM__DOC_TYPE = {
   _id: string;
   name: string;
   slug: string;
-  members: TEAM_USER__DOC_TYPE[];
-  organizers: TEAM_USER__DOC_TYPE[];
+  members?: TEAM_USER__DOC_TYPE[];
+  organizers?: TEAM_USER__DOC_TYPE[];
 };
 
 type TEAM_USER__DOC_TYPE = {

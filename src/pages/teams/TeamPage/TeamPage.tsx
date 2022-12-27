@@ -143,14 +143,14 @@ function TeamPage() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [membersToAdd, setMembersToAdd] = useState<string[]>([]);
 
-    const members = data?.team.members.filter((m) => !!m).map((user) => user._id) || [];
-    const organizers = data?.team.organizers.filter((m) => !!m) || [];
+    const members = data?.team?.members?.filter((m) => !!m).map((user) => user._id) || [];
+    const organizers = data?.team?.organizers?.filter((m) => !!m) || [];
 
     const isLoading = isMutating || loading || networkStatus === NetworkStatus.refetch;
 
     const canManage =
       permissions?.modify ||
-      data?.team.organizers
+      data?.team?.organizers
         ?.filter((m) => !!m)
         .map((user) => user._id)
         .includes(authUserState._id) ||
@@ -393,10 +393,12 @@ function TeamPage() {
               _id: team_id,
               input: {
                 organizers: team.organizers
-                  .filter((m) => !!m)
+                  ?.filter((m) => !!m)
                   .filter((user) => user._id !== _id)
                   .map((user) => user._id), // remove user from organizers
-                members: Array.from(new Set([...team.members.filter((m) => !!m).map((user) => user._id), _id])),
+                members: Array.from(
+                  new Set([...(team.members || []).filter((m) => !!m).map((user) => user._id), _id])
+                ),
               },
             },
           })
@@ -420,10 +422,10 @@ function TeamPage() {
               _id: team_id,
               input: {
                 organizers: Array.from(
-                  new Set([...team.organizers.filter((m) => !!m).map((user) => user._id), _id])
+                  new Set([...(team.organizers || []).filter((m) => !!m).map((user) => user._id), _id])
                 ),
                 members: team.members
-                  .filter((m) => !!m)
+                  ?.filter((m) => !!m)
                   .filter((user) => user._id !== _id)
                   .map((user) => user._id), // remove user from members
               },
@@ -488,7 +490,7 @@ function TeamPage() {
           items={[
             {
               label: `${props.currentRole === 'member' ? '✧ ' : ''}Member`,
-              disabled: team?.members.find((user) => user._id)?._id === props._id,
+              disabled: team?.members?.find((user) => user._id)?._id === props._id,
               onClick: async () => {
                 if (props && props._id && props.currentRole) {
                   setRole(props._id, 'member', props.currentRole);
@@ -497,7 +499,7 @@ function TeamPage() {
             },
             {
               label: `${props.currentRole === 'organizer' ? '✧ ' : ''}Organizer`,
-              disabled: team?.organizers.find((user) => user._id)?._id === props._id,
+              disabled: team?.organizers?.find((user) => user._id)?._id === props._id,
               onClick: () => {
                 if (props && props._id && props.currentRole) {
                   setRole(props._id, 'organizer', props.currentRole);
@@ -562,11 +564,11 @@ function TeamPage() {
             _id: team_id,
             input: {
               organizers: team?.organizers
-                .filter((m) => !!m)
+                ?.filter((m) => !!m)
                 .filter((user) => user._id !== userId)
                 .map((user) => user._id), // remove user from organizers
               members: team?.members
-                .filter((m) => !!m)
+                ?.filter((m) => !!m)
                 .filter((user) => user._id !== userId)
                 .map((user) => user._id), // remove user from organizers
             },
@@ -682,7 +684,7 @@ function TeamPage() {
             <UsersGrid>
               {allMembers.map((user, index) => {
                 const isOrganizer =
-                  team?.organizers.filter((m) => !!m).findIndex((u) => u._id === user._id) !== -1;
+                  team?.organizers?.filter((m) => !!m).findIndex((u) => u._id === user._id) !== -1;
                 const { temporary, expired } = getPasswordStatus(user.flags);
 
                 return (
