@@ -171,7 +171,7 @@ function ContentManagementSystemPage() {
               >
                 <Text
                   isEmbedded
-                  label={'Group label'}
+                  label={`Group label‗‗${i}`}
                   value={group.label}
                   onChange={(e) => {
                     const data = copy(cmsNav);
@@ -179,7 +179,7 @@ function ContentManagementSystemPage() {
                     setCmsNav(data);
                   }}
                 />
-                <Field isEmbedded label={'Navigation group items'}>
+                <Field isEmbedded label={`Navigation group items‗‗${i}`}>
                   <>
                     {group.items.length > 0 ? (
                       <div style={{ marginBottom: 10 }}>
@@ -222,7 +222,7 @@ function ContentManagementSystemPage() {
                           >
                             <Text
                               isEmbedded
-                              label={`Label`}
+                              label={`Label‗‗${i}_${j}`}
                               description={
                                 'The label for this navigation item that will appear in the navigation pane.'
                               }
@@ -235,7 +235,7 @@ function ContentManagementSystemPage() {
                             />
                             <Text
                               isEmbedded
-                              label={`To`}
+                              label={`To‗‗${i}_${j}`}
                               description={
                                 'The destination page after clicking this option. ' +
                                 'Destinations must begin with <code>/cms</code>.\n' +
@@ -250,7 +250,7 @@ function ContentManagementSystemPage() {
                             />
                             <Text
                               isEmbedded
-                              label={`Icon`}
+                              label={`Icon‗‗${i}_${j}`}
                               value={item.icon}
                               onChange={(e) => {
                                 const data = copy(cmsNav);
@@ -260,7 +260,7 @@ function ContentManagementSystemPage() {
                             />
                             <Checkbox
                               isEmbedded
-                              label={'Require team membership to view this navigation item'}
+                              label={`Require team membership to view this navigation item‗‗${i}_${j}`}
                               checked={!!item.hiddenFilter?.notInTeam}
                               onChange={(e) => {
                                 const data = copy(cmsNav);
@@ -276,7 +276,7 @@ function ContentManagementSystemPage() {
                               <IndentField color={'primary'}>
                                 <ReferenceMany
                                   isEmbedded
-                                  label={`Teams`}
+                                  label={`Teams‗‗${i}_${j}`}
                                   values={item.hiddenFilter.notInTeam.map((teamId) => ({ _id: teamId }))}
                                   collection={'Team'}
                                   onChange={(newValues) => {
