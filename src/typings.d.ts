@@ -3,7 +3,7 @@ declare module 'react-use-dimensions' {
   export = useDimensions;
 }
 
-declare module 'graphiql-explorer' {
+declare module '@cristata/graphiql-explorer' {
   var GraphiQLExplorer: any;
   export = GraphiQLExplorer;
 }

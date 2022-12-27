@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
-import GraphiQLExplorer from 'graphiql-explorer';
+import GraphiQLExplorer from '@cristata/graphiql-explorer';
 import { SideNavHeading } from '../../components/Heading';
 import { Offline } from '../../components/Offline';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
