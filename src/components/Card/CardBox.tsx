@@ -1,9 +1,9 @@
 import styled from '@emotion/styled/macro';
 import Color from 'color';
 
-const CardBox = styled.div<{ noVerticalMargin?: boolean }>`
+const CardBox = styled.div<{ noVerticalMargin?: boolean; noPadding?: boolean }>`
   margin: ${({ noVerticalMargin }) => (noVerticalMargin ? 0 : 16)}px 0;
-  padding: 16px;
+  padding: ${({ noPadding }) => `${noPadding ? 0 : 16}px`};
   box-shadow: ${({ theme }) => theme.color.neutral[theme.mode][200]} 0px 0px 0px 1px inset;
   background-color: ${({ theme }) =>
     theme.mode === 'dark'

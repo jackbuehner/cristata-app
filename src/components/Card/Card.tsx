@@ -7,11 +7,13 @@ interface CardProps {
   caption?: React.ReactNode;
   children: React.ReactNode;
   noVerticalMargin?: boolean;
+  noPadding?: boolean;
+  style?: React.CSSProperties;
 }
 
 function Card(props: CardProps) {
   return (
-    <CardBox noVerticalMargin={props.noVerticalMargin}>
+    <CardBox noVerticalMargin={props.noVerticalMargin} noPadding={props.noPadding} style={props.style}>
       {props.label ? <CardLabel>{props.label}</CardLabel> : null}
       {props.caption ? <CardLabelCaption>{props.caption}</CardLabelCaption> : null}
       {props.children}
