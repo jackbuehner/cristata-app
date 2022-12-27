@@ -114,13 +114,13 @@ function Sidebar(props: SidebarProps) {
           display: flex;
           flex-direction: column;
           background-color: ${theme.mode === 'dark' ? theme.color.neutral.dark[100] : 'white'};
-          > ha[class*='PlainModalTitle'] {
+          > h1 {
             border-color: ${theme.color.neutral[theme.mode][200]};
           }
-          > div[class*='PlainModalContent'] {
+          > div:first-of-type {
             padding: 0;
             > p {
-              height: 100%;
+              min-height: 100%;
               display: flex;
               flex-direction: column;
               > iframe {
@@ -128,7 +128,7 @@ function Sidebar(props: SidebarProps) {
               }
             }
           }
-          > div[class*='ActionRow'] {
+          > div:nth-of-type(2) {
             border-color: ${theme.color.neutral[theme.mode][200]};
           }
         `}
