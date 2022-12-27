@@ -5,7 +5,7 @@ type FluentIconNames = keyof typeof FluentIconsFontCodes | 'CircleSmall20Filled'
 
 const FluentIcon = loadable(
   (props: { name: FluentIconNames }) => import(/* webpackChunkName: "FluentIcon" */ `@fluentui/react-icons`),
-  { resolveComponent: (c, props) => c[props.name], cacheKey: (props) => props.name }
+  { resolveComponent: (c, props) => c[props.name] || c.CircleSmall20Filled, cacheKey: (props) => props.name }
 );
 
 export default FluentIcon;
