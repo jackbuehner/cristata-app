@@ -75,7 +75,11 @@ function SchemaTab(props: SchemaTabProps) {
                           label: key,
                           id: `${id}.field.custom.${index}.fields`,
                         })
-                          .sort((a, b) => (a.order > b.order ? 1 : -1))
+                          .sort((a, b) => {
+                            const orderA = parseInt(`${a.order}`);
+                            const orderB = parseInt(`${b.order}`);
+                            return orderA > orderB ? 1 : -1;
+                          })
                           .map(({ node }) => node),
                       };
                     }) || []
@@ -122,7 +126,11 @@ function SchemaTab(props: SchemaTabProps) {
 
       const generated = generateItems(arr[0], { label: key, id })
         .filter(({ id: thisID }) => thisID !== `${id}.#label`) // do not show label schema
-        .sort((a, b) => (a.order > b.order ? 1 : -1))
+        .sort((a, b) => {
+          const orderA = parseInt(`${a.order}`);
+          const orderB = parseInt(`${b.order}`);
+          return orderA > orderB ? 1 : -1;
+        })
         .map(({ node }) => node);
 
       items.push({
@@ -156,7 +164,11 @@ function SchemaTab(props: SchemaTabProps) {
   };
 
   const items = generateItems()
-    .sort((a, b) => (a.order > b.order ? 1 : -1))
+    .sort((a, b) => {
+      const orderA = parseInt(`${a.order}`);
+      const orderB = parseInt(`${b.order}`);
+      return orderA > orderB ? 1 : -1;
+    })
     .map(({ node }) => node);
 
   return <>{items}</>;

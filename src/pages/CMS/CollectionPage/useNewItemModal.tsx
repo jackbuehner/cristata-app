@@ -135,6 +135,12 @@ function useNewItemModal(
         <>
           {(requiredFields || [])
             .filter(([key, def], index) => key !== 'timestamps.published_at' && key !== 'timestamps.updated_at')
+            // sort fields to match their order
+            .sort((a, b) => {
+              const orderA = parseInt(`${a[1].field?.order || 1000}`);
+              const orderB = parseInt(`${b[1].field?.order || 1000}`);
+              return orderA > orderB ? 1 : -1;
+            })
             .map(([key, def], index) => {
               const type: MongooseSchemaType | 'DocArray' = isTypeTuple(def.type) ? def.type[1] : def.type;
               const fieldName = def.field?.label || key;

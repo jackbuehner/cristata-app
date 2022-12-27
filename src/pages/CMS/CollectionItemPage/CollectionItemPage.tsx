@@ -238,8 +238,9 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       schemaDef
         // sort fields to match their order
         .sort((a, b) => {
-          if ((a[1].field?.order || 1000) > (b[1].field?.order || 1000)) return 1;
-          return -1;
+          const orderA = parseInt(`${a[1].field?.order || 1000}`);
+          const orderB = parseInt(`${b[1].field?.order || 1000}`);
+          return orderA > orderB ? 1 : -1;
         })
         // hide hidden fields
         .filter(([, def]) => {
