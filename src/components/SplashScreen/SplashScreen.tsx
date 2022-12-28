@@ -6,7 +6,6 @@ import { useAppDispatch } from '../../redux/hooks';
 import {
   setAuthProvider,
   setEmail,
-  setHas2fa,
   setName,
   setObjectId,
   setTeams,
@@ -24,16 +23,10 @@ interface ISplashScreen {
     name: string;
     provider: string;
     teams: string[];
-    two_factor_authentication: boolean;
     username?: string;
     tenant: string;
     _id: string;
     next_step?: string;
-    constantcontact?: {
-      access_token: string;
-      refresh_token: string;
-      expires_at: number;
-    };
   }; // the user from the api request
   persistentChildren?: React.ReactNode;
   protectedChildren?: React.ReactNode;
@@ -98,7 +91,6 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setName(props.user.name));
       dispatch(setUsername(props.user.username || 'unknown.user'));
       dispatch(setTeams(props.user.teams));
-      dispatch(setHas2fa(props.user.two_factor_authentication));
       dispatch(setObjectId(props.user._id));
 
       // get the location state

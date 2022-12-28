@@ -6,11 +6,9 @@ export interface AuthUserState {
   email: string;
   provider: string;
   teams: string[]; // hex respresentations of ObjectIds
-  hasTwoFactorAuthentication: boolean;
   name: string;
   username: string;
   _id: string; // hex respresentations of ObjectIds
-  constantcontact?: constantcontact;
 }
 
 interface constantcontact {
@@ -23,7 +21,6 @@ const initialState: AuthUserState = {
   email: '',
   provider: '',
   teams: [],
-  hasTwoFactorAuthentication: false,
   name: '',
   username: '',
   _id: '000000000000000000000000',
@@ -64,12 +61,6 @@ export const authUserSlice = createSlice({
       state.teams = action.payload;
     },
     /**
-     * Stores whether the authenticated user has 2fa enabled.
-     */
-    setHas2fa: (state, action: PayloadAction<boolean>) => {
-      state.hasTwoFactorAuthentication = action.payload;
-    },
-    /**
      * Stores the authenticated user's teams.
      */
     setObjectId: (state, action: PayloadAction<string | mongoose.Types.ObjectId>) => {
@@ -83,7 +74,6 @@ export const authUserSlice = createSlice({
   },
 });
 
-export const { setEmail, setAuthProvider, setName, setUsername, setTeams, setHas2fa, setObjectId } =
-  authUserSlice.actions;
+export const { setEmail, setAuthProvider, setName, setUsername, setTeams, setObjectId } = authUserSlice.actions;
 
 export default authUserSlice.reducer;
