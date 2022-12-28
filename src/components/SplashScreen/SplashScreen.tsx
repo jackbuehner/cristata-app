@@ -3,14 +3,7 @@ import styled from '@emotion/styled';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
-import {
-  setAuthProvider,
-  setEmail,
-  setName,
-  setObjectId,
-  setTeams,
-  setUsername,
-} from '../../redux/slices/authUserSlice';
+import { setAuthProvider, setName, setObjectId } from '../../redux/slices/authUserSlice';
 import { themeType } from '../../utils/theme/theme';
 import { Spinner } from '../Loading';
 
@@ -18,12 +11,8 @@ interface ISplashScreen {
   loading: boolean; // loading status of api request for user
   error?: any; // error for api request
   user?: {
-    email: string;
-    methods: string[];
     name: string;
     provider: string;
-    teams: string[];
-    username?: string;
     tenant: string;
     _id: string;
     next_step?: string;
@@ -86,11 +75,8 @@ function SplashScreen(props: ISplashScreen) {
 
   useEffect(() => {
     if (props.user && props.bypassAuthLogic !== true && searchParams.get('from') !== 'sign-out') {
-      dispatch(setEmail(props.user.email));
       dispatch(setAuthProvider(props.user.provider));
       dispatch(setName(props.user.name));
-      dispatch(setUsername(props.user.username || 'unknown.user'));
-      dispatch(setTeams(props.user.teams));
       dispatch(setObjectId(props.user._id));
 
       // get the location state
@@ -106,12 +92,6 @@ function SplashScreen(props: ISplashScreen) {
       // user needs to change password
       if ((props.user.next_step === 'change_password' && !locState) || locState?.step === 'change_password') {
         logout();
-      }
-      // user needs to create a password
-      else if (!props.user.methods.includes('local')) {
-        if (!locState || (locState.step !== 'migrate_email_sent' && locState.step !== 'migrate_to_local')) {
-          logout();
-        }
       }
     }
   }, [

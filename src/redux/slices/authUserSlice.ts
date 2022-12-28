@@ -3,11 +3,8 @@ import mongoose from 'mongoose';
 import { isObjectId } from '../../utils/isObjectId';
 
 export interface AuthUserState {
-  email: string;
   provider: string;
-  teams: string[]; // hex respresentations of ObjectIds
   name: string;
-  username: string;
   _id: string; // hex respresentations of ObjectIds
 }
 
@@ -18,11 +15,8 @@ interface constantcontact {
 }
 
 const initialState: AuthUserState = {
-  email: '',
   provider: '',
-  teams: [],
   name: '',
-  username: '',
   _id: '000000000000000000000000',
 };
 
@@ -30,12 +24,6 @@ export const authUserSlice = createSlice({
   name: 'authUser',
   initialState,
   reducers: {
-    /**
-     * Stores the authenticated user's email.
-     */
-    setEmail: (state, action: PayloadAction<string>) => {
-      state.email = action.payload;
-    },
     /**
      * Stores the authenticated user's auth provider.
      */
@@ -47,18 +35,6 @@ export const authUserSlice = createSlice({
      */
     setName: (state, action: PayloadAction<string>) => {
       state.name = action.payload;
-    },
-    /**
-     * Stores the authenticated user's username.
-     */
-    setUsername: (state, action: PayloadAction<string>) => {
-      state.username = action.payload;
-    },
-    /**
-     * Stores the authenticated user's teams.
-     */
-    setTeams: (state, action: PayloadAction<string[]>) => {
-      state.teams = action.payload;
     },
     /**
      * Stores the authenticated user's teams.
@@ -74,6 +50,6 @@ export const authUserSlice = createSlice({
   },
 });
 
-export const { setEmail, setAuthProvider, setName, setUsername, setTeams, setObjectId } = authUserSlice.actions;
+export const { setAuthProvider, setName, setObjectId } = authUserSlice.actions;
 
 export default authUserSlice.reducer;
