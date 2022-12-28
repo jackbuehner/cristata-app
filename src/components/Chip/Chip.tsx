@@ -1,5 +1,5 @@
 import { SerializedStyles, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import Color from 'color';
 import { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button/buttonEffect';

@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Color from 'color';
 import { themeType } from '../../utils/theme/theme';

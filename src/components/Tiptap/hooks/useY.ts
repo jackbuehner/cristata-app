@@ -28,7 +28,7 @@ class YProvider {
 
       // register with a Hocuspocus server provider
       const wsProvider = new HocuspocusProvider({
-        url: `${process.env.REACT_APP_WS_PROTOCOL}//${process.env.REACT_APP_HOCUSPOCUS_BASE_URL}`,
+        url: `${import.meta.env.VITE_WS_PROTOCOL}//${import.meta.env.VITE_HOCUSPOCUS_BASE_URL}`,
         name,
         document: ydoc,
         parameters: { _id, appVersion },
@@ -40,7 +40,7 @@ class YProvider {
         awareness: wsProvider.awareness,
         password: name + 'cristata-development' + packageJson.version,
       };
-      if (process.env.NODE_ENV === 'production') {
+      if (import.meta.env.NODE_ENV === 'production') {
         providerOptions.password = (
           await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))
         ).toString();

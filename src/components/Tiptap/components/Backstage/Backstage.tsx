@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Editor } from '@tiptap/react';
 import Color from 'color';
 import { useEffect, useState } from 'react';

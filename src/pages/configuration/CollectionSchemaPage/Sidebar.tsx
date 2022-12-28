@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { isSchemaDef } from '@jackbuehner/cristata-generator-schema';
 import { useAppSelector } from '../../../redux/hooks';
 import { SidebarSchemaCard } from './SidebarSchemaCard';

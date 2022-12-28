@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { useModal } from '@cristata/react-modal-hook';
 import { PlainModal } from '../../components/Modal';
 import { IPlainModal } from '../../components/Modal/PlainModal';

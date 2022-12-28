@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Button, SideNavSubButton } from '../../../components/Button';
 import FluentIcon from '../../../components/FluentIcon';
 import { SideNavHeading } from '../../../components/Heading';

@@ -1,6 +1,6 @@
 import { gql, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
@@ -112,7 +112,7 @@ function ProfilePage() {
               icon: 'Key20Regular',
               action: () => {
                 const tenant = localStorage.getItem('tenant');
-                window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
+                window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}/${
                   tenant || ''
                 }/change-password?return=${encodeURIComponent(window.location.href)}`;
               },

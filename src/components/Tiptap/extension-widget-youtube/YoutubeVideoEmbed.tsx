@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Delete16Regular, Edit16Regular, Open16Regular, TextDescription20Regular } from '@fluentui/react-icons';
 import { NodeViewWrapper, NodeViewProps, Node, NodeViewContent } from '@tiptap/react';
 import { useRef, useState } from 'react';

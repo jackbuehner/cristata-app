@@ -1,5 +1,5 @@
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';

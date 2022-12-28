@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 
 const CardLabel = styled.div`
   font-family: ${({ theme }) => theme.font.detail};

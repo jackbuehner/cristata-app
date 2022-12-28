@@ -8,7 +8,7 @@ import {
   Dismiss24Regular,
   ReOrderDotsHorizontal24Regular,
 } from '@fluentui/react-icons';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Card } from './Card';
 import { CardLabel } from './CardLabel';
 import { CardLabelCaption } from './CardLabelCaption';

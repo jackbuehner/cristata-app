@@ -1,8 +1,8 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { CSSProperties } from 'react';
 import { colorType, themeType } from '../../utils/theme/theme';
-import { sanitize } from 'dompurify';
+import dompurify from 'dompurify';
 
 interface FieldProps {
   children: React.ReactElement;
@@ -43,7 +43,7 @@ function Field(props: FieldProps) {
           {props.description ? (
             <Description
               theme={theme}
-              dangerouslySetInnerHTML={{ __html: sanitize(props.description) }}
+              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(props.description) }}
               disabled={props.disabled || false}
               color={props.color}
             />

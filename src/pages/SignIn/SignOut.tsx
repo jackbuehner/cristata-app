@@ -11,7 +11,7 @@ function SignOut() {
 
     // sign out
     const tenant = localStorage.getItem('tenant');
-    window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
+    window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}/${
       tenant || ''
     }/sign-out?return=${encodeURIComponent(window.location.origin + '/' + tenant)}`;
   })();

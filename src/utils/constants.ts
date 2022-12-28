@@ -1,20 +1,20 @@
 const gitpod = {
-  workspace: process.env.REACT_APP_GITPOD_WORKSPACE_URL,
-  port: process.env.REACT_APP_GITPOD_APP_PORT,
-  appPath: process.env.REACT_APP_GITPOD_WORKSPACE_URL?.replace(
+  workspace: import.meta.env.VITE_GITPOD_WORKSPACE_URL,
+  port: import.meta.env.VITE_GITPOD_APP_PORT,
+  appPath: import.meta.env.VITE_GITPOD_WORKSPACE_URL?.replace(
     'https://',
-    (process.env.REACT_APP_GITPOD_APP_PORT || '') + '-'
+    (import.meta.env.VITE_GITPOD_APP_PORT || '') + '-'
   ),
-  serverPath: process.env.REACT_APP_GITPOD_WORKSPACE_URL?.replace(
+  serverPath: import.meta.env.VITE_GITPOD_WORKSPACE_URL?.replace(
     'https://',
-    (process.env.REACT_APP_GITPOD_SERVER_PORT || '') + '-'
+    (import.meta.env.VITE_GITPOD_SERVER_PORT || '') + '-'
   ),
 };
 
 const server = {
-  httpProtocol: process.env.REACT_APP_API_PROTOCOL || 'https:',
-  wsProtocol: process.env.REACT_APP_WS_PROTOCOL || 'wss:',
-  path: process.env.REACT_APP_API_BASE_URL || gitpod.serverPath,
+  httpProtocol: import.meta.env.VITE_API_PROTOCOL || 'https:',
+  wsProtocol: import.meta.env.VITE_WS_PROTOCOL || 'wss:',
+  path: import.meta.env.VITE_API_BASE_URL || gitpod.serverPath,
   location: '',
   wsLocation: '',
 };

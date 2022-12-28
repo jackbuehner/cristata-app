@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import Color from 'color';
 
 const CardBox = styled.div<{ noVerticalMargin?: boolean; noPadding?: boolean }>`

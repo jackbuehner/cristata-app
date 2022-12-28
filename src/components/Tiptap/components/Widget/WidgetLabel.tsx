@@ -1,6 +1,6 @@
 import { themeType } from '../../../../utils/theme/theme';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 
 interface IWidgetLabel
   extends Partial<React.PropsWithChildren<{}>>,

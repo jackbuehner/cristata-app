@@ -1,5 +1,5 @@
 import { css, SerializedStyles, useTheme } from '@emotion/react';
-import styled, { CSSObject } from '@emotion/styled/macro';
+import styled, { CSSObject } from '@emotion/styled';
 import { CircularProgress } from '@material-ui/core';
 import { colorShade, colorType, themeType } from '../../utils/theme/theme';
 

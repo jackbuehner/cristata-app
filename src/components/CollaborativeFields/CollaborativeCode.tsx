@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { useMonaco } from '@monaco-editor/react';
 import Color from 'color';
 import { editor } from 'monaco-editor';

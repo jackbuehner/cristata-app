@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { AlignLeft20Regular, AlignRight20Regular, Delete16Regular } from '@fluentui/react-icons';
 import { Node, NodeViewContent, NodeViewProps, NodeViewWrapper } from '@tiptap/react';
 import { useRef, useState } from 'react';

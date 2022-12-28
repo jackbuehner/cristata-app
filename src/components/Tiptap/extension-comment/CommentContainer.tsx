@@ -1,5 +1,5 @@
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import {
   Checkmark16Regular,
   Comment20Regular,

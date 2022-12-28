@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import IframeResizer from 'iframe-resizer-react';
 import { useEffect, useRef } from 'react';
 import { isJSON } from '../../../../utils/isJSON';

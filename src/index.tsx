@@ -1,6 +1,7 @@
+import './init';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Color from 'color';
 import React from 'react';
@@ -10,16 +11,9 @@ import ReactTooltip from 'react-tooltip';
 import { serializeError } from 'serialize-error';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import fetch2, { RequestInit2 } from './utils/fetch2';
 import { theme } from './utils/theme';
 
 const queryClient = new QueryClient();
-
-declare global {
-  function fetch2(input: string | URL, opts?: RequestInit2): Promise<Response>;
-}
-window.fetch2 = fetch2;
 
 const appTheme = theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
@@ -135,9 +129,6 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-// register a service worker so that the app works offline
-serviceWorkerRegistration.register();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

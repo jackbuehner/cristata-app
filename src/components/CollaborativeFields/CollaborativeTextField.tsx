@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Editor } from '@tiptap/core';
 import { EditorContent, JSONContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';

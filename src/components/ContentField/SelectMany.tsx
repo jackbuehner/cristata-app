@@ -1,5 +1,5 @@
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Add20Regular, Dismiss24Regular, ReOrderDotsHorizontal24Regular } from '@fluentui/react-icons';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import Color from 'color';

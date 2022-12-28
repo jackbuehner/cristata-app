@@ -1,6 +1,6 @@
 import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { useEffect, useRef, useState } from 'react';

@@ -1,6 +1,6 @@
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Archive20Regular, Delete20Regular, Open20Regular } from '@fluentui/react-icons';
 import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-generator-schema';
 import { CircularProgress } from '@material-ui/core';
@@ -819,7 +819,9 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                 const _id = docs.find((doc: { _id: string }) => doc._id === selectedIds[0])?.[
                   row.hrefSuffixKey
                 ];
-                const href = `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/filestore/${tenant}/${_id}`;
+                const href = `${import.meta.env.VITE_API_PROTOCOL}//${
+                  import.meta.env.VITE_API_BASE_URL
+                }/filestore/${tenant}/${_id}`;
                 window.open(href, row.windowName + 'preview', 'location=no');
               }}
             >

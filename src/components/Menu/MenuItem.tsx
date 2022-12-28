@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { useTheme } from '@emotion/react';
 import { colorShade, colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';

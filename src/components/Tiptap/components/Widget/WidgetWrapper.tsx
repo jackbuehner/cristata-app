@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 
 interface IWidgetWrapper {
   position?: 'left' | 'right' | 'center';

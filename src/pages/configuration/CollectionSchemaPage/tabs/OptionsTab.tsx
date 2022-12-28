@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { isSchemaDef, isSchemaDefOrType, SchemaType } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';

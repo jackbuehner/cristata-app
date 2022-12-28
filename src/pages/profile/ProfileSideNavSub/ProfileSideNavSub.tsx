@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import {
   ArrowClockwise20Regular,
   Call24Regular,

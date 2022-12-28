@@ -1,5 +1,5 @@
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { WebSocketStatus } from '@hocuspocus/provider';
 import { isTypeTuple, MongooseSchemaType, StringOption } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';

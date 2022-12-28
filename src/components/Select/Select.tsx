@@ -1,5 +1,5 @@
 import { SerializedStyles, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { themeType } from '../../utils/theme/theme';
 import ReactSelect, { OptionTypeBase, GroupTypeBase, components } from 'react-select';
 import { buttonEffect } from '../Button';

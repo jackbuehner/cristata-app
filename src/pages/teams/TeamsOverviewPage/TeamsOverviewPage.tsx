@@ -1,6 +1,6 @@
 import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import mongoose from 'mongoose';
 import { Fragment, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';

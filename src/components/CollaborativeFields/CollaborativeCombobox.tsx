@@ -1,5 +1,5 @@
 import { css, Global, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { ChevronDown20Regular, ErrorCircle20Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import mongoose from 'mongoose';

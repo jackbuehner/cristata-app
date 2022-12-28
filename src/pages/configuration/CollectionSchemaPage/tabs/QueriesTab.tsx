@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { isSchemaDef } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { Button } from '../../../../components/Button';

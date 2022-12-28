@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { InputHTMLAttributes, useEffect, useState } from 'react';
 import { YMapEvent } from 'yjs';
 import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';

@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import Color from 'color';
 import React, { useState } from 'react';
 import { Button, buttonEffect } from '../../../../components/Button';

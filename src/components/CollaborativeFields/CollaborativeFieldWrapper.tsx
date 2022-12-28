@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
-import { sanitize } from 'dompurify';
+import styled from '@emotion/styled';
+import dompurify from 'dompurify';
 import { get as getProperty } from 'object-path';
 import { CSSProperties, useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
@@ -106,7 +106,7 @@ function CollaborativeFieldWrapper(props: CollaborativeFieldWrapperProps) {
           {props.description ? (
             <Description
               theme={theme}
-              dangerouslySetInnerHTML={{ __html: sanitize(props.description) }}
+              dangerouslySetInnerHTML={{ __html: dompurify.sanitize(props.description) }}
               disabled={props.disabled || false}
               color={props.color}
             />

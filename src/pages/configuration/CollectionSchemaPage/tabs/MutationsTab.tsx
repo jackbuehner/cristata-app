@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import Color from 'color';
 import { Button } from '../../../../components/Button';
 import { Checkbox, SelectOne, Text } from '../../../../components/ContentField';

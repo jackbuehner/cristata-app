@@ -1,93 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <base href="/" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#5438b9" />
-    <link rel="icon" href="%PUBLIC_URL%/icons/cristata-aperture.png" />
+    <link rel="icon" href="/icons/cristata-aperture.png" />
     <style>
       @font-face {
         font-family: 'Adamant BG';
         font-weight: 400;
         font-style: normal;
-        src: url(%PUBLIC_URL%/fonts/adamant-bg/Adamant_BG-Regular.otf) format('opentype');
+        src: url(/fonts/adamant-bg/Adamant_BG-Regular.otf) format('opentype');
       }
 
       @font-face {
         font-family: 'Adamant BG';
         font-weight: 400;
         font-style: italic;
-        src: url(%PUBLIC_URL%/fonts/adamant-bg/Adamant_BG-Italic.otf) format('opentype');
+        src: url(/fonts/adamant-bg/Adamant_BG-Italic.otf) format('opentype');
       }
 
       @font-face {
         font-family: 'Adamant BG';
         font-weight: 700;
         font-style: normal;
-        src: url(%PUBLIC_URL%/fonts/adamant-bg/Adamant_BG-Bold.otf) format('opentype');
+        src: url(/fonts/adamant-bg/Adamant_BG-Bold.otf) format('opentype');
       }
 
       @font-face {
         font-family: 'Adamant BG';
         font-weight: 700;
         font-style: italic;
-        src: url(%PUBLIC_URL%/fonts/adamant-bg/Adamant_BG-BoldItalic.otf) format('opentype');
+        src: url(/fonts/adamant-bg/Adamant_BG-BoldItalic.otf) format('opentype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 400;
         font-style: normal;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-Regular.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-Regular.ttf) format('truetype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 400;
         font-style: italic;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-Italic.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-Italic.ttf) format('truetype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 500;
         font-style: normal;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-Medium.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-Medium.ttf) format('truetype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 500;
         font-style: italic;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-MediumItalic.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-MediumItalic.ttf) format('truetype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 600;
         font-style: normal;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-SemiBold.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-SemiBold.ttf) format('truetype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 600;
         font-style: italic;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-SemiBoldItalic.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-SemiBoldItalic.ttf) format('truetype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 700;
         font-style: normal;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-Bold.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-Bold.ttf) format('truetype');
       }
 
       @font-face {
         font-family: 'Lato';
         font-weight: 700;
         font-style: italic;
-        src: url(%PUBLIC_URL%/fonts/lato/Lato-BoldItalic.ttf) format('truetype');
+        src: url(/fonts/lato/Lato-BoldItalic.ttf) format('truetype');
       }
 
       @font-face {
@@ -188,16 +189,7 @@
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
+    <link rel="manifest" href="/manifest.json" />
     <title>Cristata</title>
   </head>
 
@@ -301,6 +293,7 @@
       </svg>
       <span class="root-splash-note">© Jack Buehner</span>
     </div>
+    <script type="module" src="/src/index.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {

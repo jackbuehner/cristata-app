@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 
 const StatusbarBlock = styled.div`
   height: 24px;

@@ -1,6 +1,6 @@
 import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
 import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';

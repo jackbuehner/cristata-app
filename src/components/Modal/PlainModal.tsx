@@ -1,6 +1,6 @@
 /** @jsx-import-source @emotion/react */
 import { ClassNames, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import '@material/linear-progress/dist/mdc.linear-progress.css';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Color from 'color';

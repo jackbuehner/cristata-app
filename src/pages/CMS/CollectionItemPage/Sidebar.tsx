@@ -1,6 +1,6 @@
 import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { ChevronUpDown24Regular, Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
 import { NumberOption, StringOption } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
@@ -277,7 +277,9 @@ function Sidebar(props: SidebarProps) {
             width={'100%'}
             icon={<Open24Regular />}
             onClick={async () => {
-              const href = `${process.env.REACT_APP_API_PROTOCOL}//${process.env.REACT_APP_API_BASE_URL}/filestore/${props.docInfo.tenant}/${props.docInfo._id}`;
+              const href = `${import.meta.env.VITE_API_PROTOCOL}//${
+                import.meta.env.VITE_API_BASE_URL
+              }/filestore/${props.docInfo.tenant}/${props.docInfo._id}`;
               window.open(href, `sidebar_preview` + props.docInfo._id + 'File', 'location=no');
             }}
           >

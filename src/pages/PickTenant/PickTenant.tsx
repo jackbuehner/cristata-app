@@ -19,7 +19,7 @@ function PickTenant(props: PickTenantProps) {
   }, []);
 
   const login = () => {
-    window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}`;
+    window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}`;
   };
 
   useEffect(() => {

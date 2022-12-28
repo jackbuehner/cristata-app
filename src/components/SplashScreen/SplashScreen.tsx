@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
@@ -73,11 +73,11 @@ function SplashScreen(props: ISplashScreen) {
       if ((is403 || isWrongTenant) && location.pathname.indexOf(`/sign-in`) !== 0) {
         const tenant = localStorage.getItem('tenant');
         if (tenant) {
-          window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
+          window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}/${
             tenant || ''
           }?return=${encodeURIComponent(window.location.href)}`;
         } else {
-          window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}`;
+          window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}`;
         }
       }
     }
@@ -108,7 +108,7 @@ function SplashScreen(props: ISplashScreen) {
 
       const logout = () => {
         const tenant = localStorage.getItem('tenant');
-        window.location.href = `https://${process.env.REACT_APP_AUTH_BASE_URL}/${
+        window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}/${
           tenant || ''
         }/sign-out?return=${encodeURIComponent(window.location.href)}`;
       };

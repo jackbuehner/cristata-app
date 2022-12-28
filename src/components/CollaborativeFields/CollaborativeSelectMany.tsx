@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Add20Regular } from '@fluentui/react-icons';
 import { InputHTMLAttributes, useState } from 'react';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';

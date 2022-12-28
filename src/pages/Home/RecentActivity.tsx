@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { capitalize } from '../../utils/capitalize';
 import ColorHash from 'color-hash';
 import { DateTime } from 'luxon';

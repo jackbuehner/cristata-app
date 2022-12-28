@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { useEffect, useState } from 'react';
 import { Button } from '../../../components/Button';
 import { Offline } from '../../../components/Offline';

@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import Color from 'color';
 import { DateTime } from 'luxon';
 import { get as getProperty } from 'object-path';

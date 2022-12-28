@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import loadable from '@loadable/component';
 import Color from 'color';
 import { Dispatch, SetStateAction, useEffect } from 'react';

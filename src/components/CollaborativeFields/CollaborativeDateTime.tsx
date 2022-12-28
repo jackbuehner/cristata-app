@@ -1,5 +1,5 @@
 import { css, Global, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { CalendarLtr20Regular, Dismiss20Regular } from '@fluentui/react-icons';
 import { DatePicker } from 'antd';
 import 'antd/lib/date-picker/style/index.css';

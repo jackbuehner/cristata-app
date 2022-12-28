@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { Dismiss24Regular } from '@fluentui/react-icons';
 import {
   deconstructSchema,

@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';

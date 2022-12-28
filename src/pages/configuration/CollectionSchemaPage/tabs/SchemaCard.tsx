@@ -1,4 +1,4 @@
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import Color from 'color';
 import React from 'react';
 import { buttonEffect } from '../../../../components/Button';

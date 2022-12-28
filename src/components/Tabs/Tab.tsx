@@ -1,5 +1,5 @@
 import { Tab as RMWCTab } from '@rmwc/tabs';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 
 const Tab = styled(RMWCTab)`
   --mdc-theme-primary: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};

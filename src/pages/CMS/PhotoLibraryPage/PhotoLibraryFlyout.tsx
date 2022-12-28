@@ -1,6 +1,6 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
-import styled from '@emotion/styled/macro';
+import styled from '@emotion/styled';
 import { PanelRightContract24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
