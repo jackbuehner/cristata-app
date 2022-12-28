@@ -80,28 +80,10 @@ export const authUserSlice = createSlice({
         throw new Error(`cannot use invalid object id for auth user id`);
       }
     },
-    /**
-     * Stores the authenticated user's constant contact details.
-     */
-    setConstantContact: (state, action: PayloadAction<constantcontact | undefined>) => {
-      if (action.payload?.expires_at) {
-        state.constantcontact = action.payload;
-      } else {
-        state.constantcontact = undefined;
-      }
-    },
   },
 });
 
-export const {
-  setEmail,
-  setAuthProvider,
-  setName,
-  setUsername,
-  setTeams,
-  setHas2fa,
-  setObjectId,
-  setConstantContact,
-} = authUserSlice.actions;
+export const { setEmail, setAuthProvider, setName, setUsername, setTeams, setHas2fa, setObjectId } =
+  authUserSlice.actions;
 
 export default authUserSlice.reducer;

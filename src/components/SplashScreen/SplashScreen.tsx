@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
 import {
   setAuthProvider,
-  setConstantContact,
   setEmail,
   setHas2fa,
   setName,
@@ -101,7 +100,6 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setTeams(props.user.teams));
       dispatch(setHas2fa(props.user.two_factor_authentication));
       dispatch(setObjectId(props.user._id));
-      dispatch(setConstantContact(props.user.constantcontact));
 
       // get the location state
       const locState = location.state as { step?: string } | undefined;
