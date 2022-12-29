@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
-import { setAuthProvider, setName, setObjectId } from '../../redux/slices/authUserSlice';
+import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../redux/slices/authUserSlice';
 import { themeType } from '../../utils/theme/theme';
 import { Spinner } from '../Loading';
 
@@ -16,6 +16,13 @@ interface ISplashScreen {
     tenant: string;
     _id: string;
     next_step?: string;
+    otherUsers?: {
+      name: string;
+      provider: string;
+      tenant: string;
+      _id: string;
+      next_step?: string;
+    }[];
   }; // the user from the api request
   persistentChildren?: React.ReactNode;
   protectedChildren?: React.ReactNode;
@@ -78,6 +85,7 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setAuthProvider(props.user.provider));
       dispatch(setName(props.user.name));
       dispatch(setObjectId(props.user._id));
+      dispatch(setOtherUsers(props.user.otherUsers || []));
 
       // get the location state
       const locState = location.state as { step?: string } | undefined;

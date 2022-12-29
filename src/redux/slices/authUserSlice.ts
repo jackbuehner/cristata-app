@@ -6,18 +6,18 @@ export interface AuthUserState {
   provider: string;
   name: string;
   _id: string; // hex respresentations of ObjectIds
-}
-
-interface constantcontact {
-  access_token: string;
-  refresh_token: string;
-  expires_at: number;
+  otherUsers: Array<{
+    tenant: string;
+    _id: string;
+    name: string;
+  }>;
 }
 
 const initialState: AuthUserState = {
   provider: '',
   name: '',
   _id: '000000000000000000000000',
+  otherUsers: [],
 };
 
 export const authUserSlice = createSlice({
@@ -47,9 +47,15 @@ export const authUserSlice = createSlice({
         throw new Error(`cannot use invalid object id for auth user id`);
       }
     },
+    /**
+     * Stores the other authenticated users
+     */
+    setOtherUsers: (state, action: PayloadAction<AuthUserState['otherUsers']>) => {
+      state.otherUsers = action.payload;
+    },
   },
 });
 
-export const { setAuthProvider, setName, setObjectId } = authUserSlice.actions;
+export const { setAuthProvider, setName, setObjectId, setOtherUsers } = authUserSlice.actions;
 
 export default authUserSlice.reducer;

@@ -1,19 +1,23 @@
 import { useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { FluentIcon } from '../../components/FluentIcon';
+import { Person24Regular, PersonAdd24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import Color from 'color';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
 import { useDropdown } from '../../hooks/useDropdown';
+import { useAppSelector } from '../../redux/hooks';
+import { server } from '../../utils/constants';
 import { genAvatar } from '../../utils/genAvatar';
 import { themeType } from '../../utils/theme/theme';
 import { Button } from '../Button';
-import { Menu } from '../Menu';
+import { MenuList } from '../Menu';
 
 interface AccountMenuProps {}
 
 function AccountMenu(props: AccountMenuProps) {
+  const otherAccounts = useAppSelector((state) => state.authUser.otherUsers);
   const { data } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'cache-and-network' });
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
@@ -21,104 +25,180 @@ function AccountMenu(props: AccountMenuProps) {
   const profile = data?.me;
   const photo = profile ? profile.photo || genAvatar(profile._id) : '';
 
+  const [height, setHeight] = useState(0);
+
   const [showDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, _dropdownRef) => {
+      const dropdownRef = (el: HTMLOListElement) => {
+        if (el) {
+          _dropdownRef(el);
+          el.classList.remove('open');
+          setTimeout(() => el.classList.add('open'), 10);
+          console.log((el.firstElementChild as HTMLDivElement | undefined)?.offsetHeight);
+          setHeight((el.firstElementChild as HTMLDivElement | undefined)?.offsetHeight || 0);
+        }
+      };
+
       return (
-        <Menu
+        <MenuList
+          top={triggerRect.top + 30}
+          left={triggerRect.right - 300}
+          width={300}
           ref={dropdownRef}
-          pos={{
-            top: triggerRect.top + 30,
-            left: triggerRect.right - 261,
-            width: 261,
-          }}
-          items={[
+          style={
             {
-              label: (
+              '--height': height + 'px',
+              maxHeight: `calc(100vh - ${triggerRect.top + 30}px - 16px)`,
+              overflowY: 'auto',
+              border: `1px solid ${theme.color.neutral[theme.mode][theme.mode === 'light' ? 300 : 400]}`,
+              boxSizing: 'content-box',
+            } as React.CSSProperties
+          }
+        >
+          <div id='account-switcher-content'>
+            <div
+              style={{
+                padding: '20px 20px 0 20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <img style={{ borderRadius: '50%', margin: '0 auto' }} src={photo} width={60} />
+              <span
+                style={{
+                  fontFamily: theme.font.headline,
+                  fontWeight: 500,
+                  fontSize: 18,
+                  color: theme.color.neutral[theme.mode][1400],
+                  marginTop: 12,
+                  marginBottom: 6,
+                  display: 'block',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
+                {profile?.name}
+              </span>
+              <span
+                style={{
+                  fontFamily: theme.font.headline,
+                  fontWeight: 400,
+                  fontSize: 12,
+                  color: theme.color.neutral[theme.mode][1200],
+                  display: 'block',
+                  textAlign: 'center',
+                  whiteSpace: 'pre-wrap',
+                  marginBottom: 2,
+                }}
+              >
+                {profile?.current_title || 'Employee'}
+              </span>
+              <span
+                style={{
+                  fontFamily: theme.font.headline,
+                  fontWeight: 400,
+                  fontSize: 12,
+                  color: theme.color.neutral[theme.mode][1200],
+                  display: 'block',
+                  textAlign: 'center',
+                  whiteSpace: 'pre-wrap',
+                  marginBottom: 2,
+                }}
+              >
+                {profile?.email}
+              </span>
+              <div style={{ marginTop: 12, display: 'flex', gap: 6 }}>
+                {window.name === '' ? (
+                  <Button
+                    icon={<Person24Regular />}
+                    cssExtra={css`
+                      font-weight: 400;
+                      background-color: transparent;
+                    `}
+                    onClick={() => {
+                      navigate(`/profile/${profile?._id}`);
+                    }}
+                  >
+                    View profile
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+
+            <Divider />
+
+            {otherAccounts ? (
+              <>
                 <div
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    width: '100%',
+                    padding: '0 20px',
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: theme.font.headline,
-                      fontWeight: 500,
-                      fontSize: 20,
-                      color: theme.color.neutral[theme.mode][1400],
-                      marginBottom: 4,
-                      display: 'block',
-                      textAlign: 'center',
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {profile?.name}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: theme.font.headline,
-                      fontWeight: 400,
-                      fontSize: 12,
-                      color: theme.color.neutral[theme.mode][1200],
-                      display: 'block',
-                      textAlign: 'center',
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {profile?.current_title || 'Employee'}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: theme.font.headline,
-                      fontWeight: 400,
-                      fontSize: 12,
-                      color: theme.color.neutral[theme.mode][1200],
-                      display: 'block',
-                      textAlign: 'center',
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {profile?.email}
-                  </span>
-                  <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
-                    {window.name === '' ? (
-                      <Button
-                        icon={<FluentIcon name={'Person24Regular'} />}
-                        cssExtra={css`
-                          font-weight: 400;
-                          background-color: transparent;
-                        `}
-                        onClick={() => {
-                          navigate(`/profile/${profile?._id}`);
-                        }}
-                      >
-                        View profile
-                      </Button>
-                    ) : null}
-                    <Button
-                      icon={<FluentIcon name={'SignOut24Regular'} />}
-                      cssExtra={css`
-                        font-weight: 400;
-                        background-color: transparent;
-                      `}
-                      color={'red'}
-                      onClick={() => navigate(`/sign-out`)}
-                      disabled={!navigator.onLine}
-                    >
-                      Sign out
-                    </Button>
-                  </div>
+                  {otherAccounts.map((acc, i) => {
+                    return (
+                      <OtherProfile key={i}>
+                        <img
+                          src={
+                            `${server.location}/v3/${acc.tenant}/user-photo/${acc._id}` || genAvatar(acc._id)
+                          }
+                          width={40}
+                        />
+                        <div>
+                          <div>{acc.name}</div>
+                          <div>{acc.tenant}</div>
+                        </div>
+                      </OtherProfile>
+                    );
+                  })}
                 </div>
-              ),
-              noEffect: true,
-              height: (profile?.current_title?.length || 0) > 36 ? 140 : 124,
-            },
-          ]}
-        />
+
+                <Divider />
+              </>
+            ) : null}
+
+            <div
+              style={{
+                marginTop: 0,
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                gap: 6,
+                paddingBottom: 16,
+              }}
+            >
+              <Button
+                icon={<PersonAdd24Regular />}
+                cssExtra={css`
+                  font-weight: 400;
+                  background-color: transparent;
+                `}
+                onClick={() => (window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}`)}
+                disabled={!navigator.onLine}
+              >
+                Add account
+              </Button>
+              <Button
+                icon={<SignOut24Regular />}
+                cssExtra={css`
+                  font-weight: 400;
+                  background-color: transparent;
+                `}
+                color={'red'}
+                onClick={() => navigate(`/sign-out`)}
+                disabled={!navigator.onLine}
+              >
+                Sign out
+              </Button>
+            </div>
+          </div>
+        </MenuList>
       );
     },
-    [profile],
+    [profile, height],
     true,
     true
   );
@@ -161,6 +241,47 @@ const ACCOUNT_MENU_ICON_COMPONENT = styled.div<{ photo: string; theme: themeType
         .alpha(0.7)
         .string()};
   }
+`;
+
+const OtherProfile = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 10px;
+  padding: 10px 0;
+
+  > img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: contain;
+  }
+
+  > div {
+    display: flex;
+    flex-direction: column;
+
+    > div:first-of-type {
+      font-family: ${({ theme }) => theme.font.headline};
+      color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
+      font-size: 15px;
+    }
+
+    > div:nth-of-type(2) {
+      font-family: ${({ theme }) => theme.font.detail};
+      color: ${({ theme }) => theme.color.neutral[theme.mode][1100]};
+      font-size: 13px;
+    }
+  }
+`;
+
+const Divider = styled.hr`
+  width: 100%;
+  height: 0;
+  appearance: none;
+  border: none;
+  border-top: 1px solid ${({ theme }) => theme.color.neutral[theme.mode][theme.mode === 'light' ? 300 : 400]};
+  margin-block: 20px;
 `;
 
 export { AccountMenu };

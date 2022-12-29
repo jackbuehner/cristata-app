@@ -13,7 +13,7 @@ function DropdownProvider({ children }: IDropdownProvider) {
   return (
     <DropdownContext.Provider value={{ setDropdown, isOpen, setIsOpen }}>
       {children}
-      <DropdownPortal Dropdown={Dropdown} isOpen={isOpen} />
+      <DropdownPortal Dropdown={Dropdown} isOpen={isOpen} setIsOpen={setIsOpen} />
     </DropdownContext.Provider>
   );
 }
