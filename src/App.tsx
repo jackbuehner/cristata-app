@@ -44,10 +44,14 @@ function App() {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-      }).then((res) => res.json()),
+      }).then((res) => {
+        if (res.status === 401) throw new Error('401');
+        if (res.status === 403) throw new Error('403');
+        return res.json();
+      }),
   });
 
-  const [tenant, setTenant] = useState<string>(localStorage.getItem('tenant') || '');
+  const [tenant, setTenant] = useState<string>(location.pathname.split('/')[1] || '');
   const client = useMemo(() => createClient(tenant), [tenant]);
 
   // refetch the user if reauth=1 in url
@@ -77,16 +81,6 @@ function App() {
     return () =>
       window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', setCorrectThemeMode);
   });
-
-  // redirect to tenant if the current url is missing the tenant
-  useEffect(() => {
-    if (!window.location.pathname.includes(tenant)) {
-      const url = new URL(window.location.href);
-      url.pathname = tenant + url.pathname;
-      window.history.replaceState(null, '', url);
-      window.location.reload();
-    }
-  }, [tenant]);
 
   // suppress warnings that we do not care about
   const consoleError = console.error;

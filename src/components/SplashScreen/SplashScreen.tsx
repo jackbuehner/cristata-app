@@ -47,7 +47,7 @@ function SplashScreen(props: ISplashScreen) {
 
   // redirect the user to sign in page if not authenticated
   useEffect(() => {
-    const tenant = localStorage.getItem('tenant');
+    const tenant = window.location.pathname.split('/')[1];
     const isWrongTenant = props.user ? props.user.tenant !== tenant : false;
 
     // store where the user should be redirected
@@ -56,17 +56,16 @@ function SplashScreen(props: ISplashScreen) {
       props.bypassAuthLogic !== true &&
       searchParams.get('from') !== 'sign-out'
     ) {
-      const is403 = isWrongTenant || props.error?.message?.indexOf('403') !== -1;
-      // if the error is a 403 (not authenticated), redirect to sign in page
-      if ((is403 || isWrongTenant) && location.pathname.indexOf(`/sign-in`) !== 0) {
-        const tenant = localStorage.getItem('tenant');
+      const is403 = props.error?.message?.indexOf('403') !== -1;
+      const is401 = props.error?.message?.indexOf('401') !== -1;
+
+      if (isWrongTenant || ((is403 || is401) && location.pathname.indexOf(`/sign-in`) !== 0)) {
+        const url = new URL(`https://${import.meta.env.VITE_AUTH_BASE_URL}`);
+        url.searchParams.set('return', encodeURIComponent(window.location.href));
         if (tenant) {
-          window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}/${
-            tenant || ''
-          }?return=${encodeURIComponent(window.location.href)}`;
-        } else {
-          window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}`;
+          url.pathname = `/${tenant}`;
         }
+        window.location.href = url.href;
       }
     }
   }, [
