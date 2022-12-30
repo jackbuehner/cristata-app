@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useApolloClient, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Person24Regular, PersonAdd24Regular, SignOut24Regular } from '@fluentui/react-icons';
@@ -8,10 +8,11 @@ import { useNavigate } from 'react-router-dom';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
 import { useDropdown } from '../../hooks/useDropdown';
 import { useAppSelector } from '../../redux/hooks';
+import { persistor } from '../../redux/store';
 import { server } from '../../utils/constants';
 import { genAvatar } from '../../utils/genAvatar';
 import { themeType } from '../../utils/theme/theme';
-import { Button } from '../Button';
+import { Button, buttonEffect } from '../Button';
 import { MenuList } from '../Menu';
 
 interface AccountMenuProps {}
@@ -21,6 +22,7 @@ function AccountMenu(props: AccountMenuProps) {
   const { data } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'cache-and-network' });
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const client = useApolloClient();
 
   const profile = data?.me;
   const photo = profile ? profile.photo || genAvatar(profile._id) : '';
@@ -34,7 +36,6 @@ function AccountMenu(props: AccountMenuProps) {
           _dropdownRef(el);
           el.classList.remove('open');
           setTimeout(() => el.classList.add('open'), 10);
-          console.log((el.firstElementChild as HTMLDivElement | undefined)?.offsetHeight);
           setHeight((el.firstElementChild as HTMLDivElement | undefined)?.offsetHeight || 0);
         }
       };
@@ -135,12 +136,25 @@ function AccountMenu(props: AccountMenuProps) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     width: '100%',
-                    padding: '0 20px',
+                    margin: '-8px 0',
                   }}
                 >
                   {otherAccounts.map((acc, i) => {
                     return (
-                      <OtherProfile key={i}>
+                      <OtherProfile
+                        key={i}
+                        onClick={async () => {
+                          // clear cached data
+                          await persistor.purge(); // clear persisted redux store
+                          await client.clearStore(); // clear persisted apollo data
+                          window.localStorage.removeItem('apollo-cache-persist'); // apollo doesn't always clear this
+
+                          // switch accounts
+                          const url = new URL(`${server.location}/auth/switch/${acc.tenant}`);
+                          url.searchParams.set('return', window.location.href);
+                          window.location.href = url.href;
+                        }}
+                      >
                         <img
                           src={
                             `${server.location}/v3/${acc.tenant}/user-photo/${acc._id}` || genAvatar(acc._id)
@@ -244,11 +258,23 @@ const ACCOUNT_MENU_ICON_COMPONENT = styled.div<{ photo: string; theme: themeType
 `;
 
 const OtherProfile = styled.div`
+  ${({ theme }) =>
+    buttonEffect(
+      'primary',
+      theme.mode === 'light' ? 700 : 300,
+      theme,
+      false,
+      { base: 'transparent' },
+      { base: '1px solid transparent' }
+    )}
   display: flex;
   flex-direction: row;
-  width: 100%;
+  box-sizing: border-box;
   gap: 10px;
-  padding: 10px 0;
+  padding: 10px 10px;
+  margin: 0 10px;
+  width: calc(100% - 20px);
+  border-radius: ${({ theme }) => theme.radius};
 
   > img {
     width: 34px;
