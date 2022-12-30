@@ -61,7 +61,8 @@ function SplashScreen(props: ISplashScreen) {
 
       if (isWrongTenant || ((is403 || is401) && location.pathname.indexOf(`/sign-in`) !== 0)) {
         const url = new URL(`https://${import.meta.env.VITE_AUTH_BASE_URL}`);
-        url.searchParams.set('return', encodeURIComponent(window.location.href));
+        url.searchParams.set('continue', '1'); // allow the login page to automatically login (in available)
+        url.searchParams.set('return', window.location.href);
         if (tenant) {
           url.pathname = `/${tenant}`;
         }
