@@ -1,1 +1,0 @@
-export { PickTenant } from './PickTenant';

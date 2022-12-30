@@ -1,9 +1,9 @@
 import { ApolloProvider } from '@apollo/client';
+import { ModalProvider } from '@cristata/react-modal-hook';
 import { css, Global, ThemeProvider } from '@emotion/react';
 import loadable from '@loadable/component';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { ModalProvider } from '@cristata/react-modal-hook';
 import { Provider as ReduxProvider } from 'react-redux';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,7 +12,6 @@ import './App.css';
 import { ToastContainer } from './components/ToastContainer';
 import { createClient } from './graphql/client';
 import { DropdownProvider } from './hooks/useDropdown';
-import { PickTenant } from './pages/PickTenant';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { SignOut } from './pages/SignIn';
 import { persistor, store } from './redux/store';
@@ -117,11 +116,7 @@ function App() {
                       </Routes>
                     }
                     protectedChildren={<Protected setThemeMode={setThemeMode} />}
-                  >
-                    {tenant === '' || !window.location.pathname.includes(tenant) ? (
-                      <PickTenant tenant={tenant} setTenant={setTenant} />
-                    ) : null}
-                  </SplashScreen>
+                  />
                 </ModalProvider>
               </Router>
 
