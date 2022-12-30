@@ -289,38 +289,5 @@
       <span class="root-splash-note">© Jack Buehner</span>
     </div>
     <script type="module" src="/src/index.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker.register(`service-worker.js`).then(
-            function (registration) {
-              // Registration was successful
-              console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            },
-            function (err) {
-              // registration failed :(
-              console.log('ServiceWorker registration failed: ', err);
-            }
-          );
-        });
-      }
-
-      // reload page if service worker updates
-      if ('serviceWorker' in navigator) {
-        // Check to see if the page is currently controlled.
-        let isControlled = Boolean(navigator.serviceWorker.controller);
-
-        // Listen for a change to the current controller...
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (isControlled) {
-            // ...and if the page was previosly controlled, reload the page.
-            window.location.reload();
-          } else {
-            // ...otherwise, set the flag for future updates, but don't reload.
-            isControlled = true;
-          }
-        });
-      }
-    </script>
   </body>
 </html>

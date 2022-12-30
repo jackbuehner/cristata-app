@@ -15,6 +15,7 @@ import { DropdownProvider } from './hooks/useDropdown';
 import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
 import { SignOut } from './pages/SignIn';
 import { persistor, store } from './redux/store';
+import { ReloadPrompt } from './ReloadPrompt';
 import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
 
@@ -103,6 +104,7 @@ function App() {
               <Router basename={tenant}>
                 <ModalProvider>
                   <ToastContainer />
+                  <ReloadPrompt />
                   <SplashScreen
                     loading={loadingUser}
                     error={errorUser || undefined}

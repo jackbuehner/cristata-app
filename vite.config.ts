@@ -18,7 +18,7 @@ export default defineConfig({
     svgrPlugin(),
     nodePolyfills({ protocolImports: true }),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       manifest: {
         name: 'Cristata',
         short_name: 'Cristata',
@@ -717,7 +717,7 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 10485760, // 10 MiB
       },
       filename: 'service-worker.js',
-      injectRegister: false,
+      injectRegister: 'inline',
     }),
   ],
   server: {

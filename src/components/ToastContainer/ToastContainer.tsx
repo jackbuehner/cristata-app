@@ -61,6 +61,12 @@ const StyledToastContainer = styled(ReactToastContainer)<{
       border-left: ${({ appTheme }) => `3px solid ${appTheme.color.success[800]}`};
     }
   }
+  .Toastify__toast--info {
+    &::before {
+      content: '🔵';
+      border-left: ${({ appTheme }) => `3px solid ${appTheme.color.blue[800]}`};
+    }
+  }
   .Toastify__toast-body {
     width: 100%;
     padding-left: 0;
