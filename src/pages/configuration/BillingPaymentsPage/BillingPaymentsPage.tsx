@@ -1,7 +1,10 @@
+import { gql, useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
+import { Checkbox } from '../../../components/ContentField';
 import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
@@ -66,7 +69,7 @@ function BillingPaymentsPage() {
             <></>
           ) : // show the billing portal if the subscription is active
           data?.subscription_active ? (
-            <PortalDisplay />
+            <PortalDisplay features={data.features} refetch={refetch} />
           ) : // show the subscription button if there is no subscription
           !success && message === '' ? (
             <ProductDisplay customerId={data?.stripe_customer_id} />
@@ -122,8 +125,17 @@ function ProductDisplay(props: ProductDisplayProps) {
   );
 }
 
-function PortalDisplay() {
+interface PortalDisplayProps {
+  features: {
+    allowDiskUse: boolean;
+  };
+  refetch: () => void;
+}
+
+function PortalDisplay(props: PortalDisplayProps) {
   const theme = useTheme() as themeType;
+  const client = useApolloClient();
+  const dispatch = useAppDispatch();
 
   return (
     <section>
@@ -143,6 +155,39 @@ function PortalDisplay() {
       >
         <Button type={'submit'}>View invoices</Button>
       </form>
+      <div>
+        <Checkbox
+          isEmbedded
+          label={`Allow using disk space when query memory exceeds the limit ($0.03 / hour)`}
+          description={`This ensures that high-memory queries can finish executing. It is only necessary to enable if your queries get the <code>QueryExceededMemoryLimitNoDiskUseAllowed</code> error.`}
+          checked={props.features.allowDiskUse}
+          onChange={(evt) => {
+            dispatch(setAppLoading(true));
+            client
+              .mutate({
+                mutation: gql`
+                  mutation SetAllowDiskUse($allowDiskUse: Boolean!) {
+                    billing {
+                      features {
+                        allowDiskUse(allowDiskUse: $allowDiskUse)
+                      }
+                    }
+                  }
+                `,
+                variables: { allowDiskUse: evt.target.checked },
+              })
+              .finally(() => {
+                dispatch(setAppLoading(false));
+              })
+              .then(() => {
+                props.refetch();
+              })
+              .catch(() => {
+                toast.error('Failed to change disk use subscription setting');
+              });
+          }}
+        />
+      </div>
     </section>
   );
 }

@@ -25,6 +25,9 @@ interface QueryType {
     stripe_subscription_id?: string;
     subscription_last_payment?: string;
     subscription_active: boolean;
+    features: {
+      allowDiskUse: boolean;
+    };
   };
 }
 
@@ -32,6 +35,9 @@ function queryString(): DocumentNode {
   return gql`
     query billingStatus {
       billing {
+        features {
+          allowDiskUse
+        }
         stripe_customer_id
         stripe_subscription_id
         subscription_last_payment
