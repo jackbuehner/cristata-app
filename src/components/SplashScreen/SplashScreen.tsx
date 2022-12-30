@@ -52,7 +52,7 @@ function SplashScreen(props: ISplashScreen) {
   useEffect(() => {
     if (props.bypassAuthLogic) return;
     if (props.loading) return;
-    if (props.error) {
+    if (props.error && (props.error.message.includes('401') || props.error.message.includes('403'))) {
       (async () => {
         // clear cached data
         await persistor.purge(); // clear persisted redux store
@@ -153,6 +153,7 @@ function SplashScreen(props: ISplashScreen) {
     location.pathname.indexOf(`/cms/item/`) === 0 && new URLSearchParams(location.search).get('fs') === '1';
 
   const showError = props.error && props.bypassAuthLogic !== true;
+  const isAuthError = props.error?.message?.includes('401') || props.error?.message?.includes('403') || false;
   const showPersistentChildren = props.loading || (!props.user && props.bypassAuthLogic !== true) || showError;
   const hideSplashScreen =
     props.bypassAuthLogic === true ||
@@ -237,7 +238,9 @@ function SplashScreen(props: ISplashScreen) {
             stroke='none'
           />
         </svg>
-        {showError ? (
+        {isAuthError ? (
+          <ErrorBlock theme={theme}>Failed to authenticate to the server.</ErrorBlock>
+        ) : showError ? (
           <ErrorBlock theme={theme}>Failed to connect to the server.</ErrorBlock>
         ) : (
           <ErrorBlock theme={theme}>
