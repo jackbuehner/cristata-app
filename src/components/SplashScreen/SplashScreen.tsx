@@ -1,9 +1,11 @@
+import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../redux/slices/authUserSlice';
+import { persistor } from '../../redux/store';
 import { themeType } from '../../utils/theme/theme';
 import { Spinner } from '../Loading';
 
@@ -44,41 +46,65 @@ function SplashScreen(props: ISplashScreen) {
   const location = useLocation();
   const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const dispatch = useAppDispatch();
+  const client = useApolloClient();
 
-  // redirect the user to sign in page if not authenticated
+  // redirect to sign in page if not authenticated
   useEffect(() => {
-    const tenant = window.location.pathname.split('/')[1];
-    const isWrongTenant = props.user ? props.user.tenant !== tenant : false;
+    if (props.bypassAuthLogic) return;
+    if (props.loading) return;
+    if (props.error) {
+      (async () => {
+        // clear cached data
+        await persistor.purge(); // clear persisted redux store
+        await client.clearStore(); // clear persisted apollo data
+        window.localStorage.removeItem('apollo-cache-persist'); // apollo doesn't always clear this
 
-    // store where the user should be redirected
-    if (
-      (props.error || isWrongTenant) &&
-      props.bypassAuthLogic !== true &&
-      searchParams.get('from') !== 'sign-out'
-    ) {
-      const is403 = props.error?.message?.indexOf('403') !== -1;
-      const is401 = props.error?.message?.indexOf('401') !== -1;
-
-      if (isWrongTenant || ((is403 || is401) && location.pathname.indexOf(`/sign-in`) !== 0)) {
-        const url = new URL(`https://${import.meta.env.VITE_AUTH_BASE_URL}`);
-        url.searchParams.set('continue', '1'); // allow the login page to automatically login (in available)
-        url.searchParams.set('return', window.location.href);
-        if (tenant) {
-          url.pathname = `/${tenant}`;
-        }
+        // redirect
+        const tenant = window.location.pathname.split('/')[1];
+        const url = new URL(`${import.meta.env.VITE_API_PROTOCOL}//${import.meta.env.VITE_AUTH_BASE_URL}`);
+        if (tenant) url.pathname = `/${tenant}`;
         window.location.href = url.href;
+      })();
+    }
+  }, [props.loading, props.error, props.user, props.bypassAuthLogic]);
+
+  // redirect to tenant url if missing tenant from url but user is current authenticated
+  useEffect(() => {
+    if (props.bypassAuthLogic) return;
+    if (props.loading) return;
+    const tenant = window.location.pathname.split('/')[1];
+    if (props.user && !tenant) {
+      navigate(`/${props.user.tenant}`);
+    }
+  }, [props.loading, props.error, props.user, props.bypassAuthLogic, navigate]);
+
+  // redirect the user to sign in page the tenant does not match
+  useEffect(() => {
+    if (props.bypassAuthLogic) return;
+    if (props.loading) return;
+    if (props.error) return;
+
+    if (props.user) {
+      const tenant = window.location.pathname.split('/')[1];
+      const isWrongTenant = tenant && props.user.tenant !== tenant;
+
+      if (isWrongTenant) {
+        (async () => {
+          // clear cached data
+          await persistor.purge(); // clear persisted redux store
+          await client.clearStore(); // clear persisted apollo data
+          window.localStorage.removeItem('apollo-cache-persist'); // apollo doesn't always clear this
+
+          // redirect
+          const url = new URL(`${import.meta.env.VITE_API_PROTOCOL}//${import.meta.env.VITE_API_BASE_URL}`);
+          url.pathname = `/auth/switch/${tenant}`;
+          url.searchParams.set('continue', '1'); // allow the login page to automatically login (if available)
+          url.searchParams.set('return', window.location.origin + `/${tenant}` + location.pathname);
+          window.location.href = url.href;
+        })();
       }
     }
-  }, [
-    props.error,
-    navigate,
-    location.pathname,
-    location.hash,
-    location.search,
-    props.bypassAuthLogic,
-    searchParams,
-    props.user,
-  ]);
+  }, [props.loading, props.error, props.user, props.bypassAuthLogic, location.pathname]);
 
   useEffect(() => {
     if (props.user && props.bypassAuthLogic !== true && searchParams.get('from') !== 'sign-out') {
@@ -92,7 +118,7 @@ function SplashScreen(props: ISplashScreen) {
 
       const logout = () => {
         const tenant = localStorage.getItem('tenant');
-        window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}/${
+        window.location.href = `${import.meta.env.VITE_API_PROTOCOL}//${import.meta.env.VITE_AUTH_BASE_URL}/${
           tenant || ''
         }/sign-out?return=${encodeURIComponent(window.location.href)}`;
       };
@@ -104,7 +130,6 @@ function SplashScreen(props: ISplashScreen) {
     }
   }, [
     props.user,
-    navigate,
     dispatch,
     location.state,
     location.pathname,
