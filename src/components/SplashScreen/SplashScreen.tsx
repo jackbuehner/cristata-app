@@ -113,6 +113,9 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setObjectId(props.user._id));
       dispatch(setOtherUsers(props.user.otherUsers || []));
 
+      // set the correct tenant in localstorage
+      localStorage.setItem('tenant', props.user.tenant);
+
       // get the location state
       const locState = location.state as { step?: string } | undefined;
 
