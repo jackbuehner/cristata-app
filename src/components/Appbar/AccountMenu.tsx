@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Person24Regular, PersonAdd24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
 import { useDropdown } from '../../hooks/useDropdown';
 import { useAppSelector } from '../../redux/hooks';
@@ -18,10 +18,11 @@ import { MenuList } from '../Menu';
 interface AccountMenuProps {}
 
 function AccountMenu(props: AccountMenuProps) {
-  const otherAccounts = useAppSelector((state) => state.authUser.otherUsers);
+  const { otherUsers: otherAccounts, ...authUser } = useAppSelector((state) => state.authUser);
   const { data } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'cache-and-network' });
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const location = useLocation();
   const client = useApolloClient();
 
   const profile = data?.me;
@@ -65,7 +66,12 @@ function AccountMenu(props: AccountMenuProps) {
                 alignItems: 'center',
               }}
             >
-              <img style={{ borderRadius: '50%', margin: '0 auto' }} src={photo} width={60} />
+              <img
+                style={{ borderRadius: '50%', margin: '0 auto' }}
+                src={photo}
+                onError={(e) => (e.currentTarget.src = `${genAvatar(authUser._id)}`)}
+                width={60}
+              />
               <span
                 style={{
                   fontFamily: theme.font.headline,
@@ -78,7 +84,7 @@ function AccountMenu(props: AccountMenuProps) {
                   whiteSpace: 'pre-wrap',
                 }}
               >
-                {profile?.name}
+                {profile?.name || authUser.name}
               </span>
               <span
                 style={{
@@ -92,7 +98,7 @@ function AccountMenu(props: AccountMenuProps) {
                   marginBottom: 2,
                 }}
               >
-                {profile?.current_title || 'Employee'}
+                {profile?.current_title}
               </span>
               <span
                 style={{
@@ -117,7 +123,7 @@ function AccountMenu(props: AccountMenuProps) {
                       background-color: transparent;
                     `}
                     onClick={() => {
-                      navigate(`/profile/${profile?._id}`);
+                      navigate(`/profile/${authUser._id}`);
                     }}
                   >
                     View profile
@@ -128,51 +134,82 @@ function AccountMenu(props: AccountMenuProps) {
 
             <Divider />
 
-            {otherAccounts ? (
-              <>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    width: '100%',
-                    margin: '-8px 0',
-                  }}
-                >
-                  {otherAccounts.map((acc, i) => {
-                    return (
-                      <OtherProfile
-                        key={i}
-                        onClick={async () => {
-                          // clear cached data
-                          await persistor.purge(); // clear persisted redux store
-                          await client.clearStore(); // clear persisted apollo data
-                          window.localStorage.removeItem('apollo-cache-persist'); // apollo doesn't always clear this
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100%',
+                margin: '-8px 0',
+              }}
+            >
+              {otherAccounts?.map((acc, i) => {
+                return (
+                  <OtherProfile
+                    key={i}
+                    onClick={async () => {
+                      // clear cached data
+                      await persistor.purge(); // clear persisted redux store
+                      await client.clearStore(); // clear persisted apollo data
+                      window.localStorage.removeItem('apollo-cache-persist'); // apollo doesn't always clear this
 
-                          // switch accounts
-                          const url = new URL(`${server.location}/auth/switch/${acc.tenant}`);
-                          url.searchParams.set('return', window.location.href);
-                          window.location.href = url.href;
-                        }}
-                      >
-                        <img
-                          src={
-                            `${server.location}/v3/${acc.tenant}/user-photo/${acc._id}` || genAvatar(acc._id)
-                          }
-                          width={40}
-                        />
-                        <div>
-                          <div>{acc.name}</div>
-                          <div>{acc.tenant}</div>
-                        </div>
-                      </OtherProfile>
-                    );
-                  })}
-                </div>
+                      // switch accounts
+                      const url = new URL(`${server.location}/auth/switch/${acc.tenant}`);
+                      url.searchParams.set(
+                        'return',
+                        window.location.origin + `/${acc.tenant}` + location.pathname
+                      );
+                      window.location.href = url.href;
+                    }}
+                  >
+                    <img
+                      src={`${server.location}/v3/${acc.tenant}/user-photo/${acc._id}`}
+                      onError={(e) => (e.currentTarget.src = `${genAvatar(acc._id)}`)}
+                      width={40}
+                    />
+                    <div>
+                      <div>{acc.name}</div>
+                      <div>{acc.tenant}</div>
+                    </div>
+                  </OtherProfile>
+                );
+              })}
+              <Button
+                icon={<PersonAdd24Regular />}
+                cssExtra={css`
+                  font-weight: 400;
+                  background-color: transparent;
+                  ${otherAccounts?.length > 0
+                    ? `
+                        width: calc(100% - 20px);
+                        margin: 0 10px;
+                        padding: 10px;
+                        height: unset;
+                        border: 1px solid transparent;
+                        justify-content: left;
+                        font-family: ${theme.font.detail};
+                        color: ${theme.color.neutral[theme.mode][1400]};
+                        font-size: 14px;
+                        > span:first-of-type {
+                          width: 34px;
+                          margin: 0 10px 0 0;
+                        }
+                      `
+                    : ''}
+                `}
+                onClick={() => {
+                  const url = new URL(
+                    `${import.meta.env.VITE_API_PROTOCOL}//${import.meta.env.VITE_AUTH_BASE_URL}`
+                  );
+                  window.location.href = url.href;
+                }}
+                disabled={!navigator.onLine}
+              >
+                Add another account
+              </Button>
+            </div>
 
-                <Divider />
-              </>
-            ) : null}
+            <Divider />
 
             <div
               style={{
@@ -185,17 +222,6 @@ function AccountMenu(props: AccountMenuProps) {
               }}
             >
               <Button
-                icon={<PersonAdd24Regular />}
-                cssExtra={css`
-                  font-weight: 400;
-                  background-color: transparent;
-                `}
-                onClick={() => (window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}`)}
-                disabled={!navigator.onLine}
-              >
-                Add account
-              </Button>
-              <Button
                 icon={<SignOut24Regular />}
                 cssExtra={css`
                   font-weight: 400;
@@ -205,7 +231,7 @@ function AccountMenu(props: AccountMenuProps) {
                 onClick={() => navigate(`/sign-out`)}
                 disabled={!navigator.onLine}
               >
-                Sign out
+                Sign out of all accounts
               </Button>
             </div>
           </div>
