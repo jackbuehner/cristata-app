@@ -238,7 +238,8 @@ function AccountMenu(props: AccountMenuProps) {
   return <ACCOUNT_MENU_ICON_COMPONENT theme={theme} photo={photo} onClick={showDropdown} isOpen={false} />;
 }
 
-const ACCOUNT_MENU_ICON_COMPONENT = styled.div<{ photo: string; theme: themeType; isOpen: boolean }>`
+const ACCOUNT_MENU_ICON_COMPONENT = styled.button<{ photo: string; theme: themeType; isOpen: boolean }>`
+  appearance: none;
   background: url(${({ photo }) => photo});
   background-position: center;
   background-size: cover;
