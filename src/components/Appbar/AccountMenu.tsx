@@ -3,7 +3,6 @@ import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Person24Regular, PersonAdd24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import Color from 'color';
-import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
 import { useDropdown } from '../../hooks/useDropdown';
@@ -27,16 +26,13 @@ function AccountMenu(props: AccountMenuProps) {
   const profile = data?.me;
   const photo = profile ? profile.photo || genAvatar(profile._id) : '';
 
-  const [height, setHeight] = useState(0);
-
   const [showDropdown] = useDropdown(
-    (triggerRect, _dropdownRef, _, { navigate }) => {
+    (triggerRect, _dropdownRef, _, { navigate, firstElementChildHeight }) => {
       const dropdownRef = (el: HTMLOListElement) => {
         if (el) {
           _dropdownRef(el);
           el.classList.remove('open');
           setTimeout(() => el.classList.add('open'), 10);
-          setHeight((el.firstElementChild as HTMLDivElement | undefined)?.offsetHeight || 0);
         }
       };
 
@@ -48,11 +44,8 @@ function AccountMenu(props: AccountMenuProps) {
           ref={dropdownRef}
           style={
             {
-              '--height': height + 'px',
-              maxHeight: `calc(100vh - ${triggerRect.top + 30}px - 16px)`,
-              overflowY: 'auto',
+              '--height': firstElementChildHeight + 'px',
               border: `1px solid ${theme.color.neutral[theme.mode][theme.mode === 'light' ? 300 : 400]}`,
-              boxSizing: 'content-box',
             } as React.CSSProperties
           }
         >
@@ -237,7 +230,7 @@ function AccountMenu(props: AccountMenuProps) {
         </MenuList>
       );
     },
-    [profile, height],
+    [profile],
     true,
     true
   );

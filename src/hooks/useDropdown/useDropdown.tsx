@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { NavigateFunction, NavigateOptions, To, useNavigate } from 'react-router-dom';
+import { NavigateOptions, To, useNavigate } from 'react-router-dom';
 import { DropdownContext } from './_DropdownContext';
 
 /**
@@ -16,6 +16,7 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
     more: {
       navigate: (to: To, options?: NavigateOptions) => void;
       close: () => void;
+      firstElementChildHeight: number;
     }
   ) => React.ReactElement,
   deps?: any[],
@@ -48,6 +49,8 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
     setIsOpen(false);
   };
 
+  const [firstElementChildHeight, setHeight] = useState(0);
+
   /**
    * Callback ref for the dropdown, which is used to focus the dropdown once
    * it appears.
@@ -55,6 +58,7 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
   const dropdownRef = (el: HTMLOListElement) => {
     if (el) {
       el.focus();
+      setHeight((el.firstElementChild as HTMLDivElement | undefined)?.offsetHeight || 0);
     }
   };
 
@@ -68,10 +72,14 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
   // (only trigger `setDropdown` when `deps` has changed)
   const DropdownComponent = useMemo(
     () => {
-      return component(triggerRect, dropdownRef, dropdownProps, { navigate, close: hideDropdown });
+      return component(triggerRect, dropdownRef, dropdownProps, {
+        navigate,
+        close: hideDropdown,
+        firstElementChildHeight,
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    deps ? [triggerRect, dropdownProps, ...deps] : [triggerRect]
+    [triggerRect, dropdownProps, firstElementChildHeight, ...(deps || [])]
   );
 
   // when provided `DropdownComponent` changes, update the dropdown in the dropdown portal
