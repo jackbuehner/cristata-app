@@ -13,11 +13,12 @@ interface FontFamilyDropdownProps {
  */
 function useFontFamilyDropdown({ editor, ...props }: FontFamilyDropdownProps) {
   const [showDropdown, hideDropDown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       if (!editor) return <></>;
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,

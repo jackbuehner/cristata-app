@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import { useModal } from '@cristata/react-modal-hook';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -22,7 +23,6 @@ import { Editor } from '@tiptap/react';
 import Color from 'color';
 import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from '@cristata/react-modal-hook';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { tiptapOptions } from '../../../../config';
@@ -127,10 +127,11 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
 
   // font size
   const [showFontSizeDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,
@@ -155,10 +156,11 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
   );
   // text style
   const [showTextStyleDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,
@@ -315,10 +317,11 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
 
   // layout
   const [showLayoutDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,
@@ -586,10 +589,11 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
 
   // widgets dropdown
   const [showWidgetsDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,

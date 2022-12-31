@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Person24Regular, PersonAdd24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
 import { useDropdown } from '../../hooks/useDropdown';
 import { useAppSelector } from '../../redux/hooks';
@@ -21,7 +21,6 @@ function AccountMenu(props: AccountMenuProps) {
   const { otherUsers: otherAccounts, ...authUser } = useAppSelector((state) => state.authUser);
   const { data } = useQuery<ME_BASIC__TYPE>(ME_BASIC, { fetchPolicy: 'cache-and-network' });
   const theme = useTheme() as themeType;
-  const navigate = useNavigate();
   const location = useLocation();
   const client = useApolloClient();
 
@@ -31,7 +30,7 @@ function AccountMenu(props: AccountMenuProps) {
   const [height, setHeight] = useState(0);
 
   const [showDropdown] = useDropdown(
-    (triggerRect, _dropdownRef) => {
+    (triggerRect, _dropdownRef, _, { navigate }) => {
       const dropdownRef = (el: HTMLOListElement) => {
         if (el) {
           _dropdownRef(el);

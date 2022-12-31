@@ -21,6 +21,7 @@ interface IMenu {
   }>;
   noIcons?: boolean;
   showDisabledLast?: boolean;
+  afterClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 }
 
 const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>) => {
@@ -56,7 +57,10 @@ const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>
           return (
             <MenuItem
               key={index}
-              onClick={item.onClick}
+              onClick={(e) => {
+                item.onClick?.(e);
+                props.afterClick?.(e);
+              }}
               icon={item.icon}
               color={item.color}
               colorShade={item.colorShade}

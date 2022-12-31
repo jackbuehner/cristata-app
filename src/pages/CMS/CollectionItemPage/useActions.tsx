@@ -323,10 +323,11 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   ])();
 
   // create a dropdown with all actions except save and publish
-  const [showActionDropdown] = useDropdown((triggerRect, dropdownRef) => {
+  const [showActionDropdown] = useDropdown((triggerRect, dropdownRef, _, { navigate, close }) => {
     return (
       <Menu
         ref={dropdownRef}
+        afterClick={close}
         pos={{
           top: triggerRect.top + triggerRect.height,
           left: triggerRect.right - 240,

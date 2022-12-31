@@ -44,7 +44,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   // dropdown/three-dot menu
   const [dropdownProfile, setDropdownProfile] = useState<PROFILES_BASIC__DOC_TYPE>(); // the profile of the menu that triggered the dropdown
   const [showDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       if (dropdownProfile) {
         // build the menu items based on the informtion available in the profile
         const items: Array<{
@@ -71,6 +71,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
         return (
           <Menu
             ref={dropdownRef}
+            afterClick={close}
             pos={{
               top: triggerRect.bottom,
               left: triggerRect.left + triggerRect.width - 240,
@@ -154,10 +155,11 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
 
   // sidenav header dropdown
   const [showMainDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.top - 8 - 3 * 32,
             left: triggerRect.left + triggerRect.width - 240,

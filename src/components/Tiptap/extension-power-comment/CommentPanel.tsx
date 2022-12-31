@@ -240,10 +240,11 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
 
   // the dropdown for the comment menu
   const [showCommentDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.right - 200,
@@ -424,10 +425,11 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
 
   // the dropdown for the comment menu
   const [showCommentDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.right - 200,

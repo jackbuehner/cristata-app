@@ -13,7 +13,10 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
     triggerRect: DOMRect,
     dropdownRef: (el: HTMLOListElement) => void,
     props: T,
-    navigate: (to: To, options?: NavigateOptions) => void
+    more: {
+      navigate: (to: To, options?: NavigateOptions) => void;
+      close: () => void;
+    }
   ) => React.ReactElement,
   deps?: any[],
   hideOnClick?: boolean,
@@ -65,7 +68,7 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
   // (only trigger `setDropdown` when `deps` has changed)
   const DropdownComponent = useMemo(
     () => {
-      return component(triggerRect, dropdownRef, dropdownProps, navigate);
+      return component(triggerRect, dropdownRef, dropdownProps, { navigate, close: hideDropdown });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     deps ? [triggerRect, dropdownProps, ...deps] : [triggerRect]

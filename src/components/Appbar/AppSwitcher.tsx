@@ -1,6 +1,5 @@
 import { css, useTheme } from '@emotion/react';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { useDropdown } from '../../hooks/useDropdown';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';
@@ -17,7 +16,6 @@ interface AppSwitcherProps {
 
 function AppSwitcher(props: AppSwitcherProps) {
   const theme = useTheme() as themeType;
-  const navigate = useNavigate();
   const [mainNav] = useNavigationConfig('main');
 
   // update tooltip listener when component changes
@@ -30,10 +28,11 @@ function AppSwitcher(props: AppSwitcherProps) {
 
   // dropdown for app switcher
   const [showDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { navigate, close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.top + 30,
             left: triggerRect.right - 150,

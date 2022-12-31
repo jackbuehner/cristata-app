@@ -445,10 +445,11 @@ function TeamPage() {
 
   // tools dropdown
   const [showToolsDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left + triggerRect.width - 240,

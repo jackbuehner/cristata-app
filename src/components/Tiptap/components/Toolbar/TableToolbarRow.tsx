@@ -26,10 +26,11 @@ interface TableToolbarRowProps {
 
 function TableToolbarRow({ editor, isActive, ...props }: TableToolbarRowProps) {
   const [deleteDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,
@@ -67,10 +68,11 @@ function TableToolbarRow({ editor, isActive, ...props }: TableToolbarRowProps) {
   );
 
   const [insertDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,
@@ -115,10 +117,11 @@ function TableToolbarRow({ editor, isActive, ...props }: TableToolbarRowProps) {
   );
 
   const [headerDropdown] = useDropdown(
-    (triggerRect, dropdownRef) => {
+    (triggerRect, dropdownRef, _, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,
