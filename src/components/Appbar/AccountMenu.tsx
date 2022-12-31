@@ -27,7 +27,7 @@ function AccountMenu(props: AccountMenuProps) {
   const photo = profile ? profile.photo || genAvatar(profile._id) : '';
 
   const [showDropdown] = useDropdown(
-    (triggerRect, _dropdownRef, _, { navigate, firstElementChildHeight }) => {
+    (triggerRect, _dropdownRef, _, { navigate, close, firstElementChildHeight }) => {
       const dropdownRef = (el: HTMLOListElement) => {
         if (el) {
           _dropdownRef(el);
@@ -42,6 +42,11 @@ function AccountMenu(props: AccountMenuProps) {
           left={triggerRect.right - 300}
           width={300}
           ref={dropdownRef}
+          onKeyDown={(e) => {
+            if (e.code === 'Escape') {
+              close();
+            }
+          }}
           style={
             {
               '--height': firstElementChildHeight + 'px',

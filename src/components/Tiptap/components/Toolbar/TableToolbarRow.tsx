@@ -30,6 +30,7 @@ function TableToolbarRow({ editor, isActive, ...props }: TableToolbarRowProps) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,
@@ -72,6 +73,7 @@ function TableToolbarRow({ editor, isActive, ...props }: TableToolbarRowProps) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,
@@ -121,6 +123,7 @@ function TableToolbarRow({ editor, isActive, ...props }: TableToolbarRowProps) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,

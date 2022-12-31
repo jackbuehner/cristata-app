@@ -22,6 +22,7 @@ interface IMenu {
   noIcons?: boolean;
   showDisabledLast?: boolean;
   afterClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onEscape?: () => void;
 }
 
 const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>) => {
@@ -47,6 +48,11 @@ const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>
           maxHeight: `calc(100vh - ${props.pos.top}px - 16px)`,
         } as React.CSSProperties
       }
+      onKeyDown={(e) => {
+        if (e.code === 'Escape') {
+          props.onEscape?.();
+        }
+      }}
     >
       {props.items
         // move disabled items to bottom

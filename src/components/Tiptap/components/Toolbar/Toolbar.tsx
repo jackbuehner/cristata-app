@@ -132,6 +132,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,
@@ -161,6 +162,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,
@@ -322,6 +324,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,
@@ -594,6 +597,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,

@@ -313,6 +313,7 @@ function PhotoLibraryPage() {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,

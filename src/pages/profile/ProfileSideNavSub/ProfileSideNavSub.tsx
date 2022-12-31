@@ -71,6 +71,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
         return (
           <Menu
             ref={dropdownRef}
+            onEscape={close}
             afterClick={close}
             pos={{
               top: triggerRect.bottom,
@@ -86,6 +87,8 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left + triggerRect.width - 240,
@@ -159,6 +162,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.top - 8 - 3 * 32,

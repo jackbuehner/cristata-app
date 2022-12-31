@@ -18,6 +18,7 @@ function useFontFamilyDropdown({ editor, ...props }: FontFamilyDropdownProps) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,

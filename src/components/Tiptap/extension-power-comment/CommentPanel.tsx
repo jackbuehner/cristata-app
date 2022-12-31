@@ -244,6 +244,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,
@@ -429,6 +430,7 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,

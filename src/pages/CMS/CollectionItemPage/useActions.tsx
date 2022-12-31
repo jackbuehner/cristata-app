@@ -327,6 +327,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     return (
       <Menu
         ref={dropdownRef}
+        onEscape={close}
         afterClick={close}
         pos={{
           top: triggerRect.top + triggerRect.height,

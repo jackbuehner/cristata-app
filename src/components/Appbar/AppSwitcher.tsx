@@ -32,6 +32,7 @@ function AppSwitcher(props: AppSwitcherProps) {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.top + 30,

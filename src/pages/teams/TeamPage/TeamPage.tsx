@@ -449,6 +449,7 @@ function TeamPage() {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
           afterClick={close}
           pos={{
             top: triggerRect.bottom,
@@ -478,10 +479,12 @@ function TeamPage() {
   // role dropdown
   const [showDropdownSpinner, setShowDropdownSpinner] = useState<boolean>(false);
   const [showRoleDropdown] = useDropdown<{ _id: string; currentRole: 'member' | 'organizer' }>(
-    (triggerRect, dropdownRef, props) => {
+    (triggerRect, dropdownRef, props, { close }) => {
       return (
         <Menu
           ref={dropdownRef}
+          onEscape={close}
+          afterClick={close}
           pos={{
             top: triggerRect.bottom,
             left: triggerRect.left,
