@@ -91,7 +91,6 @@ const MenuList = forwardRef((props: IMenuList, ref: React.ForwardedRef<HTMLOList
           if (React.isValidElement(child)) {
             return React.cloneElement(child, {
               key: index,
-              // @ts-expect-error onKeyDown is valid
               onKeyDown: handleMenuItemArrowNavigation,
             });
           }
