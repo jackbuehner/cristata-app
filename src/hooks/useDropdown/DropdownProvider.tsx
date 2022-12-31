@@ -8,12 +8,20 @@ interface IDropdownProvider {
 
 function DropdownProvider({ children }: IDropdownProvider) {
   const [Dropdown, setDropdown] = useState<React.ReactElement>(<div></div>);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [hideOnClick, setHideOnClick] = useState(true);
+  const [hideOnScroll, setHideOnScroll] = useState(true);
 
   return (
-    <DropdownContext.Provider value={{ setDropdown, isOpen, setIsOpen }}>
+    <DropdownContext.Provider value={{ setDropdown, isOpen, setIsOpen, setHideOnClick, setHideOnScroll }}>
       {children}
-      <DropdownPortal Dropdown={Dropdown} isOpen={isOpen} setIsOpen={setIsOpen} />
+      <DropdownPortal
+        Dropdown={Dropdown}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        hideOnClick={hideOnClick}
+        hideOnScroll={hideOnScroll}
+      />
     </DropdownContext.Provider>
   );
 }

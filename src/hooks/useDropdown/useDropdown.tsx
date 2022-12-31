@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { NavigateFunction, NavigateOptions, To, useNavigate } from 'react-router-dom';
 import { DropdownContext } from './_DropdownContext';
 
 /**
@@ -11,13 +12,14 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
   component: (
     triggerRect: DOMRect,
     dropdownRef: (el: HTMLOListElement) => void,
-    props: T
+    props: T,
+    navigate: (to: To, options?: NavigateOptions) => void
   ) => React.ReactElement,
   deps?: any[],
   hideOnClick?: boolean,
   hideOnScroll?: boolean
 ): [(e: React.MouseEvent<HTMLElement, MouseEvent>, dropdownProps?: T) => void, () => void] {
-  const { setDropdown, setIsOpen } = useContext(DropdownContext)!; // end with `!` to tell typescipt that the context is not undefined
+  const { setDropdown, setIsOpen, setHideOnClick, setHideOnScroll } = useContext(DropdownContext)!; // end with `!` to tell typescipt that the context is not undefined
 
   // store the position and size information of the last element that executed `showDropdown()`
   const [triggerRect, setTriggerRect] = useState<DOMRect>(new DOMRect());
@@ -32,6 +34,8 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
     setTriggerRect(e.currentTarget.getBoundingClientRect());
     if (dropdownProps) setDropdownProps(dropdownProps);
     setIsOpen(true);
+    setHideOnClick((current) => (hideOnClick === undefined ? current : hideOnClick));
+    setHideOnScroll((current) => (hideOnScroll === undefined ? current : hideOnScroll));
   };
 
   /**
@@ -40,20 +44,6 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
   const hideDropdown = () => {
     setIsOpen(false);
   };
-
-  /**
-   * Listen for any click events on the page
-   * and close the dropdown if they occur.
-   */
-  useEffect(() => {
-    if (hideOnClick) {
-      const closeOnClick = () => {
-        hideDropdown();
-      };
-      document.addEventListener('click', closeOnClick, true);
-      return document.removeEventListener('click', closeOnClick);
-    }
-  });
 
   /**
    * Callback ref for the dropdown, which is used to focus the dropdown once
@@ -65,11 +55,17 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
     }
   };
 
+  const _navigate = useNavigate();
+  const navigate = (to: To, options?: NavigateOptions): void => {
+    _navigate(to, options);
+    hideDropdown();
+  };
+
   // memoize the dropdown component so that it does not trigger `setDropdown` on every render
   // (only trigger `setDropdown` when `deps` has changed)
   const DropdownComponent = useMemo(
     () => {
-      return component(triggerRect, dropdownRef, dropdownProps);
+      return component(triggerRect, dropdownRef, dropdownProps, navigate);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     deps ? [triggerRect, dropdownProps, ...deps] : [triggerRect]

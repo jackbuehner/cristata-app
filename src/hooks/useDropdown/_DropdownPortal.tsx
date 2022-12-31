@@ -5,12 +5,14 @@ interface IDropdownPortal {
   Dropdown?: React.ReactElement;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  hideOnClick: boolean;
+  hideOnScroll: boolean;
 }
 
 /**
  * The portal for dropdowns.
  */
-function DropdownPortal({ Dropdown, isOpen, setIsOpen }: IDropdownPortal) {
+function DropdownPortal({ Dropdown, isOpen, setIsOpen, hideOnClick, hideOnScroll }: IDropdownPortal) {
   /**
    * A memoized `div` with `id` `'dropdown-root'`
    */
@@ -64,12 +66,44 @@ function DropdownPortal({ Dropdown, isOpen, setIsOpen }: IDropdownPortal) {
   };
 
   /**
+   * Listen for any click events on the page
+   * and close the dropdown if they occur.
+   */
+  useEffect(() => {
+    const closeOnClick = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+
+      // determine if the click occured within the menu div
+      const isInSelf = (() => {
+        if (!target) return false;
+        const checkParent = (elem: HTMLElement): boolean => {
+          if (elem.parentElement) {
+            if (elem.parentElement.classList.contains('menu')) return true;
+            return checkParent(elem.parentElement);
+          }
+          return false;
+        };
+
+        return checkParent(target);
+      })();
+
+      // only close if the click event did not occur in the dropdown
+      if (!isInSelf) {
+        hideDropdown();
+      }
+    };
+
+    if (hideOnClick) document.addEventListener('click', closeOnClick, true);
+    return () => document.removeEventListener('click', closeOnClick, true);
+  }, [hideOnClick]);
+
+  /**
    * Listen for any scroll or events on the page
    * or page resize events
    * and close the dropdown if they occur.
    */
   useEffect(() => {
-    if (true) {
+    if (hideOnScroll) {
       const closeOnScroll = (e: Event) => {
         const target = e.target as HTMLElement | null;
         const isSelf = target?.classList?.contains('menu') || false;
