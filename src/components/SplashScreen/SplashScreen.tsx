@@ -1,5 +1,5 @@
 import { useApolloClient } from '@apollo/client';
-import { useTheme } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { useAppDispatch } from '../../redux/hooks';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../redux/slices/authUserSlice';
 import { persistor } from '../../redux/store';
 import { themeType } from '../../utils/theme/theme';
+import { Button } from '../Button';
 import { Spinner } from '../Loading';
 
 interface ISplashScreen {
@@ -241,15 +242,79 @@ function SplashScreen(props: ISplashScreen) {
             stroke='none'
           />
         </svg>
-        {isAuthError ? (
-          <ErrorBlock theme={theme}>Failed to authenticate to the server.</ErrorBlock>
-        ) : showError ? (
-          <ErrorBlock theme={theme}>Failed to connect to the server.</ErrorBlock>
-        ) : (
-          <ErrorBlock theme={theme}>
+        <ErrorBlock theme={theme}>
+          {isAuthError || showError ? (
+            <>
+              {isAuthError ? 'Failed to authenticate to the server.' : 'Failed to connect to the server.'}
+              <Button onClick={() => (window.location.href = window.location.href)}>Try again</Button>
+              <Button
+                onClick={async () => {
+                  await persistor.purge(); // clear persisted redux store
+                  await client.clearStore(); // clear persisted apollo data
+                  window.localStorage.removeItem('apollo-cache-persist'); // apollo doesn't always clear this
+                  const tenant = window.location.pathname.split('/')[1];
+                  window.location.href = `${import.meta.env.VITE_API_PROTOCOL}//${
+                    import.meta.env.VITE_AUTH_BASE_URL
+                  }/${tenant || ''}/sign-out?return=${encodeURIComponent(
+                    window.location.origin + '/' + tenant
+                  )}`;
+                }}
+              >
+                Sign out
+              </Button>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Button
+                  cssExtra={css`
+                    width: 100%;
+                  `}
+                  onClick={async () => {
+                    await persistor.purge(); // clear persisted redux store
+                    await client.clearStore(); // clear persisted apollo data
+                    window.localStorage.removeItem('apollo-cache-persist'); // apollo doesn't always clear this
+                    if ('serviceWorker' in navigator) {
+                      navigator.serviceWorker.getRegistrations().then((registrations) => {
+                        for (let registration of registrations) {
+                          registration.unregister();
+                        }
+                      });
+                    }
+                    window.location.href = window.location.href;
+                  }}
+                >
+                  Clear cache
+                </Button>
+                <Button
+                  cssExtra={css`
+                    width: 100%;
+                  `}
+                  onClick={async () => {
+                    await persistor.purge(); // clear persisted redux store
+                    await client.clearStore(); // clear persisted apollo data
+                    window.localStorage.clear();
+                    window.sessionStorage.clear();
+                    if ('serviceWorker' in navigator) {
+                      navigator.serviceWorker.getRegistrations().then((registrations) => {
+                        for (let registration of registrations) {
+                          registration.unregister();
+                        }
+                      });
+                    }
+                    const tenant = window.location.pathname.split('/')[1];
+                    window.location.href = `${import.meta.env.VITE_API_PROTOCOL}//${
+                      import.meta.env.VITE_AUTH_BASE_URL
+                    }/${tenant || ''}/sign-out?return=${encodeURIComponent(
+                      window.location.origin + '/' + tenant
+                    )}`;
+                  }}
+                >
+                  Clear data
+                </Button>
+              </div>
+            </>
+          ) : (
             <Spinner size={32} color={'neutral'} colorShade={theme.mode === 'light' ? 100 : 1500} />
-          </ErrorBlock>
-        )}
+          )}
+        </ErrorBlock>
       </div>
       {props.children ? (
         props.children
