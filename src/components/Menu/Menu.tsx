@@ -41,7 +41,12 @@ const Menu = forwardRef((props: IMenu, ref: React.ForwardedRef<HTMLOListElement>
       left={props.pos.left}
       width={props.pos.width}
       ref={forwardedRef}
-      style={{ '--height': initialHeight + 'px' } as React.CSSProperties}
+      style={
+        {
+          '--height': initialHeight + 'px',
+          maxHeight: `calc(100vh - ${props.pos.top}px - 16px)`,
+        } as React.CSSProperties
+      }
     >
       {props.items
         // move disabled items to bottom

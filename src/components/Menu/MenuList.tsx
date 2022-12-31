@@ -1,8 +1,7 @@
+import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { useTheme } from '@emotion/react';
+import React, { forwardRef } from 'react';
 import { themeType } from '../../utils/theme/theme';
-import { forwardRef } from 'react';
-import React from 'react';
 
 interface IMenuListBase {
   top: number;
@@ -32,6 +31,8 @@ const MenuListComponent = styled.ul<IMenuListComponent>`
     height: var(--height);
     padding: 4px 0;
     transition: height 240ms cubic-bezier(0.1, 0.9, 0.2, 1);
+    overflow: auto;
+    animation: 250ms delay-menu-overflow;
   }
   &:focus {
     outline: none;
@@ -74,27 +75,40 @@ const MenuList = forwardRef((props: IMenuList, ref: React.ForwardedRef<HTMLOList
   };
 
   return (
-    <MenuListComponent
-      top={props.top}
-      left={props.left}
-      width={props.width}
-      theme={theme}
-      ref={ref}
-      tabIndex={-1}
-      onKeyDown={props.onKeyDown ? props.onKeyDown : handleMenuArrowNavigation}
-      className={`menu`}
-      style={props.style}
-    >
-      {React.Children.map(props.children, (child, index) => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, {
-            key: index,
-            onKeyDown: handleMenuItemArrowNavigation,
-          });
-        }
-        return child;
-      })}
-    </MenuListComponent>
+    <>
+      <MenuListComponent
+        top={props.top}
+        left={props.left}
+        width={props.width}
+        theme={theme}
+        ref={ref}
+        tabIndex={-1}
+        onKeyDown={props.onKeyDown ? props.onKeyDown : handleMenuArrowNavigation}
+        className={`menu`}
+        style={props.style}
+      >
+        {React.Children.map(props.children, (child, index) => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child, {
+              key: index,
+              // @ts-expect-error onKeyDown is valid
+              onKeyDown: handleMenuItemArrowNavigation,
+            });
+          }
+          return child;
+        })}
+      </MenuListComponent>
+      <Global
+        styles={css`
+          @keyframes delay-menu-overflow {
+            0%,
+            100% {
+              overflow: hidden;
+            }
+          }
+        `}
+      />
+    </>
   );
 });
 

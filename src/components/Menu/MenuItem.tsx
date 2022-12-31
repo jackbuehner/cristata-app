@@ -20,7 +20,7 @@ interface IMenuItemComponent extends IMenuItemBase {
 
 const MenuItemComponent = styled.li<IMenuItemComponent>`
   list-style: none;
-  height: ${({ height }) => (height ? height : 30)}px;
+  height: ${({ height }) => (height ? height : 32)}px;
   padding: 0 36px 0 16px;
   display: flex;
   align-items: center;
@@ -74,24 +74,23 @@ const MenuItem = forwardRef((props: IMenuItem, ref: React.ForwardedRef<HTMLLIEle
   });
 
   return (
-    <span data-tip={props['data-tip']}>
-      <MenuItemComponent
-        onClick={props.disabled ? undefined : props.onClick}
-        onKeyDown={props.onKeyDown}
-        theme={theme}
-        color={props.color}
-        colorShade={props.colorShade}
-        tabIndex={-1}
-        ref={ref}
-        noEffect={props.disabled || props.noEffect}
-        height={props.height}
-        disabled={props.disabled}
-        data-tip={props['data-tip']}
-      >
-        {props.noIcons ? null : <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>}
-        <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
-      </MenuItemComponent>
-    </span>
+    <MenuItemComponent
+      onClick={props.disabled ? undefined : props.onClick}
+      onKeyDown={props.onKeyDown}
+      theme={theme}
+      color={props.color}
+      colorShade={props.colorShade}
+      role={`button`}
+      tabIndex={0}
+      ref={ref}
+      noEffect={props.disabled || props.noEffect}
+      height={props.height}
+      disabled={props.disabled}
+      data-tip={props['data-tip']}
+    >
+      {props.noIcons ? null : <IconStyleWrapper>{props.icon ? props.icon : null}</IconStyleWrapper>}
+      <span style={{ marginBottom: props.disableLabelAlignmentFix ? 0 : 1 }}>{props.children}</span>
+    </MenuItemComponent>
   );
 });
 
