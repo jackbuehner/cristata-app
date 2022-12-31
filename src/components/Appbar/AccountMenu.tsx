@@ -281,7 +281,8 @@ const ACCOUNT_MENU_ICON_COMPONENT = styled.button<{ photo: string; theme: themeT
   }
 `;
 
-const OtherProfile = styled.div`
+const OtherProfile = styled.button`
+  appearance: none;
   ${({ theme }) =>
     buttonEffect(
       'primary',
@@ -310,6 +311,7 @@ const OtherProfile = styled.div`
   > div {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
 
     > div:first-of-type {
       font-family: ${({ theme }) => theme.font.headline};
