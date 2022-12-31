@@ -84,8 +84,8 @@ function DropdownPortal({ Dropdown, isOpen, setIsOpen }: IDropdownPortal) {
       document.addEventListener('scroll', closeOnScroll, { capture: true, passive: true });
       document.addEventListener('resize', closeOnResize, { capture: true, passive: true });
       return () => {
-        document.removeEventListener('scroll', closeOnScroll);
-        document.removeEventListener('resize', closeOnResize);
+        document.removeEventListener('scroll', closeOnScroll, { capture: true });
+        document.removeEventListener('resize', closeOnResize, { capture: true });
       };
     }
   });
