@@ -39,6 +39,7 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
   const theme = useTheme();
   const yarray = props.y.ydoc.getArray<Value<string>>(props.fieldName);
   const forceUpdate = useForceUpdate();
+  const tenant = location.pathname.split('/')[1];
 
   // keep track of the selected values shared type
   const [selected, setSelected] = useState<Value<string>[]>(yarray?.toArray() || []);
@@ -123,14 +124,18 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
                             if (isURL(_id)) {
                               window.open(_id, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'user') {
-                              window.open(`/profile/${_id}`, props.collection + _id, 'location=no');
+                              window.open(`/${tenant}/profile/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'team') {
-                              window.open(`/teams/${_id}`, props.collection + _id, 'location=no');
+                              window.open(`/${tenant}/teams/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'photo') {
-                              window.open(`/cms/photo/library/${_id}`, props.collection + _id, 'location=no');
+                              window.open(
+                                `/${tenant}/cms/photo/library/${_id}`,
+                                props.collection + _id,
+                                'location=no'
+                              );
                             } else {
                               window.open(
-                                `/cms/collection/${pluralize(props.collection.toLowerCase())}/${_id}`,
+                                `/${tenant}/cms/collection/${pluralize(props.collection.toLowerCase())}/${_id}`,
                                 props.collection + _id,
                                 'location=no'
                               );

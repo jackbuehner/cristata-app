@@ -113,6 +113,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
   const { pathname, search, hash } = useLocation();
   const params = new URLSearchParams(search);
   const shareAction = props.actions?.find((action) => action?.label === 'Share') || undefined;
+  const tenant = location.pathname.split('/')[1];
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -723,7 +724,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     data-offset={`{ 'bottom': 4 }`}
                     onClick={() => {
                       window.open(
-                        `/profile/${profile._id}`,
+                        `${tenant}/profile/${profile._id}`,
                         'tiptap_awareness_user' + profile._id,
                         'location=no'
                       );

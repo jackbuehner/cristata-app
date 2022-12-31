@@ -32,6 +32,7 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
   const [textValue, setTextValue, { options, loading }] = useOptions(props.collection, props.reference);
   const theme = useTheme() as themeType;
   const client = useApolloClient();
+  const tenant = location.pathname.split('/')[1];
 
   const [internalState, _setInternalState] = useState<PopulatedValue | null>(null);
   const setInternalState = (newState: PopulatedValue | null) => {
@@ -85,25 +86,27 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
                   window.open(internalState._id, props.collection + internalState._id, 'location=no');
                 } else if (props.collection.toLowerCase() === 'user') {
                   window.open(
-                    `/profile/${internalState._id}`,
+                    `/${tenant}/profile/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else if (props.collection.toLowerCase() === 'team') {
                   window.open(
-                    `/teams/${internalState._id}`,
+                    `/${tenant}/teams/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else if (props.collection.toLowerCase() === 'photo') {
                   window.open(
-                    `/cms/photo/library/${internalState._id}`,
+                    `/${tenant}/cms/photo/library/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else {
                   window.open(
-                    `/cms/collection/${pluralize(props.collection.toLowerCase())}/${internalState._id}`,
+                    `/${tenant}/cms/collection/${pluralize(props.collection.toLowerCase())}/${
+                      internalState._id
+                    }`,
                     props.collection + internalState._id,
                     'location=no'
                   );

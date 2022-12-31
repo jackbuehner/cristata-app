@@ -57,6 +57,7 @@ function Sidebar(props: SidebarProps) {
   const theme = useTheme() as themeType;
   const client = useApolloClient();
   const forceUpdate = useForceUpdate();
+  const tenant = location.pathname.split('/')[1];
 
   ReactTooltip.rebuild();
 
@@ -223,7 +224,7 @@ function Sidebar(props: SidebarProps) {
                   data-offset={`{ 'bottom': 4 }`}
                   onClick={() => {
                     window.open(
-                      `/profile/${profile._id}`,
+                      `/${tenant}/profile/${profile._id}`,
                       'sidebar_user' + props.docInfo._id + profile._id,
                       'location=no'
                     );
@@ -298,7 +299,7 @@ function Sidebar(props: SidebarProps) {
                 key={user._id}
                 onClick={() => {
                   window.open(
-                    `/profile/${user._id}`,
+                    `/${tenant}/profile/${user._id}`,
                     'sidebar_user' + props.docInfo._id + user._id,
                     'location=no'
                   );
@@ -317,7 +318,7 @@ function Sidebar(props: SidebarProps) {
                 key={team._id}
                 onClick={() => {
                   window.open(
-                    `/teams/${team._id}`,
+                    `/${tenant}/teams/${team._id}`,
                     'sidebar_team' + props.docInfo._id + team._id,
                     'location=no'
                   );

@@ -134,6 +134,7 @@ interface SelectedProps {
 function Selected(props: SelectedProps) {
   const theme = useTheme() as themeType;
   const [internalState, setInternalState] = props.internalState;
+  const tenant = location.pathname.split('/')[1];
 
   return (
     <>
@@ -187,14 +188,18 @@ function Selected(props: SelectedProps) {
                             if (isURL(_id)) {
                               window.open(_id, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'user') {
-                              window.open(`/profile/${_id}`, props.collection + _id, 'location=no');
+                              window.open(`/${tenant}/profile/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'team') {
-                              window.open(`/teams/${_id}`, props.collection + _id, 'location=no');
+                              window.open(`/${tenant}/teams/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'photo') {
-                              window.open(`/cms/photo/library/${_id}`, props.collection + _id, 'location=no');
+                              window.open(
+                                `/${tenant}/cms/photo/library/${_id}`,
+                                props.collection + _id,
+                                'location=no'
+                              );
                             } else {
                               window.open(
-                                `/cms/collection/${pluralize(props.collection.toLowerCase())}/${_id}`,
+                                `/${tenant}/cms/collection/${pluralize(props.collection.toLowerCase())}/${_id}`,
                                 props.collection + _id,
                                 'location=no'
                               );
