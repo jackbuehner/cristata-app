@@ -95,6 +95,18 @@ function CollectionPage() {
       return;
     }
 
+    // handle special filters, which are in the format key:filterName:filterValue
+    if (value.includes(':') && value.split(':').length === 2) {
+      const [filterName, filterValue] = value.split(':');
+
+      if (filterName === 'size') {
+        defaultFilter[param] = { $size: parseInt(filterValue) || 0 };
+        return;
+      }
+
+      return;
+    }
+
     const isNegated = param[0] === '!';
     const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
 
@@ -117,6 +129,8 @@ function CollectionPage() {
         ? { $eq: parseBooleanString(value) }
         : { $regex: value, $options: 'i' };
   });
+
+  console.log(defaultFilter);
 
   // set the collection name
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
