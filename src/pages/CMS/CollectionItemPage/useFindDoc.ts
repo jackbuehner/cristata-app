@@ -66,7 +66,7 @@ function useFindDoc(
     ...req
   } = useQuery(GENERATED_ITEM_QUERY, {
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: doNothing ? 'cache-only' : 'no-cache',
+    fetchPolicy: doNothing ? 'cache-only' : 'network-only',
   });
 
   let actionAccess: Record<CollectionPermissionsActions, boolean | undefined> | undefined =
