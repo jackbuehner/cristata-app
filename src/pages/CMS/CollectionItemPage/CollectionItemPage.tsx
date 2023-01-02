@@ -211,7 +211,12 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     mandatoryWatchersKeys: collectionOptions?.mandatoryWatchers || [],
   });
 
-  const locked = publishLocked || (props.y.data.archived as boolean | undefined | null) || false;
+  const locked =
+    publishLocked ||
+    (props.y.data.archived as boolean | undefined | null) ||
+    (props.y.data.hidden as boolean | undefined | null) ||
+    (props.y.data.locked as boolean | undefined | null) ||
+    false;
 
   // use a keyboard shortcut to trigger whether hidden fields are shown
   const [showHidden, setShowHidden] = useState(false);
