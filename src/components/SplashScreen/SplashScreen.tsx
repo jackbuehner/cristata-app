@@ -76,7 +76,9 @@ function SplashScreen(props: ISplashScreen) {
     if (props.loading) return;
     const tenant = window.location.pathname.split('/')[1];
     if (props.user && !tenant) {
-      navigate(`/${props.user.tenant}`);
+      const url = new URL(window.location.href);
+      url.pathname = `/${props.user.tenant}`;
+      window.location.href = url.href;
     }
   }, [props.loading, props.error, props.user, props.bypassAuthLogic, navigate]);
 
