@@ -1,4 +1,3 @@
-import './init';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -9,7 +8,9 @@ import ReactDOM from 'react-dom';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import ReactTooltip from 'react-tooltip';
 import { serializeError } from 'serialize-error';
+import now from '~build/time';
 import App from './App';
+import './init';
 import reportWebVitals from './reportWebVitals';
 import { theme } from './utils/theme';
 
@@ -92,6 +93,7 @@ function AppErrorFallback({ error: unserializedError, resetErrorBoundary }: Fall
       <p style={{ fontSize: 120, margin: '20px 0 -10px 0', fontWeight: 300 }}>:(</p>
       <p style={{ fontSize: 28, margin: '20px 0' }}>Something went wrong</p>
       <p style={{ fontSize: 22, margin: '20px 0', whiteSpace: 'pre-wrap' }}>{error.message}</p>
+      <p style={{ fontSize: 22, margin: '20px 0', whiteSpace: 'pre-wrap' }}>Build date: {now.toISOString()}</p>
       <pre style={{ whiteSpace: 'pre-wrap' }}>{error.stack}</pre>
       <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(error, null, 2)}</pre>
     </div>

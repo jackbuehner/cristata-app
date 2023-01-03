@@ -3,6 +3,7 @@ import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import now from '~build/time';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../redux/slices/authUserSlice';
 import { persistor } from '../../redux/store';
@@ -246,6 +247,7 @@ function SplashScreen(props: ISplashScreen) {
           {isAuthError || showError ? (
             <>
               {isAuthError ? 'Failed to authenticate to the server.' : 'Failed to connect to the server.'}
+              {`\n Build date: ${now.toISOString()}`}
               <Button onClick={() => (window.location.href = window.location.href)}>Try again</Button>
               <Button
                 onClick={async () => {

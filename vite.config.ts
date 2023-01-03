@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import BuildInfo from 'vite-plugin-info';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { VitePWA } from 'vite-plugin-pwa';
 import svgrPlugin from 'vite-plugin-svgr';
@@ -719,6 +720,7 @@ export default defineConfig({
       filename: 'service-worker.js',
       injectRegister: 'inline',
     }),
+    BuildInfo(),
   ],
   server: {
     port: parseInt(process.env.PORT || '4000'),
