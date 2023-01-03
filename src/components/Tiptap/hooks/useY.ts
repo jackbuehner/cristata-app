@@ -32,6 +32,10 @@ class YProvider {
         name,
         document: ydoc,
         parameters: { _id, appVersion },
+        onDisconnect() {
+          // reconnect on disconnect
+          wsProvider.shouldConnect = true;
+        },
       });
       this.#wsProviders[name] = wsProvider;
 
