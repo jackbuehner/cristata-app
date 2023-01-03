@@ -82,6 +82,26 @@ function AppErrorFallback({ error: unserializedError, resetErrorBoundary }: Fall
         </button>
         <button
           onClick={() => {
+            window.localStorage.clear();
+            window.sessionStorage.clear();
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then((registrations) => {
+                for (let registration of registrations) {
+                  registration.unregister();
+                }
+              });
+            }
+            const tenant = window.location.pathname.split('/')[1];
+            window.location.href = `${import.meta.env.VITE_API_PROTOCOL}//${
+              import.meta.env.VITE_AUTH_BASE_URL
+            }/${tenant || ''}/sign-out?return=${encodeURIComponent(window.location.origin + '/' + tenant)}`;
+          }}
+          className={`error-button`}
+        >
+          Reset app
+        </button>
+        <button
+          onClick={() => {
             // eslint-disable-next-line no-self-assign
             if (document && document.location) document.location = document.location;
           }}
