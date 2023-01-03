@@ -309,7 +309,7 @@ function SplashScreen(props: ISplashScreen) {
                     )}`;
                   }}
                 >
-                  Clear data
+                  Reset app
                 </Button>
               </div>
             </>
