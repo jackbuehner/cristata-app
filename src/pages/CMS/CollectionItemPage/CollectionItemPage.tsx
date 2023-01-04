@@ -216,6 +216,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     (props.y.data.archived as boolean | undefined | null) ||
     (props.y.data.hidden as boolean | undefined | null) ||
     (props.y.data.locked as boolean | undefined | null) ||
+    (!!props.y.data._hasPublishedDoc && (props.y.data.stage as number) === 5.2) ||
     false;
 
   // use a keyboard shortcut to trigger whether hidden fields are shown
@@ -382,6 +383,10 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               message={
                 isOldVersion
                   ? 'You are currently viewing an old version of this document. You cannot make edits.'
+                  : props.y.data._hasPublishedDoc && props.y.data.stage === publishStage
+                  ? 'This document is read-only mode because it is published. Begin an update session to make edits.'
+                  : props.y.data._hasPublishedDoc
+                  ? 'You are in an update session for a currently published document. Your changes will not appear to the public until you publish them.'
                   : publishLocked
                   ? 'This document is opened in read-only mode because it has been published and you do not have publish permissions.'
                   : props.y.data.hidden
@@ -1006,11 +1011,59 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                       </Button>
                     </Notice>
                   ) : null}
-                  {props.y.data.stage === publishStage && !props.isEmbedded && fs !== '1' && !isOldVersion ? (
-                    <Notice theme={theme}>
-                      This document is currently published. Changes will be publically reflected immediately.
-                    </Notice>
-                  ) : null}
+                  {
+                    /**
+                     * published doc edit notice
+                     */
+                    (() => {
+                      if (props.isEmbedded) return null;
+                      if (fs === '1' || fs === 'force') return null;
+                      if (isOldVersion) return null;
+
+                      if (props.y.data._hasPublishedDoc) {
+                        if (props.y.data.stage === publishStage) {
+                          // show banner to switch to edit session
+                          return (
+                            <Notice theme={theme}>
+                              This document is read-only mode because it is published. Begin an{' '}
+                              <i>update session</i> to make edits.
+                              <Button
+                                height={26}
+                                cssExtra={css`
+                                  display: inline-block;
+                                  margin: 4px 8px;
+                                `}
+                                onClick={(e) => {
+                                  actions.find((a) => a.label === 'Begin update session')?.action(e);
+                                }}
+                                disabled={actions.findIndex((a) => a.label === 'Begin update session') === -1}
+                              >
+                                Begin update session
+                              </Button>
+                            </Notice>
+                          );
+                        }
+
+                        // show notice that edit session is enabled
+                        return (
+                          <Notice theme={theme}>
+                            You are in an <i>update session</i> for a currently published document. Your changes
+                            will not appear to the public until you publish them.
+                          </Notice>
+                        );
+                      }
+
+                      // show alert that changes will affect the document immediately
+                      if (props.y.data.stage === publishStage) {
+                        return (
+                          <Notice theme={theme}>
+                            This document is currently published. Changes will be publically reflected
+                            immediately.
+                          </Notice>
+                        );
+                      }
+                    })()
+                  }
 
                   <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
                     {contentWidth <= 700 ? <Sidebar {...sidebarProps} compact={true} /> : null}

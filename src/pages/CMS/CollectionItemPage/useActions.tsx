@@ -219,6 +219,34 @@ function useActions(params: UseActionsParams): UseActionsReturn {
     [client, idKey, params]
   );
 
+  /**
+   * Set the document stage to draft (2.1)
+   */
+  const setDraftStage = useCallback(() => {
+    params.dispatch(setIsLoading(true));
+
+    const SET_READY_STAGE = gql`mutation {
+      ${uncapitalize(params.collectionName)}Modify(${idKey || '_id'}: "${
+      params.itemId
+    }", input: { stage: 2.1 }) {
+        stage
+      }
+    }`;
+
+    client
+      .mutate({ mutation: SET_READY_STAGE })
+      .finally(() => {
+        params.dispatch(setIsLoading(false));
+      })
+      .then(() => {
+        params.y.wsProvider.disconnect();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(`Failed to begin an update session. \n ${err.message}`);
+      });
+  }, [client, idKey, params]);
+
   const allHaveAccess =
     params.withPermissions === false ||
     getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
@@ -309,6 +337,14 @@ function useActions(params: UseActionsParams): UseActionsReturn {
                 ? `You cannot share this document because you do not have permission to modify it.`
                 : undefined,
           },
+      !!params.y.data._hasPublishedDoc && (params.y.data.stage as number) === 5.2
+        ? {
+            label: 'Begin update session',
+            type: 'button',
+            icon: 'DocumentEdit24Regular',
+            action: () => setDraftStage(),
+          }
+        : null,
     ];
     return actions.filter((action): action is Action => !!action);
   }, [
