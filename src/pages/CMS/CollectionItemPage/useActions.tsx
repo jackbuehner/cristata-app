@@ -240,7 +240,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
         params.dispatch(setIsLoading(false));
       })
       .then(() => {
-        params.y.wsProvider.disconnect();
+        params.y.wsProvider?.disconnect();
       })
       .catch((err) => {
         console.error(err);
