@@ -275,6 +275,16 @@ export const collectionSlice = createSlice({
         state.isUnsaved = true;
       }
     },
+    setIndependentPublishedDocCopyOption: (
+      state,
+      action: PayloadAction<NonNullable<GenCollectionInput['options']>['independentPublishedDocCopy']>
+    ) => {
+      if (state.collection) {
+        if (!state.collection.options) state.collection.options = {};
+        state.collection.options.independentPublishedDocCopy = action.payload;
+        state.isUnsaved = true;
+      }
+    },
   },
 });
 
@@ -327,6 +337,7 @@ export const {
   setDefaultMutationOption,
   setPreviewUrl,
   setDynamicPreviewHref,
+  setIndependentPublishedDocCopyOption,
   resetAccessor,
 } = collectionSlice.actions;
 

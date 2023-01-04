@@ -27,6 +27,7 @@ function useCollectionSchemaConfig(name: string): [
       disableHideMutation?: boolean;
       disableArchiveMutation?: boolean;
       disablePublishMutation?: boolean;
+      independentPublishedDocCopy?: boolean;
     };
     by: { one: string; many: string } | null;
   },
@@ -66,6 +67,11 @@ function useCollectionSchemaConfig(name: string): [
         field: { reference: { collection: 'Team', fields: { _id: '_id', name: 'name' } } },
       });
     }
+    if (canPublish) {
+      setProperty(schemaDef, 'timestamps.published_at', { type: 'Date', ...hidden });
+      setProperty(schemaDef, 'timestamps.updated_at', { type: 'Date', ...hidden });
+      setProperty(schemaDef, '_hasPublishedDoc', { type: 'Boolean', ...hidden });
+    }
 
     return [
       {
@@ -96,6 +102,7 @@ interface QueryType {
         disableHideMutation?: boolean;
         disableArchiveMutation?: boolean;
         disablePublishMutation?: boolean;
+        independentPublishedDocCopy?: boolean;
       };
       by: {
         one: string;
@@ -123,6 +130,7 @@ function queryString(name: string): DocumentNode {
             disableHideMutation
             disableArchiveMutation
             disablePublishMutation
+            independentPublishedDocCopy
           }
           by {
             one

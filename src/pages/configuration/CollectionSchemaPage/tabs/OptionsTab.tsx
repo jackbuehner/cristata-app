@@ -19,6 +19,7 @@ import {
   setAccessor,
   setCanPublish,
   setDynamicPreviewHref,
+  setIndependentPublishedDocCopyOption,
   setMandatoryWatchers,
   setName,
   setNameField,
@@ -48,6 +49,7 @@ function OptionsTab(props: OptionsTabProps) {
   const navLabel = state.collection?.navLabel;
   const nameField = state.collection?.options?.nameField;
   const canPublish = state.collection?.canPublish;
+  const independentPublishedDocCopy = state.collection?.options?.independentPublishedDocCopy || false;
   const withPermissions = state.collection?.withPermissions;
   const mandatoryWatchers = state.collection?.options?.mandatoryWatchers;
   const watcherNotices = state.collection?.options?.watcherNotices;
@@ -347,8 +349,31 @@ function OptionsTab(props: OptionsTabProps) {
             isEmbedded
             label={'Allow items to be published'}
             checked={canPublish}
-            onChange={(e) => dispatch(setCanPublish(e.currentTarget.checked))}
+            onChange={(e) => {
+              if (e.currentTarget.checked === false) {
+                dispatch(setCanPublish(false));
+                dispatch(setIndependentPublishedDocCopyOption(false));
+              } else {
+                dispatch(setCanPublish(true));
+              }
+            }}
           />
+        ) : null}
+        {canPublish ? (
+          <IndentField color={'primary'}>
+            <Checkbox
+              isEmbedded
+              label={'Draft updates to published documents without immediate publication of updates'}
+              description={
+                'A copy of each document is stored on publication. ' +
+                'Edits can be made in Cristata without affecting the published copy. ' +
+                'Republishing overwrites the published copy with the newest changes.\n' +
+                'Enabling this option will create published copies for documents on the publish stage (5.2).'
+              }
+              checked={independentPublishedDocCopy}
+              onChange={(e) => dispatch(setIndependentPublishedDocCopyOption(e.currentTarget.checked))}
+            />
+          </IndentField>
         ) : null}
         {withPermissions !== undefined ? (
           <Checkbox
