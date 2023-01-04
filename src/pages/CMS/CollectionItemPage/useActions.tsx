@@ -17,6 +17,7 @@ import { uncapitalize } from '../../../utils/uncapitalize';
 import { RenderFields } from './CollectionItemPage';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
+import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 
 interface UseActionsParams {
   y: EntryY;
@@ -247,6 +248,29 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       });
   }, [client, idKey, params]);
 
+  /**
+   * Unpublish the document and set the stage to 2.1.
+   */
+  const unpublishItem = useCallback(() => {
+    params.dispatch(setIsLoading(true));
+
+    const UNPUBLISH_ITEM = gql`mutation {
+      ${uncapitalize(params.collectionName)}Publish(${idKey || '_id'}: "${params.itemId}", publish: false) {
+        _id
+      }
+    }`;
+
+    client
+      .mutate({ mutation: UNPUBLISH_ITEM })
+      .finally(() => {
+        params.dispatch(setIsLoading(false));
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(`Failed to unpublish document. \n ${err.message}`);
+      });
+  }, [client, idKey, params]);
+
   const allHaveAccess =
     params.withPermissions === false ||
     getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
@@ -273,11 +297,12 @@ function useActions(params: UseActionsParams): UseActionsReturn {
           : undefined,
       },
       {
-        label: 'Publish',
+        label:
+          params.y.data.stage === 5.2 ? 'Unpublish' : params.y.data._hasPublishedDoc ? 'Republish' : 'Publish',
         type: 'button',
-        icon: 'CloudArrowUp24Regular',
-        action: () => showPublishModal(),
-        color: 'success',
+        icon: params.y.data.stage === 5.2 ? 'CloudDismiss24Regular' : 'CloudArrowUp24Regular',
+        action: () => (params.y.data.stage === 5.2 ? unpublishItem() : showPublishModal()),
+        color: params.y.data.stage === 5.2 ? 'red' : 'success',
         disabled:
           params.canPublish !== true ||
           params.loadingOrError ||
@@ -394,6 +419,8 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   const quickActions = [
     actions.find((action) => action?.label === 'Share'),
     actions.find((action) => action?.label === 'Publish'),
+    actions.find((action) => action?.label === 'Unpublish'),
+    actions.find((action) => action?.label === 'Republish'),
   ].filter((action): action is Action => !!action);
 
   return {
