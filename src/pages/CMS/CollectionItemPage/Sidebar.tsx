@@ -188,7 +188,7 @@ function Sidebar(props: SidebarProps) {
               y={{ ...props.y, field: props.stage.key, user: props.user }}
               options={props.stage.options as StringOption[]}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={props.loading || props.disabled}
+              disabled={props.loading || props.disabled || props.stage.current === '5.2'}
               isEmbedded
             />
           ) : (
@@ -201,7 +201,7 @@ function Sidebar(props: SidebarProps) {
               }))}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
-              disabled={props.loading || props.disabled}
+              disabled={props.loading || props.disabled || props.stage.current === 5.2}
               isEmbedded
             />
           )}
