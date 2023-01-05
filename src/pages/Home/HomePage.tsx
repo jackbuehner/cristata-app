@@ -42,19 +42,44 @@ function HomePage() {
       </div>
       <div style={{ gridArea: 'announcement' }}>
         <HomeSectionHeading icon={<Megaphone24Regular />}>
-          What's new to Cristata (Nov. 24, 2022)
+          What's new to Cristata (January 2023)
         </HomeSectionHeading>
-        <ol style={{ paddingInlineStart: 14, lineHeight: 1.5 }}>
+        <ul style={{ paddingInlineStart: 14, lineHeight: 1.5 }}>
+          <li>Added the ability to switch between accounts in different tenants in the profile menu.</li>
+          <li>Enabled a dark scrollbar in dark mode.</li>
+          <li>Add toast notifications when there is a Cristata app update.</li>
           <li>
-            Upload files to the Files collection. Every uploaded files recieves a link to view/download the
+            Changed the <i>Publish</i> button to an <i>Unpublish</i> button when documents are published.
+          </li>
+          <li>
+            Included a <i>Last published</i> column in collection tables.
+          </li>
+          <li>Added the ability to add custom groups to the CMS navigation pane.</li>
+          <li>
+            Added new options for collection configurations:
+            <ul>
+              <li>
+                Configure exact previews of how your documents will appear on your website. A preview tab will
+                appear in the document editor when this option is enabled.
+              </li>
+              <li>Choose the plural label for collections, used in the CMS navigation pane.</li>
+              <li>Add scope tags to collection labels.</li>
+              <li>Use custom document name templates.</li>
+              <li>
+                Choose to edit a separate copy of published documents so your changes do not go live until they
+                are ready.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Added the <i>Files</i> system collection. Every uploaded file recieves a link to view/download the
             file.
           </li>
           <li>
-            Stage field configuration in the schema editor in easier to configure. Redundant options are now
-            consolidated.
+            Added the <i>Photos</i> system collection. Every uploaded photo can be viewed from anywhere using
+            its link.
           </li>
-          <li>View previous versions of documents. All saved editions are in the document sidebar.</li>
-        </ol>
+        </ul>
       </div>
       <div
         css={css`
