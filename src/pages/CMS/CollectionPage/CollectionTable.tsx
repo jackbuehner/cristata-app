@@ -453,7 +453,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                   }
                   return accessor(data, 'timestamps.published_at', { type: 'Date' });
                 },
-                width: 150,
+                width: 190,
                 isSortable: true,
               };
             }
@@ -479,7 +479,8 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
             }
             return null;
           })
-          .filter((x): x is CustomColumn => !!x),
+          .filter((x): x is CustomColumn => !!x)
+          .sort((a, b) => (a.id === 'timestamps.published_at' ? 1 : 0)),
         {
           Header: props.collection === 'File' ? 'Uploaded by' : 'Created by',
           id: 'people.created_by',

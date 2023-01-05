@@ -94,6 +94,10 @@ function docDefsToQueryObjectCols(
   const isSubDocArray = def.type === 'DocArray';
   const isObjectType = isTypeTuple(def.type);
 
+  if (key === 'timestamps.published_at') {
+    return deepen({ 'timestamps.published_at': true });
+  }
+
   if (isObjectType && def.column?.hidden !== true) {
     // if there is a reference definition, use the fields in the def
     if (def.field?.reference) {
