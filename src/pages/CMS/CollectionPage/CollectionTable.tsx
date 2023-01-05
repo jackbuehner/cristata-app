@@ -344,8 +344,10 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
 
       if (typeof fieldData === 'string') {
         if (def.type === 'Date') {
+          if (fieldData === '0001-01-01T01:00:00.000+00:00' || fieldData === '0001-01-01T01:00:00.000Z')
+            // this is the default date
+            return <span></span>;
           const date = formatISODate(fieldData, false, true, true);
-          if (fieldData === '0001-01-01T01:00:00.000+00:00') return <span></span>; // this is the default date
           return <span style={{ fontSize: 14 }}>{date}</span>;
         }
 
