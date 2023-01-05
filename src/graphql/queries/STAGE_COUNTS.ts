@@ -4,11 +4,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 const STAGE_COUNTS = gql(
   jsonToGraphQLQuery({
     query: {
-      articleStageCounts: {
-        _id: true,
-        count: true,
-      },
-      satireStageCounts: {
+      workflow: {
         _id: true,
         count: true,
       },
@@ -18,11 +14,7 @@ const STAGE_COUNTS = gql(
 
 type STAGE_COUNTS__TYPE =
   | {
-      articleStageCounts: {
-        _id: number;
-        count: number;
-      }[];
-      satireStageCounts: {
+      workflow: {
         _id: number;
         count: number;
       }[];

@@ -94,12 +94,10 @@ function HomePage() {
         <HomeSectionHeading icon={<Pulse24Regular />}>Recent activty</HomeSectionHeading>
         <RecentActivity />
       </div>
-      {tenant === 'paladin-news' ? (
-        <div style={{ gridArea: 'workflow' }}>
-          <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
-          <Workflow />
-        </div>
-      ) : null}
+      <div style={{ gridArea: 'workflow' }}>
+        <HomeSectionHeading icon={<DataUsage24Regular />}>Workflow</HomeSectionHeading>
+        <Workflow />
+      </div>
       <CollectionRows firstRowIndex={4} />
     </Grid>
   );
@@ -118,7 +116,7 @@ const Grid = styled.div<{ tenant: string | null | undefined }>`
   grid-template-areas:
     'apps apps'
     'announcement announcement'
-    ${({ tenant }) => (tenant === 'paladin-news' ? "'activity workflow'" : "'activity activity'")}
+    'activity workflow'
     'row-4 row-4'
     'row-5 row-5'
     'row-6 row-6';
