@@ -9,12 +9,15 @@ import { setDefaultQueryOption, setCustomQueries } from '../../../../redux/slice
 import pluralize from 'pluralize';
 import { uncapitalize } from '../../../../utils/uncapitalize';
 import { colorType } from '../../../../utils/theme/theme';
+import { useTheme } from '@emotion/react';
 
 function QueriesTab() {
   const state = useAppSelector(({ collectionConfig }) => collectionConfig);
   const dispatch = useAppDispatch();
+  const theme = useTheme();
 
   const name = state.collection?.name;
+  const independentPublishedDocCopy = state.collection?.options?.independentPublishedDocCopy || false;
   const customQueries = state.collection?.customQueries;
   const disableFindOneQuery = state.collection?.options?.disableFindOneQuery;
   const disableFindManyQuery = state.collection?.options?.disableFindManyQuery;
@@ -76,6 +79,26 @@ function QueriesTab() {
           }
         />
       </Card>
+      {independentPublishedDocCopy ? (
+        <Card
+          style={{
+            boxShadow: `${Color(theme.color.danger[theme.mode === 'light' ? 900 : 300])
+              .alpha(0.2)
+              .string()} 0px 0px 0px 1px inset`,
+            backgroundColor: Color(theme.color.danger[theme.mode === 'light' ? 900 : 300])
+              .alpha(0.08)
+              .string(),
+          }}
+        >
+          ⚠️ WARNING
+          <br />
+          <div style={{ fontSize: 14, marginTop: 6 }}>
+            Public copies of documents in this collection are served from the <code>__publishedDoc</code> object
+            inside the document. Be sure to use these values instead of the values in the root of the document
+            when providing data via custom public queries.
+          </div>
+        </Card>
+      ) : null}
       <Card>
         <CardLabel>Custom queries</CardLabel>
         {customQueries?.map((cq, index, arr) => {
@@ -271,6 +294,7 @@ const Card = styled.div<{ color?: colorType }>`
       ? Color(theme.color.neutral.dark[100]).lighten(0.2).string()
       : Color('#ffffff').darken(0.03).string()};
   border-radius: ${({ theme }) => theme.radius};
+  font-family: ${({ theme }) => theme.font.detail};
 `;
 
 const CardLabel = styled.div`
