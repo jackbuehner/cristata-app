@@ -9,6 +9,7 @@ interface CollaborativeSelectOneProps
   options: Values<string>;
   noDrag?: boolean;
   number?: 'integer' | 'decimal';
+  showCurrentSelectionInOptions?: boolean;
 }
 
 function CollaborativeSelectOne(props: CollaborativeSelectOneProps) {
@@ -26,6 +27,7 @@ function CollaborativeSelectOne(props: CollaborativeSelectOneProps) {
         onChange={(values) => {
           props.onChange?.(values[0]);
         }}
+        showCurrentSelectionInOptions={props.showCurrentSelectionInOptions}
       />
     </div>
   );

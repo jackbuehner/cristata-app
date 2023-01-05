@@ -213,6 +213,7 @@ function Sidebar(props: SidebarProps) {
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={props.loading || props.disabled || props.stage.current === 5.2}
               isEmbedded
+              showCurrentSelectionInOptions
             />
           )}
         </>
