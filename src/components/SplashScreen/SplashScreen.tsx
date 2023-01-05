@@ -54,7 +54,7 @@ function SplashScreen(props: ISplashScreen) {
   useEffect(() => {
     if (props.bypassAuthLogic) return;
     if (props.loading) return;
-    if (props.error && (props.error.message.includes('401') || props.error.message.includes('403'))) {
+    if (props.error && (props.error?.message?.includes('401') || props.error?.message?.includes('403'))) {
       (async () => {
         // clear cached data
         await persistor.purge(); // clear persisted redux store
