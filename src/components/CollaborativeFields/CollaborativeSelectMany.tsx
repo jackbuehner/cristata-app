@@ -46,7 +46,13 @@ function CollaborativeSelectMany(props: CollaborativeSelectManyProps) {
     const textFieldSharedType = y.ydoc?.getXmlFragment('__comboboxEntry.' + props.y.field);
     if (textValue !== '' && yarray && textFieldSharedType) {
       y.ydoc?.transact(() => {
-        yarray.push([{ value: textValue, label: textValue }]);
+        if (textValue.includes(';')) {
+          yarray.push(textValue.split(';').map((value) => ({ value, label: value })));
+        } else if (textValue.includes(',')) {
+          yarray.push(textValue.split(',').map((value) => ({ value, label: value })));
+        } else {
+          yarray.push([{ value: textValue, label: textValue }]);
+        }
         textFieldSharedType.delete(0, textFieldSharedType.toDOM().textContent?.length);
       });
       setTextValue('');

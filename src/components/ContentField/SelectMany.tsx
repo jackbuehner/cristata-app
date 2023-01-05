@@ -64,7 +64,19 @@ function SelectMany({ onChange, ...props }: SelectManyProps) {
   const [textValue, setTextValue] = useState<string>('');
   const addTextValueToInternalState = () => {
     if (textValue !== '') {
-      setInternalState([...(internalState as StringValue[]), { value: textValue, label: textValue }]);
+      if (textValue.includes(';')) {
+        setInternalState([
+          ...(internalState as StringValue[]),
+          ...textValue.split(';').map((value) => ({ value, label: value })),
+        ]);
+      } else if (textValue.includes(',')) {
+        setInternalState([
+          ...(internalState as StringValue[]),
+          ...textValue.split(',').map((value) => ({ value, label: value })),
+        ]);
+      } else {
+        setInternalState([...(internalState as StringValue[]), { value: textValue, label: textValue }]);
+      }
       setTextValue('');
     }
   };
