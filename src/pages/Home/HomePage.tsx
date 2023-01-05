@@ -45,6 +45,7 @@ function HomePage() {
           What's new to Cristata (January 2023)
         </HomeSectionHeading>
         <ul style={{ paddingInlineStart: 14, lineHeight: 1.5 }}>
+          <li>Added the workflow page for easy access to all in-progress documents across all collections.</li>
           <li>Added the ability to switch between accounts in different tenants in the profile menu.</li>
           <li>Enabled a dark scrollbar in dark mode.</li>
           <li>Add toast notifications when there is a Cristata app update.</li>

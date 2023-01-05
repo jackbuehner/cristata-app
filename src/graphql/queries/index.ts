@@ -57,3 +57,5 @@ export { USER_EXISTS } from './USER_EXISTS';
 export type { USER_EXISTS__TYPE } from './USER_EXISTS';
 export { USER_METHODS } from './USER_METHODS';
 export type { USER_METHODS__TYPE } from './USER_METHODS';
+export { WORKFLOW } from './WORKFLOW';
+export type { WORKFLOW__TYPE } from './WORKFLOW';

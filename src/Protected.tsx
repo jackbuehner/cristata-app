@@ -29,6 +29,7 @@ import { themeType } from './utils/theme/theme';
 /* prettier-ignore */ const ConfigurationNavigation = loadable(() => import(/* webpackChunkName: "ConfigurationNavigation" */'./pages/configuration'), { resolveComponent: (c) => c.ConfigurationNavigation });
 /* prettier-ignore */ const TokenSecretsPage = loadable(() => import(/* webpackChunkName: "TokenSecretsPage" */'./pages/configuration'), { resolveComponent: (c) => c.TokenSecretsPage });
 /* prettier-ignore */ const FathomEmbed = loadable(() => import(/* webpackChunkName: "FathomEmbed" */'./pages/embeds'), { resolveComponent: (c) => c.FathomEmbed });
+/* prettier-ignore */ const WorkflowPage = loadable(() => import(/* webpackChunkName: "CollectionItemPage" */'./pages/CMS/WorkflowPage'), { resolveComponent: (c) => c.WorkflowPage });
 /* prettier-ignore */ const CollectionItemPage = loadable(() => import(/* webpackChunkName: "CollectionItemPage" */'./pages/CMS/CollectionItemPage'), { resolveComponent: (c) => c.CollectionItemPage });
 /* prettier-ignore */ const CollectionPage = loadable(() => import(/* webpackChunkName: "CollectionPage" */'./pages/CMS/CollectionPage'), { resolveComponent: (c) => c.CollectionPage });
 /* prettier-ignore */ const PhotoLibraryPage = loadable(() => import(/* webpackChunkName: "PhotoLibraryPage" */'./pages/CMS/PhotoLibraryPage'), { resolveComponent: (c) => c.PhotoLibraryPage });
@@ -49,6 +50,7 @@ CollectionSchemaPageOld.preload();
 ConfigurationNavigation.preload();
 TokenSecretsPage.preload();
 FathomEmbed.preload();
+WorkflowPage.preload();
 CollectionItemPage.preload();
 CollectionPage.preload();
 PhotoLibraryPage.preload();
@@ -107,6 +109,7 @@ function Protected(props: ProtectedProps) {
           <Content theme={theme}>
             <Routes>
               <Route path={`/cms`}>
+                <Route path={`workflow`} element={<WorkflowPage />} />
                 <Route path={`collection/:collection`}>
                   <Route index element={<CollectionPage />} />
                   <Route path={`:item_id`} element={<CollectionItemPage />} />

@@ -30,6 +30,7 @@ function useCollectionSchemaConfig(name: string): [
       independentPublishedDocCopy?: boolean;
     };
     by: { one: string; many: string } | null;
+    pluralName: string | null;
   },
   ApolloError | undefined,
   () => Promise<ApolloQueryResult<QueryType>>
@@ -45,6 +46,7 @@ function useCollectionSchemaConfig(name: string): [
       withPermissions,
       generationOptions,
       by,
+      pluralName,
     } = res.data.configuration.collection;
 
     const schemaDef: SchemaDefType = JSON.parse(schemaDefJson);
@@ -80,19 +82,25 @@ function useCollectionSchemaConfig(name: string): [
         withPermissions: withPermissions || false,
         options: generationOptions,
         by,
+        pluralName,
       },
       res.error,
       res.refetch,
     ];
   }
 
-  return [{ schemaDef: [], canPublish: false, withPermissions: false, by: null }, res.error, res.refetch];
+  return [
+    { schemaDef: [], canPublish: false, withPermissions: false, by: null, pluralName: null },
+    res.error,
+    res.refetch,
+  ];
 }
 
 interface QueryType {
   configuration: {
     collection?: {
       name: string;
+      pluralName: string;
       canPublish?: boolean;
       withPermissions?: boolean;
       schemaDef: string; // JSON
@@ -118,6 +126,7 @@ function queryString(name: string): DocumentNode {
       configuration {
         collection(name: "${name}") {
           name
+          pluralName
           canPublish
           withPermissions
           schemaDef

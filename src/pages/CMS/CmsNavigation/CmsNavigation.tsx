@@ -18,6 +18,14 @@ function CmsNavigation(props: CmsNavigationProps) {
 
   return (
     <>
+      <SideNavHeading className={'not-header'}>Content Management System</SideNavHeading>
+      <SideNavSubButton
+        Icon={<FluentIcon name={'DataUsage24Regular'} />}
+        to={'/cms/workflow'}
+        setIsNavVisibleM={props.setIsNavVisibleM}
+      >
+        Workflow
+      </SideNavSubButton>
       {cmsNav?.map((group, index) => {
         return (
           <Fragment key={index}>
