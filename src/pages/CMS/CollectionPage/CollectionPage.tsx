@@ -130,8 +130,6 @@ function CollectionPage() {
         : { $regex: value, $options: 'i' };
   });
 
-  console.log(defaultFilter);
-
   // set the collection name
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
   // set the page title
