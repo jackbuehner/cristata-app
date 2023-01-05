@@ -190,6 +190,7 @@ function Sidebar(props: SidebarProps) {
                 return {
                   ...opt,
                   disabled: opt.value === '5.2' ? true : opt.disabled,
+                  code: opt.value,
                 };
               })}
               color={props.isEmbedded ? 'blue' : 'primary'}
@@ -205,6 +206,7 @@ function Sidebar(props: SidebarProps) {
                   value: opt.value.toString(),
                   label: opt.label.toString(),
                   disabled: opt.value === 5.2 ? true : opt.disabled,
+                  code: opt.value.toString(),
                 };
               })}
               number={'decimal'}

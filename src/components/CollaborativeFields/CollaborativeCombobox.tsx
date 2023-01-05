@@ -53,6 +53,7 @@ interface BaseValue {
   disabled?: boolean;
   reason?: string;
   children?: React.ReactChildren;
+  code?: string;
   [key: string]: unknown;
 }
 
@@ -211,12 +212,13 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
           props.onSearchChange?.(value);
         }}
       >
-        {options.map(({ label, value, disabled, reason, ...rest }) => {
+        {options.map(({ label, value, disabled, reason, code, ...rest }) => {
           const optionProps = {
             value,
             label,
             disabled,
             'data-tip': disabled && reason ? reason : label,
+            code,
             ...rest,
           };
           const labelStyle: CSS = { overflow: 'hidden', textOverflow: 'ellipsis' };
@@ -227,7 +229,9 @@ function CollaborativeCombobox(props: CollaborativeComboboxProps) {
             <Option {...optionProps} key={value}>
               <div style={labelStyle}>{label}</div>
               <div style={metaStyle}>
-                {isValidObjectId(value) ? <code style={idStyle}>{value.toString().slice(-6)}</code> : null}
+                {code || isValidObjectId(value) ? (
+                  <code style={idStyle}>{(code || value).toString().slice(-6)}</code>
+                ) : null}
                 {disabled && reason ? <ErrorCircle20Regular style={errorIconStyle} /> : null}
               </div>
             </Option>
