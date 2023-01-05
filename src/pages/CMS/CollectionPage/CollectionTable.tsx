@@ -465,7 +465,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                   Header: def.column.label || key,
                   id: key,
                   accessor: (data) => accessor(data, key, def),
-                  width: def.column.width || 150,
+                  width: parseInt(`${def.column.width}`) || 150,
                   isSortable: def.column.sortable || false,
                 };
               }
