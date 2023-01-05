@@ -49,6 +49,8 @@ function usePublishModal(params: UsePublishModal): [React.ReactNode, () => void,
       [timestamp, y.data]
     );
 
+    const [timestampU, setTimestampU] = useState<string | undefined>();
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const PUBLISH_ITEM = gql`mutation {
@@ -66,7 +68,7 @@ function usePublishModal(params: UsePublishModal): [React.ReactNode, () => void,
     const shortId = itemId.slice(-6);
 
     return {
-      title: `Publish article`,
+      title: `Publish document`,
       isLoading: isLoading,
       continueButton: {
         text: 'Publish',
@@ -112,10 +114,22 @@ function usePublishModal(params: UsePublishModal): [React.ReactNode, () => void,
             placeholder={'Pick a time'}
             isEmbedded
           />
+          {!!getProperty(y.data, 'timestamps.published_at') ? (
+            <DateTime
+              label={'Choose update date and time'}
+              description={'Indicate that this document has been updated since its publish date.'}
+              value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestampU || null}
+              onChange={(date) => {
+                if (date) setTimestamp(date.toUTC().toISO());
+              }}
+              placeholder={'Pick a time'}
+              isEmbedded
+            />
+          ) : null}
           <Text
             label={'Confirm publish'}
-            description={`Publish article <code>${shortId}</code>`}
-            placeholder={`Type "${shortId}" to publish the article`}
+            description={`Publish document <code>${shortId}</code>`}
+            placeholder={`Type "${shortId}" to publish the document`}
             value={confirm}
             onChange={(e) => setConfirm(e.currentTarget.value)}
             isEmbedded

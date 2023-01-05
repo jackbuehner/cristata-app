@@ -71,7 +71,9 @@ function useNewItemModal(
         );
     }, [requiredFields, state]);
 
-    const allValuesAreSet = Object.entries(state).every(([, value]) => value !== undefined);
+    const allValuesAreSet = Object.entries(state).every(
+      ([, value]) => value !== undefined && (Array.isArray(value) ? value.length > 0 : true)
+    );
 
     const create = () => {
       // show the loading indicator
