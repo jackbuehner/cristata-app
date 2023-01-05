@@ -186,7 +186,12 @@ function Sidebar(props: SidebarProps) {
           {typeof props.stage.current === 'string' && typeof props.stage.options[0].value === 'string' ? (
             <CollaborativeSelectOne
               y={{ ...props.y, field: props.stage.key, user: props.user }}
-              options={props.stage.options as StringOption[]}
+              options={(props.stage.options as StringOption[]).map((opt) => {
+                return {
+                  ...opt,
+                  disabled: opt.value === '5.2' ? true : opt.disabled,
+                };
+              })}
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={props.loading || props.disabled || props.stage.current === '5.2'}
               isEmbedded
@@ -194,11 +199,14 @@ function Sidebar(props: SidebarProps) {
           ) : (
             <CollaborativeSelectOne
               y={{ ...props.y, field: props.stage.key, user: props.user }}
-              options={(props.stage.options as NumberOption[]).map((opt) => ({
-                ...opt,
-                value: opt.value.toString(),
-                label: opt.label.toString(),
-              }))}
+              options={(props.stage.options as NumberOption[]).map((opt) => {
+                return {
+                  ...opt,
+                  value: opt.value.toString(),
+                  label: opt.label.toString(),
+                  disabled: opt.value === 5.2 ? true : opt.disabled,
+                };
+              })}
               number={'decimal'}
               color={props.isEmbedded ? 'blue' : 'primary'}
               disabled={props.loading || props.disabled || props.stage.current === 5.2}
