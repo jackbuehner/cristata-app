@@ -600,7 +600,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                   <>
                     <Checkbox
                       isEmbedded
-                      label={'Hide from document editor'}
+                      label={'Hide from the document editor'}
                       checked={def?.field?.hidden === true || def?.field?.hidden === 'publish-only'}
                       onChange={(e) =>
                         dispatch(setRootSchemaProperty(props.id, `field.hidden`, e.currentTarget.checked))
@@ -610,7 +610,7 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                       <IndentField color={'primary'}>
                         <Checkbox
                           isEmbedded
-                          label={'Show in publish prompt'}
+                          label={'Show in the publish prompt'}
                           checked={def?.field?.hidden === 'publish-only'}
                           onChange={(e) => {
                             if (e.currentTarget.checked) {
@@ -622,6 +622,14 @@ function EditSchemaDef(props: EditSchemaDefProps) {
                         />
                       </IndentField>
                     ) : null}
+                    <Checkbox
+                      isEmbedded
+                      label={'Hide from the document editor until "Show more fields" is clicked'}
+                      checked={def?.field?.collapsed === true}
+                      onChange={(e) =>
+                        dispatch(setRootSchemaProperty(props.id, `field.collapsed`, e.currentTarget.checked))
+                      }
+                    />
                   </>
                 ) : null}
                 {!isInBranch && !isDocArray && !isInDocArray ? (

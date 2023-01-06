@@ -238,10 +238,15 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   const processSchemaDef = (
     schemaDef: DeconstructedSchemaDefType,
-    isPublishModal?: boolean
+    isPublishModal?: boolean,
+    opts?: { collapsed?: boolean }
   ): DeconstructedSchemaDefType => {
     return (
       schemaDef
+        .map(([key, def]) => {
+          const labelDef = def.docs?.find(([ckey]) => ckey.replace(key + '.', '') === '#label')?.[1];
+          return [key, def, labelDef] as [string, typeof def, typeof labelDef];
+        })
         // sort fields to match their order
         .sort((a, b) => {
           const orderA = parseInt(`${a[1].field?.order || 1000}`);
@@ -265,12 +270,24 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         .filter(([key]) => {
           return key !== 'timestamps.published_at' && key !== 'timestamps.updated_at';
         })
+        .filter(([key, def, labelDef]) => {
+          if (opts?.collapsed === true)
+            return def.field?.collapsed === true || labelDef?.field?.collapsed === true;
+          if (opts?.collapsed === false)
+            return def.field?.collapsed !== true && labelDef?.field?.collapsed !== true;
+          return true;
+        })
+        .map(([key, def]) => {
+          return [key, def] as [string, typeof def];
+        })
     );
   };
 
   let actions: Action[] = [];
 
   const previewUrl = options?.dynamicPreviewHref;
+
+  const [isShowingCollapsed, setIsShowingCollapsed] = useState(false);
 
   const renderFields: RenderFields = (
     input,
@@ -875,6 +892,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       return <Offline variant={'centered'} />;
     }
 
+    const collaspedFields = processSchemaDef(schemaDef, false, { collapsed: true }).map(renderFields);
+
     return (
       <>
         {Windows}
@@ -1067,7 +1086,13 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
                   <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
                     {contentWidth <= 700 ? <Sidebar {...sidebarProps} compact={true} /> : null}
-                    {processSchemaDef(schemaDef).map(renderFields)}
+                    {processSchemaDef(schemaDef, false, { collapsed: false }).map(renderFields)}
+
+                    {isShowingCollapsed ? (
+                      collaspedFields
+                    ) : collaspedFields.length > 0 ? (
+                      <Button onClick={() => setIsShowingCollapsed(true)}>Show all fields</Button>
+                    ) : null}
                   </div>
                 </div>
                 {previewUrl && !props.isEmbedded && fs !== '1' ? (

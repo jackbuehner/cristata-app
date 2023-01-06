@@ -33,6 +33,9 @@ function SchemaTab(props: SchemaTabProps) {
         const isReference = def.field?.reference?.collection || isTypeTuple(def.type);
         const isBranching = type === 'JSON' && def.field?.custom;
         const isMarkdown = type === 'String' && def.field?.markdown;
+        const isHidden = def.field?.hidden === true;
+        const isPublishOnly = def.field?.hidden === 'publish-only';
+        const isCollasped = def.field?.collapsed;
 
         if (key === 'body' && def.field?.tiptap) tags.push('Rich text');
         if (isReference) tags.push('Reference');
@@ -44,6 +47,9 @@ function SchemaTab(props: SchemaTabProps) {
         if (!def.modifiable) tags.push('Read only');
         if (def.textSearch) tags.push('Searchable');
         if (def.setter) tags.push('Modified on condition');
+        if (isHidden) tags.push('Hidden');
+        if (isPublishOnly) tags.push('On publish only');
+        if (isCollasped) tags.push('Collapsed');
 
         const id = prefix ? `${prefix.id}.${key}` : key;
 
@@ -89,7 +95,11 @@ function SchemaTab(props: SchemaTabProps) {
             </Fragment>
           ),
           id,
-          order: def.field?.order || 999,
+          order: (() => {
+            let order = def.field?.order || 999;
+            if (isCollasped) order += 1000;
+            return order;
+          })(),
         });
       });
 
@@ -122,7 +132,16 @@ function SchemaTab(props: SchemaTabProps) {
       const id = prefix ? `${prefix.id}.${key}.0` : `${key}.0`;
 
       const labelDef = isSchemaDef(arr[0]['#label']) ? arr[0]['#label'] : undefined;
-      const order = labelDef?.field?.order || 999;
+
+      const tags = ['Document Array'];
+
+      const isHidden = labelDef?.field?.hidden === true;
+      const isPublishOnly = labelDef?.field?.hidden === 'publish-only';
+      const isCollasped = labelDef?.field?.collapsed;
+
+      if (isHidden) tags.push('Hidden');
+      if (isPublishOnly) tags.push('On publish only');
+      if (isCollasped) tags.push('Collapsed');
 
       const generated = generateItems(arr[0], { label: key, id })
         .filter(({ id: thisID }) => thisID !== `${id}.#label`) // do not show label schema
@@ -141,7 +160,7 @@ function SchemaTab(props: SchemaTabProps) {
               icon={'docarray'}
               label={labelDef?.field?.label || key}
               id={id.replace('.0', '.0.#label')}
-              tags={['Document Array']}
+              tags={tags}
             />
             <DocArrayCard id={id}>
               <>{generated}</>
@@ -149,7 +168,11 @@ function SchemaTab(props: SchemaTabProps) {
           </Fragment>
         ),
         id,
-        order: order,
+        order: (() => {
+          let order = labelDef?.field?.order || 999;
+          if (isCollasped) order += 1000;
+          return order;
+        })(),
       });
     });
 
