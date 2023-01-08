@@ -20,16 +20,21 @@ function WorkflowPage(props: WorkflowPageProps) {
 
   const { data: collections } = useQuery<{
     configuration?: { collections?: { name: string; pluralName: string }[] };
-  }>(gql`
-    query {
-      configuration {
-        collections {
-          name
-          pluralName
+  }>(
+    gql`
+      query {
+        configuration {
+          collections {
+            name
+            pluralName
+          }
         }
       }
+    `,
+    {
+      fetchPolicy: 'cache-and-network',
     }
-  `);
+  );
 
   const [excluded, setExcluded] = useState<string[]>([]);
 
