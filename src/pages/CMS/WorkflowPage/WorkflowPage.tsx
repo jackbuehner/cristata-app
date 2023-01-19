@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Add12Regular, Dismiss12Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { IconButton } from '../../../components/Button';
 import type { WORKFLOW__TYPE } from '../../../graphql/queries';
 import { WORKFLOW } from '../../../graphql/queries';

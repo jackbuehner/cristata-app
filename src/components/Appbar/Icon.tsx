@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppIcon } from '../../redux/slices/appbarSlice';

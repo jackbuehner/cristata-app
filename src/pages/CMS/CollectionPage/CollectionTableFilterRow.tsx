@@ -1,7 +1,7 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import { Button, IconButton } from '../../../components/Button';
 import FluentIcon from '../../../components/FluentIcon';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';

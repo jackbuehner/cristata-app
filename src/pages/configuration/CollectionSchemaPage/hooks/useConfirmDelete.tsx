@@ -1,7 +1,7 @@
 import { DocumentNode } from 'graphql';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 
 /* eslint-disable react-hooks/rules-of-hooks */
 import { gql, useApolloClient } from '@apollo/client';

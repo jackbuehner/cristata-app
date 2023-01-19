@@ -2,8 +2,8 @@
 import type { DocumentNode } from '@apollo/client';
 import { gql, useApolloClient } from '@apollo/client';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { Text } from '../../../../../components/ContentField';
 import { useWindowModal } from '../../../../../hooks/useWindowModal';
 import { capitalize } from '../../../../../utils/capitalize';

@@ -3,7 +3,7 @@ import { get as getProperty } from 'object-path';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 import './office-icon/colors1.css';
 
 /** @jsxImportSource @emotion/react */

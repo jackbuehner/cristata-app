@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import type { NavigateOptions, To } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import type { NavigateOptions, To } from 'svelte-preprocess-react/react-router';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { DropdownContext } from './_DropdownContext';
 
 /**

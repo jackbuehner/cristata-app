@@ -11,8 +11,8 @@ import {
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { SectionHeading } from '../../../components/Heading';

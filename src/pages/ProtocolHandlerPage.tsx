@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 
 function ProtocolHandlerPage() {
   const location = useLocation();

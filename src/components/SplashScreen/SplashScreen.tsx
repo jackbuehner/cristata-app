@@ -2,7 +2,7 @@ import { useApolloClient } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import now from '~build/time';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../redux/slices/authUserSlice';

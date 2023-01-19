@@ -2,8 +2,8 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { NavigateFunction } from 'svelte-preprocess-react/react-router';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 
 /* eslint-disable react-hooks/rules-of-hooks */

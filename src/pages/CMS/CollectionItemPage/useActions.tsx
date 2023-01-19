@@ -3,8 +3,8 @@ import type { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useCallback } from 'react';
-import { NavigateFunction, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { NavigateFunction, useNavigate, useSearchParams } from 'svelte-preprocess-react/react-router';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
 import { EntryY } from '../../../components/Tiptap/hooks/useY';

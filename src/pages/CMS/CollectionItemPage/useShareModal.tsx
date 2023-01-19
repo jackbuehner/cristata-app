@@ -1,7 +1,7 @@
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import { useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useTheme } from '@emotion/react';

@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import Color from 'color';
 import { DateTime } from 'luxon';
 import { get as getProperty } from 'object-path';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import type { Home } from '../../hooks/useDashboardConfig/useDashboardConfig';
 import { genAvatar } from '../../utils/genAvatar';
 import type { themeType } from '../../utils/theme/theme';

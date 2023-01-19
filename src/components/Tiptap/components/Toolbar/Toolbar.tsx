@@ -1,8 +1,8 @@
 import Color from 'color';
 import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation, useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import '../../office-icon/colors1.css';
 
 /** @jsxImportSource @emotion/react */

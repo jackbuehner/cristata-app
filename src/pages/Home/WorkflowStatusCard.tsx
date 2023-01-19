@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import type { colorType, themeType } from '../../utils/theme/theme';
 
 interface IWorkflowStatusCard {

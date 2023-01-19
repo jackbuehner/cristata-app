@@ -2,7 +2,7 @@ import { NetworkStatus, useQuery } from '@apollo/client';
 import { PeopleTeam20Regular } from '@fluentui/react-icons';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 import { Button, SideNavSubButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
 import { Spinner } from '../../../components/Loading';

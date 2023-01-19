@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import type { MouseEventHandler } from 'react';
 import { Fragment } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import type { HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
 import { HISTORY } from '../../graphql/queries';
 import { camelToDashCase } from '../../utils/camelToDashCase';

@@ -20,9 +20,9 @@ import {
   useState,
 } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation } from 'react-router-dom';
 import { Column } from 'react-table';
 import { toast } from 'react-toastify';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';

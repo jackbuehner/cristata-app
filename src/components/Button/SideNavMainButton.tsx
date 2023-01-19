@@ -1,7 +1,7 @@
 import Color from 'color';
 import type { ReactText } from 'react';
 import { useNavigate } from 'react-router';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 /** @jsxImportSource @emotion/react */
 import { css, useTheme, type SerializedStyles } from '@emotion/react';
 import type { themeType } from '../../utils/theme/theme';

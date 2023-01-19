@@ -1,0 +1,37 @@
+diff --git a/node_modules/svelte-preprocess-react/react-router/index.d.ts b/node_modules/svelte-preprocess-react/react-router/index.d.ts
+index b8b51d9..a1c287f 100644
+--- a/node_modules/svelte-preprocess-react/react-router/index.d.ts
++++ b/node_modules/svelte-preprocess-react/react-router/index.d.ts
+@@ -6,3 +6,6 @@ export { default as NavLink } from "./NavLink.js";
+ export { default as useLocation } from "./useLocation.js";
+ export { default as useParams } from "./useParams.js";
+ export { default as useHistory } from "./useHistory.js";
++
++export function useNavigate(): (url: string) => void;
++
+diff --git a/node_modules/svelte-preprocess-react/react-router/index.js b/node_modules/svelte-preprocess-react/react-router/index.js
+index 91c859f..95d30ff 100644
+--- a/node_modules/svelte-preprocess-react/react-router/index.js
++++ b/node_modules/svelte-preprocess-react/react-router/index.js
+@@ -1,8 +1,18 @@
+ import RouterContext from "./internal/RouterContext.js";
+-export * from "./types.js";
+-export const RouterProvider = RouterContext.Provider;
+ export { default as Link } from "./Link.js";
+ export { default as NavLink } from "./NavLink.js";
++export * from "./types.js";
++export { default as useHistory } from "./useHistory.js";
+ export { default as useLocation } from "./useLocation.js";
+ export { default as useParams } from "./useParams.js";
+-export { default as useHistory } from "./useHistory.js";
++export const RouterProvider = RouterContext.Provider;
++
++import * as React from "react";
++import useRouterContext from "./internal/useRouterContext.js";
++export function useNavigate() {
++    const { goto } = useRouterContext();
++    return React.useCallback((url) => {
++      goto(url)
++    }, [goto])
++}
++

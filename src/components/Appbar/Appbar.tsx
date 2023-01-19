@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import { ArrowLeft24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useState, type CSSProperties } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import { useAppSelector } from '../../redux/hooks';
 import type { themeType } from '../../utils/theme/theme';
 import { Button } from '../Button';

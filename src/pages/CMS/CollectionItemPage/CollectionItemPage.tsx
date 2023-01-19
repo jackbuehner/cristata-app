@@ -11,9 +11,9 @@ import pluralize from 'pluralize';
 import type { SetStateAction } from 'react';
 import { Fragment, useEffect, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
+import { useLocation, useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
 import {
   CollaborativeCheckbox,
@@ -25,7 +25,7 @@ import {
   CollaborativeReferenceOne,
   CollaborativeSelectMany,
   CollaborativeSelectOne,
-  CollaborativeTextField
+  CollaborativeTextField,
 } from '../../../components/CollaborativeFields';
 import { Field } from '../../../components/ContentField/Field';
 import { Spinner } from '../../../components/Loading';
@@ -37,12 +37,8 @@ import type { useAwareness } from '../../../components/Tiptap/hooks';
 import { useY } from '../../../components/Tiptap/hooks';
 import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
-import type {
-  DeconstructedSchemaDefType
-} from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import {
-  parseSchemaDefType
-} from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import { parseSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { capitalize } from '../../../utils/capitalize';

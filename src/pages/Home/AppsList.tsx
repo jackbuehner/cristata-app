@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../components/Button';
 import FluentIcon from '../../components/FluentIcon';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';

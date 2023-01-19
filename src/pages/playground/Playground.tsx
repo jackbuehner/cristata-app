@@ -4,7 +4,7 @@ import 'graphiql/graphiql.css';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';

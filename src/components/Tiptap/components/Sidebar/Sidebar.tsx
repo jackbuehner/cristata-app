@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import type { Editor } from '@tiptap/react';
 import { Children, cloneElement } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import type { themeType } from '../../../../utils/theme/theme';
 import type { useAwareness } from '../../hooks';
 import type { EntryY } from '../../hooks/useY';
