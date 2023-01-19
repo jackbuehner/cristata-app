@@ -23,6 +23,7 @@ interface ITitlebar {
 function Titlebar(props: ITitlebar) {
   const navigate = useNavigate();
   const theme = useTheme() as themeType;
+  const tenant = location.pathname.split('/')[1];
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -96,7 +97,12 @@ function Titlebar(props: ITitlebar) {
                   </>
                 ) : null
               }
-              <TitlebarButton onClick={() => navigate('/')} data-tip={'Navigate home'} iconSize={16} width={33}>
+              <TitlebarButton
+                onClick={() => navigate(`/${tenant}/`)}
+                data-tip={'Navigate home'}
+                iconSize={16}
+                width={33}
+              >
                 <Home16Regular />
               </TitlebarButton>
               {props.actions?.map((action, index) => {

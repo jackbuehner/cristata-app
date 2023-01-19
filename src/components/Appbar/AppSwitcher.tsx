@@ -17,6 +17,7 @@ interface AppSwitcherProps {
 function AppSwitcher(props: AppSwitcherProps) {
   const theme = useTheme() as themeType;
   const [mainNav] = useNavigationConfig('main');
+  const tenant = location.pathname.split('/')[1];
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -45,7 +46,7 @@ function AppSwitcher(props: AppSwitcherProps) {
                 label: item.label,
                 icon: <FluentIcon name={item.icon} />,
                 color: props.color,
-                onClick: () => navigate(item.to),
+                onClick: () => navigate(`/${tenant}${item.to}`),
               };
             }) || []
           }

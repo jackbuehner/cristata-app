@@ -24,6 +24,7 @@ function ProfilePage() {
   const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
   const client = useApolloClient();
+  const tenant = location.pathname.split('/')[1];
 
   // get the url parameters from the route
   let { profile_id } = useParams<{
@@ -223,7 +224,7 @@ function ProfilePage() {
                     key={team._id}
                     label={team.slug}
                     color={`neutral`}
-                    onClick={() => navigate(`/teams/${team._id}`)}
+                    onClick={() => navigate(`/${tenant}/teams/${team._id}`)}
                   />
                 );
               })

@@ -37,7 +37,7 @@ function PhotoLibraryPage() {
   const searchParams = new URLSearchParams(location.search);
   const navigate = useNavigate();
   const client = useApolloClient();
-  const tenant = localStorage.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
   const [{ schemaDef }] = useCollectionSchemaConfig('Photo');
 
   // construct a filter
@@ -277,7 +277,7 @@ function PhotoLibraryPage() {
           refetch();
 
           // open the photo metadata
-          if (_id) navigate(`/cms/photos/library/${_id}`);
+          if (_id) navigate(`/${tenant}/cms/photos/library/${_id}`);
         })
         .catch((error) => {
           setIsLoading(false);
@@ -431,7 +431,7 @@ function PhotoLibraryPage() {
                       theme={theme}
                       isSelected={photo_id === photo._id}
                       onClick={() => {
-                        if (photo_id !== photo._id) navigate(`/cms/photos/library/${photo._id}`);
+                        if (photo_id !== photo._id) navigate(`/${tenant}/cms/photos/library/${photo._id}`);
                       }}
                     >
                       <ImageBG src={photo.photo_url} theme={theme} />

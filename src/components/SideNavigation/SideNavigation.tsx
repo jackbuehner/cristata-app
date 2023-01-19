@@ -15,9 +15,14 @@ function SideNavigation(props: SideNavigationProps) {
   const location = useLocation();
   const [mainNav] = useNavigationConfig('main');
   const width = 300;
+  const tenant = location.pathname.split('/')[1];
 
   const isCollapsedAtPath: boolean | undefined =
-    mainNav?.find((item) => item.to === location.pathname)?.subNav === 'forceCollapseForRoute';
+    mainNav?.find(
+      (item) =>
+        item.to === location.pathname.replace(`/${tenant}` || '', '') ||
+        item.to === location.pathname.replace(tenant || '', '')
+    )?.subNav === 'forceCollapseForRoute';
 
   // store whether the nav is shown
   const [isNavVisible, setIsNavVisible] = useState(false);

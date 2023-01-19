@@ -16,13 +16,14 @@ interface IWorkflowStatusCard {
 function WorkflowStatusCard(props: IWorkflowStatusCard) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   return (
     <WorkflowStatusCardContainer
       theme={theme}
       color={props.color}
       onClick={() => {
-        if (props.to) navigate(props.to);
+        if (props.to) navigate(`/${tenant}${props.to}`);
       }}
     >
       <IconWrapper>{props.icon}</IconWrapper>

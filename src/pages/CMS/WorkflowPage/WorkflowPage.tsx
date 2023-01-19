@@ -68,7 +68,7 @@ function WorkflowPage(props: WorkflowPageProps) {
 
   useEffect(() => {
     if (excluded.length > 0) navigate(`?exclude=[${excluded.join(',')}]`);
-    else navigate(``);
+    else navigate(``); // clear search string
   }, [excluded]);
 
   // set document title

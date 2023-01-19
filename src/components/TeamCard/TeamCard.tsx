@@ -17,6 +17,7 @@ interface ITeamCard {
 function TeamCard(props: ITeamCard) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   return (
     <Component
@@ -24,7 +25,7 @@ function TeamCard(props: ITeamCard) {
       href={props.href}
       onClick={(e) => {
         e.preventDefault();
-        navigate(props.href);
+        navigate(`/${tenant}${props.href}`);
       }}
     >
       <div>

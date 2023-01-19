@@ -51,6 +51,7 @@ function TeamPage() {
   const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
   const client = useApolloClient();
+  const tenant = location.pathname.split('/')[1];
 
   // get the url parameters from the route
   let { team_id } = useParams<{
@@ -303,7 +304,7 @@ function TeamPage() {
                   href={`/profile/${organizer._id}`}
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate(`/profile/${organizer._id}`);
+                    navigate(`/${tenant}/profile/${organizer._id}`);
                   }}
                 >
                   <ProfilePhoto src={organizer.photo || genAvatar(organizer._id)} />
@@ -331,7 +332,7 @@ function TeamPage() {
         .mutate<DELETE_TEAM__TYPE>({ mutation: DELETE_TEAM, variables: { _id: team?._id } })
         .then(() => {
           toast.success(`Successfully deleted team.`);
-          navigate(`/teams`);
+          navigate(`/${tenant}/teams`);
           return true;
         })
         .catch((error) => {
@@ -742,7 +743,10 @@ function TeamPage() {
                         </>
                       ) : null}
 
-                      <Button icon={<Person16Regular />} onClick={() => navigate(`/profile/${user._id}`)}>
+                      <Button
+                        icon={<Person16Regular />}
+                        onClick={() => navigate(`/${tenant}/profile/${user._id}`)}
+                      >
                         Profile
                       </Button>
                     </UserButtons>

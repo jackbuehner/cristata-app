@@ -22,6 +22,7 @@ function AccountMenu(props: AccountMenuProps) {
   const theme = useTheme() as themeType;
   const location = useLocation();
   const client = useApolloClient();
+  const tenant = location.pathname.split('/')[1];
 
   const profile = data?.me;
   const photo = profile ? profile.photo || genAvatar(profile._id) : '';
@@ -120,7 +121,7 @@ function AccountMenu(props: AccountMenuProps) {
                       background-color: transparent;
                     `}
                     onClick={() => {
-                      navigate(`/profile/${authUser._id}`);
+                      navigate(`/${tenant}/profile/${authUser._id}`);
                     }}
                   >
                     View profile
@@ -225,7 +226,7 @@ function AccountMenu(props: AccountMenuProps) {
                   background-color: transparent;
                 `}
                 color={'red'}
-                onClick={() => navigate(`/sign-out`)}
+                onClick={() => navigate(`/${tenant}/sign-out`)}
                 disabled={!navigator.onLine}
               >
                 Sign out of all accounts

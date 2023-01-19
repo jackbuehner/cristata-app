@@ -40,6 +40,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
     PROFILES_BASIC,
     { notifyOnNetworkStatusChange: true }
   );
+  const tenant = location.pathname.split('/')[1];
 
   // dropdown/three-dot menu
   const [dropdownProfile, setDropdownProfile] = useState<PROFILES_BASIC__DOC_TYPE>(); // the profile of the menu that triggered the dropdown
@@ -200,7 +201,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
   // navigate to the current user's profile if no other profile is selected
   useEffect(() => {
     if (location.pathname === ('/profile' || '/profile/')) {
-      navigate(`/profile/${authUserState._id}`);
+      navigate(`/${tenant}/profile/${authUserState._id}`);
     }
   }, [authUserState._id, location, navigate]);
 
@@ -261,7 +262,7 @@ function ProfileSideNavSub(props: IProfileSideNavSub) {
                   backgroundColor={{ base: 'white' }}
                   border={{ base: '1px solid transparent' }}
                   onClick={() => {
-                    navigate(`/profile/${profile._id}`);
+                    navigate(`/${tenant}/profile/${profile._id}`);
                     if (props.setIsNavVisibleM) props.setIsNavVisibleM(false);
                   }}
                   customIcon={

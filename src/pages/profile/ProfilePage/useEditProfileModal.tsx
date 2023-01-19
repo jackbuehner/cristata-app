@@ -32,6 +32,7 @@ function useEditProfileModal(data: ProfileData | undefined, canManage: boolean, 
   const theme = useTheme();
   const navigate = useNavigate();
   const client = useApolloClient();
+  const tenant = location.pathname.split('/')[1];
 
   const [fieldData, setFieldData] = useState({
     name: data?.name,
@@ -262,7 +263,7 @@ function useEditProfileModal(data: ProfileData | undefined, canManage: boolean, 
               }}
               onClick={(e) => {
                 e.preventDefault();
-                navigate(`/teams`);
+                navigate(`/${tenant}/teams`);
               }}
             >
               teams manager

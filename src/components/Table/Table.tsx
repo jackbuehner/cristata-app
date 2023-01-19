@@ -228,7 +228,7 @@ const Table = forwardRef(
                     if (props.row.windowName) {
                       window.open(`/${tenant}${href}`, props.row.windowName, 'location=no');
                     } else {
-                      navigate(href);
+                      navigate(`/${tenant}${href}`);
                     }
                   }
                 };

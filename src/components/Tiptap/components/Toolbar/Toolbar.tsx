@@ -747,7 +747,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                       props.setIsSidebarOpen(false);
                       props.setSidebarTitle('');
                       params.set('props', '0');
-                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                      navigate('/' + tenant + pathname + '?' + params.toString() + hash, { replace: true });
                     } else {
                       props.setIsSidebarOpen(true);
                       props.setSidebarTitle('Document properties');
@@ -756,7 +756,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                       );
                       params.set('props', '1');
                       params.set('comments', '0');
-                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                      navigate('/' + tenant + pathname + '?' + params.toString() + hash, { replace: true });
                     }
                   }}
                   isActive={props.isSidebarOpen && props.sidebarTitle === 'Document properties'}
@@ -776,14 +776,14 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                       props.setIsSidebarOpen(false);
                       props.setSidebarTitle('');
                       params.set('comments', '0');
-                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                      navigate('/' + tenant + pathname + '?' + params.toString() + hash, { replace: true });
                     } else {
                       props.setIsSidebarOpen(true);
                       props.setSidebarTitle('Comments');
                       props.setSidebarContent(<CommentPanel />);
                       params.set('props', '0');
                       params.set('comments', '1');
-                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                      navigate('/' + tenant + pathname + '?' + params.toString() + hash, { replace: true });
                     }
                   }}
                   isActive={props.isSidebarOpen && props.sidebarTitle === 'Comments'}
@@ -814,7 +814,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               <ToolbarMetaIconButton
                 onClick={() => {
                   params.set('fs', `${Number(!isMax)}`);
-                  navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                  navigate('/' + tenant + pathname + '?' + params.toString() + hash, { replace: true });
                 }}
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
                 color={'blue'}
@@ -1052,7 +1052,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     props.setSidebarContent(<CommentPanel />);
                     params.set('props', '0');
                     params.set('comments', '1');
-                    navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                    navigate('/' + tenant + pathname + '?' + params.toString() + hash, { replace: true });
                   }}
                   isActive={false}
                   icon={<CommentAdd20Regular />}
@@ -1179,7 +1179,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                       props.setSidebarContent(<CommentPanel />);
                       params.set('props', '0');
                       params.set('comments', '1');
-                      navigate(pathname + '?' + params.toString() + hash, { replace: true });
+                      navigate('/' + tenant + pathname + '?' + params.toString() + hash, { replace: true });
                     }}
                     isActive={false}
                     icon={<CommentAdd20Regular />}

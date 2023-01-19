@@ -83,7 +83,7 @@ function Card(props: CardType) {
           onClick={(e) => {
             if (to) {
               e.preventDefault();
-              navigate(to);
+              navigate(`/${tenant}${to}`);
             }
           }}
         >

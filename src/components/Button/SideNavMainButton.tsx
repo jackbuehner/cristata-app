@@ -17,6 +17,7 @@ function SideNavMainButton(props: {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const location = useLocation();
+  const tenant = location.pathname.split('/')[1];
 
   const isActive =
     (props.to && location.pathname.indexOf(props.to) !== -1 && props.to !== '/') ||
@@ -53,7 +54,7 @@ function SideNavMainButton(props: {
           props.onClick();
         }
         if (props.to) {
-          navigate(props.to);
+          navigate(`/${tenant}${props.to}`);
         }
       }}
       customIcon={

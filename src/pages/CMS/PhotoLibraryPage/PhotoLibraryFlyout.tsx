@@ -18,6 +18,7 @@ interface IPhotoLibraryFlyout {
 function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -41,7 +42,7 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
             float: right;
             margin-top: 15px;
           `}
-          onClick={() => navigate(`/cms/photos/library`)}
+          onClick={() => navigate(`/${tenant}/cms/photos/library`)}
           data-tip={'Close panel'}
         />
         <Name theme={theme}>
@@ -77,7 +78,10 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
           })}
           {photo.tags === undefined || photo.tags.length < 1 ? 'No tags could be found for this photo' : null}
           <Footer theme={theme}>
-            <Button icon={<Edit24Regular />} onClick={() => navigate(`/cms/collection/photos/${photo._id}`)}>
+            <Button
+              icon={<Edit24Regular />}
+              onClick={() => navigate(`/${tenant}/cms/collection/photos/${photo._id}`)}
+            >
               Edit details
             </Button>
           </Footer>

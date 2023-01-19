@@ -6,6 +6,7 @@ import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 
 function AppsList() {
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   const [mainNav] = useNavigationConfig('main', 'cache-only');
 
@@ -20,7 +21,7 @@ function AppsList() {
               icon={<FluentIcon name={item.icon} />}
               height={80}
               onClick={() => {
-                navigate(item.to);
+                navigate(`/${tenant}${item.to}`);
               }}
               cssExtra={css`
                 padding: 0;

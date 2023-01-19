@@ -28,6 +28,7 @@ function CollectionSchemaPage() {
   const [raw, loadingInitial, error, _refetch] = useGetRawConfig(collection);
   const navigate = useNavigate();
   const location = useLocation();
+  const tenant = location.pathname.split('/')[1];
 
   // when refetching, also update redux with a fresh copy of the collection
   const refetch = useCallback(async () => {
@@ -127,7 +128,7 @@ function CollectionSchemaPage() {
             <TabBar
               activeTabIndex={activeTabIndex}
               onActivate={(evt: { detail: { index: SetStateAction<number> } }) =>
-                navigate(location.pathname + location.search + `#${evt.detail.index}`)
+                navigate('/' + tenant + location.pathname + location.search + `#${evt.detail.index}`)
               }
             >
               <Tab>Schema</Tab>

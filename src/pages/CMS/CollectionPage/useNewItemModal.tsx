@@ -22,6 +22,7 @@ function useNewItemModal(
   const [WindowModal, showModal, hideModal] = useWindowModal(() => {
     const client = useApolloClient();
     const [loading, setLoading] = useState(false);
+    const tenant = location.pathname.split('/')[1];
 
     const [{ schemaDef, by }] = useCollectionSchemaConfig(collectionName);
     const requiredFields = schemaDef.filter(
@@ -111,7 +112,7 @@ function useNewItemModal(
         .then(({ data }) => {
           // navigate to the new document upon successful creation
           navigate(
-            `/cms/collection/${uncapitalize(camelToDashCase(collectionName))}/${
+            `${tenant}/cms/collection/${uncapitalize(camelToDashCase(collectionName))}/${
               data?.response?.[by?.one || '_id']
             }`
           );

@@ -19,6 +19,7 @@ function Search(props: SearchProps) {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+  const tenant = location.pathname.split('/')[1];
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
@@ -35,7 +36,7 @@ function Search(props: SearchProps) {
   const executeSearch = () => {
     if (value.length > 0) searchParams.set('_search', value);
     else searchParams.delete('_search');
-    navigate(`${pathname}?${searchParams.toString()}`);
+    navigate(`/${tenant}${pathname}?${searchParams.toString()}`);
   };
 
   return (

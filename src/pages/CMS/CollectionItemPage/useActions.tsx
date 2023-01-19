@@ -60,6 +60,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
   const data = params.y.data;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const tenant = location.pathname.split('/')[1];
 
   const idKey = params.idKey || '_id';
 
@@ -163,7 +164,7 @@ function useActions(params: UseActionsParams): UseActionsReturn {
       })
       .then(({ data }) => {
         const newDocId = data[`${uncapitalize(params.collectionName)}Clone`][`${idKey}`];
-        const newDocPath = `/cms/collection/${pluralize(
+        const newDocPath = `${tenant}/cms/collection/${pluralize(
           uncapitalize(params.collectionName)
         )}/${newDocId}?${searchParams}`;
         navigate(newDocPath);

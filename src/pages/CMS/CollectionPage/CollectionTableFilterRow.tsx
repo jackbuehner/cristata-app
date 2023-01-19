@@ -19,6 +19,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(search);
   const theme = useTheme();
+  const tenant = location.pathname.split('/')[1];
 
   const labels = props.schemaDef.map(([key, def]) => ({
     key,
@@ -152,7 +153,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
                         if (newArray.length > 0) searchParams.set(param, JSON.stringify(newArray));
                         else searchParams.delete(param);
 
-                        navigate(pathname + hash + '?' + searchParams);
+                        navigate('/' + tenant + pathname + hash + '?' + searchParams);
                       }
                     }}
                   />
@@ -167,7 +168,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
           height={'26px'}
           onClick={() => {
             searchParams.delete('archived');
-            navigate(pathname + hash + '?' + searchParams);
+            navigate('/' + tenant + pathname + hash + '?' + searchParams);
           }}
         >
           Hide archived
@@ -177,7 +178,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
           height={'26px'}
           onClick={() => {
             searchParams.set('archived', 'true');
-            navigate(pathname + hash + '?' + searchParams);
+            navigate('/' + tenant + pathname + hash + '?' + searchParams);
           }}
         >
           View archived

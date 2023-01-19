@@ -16,6 +16,7 @@ function useCreateSchema(collectionNames: string[]): [React.ReactNode, () => voi
     const [name, setName] = useState<string>('');
     const [displayName, setDisplayName] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const tenant = location.pathname.split('/')[1];
 
     const nameAlreadyExists = collectionNames.some((colName) => colName === name);
 
@@ -38,7 +39,7 @@ function useCreateSchema(collectionNames: string[]): [React.ReactNode, () => voi
             })
             .then(({ data }) => {
               if (data?.setRawConfigurationCollection) {
-                navigate(`/configuration/Schema/${name}#0`);
+                navigate(`/${tenant}/configuration/Schema/${name}#0`);
                 return true;
               }
               return false;

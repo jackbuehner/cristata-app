@@ -19,6 +19,7 @@ function Appbar() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const location = useLocation();
+  const tenant = location.pathname.split('/')[1];
 
   const [showHomeArrow, setShowHomeArrow] = useState(false);
 
@@ -64,7 +65,7 @@ function Appbar() {
             <Button
               icon={<ArrowLeft24Regular />}
               onClick={() => {
-                navigate('/');
+                navigate(`/${tenant}`);
                 setShowHomeArrow(false);
               }}
             >

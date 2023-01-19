@@ -66,6 +66,7 @@ function Protected(props: ProtectedProps) {
   const theme = useTheme() as themeType;
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const tenant = location.pathname.split('/')[1];
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
@@ -93,63 +94,67 @@ function Protected(props: ProtectedProps) {
             <SideNavigation>
               {(setIsNavVisible) => (
                 <Routes>
-                  <Route path={`/cms/*`} element={<CmsNavigation setIsNavVisibleM={setIsNavVisible} />} />
-                  <Route
-                    path={`/profile/*`}
-                    element={<ProfileNavigation setIsNavVisibleM={setIsNavVisible} />}
-                  />
-                  <Route path={`/teams/*`} element={<TeamsNavigation setIsNavVisibleM={setIsNavVisible} />} />
-                  <Route path={`/playground`} element={<PlaygroundNavigation />} />
-                  <Route path={`/configuration/*`} element={<ConfigurationNavigation />} />
-                  <Route path={`*`} element={<></>} />
+                  <Route path={`/${tenant}`}>
+                    <Route path={`cms/*`} element={<CmsNavigation setIsNavVisibleM={setIsNavVisible} />} />
+                    <Route
+                      path={`profile/*`}
+                      element={<ProfileNavigation setIsNavVisibleM={setIsNavVisible} />}
+                    />
+                    <Route path={`teams/*`} element={<TeamsNavigation setIsNavVisibleM={setIsNavVisible} />} />
+                    <Route path={`playground`} element={<PlaygroundNavigation />} />
+                    <Route path={`configuration/*`} element={<ConfigurationNavigation />} />
+                    <Route path={`*`} element={<></>} />
+                  </Route>
                 </Routes>
               )}
             </SideNavigation>
           ) : null}
           <Content theme={theme}>
             <Routes>
-              <Route path={`/cms`}>
-                <Route path={`workflow`} element={<WorkflowPage />} />
-                <Route path={`collection/:collection`}>
-                  <Route index element={<CollectionPage />} />
-                  <Route path={`:item_id`} element={<CollectionItemPage />} />
-                  <Route path={`:item_id/version/:version_date`} element={<CollectionItemPage />} />
+              <Route path={`/${tenant}`}>
+                <Route path={`cms`}>
+                  <Route path={`workflow`} element={<WorkflowPage />} />
+                  <Route path={`collection/:collection`}>
+                    <Route index element={<CollectionPage />} />
+                    <Route path={`:item_id`} element={<CollectionItemPage />} />
+                    <Route path={`:item_id/version/:version_date`} element={<CollectionItemPage />} />
+                  </Route>
+                  <Route path={`photos/library`}>
+                    <Route index element={<PhotoLibraryPage />} />
+                    <Route path={`:photo_id`} element={<PhotoLibraryPage />} />
+                  </Route>
+                  <Route path={`*`} element={<PageHead title={`CMS`} />} />
                 </Route>
-                <Route path={`photos/library`}>
-                  <Route index element={<PhotoLibraryPage />} />
-                  <Route path={`:photo_id`} element={<PhotoLibraryPage />} />
+                <Route path={`profile`}>
+                  <Route index element={<PageHead title={`Profiles`} />} />
+                  <Route path={`:profile_id`} element={<ProfilePage />} />
                 </Route>
-                <Route path={`*`} element={<PageHead title={`CMS`} />} />
+                <Route path={`teams`}>
+                  <Route index element={<TeamsOverviewPage />} />
+                  <Route path={`:team_id`} element={<TeamPage />} />
+                </Route>
+                <Route path={`playground`} element={<Playground setThemeMode={props.setThemeMode} />} />
+                <Route path={`embed/fathom`} element={<FathomEmbed />} />
+                <Route path={`configuration`}>
+                  <Route path={`billing`}>
+                    <Route path={`usage`} element={<BillingServiceUsagePage />} />
+                    <Route path={`payments`} element={<BillingPaymentsPage />} />
+                  </Route>
+                  <Route path={`security`}>
+                    <Route path={`tokens-secrets`} element={<TokenSecretsPage />} />
+                  </Route>
+                  <Route path={`app`}>
+                    <Route path={`cms`} element={<CMSConfigPage />} />
+                  </Route>
+                  <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
+                  <Route path={`schema/:collection/code`} element={<CollectionSchemaPageOld />} />
+                  <Route
+                    path={`system-collection/:collection/action-access`}
+                    element={<SystemCollectionConfigPage />}
+                  />
+                </Route>
+                <Route path={``} element={<HomePage />} />
               </Route>
-              <Route path={`/profile`}>
-                <Route index element={<PageHead title={`Profiles`} />} />
-                <Route path={`:profile_id`} element={<ProfilePage />} />
-              </Route>
-              <Route path={`/teams`}>
-                <Route index element={<TeamsOverviewPage />} />
-                <Route path={`:team_id`} element={<TeamPage />} />
-              </Route>
-              <Route path={`/playground`} element={<Playground setThemeMode={props.setThemeMode} />} />
-              <Route path={`/embed/fathom`} element={<FathomEmbed />} />
-              <Route path={`/configuration`}>
-                <Route path={`billing`}>
-                  <Route path={`usage`} element={<BillingServiceUsagePage />} />
-                  <Route path={`payments`} element={<BillingPaymentsPage />} />
-                </Route>
-                <Route path={`security`}>
-                  <Route path={`tokens-secrets`} element={<TokenSecretsPage />} />
-                </Route>
-                <Route path={`app`}>
-                  <Route path={`cms`} element={<CMSConfigPage />} />
-                </Route>
-                <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
-                <Route path={`schema/:collection/code`} element={<CollectionSchemaPageOld />} />
-                <Route
-                  path={`system-collection/:collection/action-access`}
-                  element={<SystemCollectionConfigPage />}
-                />
-              </Route>
-              <Route path={`/`} element={<HomePage />} />
             </Routes>
           </Content>
         </Wrapper>

@@ -22,6 +22,7 @@ import { listOxford } from '../../utils/listOxford';
 function RecentActivity() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   const { data } = useQuery<HISTORY__TYPE>(HISTORY, {
     variables: { limit: 25, exclude: ['User'] },
@@ -198,7 +199,7 @@ function RecentActivity() {
                   TextWrapperComponent={Text}
                   names={users.map((user) => ({
                     name: user.name,
-                    onClick: () => navigate(`/profile/${user._id}`),
+                    onClick: () => navigate(`/${tenant}/profile/${user._id}`),
                     photo: user.photo || genAvatar(user._id),
                   }))}
                   appendText={
@@ -244,9 +245,9 @@ function ItemName({
   const pathCollectionName = camelToDashCase(uncapitalize(pluralize(collectionName)));
 
   const handleClick = () => {
-    if (collectionName === 'Photo' && itemId) navigate(`/cms/photos/library/${itemId}`);
-    else if (itemId) navigate(`/cms/collection/${pathCollectionName}/${itemId}`);
-    else navigate(`/cms/collection/${pathCollectionName}`);
+    if (collectionName === 'Photo' && itemId) navigate(`/${tenant}/cms/photos/library/${itemId}`);
+    else if (itemId) navigate(`/${tenant}/cms/collection/${pathCollectionName}/${itemId}`);
+    else navigate(`/${tenant}/cms/collection/${pathCollectionName}`);
   };
 
   return (

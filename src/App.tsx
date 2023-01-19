@@ -101,7 +101,7 @@ function App() {
         <PersistGate loading={null} persistor={persistor}>
           <ThemeProvider theme={theme}>
             <DropdownProvider>
-              <Router basename={tenant}>
+              <Router>
                 <ModalProvider>
                   <ToastContainer />
                   <ReloadPrompt />
@@ -112,8 +112,8 @@ function App() {
                     bypassAuthLogic={!navigator.onLine}
                     persistentChildren={
                       <Routes>
-                        <Route path={`/proto/*`} element={<ProtocolHandlerPage />} />
-                        <Route path={`/sign-out`} element={<SignOut />} />
+                        <Route path={`/${tenant}/proto/*`} element={<ProtocolHandlerPage />} />
+                        <Route path={`/${tenant}/sign-out`} element={<SignOut />} />
                         <Route path={`*`} element={<></>} />
                       </Routes>
                     }

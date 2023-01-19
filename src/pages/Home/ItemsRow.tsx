@@ -32,6 +32,7 @@ function timeToString(timestamp: DateTime): string | null {
 function ItemsRow(props: ItemsRowProps) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   const namedQuery = props.query.replace('query {', `query ${props.arrPath.split('.')[1]} {`);
   const res = useQuery(gql(namedQuery), { fetchPolicy: 'cache-and-network' });
@@ -50,7 +51,7 @@ function ItemsRow(props: ItemsRowProps) {
             <Card
               theme={theme}
               key={_id + lastActiveAt}
-              onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
+              onClick={() => navigate('/' + tenant + props.to.idPrefix + _id + props.to.idSuffix)}
             >
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <ProfilePhoto theme={theme} src={photo || genAvatar(_id, 44)} />
@@ -82,7 +83,7 @@ function ItemsRow(props: ItemsRowProps) {
           <Card
             theme={theme}
             key={_id + name + description + photo + lastModifiedBy + lastModifiedAt}
-            onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
+            onClick={() => navigate('/' + tenant + props.to.idPrefix + _id + props.to.idSuffix)}
           >
             {props.dataKeys.photo ? <Photo src={photo} theme={theme} /> : null}
             <Name theme={theme}>{name}</Name>

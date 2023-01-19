@@ -16,6 +16,7 @@ function SideNavSubButton(props: {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme() as themeType;
+  const tenant = location.pathname.split('/')[1];
 
   const isSameLocation = props.to && location.pathname === props.to.split('?')[0];
   const isSameSearch =
@@ -49,7 +50,7 @@ function SideNavSubButton(props: {
       backgroundColor={{ base: 'white' }}
       border={{ base: '1px solid transparent' }}
       onClick={() => {
-        if (props.to) navigate(props.to);
+        if (props.to) navigate(`/${tenant}${props.to}`);
         if (props.setIsNavVisibleM) props.setIsNavVisibleM(false);
       }}
       customIcon={

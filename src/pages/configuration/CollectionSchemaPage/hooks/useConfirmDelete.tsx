@@ -15,6 +15,7 @@ function useConfirmDelete(props: UseConfirmDeleteProps): [React.ReactNode, () =>
     const client = useApolloClient();
     const navigate = useNavigate();
     const [loading, setLoading] = useState<boolean>(false);
+    const tenant = location.pathname.split('/')[1];
 
     return {
       title: `Delete collection?`,
@@ -36,7 +37,7 @@ function useConfirmDelete(props: UseConfirmDeleteProps): [React.ReactNode, () =>
                 setLoading(false);
               })
               .then(() => {
-                navigate(`/configuration`);
+                navigate(`/${tenant}/configuration`);
                 return true;
               })
               .catch((error) => {

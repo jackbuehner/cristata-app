@@ -72,7 +72,7 @@ function CollectionPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const client = useApolloClient();
-  const tenant = localStorage.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -358,7 +358,7 @@ function CollectionPage() {
 
             // open the document
             if (_id) {
-              navigate(`/cms/collection/files/${_id}`);
+              navigate(`/${tenant}/cms/collection/files/${_id}`);
             }
           })
           .catch((error) => {

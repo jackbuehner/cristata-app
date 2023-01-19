@@ -18,6 +18,7 @@ interface IUserCard {
 function UserCard(props: IUserCard) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   return (
     <Component
@@ -25,7 +26,7 @@ function UserCard(props: IUserCard) {
       href={props.href}
       onClick={(e) => {
         e.preventDefault();
-        if (props.href) navigate(props.href);
+        if (props.href) navigate(`/${tenant}${props.href}`);
       }}
     >
       <ProfilePhoto theme={theme} src={props.photo || ''} />

@@ -37,6 +37,7 @@ function TeamsOverviewPage() {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const client = useApolloClient();
+  const tenant = location.pathname.split('/')[1];
 
   const [CreateWindow, showCreateModal] = useWindowModal(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -59,7 +60,7 @@ function TeamsOverviewPage() {
           // stop loading
           setIsLoading(false);
           // navigate to the new document upon successful creation
-          navigate(`/teams/${data?.teamCreate._id}`);
+          navigate(`/${tenant}/teams/${data?.teamCreate._id}`);
         })
         .catch((err) => {
           // stop loading
