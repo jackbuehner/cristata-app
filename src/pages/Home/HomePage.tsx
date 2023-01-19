@@ -20,7 +20,7 @@ import { AppsList } from './AppsList';
 function HomePage() {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;
-  const tenant = localStorage?.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
 
   // set document title
   useEffect(() => {

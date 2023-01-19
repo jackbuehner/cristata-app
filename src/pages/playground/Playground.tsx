@@ -43,7 +43,7 @@ function Playground({ setThemeMode }: PlaygroundProps) {
   const dispatch = useAppDispatch();
   const graphiqlRef = useRef<GraphiQL>(null);
 
-  const tenant = localStorage.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
 
   const fetcher = createGraphiQLFetcher({
     url: `${server.location}/v3/${tenant}`,

@@ -671,7 +671,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // we want to open it in maximized mode for easy access to the editor
     const shouldOpenMaximized = schemaDef.find(([key, def]) => key === 'body' && def.field?.tiptap);
 
-    const tenant = localStorage.getItem('tenant') || '';
+    const tenant = location.pathname.split('/')[1] || '';
     const row = {
       href: `/cms/collection/${camelToDashCase(uncapitalize(pluralize(props.collection)))}`,
       hrefSuffixKey: by?.one || '_id',

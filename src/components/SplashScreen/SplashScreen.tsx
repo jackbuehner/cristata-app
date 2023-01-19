@@ -117,14 +117,11 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setObjectId(props.user._id));
       dispatch(setOtherUsers(props.user.otherUsers || []));
 
-      // set the correct tenant in localstorage
-      localStorage.setItem('tenant', props.user.tenant);
-
       // get the location state
       const locState = location.state as { step?: string } | undefined;
 
       const logout = () => {
-        const tenant = localStorage.getItem('tenant');
+        const tenant = location.pathname.split('/')[1];
         window.location.href = `${import.meta.env.VITE_API_PROTOCOL}//${import.meta.env.VITE_AUTH_BASE_URL}/${
           tenant || ''
         }/sign-out?return=${encodeURIComponent(window.location.href)}`;

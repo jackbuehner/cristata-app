@@ -91,7 +91,7 @@ const Table = forwardRef(
 
     const backupRef = useRef<HTMLDivElement>(null);
 
-    const tenant = localStorage.getItem('tenant') || '';
+    const tenant = location.pathname.split('/')[1] || '';
 
     return (
       <>

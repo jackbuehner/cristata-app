@@ -31,7 +31,7 @@ function useShareModal(
   const sessionId = sessionStorage.getItem('sessionId');
 
   // get the current tenant name
-  const tenant = localStorage.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
 
   // create a user object for the current user (for yjs)
   const user = {

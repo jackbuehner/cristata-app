@@ -112,7 +112,7 @@ function ProfilePage() {
               type: 'button',
               icon: 'Key20Regular',
               action: () => {
-                const tenant = localStorage.getItem('tenant');
+                const tenant = location.pathname.split('/')[1];
                 window.location.href = `https://${import.meta.env.VITE_AUTH_BASE_URL}/${
                   tenant || ''
                 }/change-password?return=${encodeURIComponent(window.location.href)}`;

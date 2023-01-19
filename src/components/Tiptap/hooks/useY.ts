@@ -96,7 +96,7 @@ function useY(
     let mounted = true;
     const y = providerRef.current;
 
-    const tenant = localStorage.getItem('tenant');
+    const tenant = location.pathname.split('/')[1];
     const appVersion = packageJson.version;
     const docName = versionDate
       ? `${tenant}.${collectionName}.${id}.${versionDate}`

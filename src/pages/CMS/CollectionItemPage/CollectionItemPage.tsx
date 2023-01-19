@@ -73,7 +73,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   const sessionId = sessionStorage.getItem('sessionId');
 
   // get the current tenant name
-  const tenant = localStorage.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
 
   // create a user object for the current user (for yjs)
   const user = {
@@ -110,7 +110,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   const theme = useTheme() as themeType;
   const { search } = useLocation();
   const navigate = useNavigate();
-  const tenant = localStorage.getItem('tenant') || '';
+  const tenant = location.pathname.split('/')[1] || '';
   let { collection, item_id, version_date } = useParams() as {
     collection: string;
     item_id: string;
