@@ -7,9 +7,9 @@ import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/ContentField';
 import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
-import { setAppLoading, setAppName, setAppActions } from '../../../redux/slices/appbarSlice';
+import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { server } from '../../../utils/constants';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { useGetBillingStatus } from './useGetBillingStatus';
 
 function BillingPaymentsPage() {

@@ -1,9 +1,9 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import mongoose from 'mongoose';
+import type mongoose from 'mongoose';
 import { useNavigate } from 'react-router-dom';
 import { genAvatar } from '../../utils/genAvatar';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
 interface ITeamCard {

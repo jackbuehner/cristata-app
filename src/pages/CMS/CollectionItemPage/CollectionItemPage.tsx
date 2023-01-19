@@ -1,13 +1,15 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { WebSocketStatus } from '@hocuspocus/provider';
-import { isTypeTuple, MongooseSchemaType, StringOption } from '@jackbuehner/cristata-generator-schema';
+import type { MongooseSchemaType, StringOption } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import ColorHash from 'color-hash';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { Fragment, SetStateAction, useEffect, useState } from 'react';
+import type { SetStateAction } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
@@ -23,19 +25,23 @@ import {
   CollaborativeReferenceOne,
   CollaborativeSelectMany,
   CollaborativeSelectOne,
-  CollaborativeTextField,
+  CollaborativeTextField
 } from '../../../components/CollaborativeFields';
 import { Field } from '../../../components/ContentField/Field';
 import { Spinner } from '../../../components/Loading';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
+import { Tab, TabBar } from '../../../components/Tabs';
 import { Tiptap } from '../../../components/Tiptap';
-import { useAwareness, useY } from '../../../components/Tiptap/hooks';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { useAwareness } from '../../../components/Tiptap/hooks';
+import { useY } from '../../../components/Tiptap/hooks';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
+import type {
+  DeconstructedSchemaDefType
+} from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import {
-  DeconstructedSchemaDefType,
-  parseSchemaDefType,
+  parseSchemaDefType
 } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
@@ -43,17 +49,18 @@ import { capitalize } from '../../../utils/capitalize';
 import { server } from '../../../utils/constants';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
-import { colorType, themeType } from '../../../utils/theme/theme';
+import type { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { FullScreenSplash } from './FullScreenSplash';
-import { getYFields, GetYFieldsOptions } from './getYFields';
+import type { GetYFieldsOptions } from './getYFields';
+import { getYFields } from './getYFields';
 import { PreviewFrame } from './PreviewFrame';
 import { Sidebar } from './Sidebar';
-import { useActions, Action } from './useActions';
+import type { Action } from './useActions';
+import { useActions } from './useActions';
 import { useFindDoc } from './useFindDoc';
 import { usePublishPermissions } from './usePublishPermissions';
 import { useWatching } from './useWatching';
-import { Tab, TabBar } from '../../../components/Tabs';
 
 // @ts-expect-error 'bkdr' is a vlid hash config value
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });

@@ -2,7 +2,8 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import loadable from '@loadable/component';
 import Color from 'color';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
@@ -12,7 +13,7 @@ import { SideNavigation } from './components/SideNavigation';
 import { Titlebar } from './components/Titlebar';
 import { useAppDispatch } from './redux/hooks';
 import { setAppSearchShown } from './redux/slices/appbarSlice';
-import { themeType } from './utils/theme/theme';
+import type { themeType } from './utils/theme/theme';
 
 /* prettier-ignore */ const HomePage = loadable(() => import(/* webpackChunkName: "HomePage" */'./pages/Home'), { resolveComponent: (c) => c.HomePage });
 /* prettier-ignore */ const ProfilePage = loadable(() => import(/* webpackChunkName: "ProfilePage" */'./pages/profile/ProfilePage'), { resolveComponent: (c) => c.ProfilePage });

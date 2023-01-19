@@ -1,10 +1,11 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
-import { Dispatch, SetStateAction, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 interface SideNavigationProps {
   children: (setIsNavVisible: Dispatch<SetStateAction<boolean>>) => React.ReactNode;

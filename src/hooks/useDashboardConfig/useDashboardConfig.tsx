@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-escape */
-import { ApolloError, ApolloQueryResult, gql, useQuery } from '@apollo/client';
-import { FluentIconNames } from '../../components/FluentIcon';
+import type { ApolloError, ApolloQueryResult } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
+import type { FluentIconNames } from '../../components/FluentIcon';
 
 /**
  * Gets the config for the home dashboard.

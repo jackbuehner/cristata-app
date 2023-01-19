@@ -5,7 +5,8 @@ import { Checkbox } from '../../components/Checkbox';
 import { InputGroup } from '../../components/InputGroup';
 import { Label } from '../../components/Label';
 import { TextInput } from '../../components/TextInput';
-import { CREATE_USER, CREATE_USER__TYPE } from '../../graphql/queries';
+import type { CREATE_USER__TYPE } from '../../graphql/queries';
+import { CREATE_USER } from '../../graphql/queries';
 import { slugify } from '../../utils/slugify';
 import { useWindowModal } from '../useWindowModal';
 

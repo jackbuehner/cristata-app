@@ -43,4 +43,4 @@ type CREATE_USER__DOC_TYPE = {
 };
 
 export { CREATE_USER };
-export type { CREATE_USER__TYPE, CREATE_USER__DOC_TYPE };
+export type { CREATE_USER__DOC_TYPE, CREATE_USER__TYPE };

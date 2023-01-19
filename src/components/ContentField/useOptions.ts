@@ -4,7 +4,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { SetStateAction, useEffect, useState, Dispatch } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { deepen } from '../../pages/CMS/CollectionItemPage/useFindDoc';
 import { uncapitalize } from '../../utils/uncapitalize';
 

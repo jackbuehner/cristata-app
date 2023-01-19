@@ -1,12 +1,12 @@
-/** @jsxImportSource @emotion/react */
-import Color from 'color';
+import { CategoryScale, Chart, Filler, LinearScale, LineController, LineElement, PointElement } from 'chart.js';
 import React from 'react';
-import { themeType } from '../../utils/theme/theme';
-import { Chart, CategoryScale, LinearScale, LineController, PointElement, LineElement, Filler } from 'chart.js';
+/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import { DataUsage24Regular } from '@fluentui/react-icons';
+import Color from 'color';
 import { Button } from '../../components/Button';
 import { HomeSectionHeading } from '../../components/Heading';
-import { DataUsage24Regular } from '@fluentui/react-icons';
+import type { themeType } from '../../utils/theme/theme';
 
 interface IAnalyticsChart {
   theme: themeType;

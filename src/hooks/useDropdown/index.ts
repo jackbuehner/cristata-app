@@ -1,4 +1,4 @@
-import { useDropdown } from './useDropdown';
 import { DropdownProvider } from './DropdownProvider';
+import { useDropdown } from './useDropdown';
 
-export { useDropdown, DropdownProvider };
+export { DropdownProvider, useDropdown };

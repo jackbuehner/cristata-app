@@ -1,12 +1,12 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Editor } from '@tiptap/react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { themeType } from '../../../../utils/theme/theme';
-import { SidebarHeader } from './SidebarHeader';
+import type { Editor } from '@tiptap/react';
 import { Children, cloneElement } from 'react';
-import { useAwareness } from '../../hooks';
-import { EntryY } from '../../hooks/useY';
+import { useLocation, useNavigate } from 'react-router-dom';
+import type { themeType } from '../../../../utils/theme/theme';
+import type { useAwareness } from '../../hooks';
+import type { EntryY } from '../../hooks/useY';
+import { SidebarHeader } from './SidebarHeader';
 
 interface I_SIDEBAR {
   theme: themeType;

@@ -5,8 +5,8 @@ import { useLocation } from 'react-router-dom';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppIcon } from '../../redux/slices/appbarSlice';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { FluentIcon, FluentIconNames } from '../FluentIcon';
+import type { colorType, themeType } from '../../utils/theme/theme';
+import { FluentIcon, type FluentIconNames } from '../FluentIcon';
 
 interface IconProps {
   icon: FluentIconNames;

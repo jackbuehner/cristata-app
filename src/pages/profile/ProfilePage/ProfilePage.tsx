@@ -10,12 +10,13 @@ import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
 import { Offline } from '../../../components/Offline';
-import { PROFILE, PROFILE__TYPE, REINVITE_USER, REINVITE_USER__TYPE } from '../../../graphql/queries';
+import type { PROFILE__TYPE, REINVITE_USER__TYPE } from '../../../graphql/queries';
+import { PROFILE, REINVITE_USER } from '../../../graphql/queries';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { useEditProfileModal } from './useEditProfileModal';
 
 function ProfilePage() {

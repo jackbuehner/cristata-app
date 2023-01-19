@@ -1,17 +1,18 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { useTheme } from '@emotion/react';
 import ColorHash from 'color-hash';
 import { get as getProperty } from 'object-path';
 import { useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+
+/* eslint-disable react-hooks/rules-of-hooks */
+import { useTheme } from '@emotion/react';
 import { Button } from '../../../components/Button';
 import { CollaborativeFieldWrapper, CollaborativeReferenceMany } from '../../../components/CollaborativeFields';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppSelector } from '../../../redux/hooks';
 import { server } from '../../../utils/constants';
 import { genAvatar } from '../../../utils/genAvatar';
-import { colorType, themeType } from '../../../utils/theme/theme';
+import type { colorType, themeType } from '../../../utils/theme/theme';
 
 // @ts-expect-error 'bkdr' is a vlid hash config value
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });

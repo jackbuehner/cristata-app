@@ -5,7 +5,7 @@ import Color from 'color';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
-import { themeType } from '../../../../utils/theme/theme';
+import type { themeType } from '../../../../utils/theme/theme';
 
 interface ITitlebar {
   title?: string;

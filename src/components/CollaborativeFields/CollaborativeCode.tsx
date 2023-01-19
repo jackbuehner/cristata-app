@@ -1,16 +1,16 @@
 import styled from '@emotion/styled';
 import { useMonaco } from '@monaco-editor/react';
 import Color from 'color';
-import { editor } from 'monaco-editor';
-import { SetStateAction, useEffect, useRef, useState } from 'react';
+import type { editor } from 'monaco-editor';
+import { useEffect, useRef, useState, type SetStateAction } from 'react';
 import { Remark } from 'react-remark';
 import { MonacoBinding } from 'y-monaco';
-import { YTextEvent } from 'yjs';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
+import type { YTextEvent } from 'yjs';
 import { cristataCodeDarkTheme } from '../../pages/configuration/cristataCodeDarkTheme';
-import { colorType } from '../../utils/theme/theme';
+import type { colorType } from '../../utils/theme/theme';
 import { Tab, TabBar } from '../Tabs';
-import { useAwareness } from '../Tiptap/hooks';
+import type { useAwareness } from '../Tiptap/hooks';
+import { CollaborativeFieldWrapper, type CollaborativeFieldProps } from './';
 
 interface CollaborativeCodeProps extends CollaborativeFieldProps {
   type: 'json' | 'md';

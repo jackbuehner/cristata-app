@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import React from 'react';
-import { FluentIconNames } from '../../components/FluentIcon';
-import { colorType } from '../../utils/theme/theme';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { FluentIconNames } from '../../components/FluentIcon';
+import type { colorType } from '../../utils/theme/theme';
 
 export interface AppbarState {
   name: string;

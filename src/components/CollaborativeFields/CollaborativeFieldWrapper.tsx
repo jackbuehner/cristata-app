@@ -2,11 +2,12 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import dompurify from 'dompurify';
 import { get as getProperty } from 'object-path';
-import { CSSProperties, useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { useAwareness } from '../Tiptap/hooks';
-import { FieldY } from '../Tiptap/hooks/useY';
+import type { colorType, themeType } from '../../utils/theme/theme';
+import type { useAwareness } from '../Tiptap/hooks';
+import type { FieldY } from '../Tiptap/hooks/useY';
 
 interface CollaborativeFieldWrapperProps {
   y: FieldY;

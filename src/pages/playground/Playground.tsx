@@ -1,20 +1,22 @@
-/** @jsxImportSource @emotion/react */
-import { css, useTheme } from '@emotion/react';
-import { createGraphiQLFetcher } from '@graphiql/toolkit';
 import Color from 'color';
 import GraphiQL from 'graphiql';
 import 'graphiql/graphiql.css';
 import { buildClientSchema, getIntrospectionQuery } from 'graphql';
-import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+
+/** @jsxImportSource @emotion/react */
+import { css, useTheme } from '@emotion/react';
+import { createGraphiQLFetcher } from '@graphiql/toolkit';
 import { Button } from '../../components/Button';
 import { Offline } from '../../components/Offline';
 import { PageHead } from '../../components/PageHead';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { setAppName, setAppActions, setAppLoading } from '../../redux/slices/appbarSlice';
+import { setAppActions, setAppLoading, setAppName } from '../../redux/slices/appbarSlice';
 import { setQuery, setSchema } from '../../redux/slices/graphiqlSlice';
 import { server } from '../../utils/constants';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 /**
  * A modified version of `fetch` that always includes credentials (cookies)

@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Spinner } from '../../../components/Loading';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 
 interface IFullScreenSplash {
   isLoading: boolean;

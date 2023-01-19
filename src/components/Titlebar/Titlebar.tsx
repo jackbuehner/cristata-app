@@ -2,9 +2,9 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular } from '@fluentui/react-icons';
 import Color from 'color';
-import { useNavigate } from 'react-router-dom';
-import { themeType } from '../../utils/theme/theme';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import type { themeType } from '../../utils/theme/theme';
 
 interface ITitlebar {
   title?: string;

@@ -1,9 +1,11 @@
-import React, { InputHTMLAttributes } from 'react';
+import type { SerializedStyles } from '@emotion/react';
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { SerializedStyles, useTheme } from '@emotion/react';
-import { themeType, colorShade, colorType } from '../../utils/theme/theme';
-import { buttonEffect } from './buttonEffect';
+import type { InputHTMLAttributes } from 'react';
+import React from 'react';
 import { FluentIcon } from '../../components/FluentIcon';
+import type { colorShade, colorType, themeType } from '../../utils/theme/theme';
+import { buttonEffect } from './buttonEffect';
 
 interface StyledButtonProps extends ButtonProps {
   color: colorType;

@@ -1,10 +1,10 @@
 import { useTheme } from '@emotion/react';
 import { ArrowLeft24Regular } from '@fluentui/react-icons';
 import Color from 'color';
-import { CSSProperties, useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../redux/hooks';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 import { Button } from '../Button';
 import {
   AppbarAccountMenu as AccountMenu,

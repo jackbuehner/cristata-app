@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { Dismiss12Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { themeType } from '../../../../utils/theme/theme';
+import type { themeType } from '../../../../utils/theme/theme';
 import { IconButton } from '../../../Button';
 
 const Container = styled.div<{ theme: themeType }>`

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -7,15 +9,14 @@ import {
   Megaphone24Regular,
   Pulse24Regular,
 } from '@fluentui/react-icons';
-import { useEffect } from 'react';
 import { HomeSectionHeading } from '../../components/Heading';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../redux/slices/appbarSlice';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
+import { AppsList } from './AppsList';
+import { CollectionRows } from './CollectionRows';
 import { RecentActivity } from './RecentActivity';
 import { Workflow } from './Workflow';
-import { CollectionRows } from './CollectionRows';
-import { AppsList } from './AppsList';
 
 function HomePage() {
   const dispatch = useAppDispatch();

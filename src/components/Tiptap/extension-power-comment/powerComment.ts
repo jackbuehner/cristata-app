@@ -2,11 +2,11 @@ import { Mark } from '@tiptap/core';
 import { Editor } from '@tiptap/react';
 import Color from 'color';
 import {
-  Node as ProseMirrorNode,
-  MarkType,
-  Slice,
-  ResolvedPos,
   Mark as ProseMirrorMark,
+  MarkType,
+  Node as ProseMirrorNode,
+  ResolvedPos,
+  Slice,
 } from 'prosemirror-model';
 import { TextSelection } from 'prosemirror-state';
 import { v4 as uuidv4 } from 'uuid';

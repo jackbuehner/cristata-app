@@ -279,4 +279,4 @@ const icons: Record<
 };
 
 export type { SchemaCardProps };
-export { SchemaCard, icons };
+export { icons, SchemaCard };

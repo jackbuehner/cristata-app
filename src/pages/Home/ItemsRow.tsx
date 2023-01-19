@@ -5,9 +5,9 @@ import Color from 'color';
 import { DateTime } from 'luxon';
 import { get as getProperty } from 'object-path';
 import { useNavigate } from 'react-router-dom';
-import { Home } from '../../hooks/useDashboardConfig/useDashboardConfig';
+import type { Home } from '../../hooks/useDashboardConfig/useDashboardConfig';
 import { genAvatar } from '../../utils/genAvatar';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 interface ItemsRowProps {
   query: Home['collectionRows'][0]['query'];

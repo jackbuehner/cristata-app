@@ -17,7 +17,6 @@ import { uncapitalize } from '../../../utils/uncapitalize';
 import { RenderFields } from './CollectionItemPage';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
-import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 
 interface UseActionsParams {
   y: EntryY;

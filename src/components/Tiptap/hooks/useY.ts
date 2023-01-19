@@ -6,6 +6,7 @@ import { DependencyList, useEffect, useRef, useState } from 'react';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
+import packageJson from '../../../../package.json';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { getYFields, GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
 import { useAppDispatch } from '../../../redux/hooks';
@@ -13,7 +14,6 @@ import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { useAwareness } from './useAwareness';
-import packageJson from '../../../../package.json';
 
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};
@@ -279,5 +279,5 @@ interface FieldY extends EntryY {
 
 type FakeProvider = { awareness: awarenessProtocol.Awareness; connected?: boolean };
 
-export type { IYSettingsMap, FakeProvider, EntryY, FieldY };
+export type { EntryY, FakeProvider, FieldY, IYSettingsMap };
 export { useY };

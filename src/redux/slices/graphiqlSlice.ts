@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GraphQLSchema } from 'graphql';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { GraphQLSchema } from 'graphql';
 
 export interface GraphiQLState {
   query?: string;

@@ -1,3 +1,11 @@
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
+import { get as getProperty } from 'object-path';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import useDimensions from 'react-cool-dimensions';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useLocation } from 'react-router-dom';
+import './office-icon/colors1.css';
+
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -5,18 +13,13 @@ import { ArrowRedo20Regular, ArrowUndo20Regular, Save20Regular } from '@fluentui
 import { WebSocketStatus } from '@hocuspocus/provider';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Editor, EditorContent, PureEditorContent } from '@tiptap/react';
-import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { get as getProperty } from 'object-path';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import useDimensions from 'react-cool-dimensions';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation } from 'react-router-dom';
+import type { Editor, PureEditorContent } from '@tiptap/react';
+import { EditorContent } from '@tiptap/react';
 import packageJson from '../../../package.json';
-import { tiptapOptions } from '../../config';
+import type { tiptapOptions } from '../../config';
 import { CollectionItemPageContent } from '../../pages/CMS/CollectionItemPage';
-import { Action } from '../../pages/CMS/CollectionItemPage/useActions';
-import { themeType } from '../../utils/theme/theme';
+import type { Action } from '../../pages/CMS/CollectionItemPage/useActions';
+import type { themeType } from '../../utils/theme/theme';
 import { editorExtensions } from '../CollaborativeFields/editorExtensions';
 import utils from '../CollaborativeFields/utils';
 import { Spinner } from '../Loading';
@@ -28,17 +31,16 @@ import { Statusbar, StatusbarBlock } from './components/Statusbar';
 import { Titlebar } from './components/Titlebar';
 import { Toolbar } from './components/Toolbar';
 import { CommentPanel } from './extension-power-comment';
+import type { useAwareness } from './hooks';
 import {
   useAutosaveModal,
-  useAwareness,
   useDevTools,
   useSidebar,
   useTipTapEditor,
   useTrackChanges,
   useWordCount,
 } from './hooks';
-import { FieldY, IYSettingsMap } from './hooks/useY';
-import './office-icon/colors1.css';
+import type { FieldY, IYSettingsMap } from './hooks/useY';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
 
 interface ITiptap {

@@ -1,3 +1,4 @@
+import { sveltekit } from '@sveltejs/kit/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import BuildInfo from 'vite-plugin-info';
@@ -14,6 +15,7 @@ export default defineConfig({
       babel: {
         plugins: ['@emotion/babel-plugin'],
       },
+      fastRefresh: false,
     }),
     viteTsconfigPaths(),
     svgrPlugin(),
@@ -721,6 +723,7 @@ export default defineConfig({
       injectRegister: 'inline',
     }),
     BuildInfo(),
+    sveltekit(),
   ],
   server: {
     port: parseInt(process.env.PORT || '4000'),

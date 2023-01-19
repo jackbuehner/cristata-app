@@ -1,4 +1,4 @@
-import { theme } from './theme';
 import { getColorShades } from './getColorShades';
+import { theme } from './theme';
 
-export { theme, getColorShades };
+export { getColorShades, theme };

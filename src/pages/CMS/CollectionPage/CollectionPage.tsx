@@ -9,17 +9,20 @@ import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import { v4 as uuidv4 } from 'uuid';
 import { Menu } from '../../../components/Menu';
-import { mongoFilterType } from '../../../graphql/client';
-import { SIGN_S3, SIGN_S3__DOC_TYPE, SIGN_S3__TYPE } from '../../../graphql/queries';
-import { CREATE_FILE, CREATE_FILE__TYPE } from '../../../graphql/queries/CREATE_FILE';
+import type { mongoFilterType } from '../../../graphql/client';
+import type { SIGN_S3__DOC_TYPE, SIGN_S3__TYPE } from '../../../graphql/queries';
+import { SIGN_S3 } from '../../../graphql/queries';
+import type { CREATE_FILE__TYPE } from '../../../graphql/queries/CREATE_FILE';
+import { CREATE_FILE } from '../../../graphql/queries/CREATE_FILE';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName, setAppSearchShown } from '../../../redux/slices/appbarSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { isJSON } from '../../../utils/isJSON';
-import { themeType } from '../../../utils/theme/theme';
-import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
+import type { themeType } from '../../../utils/theme/theme';
+import type { ICollectionTableImperative } from './CollectionTable';
+import { CollectionTable } from './CollectionTable';
 import { useNewItemModal } from './useNewItemModal';
 
 type CreateNewStateType = {

@@ -1,12 +1,6 @@
-import {
-  ApolloError,
-  ApolloQueryResult,
-  DocumentNode,
-  gql,
-  useQuery,
-  WatchQueryFetchPolicy,
-} from '@apollo/client';
-import { FluentIconNames } from '../../components/FluentIcon';
+import type { ApolloError, ApolloQueryResult, DocumentNode, WatchQueryFetchPolicy } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
+import type { FluentIconNames } from '../../components/FluentIcon';
 
 /**
  * Gets the navigation config for the specified navigation.

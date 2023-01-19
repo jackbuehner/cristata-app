@@ -5,24 +5,22 @@ import loadable from '@loadable/component';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { PersistGate } from 'redux-persist/integration/react';
 import './App.css';
 import { ToastContainer } from './components/ToastContainer';
 import { createClient } from './graphql/client';
 import { DropdownProvider } from './hooks/useDropdown';
-import { ProtocolHandlerPage } from './pages/ProtocolHandlerPage';
-import { SignOut } from './pages/SignIn';
 import { persistor, store } from './redux/store';
 import { ReloadPrompt } from './ReloadPrompt';
 import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
 
-/* prettier-ignore */ const Protected = loadable(() => import(/* webpackChunkName: "ProtectedRoutes" */'./Protected'), { resolveComponent: ({ Protected }) => Protected });
+// /* prettier-ignore */ const Protected = loadable(() => import(/* webpackChunkName: "ProtectedRoutes" */'./Protected'), { resolveComponent: ({ Protected }) => Protected });
 /* prettier-ignore */ const SplashScreen = loadable(() => import(/* webpackChunkName: "SplashScreen" */'./components/SplashScreen'), { resolveComponent: ({ SplashScreen }) => SplashScreen });
 
-Protected.preload();
+// Protected.preload();
 SplashScreen.preload();
 
 export interface IGridCols {
@@ -110,14 +108,15 @@ function App() {
                     error={errorUser || undefined}
                     user={user}
                     bypassAuthLogic={!navigator.onLine}
-                    persistentChildren={
-                      <Routes>
-                        <Route path={`/${tenant}/proto/*`} element={<ProtocolHandlerPage />} />
-                        <Route path={`/${tenant}/sign-out`} element={<SignOut />} />
-                        <Route path={`*`} element={<></>} />
-                      </Routes>
-                    }
-                    protectedChildren={<Protected setThemeMode={setThemeMode} />}
+                    // persistentChildren={
+                    //   <div>hello</div>
+                    //   // <Routes>
+                    //   //   {/* <Route path={`/${tenant}/proto/*`} element={<ProtocolHandlerPage />} />
+                    //   //   <Route path={`/${tenant}/sign-out`} element={<SignOut />} />
+                    //   //   <Route path={`*`} element={<></>} /> */}
+                    //   // </Routes>
+                    // }
+                    // protectedChildren={<Protected setThemeMode={setThemeMode} />}
                   />
                 </ModalProvider>
               </Router>

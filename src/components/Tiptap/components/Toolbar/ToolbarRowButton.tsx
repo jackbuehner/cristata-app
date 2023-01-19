@@ -1,8 +1,8 @@
-import styled from '@emotion/styled';
 import { useTheme } from '@emotion/react';
-import { themeType } from '../../../../utils/theme/theme';
+import styled from '@emotion/styled';
+import type { themeType } from '../../../../utils/theme/theme';
 import { Button } from '../../../Button';
-import { ButtonProps } from '../../../Button/Button';
+import type { ButtonProps } from '../../../Button/Button';
 
 interface IToolbarRowButton extends ButtonProps {
   isActive?: boolean;

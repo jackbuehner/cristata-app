@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { get as getProperty } from 'object-path';
+import { useMemo } from 'react';
 import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
 interface UsePublishPermissionsParams {

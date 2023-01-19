@@ -7,7 +7,7 @@ import now from '~build/time';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../redux/slices/authUserSlice';
 import { persistor } from '../../redux/store';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 import { Button } from '../Button';
 import { Spinner } from '../Loading';
 

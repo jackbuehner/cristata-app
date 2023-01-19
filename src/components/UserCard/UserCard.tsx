@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
 import { useNavigate } from 'react-router-dom';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
 interface IUserCard {

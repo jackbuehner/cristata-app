@@ -4,13 +4,13 @@ import styled from '@emotion/styled';
 import { Person24Regular, PersonAdd24Regular, SignOut24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useLocation } from 'react-router-dom';
-import { ME_BASIC, ME_BASIC__TYPE } from '../../graphql/queries';
+import { ME_BASIC, type ME_BASIC__TYPE } from '../../graphql/queries';
 import { useDropdown } from '../../hooks/useDropdown';
 import { useAppSelector } from '../../redux/hooks';
 import { persistor } from '../../redux/store';
 import { server } from '../../utils/constants';
 import { genAvatar } from '../../utils/genAvatar';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
 import { MenuList } from '../Menu';
 

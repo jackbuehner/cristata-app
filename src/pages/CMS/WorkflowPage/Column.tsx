@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import Color from 'color';
 import React from 'react';
 import useDimensions from 'react-cool-dimensions';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { Card } from './Card';
 
 /**

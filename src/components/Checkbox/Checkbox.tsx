@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 interface ICheckbox {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;

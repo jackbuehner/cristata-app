@@ -3,4 +3,4 @@ import { DeletionEventHandler } from './deletionEventHandler';
 import { DeletionKit, DeletionKitOptions } from './deletionKit';
 
 export { Deletion, DeletionEventHandler, DeletionKit };
-export type { DeletionOptions, DeletionKitOptions };
+export type { DeletionKitOptions, DeletionOptions };

@@ -1,11 +1,7 @@
-import { ApolloError, ApolloQueryResult, DocumentNode, gql, useQuery } from '@apollo/client';
-import {
-  isSchemaDef,
-  SchemaDef,
-  isSchemaRef,
-  SchemaDefType,
-  SchemaType,
-} from '@jackbuehner/cristata-generator-schema';
+import type { ApolloError, ApolloQueryResult, DocumentNode } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
+import type { SchemaDef, SchemaDefType, SchemaType } from '@jackbuehner/cristata-generator-schema';
+import { isSchemaDef, isSchemaRef } from '@jackbuehner/cristata-generator-schema';
 import { set as setProperty } from 'object-path';
 
 /**
@@ -184,4 +180,4 @@ function parseSchemaDefType(schemaDefObject: SchemaDefType, parentKey?: string) 
 }
 
 export type { AppSchemaDef, DeconstructedSchemaDefType };
-export { useCollectionSchemaConfig, parseSchemaDefType };
+export { parseSchemaDefType, useCollectionSchemaConfig };

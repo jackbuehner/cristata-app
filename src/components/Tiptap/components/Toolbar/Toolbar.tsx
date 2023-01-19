@@ -1,3 +1,10 @@
+import Color from 'color';
+import React, { useEffect, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ReactTooltip from 'react-tooltip';
+import '../../office-icon/colors1.css';
+
 /** @jsxImportSource @emotion/react */
 import { useModal } from '@cristata/react-modal-hook';
 import { css, useTheme } from '@emotion/react';
@@ -19,22 +26,15 @@ import {
   TextNumberListLtr20Regular,
   TextQuote20Regular,
 } from '@fluentui/react-icons';
-import { Editor } from '@tiptap/react';
-import Color from 'color';
-import React, { useEffect, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation, useNavigate } from 'react-router-dom';
-import ReactTooltip from 'react-tooltip';
-import { tiptapOptions } from '../../../../config';
+import type { Editor } from '@tiptap/react';
+import type { tiptapOptions } from '../../../../config';
 import { ClientConsumer } from '../../../../graphql/client';
-import {
-  PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
-  PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
-} from '../../../../graphql/queries';
+import type { PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE } from '../../../../graphql/queries';
+import { PHOTOS_BASIC_BY_REGEXNAME_OR_URL } from '../../../../graphql/queries';
 import { useDropdown } from '../../../../hooks/useDropdown';
 import { CollectionItemPageContent } from '../../../../pages/CMS/CollectionItemPage';
-import { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
-import { themeType } from '../../../../utils/theme/theme';
+import type { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
+import type { themeType } from '../../../../utils/theme/theme';
 import { Text } from '../../../ContentField';
 import { InputGroup } from '../../../InputGroup';
 import { Label } from '../../../Label';
@@ -42,9 +42,9 @@ import { Menu } from '../../../Menu';
 import { PlainModal } from '../../../Modal';
 import { Select } from '../../../Select';
 import { CommentPanel } from '../../extension-power-comment';
-import { useAwareness } from '../../hooks';
-import { FieldY } from '../../hooks/useY';
-import { BackIcon, BoldIcon, ItalicsIcon, RedoIcon, StrikeIcon, UnderlineIcon } from './../../Icons';
+import type { useAwareness } from '../../hooks';
+import type { FieldY } from '../../hooks/useY';
+import { BackIcon, BoldIcon, ItalicsIcon, RedoIcon, StrikeIcon, UnderlineIcon } from '../../Icons';
 import {
   AcceptRevision20Icon,
   Editor20Icon,
@@ -53,8 +53,7 @@ import {
   RejectRevision20Icon,
   TrackChanges20Icon,
   WordCountList20Icon,
-} from './../../office-icon';
-import './../../office-icon/colors1.css';
+} from '../../office-icon';
 import { Combobox } from './Combobox';
 import { TableToolbarRow } from './TableToolbarRow';
 import { ToolbarActionRowContainer } from './ToolbarActionRowContainer';

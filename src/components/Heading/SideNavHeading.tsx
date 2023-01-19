@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 const SideNavHeadingComponent = styled.div<{ theme: themeType }>`
   font-family: ${({ theme }) => theme.font.detail};

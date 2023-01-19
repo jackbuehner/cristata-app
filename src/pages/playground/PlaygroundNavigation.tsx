@@ -1,11 +1,11 @@
+import GraphiQLExplorer from '@cristata/graphiql-explorer';
 /** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
-import GraphiQLExplorer from '@cristata/graphiql-explorer';
 import { SideNavHeading } from '../../components/Heading';
 import { Offline } from '../../components/Offline';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setExplorerIsOpen, setQuery } from '../../redux/slices/graphiqlSlice';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 interface PlaygroundNavigationProps {}
 

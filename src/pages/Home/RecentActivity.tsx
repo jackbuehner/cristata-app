@@ -1,18 +1,20 @@
 import { useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { capitalize } from '../../utils/capitalize';
 import ColorHash from 'color-hash';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
-import { Fragment, MouseEventHandler } from 'react';
+import type { MouseEventHandler } from 'react';
+import { Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HISTORY, HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
+import type { HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
+import { HISTORY } from '../../graphql/queries';
 import { camelToDashCase } from '../../utils/camelToDashCase';
+import { capitalize } from '../../utils/capitalize';
 import { genAvatar } from '../../utils/genAvatar';
-import { themeType } from '../../utils/theme/theme';
-import { uncapitalize } from '../../utils/uncapitalize';
 import { listOxford } from '../../utils/listOxford';
+import type { themeType } from '../../utils/theme/theme';
+import { uncapitalize } from '../../utils/uncapitalize';
 
 /**
  * Displays the recent actiivty in the CMS.

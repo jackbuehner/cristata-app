@@ -39,4 +39,4 @@ type CREATE_FILE__DOC_TYPE = {
 };
 
 export { CREATE_FILE };
-export type { CREATE_FILE__TYPE, CREATE_FILE__DOC_TYPE };
+export type { CREATE_FILE__DOC_TYPE, CREATE_FILE__TYPE };

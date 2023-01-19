@@ -1,11 +1,11 @@
-/** @jsxImportSource @emotion/react */
-import { css, SerializedStyles, useTheme } from '@emotion/react';
 import Color from 'color';
-import { ReactText } from 'react';
+import type { ReactText } from 'react';
 import { useNavigate } from 'react-router';
 import { useLocation } from 'react-router-dom';
-import { Button } from '.';
-import { themeType } from '../../utils/theme/theme';
+/** @jsxImportSource @emotion/react */
+import { css, useTheme, type SerializedStyles } from '@emotion/react';
+import type { themeType } from '../../utils/theme/theme';
+import { Button } from './';
 
 function SideNavMainButton(props: {
   children: ReactText;

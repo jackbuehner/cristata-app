@@ -39,4 +39,4 @@ type CREATE_TEAM__DOC_TYPE = {
 };
 
 export { CREATE_TEAM };
-export type { CREATE_TEAM__TYPE, CREATE_TEAM__DOC_TYPE };
+export type { CREATE_TEAM__DOC_TYPE, CREATE_TEAM__TYPE };

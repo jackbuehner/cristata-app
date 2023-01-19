@@ -2,9 +2,9 @@ import styled from '@emotion/styled';
 import Color from 'color';
 import { useState } from 'react';
 import { buttonEffect } from '../../../components/Button';
-import { colorType } from '../../../utils/theme/theme';
-import { icons } from './tabs/SchemaCard';
+import type { colorType } from '../../../utils/theme/theme';
 import { useCreateSchemaDef } from './hooks/schema-modals/useCreateSchemaDef';
+import { icons } from './tabs/SchemaCard';
 
 interface SidebarSchemaCardProps {
   label: string;

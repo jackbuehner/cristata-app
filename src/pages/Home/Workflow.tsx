@@ -7,8 +7,10 @@ import {
   MailInbox24Regular,
 } from '@fluentui/react-icons';
 import { useRef } from 'react';
+
 // import FluentIcon from '../../components/FluentIcon';
-import { STAGE_COUNTS, STAGE_COUNTS__TYPE } from '../../graphql/queries';
+import type { STAGE_COUNTS__TYPE } from '../../graphql/queries';
+import { STAGE_COUNTS } from '../../graphql/queries';
 import { WorkflowStatusCard } from './WorkflowStatusCard';
 
 function Workflow() {

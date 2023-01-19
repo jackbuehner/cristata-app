@@ -12,21 +12,16 @@ import { Chip } from '../../../components/Chip';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
 import { Offline } from '../../../components/Offline';
-import { mongoFilterType } from '../../../graphql/client';
-import {
-  CREATE_PHOTO,
-  CREATE_PHOTO__TYPE,
-  CREATE_PHOTO__VARIABLES,
-  PHOTOS_BASIC,
-  PHOTOS_BASIC__TYPE,
-} from '../../../graphql/queries';
+import type { mongoFilterType } from '../../../graphql/client';
+import type { CREATE_PHOTO__TYPE, CREATE_PHOTO__VARIABLES, PHOTOS_BASIC__TYPE } from '../../../graphql/queries';
+import { CREATE_PHOTO, PHOTOS_BASIC } from '../../../graphql/queries';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName, setAppSearchShown } from '../../../redux/slices/appbarSlice';
 import { getSignedRequest } from '../../../utils/getSignedRequest';
 import { isJSON } from '../../../utils/isJSON';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilterRow';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
 

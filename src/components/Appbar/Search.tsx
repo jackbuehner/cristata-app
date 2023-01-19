@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppSearchShown } from '../../redux/slices/appbarSlice';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { IconButton } from '../Button';
 import { FluentIcon } from '../FluentIcon';
 

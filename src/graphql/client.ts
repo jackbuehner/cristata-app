@@ -1,10 +1,10 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { LocalStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import { merge } from 'merge-anything';
-import { Paged } from '../interfaces/cristata/paged';
-import { ClientConsumer } from './ClientConsumer';
-import mongoose from 'mongoose';
+import type { FilterQuery } from 'mongoose';
+import type { Paged } from '../interfaces/cristata/paged';
 import { server } from '../utils/constants';
-import { persistCache, LocalStorageWrapper } from 'apollo3-cache-persist';
+import { ClientConsumer } from './ClientConsumer';
 
 const collectionPluralNames = [
   'articles',
@@ -90,8 +90,8 @@ const createClient = (tenant?: string) =>
     credentials: 'include',
   });
 
-type mongoFilterType = mongoose.FilterQuery<unknown>;
+type mongoFilterType = FilterQuery<unknown>;
 type mongoSortType = { [key: string]: -1 | 1 };
 
 export type { mongoFilterType, mongoSortType };
-export { createClient, ClientConsumer };
+export { ClientConsumer, createClient };

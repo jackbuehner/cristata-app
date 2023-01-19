@@ -37,4 +37,4 @@ type SIGN_S3__DOC_TYPE = {
 };
 
 export { SIGN_S3 };
-export type { SIGN_S3__TYPE, SIGN_S3__DOC_TYPE };
+export type { SIGN_S3__DOC_TYPE, SIGN_S3__TYPE };

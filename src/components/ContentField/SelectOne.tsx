@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { replaceCircular } from '../../utils/replaceCircular';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { Combobox, Number, Text } from './';
-import { Field, FieldProps } from './Field';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface SelectOneProps extends Omit<FieldProps, 'children'> {
   type: 'String' | 'Float' | 'Int';

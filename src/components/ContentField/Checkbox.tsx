@@ -1,8 +1,9 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { CSSProperties, InputHTMLAttributes } from 'react';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { Field, FieldProps } from './Field';
+import type { CSSProperties, InputHTMLAttributes } from 'react';
+import type { colorType, themeType } from '../../utils/theme/theme';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface CheckboxProps
   extends Omit<FieldProps, 'children'>,

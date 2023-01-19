@@ -1,8 +1,10 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { RefObject, TextareaHTMLAttributes, useEffect, useRef } from 'react';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { Field, FieldProps } from './Field';
+import type { RefObject, TextareaHTMLAttributes } from 'react';
+import { useEffect, useRef } from 'react';
+import type { colorType, themeType } from '../../utils/theme/theme';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface TextProps extends Omit<FieldProps, 'children'>, TextareaHTMLAttributes<HTMLTextAreaElement> {
   color?: colorType;

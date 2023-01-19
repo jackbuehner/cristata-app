@@ -1,11 +1,12 @@
-import { SelectComponent } from './Select';
-import AsyncSelect, { Props } from 'react-select/async';
-import { OptionTypeBase } from 'react-select';
-import { colorShade, colorType, themeType } from '../../utils/theme/theme';
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { useEffect, useState } from 'react';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { useTheme } from '@emotion/react';
+import { useEffect, useState } from 'react';
+import type { OptionTypeBase } from 'react-select';
+import type { Props } from 'react-select/async';
+import AsyncSelect from 'react-select/async';
+import type { colorShade, colorType, themeType } from '../../utils/theme/theme';
 import { MultiValueLabelComponent, OptionComponent } from './MultiSelect';
+import { SelectComponent } from './Select';
 
 interface ISelectAsync extends Omit<Props<OptionTypeBase, false>, 'isMulti'> {
   appTheme: themeType;

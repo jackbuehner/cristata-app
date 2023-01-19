@@ -1,6 +1,6 @@
 import { ApolloError, gql, NetworkStatus, useQuery } from '@apollo/client';
-import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
@@ -185,4 +185,4 @@ export function deepen(obj: Record<string, boolean | { __aliasFor: string } | st
   return result;
 }
 
-export { useFindDoc, docDefsToQueryObjectCols };
+export { docDefsToQueryObjectCols, useFindDoc };

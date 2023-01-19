@@ -1,7 +1,7 @@
 import { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
 import { useOptions } from '../ContentField/useOptions';
+import { CollaborativeFieldProps, CollaborativeFieldWrapper } from './';
 import { CollaborativeCombobox, PopulatedRefValue, Value, Values } from './CollaborativeCombobox';
 import { SelectedReferenceItems } from './SelectedReferenceItems';
 

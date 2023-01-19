@@ -2,12 +2,11 @@ import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-
 import appbarReducer from './slices/appbarSlice';
 import authUserReducer from './slices/authUserSlice';
 import cmsItemReducer from './slices/cmsItemSlice';
-import graphiqlReducer from './slices/graphiqlSlice';
 import collectionReducer from './slices/collectionSlice';
+import graphiqlReducer from './slices/graphiqlSlice';
 
 const reducers = combineReducers({
   appbar: appbarReducer,
@@ -43,5 +42,5 @@ const persistor = persistStore(store);
 type RootState = ReturnType<typeof store.getState>;
 type AppDispatch = typeof store.dispatch;
 
-export { store, persistor };
-export type { RootState, AppDispatch };
+export { persistor, store };
+export type { AppDispatch, RootState };

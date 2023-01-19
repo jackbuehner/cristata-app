@@ -1,4 +1,5 @@
-import { ApolloError, useApolloClient } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect, useState } from 'react';
@@ -9,12 +10,8 @@ import { InputGroup } from '../../../components/InputGroup';
 import { Label } from '../../../components/Label';
 import { TextArea } from '../../../components/TextArea';
 import { TextInput } from '../../../components/TextInput';
-import {
-  DEACTIVATE_USER,
-  DEACTIVATE_USER__TYPE,
-  MUTATE_PROFILE,
-  MUTATE_PROFILE__TYPE,
-} from '../../../graphql/queries';
+import type { DEACTIVATE_USER__TYPE, MUTATE_PROFILE__TYPE } from '../../../graphql/queries';
+import { DEACTIVATE_USER, MUTATE_PROFILE } from '../../../graphql/queries';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 
 interface ProfileData {

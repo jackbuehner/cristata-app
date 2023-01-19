@@ -1,5 +1,5 @@
 import { Extension } from '@tiptap/core';
-import { Deletion, DeletionOptions, DeletionEventHandler } from '.';
+import { Deletion, DeletionEventHandler, DeletionOptions } from './';
 
 interface DeletionKitOptions extends Partial<DeletionOptions> {}
 

@@ -1,11 +1,11 @@
-/** @jsxImportSource @emotion/react */
-import styled from '@emotion/styled';
 import { css, useTheme } from '@emotion/react';
 import Color from 'color';
-import { Dispatch, ReactText, SetStateAction } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '.';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { Dispatch, ReactText, SetStateAction } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+/** @jsxImportSource @emotion/react */
+import styled from '@emotion/styled';
+import type { colorType, themeType } from '../../utils/theme/theme';
+import { Button } from './';
 
 function SideNavSubButton(props: {
   children: ReactText;

@@ -1,5 +1,9 @@
-import { isSchemaDef, isTypeTuple, SchemaDefType } from '@jackbuehner/cristata-generator-schema';
-import { parseSchemaComponents } from '@jackbuehner/cristata-generator-schema';
+import {
+  isSchemaDef,
+  isTypeTuple,
+  parseSchemaComponents,
+  SchemaDefType,
+} from '@jackbuehner/cristata-generator-schema';
 import { Fragment } from 'react';
 import { useAppSelector } from '../../../../redux/hooks';
 import { BranchCard } from './BranchCard';

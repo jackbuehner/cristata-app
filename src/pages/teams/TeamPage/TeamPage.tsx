@@ -23,17 +23,14 @@ import { Menu } from '../../../components/Menu';
 import { MultiSelect } from '../../../components/Select';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
-import {
-  DEACTIVATE_USER,
+import type {
   DEACTIVATE_USER__TYPE,
-  DELETE_TEAM,
   DELETE_TEAM__TYPE,
-  MODIFY_TEAM,
   MODIFY_TEAM__TYPE,
-  TEAM,
   TEAM__DOC_TYPE,
   TEAM__TYPE,
 } from '../../../graphql/queries';
+import { DEACTIVATE_USER, DELETE_TEAM, MODIFY_TEAM, TEAM } from '../../../graphql/queries';
 import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useWindowModal } from '../../../hooks/useWindowModal';
@@ -41,7 +38,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { selectProfile } from '../selectProfile';
 import { UsersGrid } from '../TeamsOverviewPage/TeamsOverviewPage';
 

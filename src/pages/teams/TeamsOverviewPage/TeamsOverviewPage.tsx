@@ -14,22 +14,20 @@ import { MultiSelect } from '../../../components/Select';
 import { TeamCard } from '../../../components/TeamCard';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
-import {
-  CREATE_TEAM,
+import type {
   CREATE_TEAM__TYPE,
-  TEAMS,
   TEAMS__DOC_TYPE,
   TEAMS__TYPE,
-  TEAM_UNASSIGNED_USERS,
   TEAM_UNASSIGNED_USERS__TYPE,
 } from '../../../graphql/queries';
+import { CREATE_TEAM, TEAMS, TEAM_UNASSIGNED_USERS } from '../../../graphql/queries';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
 import { slugify } from '../../../utils/slugify';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { selectProfile } from '../selectProfile';
 
 function TeamsOverviewPage() {

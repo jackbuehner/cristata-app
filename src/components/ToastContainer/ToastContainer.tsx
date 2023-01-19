@@ -1,9 +1,9 @@
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { Dismiss16Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { ToastContainer as ReactToastContainer } from 'react-toastify';
-import { themeType } from '../../utils/theme/theme';
-import { useTheme } from '@emotion/react';
-import { Dismiss16Regular } from '@fluentui/react-icons';
+import type { themeType } from '../../utils/theme/theme';
 
 function ToastContainer() {
   const theme = useTheme() as themeType;

@@ -1,6 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { gql, useApolloClient } from '@apollo/client';
-import { isTypeTuple, MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
@@ -8,6 +5,10 @@ import { useEffect, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
+
+/* eslint-disable react-hooks/rules-of-hooks */
+import { gql, useApolloClient } from '@apollo/client';
+import { isTypeTuple, MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { Checkbox, DateTime, Number, ReferenceOne, SelectMany, Text } from '../../../components/ContentField';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';

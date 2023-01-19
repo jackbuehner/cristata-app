@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-
 import { get as getProperty } from 'object-path';
 import { useState } from 'react';
 import { Text } from '../../../../../components/ContentField';

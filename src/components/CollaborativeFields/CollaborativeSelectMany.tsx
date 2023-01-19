@@ -2,13 +2,13 @@ import styled from '@emotion/styled';
 import { Add20Regular } from '@fluentui/react-icons';
 import { InputHTMLAttributes, useState } from 'react';
 import { DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { IconButton } from '../Button';
 import {
   CollaborativeFieldProps,
   CollaborativeFieldWrapper,
   CollaborativeNumberField,
   CollaborativeTextField,
-} from '.';
-import { IconButton } from '../Button';
+} from './';
 import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
 import { SelectedItems } from './SelectedItems';
 

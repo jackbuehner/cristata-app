@@ -4,18 +4,13 @@ import { Add20Regular, Dismiss24Regular, ReOrderDotsHorizontal24Regular } from '
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import Color from 'color';
 import { useState } from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  DraggableProvidedDragHandleProps,
-  Droppable,
-  DropResult,
-  ResponderProvided,
-} from 'react-beautiful-dnd';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { DraggableProvidedDragHandleProps, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect, IconButton } from '../Button';
 import { Combobox, Number, Text } from './';
-import { Field, FieldProps } from './Field';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface SelectManyProps extends Omit<FieldProps, 'children'> {
   type: 'String' | 'Float' | 'Int';

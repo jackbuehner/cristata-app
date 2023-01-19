@@ -1,15 +1,16 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { PanelRightContract24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
+import { Dismiss24Regular, Edit24Regular, PanelRightContract24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 import { Button, IconButton } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
 import { Offline } from '../../../components/Offline';
-import { PHOTO, PHOTO__TYPE } from '../../../graphql/queries';
-import { themeType } from '../../../utils/theme/theme';
+import type { PHOTO__TYPE } from '../../../graphql/queries';
+import { PHOTO } from '../../../graphql/queries';
+import type { themeType } from '../../../utils/theme/theme';
 
 interface IPhotoLibraryFlyout {
   photo_id: string;

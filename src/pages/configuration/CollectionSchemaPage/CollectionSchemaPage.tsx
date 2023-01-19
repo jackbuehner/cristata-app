@@ -5,6 +5,7 @@ import { SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
 import { toast } from 'react-toastify';
+import { Spinner } from '../../../components/Loading';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tab, TabBar } from '../../../components/Tabs';
@@ -17,7 +18,6 @@ import { OptionsTab } from './tabs/OptionsTab';
 import { QueriesTab } from './tabs/QueriesTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
-import { Spinner } from '../../../components/Loading';
 
 function CollectionSchemaPage() {
   const theme = useTheme();

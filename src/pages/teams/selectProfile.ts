@@ -1,7 +1,7 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import mongoose from 'mongoose';
-import { Paged } from '../../interfaces/cristata/paged';
+import type { Paged } from '../../interfaces/cristata/paged';
 import { getPasswordStatus } from '../../utils/axios/getPasswordStatus';
 import { isObjectId } from '../../utils/isObjectId';
 

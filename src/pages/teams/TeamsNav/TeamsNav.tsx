@@ -1,12 +1,14 @@
-import { Button, SideNavSubButton } from '../../../components/Button';
-import { PeopleTeam20Regular } from '@fluentui/react-icons';
-import { SideNavHeading } from '../../../components/Heading';
-import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
-import { TEAMS, TEAMS__TYPE } from '../../../graphql/queries';
 import { NetworkStatus, useQuery } from '@apollo/client';
+import { PeopleTeam20Regular } from '@fluentui/react-icons';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Button, SideNavSubButton } from '../../../components/Button';
+import { SideNavHeading } from '../../../components/Heading';
 import { Spinner } from '../../../components/Loading';
 import { Offline } from '../../../components/Offline';
+import type { TEAMS__TYPE } from '../../../graphql/queries';
+import { TEAMS } from '../../../graphql/queries';
 
 interface ITeamsNav {
   setIsNavVisibleM?: Dispatch<SetStateAction<boolean>>;

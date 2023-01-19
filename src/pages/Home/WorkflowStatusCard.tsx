@@ -1,9 +1,9 @@
-import React from 'react';
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { useTheme } from '@emotion/react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { colorType, themeType } from '../../utils/theme/theme';
 
 interface IWorkflowStatusCard {
   color: colorType;

@@ -4,26 +4,22 @@ import {
   ChevronDown24Regular,
   ChevronUp24Regular,
   Dismiss24Regular,
-  ReOrderDotsHorizontal24Regular,
+  ReOrderDotsHorizontal24Regular
 } from '@fluentui/react-icons';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import Color from 'color';
 import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
-import React, { FunctionComponentElement } from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  DraggableProvidedDragHandleProps,
-  Droppable,
-  DropResult,
-  ResponderProvided,
-} from 'react-beautiful-dnd';
-import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { FunctionComponentElement } from 'react';
+import React from 'react';
+import type { DraggableProvidedDragHandleProps, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import type { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
-import { Field, FieldProps } from './Field';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface DocArrayProps extends Omit<FieldProps, 'children'> {
   stateFieldKey: string;

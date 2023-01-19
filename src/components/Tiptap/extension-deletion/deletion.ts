@@ -1,8 +1,8 @@
 import { Mark } from '@tiptap/core';
 import { markInputRule, markPasteRule, Range } from '@tiptap/react';
-import { v4 as uuidv4 } from 'uuid';
 import { MarkType } from 'prosemirror-model';
-import { Transaction, EditorState, TextSelection } from 'prosemirror-state';
+import { EditorState, TextSelection, Transaction } from 'prosemirror-state';
+import { v4 as uuidv4 } from 'uuid';
 
 type DispatchFunction = ((args?: any) => any) | undefined;
 
@@ -258,5 +258,5 @@ function removeDeletionFunction(
   return true;
 }
 
-export { Deletion, setDeletionFunction, removeDeletionFunction };
+export { Deletion, removeDeletionFunction, setDeletionFunction };
 export type { DeletionOptions };

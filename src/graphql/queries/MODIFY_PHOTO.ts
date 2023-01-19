@@ -35,4 +35,4 @@ type MODIFY_PHOTO__DOC_TYPE = {
 };
 
 export { MODIFY_PHOTO };
-export type { MODIFY_PHOTO__TYPE, MODIFY_PHOTO__DOC_TYPE };
+export type { MODIFY_PHOTO__DOC_TYPE, MODIFY_PHOTO__TYPE };

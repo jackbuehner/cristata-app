@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { NavigateOptions, To, useNavigate } from 'react-router-dom';
+import type { NavigateOptions, To } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { DropdownContext } from './_DropdownContext';
 
 /**

@@ -1,5 +1,5 @@
-import { WidgetWrapper } from './WidgetWrapper';
 import { WidgetActions } from './WidgetActions';
 import { WidgetLabel } from './WidgetLabel';
+import { WidgetWrapper } from './WidgetWrapper';
 
-export { WidgetWrapper, WidgetActions, WidgetLabel };
+export { WidgetActions, WidgetLabel, WidgetWrapper };

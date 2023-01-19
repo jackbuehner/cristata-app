@@ -1,9 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { gql, useApolloClient } from '@apollo/client';
 import { DocumentNode } from 'graphql';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+/* eslint-disable react-hooks/rules-of-hooks */
+import { gql, useApolloClient } from '@apollo/client';
 import { useWindowModal } from '../../../../hooks/useWindowModal';
 
 interface UseConfirmDeleteProps {
