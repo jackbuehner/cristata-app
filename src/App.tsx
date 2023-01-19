@@ -28,7 +28,7 @@ export interface IGridCols {
   sideSub: number;
 }
 
-function App() {
+function App({ children }: { children?: React.ReactNode }) {
   const {
     data: user,
     isLoading: loadingUser,
@@ -103,21 +103,21 @@ function App() {
                 <ModalProvider>
                   <ToastContainer />
                   <ReloadPrompt />
-                  <SplashScreen
+                  {/* <SplashScreen
                     loading={loadingUser}
                     error={errorUser || undefined}
                     user={user}
                     bypassAuthLogic={!navigator.onLine}
-                    // persistentChildren={
-                    //   <div>hello</div>
-                    //   // <Routes>
-                    //   //   {/* <Route path={`/${tenant}/proto/*`} element={<ProtocolHandlerPage />} />
-                    //   //   <Route path={`/${tenant}/sign-out`} element={<SignOut />} />
-                    //   //   <Route path={`*`} element={<></>} /> */}
-                    //   // </Routes>
-                    // }
-                    // protectedChildren={<Protected setThemeMode={setThemeMode} />}
-                  />
+                    persistentChildren={
+                      <Routes>
+                        <Route path={`/${tenant}/proto/*`} element={<ProtocolHandlerPage />} />
+                        <Route path={`/${tenant}/sign-out`} element={<SignOut />} />
+                        <Route path={`*`} element={<></>} />
+                      </Routes>
+                    }
+                    protectedChildren={<Protected setThemeMode={setThemeMode} />}
+                  /> */}
+                  {children}
                 </ModalProvider>
               </Router>
 

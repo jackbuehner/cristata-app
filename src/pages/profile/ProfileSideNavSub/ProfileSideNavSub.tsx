@@ -1,9 +1,3 @@
-import Color from 'color';
-import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
-
-/** @jsxImportSource @emotion/react */
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -17,6 +11,10 @@ import {
   PersonAdd20Regular,
 } from '@fluentui/react-icons';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Color from 'color';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import { Button, IconButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
 import { Menu } from '../../../components/Menu';

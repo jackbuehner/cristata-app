@@ -53,6 +53,7 @@
     "monaco-editor": "^0.33.0",
     "mongoose": "^6.0.13",
     "object-path": "^0.11.8",
+    "object-to-css-variables": "^0.2.1",
     "os-browserify": "^0.3.0",
     "pluralize": "^8.0.0",
     "prettier": "^2.7.1",

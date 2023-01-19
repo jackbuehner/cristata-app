@@ -317,16 +317,6 @@ function SplashScreen(props: ISplashScreen) {
           )}
         </ErrorBlock>
       </div>
-      {props.children ? (
-        props.children
-      ) : showPersistentChildren ? (
-        props.persistentChildren
-      ) : (
-        <>
-          {props.persistentChildren}
-          {props.protectedChildren}
-        </>
-      )}
     </>
   );
 }

@@ -1,5 +1,4 @@
 import GraphiQLExplorer from '@cristata/graphiql-explorer';
-/** @jsxImportSource @emotion/react */
 import { css, useTheme } from '@emotion/react';
 import { SideNavHeading } from '../../components/Heading';
 import { Offline } from '../../components/Offline';

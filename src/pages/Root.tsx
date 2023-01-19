@@ -3,6 +3,7 @@ import { CacheProvider } from '@emotion/react';
 import styled from '@emotion/styled';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Color from 'color';
+import React from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 import { ErrorBoundary } from 'react-error-boundary';
 import ReactTooltip from 'react-tooltip';
@@ -118,7 +119,7 @@ function AppErrorFallback({ error: unserializedError, resetErrorBoundary }: Fall
   );
 }
 
-function Root() {
+function Root({ children }: { children?: React.ReactNode }) {
   return (
     <CacheProvider
       value={createCache({
@@ -127,7 +128,7 @@ function Root() {
     >
       <ErrorBoundary FallbackComponent={AppErrorFallback}>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <App children={children} />
           <Tooltip
             place={'bottom'}
             effect={'float'}

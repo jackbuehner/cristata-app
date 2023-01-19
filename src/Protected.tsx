@@ -7,14 +7,10 @@ import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
-import { Appbar } from './components/Appbar';
 import { PageHead } from './components/PageHead';
-import { SideNavigation } from './components/SideNavigation';
-import { Titlebar } from './components/Titlebar';
 import { useAppDispatch } from './redux/hooks';
 import { setAppSearchShown } from './redux/slices/appbarSlice';
 import type { themeType } from './utils/theme/theme';
-
 /* prettier-ignore */ const HomePage = loadable(() => import(/* webpackChunkName: "HomePage" */'./pages/Home'), { resolveComponent: (c) => c.HomePage });
 /* prettier-ignore */ const ProfilePage = loadable(() => import(/* webpackChunkName: "ProfilePage" */'./pages/profile/ProfilePage'), { resolveComponent: (c) => c.ProfilePage });
 /* prettier-ignore */ const TeamPage = loadable(() => import(/* webpackChunkName: "TeamPage" */'./pages/teams/TeamPage'), { resolveComponent: (c) => c.TeamPage });
@@ -69,133 +65,67 @@ function Protected(props: ProtectedProps) {
   const dispatch = useAppDispatch();
   const tenant = location.pathname.split('/')[1];
 
-  //@ts-expect-error windowControlsOverlay is only available in some browsers
-  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
-
   // close search when pathname changes
   useEffect(() => {
     dispatch(setAppSearchShown(false));
   }, [dispatch, location.pathname]);
 
-  const isOffline = navigator.onLine === false;
-
   return (
     <>
-      {isCustomTitlebarVisible ? <Titlebar /> : null}
-      <PageWrapper isCustomTitlebarVisible={isCustomTitlebarVisible}>
-        {/** app bar */}
-        <Appbar />
-
-        {/** offline notice */}
-        {isOffline ? <OfflineNotice theme={theme}>Working offline</OfflineNotice> : null}
-
-        {/** side navigation and main content  */}
-        <Wrapper theme={theme}>
-          {window.name === '' ? (
-            <SideNavigation>
-              {(setIsNavVisible) => (
-                <Routes>
-                  <Route path={`/${tenant}`}>
-                    <Route path={`cms/*`} element={<CmsNavigation setIsNavVisibleM={setIsNavVisible} />} />
-                    <Route
-                      path={`profile/*`}
-                      element={<ProfileNavigation setIsNavVisibleM={setIsNavVisible} />}
-                    />
-                    <Route path={`teams/*`} element={<TeamsNavigation setIsNavVisibleM={setIsNavVisible} />} />
-                    <Route path={`playground`} element={<PlaygroundNavigation />} />
-                    <Route path={`configuration/*`} element={<ConfigurationNavigation />} />
-                    <Route path={`*`} element={<></>} />
-                  </Route>
-                </Routes>
-              )}
-            </SideNavigation>
-          ) : null}
-          <Content theme={theme}>
-            <Routes>
-              <Route path={`/${tenant}`}>
-                <Route path={`cms`}>
-                  <Route path={`workflow`} element={<WorkflowPage />} />
-                  <Route path={`collection/:collection`}>
-                    <Route index element={<CollectionPage />} />
-                    <Route path={`:item_id`} element={<CollectionItemPage />} />
-                    <Route path={`:item_id/version/:version_date`} element={<CollectionItemPage />} />
-                  </Route>
-                  <Route path={`photos/library`}>
-                    <Route index element={<PhotoLibraryPage />} />
-                    <Route path={`:photo_id`} element={<PhotoLibraryPage />} />
-                  </Route>
-                  <Route path={`*`} element={<PageHead title={`CMS`} />} />
-                </Route>
-                <Route path={`profile`}>
-                  <Route index element={<PageHead title={`Profiles`} />} />
-                  <Route path={`:profile_id`} element={<ProfilePage />} />
-                </Route>
-                <Route path={`teams`}>
-                  <Route index element={<TeamsOverviewPage />} />
-                  <Route path={`:team_id`} element={<TeamPage />} />
-                </Route>
-                <Route path={`playground`} element={<Playground setThemeMode={props.setThemeMode} />} />
-                <Route path={`embed/fathom`} element={<FathomEmbed />} />
-                <Route path={`configuration`}>
-                  <Route path={`billing`}>
-                    <Route path={`usage`} element={<BillingServiceUsagePage />} />
-                    <Route path={`payments`} element={<BillingPaymentsPage />} />
-                  </Route>
-                  <Route path={`security`}>
-                    <Route path={`tokens-secrets`} element={<TokenSecretsPage />} />
-                  </Route>
-                  <Route path={`app`}>
-                    <Route path={`cms`} element={<CMSConfigPage />} />
-                  </Route>
-                  <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
-                  <Route path={`schema/:collection/code`} element={<CollectionSchemaPageOld />} />
-                  <Route
-                    path={`system-collection/:collection/action-access`}
-                    element={<SystemCollectionConfigPage />}
-                  />
-                </Route>
-                <Route path={``} element={<HomePage />} />
+      {/** side navigation and main content  */}
+      <Content theme={theme}>
+        <Routes>
+          <Route path={`/${tenant}`}>
+            <Route path={`cms`}>
+              <Route path={`workflow`} element={<WorkflowPage />} />
+              <Route path={`collection/:collection`}>
+                <Route index element={<CollectionPage />} />
+                <Route path={`:item_id`} element={<CollectionItemPage />} />
+                <Route path={`:item_id/version/:version_date`} element={<CollectionItemPage />} />
               </Route>
-            </Routes>
-          </Content>
-        </Wrapper>
-      </PageWrapper>
+              <Route path={`photos/library`}>
+                <Route index element={<PhotoLibraryPage />} />
+                <Route path={`:photo_id`} element={<PhotoLibraryPage />} />
+              </Route>
+              <Route path={`*`} element={<PageHead title={`CMS`} />} />
+            </Route>
+            <Route path={`profile`}>
+              <Route index element={<PageHead title={`Profiles`} />} />
+              <Route path={`:profile_id`} element={<ProfilePage />} />
+            </Route>
+            <Route path={`teams`}>
+              <Route index element={<TeamsOverviewPage />} />
+              <Route path={`:team_id`} element={<TeamPage />} />
+            </Route>
+            <Route path={`playground`} element={<Playground setThemeMode={props.setThemeMode} />} />
+            <Route path={`embed/fathom`} element={<FathomEmbed />} />
+            <Route path={`configuration`}>
+              <Route path={`billing`}>
+                <Route path={`usage`} element={<BillingServiceUsagePage />} />
+                <Route path={`payments`} element={<BillingPaymentsPage />} />
+              </Route>
+              <Route path={`security`}>
+                <Route path={`tokens-secrets`} element={<TokenSecretsPage />} />
+              </Route>
+              <Route path={`app`}>
+                <Route path={`cms`} element={<CMSConfigPage />} />
+              </Route>
+              <Route path={`schema/:collection`} element={<CollectionSchemaPage />} />
+              <Route path={`schema/:collection/code`} element={<CollectionSchemaPageOld />} />
+              <Route
+                path={`system-collection/:collection/action-access`}
+                element={<SystemCollectionConfigPage />}
+              />
+            </Route>
+            <Route path={``} element={<HomePage />} />
+          </Route>
+        </Routes>
+      </Content>
     </>
   );
 }
 
-const PageWrapper = styled.div<{ isCustomTitlebarVisible?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: ${({ isCustomTitlebarVisible }) =>
-    isCustomTitlebarVisible ? 'calc(100% - env(titlebar-area-height, 33px))' : '100%'};
-  position: fixed;
-
-  @media print {
-    height: 100%;
-  }
-`;
-
-const Wrapper = styled.div<{ theme: themeType }>`
-  display: flex;
-  flex-direction: row;
-  @media (max-width: 600px) {
-    display: block;
-  }
-  width: 100%;
-  height: 0;
-  flex-grow: 1;
-  flex-shrink: 1;
-`;
-
 const Content = styled.div<{ theme: themeType }>`
-  overflow: auto;
-  background-color: ${({ theme }) => (theme.mode === 'light' ? 'white' : theme.color.neutral.dark[100])};
-  color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
-  width: 100%;
-  height: 100%;
-
   /* skeleton loader */
   .react-skeleton-load.animated::before {
     background-image: ${({ theme }) =>
@@ -205,23 +135,6 @@ const Content = styled.div<{ theme: themeType }>`
         theme.mode === 'light' ? 'white' : theme.color.neutral.dark[200]
       ).alpha(0)})`};
   }
-`;
-
-const OfflineNotice = styled.div<{ theme: themeType }>`
-  display: flex;
-  height: 20px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.color.neutral.dark[100]};
-  background-color: ${({ theme }) => theme.color.orange[800]};
-  font-family: ${({ theme }) => theme.font.detail};
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 13px;
-  letter-spacing: 0.3px;
-  flex-grow: 0;
-  flex-shrink: 0;
 `;
 
 export { Protected };

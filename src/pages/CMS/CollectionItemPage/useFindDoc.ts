@@ -1,12 +1,13 @@
-import { ApolloError, gql, NetworkStatus, useQuery } from '@apollo/client';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
+import type { ApolloError } from '@apollo/client';
+import { gql, NetworkStatus, useQuery } from '@apollo/client';
+import type { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
 import { useEffect } from 'react';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 

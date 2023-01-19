@@ -1,17 +1,17 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
-import type { Dispatch, SetStateAction } from 'react';
-import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigationConfig } from '../../hooks/useNavigationConfig';
 import type { themeType } from '../../utils/theme/theme';
 
 interface SideNavigationProps {
-  children: (setIsNavVisible: Dispatch<SetStateAction<boolean>>) => React.ReactNode;
+  isNavVisible: boolean;
+  setIsNavVisible: () => boolean;
+  children: React.ReactNode;
 }
 
-function SideNavigation(props: SideNavigationProps) {
+function SideNavigation({ isNavVisible, setIsNavVisible, ...props }: SideNavigationProps) {
   const theme = useTheme() as themeType;
   const location = useLocation();
   const [mainNav] = useNavigationConfig('main');
@@ -25,9 +25,6 @@ function SideNavigation(props: SideNavigationProps) {
         item.to === location.pathname.replace(tenant || '', '')
     )?.subNav === 'forceCollapseForRoute';
 
-  // store whether the nav is shown
-  const [isNavVisible, setIsNavVisible] = useState(false);
-
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
 
@@ -38,7 +35,7 @@ function SideNavigation(props: SideNavigationProps) {
       isNavVisible={isNavVisible}
       isCustomTitlebarVisible={isCustomTitlebarVisible}
     >
-      {props.children(setIsNavVisible)}
+      {props.children}
     </SideNavigationComponent>
   );
 }

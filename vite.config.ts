@@ -728,4 +728,15 @@ export default defineConfig({
   server: {
     port: parseInt(process.env.PORT || '4000'),
   },
+  build: {
+    rollupOptions: {
+      external: [
+        '@cristata/graphiql-explorer',
+        'graphql-list-fields',
+        '@jackbuehner/cristata-ydoc-utils',
+        'y-websocket',
+        '@monaco-editor/react',
+      ],
+    },
+  },
 });

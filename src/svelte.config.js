@@ -14,6 +14,7 @@ const config = {
       $components: 'src/components',
       $utils: 'src/utils',
     },
+    prerender: false,
   },
 };
 
