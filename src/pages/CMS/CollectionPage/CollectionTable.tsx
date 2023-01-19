@@ -2,25 +2,18 @@ import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Archive20Regular, Delete20Regular, Open20Regular } from '@fluentui/react-icons';
-import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-generator-schema';
+import type { SchemaDef } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import {
-  Dispatch,
-  forwardRef,
-  SetStateAction,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Column } from 'react-table';
+import type { Column } from 'react-table';
 import { toast } from 'react-toastify';
 import { useLocation } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
@@ -28,14 +21,14 @@ import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
 import { Offline } from '../../../components/Offline';
 import { Table } from '../../../components/Table';
-import { mongoFilterType, mongoSortType } from '../../../graphql/client';
+import type { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCacheWithExpiration } from '../../../hooks/useCacheWithExpiration';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { docDefsToQueryObjectCols } from '../CollectionItemPage/useFindDoc';
 import { CollectionTableFilterRow } from './CollectionTableFilterRow';

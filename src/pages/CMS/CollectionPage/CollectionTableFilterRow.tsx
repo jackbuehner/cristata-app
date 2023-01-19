@@ -4,7 +4,7 @@ import Color from 'color';
 import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import { Button, IconButton } from '../../../components/Button';
 import FluentIcon from '../../../components/FluentIcon';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { capitalize } from '../../../utils/capitalize';
 import { isJSON } from '../../../utils/isJSON';
 

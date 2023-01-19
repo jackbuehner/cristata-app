@@ -1,13 +1,8 @@
 import { Mark } from '@tiptap/core';
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import Color from 'color';
-import {
-  Mark as ProseMirrorMark,
-  MarkType,
-  Node as ProseMirrorNode,
-  ResolvedPos,
-  Slice,
-} from 'prosemirror-model';
+import type { Mark as ProseMirrorMark, MarkType, ResolvedPos, Slice } from 'prosemirror-model';
+import { Node as ProseMirrorNode } from 'prosemirror-model';
 import { TextSelection } from 'prosemirror-state';
 import { v4 as uuidv4 } from 'uuid';
 

@@ -118,6 +118,7 @@ function SplashScreen(props: ISplashScreen) {
       dispatch(setOtherUsers(props.user.otherUsers || []));
 
       // get the location state
+      // @ts-expect-error this might work, but should be removed soon since this logic is mostly handled in the auth app
       const locState = location.state as { step?: string } | undefined;
 
       const logout = () => {
@@ -135,6 +136,7 @@ function SplashScreen(props: ISplashScreen) {
   }, [
     props.user,
     dispatch,
+    // @ts-expect-error see above
     location.state,
     location.pathname,
     searchParams,

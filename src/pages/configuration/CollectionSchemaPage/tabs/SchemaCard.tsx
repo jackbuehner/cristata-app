@@ -1,10 +1,9 @@
 import styled from '@emotion/styled';
 import Color from 'color';
-import React from 'react';
 import { buttonEffect } from '../../../../components/Button';
 import { Chip } from '../../../../components/Chip';
 import FluentIcon from '../../../../components/FluentIcon';
-import { colorType } from '../../../../utils/theme/theme';
+import type { colorType } from '../../../../utils/theme/theme';
 import { useConfirmDelete } from '../hooks/schema-modals/useConfirmDelete';
 import { useEditSchemaDef } from '../hooks/schema-modals/useEditSchemaDef';
 

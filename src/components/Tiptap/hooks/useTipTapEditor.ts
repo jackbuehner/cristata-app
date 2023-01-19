@@ -1,12 +1,12 @@
-import { HocuspocusProvider } from '@hocuspocus/provider';
-import { EditorOptions } from '@tiptap/core';
+import type { HocuspocusProvider } from '@hocuspocus/provider';
+import type { EditorOptions } from '@tiptap/core';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 import { Editor } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useEffect, useRef, useState } from 'react';
-import { WebrtcProvider } from 'y-webrtc';
-import * as Y from 'yjs';
+import type { WebrtcProvider } from 'y-webrtc';
+import type * as Y from 'yjs';
 
 function useForceUpdate() {
   const [, setValue] = useState(0);

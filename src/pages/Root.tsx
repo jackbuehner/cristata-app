@@ -3,7 +3,6 @@ import { CacheProvider } from '@emotion/react';
 import styled from '@emotion/styled';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Color from 'color';
-import React from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 import { ErrorBoundary } from 'react-error-boundary';
 import ReactTooltip from 'react-tooltip';

@@ -1,6 +1,8 @@
-import { Extension, Range } from '@tiptap/core';
-import { Node as ProsemirrorNode } from 'prosemirror-model';
-import { TextSelection, Transaction } from 'prosemirror-state';
+import type { Range } from '@tiptap/core';
+import { Extension } from '@tiptap/core';
+import type { Node as ProsemirrorNode } from 'prosemirror-model';
+import type { Transaction } from 'prosemirror-state';
+import { TextSelection } from 'prosemirror-state';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {

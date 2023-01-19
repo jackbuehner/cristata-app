@@ -2,7 +2,6 @@ import type { SerializedStyles } from '@emotion/react';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import type { InputHTMLAttributes } from 'react';
-import React from 'react';
 import { FluentIcon } from '../../components/FluentIcon';
 import type { colorShade, colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from './buttonEffect';

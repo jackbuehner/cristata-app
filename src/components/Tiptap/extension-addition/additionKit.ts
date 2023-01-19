@@ -1,5 +1,6 @@
 import { Extension } from '@tiptap/core';
-import { Addition, AdditionEventHandler, AdditionOptions } from './';
+import type { AdditionOptions } from './';
+import { Addition, AdditionEventHandler } from './';
 
 interface AdditionKitOptions extends Partial<AdditionOptions> {}
 

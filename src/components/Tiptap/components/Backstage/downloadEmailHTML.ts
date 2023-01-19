@@ -1,4 +1,4 @@
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 
 function downloadEmailHTML(editor: Editor, iframehtmlstring: string) {
   const html = generateEmailHTML(editor, iframehtmlstring);

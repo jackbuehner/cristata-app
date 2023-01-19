@@ -1,6 +1,6 @@
-import { ApolloClient } from '@apollo/client';
-import { FieldDef } from '@jackbuehner/cristata-generator-schema';
-import * as Y from 'yjs';
+import type { ApolloClient } from '@apollo/client';
+import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
+import type * as Y from 'yjs';
 import { populateReferenceValues } from '../../../ContentField/populateReferenceValues';
 
 type UnpopulatedValue = { _id: string; label?: string; [key: string]: unknown };

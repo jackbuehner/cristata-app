@@ -1,4 +1,5 @@
-import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import mongoose from 'mongoose';
 import type { Paged } from '../../interfaces/cristata/paged';

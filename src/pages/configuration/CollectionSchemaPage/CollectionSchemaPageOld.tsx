@@ -1,8 +1,10 @@
-import { DocumentNode, gql, useApolloClient } from '@apollo/client';
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
+import type { DocumentNode } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
+import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
 import collectionSchema from '@jackbuehner/cristata-api/dist/json-schemas/collection.schema.json';
-import Editor, { Monaco } from '@monaco-editor/react';
-import { type editor } from 'monaco-editor';
+import type { Monaco } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 import parserBabel from 'prettier/parser-babel';
 import prettier from 'prettier/standalone';
 import { useEffect, useRef, useState } from 'react';

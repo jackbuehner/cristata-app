@@ -1,13 +1,7 @@
-import { DocumentNode, gql, useApolloClient } from '@apollo/client';
-import {
-  closestCenter,
-  DndContext,
-  DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import type { DocumentNode } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
@@ -29,7 +23,7 @@ import { Spinner } from '../../../components/Loading';
 import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
-import { colorType } from '../../../utils/theme/theme';
+import type { colorType } from '../../../utils/theme/theme';
 import { useGetCMSConfig } from './useGetCMSConfig';
 
 function ContentManagementSystemPage() {

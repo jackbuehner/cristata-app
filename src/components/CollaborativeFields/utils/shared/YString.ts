@@ -1,4 +1,4 @@
-import * as Y from 'yjs';
+import type * as Y from 'yjs';
 import { editorExtensions } from '../../editorExtensions';
 import { getTipTapEditorJson } from './getTipTapEditorJson';
 import { setTipTapXMLFragment } from './setTipTapXMLFragment';

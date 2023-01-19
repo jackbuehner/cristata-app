@@ -1,6 +1,6 @@
 import { get as getProperty } from 'object-path';
 import { useMemo } from 'react';
-import { AuthUserState } from '../../../redux/slices/authUserSlice';
+import type { AuthUserState } from '../../../redux/slices/authUserSlice';
 
 interface UseWatchingParams {
   authUserState: AuthUserState;

@@ -1,4 +1,5 @@
-import { Dispatch, Fragment, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { Fragment } from 'react';
 import { SideNavSubButton } from '../../../components/Button';
 import FluentIcon from '../../../components/FluentIcon';
 import { SideNavHeading } from '../../../components/Heading';

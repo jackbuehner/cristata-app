@@ -243,6 +243,7 @@ function ItemName({
 }) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = window.location.pathname.split('/')[1];
 
   const pathCollectionName = camelToDashCase(uncapitalize(pluralize(collectionName)));
 

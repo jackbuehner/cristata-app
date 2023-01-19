@@ -1,17 +1,13 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Dismiss24Regular } from '@fluentui/react-icons';
-import {
-  deconstructSchema,
-  isTypeTuple,
-  MongooseSchemaType,
-  NumberOption,
-  SchemaDef,
-} from '@jackbuehner/cristata-generator-schema';
+import type { MongooseSchemaType, NumberOption, SchemaDef } from '@jackbuehner/cristata-generator-schema';
+import { deconstructSchema, isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { SetStateAction, useState } from 'react';
+import type { SetStateAction } from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, buttonEffect } from '../../../../../components/Button';
 import {
@@ -31,7 +27,7 @@ import { useAppSelector } from '../../../../../redux/hooks';
 import { setRootSchemaProperty } from '../../../../../redux/slices/collectionSlice';
 import { camelToDashCase } from '../../../../../utils/camelToDashCase';
 import { notEmpty } from '../../../../../utils/notEmpty';
-import { colorType } from '../../../../../utils/theme/theme';
+import type { colorType } from '../../../../../utils/theme/theme';
 import { uncapitalize } from '../../../../../utils/uncapitalize';
 
 interface EditSchemaDefProps {

@@ -49,7 +49,7 @@ function Titlebar(props: ITitlebar) {
             props.hideNavigation !== true && navigator.windowControlsOverlay?.visible ? (
               <>
                 <TitlebarButton
-                  onClick={() => navigate(-1)}
+                  // onClick={() => navigate(-1)}
                   title={'Go back'}
                   iconSize={16}
                   width={customTitlebarOffsetX !== 0 ? 33 : undefined}
@@ -57,7 +57,7 @@ function Titlebar(props: ITitlebar) {
                   <ArrowLeft20Regular />
                 </TitlebarButton>
                 <TitlebarButton
-                  onClick={() => navigate(1)}
+                  // onClick={() => navigate(1)}
                   title={'Go forward'}
                   iconSize={16}
                   width={customTitlebarOffsetX !== 0 ? 33 : undefined}

@@ -1,7 +1,9 @@
 import { Mark } from '@tiptap/core';
-import { markInputRule, markPasteRule, Range } from '@tiptap/react';
-import { MarkType } from 'prosemirror-model';
-import { EditorState, TextSelection, Transaction } from 'prosemirror-state';
+import type { Range } from '@tiptap/react';
+import { markInputRule, markPasteRule } from '@tiptap/react';
+import type { MarkType } from 'prosemirror-model';
+import type { EditorState, Transaction } from 'prosemirror-state';
+import { TextSelection } from 'prosemirror-state';
 import { v4 as uuidv4 } from 'uuid';
 
 type DispatchFunction = ((args?: any) => any) | undefined;

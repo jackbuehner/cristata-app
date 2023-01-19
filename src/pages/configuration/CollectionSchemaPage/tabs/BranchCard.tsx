@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import Color from 'color';
 import React, { useState } from 'react';
 import { Button, buttonEffect } from '../../../../components/Button';
-import { colorType } from '../../../../utils/theme/theme';
+import type { colorType } from '../../../../utils/theme/theme';
 import { useCreateBranch } from '../hooks/schema-modals/useCreateBranch';
 import { useCreateSchemaDef } from '../hooks/schema-modals/useCreateSchemaDef';
 

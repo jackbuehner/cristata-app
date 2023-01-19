@@ -1,5 +1,6 @@
-import { ApolloError, ApolloQueryResult, DocumentNode, gql, NetworkStatus, useQuery } from '@apollo/client';
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
+import type { ApolloError, ApolloQueryResult, DocumentNode } from '@apollo/client';
+import { gql, NetworkStatus, useQuery } from '@apollo/client';
+import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
 
 function useGetRawConfig(
   name: string

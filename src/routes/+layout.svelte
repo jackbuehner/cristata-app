@@ -1,30 +1,26 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
+  import { Appbar } from '$components/Appbar';
+  import { SideNavigation } from '$components/SideNavigation';
+  import { Titlebar } from '$components/Titlebar';
+  import OfflineNotice from '$lib/main-layout/OfflineNotice.svelte';
+  import { CmsNavigation } from '$react/CMS/CmsNavigation';
+  import { ConfigurationNavigation } from '$react/configuration/ConfigurationNavigation/ConfigurationNavigation';
+  import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
+  import { ProfileSideNavSub as ProfilesNavigation } from '$react/profile/ProfileSideNavSub';
+  import { Root } from '$react/Root';
+  import { TeamsNav as TeamsNavigation } from '$react/teams/TeamsNav';
+  import { theme as themeFunction } from '$utils/theme';
+  import { toCustomPropertiesString } from 'object-to-css-variables';
+  import { onDestroy, onMount } from 'svelte';
   import { used } from 'svelte-preprocess-react';
   import { RouterProvider } from 'svelte-preprocess-react/react-router';
-  import { page } from '$app/stores';
-  import { goto } from '$app/navigation';
-  import { Root } from '$react/Root';
-  import { Appbar } from '$components/Appbar';
-  import { Titlebar } from '$components/Titlebar';
-  import { SideNavigation } from '$components/SideNavigation';
-  import { CmsNavigation } from '$react/CMS/CmsNavigation';
-  import { TeamsNav as TeamsNavigation } from '$react/teams/TeamsNav';
-  import { ProfileSideNavSub as ProfilesNavigation } from '$react/profile/ProfileSideNavSub';
-  import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
-  import { ConfigurationNavigation } from '$react/configuration/ConfigurationNavigation/ConfigurationNavigation';
-  import { toCustomPropertiesString } from 'object-to-css-variables';
-  import { theme as themeFunction } from '$utils/theme';
-  import { onMount, onDestroy } from 'svelte';
-  import OfflineNotice from '$lib/main-layout/OfflineNotice.svelte';
-
-  try {
-    const i = import('@material-ui/core/CircularProgress');
-  } catch (error) {
-    console.error(error);
-  }
 
   // get the theme
-  let themeMode = window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  let themeMode: 'light' | 'dark' = window?.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
   $: theme = themeFunction(themeMode);
   $: themeVars = toCustomPropertiesString(theme);
 
@@ -88,6 +84,7 @@
       {/if}
 
       <!-- side navigation and main content -->
+      <!-- TODO: Make a component with two slots: one that takes the navigation and another that takes the content. Use the component in layouts for the routes that are used here. -->
       <div id="app">
         <!-- side navigation -->
         {#if window?.name === ''}

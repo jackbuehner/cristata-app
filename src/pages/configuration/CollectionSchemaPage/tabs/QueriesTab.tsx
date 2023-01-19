@@ -8,7 +8,7 @@ import { Checkbox, Code, Text } from '../../../../components/ContentField';
 import { Field } from '../../../../components/ContentField/Field';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { setCustomQueries, setDefaultQueryOption } from '../../../../redux/slices/collectionSlice';
-import { colorType } from '../../../../utils/theme/theme';
+import type { colorType } from '../../../../utils/theme/theme';
 import { uncapitalize } from '../../../../utils/uncapitalize';
 
 function QueriesTab() {

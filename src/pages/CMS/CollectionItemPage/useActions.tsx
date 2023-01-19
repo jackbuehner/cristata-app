@@ -3,18 +3,19 @@ import type { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types
 import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { NavigateFunction, useNavigate, useSearchParams } from 'svelte-preprocess-react/react-router';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useDropdown } from '../../../hooks/useDropdown';
-import { useAppDispatch } from '../../../redux/hooks';
-import { Action } from '../../../redux/slices/appbarSlice';
+import type { useAppDispatch } from '../../../redux/hooks';
+import type { Action } from '../../../redux/slices/appbarSlice';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { RenderFields } from './CollectionItemPage';
+import type { RenderFields } from './CollectionItemPage';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
 
@@ -30,7 +31,7 @@ interface UseActionsParams {
   collectionName: string;
   itemId: string;
   dispatch: ReturnType<typeof useAppDispatch>;
-  navigate: NavigateFunction;
+  navigate: ReturnType<typeof useNavigate>;
   publishStage?: number;
   withPermissions: boolean;
   isEmbedded?: boolean;

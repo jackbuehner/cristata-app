@@ -1,6 +1,7 @@
-import { ApolloClient } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
-import { SIGN_S3, SIGN_S3__TYPE } from '../graphql/queries';
+import type { SIGN_S3__TYPE } from '../graphql/queries';
+import { SIGN_S3 } from '../graphql/queries';
 
 interface GetSignedRequestParams {
   uuid?: string;

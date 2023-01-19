@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
+import type { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import Color from 'color';
 import { useDispatch } from 'react-redux';
 import { ReferenceMany } from '../../../../components/ContentField';

@@ -1,4 +1,5 @@
-import { ApolloError, ApolloQueryResult, DocumentNode, gql, NetworkStatus, useQuery } from '@apollo/client';
+import type { ApolloError, ApolloQueryResult, DocumentNode } from '@apollo/client';
+import { gql, NetworkStatus, useQuery } from '@apollo/client';
 
 function useGetBillingStatus(): [
   QueryType['billing'] | null,

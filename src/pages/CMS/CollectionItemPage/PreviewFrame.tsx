@@ -4,7 +4,7 @@ import { ArrowClockwise20Regular, ArrowDownload20Regular } from '@fluentui/react
 import IframeResizer from 'iframe-resizer-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../components/Button';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import { isJSON } from '../../../utils/isJSON';
 
 interface ExternalFrameProps {

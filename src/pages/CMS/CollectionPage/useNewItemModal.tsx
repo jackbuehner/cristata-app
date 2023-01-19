@@ -1,14 +1,14 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+import { gql, useApolloClient } from '@apollo/client';
+import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { NavigateFunction } from 'svelte-preprocess-react/react-router';
+import type { useNavigate } from 'svelte-preprocess-react/react-router';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
-
-/* eslint-disable react-hooks/rules-of-hooks */
-import { gql, useApolloClient } from '@apollo/client';
-import { isTypeTuple, MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { Checkbox, DateTime, Number, ReferenceOne, SelectMany, Text } from '../../../components/ContentField';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
@@ -18,7 +18,7 @@ import { deepen } from '../CollectionItemPage/useFindDoc';
 
 function useNewItemModal(
   collectionName: string,
-  navigate: NavigateFunction
+  navigate: ReturnType<typeof useNavigate>
 ): [React.ReactNode, () => void, () => void] {
   const [WindowModal, showModal, hideModal] = useWindowModal(() => {
     const client = useApolloClient();

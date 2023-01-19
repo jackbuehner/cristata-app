@@ -1,12 +1,13 @@
 import { useModal } from '@cristata/react-modal-hook';
 import styled from '@emotion/styled';
 import { Delete16Regular, Edit16Regular, Open16Regular, TextDescription20Regular } from '@fluentui/react-icons';
-import { Node, NodeViewContent, NodeViewProps, NodeViewWrapper } from '@tiptap/react';
+import type { Node, NodeViewProps } from '@tiptap/react';
+import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
 import { useRef, useState } from 'react';
 import { PlainModal } from '../../Modal';
 import { TextInput } from '../../TextInput';
 import { WidgetActions, WidgetLabel, WidgetWrapper } from '../components/Widget';
-import { YoutubeWidgetOptions } from './youtubeWidget';
+import type { YoutubeWidgetOptions } from './youtubeWidget';
 
 interface IYoutubeVideoEmbed extends NodeViewProps {
   extension: Node<YoutubeWidgetOptions>;

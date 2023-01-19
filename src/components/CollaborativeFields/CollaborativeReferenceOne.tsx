@@ -1,8 +1,10 @@
-import { FieldDef } from '@jackbuehner/cristata-generator-schema';
+import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import { get as getProperty } from 'object-path';
 import { useOptions } from '../ContentField/useOptions';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from './';
-import { CollaborativeCombobox, PopulatedRefValue, Values } from './CollaborativeCombobox';
+import type { CollaborativeFieldProps } from './';
+import { CollaborativeFieldWrapper } from './';
+import type { PopulatedRefValue, Values } from './CollaborativeCombobox';
+import { CollaborativeCombobox } from './CollaborativeCombobox';
 import { SelectedReferenceItems } from './SelectedReferenceItems';
 
 interface CollaborativeReferenceOneProps extends CollaborativeFieldProps {

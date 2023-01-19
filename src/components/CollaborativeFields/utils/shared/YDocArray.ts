@@ -1,9 +1,10 @@
 import { get as getProperty, set as setProperty } from 'object-path';
 import { v4 as uuidv4 } from 'uuid';
-import * as Y from 'yjs';
-import { DeconstructedSchemaDefType } from '../../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { getYFields, GetYFieldsOptions } from '../../../../pages/CMS/CollectionItemPage/getYFields';
-import { EntryY } from '../../../Tiptap/hooks/useY';
+import type * as Y from 'yjs';
+import type { DeconstructedSchemaDefType } from '../../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { GetYFieldsOptions } from '../../../../pages/CMS/CollectionItemPage/getYFields';
+import { getYFields } from '../../../../pages/CMS/CollectionItemPage/getYFields';
+import type { EntryY } from '../../../Tiptap/hooks/useY';
 
 /**
  * DocArrays are stored in a yjs shared array. The value

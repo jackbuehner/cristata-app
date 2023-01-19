@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
 
 /**
  * Manages state for the sidebar. Manage whether it is open and control the

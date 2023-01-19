@@ -1,6 +1,8 @@
-import { Addition, AdditionOptions } from './addition';
+import type { AdditionOptions } from './addition';
+import { Addition } from './addition';
 import { AdditionEventHandler } from './additionEventHandler';
-import { AdditionKit, AdditionKitOptions } from './additionKit';
+import type { AdditionKitOptions } from './additionKit';
+import { AdditionKit } from './additionKit';
 
 export { Addition, AdditionEventHandler, AdditionKit };
 export type { AdditionKitOptions, AdditionOptions };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { YArray } from 'yjs/dist/src/types/YArray';
-import { useAwareness } from '../Tiptap/hooks';
-import { Value, Values } from './CollaborativeCombobox';
+import type { YArray } from 'yjs/dist/src/types/YArray';
+import type { useAwareness } from '../Tiptap/hooks';
+import type { Value, Values } from './CollaborativeCombobox';
 
 interface Input {
   initialValues?: Values<string>;
