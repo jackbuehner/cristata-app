@@ -5,8 +5,8 @@ import Color from 'color';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { DateTime } from 'luxon';
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
+import { useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
 import { Offline } from '../../../components/Offline';
@@ -25,11 +25,11 @@ function ProfilePage() {
   const authUserState = useAppSelector((state) => state.authUser);
   const dispatch = useAppDispatch();
   const client = useApolloClient();
-  const tenant = location.pathname.split('/')[1];
 
   // get the url parameters from the route
-  let { profile_id } = useParams<{
+  let { profile_id, tenant } = useParams<{
     profile_id: string;
+    tenant: string;
   }>();
 
   const { data, loading, error, refetch } = useQuery<PROFILE__TYPE>(PROFILE, {

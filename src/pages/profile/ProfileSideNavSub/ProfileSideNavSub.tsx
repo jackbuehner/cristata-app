@@ -14,7 +14,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Color from 'color';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import { Button, IconButton } from '../../../components/Button';
 import { SideNavHeading } from '../../../components/Heading';
 import { Menu } from '../../../components/Menu';
