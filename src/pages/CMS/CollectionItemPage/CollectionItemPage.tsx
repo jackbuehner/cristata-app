@@ -47,7 +47,6 @@ import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import type { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { FullScreenSplash } from './FullScreenSplash';
 import type { GetYFieldsOptions } from './getYFields';
 import { getYFields } from './getYFields';
 import { PreviewFrame } from './PreviewFrame';
@@ -64,12 +63,27 @@ const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' 
 interface CollectionItemPageProps {}
 
 function CollectionItemPage(props: CollectionItemPageProps) {
-  const authUserState = useAppSelector((state) => state.authUser);
   let { collection, item_id, version_date } = useParams() as {
     collection: string;
     item_id: string;
     version_date?: string;
   };
+
+  if (!!collection && !!item_id) {
+    return <CollectionItemPageReal collection={collection} item_id={item_id} version_date={version_date} />;
+  }
+
+  return null;
+}
+
+interface CollectionItemPageRealProps {
+  collection: string;
+  item_id: string;
+  version_date?: string;
+}
+
+function CollectionItemPageReal({ collection, item_id, version_date }: CollectionItemPageRealProps) {
+  const authUserState = useAppSelector((state) => state.authUser);
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
   // get the session id from sessionstorage
@@ -937,10 +951,6 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             }
           </ReactRouterPrompt>
         ) : null}
-        <FullScreenSplash
-          isLoading={isMaximized && (!hasLoadedAtLeastOnce || isLoading) && !docNotFound}
-          message={hasLoadedAtLeastOnce ? 'Checking permissions...' : 'Connecting to the server...'}
-        />
         {docNotFound ? (
           <NotFound>
             <h2>

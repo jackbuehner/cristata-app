@@ -11,3 +11,5 @@ declare module '~build/time' {
   const now: Date;
   export default now;
 }
+
+declare var __APP_VERSION__: string;

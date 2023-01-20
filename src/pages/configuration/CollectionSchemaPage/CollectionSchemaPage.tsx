@@ -130,7 +130,7 @@ function CollectionSchemaPage() {
             <TabBar
               activeTabIndex={activeTabIndex}
               onActivate={(evt: { detail: { index: SetStateAction<number> } }) =>
-                navigate('/' + tenant + location.pathname + location.search + `#${evt.detail.index}`)
+                navigate(location.pathname + location.search + `#${evt.detail.index}`)
               }
             >
               <Tab>Schema</Tab>

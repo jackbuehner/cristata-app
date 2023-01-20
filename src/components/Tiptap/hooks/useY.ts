@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from 'react';
 import type * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
-import packageJson from '../../../../package.json';
 import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import type { GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
 import { getYFields } from '../../../pages/CMS/CollectionItemPage/getYFields';
@@ -45,7 +44,7 @@ class YProvider {
       // register with a WebRTC provider
       const providerOptions = {
         awareness: wsProvider.awareness,
-        password: name + 'cristata-development' + packageJson.version,
+        password: name + 'cristata-development' + __APP_VERSION__,
       };
       if (import.meta.env.NODE_ENV === 'production') {
         providerOptions.password = (
@@ -100,11 +99,10 @@ function useY(
     const y = providerRef.current;
 
     const tenant = location.pathname.split('/')[1];
-    const appVersion = packageJson.version;
     const docName = versionDate
       ? `${tenant}.${collectionName}.${id}.${versionDate}`
       : `${tenant}.${collectionName}.${id}`;
-    y.create(docName, user._id, appVersion).then((data) => {
+    y.create(docName, user._id, __APP_VERSION__).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);

@@ -725,6 +725,9 @@ export default defineConfig({
     BuildInfo(),
     sveltekit(),
   ],
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+  },
   server: {
     port: parseInt(process.env.PORT || '4000'),
   },

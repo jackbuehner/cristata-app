@@ -15,7 +15,6 @@ import { LinearProgress } from '@rmwc/linear-progress';
 import Placeholder from '@tiptap/extension-placeholder';
 import type { Editor, PureEditorContent } from '@tiptap/react';
 import { EditorContent } from '@tiptap/react';
-import packageJson from '../../../package.json';
 import type { tiptapOptions } from '../../config';
 import { CollectionItemPageContent } from '../../pages/CMS/CollectionItemPage';
 import type { Action } from '../../pages/CMS/CollectionItemPage/useActions';
@@ -38,7 +37,7 @@ import {
   useSidebar,
   useTipTapEditor,
   useTrackChanges,
-  useWordCount,
+  useWordCount
 } from './hooks';
 import type { FieldY, IYSettingsMap } from './hooks/useY';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';
@@ -467,7 +466,9 @@ const Tiptap = (props: ITiptap) => {
                 </>
               ) : null}
               <StatusbarBlock>
-                {packageJson.dependencies['@tiptap/react']}__{packageJson.version}
+                {/* {packageJson.dependencies['@tiptap/react']} */}
+                {'__'}
+                {__APP_VERSION__}
               </StatusbarBlock>
               <StatusbarBlock>
                 {isConnected === true ? 'Connected' : isConnecting ? 'Connecting...' : 'Failed to connect'}

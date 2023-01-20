@@ -152,7 +152,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
                         if (newArray.length > 0) searchParams.set(param, JSON.stringify(newArray));
                         else searchParams.delete(param);
 
-                        navigate('/' + tenant + pathname + hash + '?' + searchParams);
+                        navigate(pathname + hash + '?' + searchParams);
                       }
                     }}
                   />
@@ -167,7 +167,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
           height={'26px'}
           onClick={() => {
             searchParams.delete('archived');
-            navigate('/' + tenant + pathname + hash + '?' + searchParams);
+            navigate(pathname + hash + '?' + searchParams);
           }}
         >
           Hide archived
@@ -177,7 +177,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
           height={'26px'}
           onClick={() => {
             searchParams.set('archived', 'true');
-            navigate('/' + tenant + pathname + hash + '?' + searchParams);
+            navigate(pathname + hash + '?' + searchParams);
           }}
         >
           View archived

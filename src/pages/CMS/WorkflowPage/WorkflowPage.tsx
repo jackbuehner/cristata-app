@@ -46,7 +46,6 @@ function WorkflowPage(props: WorkflowPageProps) {
     notifyOnNetworkStatusChange: true,
   });
   useEffect(() => {
-    console.log(loading);
     if (loading) dispatch(setAppLoading(true));
     else dispatch(setAppLoading(false));
   }, [dispatch, loading]);
@@ -68,8 +67,8 @@ function WorkflowPage(props: WorkflowPageProps) {
   }, [data]);
 
   useEffect(() => {
-    if (excluded.length > 0) navigate(`?exclude=[${excluded.join(',')}]`);
-    else navigate(``); // clear search string
+    if (excluded.length > 0) navigate(`${location.pathname}?exclude=[${excluded.join(',')}]`);
+    else navigate(location.pathname); // clear search string
   }, [excluded]);
 
   // set document title

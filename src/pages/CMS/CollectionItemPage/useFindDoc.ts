@@ -5,7 +5,7 @@ import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch } from '../../../redux/hooks';
@@ -82,7 +82,8 @@ function useFindDoc(
     }
   }, [dispatch, doNothing, loading, networkStatus]);
 
-  return { actionAccess, loading, error, data: req.data?.[queryName] };
+  const data = req.data?.[queryName];
+  return { actionAccess, loading: !loading && !data && !error ? true : loading, error, data };
 }
 
 function docDefsToQueryObjectCols(
