@@ -18,10 +18,7 @@ import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
 
 // /* prettier-ignore */ const Protected = loadable(() => import(/* webpackChunkName: "ProtectedRoutes" */'./Protected'), { resolveComponent: ({ Protected }) => Protected });
-/* prettier-ignore */ const SplashScreen = loadable(() => import(/* webpackChunkName: "SplashScreen" */'./components/SplashScreen'), { resolveComponent: ({ SplashScreen }) => SplashScreen });
-
 // Protected.preload();
-SplashScreen.preload();
 
 export interface IGridCols {
   side: number;
@@ -29,38 +26,8 @@ export interface IGridCols {
 }
 
 function App({ children }: { children?: React.ReactNode }) {
-  const {
-    data: user,
-    isLoading: loadingUser,
-    error: errorUser,
-    refetch: refetchUser,
-  } = useQuery({
-    queryKey: ['authUserData'],
-    cacheTime: 0,
-    queryFn: () =>
-      fetch(`${server.location}/auth`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      }).then((res) => {
-        if (res.status === 401) throw new Error('401');
-        if (res.status === 403) throw new Error('403');
-        return res.json();
-      }),
-  });
-
-  const [tenant, setTenant] = useState<string>(location.pathname.split('/')[1] || '');
+  const tenant = location.pathname.split('/')[1] || '';
   const client = useMemo(() => createClient(tenant), [tenant]);
-
-  // refetch the user if reauth=1 in url
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get('from') === 'sign-out') {
-      searchParams.delete('from');
-      refetchUser();
-      window.history.replaceState(undefined, '', '?' + searchParams.toString());
-    }
-  }, [refetchUser]);
 
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(
     window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -103,20 +70,6 @@ function App({ children }: { children?: React.ReactNode }) {
                 <ModalProvider>
                   <ToastContainer />
                   <ReloadPrompt />
-                  {/* <SplashScreen
-                    loading={loadingUser}
-                    error={errorUser || undefined}
-                    user={user}
-                    bypassAuthLogic={!navigator.onLine}
-                    persistentChildren={
-                      <Routes>
-                        <Route path={`/${tenant}/proto/*`} element={<ProtocolHandlerPage />} />
-                        <Route path={`/${tenant}/sign-out`} element={<SignOut />} />
-                        <Route path={`*`} element={<></>} />
-                      </Routes>
-                    }
-                    protectedChildren={<Protected setThemeMode={setThemeMode} />}
-                  /> */}
                   {children}
                 </ModalProvider>
               </Router>

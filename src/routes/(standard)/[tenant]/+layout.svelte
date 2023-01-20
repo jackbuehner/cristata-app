@@ -113,10 +113,6 @@
 </react:Root>
 
 <style>
-  :global(.root-splash-wrapper) {
-    display: none !important;
-  }
-
   div#frame {
     display: flex;
     flex-direction: column;
