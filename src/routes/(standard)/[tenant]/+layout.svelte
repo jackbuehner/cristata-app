@@ -93,7 +93,7 @@
               <react:CmsNavigation setIsNavVisibleM={setIsNavVisible} />
             {:else if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`profile/`) === 0}
               <react:ProfilesNavigation setIsNavVisibleM={setIsNavVisible} />
-            {:else if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`teams/`) === 0}
+            {:else if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`teams`) === 0}
               <react:TeamsNavigation setIsNavVisibleM={setIsNavVisible} />
             {:else if $page.url.pathname.replace(`/${tenant}/`, ``) === 'playground'}
               <react:PlaygroundNavigation />
