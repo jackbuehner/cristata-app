@@ -1,3 +1,4 @@
+import { get as getProperty } from '$utils/objectPath';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { WebSocketStatus } from '@hocuspocus/provider';
@@ -6,7 +7,6 @@ import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import ColorHash from 'color-hash';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import type { SetStateAction } from 'react';
 import { Fragment, useEffect, useState } from 'react';

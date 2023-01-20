@@ -1,4 +1,4 @@
-import { get as getProperty } from 'object-path';
+import { get as getProperty } from '$utils/objectPath';
 import { useMemo } from 'react';
 import type { AuthUserState } from '../../../redux/slices/authUserSlice';
 

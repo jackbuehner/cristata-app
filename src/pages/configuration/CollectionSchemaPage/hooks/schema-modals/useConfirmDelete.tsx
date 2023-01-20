@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { set as setProperty } from 'object-path';
+import { set as setProperty } from '$utils/objectPath';
 import { useDispatch } from 'react-redux';
 import { useWindowModal } from '../../../../../hooks/useWindowModal';
 import { useAppSelector } from '../../../../../redux/hooks';

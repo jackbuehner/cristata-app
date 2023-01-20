@@ -1,8 +1,8 @@
+import { get as getProperty } from '$utils/objectPath';
 import styled from '@emotion/styled';
 import type { SchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isSchemaDef, isSchemaDefOrType } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
-import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';
 import { Button } from '../../../../components/Button';
 import {

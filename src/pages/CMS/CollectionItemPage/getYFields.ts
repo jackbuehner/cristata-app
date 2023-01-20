@@ -1,6 +1,6 @@
+import { get as getProperty, set as setProperty } from '$utils/objectPath';
 import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
-import { get as getProperty, set as setProperty } from 'object-path';
 import fieldUtils from '../../../components/CollaborativeFields/utils';
 import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';

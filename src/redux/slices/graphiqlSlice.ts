@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import * as toolkitRaw from '@reduxjs/toolkit';
 import type { GraphQLSchema } from 'graphql';
-
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
 export interface GraphiQLState {
   query?: string;
   explorerIsOpen: boolean;

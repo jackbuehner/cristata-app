@@ -6,6 +6,7 @@ import { persistor, store } from '../../../redux/store';
 import type { LayoutLoad } from './$types';
 
 export const ssr = false;
+export const prerender = false;
 
 export const load = (async ({ parent, params, url }) => {
   const { authUser } = await parent();

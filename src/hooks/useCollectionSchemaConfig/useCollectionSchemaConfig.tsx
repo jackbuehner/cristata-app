@@ -1,8 +1,8 @@
+import { set as setProperty } from '$utils/objectPath';
 import type { ApolloError, ApolloQueryResult, DocumentNode } from '@apollo/client';
 import { gql, useQuery } from '@apollo/client';
 import type { SchemaDef, SchemaDefType, SchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isSchemaDef, isSchemaRef } from '@jackbuehner/cristata-generator-schema';
-import { set as setProperty } from 'object-path';
 
 /**
  * Gets the collection config for the specified collection.

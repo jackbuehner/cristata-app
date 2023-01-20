@@ -1,4 +1,4 @@
-import { get as getProperty } from 'object-path';
+import { get as getProperty } from '$utils/objectPath';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 

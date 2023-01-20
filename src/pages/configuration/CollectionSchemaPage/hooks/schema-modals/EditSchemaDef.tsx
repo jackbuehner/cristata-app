@@ -1,10 +1,10 @@
+import { get as getProperty } from '$utils/objectPath';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Dismiss24Regular } from '@fluentui/react-icons';
 import type { MongooseSchemaType, NumberOption, SchemaDef } from '@jackbuehner/cristata-generator-schema';
 import { deconstructSchema, isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import type { SetStateAction } from 'react';
 import { useState } from 'react';

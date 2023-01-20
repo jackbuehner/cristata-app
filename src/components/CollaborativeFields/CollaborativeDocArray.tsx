@@ -1,3 +1,4 @@
+import { get as getProperty } from '$utils/objectPath';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -9,7 +10,6 @@ import {
 import Color from 'color';
 import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import type { FunctionComponentElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { DraggableProvidedDragHandleProps, DropResult, ResponderProvided } from 'react-beautiful-dnd';

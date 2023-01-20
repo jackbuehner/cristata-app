@@ -1,16 +1,16 @@
+import { get as getProperty } from '$utils/objectPath';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   ChevronDown24Regular,
   ChevronUp24Regular,
   Dismiss24Regular,
-  ReOrderDotsHorizontal24Regular
+  ReOrderDotsHorizontal24Regular,
 } from '@fluentui/react-icons';
 import { arrayMoveImmutable as arrayMove } from 'array-move';
 import Color from 'color';
 import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import type { FunctionComponentElement } from 'react';
 import React from 'react';
 import type { DraggableProvidedDragHandleProps, DropResult, ResponderProvided } from 'react-beautiful-dnd';

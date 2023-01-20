@@ -1,6 +1,6 @@
+import { get as getProperty } from '$utils/objectPath';
 import { gql, useApolloClient } from '@apollo/client';
 import type { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types/config';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';

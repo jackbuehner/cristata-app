@@ -1,8 +1,8 @@
+import { get as getProperty } from '$utils/objectPath';
 import { gql, useApolloClient } from '@apollo/client';
 import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useState } from 'react';

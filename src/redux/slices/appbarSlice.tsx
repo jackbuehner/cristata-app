@@ -1,7 +1,8 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import * as toolkitRaw from '@reduxjs/toolkit';
 import type { FluentIconNames } from '../../components/FluentIcon';
 import type { colorType } from '../../utils/theme/theme';
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
 
 export interface AppbarState {
   name: string;

@@ -1,9 +1,9 @@
+import { get as getProperty } from '$utils/objectPath';
 import { gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
 import { DateTime } from 'luxon';
-import { get as getProperty } from 'object-path';
 import { useNavigate } from 'svelte-preprocess-react/react-router';
 import type { Home } from '../../hooks/useDashboardConfig/useDashboardConfig';
 import { genAvatar } from '../../utils/genAvatar';

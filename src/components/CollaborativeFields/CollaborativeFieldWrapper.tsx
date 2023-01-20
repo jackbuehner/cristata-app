@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import dompurify from 'dompurify';
-import { get as getProperty } from 'object-path';
+import { get as getProperty } from '$utils/objectPath';
 import type { CSSProperties } from 'react';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';

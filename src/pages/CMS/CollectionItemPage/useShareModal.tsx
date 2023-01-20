@@ -1,5 +1,5 @@
+import { get as getProperty } from '$utils/objectPath';
 import ColorHash from 'color-hash';
-import { get as getProperty } from 'object-path';
 import { useRef } from 'react';
 import { useLocation } from 'svelte-preprocess-react/react-router';
 

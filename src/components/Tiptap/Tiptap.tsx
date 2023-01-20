@@ -1,5 +1,5 @@
+import { get as getProperty } from '$utils/objectPath';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { get as getProperty } from 'object-path';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -37,7 +37,7 @@ import {
   useSidebar,
   useTipTapEditor,
   useTrackChanges,
-  useWordCount
+  useWordCount,
 } from './hooks';
 import type { FieldY, IYSettingsMap } from './hooks/useY';
 import { SetDocAttrStep } from './utilities/SetDocAttrStep';

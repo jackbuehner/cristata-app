@@ -1,8 +1,8 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import * as toolkitRaw from '@reduxjs/toolkit';
 import mongoose from 'mongoose';
 import { isObjectId } from '../../utils/isObjectId';
-
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
 export interface AuthUserState {
   provider: string;
   name: string;

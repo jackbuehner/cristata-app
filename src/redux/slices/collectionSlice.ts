@@ -1,3 +1,4 @@
+import { set as setProperty } from '$utils/objectPath';
 import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
 import type {
   CollectionPermissionsActions as CollectionPermissionsActionName,
@@ -5,9 +6,9 @@ import type {
 } from '@jackbuehner/cristata-api/dist/types/config';
 import type { SchemaType } from '@jackbuehner/cristata-generator-schema';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice, original } from '@reduxjs/toolkit';
+import * as toolkitRaw from '@reduxjs/toolkit';
 import type { RootQuerySelector } from 'mongoose';
-import { set as setProperty } from 'object-path';
+const { createSlice, original } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
 
 type FilterQuery = RootQuerySelector<Record<string, unknown>>;
 

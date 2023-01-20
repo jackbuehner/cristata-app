@@ -1,5 +1,5 @@
 import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
-import { get as getProperty } from 'object-path';
+import { get as getProperty } from '$utils/objectPath';
 import { useOptions } from '../ContentField/useOptions';
 import type { CollaborativeFieldProps } from './';
 import { CollaborativeFieldWrapper } from './';

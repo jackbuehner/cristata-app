@@ -22,6 +22,5 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react"
-  },
-  "include": ["src"]
+  }
 }

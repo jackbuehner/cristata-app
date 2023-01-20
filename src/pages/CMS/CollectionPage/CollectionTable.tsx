@@ -1,3 +1,4 @@
+import { get as getProperty } from '$utils/objectPath';
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -8,7 +9,6 @@ import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
 import type { Dispatch, SetStateAction } from 'react';
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
