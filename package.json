@@ -90,11 +90,13 @@
     "dev": "cross-env GENERATE_SOURCEMAP=false VITE_GITPOD_WORKSPACE_URL=$GITPOD_WORKSPACE_URL PORT=${PORT:=4000} VITE_GITPOD_APP_PORT=${VITE_GITPOD_APP_PORT:=4000} VITE_GITPOD_SERVER_PORT=${VITE_GITPOD_SERVER_PORT:=3000} BROWSER=${BROWSER:=none} WDS_SOCKET_PORT=${WDS_SOCKET_PORT:=0} vite",
     "dev:tunnel": "./bin/pktriot-0.10.8/pktriot start --config ./bin/pktriot-0.10.8/config.json",
     "build": "cross-env-shell VITE_GITPOD_WORKSPACE_URL=$GITPOD_WORKSPACE_URL NODE_OPTIONS=--max-old-space-size=8128 \"tsc && vite build\"",
-    "serve": "vite preview --port ${PORT:=4000}",
+    "preview": "vite preview --port ${PORT:=4000}",
     "start": "cross-env GENERATE_SOURCEMAP=false VITE_GITPOD_WORKSPACE_URL=$GITPOD_WORKSPACE_URL vercel dev",
-    "test": "react-app-rewired test",
-    "lint": "eslint .",
+    "sync": "svelte-kit sync",
+    "lint": "prettier --plugin-search-dir . --check . && eslint .",
+    "format": "prettier --plugin-search-dir . --write .",
     "postinstall": "patch-package",
+    "prepare": "npm run sync",
     "upgrade": "npm-check -u"
   },
   "eslintConfig": {
