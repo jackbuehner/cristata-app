@@ -742,4 +742,8 @@ export default defineConfig({
       ],
     },
   },
+  ssr: {
+    // add libraries containing invalid ESM here
+    noExternal: [],
+  },
 });
