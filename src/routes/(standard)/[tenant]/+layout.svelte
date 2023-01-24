@@ -11,6 +11,7 @@
   import { ProfileSideNavSub as ProfilesNavigation } from '$react/profile/ProfileSideNavSub';
   import { Root } from '$react/Root';
   import { TeamsNav as TeamsNavigation } from '$react/teams/TeamsNav';
+  import { themeMode } from '$stores/themeMode';
   import { theme as themeFunction } from '$utils/theme';
   import { toCustomPropertiesString } from 'object-to-css-variables';
   import { onDestroy, onMount } from 'svelte';
@@ -18,16 +19,13 @@
   import { RouterProvider } from 'svelte-preprocess-react/react-router';
 
   // get the theme
-  let themeMode: 'light' | 'dark' = window?.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
-  $: theme = themeFunction(themeMode);
+  $: theme = themeFunction($themeMode);
   $: themeVars = toCustomPropertiesString(theme);
 
   // listen for when user changes system theme preference
   function setCorrectThemeMode(evt: MediaQueryListEvent) {
-    if (evt.matches) themeMode = 'dark';
-    else themeMode = 'light';
+    if (evt.matches) $themeMode = 'dark';
+    else $themeMode = 'light';
   }
   onMount(() => {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setCorrectThemeMode);
