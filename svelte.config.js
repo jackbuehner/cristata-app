@@ -15,6 +15,7 @@ const config = {
       $utils: 'src/utils',
       $react: 'src/pages',
       $lib: 'src/lib',
+      $stores: 'src/stores',
     },
   },
 };
