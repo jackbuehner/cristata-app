@@ -1,6 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import codegen from 'vite-plugin-graphql-codegen';
 import BuildInfo from 'vite-plugin-info';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -724,6 +725,7 @@ export default defineConfig({
     }),
     BuildInfo(),
     sveltekit(),
+    codegen(),
   ],
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),

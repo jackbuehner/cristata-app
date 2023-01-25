@@ -1,0 +1,47 @@
+query GlobalConfig {
+  configuration {
+    collections {
+      name
+      pluralLabel: pluralName
+    }
+    navigation {
+      main {
+        icon
+        label
+        to
+      }
+      cmsNav: sub(key: "cms") {
+        label
+        uuid
+        items {
+          icon
+          label
+          to
+          uuid
+        }
+      }
+    }
+    dashboard {
+      collectionRows {
+        arrPath
+        dataKeys {
+          _id
+          description
+          name
+          lastModifiedBy
+          lastModifiedAt
+          photo
+        }
+        header {
+          icon
+          label
+        }
+        query
+        to {
+          idPrefix
+          idSuffix
+        }
+      }
+    }
+  }
+}

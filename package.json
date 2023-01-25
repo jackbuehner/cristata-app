@@ -44,7 +44,7 @@
     "copy-anything": "^3.0.3",
     "dompurify": "^2.3.6",
     "graphiql": "^1.8.1",
-    "graphql": "^16.0.1",
+    "graphql": "^16.6.0",
     "iframe-resizer-react": "^1.1.0",
     "json-to-graphql-query": "^2.1.0",
     "jsoncrush": "^1.1.6",
@@ -97,7 +97,8 @@
     "format": "prettier --plugin-search-dir . --write .",
     "postinstall": "patch-package",
     "prepare": "npm run sync",
-    "upgrade": "npm-check -u"
+    "upgrade": "npm-check -u",
+    "codegen": "graphql-codegen --config codegen.yaml"
   },
   "eslintConfig": {
     "extends": [
@@ -118,6 +119,11 @@
     ]
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.16.4",
+    "@graphql-codegen/introspection": "2.2.3",
+    "@graphql-codegen/typescript": "2.8.7",
+    "@graphql-codegen/typescript-document-nodes": "2.3.12",
+    "@graphql-codegen/typescript-operations": "^2.5.12",
     "@griffel/react": "^1.2.0",
     "@jackbuehner/cristata-api": "^10.0.0",
     "@jackbuehner/cristata-generator-schema": "^3.6.0",
@@ -157,6 +163,7 @@
     "svelte-preprocess": "^5.0.0",
     "typescript": "^4.9.4",
     "vite": "^4.0.3",
+    "vite-plugin-graphql-codegen": "^3.0.1",
     "vite-plugin-info": "^0.4.0",
     "vite-plugin-node-polyfills": "^0.6.0",
     "vite-plugin-pwa": "^0.14.0",
