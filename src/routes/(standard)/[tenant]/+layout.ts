@@ -1,5 +1,7 @@
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
+import { GlobalConfig, type GlobalConfigQuery } from '$graphql/graphql';
+import { query } from '$graphql/query';
 import { redirect } from '@sveltejs/kit';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
 import { persistor, store } from '../../../redux/store';
@@ -23,13 +25,16 @@ export const load = (async ({ parent, params, url }) => {
   const sessionId = sessionStorage.getItem('sessionId') || Math.random().toString();
   sessionStorage.setItem('sessionId', sessionId);
 
-  // store in redux (for react)
+  // store auth user in redux (for react)
   store.dispatch(setAuthProvider(authUser.provider));
   store.dispatch(setName(authUser.name));
   store.dispatch(setObjectId(authUser._id.toHexString()));
   store.dispatch(setOtherUsers(authUser.otherUsers.map((ou) => ({ ...ou, _id: ou._id.toHexString() }))));
 
-  return { sessionId };
+  // get the configuration
+  const config = await query<GlobalConfigQuery>({ tenant: authUser.tenant, query: GlobalConfig });
+
+  return { sessionId, configuration: config?.data?.configuration };
 }) satisfies LayoutLoad;
 
 async function switchTenant(tenant: string, currentLocation: URL) {
