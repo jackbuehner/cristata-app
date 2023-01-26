@@ -28,7 +28,7 @@
 
   let previousPage: string = '';
   afterNavigate(({ from }) => {
-    previousPage = from?.url.pathname || previousPage;
+    previousPage = from?.url?.pathname || previousPage;
   });
 </script>
 
