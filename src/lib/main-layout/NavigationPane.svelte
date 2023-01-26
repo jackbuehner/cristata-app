@@ -20,6 +20,7 @@
   export let data: LayoutData;
 
   $: isConfigRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/configuration/`);
+  $: isCmsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/cms/`);
 
   const allMainMenuItems = data.configuration?.navigation.main
     .map((item) => {
@@ -38,7 +39,17 @@
       label: 'Apps',
       icon: 'Apps16Regular',
       type: 'expander',
-      children: allMainMenuItems?.filter((item) => item.label !== 'Home'),
+      children: allMainMenuItems
+        ?.filter((item) => item.label !== 'Home')
+        .map((item) => {
+          if (item.label === 'CMS') {
+            item.label = 'Content Manager';
+            item.href = `/${data.authUser.tenant}/cms`;
+          }
+          if (item.label === 'API') item.label = 'API Explorer';
+          if (item.label === 'Configure') item.label = 'Tenant settings';
+          return item;
+        }),
     },
     {
       label: 'footer',
@@ -132,6 +143,78 @@
             };
           })
           .filter(notEmpty) || []),
+      ]
+    : isCmsRoute
+    ? [
+        {
+          label: 'hr',
+        },
+        {
+          label: 'Workflow',
+          href: `/${data.authUser.tenant}/cms/workflow`,
+          icon: 'DataUsage24Regular',
+        },
+        {
+          label: 'hr',
+        },
+        ...(data.configuration?.navigation.cmsNav || [])
+          .map((group) => {
+            if (group?.label === 'Collections') {
+              return [
+                {
+                  label: 'Files',
+                  icon: 'Folder24Regular',
+                  type: 'expander',
+                  children: (group?.items || [])
+                    .filter(notEmpty)
+                    .filter((item) => item.label === 'Files' || item.label === 'Photo library')
+                    .map((item) => {
+                      return {
+                        label: item.label,
+                        href: `/${data.authUser.tenant}${item.to}`,
+                        icon:
+                          item.label === 'Files'
+                            ? 'Folder24Regular'
+                            : item.label === 'Photo library'
+                            ? 'TabDesktopImage24Regular'
+                            : item.icon,
+                      };
+                    }),
+                },
+                {
+                  label: 'Collections',
+                  icon: 'Collections24Regular',
+                  type: 'expander',
+                  children: (group?.items || [])
+                    .filter(notEmpty)
+                    .filter((item) => item.label !== 'Files' && item.label !== 'Photo library')
+                    .map((item) => {
+                      return {
+                        label: item.label,
+                        href: `/${data.authUser.tenant}${item.to}`,
+                        icon: item.icon,
+                      };
+                    }),
+                },
+              ];
+            }
+
+            return [
+              {
+                label: group?.label,
+                icon: (group?.items || []).filter(notEmpty)[0]?.icon || 'CircleSmall20Filled',
+                type: 'expander',
+                children: (group?.items || []).filter(notEmpty).map((item) => {
+                  return {
+                    label: item.label,
+                    href: `/${data.authUser.tenant}${item.to}`,
+                    icon: item.icon,
+                  };
+                }),
+              },
+            ];
+          })
+          .flat(),
       ]
     : [];
 

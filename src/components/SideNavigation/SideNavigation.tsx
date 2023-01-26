@@ -23,7 +23,9 @@ function SideNavigation({ isNavVisible, setIsNavVisible, ...props }: SideNavigat
       (item) =>
         item.to === location.pathname.replace(`/${tenant}` || '', '') ||
         item.to === location.pathname.replace(tenant || '', '')
-    )?.subNav === 'forceCollapseForRoute' || location.pathname.includes(`/${tenant}/configuration`);
+    )?.subNav === 'forceCollapseForRoute' ||
+    location.pathname.includes(`/${tenant}/configuration`) ||
+    location.pathname.includes(`/${tenant}/cms`);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;

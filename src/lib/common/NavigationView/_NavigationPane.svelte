@@ -63,7 +63,7 @@
 
 <style>
   aside {
-    width: 280px;
+    width: 290px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;

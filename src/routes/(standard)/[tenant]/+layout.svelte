@@ -94,9 +94,7 @@
         {#if window?.name === ''}
           <NavigationPane {data} />
           <react:SideNavigation children={() => null} {isNavVisible} {setIsNavVisible}>
-            {#if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`cms/`) === 0}
-              <react:CmsNavigation setIsNavVisibleM={setIsNavVisible} />
-            {:else if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`profile/`) === 0}
+            {#if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`profile/`) === 0}
               <react:ProfilesNavigation setIsNavVisibleM={setIsNavVisible} />
             {:else if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`teams`) === 0}
               <react:TeamsNavigation setIsNavVisibleM={setIsNavVisible} />
