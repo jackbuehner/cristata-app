@@ -1,5 +1,6 @@
 import { server } from '$utils/constants';
-import { getOperationAST, print, type DocumentNode } from 'graphql';
+import { hasKey } from '$utils/hasKey';
+import { getOperationAST, isSelectionNode, print, type DocumentNode } from 'graphql';
 import { get, writable } from 'svelte/store';
 
 export interface GraphqlQueryOptions<VariablesType> {
@@ -7,6 +8,7 @@ export interface GraphqlQueryOptions<VariablesType> {
   query: DocumentNode;
   variables?: VariablesType;
   useCache?: boolean;
+  fetchNextPages?: boolean;
 }
 
 const cache = writable<Record<string, unknown>>({});
@@ -16,6 +18,11 @@ export async function query<DataType = unknown, VariablesType = unknown>(
 ): Promise<GraphqlQueryReturn<DataType>> {
   const operation = getOperationAST(opts.query);
   const operationName = operation && operation.name && operation.name.value;
+  const topSelectionName: string | undefined = (() => {
+    const firstSelection = operation?.selectionSet.selections?.[0];
+    // @ts-expect-error these exsit
+    return firstSelection?.alias || firstSelection?.name.value || undefined;
+  })();
 
   if (operationName && get(cache)[operationName]) {
     return get(cache)[operationName] as ReturnType<DataType>;
@@ -32,6 +39,20 @@ export async function query<DataType = unknown, VariablesType = unknown>(
   }).then(async (res) => {
     if (res.ok) {
       const json = (await res.json()) as ReturnType<DataType>;
+
+      // attempt to retrieve the docs from every page (this could take a while)
+      // and combine into the main docs array
+      const page: number = (opts?.variables as any)?.page || 1;
+      if (
+        opts?.fetchNextPages &&
+        json.data &&
+        topSelectionName &&
+        (json.data as any)?.[topSelectionName]?.docs?.length > 0
+      ) {
+        const next = await query<DataType>({ ...opts, variables: { ...opts.variables, page: page + 1 } });
+        const nextDocs = (next?.data as any)?.[topSelectionName]?.docs;
+        (json.data as any)[topSelectionName]?.docs.push(...nextDocs);
+      }
 
       // cache the result so it can be used immediately (cache is lost on page refresh)
       if (opts?.useCache && operationName) cache.update((state) => ({ ...state, [operationName]: json }));
