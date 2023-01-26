@@ -735,13 +735,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: [
-        '@cristata/graphiql-explorer',
-        'graphql-list-fields',
-        '@jackbuehner/cristata-ydoc-utils',
-        'y-websocket',
-        '@monaco-editor/react',
-      ],
+      external: [],
     },
   },
   ssr: {
