@@ -89,7 +89,15 @@
         <svelte:fragment slot="icon">
           <FluentIcon name={icon || ''} />
         </svelte:fragment>
-        {name}
+        {@const isScoped = `${name}`.split('::').length === 2}
+        {#if isScoped}
+          <div class="label-wrapper">
+            {name.split('::')[1]}
+            <span class="scope">{name.split('::')[0]}</span>
+          </div>
+        {:else}
+          {name}
+        {/if}
       </ListItem>
     {/if}
   {/each}
@@ -137,5 +145,33 @@
     margin-top: 1px;
     margin-bottom: 1px;
     block-size: 30px;
+  }
+
+  .label-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .scope {
+    padding: 3px 5px;
+    font-family: var(--font-detail);
+    font-size: 0.72rem;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: var(--color-neutral-light-300) 0px 0px 0px 1.25px inset;
+    border-radius: var(--radius);
+    color: var(--color-neutral-light-1200);
+    height: 20px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+  }
+  @media (prefers-color-scheme: dark) {
+    .scope {
+      color: var(--color-neutral-dark-1200);
+      box-shadow: var(--color-neutral-dark-300) 0px 0px 0px 1.25px inset;
+    }
   }
 </style>

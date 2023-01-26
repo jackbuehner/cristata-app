@@ -241,7 +241,7 @@
   .settings-flyout {
     position: fixed;
     z-index: 99999;
-    left: 280px;
+    left: 290px;
     bottom: 50px;
   }
 
