@@ -90,7 +90,6 @@ function Actions(props: ActionsProps) {
           )
         )}
       </ACTIONS_WRAPPER_COMPONENT>
-      <AppSwitcher actions={props.actions} color={props.color} />
     </>
   );
 }

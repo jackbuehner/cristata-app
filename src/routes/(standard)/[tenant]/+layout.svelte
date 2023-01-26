@@ -3,10 +3,11 @@
   import { page } from '$app/stores';
   import { Appbar } from '$components/Appbar';
   import { SideNavigation } from '$components/SideNavigation';
-  import { Titlebar } from '$components/Titlebar';
+  import { Titlebar as TitlebarR } from '$components/Titlebar';
   import NavigationView from '$lib/common/NavigationView.svelte';
   import NavigationPane from '$lib/main-layout/NavigationPane.svelte';
   import OfflineNotice from '$lib/main-layout/OfflineNotice.svelte';
+  import Titlebar from '$lib/main-layout/Titlebar.svelte';
   import { CmsNavigation } from '$react/CMS/CmsNavigation';
   import { ConfigurationNavigation } from '$react/configuration/ConfigurationNavigation/ConfigurationNavigation';
   import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
@@ -76,11 +77,9 @@
     <div id="frame" class:withCustomTitlebar={isCustomTitlebarVisible}>
       <!-- title bar for when in pwa app mode -->
       {#if isCustomTitlebarVisible}
-        <react:Titlebar />
+        <react:TitlebarR />
       {/if}
-
-      <!-- app bar with actions, title, search, etc. -->
-      <react:Appbar />
+      <Titlebar {data} />
 
       <!-- offline notice -->
       {#if isOffline}
@@ -105,8 +104,11 @@
         {/if}
 
         <!-- the rest of the content -->
-        <div id="content">
-          <slot />
+        <div id="content" style="display: flex; flex-direction: column;">
+          <react:Appbar />
+          <div id="content">
+            <slot />
+          </div>
         </div>
       </div>
     </div>
@@ -139,6 +141,7 @@
     height: 0;
     flex-grow: 1;
     flex-shrink: 1;
+    background-color: #f3f3f3;
   }
 
   @media (max-width: 600px) {
@@ -153,10 +156,16 @@
     color: var(--color-neutral-light-1400);
     width: 100%;
     height: 100%;
+    border-radius: 6px 0 0 0;
+    background-color: #ffffff;
   }
   @media (prefers-color-scheme: dark) {
+    div#app {
+      background-color: #202020;
+    }
+
     div#content {
-      background-color: var(--color-neutral-dark-100);
+      background-color: #272727;
       color: var(--color-neutral-dark-1400);
     }
   }
