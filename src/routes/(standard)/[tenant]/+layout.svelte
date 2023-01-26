@@ -58,9 +58,6 @@
 
   used(RouterProvider);
 
-  //@ts-expect-error windowControlsOverlay is only available in some browsers
-  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
-
   const isOffline = navigator.onLine === false;
 
   const tenant = location.pathname.split('/')[1] || $page.params.tenant;
@@ -74,11 +71,8 @@
 
 <react:Root>
   <react:RouterProvider value={{ url: $page.url, params: $page.params, goto }}>
-    <div id="frame" class:withCustomTitlebar={isCustomTitlebarVisible}>
-      <!-- title bar for when in pwa app mode -->
-      {#if isCustomTitlebarVisible}
-        <react:TitlebarR />
-      {/if}
+    <div id="frame">
+      <!-- title bar -->
       <Titlebar {data} />
 
       <!-- offline notice -->
@@ -122,10 +116,6 @@
     width: 100%;
     height: 100%;
     position: fixed;
-  }
-
-  div#frame.withCustomTitlebar {
-    height: calc(100% - env(titlebar-area-height, 33px));
   }
 
   @media print {
