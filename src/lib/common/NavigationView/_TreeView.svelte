@@ -31,7 +31,7 @@
     localStorage.setItem('treeViewState', JSON.stringify(treeViewState));
   }
 
-  const footer = tree.find((tr) => tr.name === 'footer');
+  $: footer = (tree || []).find((tr) => tr.name === 'footer');
 </script>
 
 <div class="tree-view">
