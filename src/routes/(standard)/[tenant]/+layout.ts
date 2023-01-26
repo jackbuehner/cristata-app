@@ -3,10 +3,14 @@ import { goto } from '$app/navigation';
 import {
   BasicProfileMe,
   GlobalConfig,
+  UsersList,
   type BasicProfileMeQuery,
   type GlobalConfigQuery,
+  type UsersListQuery,
+  type UsersListQueryVariables,
 } from '$graphql/graphql';
 import { query } from '$graphql/query';
+import { notEmpty } from '$utils/notEmpty';
 import { redirect } from '@sveltejs/kit';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
 import { persistor, store } from '../../../redux/store';
@@ -50,7 +54,22 @@ export const load = (async ({ parent, params, url }) => {
     useCache: true,
   });
 
-  return { sessionId, configuration: config?.data?.configuration, me: me?.data?.user };
+  // get the list of all users
+  const basicProfiles = await query<UsersListQuery, UsersListQueryVariables>({
+    tenant: authUser.tenant,
+    query: UsersList,
+    useCache: true,
+    fetchNextPages: true,
+    skip: !!window?.name, // don't get the list if it is a popup window
+    variables: { page: 1, limit: 100 },
+  });
+
+  return {
+    sessionId,
+    configuration: config?.data?.configuration,
+    me: me?.data?.user,
+    basicProfiles: basicProfiles?.data?.users?.docs?.filter(notEmpty),
+  };
 }) satisfies LayoutLoad;
 
 async function switchTenant(tenant: string, currentLocation: URL) {
