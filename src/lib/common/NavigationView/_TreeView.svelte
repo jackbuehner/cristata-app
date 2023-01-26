@@ -140,6 +140,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    margin-bottom: 5px;
   }
   .tree-view :global(.listitem.compact) {
     margin-top: 1px;
