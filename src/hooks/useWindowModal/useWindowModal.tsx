@@ -23,8 +23,7 @@ function useWindowModal(
 
   const theme = useTheme() as themeType;
 
-  //@ts-expect-error windowControlsOverlay is only available in some browsers
-  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
+  const isCustomTitlebarVisible = false;
 
   const [Window, openWindow, closeWindow] = useWindow(
     <WindowWrapper theme={theme} styleString={props.styleString}>
