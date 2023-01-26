@@ -34,7 +34,7 @@ export async function query<DataType = unknown, VariablesType = unknown>(
       const json = (await res.json()) as ReturnType<DataType>;
 
       // cache the result so it can be used immediately (cache is lost on page refresh)
-      if (opts?.useCache && operationName) cache.set({ ...cache, [operationName]: json });
+      if (opts?.useCache && operationName) cache.update((state) => ({ ...state, [operationName]: json }));
 
       return json;
     }
