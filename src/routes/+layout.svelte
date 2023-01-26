@@ -20,3 +20,10 @@
 {#if ReloadPrompt}
   <svelte:component this={ReloadPrompt} />
 {/if}
+
+<style>
+  :root {
+    --fds-accent-dark-1: 253, 54%, 47%;
+    --fds-accent-light-2: 253, 49%, 80%;
+  }
+</style>
