@@ -4,6 +4,8 @@
   import { Appbar } from '$components/Appbar';
   import { SideNavigation } from '$components/SideNavigation';
   import { Titlebar } from '$components/Titlebar';
+  import NavigationView from '$lib/common/NavigationView.svelte';
+  import NavigationPane from '$lib/main-layout/NavigationPane.svelte';
   import OfflineNotice from '$lib/main-layout/OfflineNotice.svelte';
   import { CmsNavigation } from '$react/CMS/CmsNavigation';
   import { ConfigurationNavigation } from '$react/configuration/ConfigurationNavigation/ConfigurationNavigation';
@@ -12,11 +14,15 @@
   import { Root } from '$react/Root';
   import { TeamsNav as TeamsNavigation } from '$react/teams/TeamsNav';
   import { themeMode } from '$stores/themeMode';
+  import { notEmpty } from '$utils/notEmpty';
   import { theme as themeFunction } from '$utils/theme';
   import { toCustomPropertiesString } from 'object-to-css-variables';
   import { onDestroy, onMount } from 'svelte';
   import { used } from 'svelte-preprocess-react';
   import { RouterProvider } from 'svelte-preprocess-react/react-router';
+  import type { LayoutData } from './$types';
+
+  export let data: LayoutData;
 
   // get the theme
   $: theme = themeFunction($themeMode);
@@ -86,6 +92,7 @@
       <div id="app">
         <!-- side navigation -->
         {#if window?.name === ''}
+          <NavigationPane {data} />
           <react:SideNavigation children={() => null} {isNavVisible} {setIsNavVisible}>
             {#if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`cms/`) === 0}
               <react:CmsNavigation setIsNavVisibleM={setIsNavVisible} />
@@ -95,8 +102,6 @@
               <react:TeamsNavigation setIsNavVisibleM={setIsNavVisible} />
             {:else if $page.url.pathname.replace(`/${tenant}/`, ``) === 'playground'}
               <react:PlaygroundNavigation />
-            {:else if $page.url.pathname.replace(`/${tenant}/`, ``).indexOf(`configuration/`) === 0}
-              <react:ConfigurationNavigation />
             {/if}
           </react:SideNavigation>
         {/if}
