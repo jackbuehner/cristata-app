@@ -14,8 +14,33 @@
     const iconNames = Object.keys(icons);
     return iconNames.includes(str);
   }
+
+  export let mode: 'regular' | 'buttonIconLeft' | 'buttonIconRight' = 'regular';
 </script>
 
 {#if isFluentIconName(iconName)}
-  {@html icons[iconName]}
+  {#if mode === 'regular'}
+    {@html icons[iconName]}
+  {:else if mode === 'buttonIconLeft'}
+    <span style="margin: 0 12px 0 0;" class="button-icon">
+      {@html icons[iconName]}
+    </span>
+  {:else if mode === 'buttonIconRight'}
+    <span style="margin: 0 0 0 12px;" class="button-icon">
+      {@html icons[iconName]}
+    </span>
+  {/if}
 {/if}
+
+<style>
+  .button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .button-icon :global(svg) {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+</style>

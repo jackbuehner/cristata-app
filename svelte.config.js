@@ -18,6 +18,9 @@ const config = {
       $stores: 'src/stores',
       $graphql: 'src/graphql',
     },
+    env: {
+      publicPrefix: 'VITE_',
+    },
   },
 };
 

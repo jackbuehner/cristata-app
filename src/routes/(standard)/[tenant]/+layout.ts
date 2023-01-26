@@ -1,6 +1,11 @@
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
-import { GlobalConfig, type GlobalConfigQuery } from '$graphql/graphql';
+import {
+  BasicProfileMe,
+  GlobalConfig,
+  type BasicProfileMeQuery,
+  type GlobalConfigQuery,
+} from '$graphql/graphql';
 import { query } from '$graphql/query';
 import { redirect } from '@sveltejs/kit';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
@@ -38,7 +43,14 @@ export const load = (async ({ parent, params, url }) => {
     useCache: true,
   });
 
-  return { sessionId, configuration: config?.data?.configuration };
+  // get the current user basic profile
+  const me = await query<BasicProfileMeQuery>({
+    tenant: authUser.tenant,
+    query: BasicProfileMe,
+    useCache: true,
+  });
+
+  return { sessionId, configuration: config?.data?.configuration, me: me?.data?.user };
 }) satisfies LayoutLoad;
 
 async function switchTenant(tenant: string, currentLocation: URL) {

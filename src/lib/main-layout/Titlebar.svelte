@@ -1,17 +1,16 @@
 <script lang="ts">
+  import { server } from '$utils/constants';
   import { Button, Flyout, IconButton, PersonPicture, TextBlock } from 'fluent-svelte';
   import type { LayoutData } from '../../routes/(standard)/[tenant]/$types';
+  import Profile from './Profile.svelte';
 
   export let data: LayoutData;
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
+  // if the horizontal offset is greater than 0, this means the window controls are on the left
   const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect?.().x || 0;
 
-  const initials = data.authUser.name
-    .split(' ')
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join('');
+  let flyoutOpen: boolean = false;
 
   // right controls: <- -> | title     […] [_] [■] [X]
   // left controls:  [X] [_] [■] | <- -> | title     […]
@@ -30,23 +29,20 @@
     <TextBlock variant="caption">Cristata (Preview) – {data.authUser.tenant}</TextBlock>
   </div>
   <div class="right">
-    <Flyout placement="bottom" alignment="end">
-      <IconButton style="padding: 2px; margin-right: 16px;">
-        <PersonPicture size={28}>{initials}</PersonPicture>
-      </IconButton>
-      <svelte:fragment slot="flyout">
-        <PersonPicture size={60}>{initials}</PersonPicture>
-        <div>
-          <TextBlock variant="bodyLarge">{data.authUser.name}</TextBlock>
-        </div>
-        <div>
-          <TextBlock variant="body">{data.authUser.name}</TextBlock>
-        </div>
-        <div>
-          <Button>View profile</Button>
-        </div>
-      </svelte:fragment>
-    </Flyout>
+    <div class="account">
+      <Flyout placement="bottom" alignment="end" bind:open={flyoutOpen}>
+        <IconButton style="padding: 2px; margin-right: 16px;">
+          <PersonPicture
+            size={26}
+            src="{server.location}/v3/{data.authUser.tenant}/user-photo/{data.authUser._id}"
+            alt={data.authUser.name}
+          />
+        </IconButton>
+        <svelte:fragment slot="flyout">
+          <Profile {data} bind:flyoutOpen />
+        </svelte:fragment>
+      </Flyout>
+    </div>
   </div>
 </div>
 
@@ -95,5 +91,14 @@
     svg {
       fill: var(--color-primary-300);
     }
+  }
+
+  .account {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+  .account :global(.flyout) {
+    min-inline-size: 300px;
+    padding: 0;
   }
 </style>

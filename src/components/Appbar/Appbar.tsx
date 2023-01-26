@@ -39,6 +39,7 @@ function Appbar() {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    marginRight: 16,
   };
 
   return (
@@ -48,7 +49,6 @@ function Appbar() {
       </div>
       <div style={right}>
         <Actions color={state.color} actions={state.actions} name={state.name} showSearch={state.showSearch} />
-        <AccountMenu />
       </div>
     </Bar>
   );

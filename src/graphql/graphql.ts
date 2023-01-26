@@ -2611,6 +2611,17 @@ export type WorkflowGroupDoc = {
 };
 
 
+export const BasicProfileMe = gql`
+    query BasicProfileMe {
+  user {
+    _id
+    name
+    email
+    current_title
+    photo
+  }
+}
+    `;
 export const GlobalConfig = gql`
     query GlobalConfig {
   configuration {
@@ -2660,6 +2671,11 @@ export const GlobalConfig = gql`
   }
 }
     `;
+export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BasicProfileMeQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null } | null };
+
 export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
