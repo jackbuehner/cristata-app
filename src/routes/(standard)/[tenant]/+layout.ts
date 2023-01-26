@@ -32,7 +32,11 @@ export const load = (async ({ parent, params, url }) => {
   store.dispatch(setOtherUsers(authUser.otherUsers.map((ou) => ({ ...ou, _id: ou._id.toHexString() }))));
 
   // get the configuration
-  const config = await query<GlobalConfigQuery>({ tenant: authUser.tenant, query: GlobalConfig });
+  const config = await query<GlobalConfigQuery>({
+    tenant: authUser.tenant,
+    query: GlobalConfig,
+    useCache: true,
+  });
 
   return { sessionId, configuration: config?.data?.configuration };
 }) satisfies LayoutLoad;
@@ -53,4 +57,7 @@ async function switchTenant(tenant: string, currentLocation: URL) {
   );
   if (browser) goto(url.href);
   else throw redirect(307, url.href);
+}
+function writable<T>(arg0: {}) {
+  throw new Error('Function not implemented.');
 }

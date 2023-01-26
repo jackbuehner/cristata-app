@@ -4,13 +4,22 @@ import { server } from '$utils/constants';
 import { isHttpError } from '$utils/isHttpError';
 import { error, redirect } from '@sveltejs/kit';
 import mongoose from 'mongoose';
+import { get, writable } from 'svelte/store';
 import { z } from 'zod';
 import { persistor } from '../../redux/store';
 import type { LayoutLoad } from './$types';
 
+const authCache = writable<{ last: Date; authUser: z.infer<typeof validator> }>();
+
 export const load = (async ({ fetch, url }) => {
   // try to get the current tenant from the url if it exists
   const maybeTenant: string | undefined = url.pathname.split('/')[1];
+
+  // use the cached auth
+  if (get(authCache)) {
+    const { authUser } = get(authCache);
+    return { authUser };
+  }
 
   // check the authentication status of the current client
   const authUser = await fetch(`${server.location}/auth`, {
@@ -36,9 +45,12 @@ export const load = (async ({ fetch, url }) => {
       throw error(500, err);
     })
     .then(async (authResponse) => {
-      return await validator.parseAsync(authResponse).catch((err) => {
+      const authUser = await validator.parseAsync(authResponse).catch((err) => {
         throw error(500, err);
       });
+
+      authCache.set({ last: new Date(), authUser });
+      return authUser;
     });
 
   return { authUser };
