@@ -9,6 +9,7 @@ export interface GraphqlQueryOptions<VariablesType> {
   variables?: VariablesType;
   useCache?: boolean;
   fetchNextPages?: boolean;
+  skip?: boolean;
 }
 
 const cache = writable<Record<string, unknown>>({});
@@ -16,6 +17,8 @@ const cache = writable<Record<string, unknown>>({});
 export async function query<DataType = unknown, VariablesType = unknown>(
   opts: GraphqlQueryOptions<VariablesType>
 ): Promise<GraphqlQueryReturn<DataType>> {
+  if (opts?.skip) return {};
+
   const operation = getOperationAST(opts.query);
   const operationName = operation && operation.name && operation.name.value;
   const topSelectionName: string | undefined = (() => {
