@@ -13,7 +13,6 @@ import { ToastContainer } from './components/ToastContainer';
 import { createClient } from './graphql/client';
 import { DropdownProvider } from './hooks/useDropdown';
 import { persistor, store } from './redux/store';
-import { ReloadPrompt } from './ReloadPrompt';
 import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
 
@@ -69,7 +68,6 @@ function App({ children }: { children?: React.ReactNode }) {
               <Router>
                 <ModalProvider>
                   <ToastContainer />
-                  <ReloadPrompt />
                   {children}
                 </ModalProvider>
               </Router>
