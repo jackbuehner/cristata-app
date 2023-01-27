@@ -24,6 +24,7 @@
   $: isConfigRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/configuration/`);
   $: isCmsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/cms/`);
   $: isProfilesRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/profile/`);
+  $: isTeamsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/teams`);
 
   const allMainMenuItems = data.configuration?.navigation.main
     .map((item) => {
@@ -284,6 +285,30 @@
             ];
           })
           .flat(),
+      ]
+    : isTeamsRoute
+    ? [
+        {
+          label: 'hr',
+        },
+        {
+          label: 'All teams',
+          icon: 'ContactCardGroup16Regular',
+          href: `/${data.authUser.tenant}/teams/home`,
+        },
+        {
+          label: 'hr',
+        },
+        ...(data.basicTeams || [])
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((team) => {
+            return {
+              label: `${team.organizers.length + team.members.length}::${team.name}`,
+              icon: 'PeopleTeam16Regular',
+              href: `/${data.authUser.tenant}/teams/${team._id}`,
+            };
+          })
+          .filter(notEmpty),
       ]
     : [];
 

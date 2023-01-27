@@ -2671,6 +2671,22 @@ export const GlobalConfig = gql`
   }
 }
     `;
+export const TeamsList = gql`
+    query TeamsList($page: Int, $limit: Int!) {
+  teams(page: $page, limit: $limit, sort: "{ \\"_id\\": 1 }") {
+    docs {
+      _id
+      name
+      members {
+        _id
+      }
+      organizers {
+        _id
+      }
+    }
+  }
+}
+    `;
 export const UsersList = gql`
     query UsersList($page: Int, $limit: Int!) {
   users(page: $page, limit: $limit, sort: "{ \\"_id\\": 1 }") {
@@ -2691,6 +2707,14 @@ export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GlobalConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collections?: Array<{ __typename?: 'ConfigurationCollection', name: string, pluralLabel: string } | null> | null, navigation: { __typename?: 'ConfigurationNavigation', main: Array<{ __typename?: 'ConfigurationNavigationMainItem', icon: string, label: string, to: string } | null>, cmsNav: Array<{ __typename?: 'ConfigurationNavigationSubGroup', label: string, uuid: string, items: Array<{ __typename?: 'ConfigurationNavigationSubGroupItems', icon: string, label: string, to: string, uuid: string } | null> } | null> }, dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, name: string, lastModifiedBy: string, lastModifiedAt: string, photo?: string | null }, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string } } | null> } } | null };
+
+export type TeamsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit: Scalars['Int'];
+}>;
+
+
+export type TeamsListQuery = { __typename?: 'Query', teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string, members: Array<{ __typename?: 'User', _id: any } | null>, organizers: Array<{ __typename?: 'User', _id: any } | null> } | null> } | null };
 
 export type UsersListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;

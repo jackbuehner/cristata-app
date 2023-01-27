@@ -3,9 +3,12 @@ import { goto } from '$app/navigation';
 import {
   BasicProfileMe,
   GlobalConfig,
+  TeamsList,
   UsersList,
   type BasicProfileMeQuery,
   type GlobalConfigQuery,
+  type TeamsListQuery,
+  type TeamsListQueryVariables,
   type UsersListQuery,
   type UsersListQueryVariables,
 } from '$graphql/graphql';
@@ -64,11 +67,22 @@ export const load = (async ({ parent, params, url }) => {
     variables: { page: 1, limit: 100 },
   });
 
+  // get the list of all teams
+  const basicTeams = await query<TeamsListQuery, TeamsListQueryVariables>({
+    tenant: authUser.tenant,
+    query: TeamsList,
+    useCache: true,
+    fetchNextPages: true,
+    skip: !!window?.name, // don't get the list if it is a popup window
+    variables: { page: 1, limit: 100 },
+  });
+
   return {
     sessionId,
     configuration: config?.data?.configuration,
     me: me?.data?.user,
     basicProfiles: basicProfiles?.data?.users?.docs?.filter(notEmpty),
+    basicTeams: basicTeams?.data?.teams?.docs?.filter(notEmpty),
   };
 }) satisfies LayoutLoad;
 
