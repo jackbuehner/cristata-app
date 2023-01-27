@@ -5,6 +5,7 @@
   import NavigationView from '$lib/common/NavigationView.svelte';
   import { useCreateSchema } from '$react/configuration/CollectionSchemaPage/hooks/schema-modals/useCreateSchema';
   import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
+  import { collapsedPane } from '$stores/collapsedPane';
   import { compactMode } from '$stores/compactMode';
   import { server } from '$utils/constants';
   import { notEmpty } from '$utils/notEmpty';
@@ -86,6 +87,60 @@
       ],
     },
   ];
+
+  $: profilesListMenuItems = (data.basicProfiles || [])
+    .filter((profile) => {
+      if (hideInactiveUsers) return !profile.r;
+      return true;
+    })
+    .map((profile) => {
+      if (sortUsersByLastName) {
+        const parenthesis = profile.name.match(/\(.+?\)/g);
+        const names = profile.name
+          .replace(/\(.+?\)/g, '')
+          .trim()
+          .split(' ');
+        const lastName = names.slice(-1)[0];
+        const remainingNames = names.slice(0, -1);
+        return {
+          ...profile,
+          name: `${lastName}${remainingNames ? `, ${remainingNames.join(' ')}` : ''} ${(parenthesis || []).join(
+            ' '
+          )}`.trim(),
+        };
+      }
+      return profile;
+    })
+    .sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    })
+    .reduce<{ char: string; profiles: NonNullable<typeof data.basicProfiles> }[]>((groups, profile) => {
+      const char = profile.name[0].toUpperCase();
+      const group = groups.find((group) => group.char === char);
+      if (!group) {
+        groups.push({ char, profiles: [profile] });
+        return groups;
+      }
+      group.profiles.push(profile);
+      return groups;
+    }, [])
+    .map((group) => {
+      return [
+        {
+          label: group.char,
+          type: 'category',
+        },
+        ...group.profiles.map((profile) => {
+          return {
+            label: profile.name,
+            icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${profile._id}`,
+            href: `/${data.authUser.tenant}/profile/${profile._id}`,
+          };
+        }),
+      ];
+    })
+    .flat();
+
   $: routeMenuItems = isConfigRoute
     ? [
         {
@@ -237,58 +292,16 @@
         {
           label: 'hr',
         },
-        ...(data.basicProfiles || [])
-          .filter((profile) => {
-            if (hideInactiveUsers) return !profile.r;
-            return true;
-          })
-          .map((profile) => {
-            if (sortUsersByLastName) {
-              const parenthesis = profile.name.match(/\(.+?\)/g);
-              const names = profile.name
-                .replace(/\(.+?\)/g, '')
-                .trim()
-                .split(' ');
-              const lastName = names.slice(-1)[0];
-              const remainingNames = names.slice(0, -1);
-              return {
-                ...profile,
-                name: `${lastName}${remainingNames ? `, ${remainingNames.join(' ')}` : ''} ${(
-                  parenthesis || []
-                ).join(' ')}`.trim(),
-              };
-            }
-            return profile;
-          })
-          .sort((a, b) => {
-            return a.name.localeCompare(b.name);
-          })
-          .reduce<{ char: string; profiles: NonNullable<typeof data.basicProfiles> }[]>((groups, profile) => {
-            const char = profile.name[0].toUpperCase();
-            const group = groups.find((group) => group.char === char);
-            if (!group) {
-              groups.push({ char, profiles: [profile] });
-              return groups;
-            }
-            group.profiles.push(profile);
-            return groups;
-          }, [])
-          .map((group) => {
-            return [
+        ...($collapsedPane
+          ? [
               {
-                label: group.char,
-                type: 'category',
+                label: 'All profiles',
+                icon: 'People16Regular',
+                type: 'expander',
+                children: profilesListMenuItems,
               },
-              ...group.profiles.map((profile) => {
-                return {
-                  label: profile.name,
-                  icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${profile._id}`,
-                  href: `/${data.authUser.tenant}/profile/${profile._id}`,
-                };
-              }),
-            ];
-          })
-          .flat(),
+            ]
+          : profilesListMenuItems),
       ]
     : isTeamsRoute
     ? [
@@ -300,21 +313,26 @@
           icon: 'ContactCardGroup16Regular',
           href: `/${data.authUser.tenant}/teams/home`,
         },
-        {
-          label: 'hr',
-        },
-        ...(data.basicTeams || [])
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map((team) => {
-            return {
-              label: `${team.organizers.length + team.members.length}::${team.name}`,
-              icon: 'PeopleTeam16Regular',
-              href: `/${data.authUser.tenant}/teams/${team._id}`,
-            };
-          })
-          .filter(notEmpty),
+        ...($collapsedPane
+          ? []
+          : [
+              {
+                label: 'hr',
+              },
+              ...(data.basicTeams || [])
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((team) => {
+                  return {
+                    label: `${team.organizers.length + team.members.length}::${team.name}`,
+                    icon: 'PeopleTeam16Regular',
+                    href: `/${data.authUser.tenant}/teams/${team._id}`,
+                  };
+                })
+                .filter(notEmpty),
+            ]
+        ).flat(),
       ]
-    : isApiPage
+    : isApiPage && !$collapsedPane
     ? [
         {
           label: 'hr',
@@ -383,20 +401,20 @@
 
 <NavigationView
   mode={'left'}
-  hideMenuButton
   menuItems={[...menuFooterItems, ...mainMenuItems, ...routeMenuItems]}
   showBackArrow
   compact={$compactMode}
+  bind:collapsedPane={$collapsedPane}
 >
   <svelte:fragment slot="custom" />
   <svelte:fragment slot="internal">
-    {#if isApiPage}
+    {#if isApiPage && !$collapsedPane}
       <react:PlaygroundNavigation />
     {/if}
   </svelte:fragment>
 </NavigationView>
 
-<div class="settings-flyout">
+<div class="settings-flyout" class:collapsedPane={$collapsedPane}>
   <Flyout bind:open={settingFlyoutOpen} placement="right">
     <svelte:fragment slot="flyout">
       <div class="settings-flyout-flex">
@@ -407,8 +425,8 @@
   </Flyout>
 </div>
 
-<div class="toolbox-flyout" class:compactMode={$compactMode}>
-  <MenuFlyout alignment="start" bind:open={toolboxFlyoutOpen}>
+<div class="toolbox-flyout" class:compactMode={$compactMode} class:collapsedPane={$collapsedPane}>
+  <MenuFlyout alignment="start" placement="top" bind:open={toolboxFlyoutOpen}>
     <svelte:fragment slot="flyout">
       {#if isConfigRoute}
         {#if $createSchemaHookStore}
@@ -476,6 +494,9 @@
     left: 290px;
     bottom: 50px;
   }
+  .settings-flyout.collapsedPane {
+    left: 50px;
+  }
 
   .settings-flyout-flex {
     display: flex;
@@ -490,5 +511,9 @@
   }
   .toolbox-flyout.compactMode {
     bottom: 56px;
+  }
+  .toolbox-flyout.collapsedPane {
+    left: 55px;
+    bottom: 30px;
   }
 </style>
