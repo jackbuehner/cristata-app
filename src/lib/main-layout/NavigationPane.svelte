@@ -5,6 +5,7 @@
   import NavigationView from '$lib/common/NavigationView.svelte';
   import { useCreateSchema } from '$react/configuration/CollectionSchemaPage/hooks/schema-modals/useCreateSchema';
   import { compactMode } from '$stores/compactMode';
+  import { server } from '$utils/constants';
   import { notEmpty } from '$utils/notEmpty';
   import {
     Flyout,
@@ -15,12 +16,14 @@
     ToggleSwitch,
   } from 'fluent-svelte';
   import { hooks } from 'svelte-preprocess-react';
+  import { useInviteUserModal } from '../../hooks/useCustomModal';
   import type { LayoutData } from '../../routes/(standard)/[tenant]/$types';
 
   export let data: LayoutData;
 
   $: isConfigRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/configuration/`);
   $: isCmsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/cms/`);
+  $: isProfilesRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/profile/`);
 
   const allMainMenuItems = data.configuration?.navigation.main
     .map((item) => {
@@ -216,53 +219,124 @@
           })
           .flat(),
       ]
-    : [];
-
-  $: menuFooterItems = isConfigRoute
+    : isProfilesRoute
     ? [
         {
-          label: 'footer',
-          children: [
-            {
-              label: 'hr',
-            },
-            {
-              label: 'Toolbox',
-              icon: 'Toolbox16Regular',
-              onClick: () => {
-                toolboxFlyoutOpen = !toolboxFlyoutOpen;
-              },
-            },
-            {
-              label: 'Settings',
-              icon: 'Settings16Regular',
-              onClick: () => {
-                settingFlyoutOpen = !settingFlyoutOpen;
-              },
-            },
-          ],
+          label: 'hr',
         },
-      ]
-    : [
         {
-          label: 'footer',
-          children: [
-            {
-              label: 'hr',
-            },
-            {
-              label: 'Settings',
-              icon: 'Settings16Regular',
-              onClick: () => {
-                settingFlyoutOpen = !settingFlyoutOpen;
-              },
-            },
-          ],
+          label: 'My profile',
+          icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${data.authUser._id}`,
+          href: `/${data.authUser.tenant}/profile/${data.authUser._id}`,
         },
-      ];
+        {
+          label: 'hr',
+        },
+        ...(data.basicProfiles || [])
+          .filter((profile) => {
+            if (hideInactiveUsers) return !profile.r;
+            return true;
+          })
+          .map((profile) => {
+            if (sortUsersByLastName) {
+              const parenthesis = profile.name.match(/\(.+?\)/g);
+              const names = profile.name
+                .replace(/\(.+?\)/g, '')
+                .trim()
+                .split(' ');
+              const lastName = names.slice(-1)[0];
+              const remainingNames = names.slice(0, -1);
+              return {
+                ...profile,
+                name: `${lastName}${remainingNames ? `, ${remainingNames.join(', ')}` : ''} ${(
+                  parenthesis || []
+                ).join(' ')}`.trim(),
+              };
+            }
+            return profile;
+          })
+          .sort((a, b) => {
+            return a.name.localeCompare(b.name);
+          })
+          .reduce<{ char: string; profiles: NonNullable<typeof data.basicProfiles> }[]>((groups, profile) => {
+            const char = profile.name[0].toUpperCase();
+            const group = groups.find((group) => group.char === char);
+            if (!group) {
+              groups.push({ char, profiles: [profile] });
+              return groups;
+            }
+            group.profiles.push(profile);
+            return groups;
+          }, [])
+          .map((group) => {
+            return [
+              {
+                label: group.char,
+                type: 'category',
+              },
+              ...group.profiles.map((profile) => {
+                return {
+                  label: profile.name,
+                  icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${profile._id}`,
+                  href: `/${data.authUser.tenant}/profile/${profile._id}`,
+                };
+              }),
+            ];
+          })
+          .flat(),
+      ]
+    : [];
+
+  $: menuFooterItems =
+    isConfigRoute || isProfilesRoute
+      ? [
+          {
+            label: 'footer',
+            children: [
+              {
+                label: 'hr',
+              },
+              {
+                label: 'Toolbox',
+                icon: 'Toolbox16Regular',
+                onClick: () => {
+                  toolboxFlyoutOpen = !toolboxFlyoutOpen;
+                },
+              },
+              {
+                label: 'Settings',
+                icon: 'Settings16Regular',
+                onClick: () => {
+                  settingFlyoutOpen = !settingFlyoutOpen;
+                },
+              },
+            ],
+          },
+        ]
+      : [
+          {
+            label: 'footer',
+            children: [
+              {
+                label: 'hr',
+              },
+              {
+                label: 'Settings',
+                icon: 'Settings16Regular',
+                onClick: () => {
+                  settingFlyoutOpen = !settingFlyoutOpen;
+                },
+              },
+            ],
+          },
+        ];
 
   $: collectionNames = data.configuration?.collections?.map((col) => col?.name).filter(notEmpty) || [];
   $: createSchemaHookStore = hooks(() => useCreateSchema(collectionNames));
+  $: inviteUserModalHookStore = hooks(() => useInviteUserModal());
+
+  let hideInactiveUsers = true;
+  let sortUsersByLastName = true;
 
   let settingFlyoutOpen = false;
   let toolboxFlyoutOpen = false;
@@ -271,7 +345,7 @@
 <NavigationView
   mode={'left'}
   hideMenuButton
-  menuItems={[...mainMenuItems, ...routeMenuItems, ...menuFooterItems]}
+  menuItems={[...menuFooterItems, ...mainMenuItems, ...routeMenuItems]}
   showBackArrow
   compact={$compactMode}
 >
@@ -314,6 +388,37 @@
           on:click={() => goto(`/${data.authUser.tenant}/configuration/billing/payments`)}
         >
           Billing information
+        </MenuFlyoutItem>
+      {/if}
+      {#if isProfilesRoute}
+        {#if $inviteUserModalHookStore}
+          {@const [, showModal] = $inviteUserModalHookStore}
+          <MenuFlyoutItem on:click={showModal}>
+            <svelte:fragment slot="icon">
+              <FluentIcon name="PersonAdd20Regular" />
+            </svelte:fragment>
+            Invite new user
+          </MenuFlyoutItem>
+        {/if}
+        <MenuFlyoutDivider />
+        <MenuFlyoutItem indented={!hideInactiveUsers} on:click={() => (hideInactiveUsers = !hideInactiveUsers)}>
+          <svelte:fragment slot="icon">
+            {#if hideInactiveUsers}
+              <FluentIcon name="Checkmark20Regular" />
+            {/if}
+          </svelte:fragment>
+          Hide inactive users
+        </MenuFlyoutItem>
+        <MenuFlyoutItem
+          indented={!sortUsersByLastName}
+          on:click={() => (sortUsersByLastName = !sortUsersByLastName)}
+        >
+          <svelte:fragment slot="icon">
+            {#if sortUsersByLastName}
+              <FluentIcon name="Checkmark20Regular" />
+            {/if}
+          </svelte:fragment>
+          Sort by last name (family name)
         </MenuFlyoutItem>
       {/if}
     </svelte:fragment>

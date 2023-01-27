@@ -25,6 +25,7 @@ function SideNavigation({ isNavVisible, setIsNavVisible, ...props }: SideNavigat
         item.to === location.pathname.replace(tenant || '', '')
     )?.subNav === 'forceCollapseForRoute' ||
     location.pathname.includes(`/${tenant}/configuration`) ||
+    location.pathname.includes(`/${tenant}/profile`) ||
     location.pathname.includes(`/${tenant}/cms`);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers

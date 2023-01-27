@@ -2673,11 +2673,11 @@ export const GlobalConfig = gql`
     `;
 export const UsersList = gql`
     query UsersList($page: Int, $limit: Int!) {
-  users(page: $page, limit: $limit) {
+  users(page: $page, limit: $limit, sort: "{ \\"_id\\": 1 }") {
     docs {
       _id
       name
-      email
+      r: retired
     }
   }
 }
@@ -2698,4 +2698,4 @@ export type UsersListQueryVariables = Exact<{
 }>;
 
 
-export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, email?: string | null } | null> } | null };
+export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null } | null> } | null };

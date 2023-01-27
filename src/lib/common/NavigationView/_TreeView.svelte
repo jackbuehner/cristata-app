@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { ListItem, TextBlock } from 'fluent-svelte';
+  import { ListItem, PersonPicture, TextBlock } from 'fluent-svelte';
   import { onMount } from 'svelte';
   import FluentIcon from '../FluentIcon.svelte';
   import type { Tree } from './_NavigationTypes';
@@ -87,7 +87,11 @@
         class="listitem {compact ? 'compact' : ''}"
       >
         <svelte:fragment slot="icon">
-          <FluentIcon name={icon || ''} />
+          {#if icon?.includes('http')}
+            <PersonPicture size={24} src={icon} alt={name} />
+          {:else}
+            <FluentIcon name={icon || ''} />
+          {/if}
         </svelte:fragment>
         {@const isScoped = `${name}`.split('::').length === 2}
         {#if isScoped}
@@ -174,5 +178,9 @@
       color: var(--color-neutral-dark-1200);
       box-shadow: var(--color-neutral-dark-300) 0px 0px 0px 1.25px inset;
     }
+  }
+
+  .tree-view :global(.person-picture-container) {
+    margin-right: 8px;
   }
 </style>
