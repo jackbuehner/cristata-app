@@ -9,6 +9,9 @@ import { z } from 'zod';
 import { persistor } from '../../redux/store';
 import type { LayoutLoad } from './$types';
 
+export const ssr = false;
+export const prerender = false;
+
 const authCache = writable<{ last: Date; authUser: z.infer<typeof validator> }>();
 
 export const load = (async ({ fetch, url }) => {
