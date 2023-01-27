@@ -1,8 +1,6 @@
 import { ApolloProvider } from '@apollo/client';
 import { ModalProvider } from '@cristata/react-modal-hook';
 import { css, Global, ThemeProvider } from '@emotion/react';
-import loadable from '@loadable/component';
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -13,11 +11,7 @@ import { ToastContainer } from './components/ToastContainer';
 import { createClient } from './graphql/client';
 import { DropdownProvider } from './hooks/useDropdown';
 import { persistor, store } from './redux/store';
-import { server } from './utils/constants';
 import { theme as themeC } from './utils/theme/theme';
-
-// /* prettier-ignore */ const Protected = loadable(() => import(/* webpackChunkName: "ProtectedRoutes" */'./Protected'), { resolveComponent: ({ Protected }) => Protected });
-// Protected.preload();
 
 export interface IGridCols {
   side: number;
