@@ -1,10 +1,12 @@
 import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { ProgressRing as ProgressRingSvelte, TextBlock as TextBlockSvelte } from 'fluent-svelte';
 import mongoose from 'mongoose';
 import { Fragment, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'react-toastify';
+import { reactify } from 'svelte-preprocess-react';
 import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { SectionHeading } from '../../../components/Heading';
 import { InputGroup } from '../../../components/InputGroup';
@@ -29,6 +31,9 @@ import { genAvatar } from '../../../utils/genAvatar';
 import { slugify } from '../../../utils/slugify';
 import type { themeType } from '../../../utils/theme/theme';
 import { selectProfile } from '../selectProfile';
+
+const ProgressRing = reactify(ProgressRingSvelte);
+const TextBlock = reactify(TextBlockSvelte);
 
 function TeamsOverviewPage() {
   const dispatch = useAppDispatch();
@@ -153,7 +158,7 @@ function TeamsOverviewPage() {
     networkStatus: networkStatusTeams,
   } = useQuery<TEAMS__TYPE>(TEAMS, {
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'cache-only',
+    fetchPolicy: 'network-only',
     variables: { limit: 100 },
   });
   const teams = dataTeams?.teams.docs;
@@ -207,7 +212,15 @@ function TeamsOverviewPage() {
       {CreateWindow}
       {[[]].map(() => {
         if (loadingTeams) {
-          return <p key={0}>Loading teams...</p>;
+          return (
+            <div
+              key={0}
+              style={{ margin: 16, display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}
+            >
+              <ProgressRing size={24} />
+              <TextBlock variant='bodyStrong'>Loading teams...</TextBlock>
+            </div>
+          );
         }
 
         if (errorTeams) {
