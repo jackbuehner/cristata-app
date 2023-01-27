@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterNavigate, goto } from '$app/navigation';
+  import { afterNavigate } from '$app/navigation';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { IconButton, ListItem } from 'fluent-svelte';
   import type { MenuItem, Tree } from './_NavigationTypes';
@@ -10,6 +10,7 @@
   export let showBackArrow: boolean = false;
   export let hideMenuButton: boolean = false;
   export let compact: boolean = false;
+  export let collapsed: boolean = false;
 
   function itemMap(item: MenuItem): Tree {
     return {
@@ -32,7 +33,7 @@
   });
 </script>
 
-<aside>
+<aside class:collapsed>
   {#if (!headerText && !hideMenuButton) || showBackArrow}
     <div class="buttonrow">
       {#if showBackArrow}
@@ -41,7 +42,7 @@
         </IconButton>
       {/if}
       {#if !headerText && !hideMenuButton}
-        <IconButton>
+        <IconButton on:click={() => (collapsed = !collapsed)}>
           <FluentIcon name={'Navigation16Regular'} />
         </IconButton>
       {/if}
@@ -58,7 +59,7 @@
 
   <slot name="custom" />
 
-  <TreeView {tree} {compact}>
+  <TreeView {tree} {compact} {collapsed}>
     <svelte:fragment slot="internal">
       <slot name="internal" />
     </svelte:fragment>
@@ -73,6 +74,11 @@
     flex-direction: column;
     flex-shrink: 0;
     flex-grow: 0;
+    transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  aside.collapsed {
+    width: 50px;
   }
 
   span {

@@ -8,10 +8,18 @@
   export let showBackArrow: boolean = false;
   export let hideMenuButton: boolean = false;
   export let compact: boolean = false;
+  export let collapsedPane: boolean = false;
 </script>
 
 {#if mode === 'left'}
-  <NavigationPane {headerText} {menuItems} {showBackArrow} {hideMenuButton} {compact}>
+  <NavigationPane
+    {headerText}
+    {menuItems}
+    {showBackArrow}
+    {hideMenuButton}
+    {compact}
+    bind:collapsed={collapsedPane}
+  >
     <svelte:fragment slot="custom">
       <slot name="custom" />
     </svelte:fragment>
