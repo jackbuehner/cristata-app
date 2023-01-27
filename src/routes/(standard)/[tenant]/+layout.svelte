@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { Appbar } from '$components/Appbar';
-  import { Titlebar as TitlebarR } from '$components/Titlebar';
-  import NavigationView from '$lib/common/NavigationView.svelte';
   import NavigationPane from '$lib/main-layout/NavigationPane.svelte';
   import OfflineNotice from '$lib/main-layout/OfflineNotice.svelte';
   import Titlebar from '$lib/main-layout/Titlebar.svelte';
@@ -14,6 +12,8 @@
   import { onDestroy, onMount } from 'svelte';
   import { used } from 'svelte-preprocess-react';
   import { RouterProvider } from 'svelte-preprocess-react/react-router';
+  import { setAppSearchShown } from '../../../redux/slices/appbarSlice';
+  import { store } from '../../../redux/store';
   import type { LayoutData } from './$types';
 
   export let data: LayoutData;
@@ -48,6 +48,11 @@
       styleElem.innerHTML = `:root { ${themeVars} }`;
     }
   }
+
+  // close search after navigate
+  afterNavigate(() => {
+    store.dispatch(setAppSearchShown(false));
+  });
 
   used(RouterProvider);
 
