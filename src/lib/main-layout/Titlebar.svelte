@@ -29,7 +29,7 @@
         />
       </svg>
     {/if}
-    <TextBlock variant="caption">Cristata (Preview) – {data.authUser.tenant}</TextBlock>
+    <TextBlock variant="caption">Cristata (Preview)</TextBlock>
   </div>
   <div class="right">
     <div class="account">
