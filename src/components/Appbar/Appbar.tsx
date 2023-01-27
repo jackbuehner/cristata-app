@@ -1,27 +1,9 @@
-import { useTheme } from '@emotion/react';
-import { ArrowLeft24Regular } from '@fluentui/react-icons';
-import Color from 'color';
-import { useState, type CSSProperties } from 'react';
-import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
+import type { CSSProperties } from 'react';
 import { useAppSelector } from '../../redux/hooks';
-import type { themeType } from '../../utils/theme/theme';
-import { Button } from '../Button';
-import {
-  AppbarAccountMenu as AccountMenu,
-  AppbarActions as Actions,
-  AppbarBar as Bar,
-  AppbarIcon as Icon,
-  AppbarName as Name,
-} from './';
+import { AppbarActions as Actions, AppbarBar as Bar, AppbarName as Name } from './';
 
 function Appbar() {
   const state = useAppSelector(({ appbar }) => appbar);
-  const theme = useTheme() as themeType;
-  const navigate = useNavigate();
-  const location = useLocation();
-  const tenant = location.pathname.split('/')[1];
-
-  const [showHomeArrow, setShowHomeArrow] = useState(false);
 
   const left: CSSProperties = {
     flexGrow: 0,

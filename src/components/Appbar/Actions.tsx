@@ -4,7 +4,7 @@ import type { AppbarState } from '../../redux/slices/appbarSlice';
 import type { colorType, themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
 import FluentIcon from '../FluentIcon';
-import { AppbarAppSwitcher as AppSwitcher, AppbarSearch as Search } from './';
+import { AppbarSearch as Search } from './';
 
 interface ActionsProps {
   actions: AppbarState['actions'];
