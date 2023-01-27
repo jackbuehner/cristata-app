@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { LocalStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import { merge } from 'merge-anything';
@@ -72,10 +73,12 @@ const createCache = () => {
   });
 
   // persist the cache to localStorage
-  persistCache({
-    cache,
-    storage: new LocalStorageWrapper(window.localStorage),
-  });
+  if (browser) {
+    persistCache({
+      cache,
+      storage: new LocalStorageWrapper(window.localStorage),
+    });
+  }
 
   // return the cache once the localstorage persistence
   // is set up

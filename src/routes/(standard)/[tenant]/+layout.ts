@@ -34,8 +34,14 @@ export const load = (async ({ parent, params, url }) => {
   }
 
   // get/set the session id
-  const sessionId = sessionStorage.getItem('sessionId') || Math.random().toString();
-  sessionStorage.setItem('sessionId', sessionId);
+  const sessionId = (() => {
+    if (browser) {
+      const id = sessionStorage.getItem('sessionId') || Math.random().toString();
+      sessionStorage?.setItem('sessionId', id);
+      return id;
+    }
+    return Math.random().toString();
+  })();
 
   // store auth user in redux (for react)
   store.dispatch(setAuthProvider(authUser.provider));
@@ -63,7 +69,7 @@ export const load = (async ({ parent, params, url }) => {
     query: UsersList,
     useCache: true,
     fetchNextPages: true,
-    skip: !!window?.name, // don't get the list if it is a popup window
+    skip: browser && !!window?.name, // don't get the list if it is a popup window
     variables: { page: 1, limit: 100 },
   });
 
@@ -73,7 +79,7 @@ export const load = (async ({ parent, params, url }) => {
     query: TeamsList,
     useCache: true,
     fetchNextPages: true,
-    skip: !!window?.name, // don't get the list if it is a popup window
+    skip: browser && !!window?.name, // don't get the list if it is a popup window
     variables: { page: 1, limit: 100 },
   });
 

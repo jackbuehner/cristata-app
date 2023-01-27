@@ -28,16 +28,28 @@
   $: isTeamsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/teams`);
   $: isApiPage = $page.url.pathname.includes(`/${data.authUser.tenant}/playground`);
 
-  const allMainMenuItems = data.configuration?.navigation.main
+  $: allMainMenuItems = data.configuration?.navigation.main
+    .filter(notEmpty)
     .map((item) => {
-      if (!item) return;
+      if (item.label === 'CMS') {
+        item.label = 'Content Manager';
+        item.to = '/cms';
+      }
+      if (item.label === 'API') item.label = 'API Explorer';
+      if (item.label === 'Configure') item.label = 'Tenant settings';
+      return item;
+    })
+    .map((item) => {
       return {
         label: item.label,
         href: `/${data.authUser.tenant}${item.to}`,
         icon: item.icon,
+        selected:
+          item.label !== 'Home'
+            ? $page?.url?.pathname?.includes(`/${data.authUser.tenant}${item.to}`)
+            : undefined,
       };
-    })
-    .filter(notEmpty);
+    });
 
   $: mainMenuItems = [
     allMainMenuItems?.find((item) => item.label === 'Home'),
@@ -45,17 +57,7 @@
       label: 'Apps',
       icon: 'Apps16Regular',
       type: 'expander',
-      children: allMainMenuItems
-        ?.filter((item) => item.label !== 'Home')
-        .map((item) => {
-          if (item.label === 'CMS') {
-            item.label = 'Content Manager';
-            item.href = `/${data.authUser.tenant}/cms`;
-          }
-          if (item.label === 'API') item.label = 'API Explorer';
-          if (item.label === 'Configure') item.label = 'Tenant settings';
-          return item;
-        }),
+      children: allMainMenuItems?.filter((item) => item.label !== 'Home'),
     },
     {
       label: 'footer',

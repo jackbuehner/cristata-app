@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -14,7 +15,9 @@ import { theme } from '../utils/theme';
 
 const queryClient = new QueryClient();
 
-const appTheme = theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+const appTheme = theme(
+  browser && window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+);
 
 const Tooltip = styled(ReactTooltip)`
   margin: 0 !important;
@@ -133,7 +136,9 @@ function Root({ children }: { children?: React.ReactNode }) {
             effect={'float'}
             delayShow={600}
             delayHide={100}
-            theme={theme(window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}
+            theme={theme(
+              browser && window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+            )}
             overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
               if (place === desiredPlace && effect === 'float')
                 return {

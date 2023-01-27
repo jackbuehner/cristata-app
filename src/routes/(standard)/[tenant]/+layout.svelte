@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { Appbar } from '$components/Appbar';
@@ -28,15 +29,17 @@
     else $themeMode = 'light';
   }
   onMount(() => {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setCorrectThemeMode);
+    if (browser)
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setCorrectThemeMode);
   });
   onDestroy(() => {
-    window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', setCorrectThemeMode);
+    if (browser)
+      window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', setCorrectThemeMode);
   });
 
   // inject the theme variables as custom properties
   $: {
-    if (themeVars && window) {
+    if (themeVars && browser) {
       const styleElem = (() => {
         const existing = document.querySelector('style#theme');
         if (existing) return existing;
@@ -56,9 +59,7 @@
 
   used(RouterProvider);
 
-  const isOffline = navigator.onLine === false;
-
-  const tenant = location.pathname.split('/')[1] || $page.params.tenant;
+  const isOffline = browser && navigator.onLine === false;
 
   // store whether the nav is shown
   let isNavVisible = false;

@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import { ApolloProvider } from '@apollo/client';
 import { ModalProvider } from '@cristata/react-modal-hook';
 import { css, Global, ThemeProvider } from '@emotion/react';
@@ -19,11 +20,11 @@ export interface IGridCols {
 }
 
 function App({ children }: { children?: React.ReactNode }) {
-  const tenant = location.pathname.split('/')[1] || '';
+  const tenant = (browser && location.pathname.split('/')[1]) || '';
   const client = useMemo(() => createClient(tenant), [tenant]);
 
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>(
-    window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    browser && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   );
   const theme = useMemo(() => themeC(themeMode), [themeMode]);
 
@@ -34,10 +35,14 @@ function App({ children }: { children?: React.ReactNode }) {
       else setThemeMode('light');
     };
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setCorrectThemeMode);
+    if (browser)
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setCorrectThemeMode);
 
-    return () =>
-      window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', setCorrectThemeMode);
+    return () => {
+      if (browser) {
+        window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', setCorrectThemeMode);
+      }
+    };
   });
 
   // suppress warnings that we do not care about
@@ -53,48 +58,52 @@ function App({ children }: { children?: React.ReactNode }) {
     }
   };
 
-  return (
-    <ApolloProvider client={client}>
-      <ReduxProvider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <ThemeProvider theme={theme}>
-            <DropdownProvider>
-              <Router>
-                <ModalProvider>
-                  <ToastContainer />
-                  {children}
-                </ModalProvider>
-              </Router>
+  if (browser) {
+    return (
+      <ApolloProvider client={client}>
+        <ReduxProvider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <ThemeProvider theme={theme}>
+              <DropdownProvider>
+                <Router>
+                  <ModalProvider>
+                    <ToastContainer />
+                    {children}
+                  </ModalProvider>
+                </Router>
 
-              <Global
-                styles={css`
-                  .ReactModal__Overlay {
-                    opacity: 0;
-                    transition: opacity 240ms;
-                  }
+                <Global
+                  styles={css`
+                    .ReactModal__Overlay {
+                      opacity: 0;
+                      transition: opacity 240ms;
+                    }
 
-                  .ReactModal__Overlay--after-open {
-                    opacity: 1;
-                  }
+                    .ReactModal__Overlay--after-open {
+                      opacity: 1;
+                    }
 
-                  .ReactModal__Content {
-                    opacity: 0;
-                    transform: translateY(-40px) scale(0.9);
-                    transition: transform 240ms, opacity 240ms;
-                  }
+                    .ReactModal__Content {
+                      opacity: 0;
+                      transform: translateY(-40px) scale(0.9);
+                      transition: transform 240ms, opacity 240ms;
+                    }
 
-                  .ReactModal__Content--after-open {
-                    opacity: 1;
-                    transform: translateY(0px) scale(1);
-                  }
-                `}
-              />
-            </DropdownProvider>
-          </ThemeProvider>
-        </PersistGate>
-      </ReduxProvider>
-    </ApolloProvider>
-  );
+                    .ReactModal__Content--after-open {
+                      opacity: 1;
+                      transform: translateY(0px) scale(1);
+                    }
+                  `}
+                />
+              </DropdownProvider>
+            </ThemeProvider>
+          </PersistGate>
+        </ReduxProvider>
+      </ApolloProvider>
+    );
+  }
+
+  return <div>SRR unavailable</div>;
 }
 
 export default App;
