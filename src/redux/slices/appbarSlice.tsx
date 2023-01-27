@@ -31,7 +31,7 @@ const initialState: AppbarState = {
   color: 'primary',
   actions: [],
   loading: false,
-  showSearch: true,
+  showSearch: false,
 };
 
 export const appbarSlice = createSlice({
