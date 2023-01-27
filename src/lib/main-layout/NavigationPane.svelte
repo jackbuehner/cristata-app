@@ -4,6 +4,7 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import NavigationView from '$lib/common/NavigationView.svelte';
   import { useCreateSchema } from '$react/configuration/CollectionSchemaPage/hooks/schema-modals/useCreateSchema';
+  import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
   import { compactMode } from '$stores/compactMode';
   import { server } from '$utils/constants';
   import { notEmpty } from '$utils/notEmpty';
@@ -25,6 +26,7 @@
   $: isCmsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/cms/`);
   $: isProfilesRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/profile/`);
   $: isTeamsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/teams`);
+  $: isApiPage = $page.url.pathname.includes(`/${data.authUser.tenant}/playground`);
 
   const allMainMenuItems = data.configuration?.navigation.main
     .map((item) => {
@@ -310,6 +312,16 @@
           })
           .filter(notEmpty),
       ]
+    : isApiPage
+    ? [
+        {
+          label: 'hr',
+        },
+        {
+          label: 'Explorer',
+          type: 'category',
+        },
+      ]
     : [];
 
   $: menuFooterItems =
@@ -375,6 +387,11 @@
   compact={$compactMode}
 >
   <svelte:fragment slot="custom" />
+  <svelte:fragment slot="internal">
+    {#if isApiPage}
+      <react:PlaygroundNavigation />
+    {/if}
+  </svelte:fragment>
 </NavigationView>
 
 <div class="settings-flyout">

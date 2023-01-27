@@ -15,5 +15,8 @@
     <svelte:fragment slot="custom">
       <slot name="custom" />
     </svelte:fragment>
+    <svelte:fragment slot="internal">
+      <slot name="internal" />
+    </svelte:fragment>
   </NavigationPane>
 {/if}

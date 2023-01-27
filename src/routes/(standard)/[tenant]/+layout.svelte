@@ -2,20 +2,13 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { Appbar } from '$components/Appbar';
-  import { SideNavigation } from '$components/SideNavigation';
   import { Titlebar as TitlebarR } from '$components/Titlebar';
   import NavigationView from '$lib/common/NavigationView.svelte';
   import NavigationPane from '$lib/main-layout/NavigationPane.svelte';
   import OfflineNotice from '$lib/main-layout/OfflineNotice.svelte';
   import Titlebar from '$lib/main-layout/Titlebar.svelte';
-  import { CmsNavigation } from '$react/CMS/CmsNavigation';
-  import { ConfigurationNavigation } from '$react/configuration/ConfigurationNavigation/ConfigurationNavigation';
-  import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
-  import { ProfileSideNavSub as ProfilesNavigation } from '$react/profile/ProfileSideNavSub';
   import { Root } from '$react/Root';
-  import { TeamsNav as TeamsNavigation } from '$react/teams/TeamsNav';
   import { themeMode } from '$stores/themeMode';
-  import { notEmpty } from '$utils/notEmpty';
   import { theme as themeFunction } from '$utils/theme';
   import { toCustomPropertiesString } from 'object-to-css-variables';
   import { onDestroy, onMount } from 'svelte';
@@ -86,11 +79,6 @@
         <!-- side navigation -->
         {#if window?.name === ''}
           <NavigationPane {data} />
-          <react:SideNavigation children={() => null} {isNavVisible} {setIsNavVisible}>
-            {#if $page.url.pathname.replace(`/${tenant}/`, ``) === 'playground'}
-              <react:PlaygroundNavigation />
-            {/if}
-          </react:SideNavigation>
         {/if}
 
         <!-- the rest of the content -->

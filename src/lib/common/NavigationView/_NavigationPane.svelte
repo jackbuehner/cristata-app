@@ -58,7 +58,11 @@
 
   <slot name="custom" />
 
-  <TreeView {tree} {compact} />
+  <TreeView {tree} {compact}>
+    <svelte:fragment slot="internal">
+      <slot name="internal" />
+    </svelte:fragment>
+  </TreeView>
 </aside>
 
 <style>

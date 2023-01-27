@@ -1,6 +1,7 @@
+import { compactMode } from '$stores/compactMode';
 import GraphiQLExplorer from '@cristata/graphiql-explorer';
 import { css, useTheme } from '@emotion/react';
-import { SideNavHeading } from '../../components/Heading';
+import { useStore } from 'svelte-preprocess-react';
 import { Offline } from '../../components/Offline';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setExplorerIsOpen, setQuery } from '../../redux/slices/graphiqlSlice';
@@ -12,6 +13,7 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
   const theme = useTheme() as themeType;
   const state = useAppSelector((state) => state.graphiql);
   const dispatch = useAppDispatch();
+  const $compactMode = useStore(compactMode);
 
   if (!state.schema && !navigator.onLine) {
     return <Offline variant={'small'} key={0} />;
@@ -20,17 +22,15 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
   return (
     <>
       <div
-        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
         css={css`
           .docExplorerWrap {
-            display: flex !important;
+            display: block !important;
             width: 100% !important;
             min-width: unset !important;
-            overflow: auto !important;
-            height: calc(100% + 10px) !important;
-            margin-top: -10px !important;
-            padding: 8px 8px 8px 10px;
+            padding: 0 8px;
             box-sizing: border-box;
+            height: 100% !important;
+            overflow: auto !important;
           }
           .doc-explorer-title-bar,
           .graphiql-explorer-root > div:last-of-type,
@@ -44,8 +44,26 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
             overflow: hidden !important;
           }
           .graphiql-explorer-node > span {
-            height: 24px;
+            height: ${$compactMode ? 22 : 30}px;
+            margin: ${$compactMode ? 1 : 3}px 0;
             align-items: center;
+            position: relative;
+            cursor: default !important;
+          }
+          .graphiql-explorer-node > span::before {
+            content: '';
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            padding: 0 20px;
+            left: -20px;
+            border-radius: var(--fds-control-corner-radius);
+          }
+          .graphiql-explorer-node > span:hover::before {
+            background-color: var(--fds-subtle-fill-secondary);
+          }
+          .graphiql-explorer-node > span:active::before {
+            background-color: var(--fds-subtle-fill-tertiary);
           }
           .graphiql-explorer-node {
             padding-left: 8px;
@@ -61,7 +79,6 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
           }
         `}
       >
-        <SideNavHeading>API Explorer</SideNavHeading>
         <GraphiQLExplorer
           schema={state.schema}
           query={state.query}

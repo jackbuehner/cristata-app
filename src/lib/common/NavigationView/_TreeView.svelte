@@ -105,6 +105,9 @@
       </ListItem>
     {/if}
   {/each}
+  {#if __depth === 0}
+    <slot name="internal" />
+  {/if}
 </div>
 
 {#if footer}
