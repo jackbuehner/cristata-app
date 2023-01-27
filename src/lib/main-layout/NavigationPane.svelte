@@ -249,7 +249,7 @@
               const remainingNames = names.slice(0, -1);
               return {
                 ...profile,
-                name: `${lastName}${remainingNames ? `, ${remainingNames.join(', ')}` : ''} ${(
+                name: `${lastName}${remainingNames ? `, ${remainingNames.join(' ')}` : ''} ${(
                   parenthesis || []
                 ).join(' ')}`.trim(),
               };
