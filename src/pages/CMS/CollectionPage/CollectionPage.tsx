@@ -80,7 +80,7 @@ function CollectionPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // get the url parameters from the route
-  let { collection = '' } = useParams();
+  let { collection = 'photos' } = useParams();
 
   // get the search params so we can get filters and other page data
   const searchParams = new URLSearchParams(location.search);
