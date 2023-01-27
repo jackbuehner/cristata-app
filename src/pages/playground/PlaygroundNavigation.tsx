@@ -1,11 +1,15 @@
 import { compactMode } from '$stores/compactMode';
 import GraphiQLExplorer from '@cristata/graphiql-explorer';
 import { css, useTheme } from '@emotion/react';
-import { useStore } from 'svelte-preprocess-react';
+import { ProgressRing as ProgressRingSvelte, TextBlock as TextBlockSvelte } from 'fluent-svelte';
+import { reactify, useStore } from 'svelte-preprocess-react';
 import { Offline } from '../../components/Offline';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setExplorerIsOpen, setQuery } from '../../redux/slices/graphiqlSlice';
 import type { themeType } from '../../utils/theme/theme';
+
+const ProgressRing = reactify(ProgressRingSvelte);
+const TextBlock = reactify(TextBlockSvelte);
 
 interface PlaygroundNavigationProps {}
 
@@ -17,6 +21,15 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
 
   if (!state.schema && !navigator.onLine) {
     return <Offline variant={'small'} key={0} />;
+  }
+
+  if (!state.schema) {
+    return (
+      <div style={{ margin: 16, display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+        <ProgressRing size={24} />
+        <TextBlock variant='bodyStrong'>Loading schema...</TextBlock>
+      </div>
+    );
   }
 
   return (
