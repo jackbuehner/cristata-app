@@ -290,6 +290,31 @@
             transform: rotate(3turn);
           }
         }
+
+        /* progress bar styles */
+        #nprogress {
+          position: absolute;
+          top: 0;
+          height: 2px;
+          left: 0;
+          width: 100%;
+          z-index: 998;
+          background-color: rgba(84, 56, 185, 0.1);
+        }
+
+        #nprogress .peg {
+          height: 2px;
+          background-color: rgba(84, 56, 185, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+          #nprogress {
+            background-color: rgba(191, 180, 229, 0.1);
+          }
+          #nprogress .peg {
+            background-color: rgba(191, 180, 229, 1);
+          }
+        }
       </style>
       <svg
         xmlns="http://www.w3.org/2000/svg"

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import { afterNavigate, goto } from '$app/navigation';
+  import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { Appbar } from '$components/Appbar';
   import NavigationPane from '$lib/main-layout/NavigationPane.svelte';
@@ -9,6 +9,7 @@
   import { Root } from '$react/Root';
   import { themeMode } from '$stores/themeMode';
   import { theme as themeFunction } from '$utils/theme';
+  import NProgress from 'nprogress';
   import { toCustomPropertiesString } from 'object-to-css-variables';
   import { onDestroy, onMount } from 'svelte';
   import { used } from 'svelte-preprocess-react';
@@ -16,6 +17,26 @@
   import { setAppSearchShown } from '../../../redux/slices/appbarSlice';
   import { store } from '../../../redux/store';
   import type { LayoutData } from './$types';
+
+  // configure the navigation progress bar
+  NProgress.configure({
+    parent: 'body',
+    easing: 'ease',
+    speed: 500,
+    trickle: true,
+    trickleSpeed: 200,
+    showSpinner: false,
+  });
+
+  // show progress bar on page navigate
+  beforeNavigate(() => {
+    NProgress.start();
+  });
+
+  // hide progress bar on navigation end
+  afterNavigate(() => {
+    NProgress.done();
+  });
 
   export let data: LayoutData;
 
