@@ -33,7 +33,15 @@
   </div>
   <div class="right">
     <div class="account">
-      <Flyout placement="bottom" alignment="end" bind:open={flyoutOpen}>
+      <Flyout
+        placement="bottom"
+        alignment="end"
+        bind:open={flyoutOpen}
+        style="
+          --fds-flyout-transform: translateY(0%); /* required, but is not added when alignment=end */
+          --fds-flyout-transition-offset: translateY(-24px) /* this is twice the default */
+        "
+      >
         <IconButton style="padding: 2px;">
           <PersonPicture
             size={26}
