@@ -5,7 +5,7 @@
 
   let ReloadPrompt: ConstructorOfATypedSvelteComponent;
   onMount(async () => {
-    pwaInfo && (ReloadPrompt = (await import('$lib/pwa/ReloadPrompt.svelte')).default);
+    /*pwaInfo &&*/ ReloadPrompt = (await import('$lib/pwa/ReloadPrompt.svelte')).default;
   });
 
   $: webManifest = pwaInfo ? pwaInfo.webManifest.linkTag : '';

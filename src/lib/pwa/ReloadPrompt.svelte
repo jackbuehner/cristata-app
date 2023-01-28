@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { Button, InfoBar } from 'fluent-svelte';
   import { pwaInfo } from 'virtual:pwa-info';
   import { useRegisterSW } from 'virtual:pwa-register/svelte';
+
   const { needRefresh, updateServiceWorker, offlineReady } = useRegisterSW({
     onRegistered(r) {
       console.log(
@@ -27,46 +29,51 @@
 </script>
 
 {#if toast}
-  <div class="pwa-toast" role="alert">
-    <div class="message">
-      {#if $offlineReady}
-        <span>
-          Ready to work offline. Some parts of Cristata will work in read-only mode when you do not have an
-          internet connection.
-        </span>
-      {:else}
-        <span> An update is a available. Some features may not work unless you update. </span>
-      {/if}
-    </div>
-    {#if $needRefresh}
-      <button on:click={() => updateServiceWorker(true)}> Install update </button>
-    {/if}
-    <button on:click={close}> Close </button>
-  </div>
+  <InfoBar
+    title="Cristata application alert"
+    message={$offlineReady
+      ? 'Ready to work offline. Some parts of Cristata will work in read-only mode when you do not have an internet connection.'
+      : 'An update is a available. Some features may not work unless you update.'}
+    class="pwatoast"
+    closable={false}
+  >
+    <svelte:fragment slot="action">
+      <div class="button-row">
+        {#if $needRefresh}
+          <Button on:click={() => updateServiceWorker(true)}>Install update (estimate: 10 seconds)</Button>
+        {/if}
+        <Button>Dismiss</Button>
+      </div>
+    </svelte:fragment>
+  </InfoBar>
 {/if}
 
 <style>
-  .pwa-toast {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    margin: 16px;
-    padding: 12px;
-    border: 1px solid #8885;
-    border-radius: 4px;
+  :global(.pwatoast) {
+    position: fixed !important;
+    right: 10px;
+    bottom: 10px;
     z-index: 2;
-    text-align: left;
-    box-shadow: 3px 4px 5px 0 #8885;
-    background-color: white;
+    background-color: var(--fds-solid-background-quarternary) !important;
+    max-width: 400px;
+    min-width: 300px;
   }
-  .pwa-toast .message {
-    margin-bottom: 8px;
+
+  :global(.pwatoast .info-bar-content) {
+    flex-direction: column;
   }
-  .pwa-toast button {
-    border: 1px solid #8885;
-    outline: none;
-    margin-right: 5px;
-    border-radius: 2px;
-    padding: 3px 10px;
+
+  :global(.pwatoast .info-bar-content p) {
+    margin-top: 10px !important;
+  }
+
+  .button-row {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .button-row :global(button) {
+    white-space: nowrap;
   }
 </style>
