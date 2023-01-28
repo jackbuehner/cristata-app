@@ -263,9 +263,6 @@
     top: calc(var(--top) - 8px - var(--screenOffset));
     margin-left: 55px;
     max-height: calc(var(--maxHeight) - 16px - env(titlebar-area-height, 33px));
-    /* height: 100%; */
-    overflow-x: hidden;
-    overflow-y: auto;
   }
 
   .tree-view :global(.tree-view-collapsed-flyout .menu-flyout-anchor .tree-view) {
