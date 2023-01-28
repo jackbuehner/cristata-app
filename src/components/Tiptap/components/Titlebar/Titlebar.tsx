@@ -44,12 +44,7 @@ function Titlebar(props: ITitlebar) {
       // on unmount, set it back to the primary color
       document
         .querySelector(`meta[name='theme-color']`)
-        ?.setAttribute(
-          `content`,
-          theme.mode === 'light'
-            ? theme.color.primary[800]
-            : Color(theme.color.neutral[theme.mode][200]).darken(0.24).string()
-        );
+        ?.setAttribute(`content`, theme.mode === 'light' ? '#f3f3f3' : '#202020');
   }, [theme.color.blue, theme.color.neutral, theme.color.primary, theme.mode]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
