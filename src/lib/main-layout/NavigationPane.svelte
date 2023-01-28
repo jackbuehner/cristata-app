@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { queryCacheStore } from '$graphql/query';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import NavigationView from '$lib/common/NavigationView.svelte';
   import { useCreateSchema } from '$react/configuration/CollectionSchemaPage/hooks/schema-modals/useCreateSchema';
@@ -345,7 +346,7 @@
     : [];
 
   $: menuFooterItems =
-    isConfigRoute || isProfilesRoute
+    isConfigRoute || isProfilesRoute || isTeamsRoute
       ? [
           {
             label: 'footer',
@@ -391,12 +392,26 @@
   $: collectionNames = data.configuration?.collections?.map((col) => col?.name).filter(notEmpty) || [];
   $: createSchemaHookStore = hooks(() => useCreateSchema(collectionNames));
   $: inviteUserModalHookStore = hooks(() => useInviteUserModal());
+  $: inviteUserModalHookStore = hooks(() => useInviteUserModal());
 
   let hideInactiveUsers = true;
   let sortUsersByLastName = true;
 
   let settingFlyoutOpen = false;
   let toolboxFlyoutOpen = false;
+
+  /**
+   * Removes cached data for the specified query
+   * @param key the name of the query
+   * @param refresh if the page should also refresh to potentially regenerate the value in the cache
+   */
+  function invalidateQueryCache(key: string, refresh = true) {
+    queryCacheStore.update((value) => {
+      delete value[key];
+      return { ...value };
+    });
+    if (refresh) goto($page.url.pathname + '/');
+  }
 </script>
 
 <NavigationView
@@ -463,6 +478,13 @@
           </MenuFlyoutItem>
         {/if}
         <MenuFlyoutDivider />
+        <MenuFlyoutItem on:click={() => invalidateQueryCache('UsersList')}>
+          <svelte:fragment slot="icon">
+            <FluentIcon name="ArrowClockwise16Regular" />
+          </svelte:fragment>
+          Refresh users list
+        </MenuFlyoutItem>
+        <MenuFlyoutDivider />
         <MenuFlyoutItem indented={!hideInactiveUsers} on:click={() => (hideInactiveUsers = !hideInactiveUsers)}>
           <svelte:fragment slot="icon">
             {#if hideInactiveUsers}
@@ -481,6 +503,24 @@
             {/if}
           </svelte:fragment>
           Sort by last name (family name)
+        </MenuFlyoutItem>
+      {/if}
+      {#if isTeamsRoute}
+        {#if $inviteUserModalHookStore}
+          {@const [, showModal] = $inviteUserModalHookStore}
+          <MenuFlyoutItem on:click={showModal}>
+            <svelte:fragment slot="icon">
+              <FluentIcon name="PersonAdd20Regular" />
+            </svelte:fragment>
+            Invite new user
+          </MenuFlyoutItem>
+        {/if}
+        <MenuFlyoutDivider />
+        <MenuFlyoutItem on:click={() => invalidateQueryCache('TeamsList')}>
+          <svelte:fragment slot="icon">
+            <FluentIcon name="ArrowClockwise16Regular" />
+          </svelte:fragment>
+          Refresh teams list
         </MenuFlyoutItem>
       {/if}
     </svelte:fragment>
