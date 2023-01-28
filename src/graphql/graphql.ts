@@ -2622,6 +2622,34 @@ export const BasicProfileMe = gql`
   }
 }
     `;
+export const DashboardConfig = gql`
+    query DashboardConfig {
+  configuration {
+    dashboard {
+      collectionRows {
+        arrPath
+        header {
+          icon
+          label
+        }
+        query
+        to {
+          idPrefix
+          idSuffix
+        }
+        dataKeys {
+          _id
+          description
+          lastModifiedAt
+          lastModifiedBy
+          name
+          photo
+        }
+      }
+    }
+  }
+}
+    `;
 export const GlobalConfig = gql`
     query GlobalConfig {
   configuration {
@@ -2698,10 +2726,23 @@ export const UsersList = gql`
   }
 }
     `;
+export const WorkflowCounts = gql`
+    query WorkflowCounts {
+  workflow {
+    stage: _id
+    count
+  }
+}
+    `;
 export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type BasicProfileMeQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null } | null };
+
+export type DashboardConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DashboardConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string }, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, lastModifiedAt: string, lastModifiedBy: string, name: string, photo?: string | null } } | null> } } | null };
 
 export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2723,3 +2764,8 @@ export type UsersListQueryVariables = Exact<{
 
 
 export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null } | null> } | null };
+
+export type WorkflowCountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WorkflowCountsQuery = { __typename?: 'Query', workflow?: Array<{ __typename?: 'WorkflowGroup', count: number, stage: number }> | null };

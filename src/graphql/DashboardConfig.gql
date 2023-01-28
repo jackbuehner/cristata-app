@@ -1,0 +1,26 @@
+query DashboardConfig {
+  configuration {
+    dashboard {
+      collectionRows {
+        arrPath
+        header {
+          icon
+          label
+        }
+        query
+        to {
+          idPrefix
+          idSuffix
+        }
+        dataKeys {
+          _id
+          description
+          lastModifiedAt
+          lastModifiedBy
+          name
+          photo
+        }
+      }
+    }
+  }
+}

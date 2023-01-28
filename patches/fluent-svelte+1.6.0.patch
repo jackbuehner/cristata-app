@@ -1,5 +1,275 @@
+diff --git a/node_modules/fluent-svelte/Expander/Expander.svelte b/node_modules/fluent-svelte/Expander/Expander.svelte
+index ea44880..e616389 100644
+--- a/node_modules/fluent-svelte/Expander/Expander.svelte
++++ b/node_modules/fluent-svelte/Expander/Expander.svelte
+@@ -18,6 +18,7 @@ export let containerElement = null;
+ export let headerElement = null;
+ /** Obtains a bound DOM reference to the expander's content container. */
+ export let contentElement = null;
++export let href = undefined;
+ const dispatch = createEventDispatcher();
+ const forwardEvents = createEventForwarder(get_current_component(), ["expand", "collapse"]);
+ const headerId = uid("fds-expander-header-");
+@@ -58,7 +59,8 @@ Expanders are controls that display a header and a collapsable content area. The
+ 	{...$$restProps}
+ >
+ 	<svelte:element this="h">
+-		<div
++		<svelte:element
++			this={href ? "a" : "div"}
+ 			role="button"
+ 			id={headerId}
+ 			aria-controls={contentId}
+@@ -67,7 +69,10 @@ Expanders are controls that display a header and a collapsable content area. The
+ 			tabindex="0"
+ 			bind:this={headerElement}
+ 			on:keydown={handleKeydown}
+-			on:click={() => (expanded = !expanded)}
++			on:click={() => {
++				if (!href) expanded = !expanded
++			}}
++			{href}
+ 		>
+ 			{#if $$slots.icon}
+ 				<div class="expander-icon">
+@@ -77,27 +82,39 @@ Expanders are controls that display a header and a collapsable content area. The
+ 			<span class="expander-header-title">
+ 				<slot />
+ 			</span>
++			<span class="expander-header-side">
++				<slot name="side" />
++			</span>
+ 			<button
+ 				class="expander-chevron"
+ 				tabindex="-1"
+ 				id={contentId}
+ 				aria-labelledby={headerId}
+ 			>
+-				<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+-					{#if direction === "down"}
++				{#if href}
++					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
++						<path
++							fill="currentColor"
++							d="M8.293 4.293a1 1 0 0 0 0 1.414L14.586 12l-6.293 6.293a1 1 0 1 0 1.414 1.414l7-7a1 1 0 0 0 0-1.414l-7-7a1 1 0 0 0-1.414 0Z"
++						/>
++					</svg>
++				{:else if direction === "down"}
++					<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+ 						<path
+ 							fill="currentColor"
+ 							d="M2.14645 4.64645C2.34171 4.45118 2.65829 4.45118 2.85355 4.64645L6 7.79289L9.14645 4.64645C9.34171 4.45118 9.65829 4.45118 9.85355 4.64645C10.0488 4.84171 10.0488 5.15829 9.85355 5.35355L6.35355 8.85355C6.15829 9.04882 5.84171 9.04882 5.64645 8.85355L2.14645 5.35355C1.95118 5.15829 1.95118 4.84171 2.14645 4.64645Z"
+ 						/>
+-					{:else}
++					</svg>
++				{:else}
++					<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+ 						<path
+ 							fill="currentColor"
+ 							d="M2.14645 7.35355C2.34171 7.54882 2.65829 7.54882 2.85355 7.35355L6 4.20711L9.14645 7.35355C9.34171 7.54882 9.65829 7.54882 9.85355 7.35355C10.0488 7.15829 10.0488 6.84171 9.85355 6.64645L6.35355 3.14645C6.15829 2.95118 5.84171 2.95118 5.64645 3.14645L2.14645 6.64645C1.95118 6.84171 1.95118 7.15829 2.14645 7.35355Z"
+ 						/>
+-					{/if}
+-				</svg>
++					</svg>
++				{/if}
+ 			</button>
+-		</div>
++		</svelte:element>
+ 	</svelte:element>
+ 	<div class="expander-content-anchor">
+ 		<div class="expander-content" bind:this={contentElement}>
+@@ -106,4 +123,161 @@ Expanders are controls that display a header and a collapsable content area. The
+ 	</div>
+ </div>
+ 
+-<style >.expander{border-radius:var(--fds-control-corner-radius);color:var(--fds-text-primary);display:flex;flex-direction:column;inline-size:100%;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.expander.direction-down .expander-content{-webkit-border-before:none;border-block-start:none;border-radius:var(--fds-control-corner-radius);border-start-end-radius:0;border-start-start-radius:0;transform:translateY(-100%)}.expander.direction-down.expanded .expander-header{border-end-end-radius:0;border-end-start-radius:0;border-radius:var(--fds-control-corner-radius)}.expander.direction-up .expander-content{border-bottom:none;border-end-end-radius:0;border-end-start-radius:0;border-radius:var(--fds-control-corner-radius);transform:translateY(100%)}.expander.direction-up .expander-content-anchor{order:-1}.expander.direction-up.expanded .expander-header{border-radius:var(--fds-control-corner-radius);border-start-end-radius:0;border-start-start-radius:0}.expander.expanded .expander-content{transform:none;transition:var(--fds-control-slow-duration) var(--fds-control-fast-out-slow-in-easing) transform}.expander.expanded .expander-content-anchor{max-block-size:6.019999999999999e+23vmax;transition:none}.expander.expanded .expander-chevron svg{transform:rotate(180deg)}.expander>h3{display:contents}.expander-icon{-webkit-margin-end:16px;block-size:16px;color:var(--fds-text-primary);flex:0 0 auto;inline-size:16px;margin-inline-end:16px}.expander-icon>:global(svg){fill:currentColor;block-size:auto;inline-size:16px}.expander-header{-webkit-padding-start:16px;align-items:center;background-clip:padding-box;background-color:var(--fds-card-background-default);border:1px solid var(--fds-card-stroke-default);border-radius:var(--fds-control-corner-radius);box-sizing:border-box;display:flex;font-family:var(--fds-font-family-text);font-size:var(--fds-body-font-size);font-weight:400;line-height:20px;outline:none;padding:8px;padding-inline-start:16px;text-align:start;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.expander-header-title{flex:1 1 auto}.expander-header:focus-visible{box-shadow:var(--fds-focus-stroke)}.expander-header:hover .expander-chevron{background-color:var(--fds-subtle-fill-secondary)}.expander-header:active .expander-chevron{background-color:var(--fds-subtle-fill-tertiary);color:var(--fds-text-secondary)}.expander-chevron{-webkit-margin-start:20px;align-items:center;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-color:var(--fds-subtle-fill-transparent);block-size:32px;border:none;border-radius:var(--fds-control-corner-radius);color:var(--fds-text-primary);display:flex;flex:0 0 auto;inline-size:32px;justify-content:center;margin-inline-start:20px;outline:none}.expander-chevron:focus-visible{box-shadow:var(--fds-focus-stroke)}.expander-chevron svg{fill:currentColor;block-size:12px;inline-size:12px;transition:calc(var(--fds-control-faster-duration)*1.2) linear transform var(--fds-control-faster-duration)}.expander-content{background-clip:padding-box;background-color:var(--fds-card-background-secondary);border:1px solid var(--fds-card-stroke-default);font-family:var(--fds-font-family-text);font-size:var(--fds-body-font-size);font-weight:400;line-height:20px;padding:16px;transition:var(--fds-control-fast-duration) cubic-bezier(1,1,0,1) transform;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.expander-content-anchor{max-height:0;overflow:hidden;position:relative;transition:0ms linear var(--fds-control-slow-duration) max-height}</style>
++<style>
++	.expander {
++    border-radius: var(--fds-control-corner-radius);
++    color: var(--fds-text-primary);
++    display: flex;
++    flex-direction: column;
++    inline-size: 100%;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none;
++  }
++  .expander.direction-down .expander-content {
++    -webkit-border-before: none;
++    border-block-start: none;
++    border-radius: var(--fds-control-corner-radius);
++    border-start-end-radius: 0;
++    border-start-start-radius: 0;
++    transform: translateY(-100%);
++  }
++  .expander.direction-down.expanded .expander-header {
++    border-end-end-radius: 0;
++    border-end-start-radius: 0;
++    border-radius: var(--fds-control-corner-radius);
++  }
++  .expander.direction-up .expander-content {
++    border-bottom: none;
++    border-end-end-radius: 0;
++    border-end-start-radius: 0;
++    border-radius: var(--fds-control-corner-radius);
++    transform: translateY(100%);
++  }
++  .expander.direction-up .expander-content-anchor {
++    order: -1;
++  }
++  .expander.direction-up.expanded .expander-header {
++    border-radius: var(--fds-control-corner-radius);
++    border-start-end-radius: 0;
++    border-start-start-radius: 0;
++  }
++  .expander.expanded .expander-content {
++    transform: none;
++    transition: var(--fds-control-slow-duration) var(--fds-control-fast-out-slow-in-easing) transform;
++  }
++  .expander.expanded .expander-content-anchor {
++    max-block-size: 6.019999999999999e23vmax;
++    transition: none;
++  }
++  .expander.expanded .expander-chevron svg {
++    transform: rotate(180deg);
++  }
++  .expander > h3 {
++    display: contents;
++  }
++  .expander-icon {
++    -webkit-margin-end: 16px;
++    block-size: 16px;
++    color: var(--fds-text-primary);
++    flex: 0 0 auto;
++    inline-size: 16px;
++    margin-inline-end: 16px;
++  }
++  .expander-icon > :global(svg) {
++    fill: currentColor;
++    block-size: auto;
++    inline-size: 16px;
++  }
++  .expander-header {
++    -webkit-padding-start: 16px;
++    align-items: center;
++    background-clip: padding-box;
++    background-color: var(--fds-card-background-default);
++    border: 1px solid var(--fds-card-stroke-default);
++    border-radius: var(--fds-control-corner-radius);
++    box-sizing: border-box;
++    display: flex;
++    font-family: var(--fds-font-family-text);
++    font-size: var(--fds-body-font-size);
++    font-weight: 400;
++    line-height: 20px;
++    outline: none;
++    padding: 8px;
++    padding-inline-start: 16px;
++    text-align: start;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none;
++		text-decoration: none;
++    color: currentColor;
++		cursor: default;
++  }
++  .expander-header-title {
++    flex: 1 1 auto;
++  }
++	.expander-header-side {
++    flex: 0 1 auto;
++  }
++  .expander-header:focus-visible {
++    box-shadow: var(--fds-focus-stroke);
++  }
++  .expander-header:hover .expander-chevron {
++    background-color: var(--fds-subtle-fill-secondary);
++  }
++  .expander-header:active .expander-chevron {
++    background-color: var(--fds-subtle-fill-tertiary);
++    color: var(--fds-text-secondary);
++  }
++  .expander-chevron {
++    -webkit-margin-start: 20px;
++    align-items: center;
++    -webkit-appearance: none;
++    -moz-appearance: none;
++    appearance: none;
++    background-color: var(--fds-subtle-fill-transparent);
++    block-size: 32px;
++    border: none;
++    border-radius: var(--fds-control-corner-radius);
++    color: var(--fds-text-primary);
++    display: flex;
++    flex: 0 0 auto;
++    inline-size: 32px;
++    justify-content: center;
++    margin-inline-start: 20px;
++    outline: none;
++  }
++  .expander-chevron:focus-visible {
++    box-shadow: var(--fds-focus-stroke);
++  }
++  .expander-chevron svg {
++    fill: currentColor;
++    block-size: 12px;
++    inline-size: 12px;
++    transition: calc(var(--fds-control-faster-duration) * 1.2) linear transform
++      var(--fds-control-faster-duration);
++  }
++  .expander-content {
++    background-clip: padding-box;
++    background-color: var(--fds-card-background-secondary);
++    border: 1px solid var(--fds-card-stroke-default);
++    font-family: var(--fds-font-family-text);
++    font-size: var(--fds-body-font-size);
++    font-weight: 400;
++    line-height: 20px;
++    padding: 16px;
++    transition: var(--fds-control-fast-duration) cubic-bezier(1, 1, 0, 1) transform;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none;
++  }
++  .expander-content-anchor {
++    max-height: 0;
++    overflow: hidden;
++    position: relative;
++    transition: 0ms linear var(--fds-control-slow-duration) max-height;
++  }
++</style>
+diff --git a/node_modules/fluent-svelte/Expander/Expander.svelte.d.ts b/node_modules/fluent-svelte/Expander/Expander.svelte.d.ts
+index fe49ca4..760e5d7 100644
+--- a/node_modules/fluent-svelte/Expander/Expander.svelte.d.ts
++++ b/node_modules/fluent-svelte/Expander/Expander.svelte.d.ts
+@@ -9,6 +9,7 @@ declare const __propDef: {
+         containerElement?: HTMLDivElement;
+         headerElement?: HTMLDivElement;
+         contentElement?: HTMLDivElement;
++        href?: string;
+     };
+     events: {
+         expand: CustomEvent<any>;
+@@ -20,6 +21,7 @@ declare const __propDef: {
+         icon: {};
+         default: {};
+         content: {};
++        side: {};
+     };
+ };
+ export declare type ExpanderProps = typeof __propDef.props;
+@@ -39,4 +41,5 @@ export declare type ExpanderSlots = typeof __propDef.slots;
+  */
+ export default class Expander extends SvelteComponentTyped<ExpanderProps, ExpanderEvents, ExpanderSlots> {
+ }
+-export {};
++export { };
++
 diff --git a/node_modules/fluent-svelte/IconButton/IconButton.svelte b/node_modules/fluent-svelte/IconButton/IconButton.svelte
-index 4bd8c1a..305f303 100644
+index 4bd8c1a..8fa48e2 100644
 --- a/node_modules/fluent-svelte/IconButton/IconButton.svelte
 +++ b/node_modules/fluent-svelte/IconButton/IconButton.svelte
 @@ -38,4 +38,38 @@ An Icon Button is a clickable control that triggers an immediate action. Unlike
@@ -43,7 +313,7 @@ index 4bd8c1a..305f303 100644
 +  }
 +</style>
 diff --git a/node_modules/fluent-svelte/ListItem/ListItem.svelte b/node_modules/fluent-svelte/ListItem/ListItem.svelte
-index d75aa4a..d3cd829 100644
+index d75aa4a..5e28503 100644
 --- a/node_modules/fluent-svelte/ListItem/ListItem.svelte
 +++ b/node_modules/fluent-svelte/ListItem/ListItem.svelte
 @@ -16,6 +16,8 @@ let className = "";
@@ -189,7 +459,7 @@ index d89233c..5b6620d 100644
 +export { };
 +
 diff --git a/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte b/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte
-index 60ea3cb..bebbded 100644
+index 60ea3cb..d9654d8 100644
 --- a/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte
 +++ b/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte
 @@ -84,6 +84,7 @@ setContext("closeFlyout", event => {

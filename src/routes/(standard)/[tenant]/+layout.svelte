@@ -87,6 +87,14 @@
   function setIsNavVisible(result: boolean) {
     isNavVisible = result;
   }
+
+  // whether the app bar is visible
+  $: showAppBar =
+    $page.url.pathname.includes('/cms/') ||
+    $page.url.pathname.includes('/teams') ||
+    $page.url.pathname.includes('/profile/') ||
+    $page.url.pathname.includes('/embed/') ||
+    $page.url.pathname.includes('/configuration/');
 </script>
 
 <react:Root>
@@ -110,7 +118,9 @@
 
         <!-- the rest of the content -->
         <div id="content" style="display: flex; flex-direction: column;">
-          <react:Appbar />
+          {#if showAppBar}
+            <react:Appbar />
+          {/if}
           <div id="content">
             <slot />
           </div>

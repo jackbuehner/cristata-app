@@ -54,12 +54,16 @@
     });
 
   $: mainMenuItems = [
-    allMainMenuItems?.find((item) => item.label === 'Home'),
+    {
+      label: 'Dashboard',
+      icon: 'Home16Regular',
+      href: `/${data.authUser.tenant}`,
+    },
     {
       label: 'Apps',
       icon: 'Apps16Regular',
       type: 'expander',
-      children: allMainMenuItems?.filter((item) => item.label !== 'Home'),
+      children: allMainMenuItems?.filter((item) => item.label !== 'Home' && item.label !== 'Dashboard'),
     },
     {
       label: 'footer',
