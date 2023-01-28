@@ -188,3 +188,15 @@ index d89233c..5b6620d 100644
 -export {};
 +export { };
 +
+diff --git a/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte b/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte
+index 60ea3cb..bebbded 100644
+--- a/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte
++++ b/node_modules/fluent-svelte/MenuFlyout/MenuFlyoutWrapper.svelte
+@@ -84,6 +84,7 @@ setContext("closeFlyout", event => {
+ 			bind:this={backdropElement}
+ 			on:click={e => e.stopPropagation()}
+ 			on:mousedown={closeFlyout}
++			on:touchstart={closeFlyout}
+ 		/>
+ 	{/if}
+ </div>
