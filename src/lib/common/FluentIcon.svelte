@@ -15,7 +15,7 @@
     return iconNames.includes(str);
   }
 
-  export let mode: 'regular' | 'buttonIconLeft' | 'buttonIconRight' = 'regular';
+  export let mode: 'regular' | 'buttonIconLeft' | 'buttonIconRight' | 'bodyStrongLeft' = 'regular';
 </script>
 
 {#if isFluentIconName(iconName)}
@@ -29,6 +29,10 @@
     <span style="margin: 0 0 0 12px;" class="button-icon">
       {@html icons[iconName]}
     </span>
+  {:else if mode === 'bodyStrongLeft'}
+    <span style="margin: 0 6px 0 0;" class="body-text-icon">
+      {@html icons[iconName]}
+    </span>
   {/if}
 {/if}
 
@@ -38,7 +42,11 @@
     align-items: center;
     justify-content: center;
   }
-  .button-icon :global(svg) {
+  .body-text-icon {
+    vertical-align: middle;
+  }
+  .button-icon :global(svg),
+  .body-text-icon :global(svg) {
     width: 16px;
     height: 16px;
     fill: currentColor;
