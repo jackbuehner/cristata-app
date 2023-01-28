@@ -68,6 +68,7 @@ export const load = (async ({ parent, params, url }) => {
     tenant: authUser.tenant,
     query: UsersList,
     useCache: true,
+    persistCache: 900000, // 15 minutes
     fetchNextPages: true,
     skip: browser && !!window?.name, // don't get the list if it is a popup window
     variables: { page: 1, limit: 100 },
@@ -78,6 +79,7 @@ export const load = (async ({ parent, params, url }) => {
     tenant: authUser.tenant,
     query: TeamsList,
     useCache: true,
+    persistCache: 900000, // 15 minutes
     fetchNextPages: true,
     skip: browser && !!window?.name, // don't get the list if it is a popup window
     variables: { page: 1, limit: 100 },

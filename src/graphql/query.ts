@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import { server } from '$utils/constants';
 import { hasKey } from '$utils/hasKey';
 import { getOperationAST, isSelectionNode, print, type DocumentNode } from 'graphql';
@@ -8,11 +9,26 @@ export interface GraphqlQueryOptions<VariablesType> {
   query: DocumentNode;
   variables?: VariablesType;
   useCache?: boolean;
+  /**
+   * Millseconds until the cache is considered outdated.
+   * If it is not invalid, a persisted copy from localStorage will be used.
+   */
+  persistCache?: number;
   fetchNextPages?: boolean;
   skip?: boolean;
 }
 
-const cache = writable<Record<string, unknown>>({});
+// cache store
+const localStorePersistCopy = (browser && localStorage.getItem('store:graphql:cache')) || '{}';
+const cache = writable<Record<string, { time: number; value: Record<string, unknown>; persist: boolean }>>(
+  JSON.parse(localStorePersistCopy)
+);
+cache.subscribe((value) => {
+  if (browser) {
+    const persistable = Object.fromEntries(Object.entries(value).filter(([key, value]) => value.persist));
+    localStorage.setItem('store:graphql:cache', JSON.stringify(persistable));
+  }
+});
 
 export async function query<DataType = unknown, VariablesType = unknown>(
   opts: GraphqlQueryOptions<VariablesType>
@@ -28,7 +44,15 @@ export async function query<DataType = unknown, VariablesType = unknown>(
   })();
 
   if (operationName && get(cache)[operationName]) {
-    return get(cache)[operationName] as ReturnType<DataType>;
+    if (opts?.persistCache) {
+      const { time, value } = get(cache)[operationName];
+      if (new Date(time + opts.persistCache) > new Date()) {
+        // cache data is not yet expired
+        return value as ReturnType<DataType>;
+      }
+    } else {
+      return get(cache)[operationName].value as ReturnType<DataType>;
+    }
   }
 
   return fetch(`${server.location}/v3/${opts.tenant}`, {
@@ -58,7 +82,15 @@ export async function query<DataType = unknown, VariablesType = unknown>(
       }
 
       // cache the result so it can be used immediately (cache is lost on page refresh)
-      if (opts?.useCache && operationName) cache.update((state) => ({ ...state, [operationName]: json }));
+      if (opts?.useCache && operationName)
+        cache.update((state) => ({
+          ...state,
+          [operationName]: {
+            time: new Date().getTime(),
+            value: json as Record<string, unknown>,
+            persist: !!opts.persistCache,
+          },
+        }));
 
       return json;
     }
@@ -67,6 +99,7 @@ export async function query<DataType = unknown, VariablesType = unknown>(
   });
 }
 
+export { cache as queryCacheStore };
 export type GraphqlQueryReturn<DataType> = ReturnType<DataType> | null;
 
 interface ReturnType<DataType> {
