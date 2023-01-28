@@ -15,6 +15,7 @@ const config = {
       $utils: 'src/utils',
       $react: 'src/pages',
       $lib: 'src/lib',
+      $common: 'src/lib/common',
       $stores: 'src/stores',
       $graphql: 'src/graphql',
     },
