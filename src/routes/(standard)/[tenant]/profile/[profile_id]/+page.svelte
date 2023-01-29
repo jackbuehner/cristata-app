@@ -19,14 +19,9 @@
   $: ({ profile: _profile, references } = data);
   $: profile = $_profile.data?.user;
   $: teams = (profile?.teams?.docs || []).filter(notEmpty).sort((a, b) => a.name.localeCompare(b.name));
-  $: userReferences = ($references.data?.userReferences || [])
-    .map((r) => {
-      return {
-        ...r,
-        docs: r.docs.slice(0, 10),
-      };
-    })
-    .sort((a, b) => a.collection.localeCompare(b.collection));
+  $: userReferences = ($references.data?.userReferences || []).sort((a, b) =>
+    a.collection.localeCompare(b.collection)
+  );
   $: isSelf = profile?._id === data.authUser._id.toHexString();
   $: ({ temporary, expired, expiresAt } = getPasswordStatus((profile?.flags || []).filter(notEmpty)));
   $: canEdit = $_profile.data?.userActionAccess?.modify || isSelf;
@@ -301,9 +296,9 @@
           Each collection's document list is truncated after 10 documents for performance reasons. The complete
           list can be viewed via the <a href="/{$page.params.tenant}/playground">API explorer</a>.
         </InfoBar>
-        {#each userReferences as { collection, docs }}
+        {#each userReferences as { collection, docs, count }}
           <section class="reflist">
-            <h4><TextBlock variant="bodyStrong">{collection} ({docs.length})</TextBlock></h4>
+            <h4><TextBlock variant="bodyStrong">{collection} ({count})</TextBlock></h4>
             {#each docs as doc}
               <InfoBar title={doc.name || ''} closable={false}>
                 <FluentIcon name="Document16Regular" slot="icon" />

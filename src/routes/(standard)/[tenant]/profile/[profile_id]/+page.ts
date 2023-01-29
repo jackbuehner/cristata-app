@@ -16,7 +16,7 @@ export const load = (async ({ params, fetch }) => {
     tenant: params.tenant,
     query: Profile,
     variables: { _id: params.profile_id },
-    waitForQuery: true,
+    waitForQuery: false, // do not block page load
     useCache: true,
     expireCache: 5000, // 5 seconds
   });
@@ -26,7 +26,7 @@ export const load = (async ({ params, fetch }) => {
     fetch,
     tenant: params.tenant,
     query: UserReferences,
-    variables: { _id: params.profile_id },
+    variables: { _id: params.profile_id, limit: 10 },
     waitForQuery: false, // do not block page load
     useCache: true,
     expireCache: 15 * 60 * 1000, // 15 minutes

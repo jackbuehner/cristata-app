@@ -2301,6 +2301,7 @@ export type QueryUserReferencesArgs = {
   _id?: InputMaybe<Scalars['ObjectID']>;
   collections?: InputMaybe<Array<Scalars['String']>>;
   exclude?: InputMaybe<Array<Scalars['String']>>;
+  limit?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -2784,8 +2785,9 @@ export const TeamsList = gql`
 }
     `;
 export const UserReferences = gql`
-    query UserReferences($_id: ObjectID!) {
-  userReferences(_id: $_id) {
+    query UserReferences($_id: ObjectID!, $limit: Int) {
+  userReferences(_id: $_id, limit: $limit) {
+    count
     collection: _id
     docs {
       name
@@ -2868,10 +2870,11 @@ export type TeamsListQuery = { __typename?: 'Query', teams?: { __typename?: 'Pag
 
 export type UserReferencesQueryVariables = Exact<{
   _id: Scalars['ObjectID'];
+  limit?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type UserReferencesQuery = { __typename?: 'Query', userReferences: Array<{ __typename?: 'UserReference', collection: string, docs: Array<{ __typename?: 'UserReferenceDoc', name?: string | null, url?: string | null }> }> };
+export type UserReferencesQuery = { __typename?: 'Query', userReferences: Array<{ __typename?: 'UserReference', count: number, collection: string, docs: Array<{ __typename?: 'UserReferenceDoc', name?: string | null, url?: string | null }> }> };
 
 export type UsersListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
