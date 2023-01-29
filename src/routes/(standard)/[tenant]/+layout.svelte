@@ -92,7 +92,6 @@
   $: showAppBar =
     $page.url.pathname.includes('/cms/') ||
     $page.url.pathname.includes('/teams') ||
-    $page.url.pathname.includes('/profile/') ||
     $page.url.pathname.includes('/embed/') ||
     $page.url.pathname.includes('/configuration/');
 </script>

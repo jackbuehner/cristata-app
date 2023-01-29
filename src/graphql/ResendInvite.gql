@@ -1,0 +1,5 @@
+mutation ResendInvite($_id: ObjectID!) {
+  userResendInvite(_id: $_id) {
+    _id
+  }
+}

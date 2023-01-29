@@ -2699,6 +2699,74 @@ export const GlobalConfig = gql`
   }
 }
     `;
+export const Profile = gql`
+    query Profile($_id: ObjectID!) {
+  user(_id: $_id) {
+    _id
+    name
+    phone
+    email
+    twitter
+    biography
+    current_title
+    photo
+    retired
+    slug
+    username
+    flags
+    timestamps {
+      joined_at
+      created_at
+      modified_at
+      last_login_at
+      last_active_at
+    }
+    people {
+      created_by {
+        name
+      }
+      last_modified_by {
+        name
+      }
+    }
+    teams(_id: $_id, limit: 100) {
+      docs {
+        _id
+        name
+      }
+    }
+    hidden
+    locked
+    archived
+    methods
+  }
+  userActionAccess {
+    modify
+    deactivate
+  }
+}
+    `;
+export const ResendInvite = gql`
+    mutation ResendInvite($_id: ObjectID!) {
+  userResendInvite(_id: $_id) {
+    _id
+  }
+}
+    `;
+export const SaveUserDeactivate = gql`
+    mutation SaveUserDeactivate($_id: ObjectID!, $retired: Boolean) {
+  userDeactivate(_id: $_id, deactivate: $retired) {
+    retired
+  }
+}
+    `;
+export const SaveUserEdits = gql`
+    mutation SaveUserEdits($_id: ObjectID!, $input: UserModifyInput!) {
+  userModify(_id: $_id, input: $input) {
+    _id
+  }
+}
+    `;
 export const TeamsList = gql`
     query TeamsList($page: Int, $limit: Int!) {
   teams(page: $page, limit: $limit, sort: "{ \\"_id\\": 1 }") {
@@ -2748,6 +2816,36 @@ export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GlobalConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collections?: Array<{ __typename?: 'ConfigurationCollection', name: string, pluralLabel: string } | null> | null, navigation: { __typename?: 'ConfigurationNavigation', main: Array<{ __typename?: 'ConfigurationNavigationMainItem', icon: string, label: string, to: string } | null>, cmsNav: Array<{ __typename?: 'ConfigurationNavigationSubGroup', label: string, uuid: string, items: Array<{ __typename?: 'ConfigurationNavigationSubGroupItems', icon: string, label: string, to: string, uuid: string } | null> } | null> }, dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, name: string, lastModifiedBy: string, lastModifiedAt: string, photo?: string | null }, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string } } | null> } } | null };
+
+export type ProfileQueryVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type ProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, phone?: number | null, email?: string | null, twitter?: string | null, biography?: string | null, current_title?: string | null, photo?: string | null, retired?: boolean | null, slug: string, username?: string | null, flags: Array<string | null>, hidden: boolean, locked: boolean, archived: boolean, methods?: Array<string | null> | null, timestamps?: { __typename?: 'UserTimestamps', joined_at: any, created_at: any, modified_at: any, last_login_at: any, last_active_at: any } | null, people?: { __typename?: 'CollectionPeople', created_by?: { __typename?: 'User', name: string } | null, last_modified_by?: { __typename?: 'User', name: string } | null } | null, teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string } | null> } | null } | null, userActionAccess?: { __typename?: 'CollectionActionAccess', modify: boolean, deactivate?: boolean | null } | null };
+
+export type ResendInviteMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type ResendInviteMutation = { __typename?: 'Mutation', userResendInvite?: { __typename?: 'User', _id: any } | null };
+
+export type SaveUserDeactivateMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+  retired?: InputMaybe<Scalars['Boolean']>;
+}>;
+
+
+export type SaveUserDeactivateMutation = { __typename?: 'Mutation', userDeactivate?: { __typename?: 'User', retired?: boolean | null } | null };
+
+export type SaveUserEditsMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+  input: UserModifyInput;
+}>;
+
+
+export type SaveUserEditsMutation = { __typename?: 'Mutation', userModify?: { __typename?: 'User', _id: any } | null };
 
 export type TeamsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
