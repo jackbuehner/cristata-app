@@ -1,0 +1,9 @@
+query UserReferences($_id: ObjectID!) {
+  userReferences(_id: $_id) {
+    collection: _id
+    docs {
+      name
+      url
+    }
+  }
+}

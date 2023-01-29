@@ -2744,13 +2744,6 @@ export const Profile = gql`
     modify
     deactivate
   }
-  userReferences(_id: $_id) {
-    collection: _id
-    docs {
-      name
-      url
-    }
-  }
 }
     `;
 export const ResendInvite = gql`
@@ -2786,6 +2779,17 @@ export const TeamsList = gql`
       organizers {
         _id
       }
+    }
+  }
+}
+    `;
+export const UserReferences = gql`
+    query UserReferences($_id: ObjectID!) {
+  userReferences(_id: $_id) {
+    collection: _id
+    docs {
+      name
+      url
     }
   }
 }
@@ -2829,7 +2833,7 @@ export type ProfileQueryVariables = Exact<{
 }>;
 
 
-export type ProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, phone?: number | null, email?: string | null, twitter?: string | null, biography?: string | null, current_title?: string | null, photo?: string | null, retired?: boolean | null, slug: string, username?: string | null, flags: Array<string | null>, hidden: boolean, locked: boolean, archived: boolean, methods?: Array<string | null> | null, timestamps?: { __typename?: 'UserTimestamps', joined_at: any, created_at: any, modified_at: any, last_login_at: any, last_active_at: any } | null, people?: { __typename?: 'CollectionPeople', created_by?: { __typename?: 'User', name: string } | null, last_modified_by?: { __typename?: 'User', name: string } | null } | null, teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string } | null> } | null } | null, userActionAccess?: { __typename?: 'CollectionActionAccess', modify: boolean, deactivate?: boolean | null } | null, userReferences: Array<{ __typename?: 'UserReference', collection: string, docs: Array<{ __typename?: 'UserReferenceDoc', name?: string | null, url?: string | null }> }> };
+export type ProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, phone?: number | null, email?: string | null, twitter?: string | null, biography?: string | null, current_title?: string | null, photo?: string | null, retired?: boolean | null, slug: string, username?: string | null, flags: Array<string | null>, hidden: boolean, locked: boolean, archived: boolean, methods?: Array<string | null> | null, timestamps?: { __typename?: 'UserTimestamps', joined_at: any, created_at: any, modified_at: any, last_login_at: any, last_active_at: any } | null, people?: { __typename?: 'CollectionPeople', created_by?: { __typename?: 'User', name: string } | null, last_modified_by?: { __typename?: 'User', name: string } | null } | null, teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string } | null> } | null } | null, userActionAccess?: { __typename?: 'CollectionActionAccess', modify: boolean, deactivate?: boolean | null } | null };
 
 export type ResendInviteMutationVariables = Exact<{
   _id: Scalars['ObjectID'];
@@ -2861,6 +2865,13 @@ export type TeamsListQueryVariables = Exact<{
 
 
 export type TeamsListQuery = { __typename?: 'Query', teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string, members: Array<{ __typename?: 'User', _id: any } | null>, organizers: Array<{ __typename?: 'User', _id: any } | null> } | null> } | null };
+
+export type UserReferencesQueryVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type UserReferencesQuery = { __typename?: 'Query', userReferences: Array<{ __typename?: 'UserReference', collection: string, docs: Array<{ __typename?: 'UserReferenceDoc', name?: string | null, url?: string | null }> }> };
 
 export type UsersListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;

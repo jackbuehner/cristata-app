@@ -42,11 +42,4 @@ query Profile($_id: ObjectID!) {
     modify
     deactivate
   }
-  userReferences(_id: $_id) {
-    collection: _id
-    docs {
-      name
-      url
-    }
-  }
 }

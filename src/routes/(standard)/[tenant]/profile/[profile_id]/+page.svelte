@@ -16,10 +16,10 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
-  $: ({ profile: _profile } = data);
+  $: ({ profile: _profile, references } = data);
   $: profile = $_profile.data?.user;
   $: teams = (profile?.teams?.docs || []).filter(notEmpty).sort((a, b) => a.name.localeCompare(b.name));
-  $: userReferences = ($_profile.data?.userReferences || [])
+  $: userReferences = ($references.data?.userReferences || [])
     .map((r) => {
       return {
         ...r,
