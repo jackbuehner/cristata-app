@@ -6,6 +6,7 @@ import type { Readable } from 'svelte/store';
 import { derived, get, readable, writable } from 'svelte/store';
 
 export interface GraphqlQueryOptions<VariablesType> {
+  fetch: typeof fetch;
   tenant: string;
   query: DocumentNode;
   variables?: VariablesType;
@@ -26,7 +27,18 @@ export interface GraphqlQueryOptions<VariablesType> {
 // cache store
 const localStorePersistCopy = (browser && localStorage.getItem('store:graphql:cache')) || '{}';
 const cache = writable<
-  Record<string, Record<string, { time: number; value: ReturnType<unknown>; persist: boolean }>>
+  Record<
+    string,
+    Record<
+      string,
+      {
+        time: number;
+        value: ReturnType<unknown>;
+        persist: boolean;
+        queryOpts: Omit<GraphqlQueryOptions<unknown>, 'fetch'>;
+      }
+    >
+  >
 >(JSON.parse(localStorePersistCopy));
 cache.subscribe((value) => {
   // persist to localStorage only if persist is true
@@ -40,9 +52,11 @@ cache.subscribe((value) => {
   }
 });
 
-export async function query<DataType = unknown, VariablesType = unknown>(
-  opts: GraphqlQueryOptions<VariablesType>
-): Promise<GraphqlQueryReturn<DataType>> {
+export async function query<DataType = unknown, VariablesType = unknown>({
+  fetch: _fetch,
+  ...opts
+}: GraphqlQueryOptions<VariablesType>): Promise<GraphqlQueryReturn<DataType>> {
+  const fetch = _fetch;
   if (opts.skip) return {};
 
   const operation = getOperationAST(opts.query);
@@ -57,7 +71,7 @@ export async function query<DataType = unknown, VariablesType = unknown>(
   if (operationName && opts.useCache && get(cache)[operationName]?.[varKey]) {
     if (opts.persistCache || opts.expireCache) {
       const { time, value } = get(cache)[operationName][varKey];
-      if (new Date(time + (opts.persistCache || opts.expireCache || 0)) > new Date()) {
+      if (new Date(time + (opts.expireCache || opts.persistCache || 0)) > new Date()) {
         // cache data is not yet expired
         return value as ReturnType<DataType>;
       }
@@ -87,7 +101,11 @@ export async function query<DataType = unknown, VariablesType = unknown>(
         topSelectionName &&
         (json.data as any)?.[topSelectionName]?.docs?.length > 0
       ) {
-        const next = await query<DataType>({ ...opts, variables: { ...opts.variables, page: page + 1 } });
+        const next = await query<DataType>({
+          fetch,
+          ...opts,
+          variables: { ...opts.variables, page: page + 1 },
+        });
         const nextDocs = (next?.data as any)?.[topSelectionName]?.docs;
         (json.data as any)[topSelectionName]?.docs.push(...nextDocs);
       }
@@ -103,6 +121,7 @@ export async function query<DataType = unknown, VariablesType = unknown>(
               value: json as Record<string, unknown>,
               use: opts.useCache,
               persist: !!opts.persistCache,
+              queryOpts: opts,
             },
           },
         }));
@@ -118,20 +137,24 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
   queryName: string;
   variables?: VariablesType;
   tenant: string;
-}): Readable<ReturnType<DataType>> {
+}): Readable<StoreReturnType<DataType>> {
   const varKey = createVariableKey(opts.variables || {}, opts.tenant);
   return derived(cache, ($cache) => {
-    if (!$cache[opts.queryName]?.[varKey]) return {};
+    if (!$cache[opts.queryName]?.[varKey]) return { refetch: async () => {} };
     return {
       data: $cache[opts.queryName]?.[varKey].value.data,
       errors: $cache[opts.queryName]?.[varKey].value.errors,
-    } as ReturnType<DataType>;
+      refetch: async () => {
+        const queryOpts = $cache[opts.queryName]?.[varKey].queryOpts;
+        await query({ fetch, ...queryOpts, expireCache: 1 });
+      },
+    } as StoreReturnType<DataType>;
   });
 }
 
 export async function queryWithStore<DataType = unknown, VariablesType = unknown>(
   opts: GraphqlQueryOptions<VariablesType> & { waitForQuery?: boolean }
-): Promise<Readable<ReturnType<DataType>>> {
+): Promise<Readable<StoreReturnType<DataType>>> {
   await new Promise<void>(async (resolve) => {
     if (opts.waitForQuery) await query(opts);
     else query(opts);
@@ -140,7 +163,7 @@ export async function queryWithStore<DataType = unknown, VariablesType = unknown
 
   const operation = getOperationAST(opts.query);
   const operationName = (operation && operation.name && operation.name.value) || undefined;
-  if (!operationName) return readable({});
+  if (!operationName) return readable({ refetch: async () => {} });
 
   return getQueryStore<DataType, VariablesType>({
     queryName: operationName,
@@ -168,4 +191,8 @@ export type GraphqlQueryReturn<DataType> = ReturnType<DataType> | null;
 interface ReturnType<DataType> {
   data?: DataType;
   errors?: any;
+}
+
+interface StoreReturnType<DataType> extends ReturnType<DataType> {
+  refetch: () => Promise<void>;
 }

@@ -15,6 +15,7 @@ import {
 import { query } from '$graphql/query';
 import { notEmpty } from '$utils/notEmpty';
 import { redirect } from '@sveltejs/kit';
+import { writable } from 'svelte/store';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
 import { persistor, store } from '../../../redux/store';
 import type { LayoutLoad } from './$types';
@@ -22,7 +23,7 @@ import type { LayoutLoad } from './$types';
 export const ssr = false;
 export const prerender = false;
 
-export const load = (async ({ parent, params, url }) => {
+export const load = (async ({ parent, params, url, fetch }) => {
   const { authUser } = await parent();
   const { tenant } = params;
 
@@ -51,6 +52,7 @@ export const load = (async ({ parent, params, url }) => {
 
   // get the configuration
   const config = await query<GlobalConfigQuery>({
+    fetch,
     tenant: authUser.tenant,
     query: GlobalConfig,
     useCache: true,
@@ -58,6 +60,7 @@ export const load = (async ({ parent, params, url }) => {
 
   // get the current user basic profile
   const me = await query<BasicProfileMeQuery>({
+    fetch,
     tenant: authUser.tenant,
     query: BasicProfileMe,
     useCache: true,
@@ -65,6 +68,7 @@ export const load = (async ({ parent, params, url }) => {
 
   // get the list of all users
   const basicProfiles = await query<UsersListQuery, UsersListQueryVariables>({
+    fetch,
     tenant: authUser.tenant,
     query: UsersList,
     useCache: true,
@@ -76,6 +80,7 @@ export const load = (async ({ parent, params, url }) => {
 
   // get the list of all teams
   const basicTeams = await query<TeamsListQuery, TeamsListQueryVariables>({
+    fetch,
     tenant: authUser.tenant,
     query: TeamsList,
     useCache: true,
@@ -85,12 +90,15 @@ export const load = (async ({ parent, params, url }) => {
     variables: { page: 1, limit: 100 },
   });
 
+  const storeb = writable(false);
+
   return {
     sessionId,
     configuration: config?.data?.configuration,
     me: me?.data?.user,
     basicProfiles: basicProfiles?.data?.users?.docs?.filter(notEmpty),
     basicTeams: basicTeams?.data?.teams?.docs?.filter(notEmpty),
+    storeb,
   };
 }) satisfies LayoutLoad;
 
@@ -110,7 +118,4 @@ async function switchTenant(tenant: string, currentLocation: URL) {
   );
   if (browser) goto(url.href);
   else throw redirect(307, url.href);
-}
-function writable<T>(arg0: {}) {
-  throw new Error('Function not implemented.');
 }
