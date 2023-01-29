@@ -130,4 +130,49 @@
         rgba(33, 33, 33, 80%);
     }
   }
+
+  /* content dialogs */
+  :global(:root .content-dialog-smoke .content-dialog) {
+    max-height: calc(100vh - env(titlebar-area-height, 32px) - 40px);
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body) {
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > h4) {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > h4::before),
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > h4::after) {
+    content: '';
+    position: absolute;
+    top: -24px;
+    left: -24px;
+    bottom: -12px;
+    right: -24px;
+    padding: 24px;
+    z-index: -1;
+  }
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > h4::before) {
+    background-color: var(--fds-solid-background-base);
+  }
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > h4::after) {
+    background-color: var(--fds-layer-background-default);
+  }
+
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > div.error) {
+    position: absolute;
+    bottom: 62px;
+    z-index: 1;
+    width: calc(100% - 48px);
+  }
+  :global(:root .content-dialog-smoke .content-dialog footer) {
+    grid-auto-columns: 1fr;
+  }
 </style>
