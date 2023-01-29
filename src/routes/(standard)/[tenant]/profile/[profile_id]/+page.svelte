@@ -138,7 +138,7 @@
       </InfoBar>
     {/if}
 
-    {#if temporary}
+    {#if temporary && !expired}
       <InfoBar severity="caution" closable={false} title="Invitation pending">
         {profile.name} has not accepted their invitation to Cristata.
         {#if expiresAt}
