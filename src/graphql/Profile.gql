@@ -38,8 +38,15 @@ query Profile($_id: ObjectID!) {
     archived
     methods
   }
-  userActionAccess {
+  userActionAccess(_id: $_id) {
     modify
     deactivate
+  }
+  userReferences(_id: $_id) {
+    collection: _id
+    docs {
+      name
+      url
+    }
   }
 }

@@ -19,6 +19,14 @@
   $: ({ profile: _profile } = data);
   $: profile = $_profile.data?.user;
   $: teams = (profile?.teams?.docs || []).filter(notEmpty).sort((a, b) => a.name.localeCompare(b.name));
+  $: userReferences = ($_profile.data?.userReferences || [])
+    .map((r) => {
+      return {
+        ...r,
+        docs: r.docs.slice(0, 10),
+      };
+    })
+    .sort((a, b) => a.collection.localeCompare(b.collection));
   $: isSelf = profile?._id === data.authUser._id.toHexString();
   $: ({ temporary, expired, expiresAt } = getPasswordStatus((profile?.flags || []).filter(notEmpty)));
   $: canEdit = $_profile.data?.userActionAccess?.modify || isSelf;
@@ -284,6 +292,28 @@
       </svelte:fragment>
     </Expander>
 
+    <Expander>
+      <FluentIcon name="DatabaseLink20Regular" slot="icon" />
+      Reference documents
+      <svelte:fragment slot="content">
+        <div style="margin-bottom: 10px;">{profile.name} is referenced by the following documents:</div>
+        <InfoBar severity="attention" title="Note about these lists" closable={false}>
+          Each collection's document list is truncated after 10 documents for performance reasons. The complete
+          list can be viewed via the <a href="/{$page.params.tenant}/playground">API explorer</a>.
+        </InfoBar>
+        {#each userReferences as { collection, docs }}
+          <section class="reflist">
+            <h4><TextBlock variant="bodyStrong">{collection} ({docs.length})</TextBlock></h4>
+            {#each docs as doc}
+              <InfoBar title={doc.name || ''} closable={false}>
+                <FluentIcon name="Document16Regular" slot="icon" />
+              </InfoBar>
+            {/each}
+          </section>
+        {/each}
+      </svelte:fragment>
+    </Expander>
+
     <EditProfileDialog
       bind:open={editDialogOpen}
       tenant={data.authUser.tenant}
@@ -343,6 +373,14 @@
 
   section.chips.compact {
     gap: 3px;
+  }
+
+  section.reflist h4 {
+    margin: 25px 0 10px 0;
+  }
+
+  section.reflist :global(svg) {
+    fill: currentColor;
   }
 
   .button-row {
