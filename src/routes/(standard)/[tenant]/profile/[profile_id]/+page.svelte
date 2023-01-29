@@ -105,7 +105,7 @@
       {/if}
       {#if canManage && (temporary || expired)}
         <Button
-          style="width: 158px"
+          style="width: 160px"
           on:click={async () => {
             resendInviteLoading = true;
             await resendInvite();
