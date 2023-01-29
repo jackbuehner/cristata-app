@@ -300,9 +300,17 @@
           <section class="reflist">
             <h4><TextBlock variant="bodyStrong">{collection} ({count})</TextBlock></h4>
             {#each docs as doc}
-              <InfoBar title={doc.name || ''} closable={false}>
-                <FluentIcon name="Document16Regular" slot="icon" />
-              </InfoBar>
+              <a
+                class="refitem"
+                href={doc.url
+                  ? new URL(doc.url).pathname
+                      .replace('/cms/collection/teams/', '/teams/')
+                      .replace('/cms/collection/users/', '/profile/')
+                  : ''}
+              >
+                <FluentIcon name="Document16Regular" mode="buttonIconLeft" />
+                {doc.name}
+              </a>
             {/each}
           </section>
         {/each}
@@ -376,6 +384,27 @@
 
   section.reflist :global(svg) {
     fill: currentColor;
+  }
+
+  a.refitem {
+    align-items: center;
+    background-clip: padding-box;
+    border: 1px solid var(--fds-card-stroke-default);
+    border-radius: var(--fds-control-corner-radius);
+    box-sizing: border-box;
+    display: flex;
+    font-family: var(--fds-font-family-text);
+    min-block-size: 48px;
+    padding-inline-start: 15px;
+    position: relative;
+    user-select: none;
+    background-color: var(--fds-system-background-attention);
+    color: currentColor;
+    text-decoration: none;
+    cursor: default;
+  }
+  a.refitem:hover {
+    background-color: var(--fds-subtle-fill-secondary);
   }
 
   .button-row {
