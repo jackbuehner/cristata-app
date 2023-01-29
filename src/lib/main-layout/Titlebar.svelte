@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from '$app/stores';
   import { server } from '$utils/constants';
   import { Flyout, IconButton, PersonPicture, TextBlock } from 'fluent-svelte';
   import type { LayoutData } from '../../routes/(standard)/[tenant]/$types';
@@ -8,7 +9,8 @@
 
   //@ts-expect-error userAgentData is only available in some browsers
   const isMacLike = navigator.userAgentData
-    ? /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgentData.platform)
+    ? //@ts-expect-error userAgentData is only available in some browsers
+      /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgentData.platform)
     : /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 
   let flyoutOpen: boolean = false;
@@ -29,7 +31,13 @@
         />
       </svg>
     {/if}
-    <TextBlock variant="caption">Cristata (Preview)</TextBlock>
+    <TextBlock variant="caption">
+      {#if $page.url.hostname === 'cristata.app'}
+        Cristata (Preview)
+      {:else}
+        Cristata (Development)
+      {/if}
+    </TextBlock>
   </div>
   <div class="right">
     <div class="account">
