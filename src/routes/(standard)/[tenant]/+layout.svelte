@@ -154,12 +154,6 @@
     background-color: #f3f3f3;
   }
 
-  @media (max-width: 600px) {
-    div#app {
-      display: block;
-    }
-  }
-
   div#content {
     overflow: auto;
     background-color: 'white';
