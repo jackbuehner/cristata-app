@@ -58,7 +58,10 @@
 
             // switch accounts
             const url = new URL(`${server.location}/auth/switch/${tenant}`);
-            url.searchParams.set('return', window.location.origin + `/${tenant}` + location.pathname);
+            url.searchParams.set(
+              'return',
+              window.location.origin + `/${tenant}` + location.pathname.replace(`/${data.authUser.tenant}`, '')
+            );
             window.location.href = url.href;
           }}
         >
