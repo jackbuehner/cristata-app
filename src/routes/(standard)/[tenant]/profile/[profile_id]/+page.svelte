@@ -29,6 +29,7 @@
   $: canManage = $_profile.data?.userActionAccess?.modify && $_profile.data?.userActionAccess?.deactivate;
   $: name = profile?.name || $page.url.searchParams.get('name');
   $: current_title = profile?.current_title || $page.url.searchParams.get('current_title');
+  $: _id = profile?._id || $page.url.searchParams.get('_id');
 
   let editDialogOpen = false;
 
@@ -78,7 +79,11 @@
 <article>
   {#if name}
     <div class="title-box">
-      <PersonPicture src={profile?.photo || ''} alt={name} size={80} />
+      <PersonPicture
+        src={`${server.location}/v3/${data.authUser.tenant}/user-photo/${_id}`}
+        alt={name}
+        size={80}
+      />
       <div class="title-box-text">
         <TextBlock variant="title">{name}</TextBlock>
         {#if current_title}

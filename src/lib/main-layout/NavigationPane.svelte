@@ -140,6 +140,7 @@
         },
         ...group.profiles.map((profile) => {
           const url = new URL(`https://cristata.app/${data.authUser.tenant}/profile/${profile._id}`);
+          url.searchParams.set('_id', profile._id);
           url.searchParams.set('name', profile.originalName || profile.name);
           if (profile.c) url.searchParams.set('current_title', profile.c);
 
@@ -300,7 +301,7 @@
           label: 'My profile',
           icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${data.authUser._id}`,
           href: `/${data.authUser.tenant}/profile/${data.authUser._id}?${encodeURIComponent(
-            `name=${data.authUser.name}`
+            `_id=${data.authUser._id}&name=${data.authUser.name}`
           )}`,
         },
         {

@@ -14,7 +14,6 @@
 
 <style>
   div {
-    padding: 16px;
     display: flex;
     flex-direction: row;
     align-items: center;
