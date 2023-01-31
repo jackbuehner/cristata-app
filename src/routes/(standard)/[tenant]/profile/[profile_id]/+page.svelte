@@ -78,7 +78,9 @@
       <PersonPicture src={profile.photo || ''} alt={profile.name} size={80} />
       <div class="title-box-text">
         <TextBlock variant="title">{profile.name}</TextBlock>
-        <TextBlock variant="bodyStrong">{profile.current_title}</TextBlock>
+        {#if profile.current_title}
+          <TextBlock variant="bodyStrong">{profile.current_title}</TextBlock>
+        {/if}
       </div>
     </div>
 
