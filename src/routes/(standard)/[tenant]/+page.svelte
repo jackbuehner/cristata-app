@@ -141,6 +141,8 @@
   </div>
 {/if}
 
+<br />
+
 <style>
   .margin {
     margin: 0 auto;

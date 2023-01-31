@@ -116,7 +116,7 @@
         {/if}
 
         <!-- the rest of the content -->
-        <div id="content" style="display: flex; flex-direction: column;">
+        <div id="content-outer">
           {#if showAppBar}
             <react:Appbar />
           {/if}
@@ -154,21 +154,28 @@
     background-color: #f3f3f3;
   }
 
-  div#content {
+  div#content-outer {
     overflow: auto;
-    background-color: 'white';
-    color: var(--color-neutral-light-1400);
     width: 100%;
     height: 100%;
-    border-radius: 6px 0 0 0;
+    display: flex;
+    flex-direction: column;
     background-color: #ffffff;
+    color: var(--color-neutral-light-1400);
+    border-radius: 6px 0 0 0;
+  }
+
+  div#content {
+    overflow: auto;
+    width: 100%;
+    height: 100%;
   }
   @media (prefers-color-scheme: dark) {
     div#app {
       background-color: #202020;
     }
 
-    div#content {
+    div#content-outer {
       background-color: #272727;
       color: var(--color-neutral-dark-1400);
     }
