@@ -2803,6 +2803,7 @@ export const UsersList = gql`
       _id
       name
       r: retired
+      c: current_title
     }
   }
 }
@@ -2882,7 +2883,7 @@ export type UsersListQueryVariables = Exact<{
 }>;
 
 
-export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null } | null> } | null };
+export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null, c?: string | null } | null> } | null };
 
 export type WorkflowCountsQueryVariables = Exact<{ [key: string]: never; }>;
 

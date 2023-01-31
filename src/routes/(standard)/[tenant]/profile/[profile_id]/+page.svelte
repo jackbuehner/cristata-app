@@ -5,6 +5,7 @@
   import { ResendInvite } from '$graphql/graphql';
   import { Chip } from '$lib/common/Chip';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import Loading from '$lib/common/Loading.svelte';
   import EditProfileDialog from '$lib/dialogs/EditProfileDialog.svelte';
   import { compactMode } from '$stores/compactMode';
   import { getPasswordStatus } from '$utils/axios/getPasswordStatus';
@@ -26,6 +27,8 @@
   $: ({ temporary, expired, expiresAt } = getPasswordStatus((profile?.flags || []).filter(notEmpty)));
   $: canEdit = $_profile.data?.userActionAccess?.modify || isSelf;
   $: canManage = $_profile.data?.userActionAccess?.modify && $_profile.data?.userActionAccess?.deactivate;
+  $: name = profile?.name || $page.url.searchParams.get('name');
+  $: current_title = profile?.current_title || $page.url.searchParams.get('current_title');
 
   let editDialogOpen = false;
 
@@ -72,18 +75,20 @@
   }
 </script>
 
-{#if profile}
-  <article>
+<article>
+  {#if name}
     <div class="title-box">
-      <PersonPicture src={profile.photo || ''} alt={profile.name} size={80} />
+      <PersonPicture src={profile?.photo || ''} alt={name} size={80} />
       <div class="title-box-text">
-        <TextBlock variant="title">{profile.name}</TextBlock>
-        {#if profile.current_title}
-          <TextBlock variant="bodyStrong">{profile.current_title}</TextBlock>
+        <TextBlock variant="title">{name}</TextBlock>
+        {#if current_title}
+          <TextBlock variant="bodyStrong">{current_title}</TextBlock>
         {/if}
       </div>
     </div>
+  {/if}
 
+  {#if profile}
     <div class="button-row">
       {#if canEdit}
         <Button variant="accent" on:click={() => (editDialogOpen = true)}>
@@ -334,8 +339,10 @@
       handleSumbit={() => $_profile.refetch()}
       handleCancel={() => $_profile.refetch()}
     />
-  </article>
-{/if}
+  {:else}
+    <Loading message={name ? `Loading ${name}'s profile...` : 'Loading profile...'} style="margin-top: 20px;" />
+  {/if}
+</article>
 
 <style>
   article {

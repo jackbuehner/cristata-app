@@ -4,6 +4,7 @@ query UsersList($page: Int, $limit: Int!) {
       _id
       name
       r: retired
+      c: current_title
     }
   }
 }

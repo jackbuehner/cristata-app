@@ -112,6 +112,7 @@
           name: `${lastName}${remainingNames ? `, ${remainingNames.join(' ')}` : ''} ${(parenthesis || []).join(
             ' '
           )}`.trim(),
+          originalName: profile.name,
         };
       }
       return profile;
@@ -119,7 +120,9 @@
     .sort((a, b) => {
       return a.name.localeCompare(b.name);
     })
-    .reduce<{ char: string; profiles: NonNullable<typeof data.basicProfiles> }[]>((groups, profile) => {
+    .reduce<
+      { char: string; profiles: (NonNullable<typeof data.basicProfiles>[0] & { originalName?: string })[] }[]
+    >((groups, profile) => {
       const char = profile.name[0].toUpperCase();
       const group = groups.find((group) => group.char === char);
       if (!group) {
@@ -136,10 +139,14 @@
           type: 'category',
         },
         ...group.profiles.map((profile) => {
+          const url = new URL(`https://cristata.app/${data.authUser.tenant}/profile/${profile._id}`);
+          url.searchParams.set('name', profile.originalName || profile.name);
+          if (profile.c) url.searchParams.set('current_title', profile.c);
+
           return {
             label: profile.name,
             icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${profile._id}`,
-            href: `/${data.authUser.tenant}/profile/${profile._id}`,
+            href: `${url.pathname}${url.search}`,
           };
         }),
       ];
@@ -292,7 +299,9 @@
         {
           label: 'My profile',
           icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${data.authUser._id}`,
-          href: `/${data.authUser.tenant}/profile/${data.authUser._id}`,
+          href: `/${data.authUser.tenant}/profile/${data.authUser._id}?${encodeURIComponent(
+            `name=${data.authUser.name}`
+          )}`,
         },
         {
           label: 'hr',
@@ -395,7 +404,6 @@
 
   $: collectionNames = data.configuration?.collections?.map((col) => col?.name).filter(notEmpty) || [];
   $: createSchemaHookStore = hooks(() => useCreateSchema(collectionNames));
-  $: inviteUserModalHookStore = hooks(() => useInviteUserModal());
   $: inviteUserModalHookStore = hooks(() => useInviteUserModal());
 
   let hideInactiveUsers = true;
