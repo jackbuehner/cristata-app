@@ -113,31 +113,33 @@
   </Expander>
 </div>
 
-<PageSubtitle>Recent</PageSubtitle>
+{#if (data.dashboardConfig?.collectionRows || []).length > 0}
+  <PageSubtitle>Recent</PageSubtitle>
 
-<div class="margin margin-bottom">
-  {#each (data.dashboardConfig?.collectionRows || []).filter(notEmpty) as row, index}
-    <Expander class="dashboard-collection-row-expander" expanded={index < 2}>
-      <FluentIcon name={row.header.icon} slot="icon" />
-      {row.header.label}
-      <svelte:fragment slot="side">
-        <Button
-          on:click={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            goto(`/${$page.params.tenant}${row.to.idPrefix}`);
-          }}
-          href="/{$page.params.tenant}{row.to.idPrefix}"
-        >
-          View all {uncapitalize(row.header.label)}
-        </Button>
-      </svelte:fragment>
-      <svelte:fragment slot="content">
-        <react:ItemsRow query={row.query} dataKeys={row.dataKeys} arrPath={row.arrPath} to={row.to} />
-      </svelte:fragment>
-    </Expander>
-  {/each}
-</div>
+  <div class="margin margin-bottom">
+    {#each (data.dashboardConfig?.collectionRows || []).filter(notEmpty) as row, index}
+      <Expander class="dashboard-collection-row-expander" expanded={index < 2}>
+        <FluentIcon name={row.header.icon} slot="icon" />
+        {row.header.label}
+        <svelte:fragment slot="side">
+          <Button
+            on:click={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              goto(`/${$page.params.tenant}${row.to.idPrefix}`);
+            }}
+            href="/{$page.params.tenant}{row.to.idPrefix}"
+          >
+            View all {uncapitalize(row.header.label)}
+          </Button>
+        </svelte:fragment>
+        <svelte:fragment slot="content">
+          <react:ItemsRow query={row.query} dataKeys={row.dataKeys} arrPath={row.arrPath} to={row.to} />
+        </svelte:fragment>
+      </Expander>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .margin {
