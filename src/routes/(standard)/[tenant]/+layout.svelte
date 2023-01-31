@@ -91,7 +91,7 @@
   // whether the app bar is visible
   $: showAppBar =
     $page.url.pathname.includes('/cms/') ||
-    $page.url.pathname.includes('/teams') ||
+    ($page.url.pathname.includes('/teams/') && !$page.url.pathname.includes('/teams/home')) ||
     $page.url.pathname.includes('/embed/') ||
     $page.url.pathname.includes('/configuration/');
 </script>

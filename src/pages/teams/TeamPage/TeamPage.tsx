@@ -1,3 +1,4 @@
+import { queryCacheStore } from '$graphql/query';
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -169,6 +170,11 @@ function TeamPage() {
           setIsMutating(false);
           // refresh page team data
           refetch();
+          // refresh teams list
+          queryCacheStore.update((value) => {
+            delete value['TeamsList'];
+            return { ...value };
+          });
           // tell modal to close
           return true;
         })
@@ -329,6 +335,10 @@ function TeamPage() {
         .mutate<DELETE_TEAM__TYPE>({ mutation: DELETE_TEAM, variables: { _id: team?._id } })
         .then(() => {
           toast.success(`Successfully deleted team.`);
+          queryCacheStore.update((value) => {
+            delete value['TeamsList'];
+            return { ...value };
+          });
           navigate(`/${tenant}/teams`);
           return true;
         })

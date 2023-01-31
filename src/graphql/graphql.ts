@@ -2623,6 +2623,13 @@ export const BasicProfileMe = gql`
   }
 }
     `;
+export const CreateTeam = gql`
+    mutation CreateTeam($name: String!, $slug: String!, $members: [ObjectID]!, $organizers: [ObjectID]!) {
+  teamCreate(name: $name, slug: $slug, members: $members, organizers: $organizers) {
+    _id
+  }
+}
+    `;
 export const DashboardConfig = gql`
     query DashboardConfig {
   configuration {
@@ -2820,6 +2827,16 @@ export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type BasicProfileMeQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null } | null };
+
+export type CreateTeamMutationVariables = Exact<{
+  name: Scalars['String'];
+  slug: Scalars['String'];
+  members: Array<InputMaybe<Scalars['ObjectID']>> | InputMaybe<Scalars['ObjectID']>;
+  organizers: Array<InputMaybe<Scalars['ObjectID']>> | InputMaybe<Scalars['ObjectID']>;
+}>;
+
+
+export type CreateTeamMutation = { __typename?: 'Mutation', teamCreate?: { __typename?: 'Team', _id: any } | null };
 
 export type DashboardConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
