@@ -1,4 +1,4 @@
-import { queryCacheStore } from '$graphql/query';
+import { getQueryStore, queryCacheStore } from '$graphql/query';
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'svelte-preprocess-react/react-router';
+import { get } from 'svelte/store';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { SectionHeading } from '../../../components/Heading';
@@ -165,16 +166,16 @@ function TeamPage() {
             input: { name, members: Array.from(new Set([...members, ...membersToAdd])) },
           },
         })
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           // stop loading
           setIsMutating(false);
           // refresh page team data
           refetch();
           // refresh teams list
-          queryCacheStore.update((value) => {
-            delete value['TeamsList'];
-            return { ...value };
-          });
+          const $teamsList = get(
+            getQueryStore({ queryName: 'TeamsList', tenant, variables: { page: 1, limit: 100 } })
+          );
+          await $teamsList.refetch();
           // tell modal to close
           return true;
         })
@@ -333,12 +334,12 @@ function TeamPage() {
       setIsLoading(true);
       return await client
         .mutate<DELETE_TEAM__TYPE>({ mutation: DELETE_TEAM, variables: { _id: team?._id } })
-        .then(() => {
+        .then(async () => {
           toast.success(`Successfully deleted team.`);
-          queryCacheStore.update((value) => {
-            delete value['TeamsList'];
-            return { ...value };
-          });
+          const $teamsList = get(
+            getQueryStore({ queryName: 'TeamsList', tenant, variables: { page: 1, limit: 100 } })
+          );
+          await $teamsList.refetch();
           navigate(`/${tenant}/teams`);
           return true;
         })

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import type { UsersListQuery } from '$graphql/graphql';
   import { queryCacheStore } from '$graphql/query';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import NavigationView from '$lib/common/NavigationView.svelte';
@@ -23,6 +24,7 @@
   import type { LayoutData } from '../../routes/(standard)/[tenant]/$types';
 
   export let data: LayoutData;
+  $: ({ basicProfiles, basicTeams } = data);
 
   $: isConfigRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/configuration/`);
   $: isCmsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/cms/`);
@@ -93,7 +95,8 @@
     },
   ];
 
-  $: profilesListMenuItems = (data.basicProfiles || [])
+  $: profilesListMenuItems = ($basicProfiles.data?.users?.docs || [])
+    .filter(notEmpty)
     .filter((profile) => {
       if (hideInactiveUsers) return !profile.r;
       return true;
@@ -121,7 +124,10 @@
       return a.name.localeCompare(b.name);
     })
     .reduce<
-      { char: string; profiles: (NonNullable<typeof data.basicProfiles>[0] & { originalName?: string })[] }[]
+      {
+        char: string;
+        profiles: (NonNullable<UsersListQuery['users']>['docs'][0] & { originalName?: string })[];
+      }[]
     >((groups, profile) => {
       const char = profile.name[0].toUpperCase();
       const group = groups.find((group) => group.char === char);
@@ -334,7 +340,8 @@
               {
                 label: 'hr',
               },
-              ...(data.basicTeams || [])
+              ...($basicTeams.data?.teams?.docs || [])
+                .filter(notEmpty)
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((team) => {
                   return {
@@ -412,19 +419,6 @@
 
   let settingFlyoutOpen = false;
   let toolboxFlyoutOpen = false;
-
-  /**
-   * Removes cached data for the specified query
-   * @param key the name of the query
-   * @param refresh if the page should also refresh to potentially regenerate the value in the cache
-   */
-  function invalidateQueryCache(key: string, refresh = true) {
-    queryCacheStore.update((value) => {
-      delete value[key];
-      return { ...value };
-    });
-    if (refresh) goto($page.url.pathname + '/');
-  }
 </script>
 
 <NavigationView
@@ -491,7 +485,7 @@
           </MenuFlyoutItem>
         {/if}
         <MenuFlyoutDivider />
-        <MenuFlyoutItem on:click={() => invalidateQueryCache('UsersList')}>
+        <MenuFlyoutItem on:click={() => $basicProfiles.refetch()}>
           <svelte:fragment slot="icon">
             <FluentIcon name="ArrowClockwise16Regular" />
           </svelte:fragment>
@@ -529,7 +523,7 @@
           </MenuFlyoutItem>
         {/if}
         <MenuFlyoutDivider />
-        <MenuFlyoutItem on:click={() => invalidateQueryCache('TeamsList')}>
+        <MenuFlyoutItem on:click={() => $basicTeams.refetch()}>
           <svelte:fragment slot="icon">
             <FluentIcon name="ArrowClockwise16Regular" />
           </svelte:fragment>

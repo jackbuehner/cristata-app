@@ -1,32 +1,19 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
-  import { queryCacheStore } from '$graphql/query';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
-  import { PageSubtitle, PageTitle } from '$lib/common/PageTitle';
+  import { PageTitle } from '$lib/common/PageTitle';
   import CreateTeamDialog from '$lib/dialogs/CreateTeamDialog.svelte';
   import { TeamsOverviewPage } from '$react/teams/TeamsOverviewPage';
   import { genAvatar } from '$utils/genAvatar';
+  import { notEmpty } from '$utils/notEmpty';
   import { Button, TextBlock } from 'fluent-svelte';
   import type { PageData } from './$types';
 
   export let data: PageData;
+  $: ({ basicTeams } = data);
 
   let createDialogOpen = false;
   let width = 1000;
-
-  /**
-   * Removes cached data for the specified query
-   * @param key the name of the query
-   * @param refresh if the page should also refresh to potentially regenerate the value in the cache
-   */
-  function invalidateQueryCache(key: string, refresh = true) {
-    queryCacheStore.update((value) => {
-      delete value[key];
-      return { ...value };
-    });
-    if (refresh) goto($page.url.pathname + '/');
-  }
 </script>
 
 <PageTitle>Teams</PageTitle>
@@ -41,7 +28,7 @@
       tenant={data.authUser.tenant}
       bind:open={createDialogOpen}
       handleSumbit={async (_id) => {
-        invalidateQueryCache('TeamsList', false);
+        await $basicTeams.refetch();
         goto(`/${data.authUser.tenant}/teams/${_id}`);
       }}
     />
@@ -49,7 +36,7 @@
 </div>
 
 <section class="teams-list" bind:clientWidth={width} class:small={width < 500}>
-  {#each data.basicTeams || [] as team}
+  {#each ($basicTeams.data?.teams?.docs || []).filter(notEmpty) as team}
     {@const membersCount = team.organizers?.length + team.members?.length || 0}
     <Button href="/{data.authUser.tenant}/teams/{team._id}">
       <article>

@@ -119,7 +119,6 @@
       on:click={async () => {
         loadingSubmit = true;
         const success = await saveChanges();
-        loadingSubmit = false;
         if (success) {
           await handleAction?.();
           await handleSumbit?.(success);
@@ -128,6 +127,7 @@
           members = [];
           organizers = [];
         }
+        loadingSubmit = false;
       }}
     >
       {#if loadingSubmit}

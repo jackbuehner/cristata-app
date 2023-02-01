@@ -12,10 +12,10 @@ import {
   type UsersListQuery,
   type UsersListQueryVariables,
 } from '$graphql/graphql';
-import { query } from '$graphql/query';
+import { query, queryWithStore } from '$graphql/query';
 import { notEmpty } from '$utils/notEmpty';
 import { redirect } from '@sveltejs/kit';
-import { writable } from 'svelte/store';
+import { get } from 'svelte/store';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
 import { persistor, store } from '../../../redux/store';
 import type { LayoutLoad } from './$types';
@@ -67,7 +67,7 @@ export const load = (async ({ parent, params, url, fetch }) => {
   });
 
   // get the list of all users
-  const basicProfiles = await query<UsersListQuery, UsersListQueryVariables>({
+  const basicProfiles = await queryWithStore<UsersListQuery, UsersListQueryVariables>({
     fetch,
     tenant: authUser.tenant,
     query: UsersList,
@@ -79,7 +79,7 @@ export const load = (async ({ parent, params, url, fetch }) => {
   });
 
   // get the list of all teams
-  const basicTeams = await query<TeamsListQuery, TeamsListQueryVariables>({
+  const basicTeams = await queryWithStore<TeamsListQuery, TeamsListQueryVariables>({
     fetch,
     tenant: authUser.tenant,
     query: TeamsList,
@@ -90,15 +90,12 @@ export const load = (async ({ parent, params, url, fetch }) => {
     variables: { page: 1, limit: 100 },
   });
 
-  const storeb = writable(false);
-
   return {
     sessionId,
     configuration: config?.data?.configuration,
     me: me?.data?.user,
-    basicProfiles: basicProfiles?.data?.users?.docs?.filter(notEmpty),
-    basicTeams: basicTeams?.data?.teams?.docs?.filter(notEmpty),
-    storeb,
+    basicProfiles,
+    basicTeams,
   };
 }) satisfies LayoutLoad;
 
