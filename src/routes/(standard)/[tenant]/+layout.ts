@@ -13,9 +13,13 @@ import {
   type UsersListQueryVariables,
 } from '$graphql/graphql';
 import { query, queryWithStore } from '$graphql/query';
-import { notEmpty } from '$utils/notEmpty';
-import { redirect } from '@sveltejs/kit';
-import { get } from 'svelte/store';
+import { server } from '$utils/constants';
+import { gotoSignIn } from '$utils/gotoSignIn';
+import { isHttpError } from '$utils/isHttpError';
+import { error, redirect } from '@sveltejs/kit';
+import mongoose from 'mongoose';
+import { get, writable } from 'svelte/store';
+import { z } from 'zod';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
 import { persistor, store } from '../../../redux/store';
 import type { LayoutLoad } from './$types';
@@ -23,10 +27,51 @@ import type { LayoutLoad } from './$types';
 export const ssr = false;
 export const prerender = false;
 
-export const load = (async ({ parent, params, url, fetch }) => {
+const authCache = writable<{ last: Date; authUser: z.infer<typeof authUserValidator> }>();
+
+export const load = (async ({ params, url, fetch }) => {
   const { tenant } = params;
 
-  parent().then(async ({ authUser }) => {
+  // check the authentication status of the current client
+  const authUser = (async (): Promise<z.infer<typeof authUserValidator>> => {
+    // use the cached auth
+    if (get(authCache)) {
+      const { authUser } = get(authCache);
+      return authUser;
+    }
+
+    // otherwise, query the server for the user auth
+    return await fetch(`${server.location}/auth`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then(async (res) => {
+        // redirect to the sign in page if not authenticated or authorized
+        if (res.status === 401 || res.status === 403) {
+          await gotoSignIn(tenant);
+        }
+
+        // if the auth endpoint is missing
+        if (res.status === 404) throw error(401, 'Failed to authenticate to the server.');
+
+        // return the response json object
+        return await res.json();
+      })
+      .catch(async (err) => {
+        if (isHttpError(err)) throw err;
+        if (err.message === 'Failed to fetch') throw error(401, 'Failed to connect to the server.');
+        throw error(500, err);
+      })
+      .then(async (authResponse) => {
+        const authUser = await authUserValidator.parseAsync(authResponse).catch((err) => {
+          throw error(500, err);
+        });
+
+        authCache.set({ last: new Date(), authUser });
+        return authUser;
+      });
+  })().then(async (authUser) => {
     // switch tenants if the tenant param does not match
     // the tenant for the user
     const isWrongTenant = tenant !== authUser.tenant;
@@ -39,6 +84,8 @@ export const load = (async ({ parent, params, url, fetch }) => {
     store.dispatch(setName(authUser.name));
     store.dispatch(setObjectId(authUser._id.toHexString()));
     store.dispatch(setOtherUsers(authUser.otherUsers.map((ou) => ({ ...ou, _id: ou._id.toHexString() }))));
+
+    return authUser;
   });
 
   // get/set the session id
@@ -92,6 +139,7 @@ export const load = (async ({ parent, params, url, fetch }) => {
   });
 
   return {
+    authUser: await authUser,
     sessionId,
     configuration: (await config)?.data?.configuration,
     me: (await me)?.data?.user,
@@ -117,3 +165,14 @@ async function switchTenant(tenant: string, currentLocation: URL) {
   if (browser) goto(url.href);
   else throw redirect(307, url.href);
 }
+
+const userValidator = z.object({
+  _id: z.string().transform((hexId) => new mongoose.Types.ObjectId(hexId)),
+  name: z.string(),
+  provider: z.string(),
+  tenant: z.string(),
+});
+
+const authUserValidator = userValidator.extend({
+  otherUsers: userValidator.array().default([]),
+});
