@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { server } from '$utils/constants';
   import { Flyout, IconButton, PersonPicture, TextBlock } from 'fluent-svelte';
+  import { onDestroy, onMount } from 'svelte';
   import type { LayoutData } from '../../routes/(standard)/[tenant]/$types';
   import Profile from './Profile.svelte';
 
@@ -14,12 +16,35 @@
     : /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 
   let flyoutOpen: boolean = false;
+  let browserFocused: boolean = false;
+
+  function handleFocus() {
+    browserFocused = true;
+  }
+
+  function handleBlur() {
+    browserFocused = false;
+  }
+
+  onMount(() => {
+    if (browser) {
+      window.addEventListener('focus', handleFocus);
+      window.addEventListener('blur', handleBlur);
+    }
+  });
+
+  onDestroy(() => {
+    if (browser) {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+    }
+  });
 
   // right controls: <- -> | title     […] [_] [■] [X]
   // left controls:  [X] [_] [■] | <- -> | title     […]
 </script>
 
-<div class="titlebar">
+<div class="titlebar" class:browserFocused>
   <div class="left">
     {#if !isMacLike}
       <svg xmlns="http://www.w3.org/2000/svg" width="41.57" height="26" viewBox="0 0 31.1775 36">
@@ -82,6 +107,17 @@
     background-color: #f3f3f3;
     padding: 0 16px;
     box-sizing: border-box;
+    color: #888888;
+  }
+
+  .titlebar.browserFocused {
+    color: #000000;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .titlebar.browserFocused {
+      color: #ffffff;
+    }
   }
 
   .left {
