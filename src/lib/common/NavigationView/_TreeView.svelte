@@ -152,7 +152,7 @@
       >
         <svelte:fragment slot="icon">
           {#if icon?.includes('http')}
-            <PersonPicture size={24} src={icon} alt={name} />
+            <PersonPicture size={24} src={icon} alt={name} loading="lazy" />
           {:else}
             <FluentIcon name={icon || ''} />
           {/if}
