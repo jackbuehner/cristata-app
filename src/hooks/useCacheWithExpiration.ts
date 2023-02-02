@@ -1,4 +1,4 @@
-import { FetchPolicy } from '@apollo/client';
+import type { FetchPolicy } from '@apollo/client';
 import { useEffect, useState } from 'react';
 
 const useCacheWithExpiration = (expiration: number, key: string): FetchPolicy => {

@@ -1,11 +1,11 @@
+import { useModal } from '@cristata/react-modal-hook';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { useModal } from '@cristata/react-modal-hook';
 import { PlainModal } from '../../components/Modal';
-import { IPlainModal } from '../../components/Modal/PlainModal';
-import { themeType } from '../../utils/theme/theme';
+import type { IPlainModal } from '../../components/Modal/PlainModal';
+import type { themeType } from '../../utils/theme/theme';
 import { useWindow } from '../useWindow';
-import { UseWindowOptions } from '../useWindow/useWindow';
+import type { UseWindowOptions } from '../useWindow/useWindow';
 
 type UseWindowModal = [Modal: false | React.ReactNode, openWindow: () => void, closeWindow: () => void];
 
@@ -23,8 +23,7 @@ function useWindowModal(
 
   const theme = useTheme() as themeType;
 
-  //@ts-expect-error windowControlsOverlay is only available in some browsers
-  const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
+  const isCustomTitlebarVisible = false;
 
   const [Window, openWindow, closeWindow] = useWindow(
     <WindowWrapper theme={theme} styleString={props.styleString}>

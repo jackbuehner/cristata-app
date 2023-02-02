@@ -43,4 +43,4 @@ type PHOTO_BASIC__DOC_TYPE = {
 };
 
 export { PHOTO_BASIC };
-export type { PHOTO_BASIC__TYPE, PHOTO_BASIC__DOC_TYPE };
+export type { PHOTO_BASIC__DOC_TYPE, PHOTO_BASIC__TYPE };

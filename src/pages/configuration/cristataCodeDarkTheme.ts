@@ -1,4 +1,4 @@
-import { editor } from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 
 const cristataCodeDarkTheme: editor.IStandaloneThemeData = {
   inherit: false,

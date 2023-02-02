@@ -1,6 +1,8 @@
-import { InputHTMLAttributes } from 'react';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
-import { CollaborativeCombobox, Value, Values } from './CollaborativeCombobox';
+import type { InputHTMLAttributes } from 'react';
+import type { CollaborativeFieldProps } from './';
+import { CollaborativeFieldWrapper } from './';
+import type { Value, Values } from './CollaborativeCombobox';
+import { CollaborativeCombobox } from './CollaborativeCombobox';
 
 interface CollaborativeSelectOneProps
   extends CollaborativeFieldProps,

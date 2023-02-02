@@ -1,11 +1,10 @@
-import { isTypeTuple, MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
-import { get as getProperty, set as setProperty } from 'object-path';
+import { get as getProperty, set as setProperty } from '$utils/objectPath';
+import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import fieldUtils from '../../../components/CollaborativeFields/utils';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
-import {
-  DeconstructedSchemaDefType,
-  parseSchemaDefType,
-} from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import { parseSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
 interface GetYFieldsOptions {
   retainReferenceObjects?: boolean;

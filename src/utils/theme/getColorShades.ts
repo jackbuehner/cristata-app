@@ -70,4 +70,4 @@ function getColorShades(color: string, steps = 15): { [key: number]: string } {
   return shades;
 }
 
-export { getColorShades, lighten, darken };
+export { darken, getColorShades, lighten };

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
 const WORKFLOW = gql`
   query WorkflowComplete($collections: [String] = null, $exclude: [String] = null) {

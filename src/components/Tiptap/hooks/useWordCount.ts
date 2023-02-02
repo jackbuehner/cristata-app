@@ -1,4 +1,4 @@
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { useState } from 'react';
 

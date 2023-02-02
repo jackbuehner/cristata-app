@@ -65,4 +65,4 @@ type TEAM_USER__DOC_TYPE = {
 };
 
 export { TEAM };
-export type { TEAM__TYPE, TEAM__DOC_TYPE };
+export type { TEAM__DOC_TYPE, TEAM__TYPE };

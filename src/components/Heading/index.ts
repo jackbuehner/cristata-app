@@ -1,5 +1,5 @@
-import { SideNavHeading } from './SideNavHeading';
 import { HomeSectionHeading } from './HomeSectionHeading';
 import { SectionHeading } from './SectionHeading';
+import { SideNavHeading } from './SideNavHeading';
 
-export { SideNavHeading, HomeSectionHeading, SectionHeading };
+export { HomeSectionHeading, SectionHeading, SideNavHeading };

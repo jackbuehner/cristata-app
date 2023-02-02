@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import Color from 'color';
 import { useRef, useState } from 'react';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
 interface ITableRow {

@@ -4,22 +4,25 @@ import styled from '@emotion/styled';
 import { ArrowClockwise16Regular, Filter16Regular, FilterDismiss16Regular } from '@fluentui/react-icons';
 import pluralize from 'pluralize';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
+import { useLocation, useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { v4 as uuidv4 } from 'uuid';
 import { Menu } from '../../../components/Menu';
-import { mongoFilterType } from '../../../graphql/client';
-import { SIGN_S3, SIGN_S3__DOC_TYPE, SIGN_S3__TYPE } from '../../../graphql/queries';
-import { CREATE_FILE, CREATE_FILE__TYPE } from '../../../graphql/queries/CREATE_FILE';
+import type { mongoFilterType } from '../../../graphql/client';
+import type { SIGN_S3__DOC_TYPE, SIGN_S3__TYPE } from '../../../graphql/queries';
+import { SIGN_S3 } from '../../../graphql/queries';
+import type { CREATE_FILE__TYPE } from '../../../graphql/queries/CREATE_FILE';
+import { CREATE_FILE } from '../../../graphql/queries/CREATE_FILE';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName, setAppSearchShown } from '../../../redux/slices/appbarSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { isJSON } from '../../../utils/isJSON';
-import { themeType } from '../../../utils/theme/theme';
-import { CollectionTable, ICollectionTableImperative } from './CollectionTable';
+import type { themeType } from '../../../utils/theme/theme';
+import type { ICollectionTableImperative } from './CollectionTable';
+import { CollectionTable } from './CollectionTable';
 import { useNewItemModal } from './useNewItemModal';
 
 type CreateNewStateType = {
@@ -72,12 +75,12 @@ function CollectionPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const client = useApolloClient();
-  const tenant = localStorage.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
 
   const [isLoading, setIsLoading] = useState(true);
 
   // get the url parameters from the route
-  let { collection = '' } = useParams();
+  let { collection = 'photos' } = useParams();
 
   // get the search params so we can get filters and other page data
   const searchParams = new URLSearchParams(location.search);
@@ -358,7 +361,7 @@ function CollectionPage() {
 
             // open the document
             if (_id) {
-              navigate(`/cms/collection/files/${_id}`);
+              navigate(`/${tenant}/cms/collection/files/${_id}`);
             }
           })
           .catch((error) => {

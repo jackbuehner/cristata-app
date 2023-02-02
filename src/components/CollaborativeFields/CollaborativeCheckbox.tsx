@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
-import { InputHTMLAttributes, useEffect, useState } from 'react';
-import { YMapEvent } from 'yjs';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
-import { colorType } from '../../utils/theme/theme';
+import { useEffect, useState, type InputHTMLAttributes } from 'react';
+import type { YMapEvent } from 'yjs';
+import type { colorType } from '../../utils/theme/theme';
+import { CollaborativeFieldWrapper, type CollaborativeFieldProps } from './';
 import utils from './utils';
 
 interface CollaborativeCheckboxProps

@@ -7,5 +7,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "terminal.integrated.tabs.defaultColor": "terminal.ansiCyan",
-  "terminal.integrated.tabs.defaultIcon": "organization"
+  "terminal.integrated.tabs.defaultIcon": "organization",
+  "typescript.preferences.autoImportFileExcludePatterns": ["src/lib/**/[_]*.*"]
 }

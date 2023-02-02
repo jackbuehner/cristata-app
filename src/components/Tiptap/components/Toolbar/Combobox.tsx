@@ -1,10 +1,10 @@
 /** @jsxImportSource @emotion/react */
-import { css, SerializedStyles, useTheme } from '@emotion/react';
+import { css, useTheme, type SerializedStyles } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ChevronDown12Regular } from '@fluentui/react-icons';
-import { colorType, themeType } from '../../../../utils/theme/theme';
+import type { colorType, themeType } from '../../../../utils/theme/theme';
 import { Button } from '../../../Button';
-import { ButtonProps } from '../../../Button/Button';
+import type { ButtonProps } from '../../../Button/Button';
 import { ToolbarRowButton } from './ToolbarRowButton';
 
 interface ICombobox extends ButtonProps {

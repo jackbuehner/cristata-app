@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { Paged } from '../../interfaces/cristata/paged';
+import type { Paged } from '../../interfaces/cristata/paged';
 import { paged } from '../paged';
 
 /**
@@ -55,4 +55,4 @@ type PHOTOS_BASIC__DOC_TYPE = {
 };
 
 export { PHOTOS_BASIC };
-export type { PHOTOS_BASIC__TYPE, PHOTOS_BASIC__DOC_TYPE };
+export type { PHOTOS_BASIC__DOC_TYPE, PHOTOS_BASIC__TYPE };

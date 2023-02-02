@@ -1,3 +1,4 @@
+import { getQueryStore, queryCacheStore } from '$graphql/query';
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -11,8 +12,9 @@ import {
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useNavigate, useParams } from 'svelte-preprocess-react/react-router';
+import { get } from 'svelte/store';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { SectionHeading } from '../../../components/Heading';
@@ -23,17 +25,14 @@ import { Menu } from '../../../components/Menu';
 import { MultiSelect } from '../../../components/Select';
 import { TextInput } from '../../../components/TextInput';
 import { UserCard } from '../../../components/UserCard';
-import {
-  DEACTIVATE_USER,
+import type {
   DEACTIVATE_USER__TYPE,
-  DELETE_TEAM,
   DELETE_TEAM__TYPE,
-  MODIFY_TEAM,
   MODIFY_TEAM__TYPE,
-  TEAM,
   TEAM__DOC_TYPE,
   TEAM__TYPE,
 } from '../../../graphql/queries';
+import { DEACTIVATE_USER, DELETE_TEAM, MODIFY_TEAM, TEAM } from '../../../graphql/queries';
 import { useInviteUserModal } from '../../../hooks/useCustomModal';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useWindowModal } from '../../../hooks/useWindowModal';
@@ -41,7 +40,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { getPasswordStatus } from '../../../utils/axios/getPasswordStatus';
 import { genAvatar } from '../../../utils/genAvatar';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { selectProfile } from '../selectProfile';
 import { UsersGrid } from '../TeamsOverviewPage/TeamsOverviewPage';
 
@@ -51,6 +50,7 @@ function TeamPage() {
   const theme = useTheme() as themeType;
   const authUserState = useAppSelector((state) => state.authUser);
   const client = useApolloClient();
+  const tenant = location.pathname.split('/')[1];
 
   // get the url parameters from the route
   let { team_id } = useParams<{
@@ -166,11 +166,16 @@ function TeamPage() {
             input: { name, members: Array.from(new Set([...members, ...membersToAdd])) },
           },
         })
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           // stop loading
           setIsMutating(false);
           // refresh page team data
           refetch();
+          // refresh teams list
+          const $teamsList = get(
+            getQueryStore({ queryName: 'TeamsList', tenant, variables: { page: 1, limit: 100 } })
+          );
+          await $teamsList.refetch();
           // tell modal to close
           return true;
         })
@@ -303,7 +308,7 @@ function TeamPage() {
                   href={`/profile/${organizer._id}`}
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate(`/profile/${organizer._id}`);
+                    navigate(`/${tenant}/profile/${organizer._id}`);
                   }}
                 >
                   <ProfilePhoto src={organizer.photo || genAvatar(organizer._id)} />
@@ -329,9 +334,13 @@ function TeamPage() {
       setIsLoading(true);
       return await client
         .mutate<DELETE_TEAM__TYPE>({ mutation: DELETE_TEAM, variables: { _id: team?._id } })
-        .then(() => {
+        .then(async () => {
           toast.success(`Successfully deleted team.`);
-          navigate(`/teams`);
+          const $teamsList = get(
+            getQueryStore({ queryName: 'TeamsList', tenant, variables: { page: 1, limit: 100 } })
+          );
+          await $teamsList.refetch();
+          navigate(`/${tenant}/teams`);
           return true;
         })
         .catch((error) => {
@@ -742,7 +751,10 @@ function TeamPage() {
                         </>
                       ) : null}
 
-                      <Button icon={<Person16Regular />} onClick={() => navigate(`/profile/${user._id}`)}>
+                      <Button
+                        icon={<Person16Regular />}
+                        onClick={() => navigate(`/${tenant}/profile/${user._id}`)}
+                      >
                         Profile
                       </Button>
                     </UserButtons>
@@ -759,13 +771,7 @@ function TeamPage() {
 
 const ContentWrapper = styled.div<{ theme: themeType }>`
   padding: 20px;
-  height: ${({ theme }) => `calc(100% - ${theme.dimensions.PageHead.height})`};
-  @media (max-width: 600px) {
-    height: ${({ theme }) =>
-      `calc(100% - ${theme.dimensions.PageHead.height} - ${theme.dimensions.bottomNav.height})`};
-  }
   box-sizing: border-box;
-  overflow: auto;
 `;
 
 const UserButtons = styled.div`

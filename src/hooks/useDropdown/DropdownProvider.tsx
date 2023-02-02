@@ -26,4 +26,4 @@ function DropdownProvider({ children }: IDropdownProvider) {
   );
 }
 
-export { DropdownProvider, DropdownContext };
+export { DropdownContext, DropdownProvider };

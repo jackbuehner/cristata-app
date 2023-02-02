@@ -1,4 +1,4 @@
-import { CollaborativeFieldWrapperProps } from './CollaborativeFieldWrapper';
+import type { CollaborativeFieldWrapperProps } from './CollaborativeFieldWrapper';
 
 interface CollaborativeFieldProps extends Omit<Omit<CollaborativeFieldWrapperProps, 'label'>, 'children'> {
   label?: string;

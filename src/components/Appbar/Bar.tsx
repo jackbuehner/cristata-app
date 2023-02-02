@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { LinearProgress } from '@rmwc/linear-progress';
 import Color from 'color';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 interface BarProps {
   children?: React.ReactNode;
@@ -39,9 +39,9 @@ const BAR_COMPONENT = styled.div<{ theme: themeType; isCustomTitlebarVisible: bo
   background-color: ${({ theme, isCustomTitlebarVisible }) => {
     if (theme.mode === 'light') {
       if (isCustomTitlebarVisible) return theme.color.primary[800];
-      return Color(theme.color.neutral[theme.mode][100]).string();
+      return '#ffffff';
     }
-    return Color(theme.color.neutral[theme.mode][200]).darken(0.24).string();
+    return '#272727';
   }};
   border-bottom: 1px solid
     ${({ theme }) => {

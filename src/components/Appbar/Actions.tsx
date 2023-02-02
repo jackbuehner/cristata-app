@@ -1,11 +1,10 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Fragment } from 'react';
-import { AppbarState } from '../../redux/slices/appbarSlice';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { AppbarState } from '../../redux/slices/appbarSlice';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { Button, IconButton } from '../Button';
 import FluentIcon from '../FluentIcon';
-import { AppbarAppSwitcher as AppSwitcher, AppbarSearch as Search } from './';
+import { AppbarSearch as Search } from './';
 
 interface ActionsProps {
   actions: AppbarState['actions'];
@@ -91,7 +90,6 @@ function Actions(props: ActionsProps) {
           )
         )}
       </ACTIONS_WRAPPER_COMPONENT>
-      <AppSwitcher actions={props.actions} color={props.color} />
     </>
   );
 }

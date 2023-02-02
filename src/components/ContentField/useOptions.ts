@@ -1,10 +1,11 @@
+import { get as getProperty } from '$utils/objectPath';
 import { gql, useApolloClient } from '@apollo/client';
-import { FieldDef } from '@jackbuehner/cristata-generator-schema';
+import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import { SetStateAction, useEffect, useState, Dispatch } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useState } from 'react';
 import { deepen } from '../../pages/CMS/CollectionItemPage/useFindDoc';
 import { uncapitalize } from '../../utils/uncapitalize';
 

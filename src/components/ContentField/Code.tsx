@@ -1,12 +1,15 @@
 import styled from '@emotion/styled';
-import Editor, { Monaco } from '@monaco-editor/react';
-import { editor } from 'monaco-editor';
-import { SetStateAction, useRef, useState } from 'react';
-import { cristataCodeDarkTheme } from '../../pages/configuration/cristataCodeDarkTheme';
-import { colorType } from '../../utils/theme/theme';
-import { TabBar, Tab } from '../Tabs';
-import { Field, FieldProps } from './Field';
+import type { Monaco } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
+import type { SetStateAction } from 'react';
+import { useRef, useState } from 'react';
 import { Remark } from 'react-remark';
+import { cristataCodeDarkTheme } from '../../pages/configuration/cristataCodeDarkTheme';
+import type { colorType } from '../../utils/theme/theme';
+import { Tab, TabBar } from '../Tabs';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface TextProps extends Omit<FieldProps, 'children'> {
   type: 'json' | 'md' | 'css' | 'less';

@@ -1,8 +1,10 @@
+import { sveltekit } from '@sveltejs/kit/vite';
+import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import codegen from 'vite-plugin-graphql-codegen';
 import BuildInfo from 'vite-plugin-info';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import { VitePWA } from 'vite-plugin-pwa';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 
@@ -14,11 +16,15 @@ export default defineConfig({
       babel: {
         plugins: ['@emotion/babel-plugin'],
       },
+      fastRefresh: false,
     }),
     viteTsconfigPaths(),
     svgrPlugin(),
     nodePolyfills({ protocolImports: true }),
-    VitePWA({
+    BuildInfo(),
+    sveltekit(),
+    SvelteKitPWA({
+      devOptions: { enabled: false },
       registerType: 'prompt',
       manifest: {
         name: 'Cristata',
@@ -720,9 +726,22 @@ export default defineConfig({
       filename: 'service-worker.js',
       injectRegister: 'inline',
     }),
-    BuildInfo(),
+    codegen(),
   ],
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    __BUILD_DATE_ISO__: JSON.stringify(new Date().toISOString),
+  },
   server: {
     port: parseInt(process.env.PORT || '4000'),
+  },
+  build: {
+    rollupOptions: {
+      external: [],
+    },
+  },
+  ssr: {
+    // add libraries containing invalid ESM here
+    noExternal: [],
   },
 });

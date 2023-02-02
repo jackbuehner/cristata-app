@@ -1,13 +1,14 @@
-/** @jsx-import-source @emotion/react */
-import { ClassNames, useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
 import '@material/linear-progress/dist/mdc.linear-progress.css';
-import { LinearProgress } from '@rmwc/linear-progress';
 import Color from 'color';
 import { useEffect, useRef, useState } from 'react';
 import ReactModal from 'react-modal';
+
+/** @jsx-import-source @emotion/react */
+import { ClassNames, useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import { LinearProgress } from '@rmwc/linear-progress';
 import { Button } from '../../components/Button';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 
 /**
  * Title component for plain modal.

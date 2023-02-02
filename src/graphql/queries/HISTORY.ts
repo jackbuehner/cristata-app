@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { Paged } from '../../interfaces/cristata/paged';
+import type { Paged } from '../../interfaces/cristata/paged';
 import { paged } from '../paged';
 
 /**
@@ -59,4 +59,4 @@ type HISTORY__DOC_TYPE = {
 };
 
 export { HISTORY };
-export type { HISTORY__TYPE, HISTORY__DOC_TYPE };
+export type { HISTORY__DOC_TYPE, HISTORY__TYPE };

@@ -35,4 +35,4 @@ type MODIFY_TEAM__DOC_TYPE = {
 };
 
 export { MODIFY_TEAM };
-export type { MODIFY_TEAM__TYPE, MODIFY_TEAM__DOC_TYPE };
+export type { MODIFY_TEAM__DOC_TYPE, MODIFY_TEAM__TYPE };

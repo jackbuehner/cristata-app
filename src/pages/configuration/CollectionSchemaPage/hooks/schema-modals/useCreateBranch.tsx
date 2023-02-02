@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-
-import { get as getProperty } from 'object-path';
+import { get as getProperty } from '$utils/objectPath';
 import { useState } from 'react';
 import { Text } from '../../../../../components/ContentField';
 import { useWindowModal } from '../../../../../hooks/useWindowModal';

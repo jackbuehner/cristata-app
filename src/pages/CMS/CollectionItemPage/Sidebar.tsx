@@ -1,26 +1,26 @@
 import { useApolloClient } from '@apollo/client';
+import { useModal } from '@cristata/react-modal-hook';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ChevronUpDown24Regular, Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
-import { NumberOption, StringOption } from '@jackbuehner/cristata-generator-schema';
+import type { NumberOption, StringOption } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
-import { useModal } from '@cristata/react-modal-hook';
 import ReactTooltip from 'react-tooltip';
 import { Button, buttonEffect } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { CollaborativeSelectOne } from '../../../components/CollaborativeFields';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
 import { PlainModal } from '../../../components/Modal';
-import { useAwareness } from '../../../components/Tiptap/hooks';
-import { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
+import type { useAwareness } from '../../../components/Tiptap/hooks';
+import type { EntryY, IYSettingsMap } from '../../../components/Tiptap/hooks/useY';
 import { useForceUpdate } from '../../../hooks/useForceUpdate';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
 import { listOxford } from '../../../utils/listOxford';
-import { colorType, themeType } from '../../../utils/theme/theme';
-import { GetYFieldsOptions } from './getYFields';
+import type { colorType, themeType } from '../../../utils/theme/theme';
+import type { GetYFieldsOptions } from './getYFields';
 import { PreviewFrame } from './PreviewFrame';
 
 interface SidebarProps {

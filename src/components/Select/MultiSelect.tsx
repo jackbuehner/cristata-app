@@ -1,12 +1,12 @@
-import { SerializedStyles, useTheme } from '@emotion/react';
-import { themeType } from '../../utils/theme/theme';
-import { OptionsType, OptionTypeBase, GroupTypeBase, Styles } from 'react-select';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { useTheme, type SerializedStyles } from '@emotion/react';
+import type { CSSProperties } from 'react';
+import type { GroupTypeBase, OptionsType, OptionTypeBase, Styles } from 'react-select';
 import Creatable from 'react-select/creatable';
-import { SelectComponent, Option } from './Select';
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { ClientConsumer } from '../../graphql/client';
+import type { themeType } from '../../utils/theme/theme';
+import { Option, SelectComponent } from './Select';
 import { SelectAsync } from './SelectAsync';
-import { CSSProperties } from 'react';
 
 interface IMultiSelect<
   OptionType extends OptionTypeBase = { label: string; value: string },

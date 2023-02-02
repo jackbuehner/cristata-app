@@ -1,15 +1,16 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { PanelRightContract24Regular, Dismiss24Regular, Edit24Regular } from '@fluentui/react-icons';
+import { Dismiss24Regular, Edit24Regular, PanelRightContract24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { Button, IconButton } from '../../../components/Button';
 import { Chip } from '../../../components/Chip';
 import { Offline } from '../../../components/Offline';
-import { PHOTO, PHOTO__TYPE } from '../../../graphql/queries';
-import { themeType } from '../../../utils/theme/theme';
+import type { PHOTO__TYPE } from '../../../graphql/queries';
+import { PHOTO } from '../../../graphql/queries';
+import type { themeType } from '../../../utils/theme/theme';
 
 interface IPhotoLibraryFlyout {
   photo_id: string;
@@ -18,6 +19,7 @@ interface IPhotoLibraryFlyout {
 function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -41,7 +43,7 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
             float: right;
             margin-top: 15px;
           `}
-          onClick={() => navigate(`/cms/photos/library`)}
+          onClick={() => navigate(`/${tenant}/cms/photos/library`)}
           data-tip={'Close panel'}
         />
         <Name theme={theme}>
@@ -77,7 +79,10 @@ function PhotoLibraryFlyout({ photo_id }: IPhotoLibraryFlyout) {
           })}
           {photo.tags === undefined || photo.tags.length < 1 ? 'No tags could be found for this photo' : null}
           <Footer theme={theme}>
-            <Button icon={<Edit24Regular />} onClick={() => navigate(`/cms/collection/photos/${photo._id}`)}>
+            <Button
+              icon={<Edit24Regular />}
+              onClick={() => navigate(`/${tenant}/cms/collection/photos/${photo._id}`)}
+            >
               Edit details
             </Button>
           </Footer>

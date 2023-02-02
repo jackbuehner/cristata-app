@@ -1,11 +1,15 @@
-/** @jsxImportSource @emotion/react */
-import { css, useTheme } from '@emotion/react';
+import { compactMode } from '$stores/compactMode';
 import GraphiQLExplorer from '@cristata/graphiql-explorer';
-import { SideNavHeading } from '../../components/Heading';
+import { css, useTheme } from '@emotion/react';
+import { ProgressRing as ProgressRingSvelte, TextBlock as TextBlockSvelte } from 'fluent-svelte';
+import { reactify, useStore } from 'svelte-preprocess-react';
 import { Offline } from '../../components/Offline';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { setExplorerIsOpen, setQuery } from '../../redux/slices/graphiqlSlice';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
+
+const ProgressRing = reactify(ProgressRingSvelte);
+const TextBlock = reactify(TextBlockSvelte);
 
 interface PlaygroundNavigationProps {}
 
@@ -13,25 +17,33 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
   const theme = useTheme() as themeType;
   const state = useAppSelector((state) => state.graphiql);
   const dispatch = useAppDispatch();
+  const $compactMode = useStore(compactMode);
 
   if (!state.schema && !navigator.onLine) {
     return <Offline variant={'small'} key={0} />;
   }
 
+  if (!state.schema) {
+    return (
+      <div style={{ margin: 16, display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+        <ProgressRing size={24} />
+        <TextBlock variant='bodyStrong'>Loading schema...</TextBlock>
+      </div>
+    );
+  }
+
   return (
     <>
       <div
-        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
         css={css`
           .docExplorerWrap {
-            display: flex !important;
+            display: block !important;
             width: 100% !important;
             min-width: unset !important;
-            overflow: auto !important;
-            height: calc(100% + 10px) !important;
-            margin-top: -10px !important;
-            padding: 8px 8px 8px 10px;
+            padding: 0 8px;
             box-sizing: border-box;
+            height: 100% !important;
+            overflow: auto !important;
           }
           .doc-explorer-title-bar,
           .graphiql-explorer-root > div:last-of-type,
@@ -45,8 +57,26 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
             overflow: hidden !important;
           }
           .graphiql-explorer-node > span {
-            height: 24px;
+            height: ${$compactMode ? 22 : 30}px;
+            margin: ${$compactMode ? 1 : 3}px 0;
             align-items: center;
+            position: relative;
+            cursor: default !important;
+          }
+          .graphiql-explorer-node > span::before {
+            content: '';
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            padding: 0 20px;
+            left: -20px;
+            border-radius: var(--fds-control-corner-radius);
+          }
+          .graphiql-explorer-node > span:hover::before {
+            background-color: var(--fds-subtle-fill-secondary);
+          }
+          .graphiql-explorer-node > span:active::before {
+            background-color: var(--fds-subtle-fill-tertiary);
           }
           .graphiql-explorer-node {
             padding-left: 8px;
@@ -62,7 +92,6 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
           }
         `}
       >
-        <SideNavHeading>API Explorer</SideNavHeading>
         <GraphiQLExplorer
           schema={state.schema}
           query={state.query}

@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { gql, useApolloClient } from '@apollo/client';
-import { DocumentNode } from 'graphql';
+import type { DocumentNode } from 'graphql';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { useWindowModal } from '../../../../hooks/useWindowModal';
 
 interface UseConfirmDeleteProps {
@@ -15,6 +15,7 @@ function useConfirmDelete(props: UseConfirmDeleteProps): [React.ReactNode, () =>
     const client = useApolloClient();
     const navigate = useNavigate();
     const [loading, setLoading] = useState<boolean>(false);
+    const tenant = location.pathname.split('/')[1];
 
     return {
       title: `Delete collection?`,
@@ -36,7 +37,7 @@ function useConfirmDelete(props: UseConfirmDeleteProps): [React.ReactNode, () =>
                 setLoading(false);
               })
               .then(() => {
-                navigate(`/configuration`);
+                navigate(`/${tenant}/configuration`);
                 return true;
               })
               .catch((error) => {

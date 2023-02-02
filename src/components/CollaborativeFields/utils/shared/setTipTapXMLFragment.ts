@@ -1,6 +1,7 @@
 import Collaboration from '@tiptap/extension-collaboration';
-import { Editor, Extensions } from '@tiptap/react';
-import * as Y from 'yjs';
+import type { Extensions } from '@tiptap/react';
+import { Editor } from '@tiptap/react';
+import type * as Y from 'yjs';
 
 function setTipTapXMLFragment(
   field: string,

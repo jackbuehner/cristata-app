@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
 interface IDropdownPortal {

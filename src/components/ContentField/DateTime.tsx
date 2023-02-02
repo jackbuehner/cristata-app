@@ -5,10 +5,11 @@ import 'antd/lib/date-picker/style/index.css';
 import { DateTime as Luxon } from 'luxon';
 import moment from 'moment';
 import { formatISODate } from '../../utils/formatISODate';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 import FluentIcon from '../FluentIcon';
-import { Field, FieldProps } from './Field';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface DateTimeProps extends Omit<FieldProps, 'children'> {
   value: string | null;

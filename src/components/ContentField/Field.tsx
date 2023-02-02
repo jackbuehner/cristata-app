@@ -1,8 +1,8 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { CSSProperties } from 'react';
-import { colorType, themeType } from '../../utils/theme/theme';
 import dompurify from 'dompurify';
+import type { CSSProperties } from 'react';
+import type { colorType, themeType } from '../../utils/theme/theme';
 
 interface FieldProps {
   children: React.ReactElement;

@@ -1,10 +1,13 @@
-import { DocumentNode, gql, useApolloClient } from '@apollo/client';
+import type { DocumentNode } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
-import { SetStateAction, useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import type { SetStateAction } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactRouterPrompt from 'react-router-prompt';
 import { toast } from 'react-toastify';
+import { useLocation, useNavigate, useParams } from 'svelte-preprocess-react/react-router';
+import { Spinner } from '../../../components/Loading';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
 import { Tab, TabBar } from '../../../components/Tabs';
@@ -17,7 +20,6 @@ import { OptionsTab } from './tabs/OptionsTab';
 import { QueriesTab } from './tabs/QueriesTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
-import { Spinner } from '../../../components/Loading';
 
 function CollectionSchemaPage() {
   const theme = useTheme();
@@ -28,6 +30,7 @@ function CollectionSchemaPage() {
   const [raw, loadingInitial, error, _refetch] = useGetRawConfig(collection);
   const navigate = useNavigate();
   const location = useLocation();
+  const tenant = location.pathname.split('/')[1];
 
   // when refetching, also update redux with a fresh copy of the collection
   const refetch = useCallback(async () => {

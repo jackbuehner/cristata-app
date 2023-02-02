@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
-import { MenuItem, MenuList } from '.';
-import { colorShade, colorType } from '../../utils/theme/theme';
+import type { colorShade, colorType } from '../../utils/theme/theme';
+import { MenuItem, MenuList } from './';
 
 interface IMenu {
   pos: {

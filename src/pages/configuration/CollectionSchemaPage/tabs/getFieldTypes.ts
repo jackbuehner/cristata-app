@@ -1,4 +1,5 @@
-import { isTypeTuple, parseSchemaComponents, SchemaDefType } from '@jackbuehner/cristata-generator-schema';
+import type { SchemaDefType } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple, parseSchemaComponents } from '@jackbuehner/cristata-generator-schema';
 
 const getFieldTypes = (
   schema: SchemaDefType,

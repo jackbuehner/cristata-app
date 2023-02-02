@@ -1,4 +1,4 @@
-import { getColorShades, lighten, darken } from './getColorShades';
+import { darken, getColorShades, lighten } from './getColorShades';
 
 export type color = {
   100: string;

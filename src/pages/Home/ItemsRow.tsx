@@ -1,19 +1,23 @@
+import type { DashboardConfigQuery } from '$graphql/graphql';
+import { get as getProperty } from '$utils/objectPath';
 import { gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
 import { DateTime } from 'luxon';
-import { get as getProperty } from 'object-path';
-import { useNavigate } from 'react-router-dom';
-import { Home } from '../../hooks/useDashboardConfig/useDashboardConfig';
+import { useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { genAvatar } from '../../utils/genAvatar';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
+
+type CollectionRow = NonNullable<
+  NonNullable<DashboardConfigQuery['configuration']>['dashboard']['collectionRows'][0]
+>;
 
 interface ItemsRowProps {
-  query: Home['collectionRows'][0]['query'];
-  arrPath: Home['collectionRows'][0]['arrPath'];
-  dataKeys: Home['collectionRows'][0]['dataKeys'];
-  to: Home['collectionRows'][0]['to'];
+  query: CollectionRow['query'];
+  arrPath: CollectionRow['arrPath'];
+  dataKeys: CollectionRow['dataKeys'];
+  to: CollectionRow['to'];
 }
 
 function timeToString(timestamp: DateTime): string | null {
@@ -32,6 +36,7 @@ function timeToString(timestamp: DateTime): string | null {
 function ItemsRow(props: ItemsRowProps) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const { tenant = '' } = useParams();
 
   const namedQuery = props.query.replace('query {', `query ${props.arrPath.split('.')[1]} {`);
   const res = useQuery(gql(namedQuery), { fetchPolicy: 'cache-and-network' });
@@ -48,9 +53,12 @@ function ItemsRow(props: ItemsRowProps) {
 
           return (
             <Card
-              theme={theme}
               key={_id + lastActiveAt}
-              onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
+              href={'/' + tenant + props.to.idPrefix + _id + props.to.idSuffix}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/' + tenant + props.to.idPrefix + _id + props.to.idSuffix);
+              }}
             >
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <ProfilePhoto theme={theme} src={photo || genAvatar(_id, 44)} />
@@ -80,9 +88,12 @@ function ItemsRow(props: ItemsRowProps) {
 
         return (
           <Card
-            theme={theme}
             key={_id + name + description + photo + lastModifiedBy + lastModifiedAt}
-            onClick={() => navigate(props.to.idPrefix + _id + props.to.idSuffix)}
+            href={'/' + tenant + props.to.idPrefix + _id + props.to.idSuffix}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/' + tenant + props.to.idPrefix + _id + props.to.idSuffix);
+            }}
           >
             {props.dataKeys.photo ? <Photo src={photo} theme={theme} /> : null}
             <Name theme={theme}>{name}</Name>
@@ -108,18 +119,15 @@ function ItemsRow(props: ItemsRowProps) {
 }
 
 const Row = styled.div`
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
-  width: 100%;
-  margin-top: 12px;
 `;
 
-const Card = styled.div<{ theme: themeType }>`
-  width: 250px;
+const Card = styled.a`
+  text-decoration: none;
   box-shadow: ${({ theme }) => `0 0 0 1px ${Color(theme.color.neutral[theme.mode][800]).alpha(0.2).string()}`};
   border-radius: ${({ theme }) => theme.radius};
-  flex-shrink: 0;
   ${({ theme }) => `
     &:hover, &:focus, &:active {
       background-color: ${Color(theme.color.primary[theme.mode === 'light' ? 800 : 300])

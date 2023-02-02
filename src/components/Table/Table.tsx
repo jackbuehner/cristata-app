@@ -1,20 +1,22 @@
-import { Column, useFilters, useSortBy, useTable } from 'react-table';
-import { TableDiv } from './_TableDiv';
-import { TableRow } from './_TableRow';
-import { TableCell } from './_TableCell';
-import { TableGroup } from './_TableGroup';
-import { useTheme } from '@emotion/react';
-import { themeType } from '../../utils/theme/theme';
-import { ChevronDown16Regular, ChevronUp16Regular } from '@fluentui/react-icons';
-import { buttonEffect } from '../Button';
-import { Dispatch, forwardRef, RefObject, SetStateAction, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import type { ApolloError } from '@apollo/client';
 import Skeleton from '@cristata/react-skeleton-loader';
-import { ApolloError } from '@apollo/client';
-import { merge } from 'merge-anything';
-import { mongoSortType } from '../../graphql/client';
-import { Checkbox } from '../Checkbox';
+import { useTheme } from '@emotion/react';
+import { ChevronDown16Regular, ChevronUp16Regular } from '@fluentui/react-icons';
 import Color from 'color';
+import { merge } from 'merge-anything';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
+import { forwardRef, useEffect, useRef } from 'react';
+import type { Column } from 'react-table';
+import { useFilters, useSortBy, useTable } from 'react-table';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
+import type { mongoSortType } from '../../graphql/client';
+import type { themeType } from '../../utils/theme/theme';
+import { buttonEffect } from '../Button';
+import { Checkbox } from '../Checkbox';
+import { TableCell } from './_TableCell';
+import { TableDiv } from './_TableDiv';
+import { TableGroup } from './_TableGroup';
+import { TableRow } from './_TableRow';
 
 interface ITable {
   data: {
@@ -91,7 +93,7 @@ const Table = forwardRef(
 
     const backupRef = useRef<HTMLDivElement>(null);
 
-    const tenant = localStorage.getItem('tenant') || '';
+    const tenant = location.pathname.split('/')[1] || '';
 
     return (
       <>
@@ -228,7 +230,7 @@ const Table = forwardRef(
                     if (props.row.windowName) {
                       window.open(`/${tenant}${href}`, props.row.windowName, 'location=no');
                     } else {
-                      navigate(href);
+                      navigate(`/${tenant}${href}`);
                     }
                   }
                 };

@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useTheme } from '@emotion/react';
-import { DependencyList, useEffect, useState } from 'react';
+import type { DependencyList } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Checkbox, SelectOne, Text } from '../../../../../components/ContentField';
 import { Field } from '../../../../../components/ContentField/Field';
@@ -12,7 +13,7 @@ import { slugify } from '../../../../../utils/slugify';
 import { useGetCollections } from '../../../ConfigurationNavigation/useGetCollections';
 import { SidebarSchemaCard } from '../../SidebarSchemaCard';
 import { getFieldTypes } from '../../tabs/getFieldTypes';
-import { icons } from '../../tabs/SchemaCard';
+import type { icons } from '../../tabs/SchemaCard';
 import { EditSchemaDef } from './EditSchemaDef';
 
 interface UseCreateSchemaDefProps {

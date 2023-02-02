@@ -1,41 +1,34 @@
+import { get as getProperty } from '$utils/objectPath';
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Archive20Regular, Delete20Regular, Open20Regular } from '@fluentui/react-icons';
-import { isTypeTuple, SchemaDef } from '@jackbuehner/cristata-generator-schema';
+import type { SchemaDef } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
 import pluralize from 'pluralize';
-import {
-  Dispatch,
-  forwardRef,
-  SetStateAction,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation } from 'react-router-dom';
-import { Column } from 'react-table';
+import type { Column } from 'react-table';
 import { toast } from 'react-toastify';
+import { useLocation } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { Chip } from '../../../components/Chip';
 import { Offline } from '../../../components/Offline';
 import { Table } from '../../../components/Table';
-import { mongoFilterType, mongoSortType } from '../../../graphql/client';
+import type { mongoFilterType, mongoSortType } from '../../../graphql/client';
 import { useCacheWithExpiration } from '../../../hooks/useCacheWithExpiration';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { formatISODate } from '../../../utils/formatISODate';
 import { genAvatar } from '../../../utils/genAvatar';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { docDefsToQueryObjectCols } from '../CollectionItemPage/useFindDoc';
 import { CollectionTableFilterRow } from './CollectionTableFilterRow';
@@ -671,7 +664,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
     // we want to open it in maximized mode for easy access to the editor
     const shouldOpenMaximized = schemaDef.find(([key, def]) => key === 'body' && def.field?.tiptap);
 
-    const tenant = localStorage.getItem('tenant') || '';
+    const tenant = location.pathname.split('/')[1] || '';
     const row = {
       href: `/cms/collection/${camelToDashCase(uncapitalize(pluralize(props.collection)))}`,
       hrefSuffixKey: by?.one || '_id',
@@ -806,7 +799,7 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
                 docs.find((doc: { _id: string }) => doc._id === selectedIds[0])?.[row.hrefSuffixKey]
               }${row.hrefSearch || ''}`;
 
-              window.open(`/${tenant}${href}`, row.windowName, 'location=no');
+              window.open(`/${tenant}${href}`, row.windowName || `${tenant}.${row.href}`, 'location=no');
             }}
           >
             Open in Editor

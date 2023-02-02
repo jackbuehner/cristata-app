@@ -1,7 +1,7 @@
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { forwardRef } from 'react';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 interface IMenuListBase {
   top: number;
@@ -91,6 +91,7 @@ const MenuList = forwardRef((props: IMenuList, ref: React.ForwardedRef<HTMLOList
           if (React.isValidElement(child)) {
             return React.cloneElement(child, {
               key: index,
+              // @ts-expect-error it's fine
               onKeyDown: handleMenuItemArrowNavigation,
             });
           }

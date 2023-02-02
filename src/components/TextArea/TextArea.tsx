@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 export const TextArea = styled.textarea<{
   theme: themeType;

@@ -1,5 +1,5 @@
+import type FluentIconsFontCodes from '@fluentui/react-icons/lib/utils/fonts/FluentSystemIcons-Regular.json';
 import loadable from '@loadable/component';
-import FluentIconsFontCodes from '@fluentui/react-icons/lib/utils/fonts/FluentSystemIcons-Regular.json';
 
 type FluentIconNames = keyof typeof FluentIconsFontCodes | 'CircleSmall20Filled';
 

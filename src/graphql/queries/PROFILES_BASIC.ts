@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { Paged } from '../../interfaces/cristata/paged';
+import type { Paged } from '../../interfaces/cristata/paged';
 import { paged } from '../paged';
 
 /**
@@ -56,4 +56,4 @@ type PROFILES_BASIC__DOC_TYPE = {
 };
 
 export { PROFILES_BASIC };
-export type { PROFILES_BASIC__TYPE, PROFILES_BASIC__DOC_TYPE };
+export type { PROFILES_BASIC__DOC_TYPE, PROFILES_BASIC__TYPE };

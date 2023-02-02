@@ -93,4 +93,4 @@ type PHOTO__DOC_TYPE = {
 };
 
 export { PHOTO };
-export type { PHOTO__TYPE, PHOTO__DOC_TYPE };
+export type { PHOTO__DOC_TYPE, PHOTO__TYPE };

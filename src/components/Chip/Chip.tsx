@@ -1,7 +1,7 @@
-import { SerializedStyles, useTheme } from '@emotion/react';
+import { useTheme, type SerializedStyles } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button/buttonEffect';
 
 interface IStyledChip {

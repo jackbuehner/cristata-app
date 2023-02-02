@@ -1,12 +1,13 @@
-import { ApolloError, gql, NetworkStatus, useQuery } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
+import { gql, NetworkStatus, useQuery } from '@apollo/client';
+import type { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
-import { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
-import { useEffect } from 'react';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import { useEffect, useState } from 'react';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 
@@ -81,7 +82,8 @@ function useFindDoc(
     }
   }, [dispatch, doNothing, loading, networkStatus]);
 
-  return { actionAccess, loading, error, data: req.data?.[queryName] };
+  const data = req.data?.[queryName];
+  return { actionAccess, loading: !loading && !data && !error ? true : loading, error, data };
 }
 
 function docDefsToQueryObjectCols(
@@ -185,4 +187,4 @@ export function deepen(obj: Record<string, boolean | { __aliasFor: string } | st
   return result;
 }
 
-export { useFindDoc, docDefsToQueryObjectCols };
+export { docDefsToQueryObjectCols, useFindDoc };

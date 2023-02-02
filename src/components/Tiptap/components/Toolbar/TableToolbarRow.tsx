@@ -10,10 +10,10 @@ import {
   TableMoveLeft20Regular,
   TableMoveRight20Regular,
 } from '@fluentui/react-icons';
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import { useDropdown } from '../../../../hooks/useDropdown';
 import { Menu } from '../../../Menu';
-import { FieldY } from '../../hooks/useY';
+import type { FieldY } from '../../hooks/useY';
 import { ToolbarRow } from './ToolbarRow';
 import { ToolbarRowButton } from './ToolbarRowButton';
 

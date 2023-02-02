@@ -1,9 +1,9 @@
-import styled from '@emotion/styled';
 import { useTheme } from '@emotion/react';
-import { colorShade, colorType, themeType } from '../../utils/theme/theme';
-import { buttonEffect } from '../Button';
+import styled from '@emotion/styled';
 import { forwardRef, useEffect } from 'react';
 import ReactTooltip from 'react-tooltip';
+import type { colorShade, colorType, themeType } from '../../utils/theme/theme';
+import { buttonEffect } from '../Button';
 
 interface IMenuItemBase {
   color?: colorType;

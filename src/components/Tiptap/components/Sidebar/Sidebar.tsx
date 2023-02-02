@@ -1,12 +1,12 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Editor } from '@tiptap/react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { themeType } from '../../../../utils/theme/theme';
-import { SidebarHeader } from './SidebarHeader';
+import type { Editor } from '@tiptap/react';
 import { Children, cloneElement } from 'react';
-import { useAwareness } from '../../hooks';
-import { EntryY } from '../../hooks/useY';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
+import type { themeType } from '../../../../utils/theme/theme';
+import type { useAwareness } from '../../hooks';
+import type { EntryY } from '../../hooks/useY';
+import { SidebarHeader } from './SidebarHeader';
 
 interface I_SIDEBAR {
   theme: themeType;
@@ -56,13 +56,14 @@ function Sidebar(props: ISidebar) {
   const theme = useTheme() as themeType;
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   const closeFunction = () => {
     const params = new URLSearchParams(search);
     props.closeFunction?.(params);
     props.setIsOpen(false);
     props.setHeader('');
-    navigate(pathname + '?' + params.toString() + hash, { replace: true });
+    navigate(`/${tenant}${(pathname + '?' + params.toString() + hash, { replace: true })}`);
   };
 
   return (

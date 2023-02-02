@@ -2,7 +2,7 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
 import useDimensions from 'react-cool-dimensions';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { Chip } from '../../../components/Chip';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
@@ -83,7 +83,7 @@ function Card(props: CardType) {
           onClick={(e) => {
             if (to) {
               e.preventDefault();
-              navigate(to);
+              navigate(`/${tenant}${to}`);
             }
           }}
         >

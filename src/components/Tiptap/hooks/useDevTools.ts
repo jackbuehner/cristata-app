@@ -1,4 +1,4 @@
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import applyDevTools from 'prosemirror-dev-tools';
 import { useLocation } from 'react-router-dom';
 

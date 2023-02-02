@@ -3,9 +3,9 @@ import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular, Home16Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
-import { themeType } from '../../../../utils/theme/theme';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
+import type { themeType } from '../../../../utils/theme/theme';
 
 interface ITitlebar {
   title?: string;
@@ -23,6 +23,7 @@ interface ITitlebar {
 function Titlebar(props: ITitlebar) {
   const navigate = useNavigate();
   const theme = useTheme() as themeType;
+  const tenant = location.pathname.split('/')[1];
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -43,12 +44,7 @@ function Titlebar(props: ITitlebar) {
       // on unmount, set it back to the primary color
       document
         .querySelector(`meta[name='theme-color']`)
-        ?.setAttribute(
-          `content`,
-          theme.mode === 'light'
-            ? theme.color.primary[800]
-            : Color(theme.color.neutral[theme.mode][200]).darken(0.24).string()
-        );
+        ?.setAttribute(`content`, theme.mode === 'light' ? '#f3f3f3' : '#202020');
   }, [theme.color.blue, theme.color.neutral, theme.color.primary, theme.mode]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
@@ -74,7 +70,7 @@ function Titlebar(props: ITitlebar) {
                 navigator.windowControlsOverlay?.visible ? (
                   <>
                     <TitlebarButton
-                      onClick={() => navigate(-1)}
+                      // onClick={() => navigate(-1)}
                       data-tip={'Go back'}
                       iconSize={16}
                       width={customTitlebarOffsetX !== 0 ? 33 : undefined}
@@ -82,7 +78,7 @@ function Titlebar(props: ITitlebar) {
                       <ArrowLeft20Regular />
                     </TitlebarButton>
                     <TitlebarButton
-                      onClick={() => navigate(1)}
+                      // onClick={() => navigate(1)}
                       data-tip={'Go forward'}
                       iconSize={16}
                       width={customTitlebarOffsetX !== 0 ? 33 : undefined}
@@ -96,7 +92,12 @@ function Titlebar(props: ITitlebar) {
                   </>
                 ) : null
               }
-              <TitlebarButton onClick={() => navigate('/')} data-tip={'Navigate home'} iconSize={16} width={33}>
+              <TitlebarButton
+                onClick={() => navigate(`/${tenant}/`)}
+                data-tip={'Navigate home'}
+                iconSize={16}
+                width={33}
+              >
                 <Home16Regular />
               </TitlebarButton>
               {props.actions?.map((action, index) => {

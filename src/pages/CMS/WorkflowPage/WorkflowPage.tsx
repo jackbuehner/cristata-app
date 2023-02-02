@@ -3,10 +3,11 @@ import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Add12Regular, Dismiss12Regular } from '@fluentui/react-icons';
 import Color from 'color';
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { IconButton } from '../../../components/Button';
-import { WORKFLOW, WORKFLOW__TYPE } from '../../../graphql/queries';
+import type { WORKFLOW__TYPE } from '../../../graphql/queries';
+import { WORKFLOW } from '../../../graphql/queries';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { Column } from './Column';
@@ -45,7 +46,6 @@ function WorkflowPage(props: WorkflowPageProps) {
     notifyOnNetworkStatusChange: true,
   });
   useEffect(() => {
-    console.log(loading);
     if (loading) dispatch(setAppLoading(true));
     else dispatch(setAppLoading(false));
   }, [dispatch, loading]);
@@ -67,8 +67,8 @@ function WorkflowPage(props: WorkflowPageProps) {
   }, [data]);
 
   useEffect(() => {
-    if (excluded.length > 0) navigate(`?exclude=[${excluded.join(',')}]`);
-    else navigate(``);
+    if (excluded.length > 0) navigate(`${location.pathname}?exclude=[${excluded.join(',')}]`);
+    else navigate(location.pathname); // clear search string
   }, [excluded]);
 
   // set document title
