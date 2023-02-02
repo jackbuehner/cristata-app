@@ -51,7 +51,7 @@ export const load = (async ({ params, url, fetch }) => {
       .then(async (res) => {
         // redirect to the sign in page if not authenticated or authorized
         if (res.status === 401 || res.status === 403) {
-          await gotoSignIn(tenant);
+          await gotoSignIn(tenant, url.origin);
         }
 
         // if the auth endpoint is missing
