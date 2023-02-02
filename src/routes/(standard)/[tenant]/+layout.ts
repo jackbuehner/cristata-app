@@ -16,6 +16,7 @@ import { query, queryWithStore } from '$graphql/query';
 import { server } from '$utils/constants';
 import { gotoSignIn } from '$utils/gotoSignIn';
 import { isHttpError } from '$utils/isHttpError';
+import { setSplashStatusText } from '$utils/setSplashStatusText';
 import { error, redirect } from '@sveltejs/kit';
 import mongoose from 'mongoose';
 import { get, writable } from 'svelte/store';
@@ -33,6 +34,7 @@ export const load = (async ({ params, url, fetch }) => {
   const { tenant } = params;
 
   // check the authentication status of the current client
+  let authUserPending = true;
   const authUser = (async (): Promise<z.infer<typeof authUserValidator>> => {
     // use the cached auth
     if (get(authCache)) {
@@ -72,6 +74,8 @@ export const load = (async ({ params, url, fetch }) => {
         return authUser;
       });
   })().then(async (authUser) => {
+    authUserPending = false;
+
     // switch tenants if the tenant param does not match
     // the tenant for the user
     const isWrongTenant = tenant !== authUser.tenant;
@@ -99,22 +103,31 @@ export const load = (async ({ params, url, fetch }) => {
   })();
 
   // get the configuration
+  let configPending = true;
   const config = query<GlobalConfigQuery>({
     fetch,
     tenant,
     query: GlobalConfig,
     useCache: true,
+  }).finally(() => {
+    configPending = false;
+    showStatus();
   });
 
   // get the current user basic profile
+  let mePending = true;
   const me = query<BasicProfileMeQuery>({
     fetch,
     tenant,
     query: BasicProfileMe,
     useCache: true,
+  }).finally(() => {
+    mePending = false;
+    showStatus();
   });
 
   // get the list of all users
+  let profilesPending = true;
   const basicProfiles = queryWithStore<UsersListQuery, UsersListQueryVariables>({
     fetch,
     tenant,
@@ -124,9 +137,13 @@ export const load = (async ({ params, url, fetch }) => {
     fetchNextPages: true,
     skip: browser && !!window?.name, // don't get the list if it is a popup window
     variables: { page: 1, limit: 100 },
+  }).finally(() => {
+    profilesPending = false;
+    showStatus();
   });
 
   // get the list of all teams
+  let basicTeamsPending = true;
   const basicTeams = queryWithStore<TeamsListQuery, TeamsListQueryVariables>({
     fetch,
     tenant,
@@ -136,9 +153,22 @@ export const load = (async ({ params, url, fetch }) => {
     fetchNextPages: true,
     skip: browser && !!window?.name, // don't get the list if it is a popup window
     variables: { page: 1, limit: 100 },
+  }).finally(() => {
+    basicTeamsPending = false;
+    showStatus();
   });
 
-  return {
+  function showStatus() {
+    if (authUserPending) setSplashStatusText('Checking authentication...');
+    else if (configPending) setSplashStatusText('Loading configuration...');
+    else if (mePending) setSplashStatusText('Loading profile...');
+    else if (profilesPending) setSplashStatusText('Loading contacts list...');
+    else if (basicTeamsPending) setSplashStatusText('Loading teams list...');
+    else setSplashStatusText('Loading page...');
+  }
+  showStatus();
+
+  const data = {
     authUser: await authUser,
     sessionId,
     configuration: (await config)?.data?.configuration,
@@ -146,6 +176,8 @@ export const load = (async ({ params, url, fetch }) => {
     basicProfiles: await basicProfiles,
     basicTeams: await basicTeams,
   };
+
+  return data;
 }) satisfies LayoutLoad;
 
 async function switchTenant(tenant: string, currentLocation: URL) {
