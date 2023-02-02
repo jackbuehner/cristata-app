@@ -16,7 +16,7 @@
     : /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 
   let flyoutOpen: boolean = false;
-  let browserFocused: boolean = false;
+  let browserFocused: boolean = browser && window.document.hasFocus();
 
   function handleFocus() {
     browserFocused = true;
