@@ -24,15 +24,22 @@ export const ssr = false;
 export const prerender = false;
 
 export const load = (async ({ parent, params, url, fetch }) => {
-  const { authUser } = await parent();
   const { tenant } = params;
 
-  // switch tenants if the tenant param does not match
-  // the tenant for the user
-  const isWrongTenant = tenant !== authUser.tenant;
-  if (isWrongTenant) {
-    await switchTenant(tenant, url);
-  }
+  parent().then(async ({ authUser }) => {
+    // switch tenants if the tenant param does not match
+    // the tenant for the user
+    const isWrongTenant = tenant !== authUser.tenant;
+    if (isWrongTenant) {
+      await switchTenant(tenant, url);
+    }
+
+    // store auth user in redux (for react)
+    store.dispatch(setAuthProvider(authUser.provider));
+    store.dispatch(setName(authUser.name));
+    store.dispatch(setObjectId(authUser._id.toHexString()));
+    store.dispatch(setOtherUsers(authUser.otherUsers.map((ou) => ({ ...ou, _id: ou._id.toHexString() }))));
+  });
 
   // get/set the session id
   const sessionId = (() => {
@@ -44,32 +51,26 @@ export const load = (async ({ parent, params, url, fetch }) => {
     return Math.random().toString();
   })();
 
-  // store auth user in redux (for react)
-  store.dispatch(setAuthProvider(authUser.provider));
-  store.dispatch(setName(authUser.name));
-  store.dispatch(setObjectId(authUser._id.toHexString()));
-  store.dispatch(setOtherUsers(authUser.otherUsers.map((ou) => ({ ...ou, _id: ou._id.toHexString() }))));
-
   // get the configuration
-  const config = await query<GlobalConfigQuery>({
+  const config = query<GlobalConfigQuery>({
     fetch,
-    tenant: authUser.tenant,
+    tenant,
     query: GlobalConfig,
     useCache: true,
   });
 
   // get the current user basic profile
-  const me = await query<BasicProfileMeQuery>({
+  const me = query<BasicProfileMeQuery>({
     fetch,
-    tenant: authUser.tenant,
+    tenant,
     query: BasicProfileMe,
     useCache: true,
   });
 
   // get the list of all users
-  const basicProfiles = await queryWithStore<UsersListQuery, UsersListQueryVariables>({
+  const basicProfiles = queryWithStore<UsersListQuery, UsersListQueryVariables>({
     fetch,
-    tenant: authUser.tenant,
+    tenant,
     query: UsersList,
     useCache: true,
     persistCache: 900000, // 15 minutes
@@ -79,9 +80,9 @@ export const load = (async ({ parent, params, url, fetch }) => {
   });
 
   // get the list of all teams
-  const basicTeams = await queryWithStore<TeamsListQuery, TeamsListQueryVariables>({
+  const basicTeams = queryWithStore<TeamsListQuery, TeamsListQueryVariables>({
     fetch,
-    tenant: authUser.tenant,
+    tenant,
     query: TeamsList,
     useCache: true,
     persistCache: 900000, // 15 minutes
@@ -92,10 +93,10 @@ export const load = (async ({ parent, params, url, fetch }) => {
 
   return {
     sessionId,
-    configuration: config?.data?.configuration,
-    me: me?.data?.user,
-    basicProfiles,
-    basicTeams,
+    configuration: (await config)?.data?.configuration,
+    me: (await me)?.data?.user,
+    basicProfiles: await basicProfiles,
+    basicTeams: await basicTeams,
   };
 }) satisfies LayoutLoad;
 
