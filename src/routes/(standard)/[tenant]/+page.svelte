@@ -8,6 +8,7 @@
   import { RecentActivity } from '$react/Home/RecentActivity';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
+  import { copy } from 'copy-anything';
   import { Button, Expander } from 'fluent-svelte';
   import type { PageData } from './$types';
 
@@ -19,9 +20,25 @@
 <div class="margin apps">
   {#each (data?.configuration?.navigation.main || [])
     .filter(notEmpty)
-    .filter(({ label }) => label !== 'Home' && label !== 'Dashboard') as { icon, label, to }}
+    .filter(({ label }) => label !== 'Home' && label !== 'Dashboard')
+    .map((_item) => {
+      const item = copy(_item);
+      if (item.label === 'CMS') {
+        item.label = 'Content';
+        item.to = '/cms';
+      }
+      if (item.label === 'Profiles') {
+        const searchParams = new URLSearchParams();
+        searchParams.set('_id', data.authUser._id.toHexString());
+        searchParams.set('name', data.authUser.name);
+        item.to = `/profile/${data.authUser._id}?${searchParams}`;
+      }
+      if (item.label === 'API') item.label = 'API Explorer';
+      if (item.label === 'Configure') item.label = 'Administration';
+      return item;
+    }) as { icon, label, to }}
     <TileButton href="/{$page.params.tenant}{to}">
-      {label === 'Content Manager' ? 'Content' : label === 'Tenant settings' ? 'Administration' : label}
+      {label}
       <FluentIcon name={icon} slot="icon" />
     </TileButton>
   {/each}
