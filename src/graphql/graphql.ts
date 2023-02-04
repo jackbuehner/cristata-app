@@ -2815,6 +2815,20 @@ export const UsersList = gql`
   }
 }
     `;
+export const WorkflowComplete = gql`
+    query WorkflowComplete($collections: [String] = null, $exclude: [String] = null) {
+  workflow(collections: $collections, exclude: $exclude) {
+    _id
+    count
+    docs {
+      _id
+      name
+      stage
+      in
+    }
+  }
+}
+    `;
 export const WorkflowCounts = gql`
     query WorkflowCounts {
   workflow {
@@ -2901,6 +2915,14 @@ export type UsersListQueryVariables = Exact<{
 
 
 export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null, c?: string | null } | null> } | null };
+
+export type WorkflowCompleteQueryVariables = Exact<{
+  collections?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
+  exclude?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
+}>;
+
+
+export type WorkflowCompleteQuery = { __typename?: 'Query', workflow?: Array<{ __typename?: 'WorkflowGroup', _id: number, count: number, docs: Array<{ __typename?: 'WorkflowGroupDoc', _id: any, name?: string | null, stage: number, in: string } | null> }> | null };
 
 export type WorkflowCountsQueryVariables = Exact<{ [key: string]: never; }>;
 

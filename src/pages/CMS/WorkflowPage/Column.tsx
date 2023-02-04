@@ -152,7 +152,7 @@ function ColumnSpace(props: {
 
 interface CardType {
   _id: string;
-  name?: string;
+  name?: string | null;
   stage: number;
   in: string;
 }
