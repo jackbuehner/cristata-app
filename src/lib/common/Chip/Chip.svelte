@@ -16,6 +16,7 @@
     font-size: 0.75rem;
     padding: 0 {compact ? 6 : 10}px;
     cursor: default;
+    font-size: 13px;
   "
 >
   <slot />
