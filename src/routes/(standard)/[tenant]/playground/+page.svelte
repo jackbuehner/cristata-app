@@ -11,8 +11,6 @@
       $themeMode = mode;
     }
   }
-
-  $: console.log($playground);
 </script>
 
 <div class="wrapper">
