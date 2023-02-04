@@ -33,7 +33,7 @@
         searchParams.set('name', data.authUser.name);
         item.to = `/profile/${data.authUser._id}?${searchParams}`;
       }
-      if (item.label === 'API') item.label = 'API Explorer';
+      if (item.label === 'API') item.label = 'Playground';
       if (item.label === 'Configure') item.label = 'Administration';
       return item;
     }) as { icon, label, to }}

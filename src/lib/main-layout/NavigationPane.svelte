@@ -18,7 +18,7 @@
     MenuFlyoutDivider,
     MenuFlyoutItem,
     TextBlock,
-    ToggleSwitch
+    ToggleSwitch,
   } from 'fluent-svelte';
   import { hooks } from 'svelte-preprocess-react';
   import { useInviteUserModal } from '../../hooks/useCustomModal';
@@ -47,7 +47,7 @@
         searchParams.set('name', data.authUser.name);
         item.to = `/profile/${data.authUser._id}?${searchParams}`;
       }
-      if (item.label === 'API') item.label = 'API Explorer';
+      if (item.label === 'API') item.label = 'Data playground';
       if (item.label === 'Configure') item.label = 'Administration';
       return item;
     })
