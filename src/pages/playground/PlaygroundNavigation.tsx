@@ -1,11 +1,11 @@
 import { compactMode } from '$stores/compactMode';
+import { playground } from '$stores/playground';
 import GraphiQLExplorer from '@cristata/graphiql-explorer';
 import { css, useTheme } from '@emotion/react';
 import { ProgressRing as ProgressRingSvelte, TextBlock as TextBlockSvelte } from 'fluent-svelte';
 import { reactify, useStore } from 'svelte-preprocess-react';
 import { Offline } from '../../components/Offline';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { setExplorerIsOpen, setQuery } from '../../redux/slices/graphiqlSlice';
+import { setQuery } from '../../redux/slices/graphiqlSlice';
 import type { themeType } from '../../utils/theme/theme';
 
 const ProgressRing = reactify(ProgressRingSvelte);
@@ -15,15 +15,14 @@ interface PlaygroundNavigationProps {}
 
 function PlaygroundNavigation(props: PlaygroundNavigationProps) {
   const theme = useTheme() as themeType;
-  const state = useAppSelector((state) => state.graphiql);
-  const dispatch = useAppDispatch();
   const $compactMode = useStore(compactMode);
+  const $playground = useStore(playground);
 
-  if (!state.schema && !navigator.onLine) {
+  if (!$playground.schema && !navigator.onLine) {
     return <Offline variant={'small'} key={0} />;
   }
 
-  if (!state.schema) {
+  if (!$playground.schema) {
     return (
       <div style={{ margin: 16, display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}>
         <ProgressRing size={24} />
@@ -93,11 +92,13 @@ function PlaygroundNavigation(props: PlaygroundNavigationProps) {
         `}
       >
         <GraphiQLExplorer
-          schema={state.schema}
-          query={state.query}
-          onEdit={(query: string | undefined) => dispatch(setQuery(query))}
-          explorerIsOpen={state.explorerIsOpen}
-          onToggleExplorer={() => dispatch(setExplorerIsOpen(!state.explorerIsOpen))}
+          schema={$playground.schema}
+          query={$playground.state?.query}
+          onEdit={(query: string | undefined) => {
+            playground.update(($playground) => {
+              return { ...$playground, state: { ...$playground.state, query } };
+            });
+          }}
         />
       </div>
     </>

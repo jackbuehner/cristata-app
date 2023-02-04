@@ -27,7 +27,7 @@
   }
 
   span {
-    line-height: 1.15;
+    margin-top: -2px;
     text-align: center;
     white-space: nowrap;
     max-width: 92px;

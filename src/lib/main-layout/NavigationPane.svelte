@@ -11,6 +11,7 @@
   import { compactMode } from '$stores/compactMode';
   import { server } from '$utils/constants';
   import { notEmpty } from '$utils/notEmpty';
+  import { copy } from 'copy-anything';
   import {
     Flyout,
     MenuFlyout,
@@ -34,13 +35,20 @@
 
   $: allMainMenuItems = data.configuration?.navigation.main
     .filter(notEmpty)
-    .map((item) => {
+    .map((_item) => {
+      const item = copy(_item);
       if (item.label === 'CMS') {
         item.label = 'Content Manager';
         item.to = '/cms';
       }
-      if (item.label === 'API') item.label = 'API Explorer';
-      if (item.label === 'Configure') item.label = 'Tenant settings';
+      if (item.label === 'Profiles') {
+        const searchParams = new URLSearchParams();
+        searchParams.set('_id', data.authUser._id.toHexString());
+        searchParams.set('name', data.authUser.name);
+        item.to = `/profile/${data.authUser._id}?${searchParams}`;
+      }
+      if (item.label === 'API') item.label = 'Data playground';
+      if (item.label === 'Configure') item.label = 'Administration';
       return item;
     })
     .map((item) => {
@@ -306,9 +314,12 @@
         {
           label: 'My profile',
           icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${data.authUser._id}`,
-          href: `/${data.authUser.tenant}/profile/${data.authUser._id}?${encodeURIComponent(
-            `_id=${data.authUser._id}&name=${data.authUser.name}`
-          )}`,
+          href: (() => {
+            const searchParams = new URLSearchParams();
+            searchParams.set('_id', data.authUser._id.toHexString());
+            searchParams.set('name', data.authUser.name);
+            return `/${data.authUser.tenant}/profile/${data.authUser._id}?${searchParams}`;
+          })(),
         },
         {
           label: 'hr',
