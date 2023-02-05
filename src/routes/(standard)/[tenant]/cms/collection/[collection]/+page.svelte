@@ -31,8 +31,17 @@
 
   // build a filter for the table based on url search params
   const defaultFilter: mongoFilterType = { hidden: { $ne: true }, archived: { $ne: true } };
-  $: mongoFilter = { ...defaultFilter };
-  $: {
+  let mongoFilter = createMongoFilter();
+  afterNavigate(() => {
+    mongoFilter = createMongoFilter();
+  });
+
+  /**
+   * Constructs a filter for the collection table that is
+   * compatible with the filter query accepted by monogdb.
+   */
+  function createMongoFilter() {
+    const filter = { ...defaultFilter };
     $page.url.searchParams.forEach((value, param) => {
       // ignore values that start with two underscores because these are
       // parameters used in the page instead of filters
@@ -40,7 +49,7 @@
 
       // if the param name is _search, search the text index
       if (param === '_search') {
-        mongoFilter.$text = { $search: value };
+        filter.$text = { $search: value };
         return;
       }
 
@@ -49,7 +58,7 @@
         const [filterName, filterValue] = value.split(':');
 
         if (filterName === 'size') {
-          mongoFilter[param] = { $size: parseInt(filterValue) || 0 };
+          filter[param] = { $size: parseInt(filterValue) || 0 };
           return;
         }
 
@@ -65,19 +74,20 @@
         return undefined;
       };
 
-      if (isNegated && isArray) mongoFilter[param.slice(1)] = { $nin: JSON.parse(value) };
+      if (isNegated && isArray) filter[param.slice(1)] = { $nin: JSON.parse(value) };
       if (isNegated && !isArray)
-        mongoFilter[param.slice(1)] = {
+        filter[param.slice(1)] = {
           $ne: parseBooleanString(value) !== undefined ? parseBooleanString(value) : parseFloat(value) || value,
         };
-      if (!isNegated && isArray) mongoFilter[param] = { $in: JSON.parse(value) };
+      if (!isNegated && isArray) filter[param] = { $in: JSON.parse(value) };
       if (!isNegated && !isArray)
-        mongoFilter[param] = !isNaN(parseFloat(value))
+        filter[param] = !isNaN(parseFloat(value))
           ? { $eq: parseFloat(value) }
           : parseBooleanString(value) !== undefined
           ? { $eq: parseBooleanString(value) }
           : { $regex: value, $options: 'i' };
     });
+    return filter;
   }
 
   // keep the search box value representative of the URL search params
@@ -91,24 +101,29 @@
    * URL search params.
    */
   function calculateSearchBoxValue() {
-    return (
-      Array.from($page.url.searchParams.entries())
-        .filter(([key]) => {
-          if (key.includes('__')) {
-            return false;
-          }
-          if (key.includes('_')) {
-            if (key === '_search') return true;
-            return false;
-          }
-          return true;
-        })
-        .map(([key, value]) => {
-          if (key === '_search') return value;
-          return `${key}:${value}`;
-        })
-        .join(' ') + ' '
-    );
+    let str = Array.from($page.url.searchParams.entries())
+      .filter(([key]) => {
+        if (key.includes('__')) {
+          return false;
+        }
+        if (key.includes('_')) {
+          if (key === '_search') return true;
+          return false;
+        }
+        return true;
+      })
+      .map(([key, value]) => {
+        if (key === '_search') return value;
+        return `${key}:${value}`;
+      })
+      .join(' ');
+
+    // add space to the end of the string if there are only filters
+    if (!$page.url.searchParams.has('_search')) {
+      str += ' ';
+    }
+
+    return str.trimStart();
   }
 
   /**
@@ -285,7 +300,7 @@
       </div>
 
       <TextBox
-        placeholder="Search"
+        placeholder="Search this collection"
         type="search"
         spellcheck="false"
         bind:value={searchBoxValue}
@@ -314,7 +329,7 @@
     <react:CollectionTable
       collection={collectionName}
       filter={mongoFilter}
-      ref={console.log}
+      ref={() => {}}
       isLoading={loading}
       setIsLoading={setLoading}
       selectedIdsState={[selectedIds, setSelectedIds]}
