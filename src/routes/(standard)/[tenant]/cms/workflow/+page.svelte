@@ -46,7 +46,7 @@
     $page.url.searchParams.forEach((value) => {
       arr.push(...value.replace('[', '').replace(']', '').split(','));
     });
-    return arr;
+    return arr.filter((v) => v !== 'true');
   })();
 
   let refetching = false;
