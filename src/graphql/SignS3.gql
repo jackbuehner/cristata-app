@@ -1,0 +1,6 @@
+query SignS3($fileName: String!, $fileType: String!, $s3Bucket: String!) {
+  s3Sign(fileName: $fileName, fileType: $fileType, s3Bucket: $s3Bucket) {
+    signedRequest
+    location
+  }
+}

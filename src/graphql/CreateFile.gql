@@ -1,0 +1,5 @@
+mutation CreateFile($name: String!, $file_type: String!, $size_bytes: Int!, $uuid: String!) {
+  fileCreate(name: $name, file_type: $file_type, size_bytes: $size_bytes, uuid: $uuid) {
+    _id
+  }
+}
