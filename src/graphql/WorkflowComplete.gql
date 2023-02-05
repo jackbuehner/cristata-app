@@ -1,0 +1,12 @@
+query WorkflowComplete($collections: [String] = null, $exclude: [String] = null) {
+  workflow(collections: $collections, exclude: $exclude) {
+    _id
+    count
+    docs {
+      _id
+      name
+      stage
+      in
+    }
+  }
+}

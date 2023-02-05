@@ -1,3 +1,4 @@
+import { collectionTableActions } from '$stores/collectionTable';
 import { get as getProperty } from '$utils/objectPath';
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
@@ -31,7 +32,6 @@ import { genAvatar } from '../../../utils/genAvatar';
 import type { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { docDefsToQueryObjectCols } from '../CollectionItemPage/useFindDoc';
-import { CollectionTableFilterRow } from './CollectionTableFilterRow';
 
 interface ICollectionTable {
   collection: string;
@@ -255,6 +255,28 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         };
       },
     }));
+
+    // make functions available via a svelte store
+    collectionTableActions.set({
+      refetchData() {
+        setLimit(defaultLimit);
+        refetch();
+        setSelectedIds([]);
+        setLastSelectedId(undefined);
+      },
+      resetSort() {
+        setSort({});
+      },
+      getPermissions() {
+        const actionAccess = queryData?.[uncapitalize(props.collection) + 'ActionAccess'];
+
+        return {
+          archive: options?.disableArchiveMutation || !actionAccess?.archive ? false : true,
+          create: options?.disableCreateMutation || !actionAccess?.create ? false : true,
+          hide: options?.disableHideMutation || !actionAccess?.hide ? false : true,
+        };
+      },
+    });
 
     type CustomColumn = Column & { isSortable: boolean };
 
@@ -677,7 +699,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       return (
         <>
           <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
-            <CollectionTableFilterRow schemaDef={schemaDef} collectionName={props.collection} />
             <Table
               data={{
                 // when data is undefined, generate placeholder rows
@@ -718,7 +739,6 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
       <ErrorBoundary fallback={<div>Error loading table for '{props.collection}'</div>}>
         {DeleteWindow}
         {ArchiveWindow}
-        <CollectionTableFilterRow schemaDef={schemaDef} collectionName={props.collection} />
         <div style={{ height: 'calc(100% - 36px)' }}>
           <Table
             data={{

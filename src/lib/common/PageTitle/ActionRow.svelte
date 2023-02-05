@@ -12,6 +12,7 @@
     padding: 0 20px;
     max-width: 1000px;
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
   }
 

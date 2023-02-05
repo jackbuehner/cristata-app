@@ -48,7 +48,7 @@ const Collection = styled.div`
 
 interface CardType {
   _id: string;
-  name?: string;
+  name?: string | null;
   stage: number;
   in: string;
 }

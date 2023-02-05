@@ -2623,6 +2623,18 @@ export const BasicProfileMe = gql`
   }
 }
     `;
+export const CreateFile = gql`
+    mutation CreateFile($name: String!, $file_type: String!, $size_bytes: Int!, $uuid: String!) {
+  fileCreate(
+    name: $name
+    file_type: $file_type
+    size_bytes: $size_bytes
+    uuid: $uuid
+  ) {
+    _id
+  }
+}
+    `;
 export const CreateTeam = gql`
     mutation CreateTeam($name: String!, $slug: String!, $members: [ObjectID]!, $organizers: [ObjectID]!) {
   teamCreate(name: $name, slug: $slug, members: $members, organizers: $organizers) {
@@ -2775,6 +2787,14 @@ export const SaveUserEdits = gql`
   }
 }
     `;
+export const SignS3 = gql`
+    query SignS3($fileName: String!, $fileType: String!, $s3Bucket: String!) {
+  s3Sign(fileName: $fileName, fileType: $fileType, s3Bucket: $s3Bucket) {
+    signedRequest
+    location
+  }
+}
+    `;
 export const TeamsList = gql`
     query TeamsList($page: Int, $limit: Int!) {
   teams(page: $page, limit: $limit, sort: "{ \\"_id\\": 1 }") {
@@ -2815,6 +2835,20 @@ export const UsersList = gql`
   }
 }
     `;
+export const WorkflowComplete = gql`
+    query WorkflowComplete($collections: [String] = null, $exclude: [String] = null) {
+  workflow(collections: $collections, exclude: $exclude) {
+    _id
+    count
+    docs {
+      _id
+      name
+      stage
+      in
+    }
+  }
+}
+    `;
 export const WorkflowCounts = gql`
     query WorkflowCounts {
   workflow {
@@ -2827,6 +2861,16 @@ export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type BasicProfileMeQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null } | null };
+
+export type CreateFileMutationVariables = Exact<{
+  name: Scalars['String'];
+  file_type: Scalars['String'];
+  size_bytes: Scalars['Int'];
+  uuid: Scalars['String'];
+}>;
+
+
+export type CreateFileMutation = { __typename?: 'Mutation', fileCreate?: { __typename?: 'File', _id: any } | null };
 
 export type CreateTeamMutationVariables = Exact<{
   name: Scalars['String'];
@@ -2878,6 +2922,15 @@ export type SaveUserEditsMutationVariables = Exact<{
 
 export type SaveUserEditsMutation = { __typename?: 'Mutation', userModify?: { __typename?: 'User', _id: any } | null };
 
+export type SignS3QueryVariables = Exact<{
+  fileName: Scalars['String'];
+  fileType: Scalars['String'];
+  s3Bucket: Scalars['String'];
+}>;
+
+
+export type SignS3Query = { __typename?: 'Query', s3Sign?: { __typename?: 'S3SignedResponse', signedRequest: string, location: string } | null };
+
 export type TeamsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
   limit: Scalars['Int'];
@@ -2901,6 +2954,14 @@ export type UsersListQueryVariables = Exact<{
 
 
 export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null, c?: string | null } | null> } | null };
+
+export type WorkflowCompleteQueryVariables = Exact<{
+  collections?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
+  exclude?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
+}>;
+
+
+export type WorkflowCompleteQuery = { __typename?: 'Query', workflow?: Array<{ __typename?: 'WorkflowGroup', _id: number, count: number, docs: Array<{ __typename?: 'WorkflowGroupDoc', _id: any, name?: string | null, stage: number, in: string } | null> }> | null };
 
 export type WorkflowCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
