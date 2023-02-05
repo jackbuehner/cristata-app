@@ -1,3 +1,4 @@
+import { collectionTableActions } from '$stores/collectionTable';
 import { get as getProperty } from '$utils/objectPath';
 import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
@@ -255,6 +256,28 @@ const CollectionTable = forwardRef<ICollectionTableImperative, ICollectionTable>
         };
       },
     }));
+
+    // make functions available via a svelte store
+    collectionTableActions.set({
+      refetchData() {
+        setLimit(defaultLimit);
+        refetch();
+        setSelectedIds([]);
+        setLastSelectedId(undefined);
+      },
+      resetSort() {
+        setSort({});
+      },
+      getPermissions() {
+        const actionAccess = queryData?.[uncapitalize(props.collection) + 'ActionAccess'];
+
+        return {
+          archive: options?.disableArchiveMutation || !actionAccess?.archive ? false : true,
+          create: options?.disableCreateMutation || !actionAccess?.create ? false : true,
+          hide: options?.disableHideMutation || !actionAccess?.hide ? false : true,
+        };
+      },
+    });
 
     type CustomColumn = Column & { isSortable: boolean };
 
