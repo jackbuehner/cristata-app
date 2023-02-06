@@ -9,7 +9,9 @@
   import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
   import { collapsedPane } from '$stores/collapsedPane';
   import { compactMode } from '$stores/compactMode';
+  import { motionMode } from '$stores/motionMode';
   import { server } from '$utils/constants';
+  import { hasKey } from '$utils/hasKey';
   import { notEmpty } from '$utils/notEmpty';
   import { copy } from 'copy-anything';
   import {
@@ -453,6 +455,15 @@
       <div class="settings-flyout-flex">
         <TextBlock variant="subtitle" style="margin-bottom: 10px;">Settings</TextBlock>
         <ToggleSwitch bind:checked={$compactMode}>Compact mode</ToggleSwitch>
+        <ToggleSwitch
+          checked={$motionMode === 'reduced'}
+          on:change={(evt) => {
+            if (evt.target && hasKey(evt.target, 'checked') && evt.target.checked) $motionMode = 'reduced';
+            else $motionMode = 'no-preference';
+          }}
+        >
+          Reduce motion
+        </ToggleSwitch>
       </div>
     </svelte:fragment>
   </Flyout>

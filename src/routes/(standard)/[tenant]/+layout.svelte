@@ -7,13 +7,18 @@
   import OfflineNotice from '$lib/main-layout/OfflineNotice.svelte';
   import Titlebar from '$lib/main-layout/Titlebar.svelte';
   import { Root } from '$react/Root';
+  import { motionMode } from '$stores/motionMode';
   import { themeMode } from '$stores/themeMode';
   import { theme as themeFunction } from '$utils/theme';
+  import type { BeforeNavigate } from '@sveltejs/kit';
+  import { ProgressRing, TextBlock } from 'fluent-svelte';
   import NProgress from 'nprogress';
   import { toCustomPropertiesString } from 'object-to-css-variables';
   import { onDestroy, onMount } from 'svelte';
   import { used } from 'svelte-preprocess-react';
   import { RouterProvider } from 'svelte-preprocess-react/react-router';
+  import { expoOut, linear } from 'svelte/easing';
+  import { fly } from 'svelte/transition';
   import { setAppSearchShown } from '../../../redux/slices/appbarSlice';
   import { store } from '../../../redux/store';
   import type { LayoutData } from './$types';
@@ -96,6 +101,69 @@
     ($page.url.pathname.includes('/teams/') && !$page.url.pathname.includes('/teams/home')) ||
     $page.url.pathname.includes('/embed/') ||
     $page.url.pathname.includes('/configuration/');
+
+  // variables for page transitions
+  let unique = {};
+  let waiting = false;
+  let showSpinner = false;
+  const delay = 130;
+  const duration = 270;
+
+  /**
+   * Trigger the page transition by re-rendering the content div (which contains the slot)
+   */
+  function triggerTransition() {
+    unique = {}; // every {} is unique; {} === {} evaluates to false
+  }
+
+  /**
+   * Ensure that `waiting` is `false` after skipping a transition
+   */
+  function handleEndTransition() {
+    waiting = false;
+  }
+
+  /**
+   * Triggers the page transition unless skip conditions are met (conditions are defined in the function).
+   */
+  function handleTransition(navigation: BeforeNavigate) {
+    // skip if user wants no motion
+    if ($motionMode === 'reduced') return handleEndTransition();
+
+    // skip transition if pathname does not change
+    if (navigation.from?.url.pathname === navigation.to?.url.pathname) return handleEndTransition();
+
+    // skip transition if clicking between photos in the library
+    if (
+      navigation.from?.url.pathname.includes(`/paladin-news/cms/photos/library`) &&
+      navigation.to?.url.pathname.includes(`/paladin-news/cms/photos/library`)
+    ) {
+      return handleEndTransition();
+    }
+
+    // animate a fancy transition between pages
+    triggerTransition();
+  }
+
+  beforeNavigate(handleTransition);
+  afterNavigate(handleEndTransition);
+
+  function fade(node: Element, { delay = 0, duration = 400, easing: easing$1 = linear } = {}) {
+    const o = +getComputedStyle(node).opacity;
+
+    waiting = true;
+    setTimeout(() => {
+      // show the loading spinner if the next page still has not loaded
+      if (waiting) showSpinner = true;
+    }, duration + 800);
+
+    return {
+      delay,
+      duration,
+      easing: easing$1,
+      css: (t: number) => `opacity: ${t * o}`,
+    };
+  }
 </script>
 
 <react:Root>
@@ -118,13 +186,34 @@
         {/if}
 
         <!-- the rest of the content -->
+        <!-- svelte-ignore missing-declaration -->
         <div id="content-outer">
-          {#if showAppBar}
-            <react:Appbar />
-          {/if}
-          <div id="content">
-            <slot />
-          </div>
+          {#key unique}
+            <div style="height: 100%; width: 100%;">
+              {#if !waiting}
+                {#if showAppBar}
+                  <div out:fade={{ duration: delay }}>
+                    <react:Appbar />
+                  </div>
+                {/if}
+                <div
+                  id="content"
+                  in:fly={{ y: 40, duration, easing: expoOut, delay }}
+                  out:fade={{ duration: delay }}
+                >
+                  <slot />
+                </div>
+              {:else if showSpinner}
+                <div
+                  id="content"
+                  style="display: flex; flex-direction: column; gap: 14px; align-items: center; justify-content: center;"
+                >
+                  <ProgressRing size={32} />
+                  <TextBlock variant="bodyStrong">Please wait</TextBlock>
+                </div>
+              {/if}
+            </div>
+          {/key}
         </div>
       </div>
     </div>
@@ -157,7 +246,7 @@
   }
 
   div#content-outer {
-    overflow: auto;
+    overflow: hidden;
     width: 100%;
     height: 100%;
     display: flex;
@@ -165,9 +254,15 @@
     background-color: #ffffff;
     color: var(--color-neutral-light-1400);
     border-radius: 6px 0 0 0;
+    /* position: relative; */
   }
 
   div#content {
+    /* position: absolute; */
+    /* top: 0; */
+    /* right: 0;
+    bottom: 0;
+    left: 0; */
     overflow: auto;
     width: 100%;
     height: 100%;
