@@ -18,6 +18,7 @@
   import { hooks } from 'svelte-preprocess-react';
 
   $: collectionName = capitalize(pluralize.singular(dashToCamelCase($page.params.collection)));
+  $: collectionNameSingular = pluralize.singular($page.params.collection.replaceAll('-', ' '));
 
   $: pageTitle =
     // if defined, attempt to use the page title in the query string
@@ -222,7 +223,7 @@
           }}
         >
           <FluentIcon name="DocumentAdd16Regular" mode="buttonIconLeft" />
-          Create new document
+          Create new {collectionNameSingular || 'document'}
         </Button>
       {/if}
 
