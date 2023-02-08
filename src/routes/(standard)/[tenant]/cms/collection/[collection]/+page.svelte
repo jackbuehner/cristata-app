@@ -13,12 +13,25 @@
   import { dashToCamelCase } from '$utils/dashToCamelCase';
   import { hasKey } from '$utils/hasKey';
   import { isJSON } from '$utils/isJSON';
-  import { Button, MenuFlyout, MenuFlyoutDivider, MenuFlyoutItem, ProgressRing, TextBox } from 'fluent-svelte';
+  import { notEmpty } from '$utils/notEmpty';
+  import {
+    Button,
+    MenuFlyout,
+    MenuFlyoutDivider,
+    MenuFlyoutItem,
+    ProgressRing,
+    TextBox,
+    Tooltip,
+  } from 'fluent-svelte';
   import pluralize from 'pluralize';
   import { hooks } from 'svelte-preprocess-react';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   $: collectionName = capitalize(pluralize.singular(dashToCamelCase($page.params.collection)));
   $: collectionNameSingular = pluralize.singular($page.params.collection.replaceAll('-', ' '));
+  $: collection = data.configuration?.collections?.filter(notEmpty).find((col) => col.name === collectionName);
 
   $: pageTitle =
     // if defined, attempt to use the page title in the query string
@@ -200,32 +213,44 @@
     </PageTitle>
 
     <ActionRow fullWidth>
-      {#if collectionName === 'File'}
-        <Button
-          variant="accent"
-          disabled={!!uploadStatus || uploadLoading || !canCreate || loading}
-          on:click={upload}
-          style="width: 120px;"
-        >
-          {#if uploadLoading}
-            <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
-          {:else}
-            <FluentIcon name="ArrowUpload16Regular" mode="buttonIconLeft" />
-            Upload file
-          {/if}
-        </Button>
-      {:else}
-        <Button
-          variant="accent"
-          disabled={!$newItemModalHookStore || !canCreate || loading}
-          on:click={() => {
-            if ($newItemModalHookStore) $newItemModalHookStore[1]();
-          }}
-        >
-          <FluentIcon name="DocumentAdd16Regular" mode="buttonIconLeft" />
-          Create new {collectionNameSingular || 'document'}
-        </Button>
-      {/if}
+      <Tooltip
+        text={(() => {
+          if (!collection?.canCreateAndGet) {
+            return 'You do not have permission to create documents in this collection.';
+          }
+          return undefined;
+        })()}
+        offset={4}
+        placement="bottom"
+        alignment="start"
+      >
+        {#if collectionName === 'File'}
+          <Button
+            variant="accent"
+            disabled={!!uploadStatus || uploadLoading || !canCreate || loading || !collection?.canCreateAndGet}
+            on:click={upload}
+            style="width: 120px;"
+          >
+            {#if uploadLoading}
+              <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
+            {:else}
+              <FluentIcon name="ArrowUpload16Regular" mode="buttonIconLeft" />
+              Upload file
+            {/if}
+          </Button>
+        {:else}
+          <Button
+            variant="accent"
+            disabled={!$newItemModalHookStore || !canCreate || loading || !collection?.canCreateAndGet}
+            on:click={() => {
+              if ($newItemModalHookStore) $newItemModalHookStore[1]();
+            }}
+          >
+            <FluentIcon name="DocumentAdd16Regular" mode="buttonIconLeft" />
+            Create new {collectionNameSingular || 'document'}
+          </Button>
+        {/if}
+      </Tooltip>
 
       <Button
         disabled={!$collectionTableActions || loading}
