@@ -128,6 +128,8 @@ export type ConfigurationCollectionArgs = {
 export type ConfigurationCollection = {
   __typename?: 'ConfigurationCollection';
   by: ConfigurationCollectionBy;
+  /** Whether the current user has 'create' and 'get' permisson on this collection */
+  canCreateAndGet: Scalars['Boolean'];
   canPublish?: Maybe<Scalars['Boolean']>;
   generationOptions?: Maybe<ConfigurationCollectionGenerationOptions>;
   name: Scalars['String'];
@@ -2676,6 +2678,7 @@ export const GlobalConfig = gql`
     collections {
       name
       pluralLabel: pluralName
+      canCreateAndGet
     }
     navigation {
       main {
@@ -2890,7 +2893,7 @@ export type DashboardConfigQuery = { __typename?: 'Query', configuration?: { __t
 export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GlobalConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collections?: Array<{ __typename?: 'ConfigurationCollection', name: string, pluralLabel: string } | null> | null, navigation: { __typename?: 'ConfigurationNavigation', main: Array<{ __typename?: 'ConfigurationNavigationMainItem', icon: string, label: string, to: string } | null>, cmsNav: Array<{ __typename?: 'ConfigurationNavigationSubGroup', label: string, uuid: string, items: Array<{ __typename?: 'ConfigurationNavigationSubGroupItems', icon: string, label: string, to: string, uuid: string } | null> } | null> }, dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, name: string, lastModifiedBy: string, lastModifiedAt: string, photo?: string | null }, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string } } | null> } } | null };
+export type GlobalConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collections?: Array<{ __typename?: 'ConfigurationCollection', name: string, canCreateAndGet: boolean, pluralLabel: string } | null> | null, navigation: { __typename?: 'ConfigurationNavigation', main: Array<{ __typename?: 'ConfigurationNavigationMainItem', icon: string, label: string, to: string } | null>, cmsNav: Array<{ __typename?: 'ConfigurationNavigationSubGroup', label: string, uuid: string, items: Array<{ __typename?: 'ConfigurationNavigationSubGroupItems', icon: string, label: string, to: string, uuid: string } | null> } | null> }, dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, name: string, lastModifiedBy: string, lastModifiedAt: string, photo?: string | null }, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string } } | null> } } | null };
 
 export type ProfileQueryVariables = Exact<{
   _id: Scalars['ObjectID'];

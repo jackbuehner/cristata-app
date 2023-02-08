@@ -3,6 +3,7 @@ query GlobalConfig {
     collections {
       name
       pluralLabel: pluralName
+      canCreateAndGet
     }
     navigation {
       main {

@@ -5,11 +5,15 @@
   import { FilterChip } from '$lib/common/Chip';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
+  import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
   import { WorkflowPage } from '$react/CMS/WorkflowPage';
   import { themeMode } from '$stores/themeMode';
+  import { camelToDashCase } from '$utils/camelToDashCase';
   import { notEmpty } from '$utils/notEmpty';
-  import { Button, ProgressRing } from 'fluent-svelte';
+  import { Button, MenuFlyout, MenuFlyoutItem, ProgressRing } from 'fluent-svelte';
+  import pluralize from 'pluralize';
   import { onMount } from 'svelte';
+  import { hooks } from 'svelte-preprocess-react';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -49,7 +53,22 @@
     return arr.filter((v) => v !== 'true');
   })();
 
+  // hooks for creating a new item for a collection
+  $: newItemModalHooksStore = hooks(() => {
+    const obj: Record<string, ReturnType<typeof useNewItemModal>> = {};
+
+    data.configuration?.collections?.filter(notEmpty).forEach((col) => {
+      if (col.name === 'Photo') return;
+      if (col.pluralLabel === '__hidden') return;
+      if (!col.canCreateAndGet) return;
+      obj[col.name] = useNewItemModal(col.name, (url: string) => goto(url));
+    });
+
+    return obj;
+  });
+
   let refetching = false;
+  let createDropdownOpen = false;
 </script>
 
 <div class="wrapper">
@@ -57,8 +76,28 @@
     <PageTitle fullWidth>Content Workflow</PageTitle>
 
     <ActionRow fullWidth>
+      <div style="display: flex;">
+        <MenuFlyout alignment="start" placement="bottom" bind:open={createDropdownOpen}>
+          <svelte:fragment slot="flyout">
+            {#if $newItemModalHooksStore}
+              {#each Object.entries($newItemModalHooksStore).sort( (a, b) => a[0].localeCompare(b[0]) ) as [collectionName, [_, showModal]]}
+                {@const collectionNameSingular = pluralize.singular(
+                  camelToDashCase(collectionName).replaceAll('-', ' ')
+                )}
+                <MenuFlyoutItem disabled={!showModal} on:click={() => showModal()}>
+                  New {collectionNameSingular}
+                </MenuFlyoutItem>
+              {/each}
+            {/if}
+          </svelte:fragment>
+        </MenuFlyout>
+        <Button variant="accent" on:click={() => (createDropdownOpen = !createDropdownOpen)}>
+          Create new document
+          <FluentIcon name="ChevronDown16Regular" mode="buttonIconRight" />
+        </Button>
+      </div>
+
       <Button
-        variant="accent"
         on:click={async () => {
           refetching = true;
           await $workflowComplete.refetch();
@@ -73,6 +112,7 @@
           Refresh data
         {/if}
       </Button>
+
       <Button
         on:click={() => {
           showFilters = !showFilters;
