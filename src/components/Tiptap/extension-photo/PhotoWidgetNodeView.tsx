@@ -139,7 +139,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
                 ? '0 0 20px 0'
                 : '20px 0',
           }}
-          src={photo?.photo_url}
+          src={photo?.photo_url || props.node.attrs.photoUrl}
           alt={''}
         />
         <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
@@ -175,7 +175,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             show={props.node.attrs.showCaption}
             showPlaceholder={props.node.textContent.length === 0}
           />
-          <Source>{photo?.people.photo_created_by}</Source>
+          <Source>{photo?.people.photo_created_by || props.node.attrs.photoCredit}</Source>
         </Caption>
       </WidgetWrapper>
     </NodeViewWrapper>
