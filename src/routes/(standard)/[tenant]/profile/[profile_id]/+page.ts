@@ -32,5 +32,5 @@ export const load = (async ({ params, fetch }) => {
     expireCache: 15 * 60 * 1000, // 15 minutes
   });
 
-  return { profile, references };
+  return { profile, references, params };
 }) satisfies PageLoad;

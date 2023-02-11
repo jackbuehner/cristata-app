@@ -44,7 +44,7 @@
   async function resendInvite(): Promise<boolean> {
     if (!profile) return false;
 
-    return await fetch(`${server.location}/v3/${$page.params.tenant}`, {
+    return await fetch(`${server.location}/v3/${data.tenant}`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -103,7 +103,7 @@
       {/if}
       {#if isSelf}
         <Button
-          href="{$page.url.protocol}//{VITE_AUTH_BASE_URL}/{$page.params
+          href="{$page.url.protocol}//{VITE_AUTH_BASE_URL}/{data.params
             .tenant}/change-password?return={encodeURIComponent($page.url.href)}"
         >
           <FluentIcon name="Key16Regular" mode="buttonIconLeft" />
@@ -306,7 +306,7 @@
         <div style="margin-bottom: 10px;">{profile.name} is referenced by the following documents:</div>
         <InfoBar severity="attention" title="Note about these lists" closable={false}>
           Each collection's document list is truncated after 10 documents for performance reasons. The complete
-          list can be viewed via the <a href="/{$page.params.tenant}/playground">API explorer</a>.
+          list can be viewed via the <a href="/{data.tenant}/playground">API explorer</a>.
         </InfoBar>
         {#each userReferences as { collection, docs, count }}
           <section class="reflist">

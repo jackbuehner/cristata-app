@@ -175,6 +175,7 @@ export const load = (async ({ params, url, fetch }) => {
     me: (await me)?.data?.user,
     basicProfiles: await basicProfiles,
     basicTeams: await basicTeams,
+    tenant: params.tenant,
   };
 
   return data;

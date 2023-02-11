@@ -29,5 +29,6 @@ export const load = (async ({ params, fetch }) => {
   return {
     dashboardConfig: (await dashboardConfig)?.data?.configuration?.dashboard,
     workflowCounts: (await workflowCounts)?.data?.workflow || undefined,
+    params,
   };
 }) satisfies PageLoad;

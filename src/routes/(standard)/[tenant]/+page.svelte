@@ -37,7 +37,7 @@
       if (item.label === 'Configure') item.label = 'Administration';
       return item;
     }) as { icon, label, to }}
-    <TileButton href="/{$page.params.tenant}{to}">
+    <TileButton href="/{data.tenant}{to}">
       {label}
       <FluentIcon name={icon} slot="icon" />
     </TileButton>
@@ -121,7 +121,7 @@
       <react:RecentActivity />
     </svelte:fragment>
   </Expander>
-  <Expander href="/{$page.params.tenant}/cms/workflow">
+  <Expander href="/{data.tenant}/cms/workflow">
     <FluentIcon name="DataUsage24Regular" slot="icon" />
     Workflow
     <svelte:fragment slot="side">
@@ -143,9 +143,9 @@
             on:click={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              goto(`/${$page.params.tenant}${row.to.idPrefix}`);
+              goto(`/${data.tenant}${row.to.idPrefix}`);
             }}
-            href="/{$page.params.tenant}{row.to.idPrefix}"
+            href="/{data.tenant}{row.to.idPrefix}"
           >
             View all {uncapitalize(row.header.label)}
           </Button>

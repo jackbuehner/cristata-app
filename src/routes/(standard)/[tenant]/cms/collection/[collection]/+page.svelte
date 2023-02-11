@@ -29,16 +29,16 @@
 
   export let data: PageData;
 
-  $: collectionName = capitalize(pluralize.singular(dashToCamelCase($page.params.collection)));
-  $: collectionNameSingular = pluralize.singular($page.params.collection.replaceAll('-', ' '));
+  $: collectionName = capitalize(pluralize.singular(dashToCamelCase(data.params.collection)));
+  $: collectionNameSingular = pluralize.singular(data.params.collection.replaceAll('-', ' '));
   $: collection = data.configuration?.collections?.filter(notEmpty).find((col) => col.name === collectionName);
 
   $: pageTitle =
     // if defined, attempt to use the page title in the query string
     $page.url.searchParams.get('__pageTitle') ||
     // otherwise, build a title using the collection string
-    $page.params.collection.slice(0, 1).toLocaleUpperCase() +
-      $page.params.collection.slice(1).replace('-', ' ') +
+    data.params.collection.slice(0, 1).toLocaleUpperCase() +
+      data.params.collection.slice(1).replace('-', ' ') +
       ' collection';
 
   $: if (browser) document.title = `${pageTitle} - Cristata`;
@@ -289,7 +289,7 @@
                   setSearchFilters();
                 }}
               >
-                Exit {$page.params.collection.replace('-', ' ')} archive
+                Exit {data.params.collection.replace('-', ' ')} archive
               </MenuFlyoutItem>
             {:else}
               <MenuFlyoutItem
@@ -300,7 +300,7 @@
                   setSearchFilters();
                 }}
               >
-                View archived {$page.params.collection.replace('-', ' ')}
+                View archived {data.params.collection.replace('-', ' ')}
               </MenuFlyoutItem>
             {/if}
             <MenuFlyoutDivider />
@@ -347,7 +347,7 @@
     bind:uploadProgress
     bind:uploadStatus
     bind:loading={uploadLoading}
-    tenant={$page.params.tenant}
+    tenant={data.tenant}
     refetchData={async () => $collectionTableActions?.refetchData()}
   />
 
