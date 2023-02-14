@@ -185,6 +185,12 @@
   .subtree-items :global(.list-item) {
     padding-inline-start: calc((var(--depth, 0) * 32px) + 12px);
   }
+  .tree-view :global(.list-item .text-block) {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .tree-view {
     max-block-size: 100%;
     min-block-size: 0;
