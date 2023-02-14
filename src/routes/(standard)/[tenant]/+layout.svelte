@@ -249,8 +249,8 @@
     overflow: hidden;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
     background-color: #ffffff;
     color: var(--color-neutral-light-1400);
     border-radius: 6px 0 0 0;
