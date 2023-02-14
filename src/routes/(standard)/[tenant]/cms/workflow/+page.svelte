@@ -59,6 +59,7 @@
 
     data.configuration?.collections?.filter(notEmpty).forEach((col) => {
       if (col.name === 'Photo') return;
+      if (col.name === 'File') return;
       if (col.pluralLabel === '__hidden') return;
       if (!col.canCreateAndGet) return;
       obj[col.name] = useNewItemModal(col.name, (url: string) => goto(url));
