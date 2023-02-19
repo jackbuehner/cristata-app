@@ -1,7 +1,7 @@
 <script lang="ts">
   import { TextBlock } from 'fluent-svelte';
 
-  export let style: string;
+  export let style: string = '';
 </script>
 
 <h2>
