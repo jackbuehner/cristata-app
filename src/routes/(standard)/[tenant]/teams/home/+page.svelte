@@ -51,18 +51,17 @@
   {/each}
 </section>
 
-<PageSubtitle>Active users without teams</PageSubtitle>
+{#if ($unassignedUsers.data?.teamUnassignedUsers || []).length > 0}
+  <PageSubtitle>Active users without teams</PageSubtitle>
 
-<section class="unassigned-users" class:small={width < 500} class:compact={$compactMode}>
-  {#if ($unassignedUsers.data?.teamUnassignedUsers || []).length === 0}
-    <TextBlock>This team has no organizers.</TextBlock>
-  {/if}
-  {#each ($unassignedUsers.data?.teamUnassignedUsers || [])
-    .filter(notEmpty)
-    .sort((a, b) => a.name.localeCompare(b.name)) as person}
-    <PersonCard {person} />
-  {/each}
-</section>
+  <section class="unassigned-users" class:small={width < 500} class:compact={$compactMode}>
+    {#each ($unassignedUsers.data?.teamUnassignedUsers || [])
+      .filter(notEmpty)
+      .sort((a, b) => a.name.localeCompare(b.name)) as person}
+      <PersonCard {person} />
+    {/each}
+  </section>
+{/if}
 
 <style>
   section {
