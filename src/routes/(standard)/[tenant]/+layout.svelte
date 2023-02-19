@@ -98,7 +98,6 @@
     ($page.url.pathname.includes('/cms/') &&
       !$page.url.pathname.includes('/cms/workflow') &&
       !($page.url.pathname.includes('/cms/collection/') && $page.url.pathname.split('/').length === 5)) ||
-    ($page.url.pathname.includes('/teams/') && !$page.url.pathname.includes('/teams/home')) ||
     $page.url.pathname.includes('/embed/') ||
     $page.url.pathname.includes('/configuration/');
 

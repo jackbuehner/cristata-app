@@ -357,10 +357,12 @@
                 .filter(notEmpty)
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((team) => {
+                  const searchParams = new URLSearchParams();
+                  searchParams.set('name', team.name);
                   return {
                     label: `${team.organizers.length + team.members.length}::${team.name}`,
                     icon: 'PeopleTeam16Regular',
-                    href: `/${data.authUser.tenant}/teams/${team._id}`,
+                    href: `/${data.authUser.tenant}/teams/${team._id}?${searchParams}`,
                   };
                 })
                 .filter(notEmpty),
