@@ -2677,6 +2677,11 @@ export const DeleteTeam = gql`
   teamDelete(_id: $_id)
 }
     `;
+export const FathomDashboard = gql`
+    query FathomDashboard {
+  fathomDashboard
+}
+    `;
 export const GlobalConfig = gql`
     query GlobalConfig {
   configuration {
@@ -2954,6 +2959,11 @@ export type DeleteTeamMutationVariables = Exact<{
 
 
 export type DeleteTeamMutation = { __typename?: 'Mutation', teamDelete?: any | null };
+
+export type FathomDashboardQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FathomDashboardQuery = { __typename?: 'Query', fathomDashboard?: string | null };
 
 export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
