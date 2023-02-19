@@ -1,0 +1,5 @@
+mutation RemoveUserFromTeam($_id: ObjectID!, $input: TeamModifyInput!) {
+  teamModify(_id: $_id, input: $input) {
+    _id
+  }
+}

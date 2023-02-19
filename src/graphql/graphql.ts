@@ -2672,6 +2672,11 @@ export const DashboardConfig = gql`
   }
 }
     `;
+export const DeleteTeam = gql`
+    mutation DeleteTeam($_id: ObjectID!) {
+  teamDelete(_id: $_id)
+}
+    `;
 export const GlobalConfig = gql`
     query GlobalConfig {
   configuration {
@@ -2769,6 +2774,13 @@ export const Profile = gql`
   }
 }
     `;
+export const RemoveUserFromTeam = gql`
+    mutation RemoveUserFromTeam($_id: ObjectID!, $input: TeamModifyInput!) {
+  teamModify(_id: $_id, input: $input) {
+    _id
+  }
+}
+    `;
 export const ResendInvite = gql`
     mutation ResendInvite($_id: ObjectID!) {
   userResendInvite(_id: $_id) {
@@ -2795,6 +2807,40 @@ export const SignS3 = gql`
   s3Sign(fileName: $fileName, fileType: $fileType, s3Bucket: $s3Bucket) {
     signedRequest
     location
+  }
+}
+    `;
+export const Team = gql`
+    query Team($team_id: ObjectID!) {
+  teamActionAccess(_id: $team_id) {
+    modify
+    hide
+  }
+  userActionAccess {
+    deactivate
+  }
+  team(_id: $team_id) {
+    _id
+    name
+    slug
+    members {
+      _id
+      name
+      email
+      current_title
+      photo
+      flags
+      retired
+    }
+    organizers {
+      _id
+      name
+      email
+      current_title
+      photo
+      flags
+      retired
+    }
   }
 }
     `;
@@ -2890,6 +2936,13 @@ export type DashboardConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type DashboardConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string }, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, lastModifiedAt: string, lastModifiedBy: string, name: string, photo?: string | null } } | null> } } | null };
 
+export type DeleteTeamMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type DeleteTeamMutation = { __typename?: 'Mutation', teamDelete?: any | null };
+
 export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -2901,6 +2954,14 @@ export type ProfileQueryVariables = Exact<{
 
 
 export type ProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, phone?: number | null, email?: string | null, twitter?: string | null, biography?: string | null, current_title?: string | null, photo?: string | null, retired?: boolean | null, slug: string, username?: string | null, flags: Array<string | null>, hidden: boolean, locked: boolean, archived: boolean, methods?: Array<string | null> | null, timestamps?: { __typename?: 'UserTimestamps', joined_at: any, created_at: any, modified_at: any, last_login_at: any, last_active_at: any } | null, people?: { __typename?: 'CollectionPeople', created_by?: { __typename?: 'User', name: string } | null, last_modified_by?: { __typename?: 'User', name: string } | null } | null, teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string } | null> } | null } | null, userActionAccess?: { __typename?: 'CollectionActionAccess', modify: boolean, deactivate?: boolean | null } | null };
+
+export type RemoveUserFromTeamMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+  input: TeamModifyInput;
+}>;
+
+
+export type RemoveUserFromTeamMutation = { __typename?: 'Mutation', teamModify?: { __typename?: 'Team', _id: any } | null };
 
 export type ResendInviteMutationVariables = Exact<{
   _id: Scalars['ObjectID'];
@@ -2933,6 +2994,13 @@ export type SignS3QueryVariables = Exact<{
 
 
 export type SignS3Query = { __typename?: 'Query', s3Sign?: { __typename?: 'S3SignedResponse', signedRequest: string, location: string } | null };
+
+export type TeamQueryVariables = Exact<{
+  team_id: Scalars['ObjectID'];
+}>;
+
+
+export type TeamQuery = { __typename?: 'Query', teamActionAccess?: { __typename?: 'CollectionActionAccess', modify: boolean, hide: boolean } | null, userActionAccess?: { __typename?: 'CollectionActionAccess', deactivate?: boolean | null } | null, team?: { __typename?: 'Team', _id: any, name: string, slug: string, members: Array<{ __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null, flags: Array<string | null>, retired?: boolean | null } | null>, organizers: Array<{ __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null, flags: Array<string | null>, retired?: boolean | null } | null> } | null };
 
 export type TeamsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;
