@@ -88,15 +88,11 @@
         <PersonCard
           {person}
           bind:open={flyoutOpen[person._id]}
+          bind:loading
           team={$team.data.team}
           canDeactivate={$team.data.userActionAccess?.deactivate || false}
-          beforeSaveChange={async () => {
-            loading = true;
-          }}
           afterSaveChange={async () => {
-            loading = true;
             await $team.refetch();
-            loading = false;
           }}
         />
       {/if}
@@ -121,15 +117,11 @@
         <PersonCard
           {person}
           bind:open={flyoutOpen[person._id]}
+          bind:loading
           team={$team.data.team}
           canDeactivate={$team.data.userActionAccess?.deactivate || false}
-          beforeSaveChange={async () => {
-            loading = true;
-          }}
           afterSaveChange={async () => {
-            loading = true;
             await $team.refetch();
-            loading = false;
           }}
         />
       {/if}

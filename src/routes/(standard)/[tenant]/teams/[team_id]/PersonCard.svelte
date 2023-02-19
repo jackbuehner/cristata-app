@@ -16,6 +16,7 @@
   export let team: NonNullable<TeamQuery['team']>;
   export let canDeactivate = false;
 
+  export let loading = false;
   export let beforeSaveChange: (() => Promise<void>) | undefined = undefined;
   export let afterSaveChange: (() => Promise<void>) | undefined = undefined;
 
@@ -33,6 +34,7 @@
       (role === 'member' && currentRole !== 'member') ||
       (role === 'organizer' && currentRole !== 'organizer')
     ) {
+      loading = true;
       beforeSaveChange?.();
       return await fetch(`${server.location}/v3/${$page.params.tenant}`, {
         method: 'POST',
@@ -85,6 +87,7 @@
         })
         .finally(() => {
           afterSaveChange?.();
+          loading = false;
         });
     }
 
@@ -127,6 +130,7 @@
               <svelte:fragment slot="flyout">
                 <MenuFlyoutItem
                   indented={!isCurrentlyAMember}
+                  disabled={loading}
                   on:click={() => {
                     setRole(person._id, 'member', isCurrentlyAMember ? 'member' : 'organizer');
                   }}
@@ -140,6 +144,7 @@
                 </MenuFlyoutItem>
                 <MenuFlyoutItem
                   indented={!isCurrentlyAnOrganizer}
+                  disabled={loading}
                   on:click={() => {
                     setRole(person._id, 'organizer', isCurrentlyAMember ? 'member' : 'organizer');
                   }}
@@ -155,6 +160,7 @@
             </MenuFlyoutItem>
             <MenuFlyoutItem
               indented
+              disabled={loading}
               on:click={() => {
                 removeFromTeamDialogOpen = true;
               }}
@@ -196,6 +202,7 @@
     canManage={canDeactivate}
     handleSumbit={async () => {
       await afterSaveChange?.();
+      loading = false;
     }}
   />
 </div>
