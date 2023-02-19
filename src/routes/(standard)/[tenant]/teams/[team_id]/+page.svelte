@@ -6,6 +6,7 @@
   import AddTeamMemberDialog from '$lib/dialogs/AddTeamMemberDialog.svelte';
   import DeleteTeamDialog from '$lib/dialogs/DeleteTeamDialog.svelte';
   import ManageTeamDialog from '$lib/dialogs/ManageTeamDialog.svelte';
+  import { compactMode } from '$stores/compactMode';
   import { notEmpty } from '$utils/notEmpty';
   import { Button, ProgressRing, TextBlock } from 'fluent-svelte';
   import type { PageData } from './$types';
@@ -77,7 +78,12 @@
     </div>
   </PageSubtitle>
 
-  <section class="person-list" bind:clientWidth={listWidth} class:small={listWidth < 500}>
+  <section
+    class="person-list"
+    bind:clientWidth={listWidth}
+    class:small={listWidth < 500}
+    class:compact={$compactMode}
+  >
     {#if ($team.data?.team?.organizers || []).length === 0}
       <TextBlock>This team has no organizers.</TextBlock>
     {/if}
@@ -106,7 +112,12 @@
     </div>
   </PageSubtitle>
 
-  <section class="person-list" bind:clientWidth={listWidth} class:small={listWidth < 500}>
+  <section
+    class="person-list"
+    bind:clientWidth={listWidth}
+    class:small={listWidth < 500}
+    class:compact={$compactMode}
+  >
     {#if ($team.data?.team?.members || []).length === 0}
       <TextBlock>This team has no regular members.</TextBlock>
     {/if}
@@ -207,6 +218,10 @@
     flex-direction: row;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  section.person-list.compact {
+    gap: 8px;
   }
 
   section.person-list.small > :global(.person-card),

@@ -4,6 +4,7 @@
   import { RemoveUserFromTeam, type TeamQuery } from '$graphql/graphql';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import RemoveFromTeamDialog from '$lib/dialogs/RemoveFromTeamDialog.svelte';
+  import { compactMode } from '$stores/compactMode';
   import { server } from '$utils/constants';
   import { genAvatar } from '$utils/genAvatar';
   import { notEmpty } from '$utils/notEmpty';
@@ -101,7 +102,7 @@
       open = !open;
     }}
   >
-    <div style="margin-top: 40px;">
+    <div style="margin-top: {$compactMode ? 20 : 40}px;">
       <MenuFlyout bind:open class="person-menu" placement="right" alignment="start" offset={0}>
         <svelte:fragment slot="flyout">
           <MenuFlyoutItem
@@ -171,17 +172,23 @@
         </svelte:fragment>
       </MenuFlyout>
     </div>
-    <article>
+    <article class:compact={$compactMode}>
       <img src={person.photo || genAvatar(person._id, 36, 'beam')} alt="" class="team-photo" />
-      <div class="person-meta">
+      <div class="person-meta" class:compact={$compactMode}>
         <TextBlock>{person.name}</TextBlock>
-        <TextBlock>{person.current_title || 'Employee'}</TextBlock>
+
+        {#if !$compactMode}
+          <TextBlock>{person.current_title || 'Employee'}</TextBlock>
+        {/if}
+
         {#if person.retired}
           <TextBlock><i class="danger">Account deactivated</i></TextBlock>
         {:else if expired}
           <TextBlock><i class="danger">Invitation expired</i></TextBlock>
         {:else if temporary}
           <TextBlock><i class="danger">Pending invitation acceptance</i></TextBlock>
+        {:else if $compactMode}
+          <TextBlock>{person.current_title || 'Employee'}</TextBlock>
         {:else}
           <TextBlock>{person.email || person._id.slice(-6)}</TextBlock>
         {/if}
@@ -219,6 +226,11 @@
     overflow: hidden;
   }
 
+  article.compact {
+    gap: 12px;
+    padding: 3px 0;
+  }
+
   article > :global(svg) {
     fill: currentColor;
     margin-left: auto;
@@ -240,6 +252,10 @@
   .person-meta :global(span.text-block:first-of-type) {
     font-size: 16px;
     margin-bottom: 2px;
+  }
+
+  .person-meta.compact :global(span.text-block:first-of-type) {
+    font-size: 14px;
   }
 
   .person-meta :global(span.text-block:not(:first-of-type)) {
