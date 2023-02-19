@@ -14,7 +14,7 @@
 
   export let open = false;
   export let person: NonNullable<NonNullable<NonNullable<TeamQuery['team']>['members']>[0]>;
-  export let team: NonNullable<TeamQuery['team']>;
+  export let team: NonNullable<TeamQuery['team']> | undefined = undefined;
   export let canDeactivate = false;
 
   export let loading = false;
@@ -23,8 +23,8 @@
 
   let removeFromTeamDialogOpen = false;
 
-  const isCurrentlyAMember = !!team.members.filter(notEmpty).find((member) => member._id === person._id);
-  const isCurrentlyAnOrganizer = !!team.organizers
+  const isCurrentlyAMember = !!team?.members.filter(notEmpty).find((member) => member._id === person._id);
+  const isCurrentlyAnOrganizer = !!team?.organizers
     .filter(notEmpty)
     .find((organizer) => organizer._id === person._id);
 
@@ -32,8 +32,8 @@
 
   async function setRole(_id: string, role: 'member' | 'organizer', currentRole: 'member' | 'organizer') {
     if (
-      (role === 'member' && currentRole !== 'member') ||
-      (role === 'organizer' && currentRole !== 'organizer')
+      team &&
+      ((role === 'member' && currentRole !== 'member') || (role === 'organizer' && currentRole !== 'organizer'))
     ) {
       loading = true;
       beforeSaveChange?.();
@@ -124,7 +124,7 @@
               Send email
             </MenuFlyoutItem>
           {/if}
-          {#if canDeactivate}
+          {#if canDeactivate && !!team}
             <MenuFlyoutDivider />
             <MenuFlyoutItem indented cascading>
               Change role
@@ -197,21 +197,23 @@
     </article>
   </Button>
 
-  <RemoveFromTeamDialog
-    bind:open={removeFromTeamDialogOpen}
-    name={person.name}
-    user_id={person._id}
-    team_id={team._id}
-    members={team.members.filter(notEmpty).map(({ _id }) => _id)}
-    organizers={team.organizers.filter(notEmpty).map(({ _id }) => _id)}
-    tenant={$page.params.tenant}
-    retired={person.retired || false}
-    canManage={canDeactivate}
-    handleSumbit={async () => {
-      await afterSaveChange?.();
-      loading = false;
-    }}
-  />
+  {#if team}
+    <RemoveFromTeamDialog
+      bind:open={removeFromTeamDialogOpen}
+      name={person.name}
+      user_id={person._id}
+      team_id={team._id}
+      members={team.members.filter(notEmpty).map(({ _id }) => _id)}
+      organizers={team.organizers.filter(notEmpty).map(({ _id }) => _id)}
+      tenant={$page.params.tenant}
+      retired={person.retired || false}
+      canManage={canDeactivate}
+      handleSumbit={async () => {
+        await afterSaveChange?.();
+        loading = false;
+      }}
+    />
+  {/if}
 </div>
 
 <style>
