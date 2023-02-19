@@ -205,7 +205,11 @@
     <section class:compact={$compactMode} class="chips">
       {#if teams.length > 0}
         {#each teams as team}
-          <Chip compact={$compactMode} href="/{data.authUser.tenant}/teams/{team._id}">{team.name}</Chip>
+          <Chip
+            compact={$compactMode}
+            href="/{data.authUser.tenant}/teams/{team._id}?name={encodeURIComponent(team.name)}"
+            >{team.name}</Chip
+          >
         {/each}
       {:else}
         <TextBlock>{profile.name} is not a member or organizer of any teams or groups.</TextBlock>

@@ -39,7 +39,7 @@
 <section class="teams-list" bind:clientWidth={width} class:small={width < 500} class:compact={$compactMode}>
   {#each ($basicTeams.data?.teams?.docs || []).filter(notEmpty) as team}
     {@const membersCount = team.organizers?.length + team.members?.length || 0}
-    <Button href="/{data.authUser.tenant}/teams/{team._id}">
+    <Button href="/{data.authUser.tenant}/teams/{team._id}?name={encodeURIComponent(team.name)}">
       <article>
         <img src={genAvatar(team._id, 36, 'bauhaus')} alt="" class="team-photo" />
         <div class="team-meta">
