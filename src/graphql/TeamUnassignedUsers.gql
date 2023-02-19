@@ -1,0 +1,10 @@
+query TeamUnassignedUsers {
+  teamUnassignedUsers {
+    _id
+    name
+    current_title
+    email
+    photo
+    flags
+  }
+}

@@ -1,1 +1,0 @@
-export { TeamsOverviewPage } from './TeamsOverviewPage';

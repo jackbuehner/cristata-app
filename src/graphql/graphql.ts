@@ -2844,6 +2844,18 @@ export const Team = gql`
   }
 }
     `;
+export const TeamUnassignedUsers = gql`
+    query TeamUnassignedUsers {
+  teamUnassignedUsers {
+    _id
+    name
+    current_title
+    email
+    photo
+    flags
+  }
+}
+    `;
 export const TeamsList = gql`
     query TeamsList($page: Int, $limit: Int!) {
   teams(page: $page, limit: $limit, sort: "{ \\"_id\\": 1 }") {
@@ -3001,6 +3013,11 @@ export type TeamQueryVariables = Exact<{
 
 
 export type TeamQuery = { __typename?: 'Query', teamActionAccess?: { __typename?: 'CollectionActionAccess', modify: boolean, hide: boolean } | null, userActionAccess?: { __typename?: 'CollectionActionAccess', deactivate?: boolean | null } | null, team?: { __typename?: 'Team', _id: any, name: string, slug: string, members: Array<{ __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null, flags: Array<string | null>, retired?: boolean | null } | null>, organizers: Array<{ __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null, flags: Array<string | null>, retired?: boolean | null } | null> } | null };
+
+export type TeamUnassignedUsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TeamUnassignedUsersQuery = { __typename?: 'Query', teamUnassignedUsers?: Array<{ __typename?: 'User', _id: any, name: string, current_title?: string | null, email?: string | null, photo?: string | null, flags: Array<string | null> } | null> | null };
 
 export type TeamsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']>;

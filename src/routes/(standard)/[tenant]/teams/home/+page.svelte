@@ -1,16 +1,17 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
-  import { PageTitle } from '$lib/common/PageTitle';
+  import { PageSubtitle, PageTitle } from '$lib/common/PageTitle';
   import CreateTeamDialog from '$lib/dialogs/CreateTeamDialog.svelte';
-  import { TeamsOverviewPage } from '$react/teams/TeamsOverviewPage';
+  import { compactMode } from '$stores/compactMode';
   import { genAvatar } from '$utils/genAvatar';
   import { notEmpty } from '$utils/notEmpty';
   import { Button, TextBlock } from 'fluent-svelte';
+  import PersonCard from '../[team_id]/PersonCard.svelte';
   import type { PageData } from './$types';
 
   export let data: PageData;
-  $: ({ basicTeams } = data);
+  $: ({ basicTeams, unassignedUsers } = data);
 
   let createDialogOpen = false;
   let width = 1000;
@@ -35,7 +36,7 @@
   {/if}
 </div>
 
-<section class="teams-list" bind:clientWidth={width} class:small={width < 500}>
+<section class="teams-list" bind:clientWidth={width} class:small={width < 500} class:compact={$compactMode}>
   {#each ($basicTeams.data?.teams?.docs || []).filter(notEmpty) as team}
     {@const membersCount = team.organizers?.length + team.members?.length || 0}
     <Button href="/{data.authUser.tenant}/teams/{team._id}">
@@ -50,8 +51,17 @@
   {/each}
 </section>
 
-<section class="unassigned-users">
-  <react:TeamsOverviewPage />
+<PageSubtitle>Active users without teams</PageSubtitle>
+
+<section class="unassigned-users" class:small={width < 500} class:compact={$compactMode}>
+  {#if ($unassignedUsers.data?.teamUnassignedUsers || []).length === 0}
+    <TextBlock>This team has no organizers.</TextBlock>
+  {/if}
+  {#each ($unassignedUsers.data?.teamUnassignedUsers || [])
+    .filter(notEmpty)
+    .sort((a, b) => a.name.localeCompare(b.name)) as person}
+    <PersonCard {person} />
+  {/each}
 </section>
 
 <style>
@@ -71,6 +81,18 @@
   section.teams-list.small > :global(.button) {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  section.unassigned-users {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  section.unassigned-users.compact,
+  section.teams-list.compact {
+    gap: 8px;
   }
 
   article {
