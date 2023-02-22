@@ -22,11 +22,6 @@
 {/if}
 
 <style>
-  :root {
-    --fds-accent-dark-1: 253, 54%, 47%;
-    --fds-accent-light-2: 253, 49%, 80%;
-  }
-
   /* acrylic menys */
   @supports (backdrop-filter: var(--fds-acrylic-blur-factor)) {
     @keyframes fadein {

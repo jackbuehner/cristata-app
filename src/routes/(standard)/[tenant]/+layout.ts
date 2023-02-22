@@ -13,14 +13,13 @@ import {
   type UsersListQueryVariables,
 } from '$graphql/graphql';
 import { query, queryWithStore } from '$graphql/query';
+import { authCache, authUserValidator, type AuthUserType } from '$stores/authCache';
 import { server } from '$utils/constants';
 import { gotoSignIn } from '$utils/gotoSignIn';
 import { isHttpError } from '$utils/isHttpError';
 import { setSplashStatusText } from '$utils/setSplashStatusText';
 import { error, redirect } from '@sveltejs/kit';
-import mongoose from 'mongoose';
-import { get, writable } from 'svelte/store';
-import { z } from 'zod';
+import { get } from 'svelte/store';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
 import { persistor, store } from '../../../redux/store';
 import type { LayoutLoad } from './$types';
@@ -28,14 +27,12 @@ import type { LayoutLoad } from './$types';
 export const ssr = false;
 export const prerender = false;
 
-const authCache = writable<{ last: Date; authUser: z.infer<typeof authUserValidator> }>();
-
 export const load = (async ({ params, url, fetch }) => {
   const { tenant } = params;
 
   // check the authentication status of the current client
   let authUserPending = true;
-  const authUser = (async (): Promise<z.infer<typeof authUserValidator>> => {
+  const authUser = (async (): Promise<AuthUserType> => {
     // use the cached auth
     if (get(authCache)) {
       const { authUser } = get(authCache);
@@ -198,14 +195,3 @@ async function switchTenant(tenant: string, currentLocation: URL) {
   if (browser) goto(url.href);
   else throw redirect(307, url.href);
 }
-
-const userValidator = z.object({
-  _id: z.string().transform((hexId) => new mongoose.Types.ObjectId(hexId)),
-  name: z.string(),
-  provider: z.string(),
-  tenant: z.string(),
-});
-
-const authUserValidator = userValidator.extend({
-  otherUsers: userValidator.array().default([]),
-});

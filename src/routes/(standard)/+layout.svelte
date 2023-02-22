@@ -18,11 +18,3 @@
 </script>
 
 <slot />
-
-<div>
-  <style>
-    .root-splash-wrapper {
-      display: none !important;
-    }
-  </style>
-</div>

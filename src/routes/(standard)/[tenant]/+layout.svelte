@@ -218,6 +218,14 @@
   </react:RouterProvider>
 </react:Root>
 
+<div>
+  <style>
+    .root-splash-wrapper {
+      display: none !important;
+    }
+  </style>
+</div>
+
 <style>
   div#frame {
     display: flex;
