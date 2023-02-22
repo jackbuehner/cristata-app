@@ -193,6 +193,6 @@ interface ReturnType<DataType> {
   errors?: any;
 }
 
-interface StoreReturnType<DataType> extends ReturnType<DataType> {
+export interface StoreReturnType<DataType> extends ReturnType<DataType> {
   refetch: () => Promise<void>;
 }

@@ -12,23 +12,54 @@ import {
   type UsersListQuery,
   type UsersListQueryVariables,
 } from '$graphql/graphql';
-import { query, queryWithStore } from '$graphql/query';
+import { query, queryWithStore, type GraphqlQueryReturn, type StoreReturnType } from '$graphql/query';
 import { authCache, authUserValidator, type AuthUserType } from '$stores/authCache';
 import { server } from '$utils/constants';
 import { gotoSignIn } from '$utils/gotoSignIn';
 import { isHttpError } from '$utils/isHttpError';
 import { setSplashStatusText } from '$utils/setSplashStatusText';
 import { error, redirect } from '@sveltejs/kit';
+import type { Readable } from 'svelte/store';
 import { get } from 'svelte/store';
 import { setAuthProvider, setName, setObjectId, setOtherUsers } from '../../../redux/slices/authUserSlice';
 import { persistor, store } from '../../../redux/store';
-import type { LayoutLoad } from './$types';
+import type { LayoutData, LayoutLoad } from './$types';
 
 export const ssr = false;
 export const prerender = false;
 
 export const load = (async ({ params, url, fetch }) => {
   const { tenant } = params;
+
+  // get/set the session id
+  const sessionId = (() => {
+    if (browser) {
+      const id = sessionStorage.getItem('sessionId') || Math.random().toString();
+      sessionStorage?.setItem('sessionId', id);
+      return id;
+    }
+    return Math.random().toString();
+  })();
+
+  // use the parent data instead of fetching fresh data
+  const child = browser && !!window.name;
+  if (child) {
+    const parentLayoutData: LayoutDataType = JSON.parse(localStorage.getItem('share:layoutData') || '{}');
+
+    await authUserValidator
+      .parseAsync(parentLayoutData.authUser)
+      .catch((err) => {
+        throw error(500, err);
+      })
+      .then((authUser) => {
+        authCache.set({ last: new Date(), authUser });
+        parentLayoutData.authUser = authUser;
+      });
+
+    parentLayoutData.sessionId = sessionId;
+
+    return parentLayoutData;
+  }
 
   // check the authentication status of the current client
   let authUserPending = true;
@@ -88,16 +119,6 @@ export const load = (async ({ params, url, fetch }) => {
 
     return authUser;
   });
-
-  // get/set the session id
-  const sessionId = (() => {
-    if (browser) {
-      const id = sessionStorage.getItem('sessionId') || Math.random().toString();
-      sessionStorage?.setItem('sessionId', id);
-      return id;
-    }
-    return Math.random().toString();
-  })();
 
   // get the configuration
   let configPending = true;
@@ -165,7 +186,7 @@ export const load = (async ({ params, url, fetch }) => {
   }
   showStatus();
 
-  const data = {
+  const data: LayoutDataType = {
     authUser: await authUser,
     sessionId,
     configuration: (await config)?.data?.configuration,
@@ -174,6 +195,10 @@ export const load = (async ({ params, url, fetch }) => {
     basicTeams: await basicTeams,
     tenant: params.tenant,
   };
+
+  // make the layout data available in the window
+  // so child windows can access it
+  if (browser) localStorage.setItem('share:layoutData', JSON.stringify(data));
 
   return data;
 }) satisfies LayoutLoad;
@@ -194,4 +219,14 @@ async function switchTenant(tenant: string, currentLocation: URL) {
   );
   if (browser) goto(url.href);
   else throw redirect(307, url.href);
+}
+
+interface LayoutDataType {
+  authUser: AuthUserType;
+  sessionId: string;
+  configuration: GlobalConfigQuery['configuration'];
+  me: BasicProfileMeQuery['user'];
+  basicProfiles: Readable<StoreReturnType<UsersListQuery>>;
+  basicTeams: Readable<StoreReturnType<TeamsListQuery>>;
+  tenant: string;
 }
