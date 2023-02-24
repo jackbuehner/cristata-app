@@ -2,7 +2,6 @@
   import { browser } from '$app/environment';
   import { afterNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import type { mongoFilterType } from '$graphql/client';
   import UploadFile from '$lib/cms/UploadFile.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
@@ -10,7 +9,6 @@
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
   import { collectionTableActions } from '$stores/collectionTable';
   import { hasKey } from '$utils/hasKey';
-  import { isJSON } from '$utils/isJSON';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
   import {
@@ -39,67 +37,6 @@
     data.collection.name.plural + ' collection';
 
   $: if (browser) document.title = `${pageTitle} - Cristata`;
-
-  // build a filter for the table based on url search params
-  const defaultFilter: mongoFilterType = { hidden: { $ne: true }, archived: { $ne: true } };
-  let mongoFilter = createMongoFilter();
-  afterNavigate(() => {
-    mongoFilter = createMongoFilter();
-  });
-
-  /**
-   * Constructs a filter for the collection table that is
-   * compatible with the filter query accepted by monogdb.
-   */
-  function createMongoFilter() {
-    const filter = { ...defaultFilter };
-    $page.url.searchParams.forEach((value, param) => {
-      // ignore values that start with two underscores because these are
-      // parameters used in the page instead of filters
-      if (param.indexOf('__') === 0) return;
-
-      // if the param name is _search, search the text index
-      if (param === '_search') {
-        filter.$text = { $search: value };
-        return;
-      }
-
-      // handle special filters, which are in the format key:filterName:filterValue
-      if (value.includes(':') && value.split(':').length === 2) {
-        const [filterName, filterValue] = value.split(':');
-
-        if (filterName === 'size') {
-          filter[param] = { $size: parseInt(filterValue) || 0 };
-          return;
-        }
-
-        return;
-      }
-
-      const isNegated = param[0] === '!';
-      const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
-
-      const parseBooleanString = (str: string) => {
-        if (str.toLowerCase() === 'true') return true;
-        else if (str.toLowerCase() === 'false') return false;
-        return undefined;
-      };
-
-      if (isNegated && isArray) filter[param.slice(1)] = { $nin: JSON.parse(value) };
-      if (isNegated && !isArray)
-        filter[param.slice(1)] = {
-          $ne: parseBooleanString(value) !== undefined ? parseBooleanString(value) : parseFloat(value) || value,
-        };
-      if (!isNegated && isArray) filter[param] = { $in: JSON.parse(value) };
-      if (!isNegated && !isArray)
-        filter[param] = !isNaN(parseFloat(value))
-          ? { $eq: parseFloat(value) }
-          : parseBooleanString(value) !== undefined
-          ? { $eq: parseBooleanString(value) }
-          : { $regex: value, $options: 'i' };
-    });
-    return filter;
-  }
 
   // keep the search box value representative of the URL search params
   let searchBoxValue = calculateSearchBoxValue();
@@ -351,7 +288,7 @@
   <div class="table-wrapper">
     <react:CollectionTable
       collection={collectionName}
-      filter={mongoFilter}
+      filter={data.table.filter}
       ref={() => {}}
       isLoading={loading}
       setIsLoading={setLoading}
