@@ -17,6 +17,34 @@ export type Scalars = {
   Void: any;
 };
 
+export type Activity = {
+  __typename?: 'Activity';
+  _id: Scalars['ObjectID'];
+  added?: Maybe<Scalars['JSON']>;
+  archived: Scalars['Boolean'];
+  at: Scalars['Date'];
+  colName: Scalars['String'];
+  deleted?: Maybe<Scalars['JSON']>;
+  docId: Scalars['ObjectID'];
+  hidden: Scalars['Boolean'];
+  history?: Maybe<Array<Maybe<CollectionHistory>>>;
+  locked: Scalars['Boolean'];
+  name?: Maybe<Scalars['String']>;
+  people?: Maybe<CollectionPeople>;
+  timestamps?: Maybe<CollectionTimestamps>;
+  type: Scalars['String'];
+  updated?: Maybe<Scalars['JSON']>;
+  userIds: Array<Maybe<User>>;
+  yState?: Maybe<Scalars['String']>;
+};
+
+export type ActivityModifyInput = {
+  added?: InputMaybe<Scalars['JSON']>;
+  deleted?: InputMaybe<Scalars['JSON']>;
+  updated?: InputMaybe<Scalars['JSON']>;
+  yState?: InputMaybe<Scalars['String']>;
+};
+
 export type ApiUsage = {
   __typename?: 'ApiUsage';
   billable: Scalars['Float'];
@@ -1304,6 +1332,20 @@ export type NewsletterModifyInputManual_Calendar = {
   yState?: InputMaybe<Scalars['String']>;
 };
 
+export type PagedActivity = {
+  __typename?: 'PagedActivity';
+  docs: Array<Maybe<Activity>>;
+  hasNextPage?: Maybe<Scalars['Boolean']>;
+  hasPrevPage?: Maybe<Scalars['Boolean']>;
+  limit?: Maybe<Scalars['Int']>;
+  nextPage?: Maybe<Scalars['Int']>;
+  page?: Maybe<Scalars['Int']>;
+  pagingCounter?: Maybe<Scalars['Int']>;
+  prevPage?: Maybe<Scalars['Int']>;
+  totalDocs?: Maybe<Scalars['Int']>;
+  totalPages?: Maybe<Scalars['Int']>;
+};
+
 export type PagedCollectionActivity = {
   __typename?: 'PagedCollectionActivity';
   docs: Array<Maybe<CollectionActivity>>;
@@ -1837,6 +1879,13 @@ export type PublishableCollectionTimestamps = {
 
 export type Query = {
   __typename?: 'Query';
+  /**
+   * Get a set of Activity documents by _id.
+   * If _id is omitted, the API will return all Activity documents.
+   */
+  activities?: Maybe<PagedActivity>;
+  /** Get a Activity document by _id. */
+  activity?: Maybe<Activity>;
   billing: Billing;
   /** Get the recent activity in the specified collections */
   collectionActivity?: Maybe<PagedCollectionActivity>;
@@ -2038,6 +2087,21 @@ export type Query = {
   webConfigsPublic?: Maybe<PagedPrunedWebConfig>;
   /** Get the docs in the different workflow categories */
   workflow?: Maybe<Array<WorkflowGroup>>;
+};
+
+
+export type QueryActivitiesArgs = {
+  _ids?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
+  filter?: InputMaybe<Scalars['JSON']>;
+  limit: Scalars['Int'];
+  offset?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
+export type QueryActivityArgs = {
+  _id: Scalars['ObjectID'];
 };
 
 
@@ -2625,6 +2689,35 @@ export const BasicProfileMe = gql`
   }
 }
     `;
+export const CollectionConfig = gql`
+    query CollectionConfig($collectionName: String!) {
+  configuration {
+    collection(name: $collectionName) {
+      name
+      pluralName
+      canPublish
+      withPermissions
+      schemaDef
+      generationOptions {
+        mandatoryWatchers
+        previewUrl
+        dynamicPreviewHref
+        nameField
+        disableCreateMutation
+        disableHideMutation
+        disableArchiveMutation
+        disablePublishMutation
+        independentPublishedDocCopy
+      }
+      by {
+        one
+        many
+      }
+      canCreateAndGet
+    }
+  }
+}
+    `;
 export const CreateFile = gql`
     mutation CreateFile($name: String!, $file_type: String!, $size_bytes: Int!, $uuid: String!) {
   fileCreate(
@@ -2927,6 +3020,13 @@ export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type BasicProfileMeQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null } | null };
+
+export type CollectionConfigQueryVariables = Exact<{
+  collectionName: Scalars['String'];
+}>;
+
+
+export type CollectionConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collection?: { __typename?: 'ConfigurationCollection', name: string, pluralName: string, canPublish?: boolean | null, withPermissions?: boolean | null, schemaDef: any, canCreateAndGet?: boolean | null, generationOptions?: { __typename?: 'ConfigurationCollectionGenerationOptions', mandatoryWatchers?: Array<string | null> | null, previewUrl?: string | null, dynamicPreviewHref?: string | null, nameField?: string | null, disableCreateMutation?: boolean | null, disableHideMutation?: boolean | null, disableArchiveMutation?: boolean | null, disablePublishMutation?: boolean | null, independentPublishedDocCopy?: boolean | null } | null, by: { __typename?: 'ConfigurationCollectionBy', one: string, many: string } } | null } | null };
 
 export type CreateFileMutationVariables = Exact<{
   name: Scalars['String'];

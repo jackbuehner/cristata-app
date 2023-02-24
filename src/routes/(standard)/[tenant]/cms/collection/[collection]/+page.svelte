@@ -9,11 +9,10 @@
   import { CollectionTable } from '$react/CMS/CollectionPage/CollectionTable';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
   import { collectionTableActions } from '$stores/collectionTable';
-  import { capitalize } from '$utils/capitalize';
-  import { dashToCamelCase } from '$utils/dashToCamelCase';
   import { hasKey } from '$utils/hasKey';
   import { isJSON } from '$utils/isJSON';
   import { notEmpty } from '$utils/notEmpty';
+  import { uncapitalize } from '$utils/uncapitalize';
   import {
     Button,
     MenuFlyout,
@@ -23,23 +22,21 @@
     TextBox,
     Tooltip,
   } from 'fluent-svelte';
-  import pluralize from 'pluralize';
   import { hooks } from 'svelte-preprocess-react';
   import type { PageData } from './$types';
+  import CollectionTable from './CollectionTable.svelte';
 
   export let data: PageData;
 
-  $: collectionName = capitalize(pluralize.singular(dashToCamelCase(data.params.collection)));
-  $: collectionNameSingular = pluralize.singular(data.params.collection.replaceAll('-', ' '));
+  $: collectionName = data.collection.schemaName;
+  $: collectionNameSingular = uncapitalize(data.collection.name.singular);
   $: collection = data.configuration?.collections?.filter(notEmpty).find((col) => col.name === collectionName);
 
   $: pageTitle =
     // if defined, attempt to use the page title in the query string
     $page.url.searchParams.get('__pageTitle') ||
-    // otherwise, build a title using the collection string
-    data.params.collection.slice(0, 1).toLocaleUpperCase() +
-      data.params.collection.slice(1).replace('-', ' ') +
-      ' collection';
+    // otherwise, build a title using the collection name
+    data.collection.name.plural + ' collection';
 
   $: if (browser) document.title = `${pageTitle} - Cristata`;
 
@@ -289,7 +286,7 @@
                   setSearchFilters();
                 }}
               >
-                Exit {data.params.collection.replace('-', ' ')} archive
+                Exit {uncapitalize(data.collection.name.plural)} archive
               </MenuFlyoutItem>
             {:else}
               <MenuFlyoutItem
@@ -300,7 +297,7 @@
                   setSearchFilters();
                 }}
               >
-                View archived {data.params.collection.replace('-', ' ')}
+                View archived {uncapitalize(data.collection.name.plural)}
               </MenuFlyoutItem>
             {/if}
             <MenuFlyoutDivider />
