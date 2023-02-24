@@ -22,6 +22,7 @@
     "@rmwc/linear-progress": "^8.0.0",
     "@rmwc/tabs": "^8.0.0",
     "@tanstack/react-query": "^4.20.4",
+    "@tanstack/svelte-table": "^8.7.9",
     "@tiptap/extension-collaboration": "^2.0.0-beta.199",
     "@tiptap/extension-collaboration-cursor": "^2.0.0-beta.199",
     "@tiptap/extension-font-family": "^2.0.0-beta.199",

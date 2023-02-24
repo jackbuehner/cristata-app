@@ -5,7 +5,7 @@
   import UploadFile from '$lib/cms/UploadFile.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
-  import { CollectionTable } from '$react/CMS/CollectionPage/CollectionTable';
+  import { CollectionTable as ReactCollectionTable } from '$react/CMS/CollectionPage/CollectionTable';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
   import { collectionTableActions } from '$stores/collectionTable';
   import { hasKey } from '$utils/hasKey';
@@ -25,6 +25,7 @@
   import CollectionTable from './CollectionTable.svelte';
 
   export let data: PageData;
+  $: ({ data: tableData } = data.table);
 
   $: collectionName = data.collection.schemaName;
   $: collectionNameSingular = uncapitalize(data.collection.name.singular);
@@ -285,8 +286,12 @@
     refetchData={async () => $collectionTableActions?.refetchData()}
   />
 
+  <div class="new-table-wrapper">
+    <CollectionTable collection={data.collection} {tableData} schema={data.table.schema} />
+  </div>
+
   <div class="table-wrapper">
-    <react:CollectionTable
+    <react:ReactCollectionTable
       collection={collectionName}
       filter={data.table.filter}
       ref={() => {}}
@@ -310,12 +315,17 @@
     flex-grow: 1;
   }
 
+  .new-table-wrapper {
+    padding: 20px;
+    flex-grow: 1;
+    height: 100%;
+  }
+
   .table-wrapper {
     position: relative;
     padding: 20px;
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
-    flex-grow: 1;
   }
 </style>
