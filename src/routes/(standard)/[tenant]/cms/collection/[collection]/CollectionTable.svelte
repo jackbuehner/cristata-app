@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { StatelessCheckbox } from '$lib/common/Checkbox';
   import { compactMode } from '$stores/compactMode';
   import { hasKey } from '$utils/hasKey';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
@@ -14,8 +15,6 @@
     type Row,
     type TableOptions,
   } from '@tanstack/svelte-table';
-  import { Checkbox } from 'fluent-svelte';
-  import type { MouseEventHandler } from 'react';
   import { writable } from 'svelte/store';
   import type { PageData } from './$types';
   import ValueCell from './ValueCell.svelte';
@@ -49,7 +48,7 @@
       cell: (info) => {
         return renderComponent(ValueCell, { info, type: 'checkbox' });
       },
-      size: 32,
+      size: 42,
       enableSorting: false,
     },
     ...(schema
@@ -206,10 +205,11 @@
           {#each headerGroup.headers as header}
             <span role="columnheader" style="width: {header.getSize()}px;">
               {#if header.id === '__checkbox'}
-                <input
-                  type="checkbox"
+                <StatelessCheckbox
                   checked={$table.getIsAllRowsSelected()}
                   indeterminate={$table.getIsSomeRowsSelected()}
+                  size={$compactMode ? 16 : 18}
+                  labelStyle="display: flex; margin-left: 3px;"
                   on:click={(evt) => {
                     evt.stopPropagation();
                   }}
@@ -240,20 +240,21 @@
           }}
         >
           {#each row.getVisibleCells() as cell}
-            <span role="cell" style="width: {cell.column.getSize()}px;">
+            <span role="cell" style="width: {cell.column.getSize()}px">
               {#if cell.column.id === '__checkbox'}
-                <input
-                  type="checkbox"
+                <StatelessCheckbox
                   checked={row.getIsSelected()}
                   disabled={!row.getCanSelect()}
                   indeterminate={row.getIsSomeSelected()}
+                  size={$compactMode ? 16 : 18}
+                  labelStyle="display: flex; margin-left: 3px;"
                   on:click={(evt) => {
                     evt.stopPropagation();
                   }}
                   on:change={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    row.getToggleSelectedHandler();
+                    row.toggleSelected(e.target?.checked);
                     selectedIds.push(row.original._id);
                   }}
                 />
@@ -328,9 +329,12 @@
   }
 
   /* header row */
-  div[role='rowgroup'].thead div[role="row"], div[role='table'].compact div[role='rowgroup'].thead div[role="row"] {
+  div[role='rowgroup'].thead div[role="row"] {
     border-bottom: 1px solid var(--border-color);
-    min-height: 34px;
+    min-height: 42px;
+  }
+  div[role='table'].compact div[role='rowgroup'].thead div[role="row"] {
+    min-height: 36px;
   }
 
   /* cell */
@@ -350,22 +354,5 @@
   }
   span.cell-content.noWrap {
     white-space: nowrap;
-  }
-
-  /* make the checkboxes smaller */
-  div[role='table'] :global(.checkbox-container),
-  div[role='table'] :global(.checkbox) {
-    --size: 18px;
-    min-block-size: var(--size);
-    block-size: var(--size);
-    inline-size: var(--size);
-    display: block;
-  }
-  div[role='table'] :global(.checkbox) {
-    z-index: 1;
-  }
-  div[role='table'].compact :global(.checkbox-container),
-  div[role='table'].compact :global(.checkbox) {
-    --size: 16px;
   }
 </style>
