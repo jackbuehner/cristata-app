@@ -19,6 +19,7 @@ export const load = (async ({ params, parent, url }) => {
   );
 
   const filter = createMongoFilter(url.searchParams);
+  const sort = { stage: -1 };
 
   //generate a GraphQL API query based on the collection
   const GENERATED_COLLECTION_QUERY = parse(
@@ -29,7 +30,7 @@ export const load = (async ({ params, parent, url }) => {
           __variables: {
             limit: `Int! = 20`,
             filter: `JSON = ${JSON.stringify(JSON.stringify(filter))}`,
-            sort: `JSON = ${JSON.stringify(JSON.stringify({ stage: -1 }))}`,
+            sort: `JSON = ${JSON.stringify(JSON.stringify(sort))}`,
             offset: `Int`,
           },
           data: {
@@ -116,6 +117,11 @@ export const load = (async ({ params, parent, url }) => {
     query: GENERATED_COLLECTION_QUERY,
     useCache: true,
     persistCache: 1000 * 30, // 30 seconds
+    variables: {
+      filter: JSON.stringify(filter),
+      sort: JSON.stringify(sort),
+      collection: collection.schemaName,
+    },
   });
 
   return {
