@@ -1,9 +1,9 @@
 import type { mongoFilterType } from '$graphql/client';
 import { queryWithStore } from '$graphql/query';
 import { docDefsToQueryObjectCols } from '$react/CMS/CollectionItemPage/useFindDoc';
-import { gql } from '@apollo/client';
 import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
 import { isJSON, uncapitalize } from '@jackbuehner/cristata-utils';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
@@ -20,8 +20,8 @@ export const load = (async ({ params, parent, url }) => {
 
   const filter = createMongoFilter(url.searchParams);
 
-  // generate a GraphQL API query based on the collection
-  const GENERATED_COLLECTION_QUERY = gql(
+  //generate a GraphQL API query based on the collection
+  const GENERATED_COLLECTION_QUERY = parse(
     jsonToGraphQLQuery(
       {
         query: {
