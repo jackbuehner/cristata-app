@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
   import { createEventForwarder } from 'fluent-svelte/internal';
+  import { createEventDispatcher } from 'svelte';
   import { get_current_component } from 'svelte/internal';
   /** Controls whether the checkbox is checked or not. */
   export let checked = false;
   /** Controls whether the checkbox is in an indeterminate state. */
   export let indeterminate = false;
   /** Sets the input element's native `value` attribute for usage in forms. */
-  export let value = undefined;
+  export let value: string | undefined = undefined;
   /** Controls whether the checkbox is intended for user interaction, and styles it accordingly. */
   export let disabled = false;
   /** Specifies a custom class name for the checkbox. */
@@ -16,9 +17,16 @@
   export let inputElement = null;
   /** Obtains a bound DOM reference to the checkbox's outer container element. */
   export let containerElement = null;
-  const forwardEvents = createEventForwarder(get_current_component());
+  const forwardEvents = createEventForwarder(get_current_component(), ['change']);
   export let size = 20;
   export let labelStyle = '';
+
+  const dispatch = createEventDispatcher();
+  function handleChange(evt: Event) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    dispatch('change', { checked, value, indeterminate, disabled });
+  }
 </script>
 
 <!-- svelte-ignore a11y-label-has-associated-control -->
@@ -40,6 +48,7 @@
       class="checkbox {className}"
       {value}
       {disabled}
+      on:change={handleChange}
       {...$$restProps}
     />
     <svg aria-hidden="true" class="checkbox-glyph" viewBox={indeterminate ? '171 470 683 85' : '0 0 24 24'}>

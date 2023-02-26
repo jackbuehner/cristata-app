@@ -48,7 +48,12 @@
     {
       accessorKey: '__checkbox',
       cell: (info) => {
-        return renderComponent(ValueCell, { info, type: 'checkbox' });
+        return renderComponent(ValueCell, {
+          info,
+          type: 'checkbox',
+          key: '__checkbox',
+          def: { type: 'Boolean' },
+        });
       },
       size: 42,
       enableSorting: false,
@@ -184,7 +189,7 @@
   $: table = createSvelteTable(options);
 
   function handleRowClick(evt: PointerEvent | MouseEvent, row: Row<unknown>) {
-    if (isPointerEvent(evt) && evt.pointerType === 'mouse' && evt.target?.nodeName !== 'INPUT') {
+    if (isPointerEvent(evt) && evt.pointerType === 'mouse' && isInputElem(evt.target)) {
       evt.preventDefault();
       row.toggleSelected();
     }
@@ -194,6 +199,10 @@
   function isPointerEvent(evt: PointerEvent | MouseEvent): evt is PointerEvent {
     if (hasKey(evt, 'pointerType')) return true;
     return false;
+  }
+
+  function isInputElem(target: EventTarget | null): target is HTMLInputElement {
+    return !!target && hasKey(target, 'nodeName') && target.nodeName !== 'INPUT';
   }
 
   $: selectedIds = $table.getSelectedRowModel().rows.map((row) => row.original._id);
@@ -238,7 +247,7 @@
           target={links.windowName}
           on:click={(evt) => handleRowClick(evt, row)}
           on:dblclick={(evt) => {
-            if (evt.target?.nodeName !== 'INPUT') goto(href);
+            if (!isInputElem(evt.target)) goto(href);
           }}
         >
           {#each row.getVisibleCells() as cell}
@@ -253,11 +262,8 @@
                   on:click={(evt) => {
                     evt.stopPropagation();
                   }}
-                  on:change={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    row.toggleSelected(e.target?.checked);
-                    selectedIds.push(row.original._id);
+                  on:change={(evt) => {
+                    row.toggleSelected(evt.detail.checked);
                   }}
                 />
               {:else}
