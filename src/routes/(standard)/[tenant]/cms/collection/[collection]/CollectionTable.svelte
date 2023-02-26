@@ -189,9 +189,48 @@
   $: table = createSvelteTable(options);
 
   function handleRowClick(evt: PointerEvent | MouseEvent, row: Row<unknown>) {
-    if (isPointerEvent(evt) && evt.pointerType === 'mouse' && isInputElem(evt.target)) {
+    const lastRowIndex = lastSelectedRowIndex;
+    const thisRowIndex = row.index;
+
+    if (
+      isPointerEvent(evt) &&
+      evt.pointerType === 'mouse' &&
+      !isInputElem(evt.target) &&
+      !isCheckbox(evt.target)
+    ) {
+      // disable navigating by anchor tag on single click (use double click or enter or middle click instead)
       evt.preventDefault();
-      row.toggleSelected();
+
+      // if control clicking, select with deselecting other rows
+      if (evt.ctrlKey) {
+        row.toggleSelected();
+      }
+      // if shift clicking, deselect all and then select all from this row to last selected row
+      else if (evt.shiftKey) {
+        $table.toggleAllRowsSelected(false);
+        if (lastRowIndex > thisRowIndex) {
+          $table
+            .getRowModel()
+            .rows.filter((row) => row.index >= thisRowIndex && row.index <= lastRowIndex)
+            .forEach((row) => {
+              row.toggleSelected(true);
+            });
+        } else if (lastRowIndex <= thisRowIndex) {
+          $table
+            .getRowModel()
+            .rows.filter((row) => row.index <= thisRowIndex && row.index >= lastRowIndex)
+            .forEach((row) => {
+              row.toggleSelected(true);
+            });
+        }
+      }
+      // otherise, deselect all rows before selecting this row
+      else {
+        $table.toggleAllRowsSelected(false);
+        row.toggleSelected();
+      }
+      // update the last selected row index once we are done
+      lastSelectedRowIndex = thisRowIndex;
     }
     evt.stopPropagation();
   }
@@ -202,9 +241,23 @@
   }
 
   function isInputElem(target: EventTarget | null): target is HTMLInputElement {
-    return !!target && hasKey(target, 'nodeName') && target.nodeName !== 'INPUT';
+    return !!target && hasKey(target, 'nodeName') && target.nodeName === 'INPUT';
   }
 
+  function isCheckbox(target: EventTarget | null): target is Element {
+    if (!target) return false;
+
+    if (hasKey(target, 'class') && typeof target.class === 'string') {
+      return target.class.includes('checkbox');
+    }
+    if (hasKey(target, 'nodeName')) {
+      return target.nodeName === 'INPUT' || target.nodeName === 'svg' || target.nodeName === 'path';
+    }
+
+    return false;
+  }
+
+  let lastSelectedRowIndex = 0;
   $: selectedIds = $table.getSelectedRowModel().rows.map((row) => row.original._id);
 </script>
 
@@ -247,7 +300,7 @@
           target={links.windowName}
           on:click={(evt) => handleRowClick(evt, row)}
           on:dblclick={(evt) => {
-            if (!isInputElem(evt.target)) goto(href);
+            if (!isInputElem(evt.target) && !isCheckbox(evt.target)) goto(href);
           }}
         >
           {#each row.getVisibleCells() as cell}
@@ -260,10 +313,13 @@
                   size={$compactMode ? 16 : 18}
                   labelStyle="display: flex; margin-left: 3px;"
                   on:click={(evt) => {
+                    console.log(evt);
                     evt.stopPropagation();
                   }}
                   on:change={(evt) => {
+                    console.log(evt.detail);
                     row.toggleSelected(evt.detail.checked);
+                    lastSelectedRowIndex = row.index;
                   }}
                 />
               {:else}
