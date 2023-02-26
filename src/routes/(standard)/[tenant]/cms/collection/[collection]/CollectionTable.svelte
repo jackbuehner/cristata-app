@@ -3,8 +3,7 @@
   import { page } from '$app/stores';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
-  import { createEventDispatcher } from 'svelte';
-
+  import Loading from '$lib/common/Loading.svelte';
   import { compactMode } from '$stores/compactMode';
   import { hasKey } from '$utils/hasKey';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
@@ -19,6 +18,8 @@
     type Row,
     type TableOptions,
   } from '@tanstack/svelte-table';
+  import { Button } from 'fluent-svelte';
+  import { createEventDispatcher } from 'svelte';
   import { writable } from 'svelte/store';
   import type { PageData } from './$types';
   import ValueCell from './ValueCell.svelte';
@@ -302,6 +303,8 @@
   function toggleSort(column: Column<Doc>, sortable: boolean, shiftKey?: boolean) {
     if (sortable) column.toggleSorting(undefined, shiftKey);
   }
+
+  export let loadingMore = false;
 </script>
 
 <div class="wrapper">
@@ -395,6 +398,30 @@
       {/each}
     </div>
   </div>
+  {#if ($tableData.data?.data?.totalDocs || 0) > ($tableData.data?.data?.docs || []).length}
+    <div class="table-buttons">
+      {#if loadingMore}
+        <Loading message="Loading more..." />
+      {:else}
+        <Button
+          on:click={() => {
+            if ($tableData?.data?.data?.docs) {
+              loadingMore = true;
+              $tableData.fetchMore($tableData.data.data.docs.length, 10).then(({ current, next, setStore }) => {
+                if (current && next) {
+                  const allDocs = [...(current.data?.docs || []), ...(next.data?.docs || [])];
+                  setStore({ ...current, data: { totalDocs: current.data?.totalDocs || 0, docs: allDocs } });
+                  loadingMore = false;
+                }
+              });
+            }
+          }}
+        >
+          Load more
+        </Button>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -509,5 +536,14 @@
   }
   span.cell-content.noWrap {
     white-space: nowrap;
+  }
+
+  /* table load more button */
+  .table-buttons {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 10px
   }
 </style>

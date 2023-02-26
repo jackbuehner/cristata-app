@@ -5,7 +5,6 @@
   import UploadFile from '$lib/cms/UploadFile.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
-  import { CollectionTable as ReactCollectionTable } from '$react/CMS/CollectionPage/CollectionTable';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
   import { collectionTableActions } from '$stores/collectionTable';
   import { hasKey } from '$utils/hasKey';
@@ -118,27 +117,12 @@
     uploadInput?.click();
   }
 
-  // track table items that have been selected
-  let selectedIds: string[] = [];
-  function setSelectedIds(newValue: string[] | ((selectedIds: string[]) => string[])) {
-    if (Array.isArray(newValue)) selectedIds = newValue;
-    else selectedIds = newValue(selectedIds);
-  }
-  let lastSelectedId: string | undefined = undefined;
-  function setLastSelectedId(newValue: string | ((lastSelectedId: string | undefined) => string)) {
-    if (typeof newValue === 'string') lastSelectedId = newValue;
-    else lastSelectedId = newValue(lastSelectedId);
-  }
-
   // check whether the current user is allowed to create a new document
   $: canCreate = $collectionTableActions?.getPermissions() || false;
 
-  // ! temporary
-  let loading = false;
-  function setLoading(newValue: boolean | ((isLoloadingading: boolean) => boolean)) {
-    if (typeof newValue === 'boolean') loading = newValue;
-    else loading = newValue(loading);
-  }
+  let refetching = false;
+  let loadingMore = false;
+  $: loading = refetching || loadingMore;
 </script>
 
 <div class="wrapper">
@@ -164,7 +148,7 @@
             variant="accent"
             disabled={!!uploadStatus || uploadLoading || !canCreate || loading || !collection?.canCreateAndGet}
             on:click={upload}
-            style="width: 120px;"
+            style="width: 130px;"
           >
             {#if uploadLoading}
               <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
@@ -189,8 +173,10 @@
 
       <Button
         disabled={!$collectionTableActions || loading}
-        on:click={() => {
-          $collectionTableActions?.refetchData();
+        on:click={async () => {
+          refetching = true;
+          await $tableData.refetch();
+          refetching = false;
         }}
         style="width: 130px;"
       >
@@ -293,6 +279,7 @@
       schema={data.table.schema}
       tableDataFilter={data.table.filter}
       tableDataSort={data.table.sort}
+      bind:loadingMore
       on:sort={(evt) => {
         // backup the current sort in localstorage so it can be restored later
         localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
@@ -300,24 +287,7 @@
         if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
           invalidate('collection-table');
         }
-
-        console.log(evt.detail);
-
-        // specify the current sort in the url so it refetches
-        // goto($page.url);
       }}
-    />
-  </div>
-
-  <div class="table-wrapper">
-    <react:ReactCollectionTable
-      collection={collectionName}
-      filter={data.table.filter}
-      ref={() => {}}
-      isLoading={loading}
-      setIsLoading={setLoading}
-      selectedIdsState={[selectedIds, setSelectedIds]}
-      lastSelectedIdState={[lastSelectedId, setLastSelectedId]}
     />
   </div>
 </div>
@@ -338,13 +308,7 @@
     padding: 20px;
     flex-grow: 1;
     height: 100%;
-  }
-
-  .table-wrapper {
-    position: relative;
-    padding: 20px;
-    overflow: hidden;
-    height: 100%;
+    overflow: auto;
     box-sizing: border-box;
   }
 </style>

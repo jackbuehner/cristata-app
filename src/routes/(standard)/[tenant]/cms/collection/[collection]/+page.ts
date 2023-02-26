@@ -135,11 +135,12 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
     tenant: params.tenant,
     query: GENERATED_COLLECTION_QUERY,
     useCache: true,
-    persistCache: 1000 * 30, // 30 seconds
+    expireCache: 1000 * 30, // 30 seconds
     variables: {
       filter: JSON.stringify(filter),
       sort: JSON.stringify(sort),
       collection: collection.schemaName,
+      page: 1,
     },
   });
 
