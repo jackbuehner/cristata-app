@@ -25,7 +25,12 @@
   function handleChange(evt: Event) {
     evt.preventDefault();
     evt.stopPropagation();
-    dispatch('change', { checked, value, indeterminate, disabled });
+    dispatch('change', {
+      checked: (evt.target as HTMLInputElement | null)?.checked || false,
+      value,
+      indeterminate,
+      disabled,
+    });
   }
 </script>
 
