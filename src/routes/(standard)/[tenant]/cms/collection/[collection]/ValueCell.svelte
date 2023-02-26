@@ -5,7 +5,6 @@
   import { getProperty } from '$utils/objectPath';
   import { isTypeTuple, type SchemaDef } from '@jackbuehner/cristata-generator-schema';
   import type { CellContext } from '@tanstack/svelte-table';
-  import { writable } from 'svelte/store';
 
   export let info: CellContext<any, unknown>;
   export let type: 'string' | 'checkbox' = 'string';
@@ -146,13 +145,14 @@
   .chips-wrapper {
     display: flex;
     flex-direction: row;
-    gap: 0 3px;
+    gap: 6px;
     margin: 2px 0;
     flex-wrap: wrap;
   }
 
   .chips-wrapper.compact {
     flex-wrap: nowrap;
+    gap: 3px;
   }
 
   .refs-wrapper {
