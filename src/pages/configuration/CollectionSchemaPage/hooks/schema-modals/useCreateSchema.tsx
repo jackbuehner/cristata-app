@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useApolloClient } from '@apollo/client';
+
 import type { DocumentNode } from 'graphql';
 import { gql } from 'graphql-tag';
 import { useState } from 'react';
@@ -10,6 +10,9 @@ import { useWindowModal } from '../../../../../hooks/useWindowModal';
 import { capitalize } from '../../../../../utils/capitalize';
 import { dashToCamelCase } from '../../../../../utils/dashToCamelCase';
 import { slugify } from '../../../../../utils/slugify';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function useCreateSchema(collectionNames: string[]): [React.ReactNode, () => void, () => void] {
   const [Window, showModal, hideModal] = useWindowModal(() => {

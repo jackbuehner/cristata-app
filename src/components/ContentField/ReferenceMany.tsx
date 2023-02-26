@@ -1,4 +1,3 @@
-import { useApolloClient } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Dismiss24Regular, Open24Regular, ReOrderDotsHorizontal24Regular } from '@fluentui/react-icons';
@@ -18,6 +17,9 @@ import { Field } from './Field';
 import { populateReferenceValues } from './populateReferenceValues';
 import type { Option } from './useOptions';
 import { useOptions } from './useOptions';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface ReferenceManyProps extends Omit<FieldProps, 'children'> {
   values: UnpopulatedValue[];

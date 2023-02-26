@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { get as getProperty } from '$utils/objectPath';
 import type { ApolloClient } from '@apollo/client';
-import { useMutation } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import { gql } from 'graphql-tag';
 import { useEffect, useState } from 'react';
@@ -13,6 +12,9 @@ import { useWindowModal } from '../../../hooks/useWindowModal';
 import type { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import type { RenderFields } from './CollectionItemPage';
+
+import * as apolloRaw from '@apollo/client';
+const { useMutation } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface UsePublishModal {
   y: EntryY;

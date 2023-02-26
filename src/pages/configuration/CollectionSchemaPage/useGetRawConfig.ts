@@ -1,8 +1,10 @@
 import type { ApolloError, ApolloQueryResult } from '@apollo/client';
-import { NetworkStatus, useQuery } from '@apollo/client';
 import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
 import type { DocumentNode } from 'graphql';
 import { gql } from 'graphql-tag';
+
+import * as apolloRaw from '@apollo/client';
+const { NetworkStatus, useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function useGetRawConfig(
   name: string

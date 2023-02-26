@@ -1,4 +1,3 @@
-import { useApolloClient } from '@apollo/client';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Checkbox } from '../../components/Checkbox';
@@ -9,6 +8,9 @@ import type { CREATE_USER__TYPE } from '../../graphql/queries';
 import { CREATE_USER } from '../../graphql/queries';
 import { slugify } from '../../utils/slugify';
 import { useWindowModal } from '../useWindowModal';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface UseInviteUserModalParams {
   afterInvite?: (userId: string) => Promise<void>;

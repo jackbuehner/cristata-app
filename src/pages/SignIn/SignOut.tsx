@@ -1,5 +1,7 @@
-import { useApolloClient } from '@apollo/client';
 import { persistor } from '../../redux/store';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function SignOut() {
   const client = useApolloClient();

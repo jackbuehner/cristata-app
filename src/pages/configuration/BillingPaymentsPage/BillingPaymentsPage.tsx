@@ -1,4 +1,3 @@
-import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { gql } from 'graphql-tag';
@@ -12,6 +11,9 @@ import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/
 import { server } from '../../../utils/constants';
 import type { themeType } from '../../../utils/theme/theme';
 import { useGetBillingStatus } from './useGetBillingStatus';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function BillingPaymentsPage() {
   const dispatch = useAppDispatch();

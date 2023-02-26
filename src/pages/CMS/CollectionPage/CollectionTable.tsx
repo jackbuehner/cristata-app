@@ -1,6 +1,5 @@
 import { collectionTableActions } from '$stores/collectionTable';
 import { get as getProperty } from '$utils/objectPath';
-import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Archive20Regular, Delete20Regular, Open20Regular } from '@fluentui/react-icons';
@@ -33,6 +32,10 @@ import { genAvatar } from '../../../utils/genAvatar';
 import type { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { docDefsToQueryObjectCols } from '../CollectionItemPage/useFindDoc';
+
+import * as apolloRaw from '@apollo/client';
+const { NetworkStatus, useApolloClient, useQuery } = ((apolloRaw as any).default ??
+  apolloRaw) as typeof apolloRaw;
 
 interface ICollectionTable {
   collection: string;

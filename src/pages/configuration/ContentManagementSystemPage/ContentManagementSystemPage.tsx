@@ -1,5 +1,3 @@
-import { useApolloClient } from '@apollo/client';
-import type { DragEndEvent } from '@dnd-kit/core';
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -26,6 +24,9 @@ import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import type { colorType } from '../../../utils/theme/theme';
 import { useGetCMSConfig } from './useGetCMSConfig';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function ContentManagementSystemPage() {
   const dispatch = useAppDispatch();

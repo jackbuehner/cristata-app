@@ -1,7 +1,9 @@
 import type { ApolloError, ApolloQueryResult, DocumentNode, WatchQueryFetchPolicy } from '@apollo/client';
-import { useQuery } from '@apollo/client';
 import { gql } from 'graphql-tag';
 import type { FluentIconNames } from '../../components/FluentIcon';
+
+import * as apolloRaw from '@apollo/client';
+const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 /**
  * Gets the navigation config for the specified navigation.
