@@ -1,9 +1,10 @@
 import type { DashboardConfigQuery } from '$graphql/graphql';
 import { get as getProperty } from '$utils/objectPath';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
+import { gql } from 'graphql-tag';
 import { DateTime } from 'luxon';
 import { useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { genAvatar } from '../../utils/genAvatar';

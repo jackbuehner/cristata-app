@@ -1,7 +1,8 @@
-import { gql, useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';

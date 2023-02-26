@@ -1,5 +1,7 @@
-import type { ApolloError, ApolloQueryResult, DocumentNode } from '@apollo/client';
-import { gql, NetworkStatus, useQuery } from '@apollo/client';
+import type { ApolloError, ApolloQueryResult } from '@apollo/client';
+import { NetworkStatus, useQuery } from '@apollo/client';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 
 function useGetCollections(): [
   QueryType['configuration']['collections'],

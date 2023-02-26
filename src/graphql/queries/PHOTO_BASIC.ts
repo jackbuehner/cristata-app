@@ -1,10 +1,10 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
  * Gets some basic data about a photo by _id.
  */
-const PHOTO_BASIC = gql(
+const PHOTO_BASIC = parse(
   jsonToGraphQLQuery({
     query: {
       __variables: {

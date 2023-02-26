@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import type { Paged } from '../../interfaces/cristata/paged';
 import { isObjectId } from '../../utils/isObjectId';
@@ -11,7 +11,7 @@ import { paged } from '../paged';
  */
 const PHOTOS_BASIC_BY_REGEXNAME_OR_URL = (input: string) => {
   const isId = isObjectId(input);
-  return gql(
+  return parse(
     jsonToGraphQLQuery({
       query: {
         __variables: {

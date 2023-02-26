@@ -1,10 +1,10 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
  * Gets a signed s3 URL for uploading photos and documents to an existing s3 bucket.
  */
-const SIGN_S3 = gql(
+const SIGN_S3 = parse(
   jsonToGraphQLQuery({
     query: {
       __variables: {

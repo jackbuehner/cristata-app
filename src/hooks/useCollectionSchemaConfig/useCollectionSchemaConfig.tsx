@@ -1,8 +1,10 @@
 import { set as setProperty } from '$utils/objectPath';
-import type { ApolloError, ApolloQueryResult, DocumentNode } from '@apollo/client';
-import { gql, useQuery } from '@apollo/client';
+import type { ApolloError, ApolloQueryResult } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import type { SchemaDef, SchemaDefType, SchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isSchemaDef, isSchemaRef } from '@jackbuehner/cristata-generator-schema';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 
 /**
  * Gets the collection config for the specified collection.

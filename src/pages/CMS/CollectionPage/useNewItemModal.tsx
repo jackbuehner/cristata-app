@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { gql, useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+import { gql } from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';

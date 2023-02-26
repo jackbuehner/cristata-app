@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
  *
  * Active users are users who are not hidden and are not retired.
  */
-const TEAM_UNASSIGNED_USERS = gql(
+const TEAM_UNASSIGNED_USERS = parse(
   jsonToGraphQLQuery({
     query: {
       teamUnassignedUsers: {

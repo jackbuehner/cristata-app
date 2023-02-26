@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
-const STAGE_COUNTS = gql(
+const STAGE_COUNTS = parse(
   jsonToGraphQLQuery({
     query: {
       workflow: {

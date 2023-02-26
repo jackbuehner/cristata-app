@@ -1,5 +1,4 @@
-import type { DocumentNode } from '@apollo/client';
-import { gql, useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
@@ -12,6 +11,8 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
 import { copy } from 'copy-anything';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';

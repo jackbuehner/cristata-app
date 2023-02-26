@@ -1,7 +1,8 @@
-import type { DocumentNode } from '@apollo/client';
-import { gql, useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useCallback, useEffect, useState } from 'react';
 import ReactRouterPrompt from 'react-router-prompt';
 import { toast } from 'react-toastify';

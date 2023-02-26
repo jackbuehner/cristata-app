@@ -1,11 +1,11 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { get as getProperty } from '$utils/objectPath';
+import type { ApolloClient } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { useTheme } from '@emotion/react';
+import { gql } from 'graphql-tag';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-
-/* eslint-disable react-hooks/rules-of-hooks */
-import type { ApolloClient } from '@apollo/client';
-import { gql, useMutation } from '@apollo/client';
-import { useTheme } from '@emotion/react';
 import { DateTime, Text } from '../../../components/ContentField';
 import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';

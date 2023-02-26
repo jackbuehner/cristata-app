@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -8,7 +8,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns team _id
  */
-const DELETE_TEAM = gql(
+const DELETE_TEAM = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {

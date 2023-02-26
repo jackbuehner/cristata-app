@@ -1,5 +1,4 @@
-import { gql } from '@apollo/client';
-
+import { gql } from 'graphql-tag';
 /**
  * Gets whether a user exists by username
  */

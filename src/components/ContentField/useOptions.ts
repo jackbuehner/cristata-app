@@ -1,6 +1,7 @@
 import { get as getProperty } from '$utils/objectPath';
-import { gql, useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
 import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
+import { gql } from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';

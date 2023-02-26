@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from 'graphql-tag';
 
 const WORKFLOW = gql`
   query WorkflowComplete($collections: [String] = null, $exclude: [String] = null) {

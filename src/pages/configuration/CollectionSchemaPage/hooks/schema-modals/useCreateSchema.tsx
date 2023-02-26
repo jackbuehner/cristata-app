@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import type { DocumentNode } from '@apollo/client';
-import { gql, useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'svelte-preprocess-react/react-router';

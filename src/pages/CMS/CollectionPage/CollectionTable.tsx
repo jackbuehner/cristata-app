@@ -1,6 +1,6 @@
 import { collectionTableActions } from '$stores/collectionTable';
 import { get as getProperty } from '$utils/objectPath';
-import { gql, NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
+import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Archive20Regular, Delete20Regular, Open20Regular } from '@fluentui/react-icons';
@@ -8,6 +8,7 @@ import type { SchemaDef } from '@jackbuehner/cristata-generator-schema';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
+import { gql } from 'graphql-tag';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';

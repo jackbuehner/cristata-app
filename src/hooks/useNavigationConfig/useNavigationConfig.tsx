@@ -1,5 +1,6 @@
 import type { ApolloError, ApolloQueryResult, DocumentNode, WatchQueryFetchPolicy } from '@apollo/client';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from 'graphql-tag';
 import type { FluentIconNames } from '../../components/FluentIcon';
 
 /**

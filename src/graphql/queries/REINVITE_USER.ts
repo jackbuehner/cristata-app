@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -7,7 +7,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns profile _id
  */
-const REINVITE_USER = gql(
+const REINVITE_USER = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {

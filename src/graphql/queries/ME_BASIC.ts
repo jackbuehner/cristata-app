@@ -1,10 +1,10 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
 /**
  * Gets basic data about the current user: name, _id, current_title, email, and photo.
  */
-const ME_BASIC = gql(
+const ME_BASIC = parse(
   jsonToGraphQLQuery({
     query: {
       me: {
