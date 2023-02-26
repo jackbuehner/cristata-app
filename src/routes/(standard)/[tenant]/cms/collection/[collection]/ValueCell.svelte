@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Chip as ReactChip } from '$components/Chip';
+  import { Chip } from '$lib/common/Chip';
   import { formatISODate } from '$utils/formatISODate';
   import { genAvatar } from '$utils/genAvatar';
   import { getProperty } from '$utils/objectPath';
@@ -74,14 +74,12 @@
       })()}
       {#if def.column?.chips}
         {#if typeof def.column.chips === 'boolean'}
-          <react:ReactChip label={`${stringValue}`} color={'neutral'} data-value={stringValue} />
+          <Chip color="neutral" data-value={stringValue}>{stringValue}</Chip>
         {:else}
           {@const match = def.column.chips.find((s) => s.value === stringValue)}
-          <react:ReactChip
-            label={match?.label || `${stringValue}`}
-            color={match?.color || 'neutral'}
-            data-value={stringValue}
-          />
+          <Chip color={match?.color || 'neutral'} data-value={stringValue}>
+            {match?.label || stringValue}
+          </Chip>
         {/if}
       {:else}
         {stringValue}
@@ -101,16 +99,16 @@
   {:else if def.column?.chips}
     {#if typeof def.column.chips === 'boolean'}
       <div class="chips-wrapper" class:compact={info.table.options.meta?.compactMode}>
-        <react:ReactChip label={`${fieldData}`} color={'neutral'} data-value={fieldData} />
+        <Chip color={'neutral'} data-value={fieldData}>
+          {fieldData}
+        </Chip>
       </div>
     {:else}
       {@const match = def.column.chips.find((s) => s.value === fieldData)}
       <div class="chips-wrapper" class:compact={info.table.options.meta?.compactMode}>
-        <react:ReactChip
-          label={match?.label || `${fieldData}`}
-          color={match?.color || 'neutral'}
-          data-value={fieldData}
-        />
+        <Chip color={match?.color || 'neutral'} data-value={fieldData}>
+          {match?.label || fieldData}
+        </Chip>
       </div>
     {/if}
   {:else}
@@ -120,16 +118,16 @@
   {#if def.column?.chips}
     {#if typeof def.column.chips === 'boolean'}
       <div class="chips-wrapper" class:compact={info.table.options.meta?.compactMode}>
-        <react:ReactChip label={`${fieldData}`} color={'neutral'} data-value={fieldData} />
+        <Chip color={'neutral'} data-value={fieldData}>
+          {fieldData}
+        </Chip>
       </div>
     {:else}
       {@const match = def.column.chips.find((s) => s.value === fieldData)}
       <div class="chips-wrapper" class:compact={info.table.options.meta?.compactMode}>
-        <react:ReactChip
-          label={match?.label || `${fieldData}`}
-          color={match?.color || 'neutral'}
-          data-value={fieldData}
-        />
+        <Chip color={match?.color || 'neutral'} data-value={fieldData}>
+          {match?.label || fieldData}
+        </Chip>
       </div>
     {/if}
   {:else}
