@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { compactMode } from '$stores/compactMode';
+  import { hasKey } from '$utils/hasKey';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import {
@@ -8,9 +11,11 @@
     getCoreRowModel,
     renderComponent,
     type ColumnDef,
+    type Row,
     type TableOptions,
   } from '@tanstack/svelte-table';
   import { Checkbox } from 'fluent-svelte';
+  import type { MouseEventHandler } from 'react';
   import { writable } from 'svelte/store';
   import type { PageData } from './$types';
   import ValueCell from './ValueCell.svelte';
@@ -18,10 +23,24 @@
   export let collection: NonNullable<PageData['collection']>;
   export let schema: NonNullable<PageData['table']>['schema'];
   export let tableData: NonNullable<PageData['table']>['data'];
+  export let tableDataFilter: NonNullable<PageData['table']>['filter'];
 
   interface SchemaDef extends AppSchemaDef {
     docs?: undefined;
   }
+
+  // if the field is a body field that is rendered as a tiptap editor,
+  // we want to open it in maximized mode for easy access to the editor
+  const shouldOpenMaximized = schema.find(([key, def]) => key === 'body' && def.field?.tiptap);
+
+  // row links behaviors
+  const links = {
+    href: `${$page.params.tenant}/cms/collection/${$page.params.collection}`,
+    hrefSuffixKey: collection.config?.data?.configuration?.collection?.by?.one || '_id',
+    hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
+    windowName:
+      shouldOpenMaximized && window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
+  };
 
   let columns: ColumnDef<unknown>[] = [];
   $: columns = [
@@ -137,10 +156,16 @@
 
   let colName = collection.colName;
   let data: unknown[] = [];
+  let filter = JSON.stringify(tableDataFilter);
   $: {
-    if (data.length !== ($tableData?.data?.data?.docs || []).length || colName !== collection.colName) {
+    if (
+      data.length !== ($tableData?.data?.data?.docs || []).length ||
+      colName !== collection.colName ||
+      filter !== JSON.stringify(tableDataFilter)
+    ) {
       data = $tableData?.data?.data?.docs || [];
       colName = collection.colName;
+      filter = JSON.stringify(tableDataFilter);
     }
   }
 
@@ -157,6 +182,19 @@
 
   $: table = createSvelteTable(options);
 
+  function handleRowClick(evt: PointerEvent | MouseEvent, row: Row<unknown>) {
+    if (isPointerEvent(evt) && evt.pointerType === 'mouse' && evt.target?.nodeName !== 'INPUT') {
+      evt.preventDefault();
+      row.toggleSelected();
+    }
+    evt.stopPropagation();
+  }
+
+  function isPointerEvent(evt: PointerEvent | MouseEvent): evt is PointerEvent {
+    if (hasKey(evt, 'pointerType')) return true;
+    return false;
+  }
+
   let selectedIds: string[] = [];
 </script>
 
@@ -168,7 +206,19 @@
           {#each headerGroup.headers as header}
             <span role="columnheader" style="width: {header.getSize()}px;">
               {#if header.id === '__checkbox'}
-                <Checkbox checked={selectedIds.length === $table.getRowModel().rows.length} />
+                <input
+                  type="checkbox"
+                  checked={$table.getIsAllRowsSelected()}
+                  indeterminate={$table.getIsSomeRowsSelected()}
+                  on:click={(evt) => {
+                    evt.stopPropagation();
+                  }}
+                  on:change={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $table.toggleAllRowsSelected();
+                  }}
+                />
               {:else if !header.isPlaceholder}
                 <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
               {/if}
@@ -178,12 +228,35 @@
       {/each}
     </div>
     <div role="rowgroup" class="tbody">
-      {#each $table.getRowModel().rows as row}
-        <div role="row">
+      {#each $table.getRowModel().rows as row, i}
+        {@const href = `${links.href}/${row.original?.[links.hrefSuffixKey]}${links.hrefSearch || ''}`}
+        <a
+          role="row"
+          {href}
+          target={links.windowName}
+          on:click={(evt) => handleRowClick(evt, row)}
+          on:dblclick={(evt) => {
+            if (evt.target?.nodeName !== 'INPUT') goto(href);
+          }}
+        >
           {#each row.getVisibleCells() as cell}
             <span role="cell" style="width: {cell.column.getSize()}px;">
               {#if cell.column.id === '__checkbox'}
-                <Checkbox />
+                <input
+                  type="checkbox"
+                  checked={row.getIsSelected()}
+                  disabled={!row.getCanSelect()}
+                  indeterminate={row.getIsSomeSelected()}
+                  on:click={(evt) => {
+                    evt.stopPropagation();
+                  }}
+                  on:change={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    row.getToggleSelectedHandler();
+                    selectedIds.push(row.original._id);
+                  }}
+                />
               {:else}
                 <span class="cell-content" class:noWrap={$table.options.meta?.noWrap}>
                   <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
@@ -191,7 +264,7 @@
               {/if}
             </span>
           {/each}
-        </div>
+        </a>
       {/each}
     </div>
   </div>
@@ -224,18 +297,27 @@
 
   
 
-  div[role='row'] {
-    /* border: 1px solid blue; */
-    
-
+  /* row style */
+  [role='row'] {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: flex-start;
   }
+  a[role='row'] {
+    text-decoration: none;
+    color: inherit;
+  }
+  a[role='row']:hover {
+    background-color: var(--fds-subtle-fill-secondary);
+  }
+  a[role='row']:active {
+    background-color: var(--fds-subtle-fill-tertiary);
+    color: var(--fds-text-secondary);
+  }
 
-  /* rows */
+  /* row size */
   div[role='rowgroup'] div[role="row"] {
     min-height: 40px;
     height: unset;
@@ -278,6 +360,9 @@
     block-size: var(--size);
     inline-size: var(--size);
     display: block;
+  }
+  div[role='table'] :global(.checkbox) {
+    z-index: 1;
   }
   div[role='table'].compact :global(.checkbox-container),
   div[role='table'].compact :global(.checkbox) {

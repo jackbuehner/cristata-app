@@ -287,7 +287,12 @@
   />
 
   <div class="new-table-wrapper">
-    <CollectionTable collection={data.collection} {tableData} schema={data.table.schema} />
+    <CollectionTable
+      collection={data.collection}
+      {tableData}
+      schema={data.table.schema}
+      tableDataFilter={data.table.filter}
+    />
   </div>
 
   <div class="table-wrapper">
