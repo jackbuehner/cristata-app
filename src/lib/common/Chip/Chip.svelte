@@ -19,8 +19,8 @@
 </script>
 
 <Button
-  on:click
   {href}
+  tabIndex={href ? 0 : -1}
   variant="hyperlink"
   style="
     height: {compact ? 24 : 30}px;
@@ -31,8 +31,15 @@
     font-size: 13px;
     color: var(--color-{color}{color === 'neutral' ? `-${$themeMode}` : ''}-{colorShade});
     box-shadow: {Color(themeColor[colorShade]).alpha(0.14).string()} 0px 0px 0px 1.25px inset;
-    --fds-subtle-fill-secondary: {Color(themeColor[colorShade]).alpha(0.11).string()};
-    --fds-subtle-fill-tertiary: {Color(themeColor[colorShade]).alpha(0.17).string()};
+    --fds-subtle-fill-transparent: {color === 'neutral'
+    ? 'transparent'
+    : Color(themeColor[colorShade]).alpha(0.05).string()};
+    --fds-subtle-fill-secondary: {href
+    ? Color(themeColor[colorShade]).alpha(0.11).string()
+    : `var(--fds-subtle-fill-transparent)`};
+    --fds-subtle-fill-tertiary: {href
+    ? Color(themeColor[colorShade]).alpha(0.17).string()
+    : `var(--fds-subtle-fill-transparent)`};
     {$$restProps['style']}
   "
   {...$$restProps}
