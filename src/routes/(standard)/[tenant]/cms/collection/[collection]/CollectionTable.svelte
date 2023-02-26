@@ -28,6 +28,8 @@
     docs?: undefined;
   }
 
+  type Doc = NonNullable<NonNullable<NonNullable<typeof $tableData.data>['data']>['docs']>[0];
+
   // if the field is a body field that is rendered as a tiptap editor,
   // we want to open it in maximized mode for easy access to the editor
   const shouldOpenMaximized = schema.find(([key, def]) => key === 'body' && def.field?.tiptap);
@@ -41,7 +43,7 @@
       shouldOpenMaximized && window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
   };
 
-  let columns: ColumnDef<unknown>[] = [];
+  let columns: ColumnDef<Doc>[] = [];
   $: columns = [
     {
       accessorKey: '__checkbox',
@@ -75,7 +77,7 @@
 
         return true;
       })
-      .map(([key, def]): ColumnDef<unknown> | null => {
+      .map(([key, def]): ColumnDef<Doc> | null => {
         // use predefined values for publish timestamps
         if (key === 'timestamps.published_at') {
           return {
@@ -154,7 +156,7 @@
   ];
 
   let colName = collection.colName;
-  let data: unknown[] = [];
+  let data: Doc[] = [];
   let filter = JSON.stringify(tableDataFilter);
   $: {
     if (
@@ -168,7 +170,7 @@
     }
   }
 
-  $: options = writable<TableOptions<unknown>>({
+  $: options = writable<TableOptions<Doc>>({
     data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
@@ -194,7 +196,7 @@
     return false;
   }
 
-  let selectedIds: string[] = [];
+  $: selectedIds = $table.getSelectedRowModel().rows.map((row) => row.original._id);
 </script>
 
 <div class="wrapper">

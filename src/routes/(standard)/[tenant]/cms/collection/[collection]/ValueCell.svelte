@@ -7,7 +7,7 @@
   import type { CellContext } from '@tanstack/svelte-table';
   import { writable } from 'svelte/store';
 
-  export let info: CellContext<unknown, unknown>;
+  export let info: CellContext<any, unknown>;
   export let type: 'string' | 'checkbox' = 'string';
   export let key: string;
   export let def: SchemaDef;
