@@ -2,6 +2,9 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
+  import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import { createEventDispatcher } from 'svelte';
+
   import { compactMode } from '$stores/compactMode';
   import { hasKey } from '$utils/hasKey';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
@@ -11,6 +14,7 @@
     flexRender,
     getCoreRowModel,
     renderComponent,
+    type Column,
     type ColumnDef,
     type Row,
     type TableOptions,
@@ -23,6 +27,7 @@
   export let schema: NonNullable<PageData['table']>['schema'];
   export let tableData: NonNullable<PageData['table']>['data'];
   export let tableDataFilter: NonNullable<PageData['table']>['filter'];
+  export let tableDataSort: NonNullable<PageData['table']>['sort'];
 
   interface SchemaDef extends AppSchemaDef {
     docs?: undefined;
@@ -114,14 +119,17 @@
         if (def.column) {
           return {
             accessorKey: key,
+            id: key,
             header: () => def.column?.label || key,
             size: parseInt(`${def.column.width}`) || 150,
             cell: (info) => renderComponent(ValueCell, { info, key, def }),
             enableSorting: def.column.sortable || false,
+            enableMultiSort: def.column.sortable || false,
           };
         }
         return {
           accessorKey: key,
+          id: key,
           header: () => key,
           size: 150,
           cell: (info) => renderComponent(ValueCell, { info, key, def }),
@@ -133,6 +141,7 @@
     {
       header: collection.schemaName === 'File' ? 'Uploaded by' : 'Created by',
       accessorKey: 'people.created_by',
+      id: 'people.created_by',
       cell: (info) =>
         renderComponent(ValueCell, { info, key: 'people.created_by', def: { type: ['User', 'ObjectId'] } }),
       size: 150,
@@ -141,6 +150,7 @@
     {
       header: 'Last modified by',
       accessorKey: 'people.last_modified_by',
+      id: 'people.last_modified_by',
       cell: (info) =>
         renderComponent(ValueCell, {
           info,
@@ -153,6 +163,7 @@
     {
       header: 'Last modified',
       accessorKey: 'timestamps.modified_at',
+      id: 'timestamps.modified_at',
       cell: (info) =>
         renderComponent(ValueCell, { info, key: 'timestamps.modified_at', def: { type: 'Date' } }),
       size: 190,
@@ -163,15 +174,18 @@
   let colName = collection.colName;
   let data: Doc[] = [];
   let filter = JSON.stringify(tableDataFilter);
+  let sort = JSON.stringify(tableDataSort);
   $: {
     if (
       data.length !== ($tableData?.data?.data?.docs || []).length ||
       colName !== collection.colName ||
-      filter !== JSON.stringify(tableDataFilter)
+      filter !== JSON.stringify(tableDataFilter) ||
+      sort !== JSON.stringify(tableDataSort)
     ) {
       data = $tableData?.data?.data?.docs || [];
       colName = collection.colName;
       filter = JSON.stringify(tableDataFilter);
+      sort = JSON.stringify(tableDataSort);
     }
   }
 
@@ -180,13 +194,38 @@
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     debugAll: true,
+    enableSorting: true,
+    enableMultiSort: true,
+    manualSorting: true,
+    manualFiltering: true,
     meta: {
       compactMode: $compactMode,
       noWrap: $compactMode,
     },
+    initialState: {
+      sorting: Object.entries(JSON.parse(sort) as typeof tableDataSort).map(([field, direction]) => {
+        return {
+          id: field,
+          desc: direction === -1,
+        };
+      }),
+    },
   });
 
   $: table = createSvelteTable(options);
+
+  // dispatch sort event when sort changes
+  const dispatch = createEventDispatcher();
+  $: {
+    const newSort: Record<string, 1 | -1> = {};
+    $table.getState().sorting.map((value) => {
+      newSort[value.id] = value.desc ? -1 : 1;
+    });
+    dispatch('sort', {
+      old: JSON.parse(sort) as typeof tableDataSort,
+      new: newSort,
+    });
+  }
 
   function handleRowClick(evt: PointerEvent | MouseEvent, row: Row<unknown>) {
     const lastRowIndex = lastSelectedRowIndex;
@@ -259,6 +298,10 @@
 
   let lastSelectedRowIndex = 0;
   $: selectedIds = $table.getSelectedRowModel().rows.map((row) => row.original._id);
+
+  function toggleSort(column: Column<Doc>, sortable: boolean, shiftKey?: boolean) {
+    if (sortable) column.toggleSorting(undefined, shiftKey);
+  }
 </script>
 
 <div class="wrapper">
@@ -267,7 +310,17 @@
       {#each $table.getHeaderGroups() as headerGroup}
         <div role="row">
           {#each headerGroup.headers as header}
-            <span role="columnheader" style="width: {header.getSize()}px;">
+            {@const sortable = header.column.getCanSort()}
+            <span
+              role="columnheader"
+              style="width: {header.getSize()}px;"
+              class:sortable
+              tabindex="0"
+              on:keyup={(evt) => {
+                if (evt.key === 'Enter') toggleSort(header.column, sortable, evt.shiftKey);
+              }}
+              on:click={(evt) => toggleSort(header.column, sortable, evt.shiftKey)}
+            >
               {#if header.id === '__checkbox'}
                 <StatelessCheckbox
                   checked={$table.getIsAllRowsSelected()}
@@ -285,6 +338,15 @@
                 />
               {:else if !header.isPlaceholder}
                 <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
+                {#if sortable}
+                  <span class="sort-chevron" style="--width: {header.getSize()}px">
+                    {#if header.column.getIsSorted() === 'asc'}
+                      <FluentIcon name="ChevronUp16Regular" />
+                    {:else if header.column.getIsSorted() === 'desc'}
+                      <FluentIcon name="ChevronDown16Regular" />
+                    {/if}
+                  </span>
+                {/if}
               {/if}
             </span>
           {/each}
@@ -373,6 +435,7 @@
   a[role='row'] {
     text-decoration: none;
     color: inherit;
+    cursor: default;
   }
   a[role='row']:hover {
     background-color: var(--fds-subtle-fill-secondary);
@@ -396,6 +459,7 @@
   div[role='rowgroup'].thead div[role="row"] {
     border-bottom: 1px solid var(--border-color);
     min-height: 42px;
+    height: 42px;
   }
   div[role='table'].compact div[role='rowgroup'].thead div[role="row"] {
     min-height: 36px;
@@ -405,6 +469,33 @@
   span[role='columnheader'], span[role='cell'] {
     padding: 4px 0 4px 10px;
     box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* header sorting */
+  span[role='columnheader'].sortable {
+    position: relative;
+    cursor: pointer;
+  }
+  span[role='columnheader'].sortable:hover {
+    background-color: var(--fds-subtle-fill-secondary);
+  }
+  span[role='columnheader'].sortable:active {
+    background-color: var(--fds-subtle-fill-tertiary);
+    color: var(--fds-text-secondary);
+  }
+  .sort-chevron {
+    position: absolute;
+    top: 0;
+    left: calc(var(--width) / 2 - 16px);
+    width: 16px;
+    height: 16px;
+  }
+  .sort-chevron > :global(svg) {
+    fill: currentColor
   }
   
   /* disable text wrapping of cell content when compact mode is enabled */

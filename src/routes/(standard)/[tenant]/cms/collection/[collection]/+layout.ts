@@ -9,7 +9,7 @@ import { dashToCamelCase } from '$utils/dashToCamelCase';
 import pluralize from 'pluralize';
 import type { LayoutLoad } from './$types';
 
-export const load = (async ({ params }) => {
+export const load = (async ({ params, fetch }) => {
   const collectionSchemaName = capitalize(pluralize.singular(dashToCamelCase(params.collection)));
 
   const collectionConfig = query<CollectionConfigQuery, CollectionConfigQueryVariables>({

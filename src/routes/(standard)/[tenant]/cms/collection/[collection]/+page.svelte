@@ -1,6 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import { afterNavigate, goto } from '$app/navigation';
+  import { afterNavigate, goto, invalidate } from '$app/navigation';
   import { page } from '$app/stores';
   import UploadFile from '$lib/cms/UploadFile.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
@@ -292,6 +292,20 @@
       {tableData}
       schema={data.table.schema}
       tableDataFilter={data.table.filter}
+      tableDataSort={data.table.sort}
+      on:sort={(evt) => {
+        // backup the current sort in localstorage so it can be restored later
+        localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+
+        if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+          invalidate('collection-table');
+        }
+
+        console.log(evt.detail);
+
+        // specify the current sort in the url so it refetches
+        // goto($page.url);
+      }}
     />
   </div>
 

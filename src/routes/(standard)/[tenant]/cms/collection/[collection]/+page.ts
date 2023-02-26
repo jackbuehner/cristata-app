@@ -11,7 +11,9 @@ import type { PageLoad } from './$types';
 
 const defaultFilter: mongoFilterType = { hidden: { $ne: true }, archived: { $ne: true } };
 
-export const load = (async ({ params, parent, url }) => {
+export const load = (async ({ params, parent, url, fetch, depends }) => {
+  depends('collection-table');
+
   const { collection } = await parent();
 
   const deconstructedSchema = deconstructSchema(
@@ -19,7 +21,24 @@ export const load = (async ({ params, parent, url }) => {
   );
 
   const filter = createMongoFilter(url.searchParams);
-  const sort = { stage: -1 };
+  const sort = (() => {
+    // prefer to use the sort defined in localstorage
+    const localStorageSortStr: string | null = localStorage.getItem(`table.${collection.schemaName}.sort`);
+    const localStorageSort: Record<string, 1 | -1> = JSON.parse(localStorageSortStr || '{}');
+
+    const sort: Record<string, 1 | -1> = { ...localStorageSort };
+
+    // if sort is empty, use the default sort key and order because an empty sort object is invalid
+    if (Object.keys(sort).length === 0) {
+      const defaultSortKey = url.searchParams.get('__defaultSortKey') || 'name';
+      const defaultSortKeyOrder = url.searchParams.get('__defaultSortKeyOrder') === '1' ? 1 : -1;
+      sort[defaultSortKey] = defaultSortKeyOrder;
+    }
+
+    return sort;
+  })();
+
+  console.log(sort);
 
   //generate a GraphQL API query based on the collection
   const GENERATED_COLLECTION_QUERY = parse(
@@ -128,6 +147,7 @@ export const load = (async ({ params, parent, url }) => {
     params,
     table: {
       filter,
+      sort,
       data: await tableData,
       schema: deconstructedSchema,
     },
