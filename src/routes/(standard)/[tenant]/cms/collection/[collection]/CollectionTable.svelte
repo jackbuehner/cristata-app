@@ -577,6 +577,17 @@
     min-height: 42px;
     height: 42px;
   }
+  div[role='rowgroup'].thead {
+    position:sticky;
+    top: 0;
+    background-color: #ffffff;
+    z-index: 1;
+  }
+  @media (prefers-color-scheme: dark) {
+    div[role='rowgroup'].thead {
+      background-color: #272727;
+    }
+  }
   div[role='table'].compact div[role='rowgroup'].thead div[role="row"] {
     min-height: 36px;
   }
