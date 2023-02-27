@@ -121,7 +121,7 @@
 
   let refetching = false;
   let loadingMore = false;
-  $: loading = refetching || loadingMore;
+  $: loading = refetching || loadingMore || $tableData.loading;
 </script>
 
 <div class="wrapper">
