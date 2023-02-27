@@ -27,9 +27,10 @@ export const load = (async ({ params, fetch }) => {
       colName: params.collection.replaceAll('-', ''),
       name: {
         singular: capitalize(pluralize.singular(params.collection.replaceAll('-', ' '))),
-        plural:
+        plural: capitalize(
           (await collectionConfig)?.data?.configuration?.collection?.pluralName ||
-          capitalize(params.collection.replaceAll('-', ' ')),
+            params.collection.replaceAll('-', ' ')
+        ),
       },
       config: await collectionConfig,
     },
