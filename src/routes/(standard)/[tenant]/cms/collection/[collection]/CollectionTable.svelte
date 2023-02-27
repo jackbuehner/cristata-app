@@ -1,9 +1,12 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { VITE_API_BASE_URL, VITE_API_PROTOCOL } from '$env/static/public';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import Loading from '$lib/common/Loading.svelte';
+  import ArchiveSelectedDocs from '$lib/dialogs/ArchiveSelectedDocs.svelte';
+  import DeleteSelectedDocs from '$lib/dialogs/DeleteSelectedDocs.svelte';
   import { compactMode } from '$stores/compactMode';
   import { hasKey } from '$utils/hasKey';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
@@ -22,6 +25,7 @@
   import { createEventDispatcher } from 'svelte';
   import { writable } from 'svelte/store';
   import type { PageData } from './$types';
+  import BulkActions from './BulkActions.svelte';
   import ValueCell from './ValueCell.svelte';
 
   export let collection: NonNullable<PageData['collection']>;
@@ -42,7 +46,7 @@
 
   // row links behaviors
   const links = {
-    href: `${$page.params.tenant}/cms/collection/${$page.params.collection}`,
+    href: `/${$page.params.tenant}/cms/collection/${$page.params.collection}`,
     hrefSuffixKey: collection.config?.data?.configuration?.collection?.by?.one || '_id',
     hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
     windowName:
@@ -298,13 +302,25 @@
   }
 
   let lastSelectedRowIndex = 0;
-  $: selectedIds = $table.getSelectedRowModel().rows.map((row) => row.original._id);
+  $: selectedIds = $table
+    .getSelectedRowModel()
+    .rows.map(
+      (row) => row.original[collection.config?.data?.configuration?.collection?.by.one || '_id']
+    ) as string[];
+
+  $: firstSelectedHref = `${links.href}/${
+    ($tableData?.data?.data?.docs || []).find((doc: { _id: string }) => doc._id === selectedIds[0])?.[
+      links.hrefSuffixKey
+    ]
+  }${links.hrefSearch || ''}`;
 
   function toggleSort(column: Column<Doc>, sortable: boolean, shiftKey?: boolean) {
     if (sortable) column.toggleSorting(undefined, shiftKey);
   }
 
   export let loadingMore = false;
+  let archiveDialogOpen = false;
+  let deleteDialogOpen = false;
 </script>
 
 <div class="wrapper">
@@ -423,6 +439,79 @@
     </div>
   {/if}
 </div>
+
+<div style="position: relative;">
+  <BulkActions show={selectedIds.length > 0}>
+    <Button on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
+      <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
+      Delete
+    </Button>
+    <Button on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
+      <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
+      Archive
+    </Button>
+
+    {#if collection.schemaName === 'File'}
+      <Button
+        href="{VITE_API_PROTOCOL}//{VITE_API_BASE_URL}/filestore/{$page.params.tenant}/{selectedIds[0]}"
+        disabled={selectedIds.length !== 1}
+        on:click={(evt) => {
+          evt.preventDefault();
+          window.open(
+            `${VITE_API_PROTOCOL}//${VITE_API_BASE_URL}/filestore/${$page.params.tenant}/${selectedIds[0]}`,
+            links.windowName + 'preview',
+            'location=no'
+          );
+        }}
+      >
+        <FluentIcon name="Open20Regular" mode="buttonIconLeft" />
+        Open preview
+      </Button>
+    {:else}
+      <Button
+        on:click={() => {
+          navigator.clipboard.writeText(`${$page.url.origin}${firstSelectedHref}`);
+        }}
+      >
+        <FluentIcon name="Link20Regular" mode="buttonIconLeft" />
+        Copy link
+      </Button>
+      <Button
+        href={firstSelectedHref}
+        disabled={selectedIds.length !== 1}
+        on:click={(evt) => {
+          evt.preventDefault();
+          window.open(firstSelectedHref, links.windowName, 'location=no');
+        }}
+      >
+        <FluentIcon name="Open20Regular" mode="buttonIconLeft" />
+        Open in Editor
+      </Button>
+    {/if}
+  </BulkActions>
+</div>
+
+<DeleteSelectedDocs
+  bind:open={deleteDialogOpen}
+  tenant={$page.params.tenant}
+  byOne={collection.config?.data?.configuration?.collection?.by.one}
+  {selectedIds}
+  schemaName={collection.schemaName}
+  handleSumbit={async () => {
+    await $tableData.refetch();
+  }}
+/>
+
+<ArchiveSelectedDocs
+  bind:open={archiveDialogOpen}
+  tenant={$page.params.tenant}
+  byOne={collection.config?.data?.configuration?.collection?.by.one}
+  {selectedIds}
+  schemaName={collection.schemaName}
+  handleSumbit={async () => {
+    await $tableData.refetch();
+  }}
+/>
 
 <style>
   div.wrapper {

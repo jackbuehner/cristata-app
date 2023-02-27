@@ -6,7 +6,6 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
-  import { collectionTableActions } from '$stores/collectionTable';
   import { hasKey } from '$utils/hasKey';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
@@ -118,7 +117,7 @@
   }
 
   // check whether the current user is allowed to create a new document
-  $: canCreate = $collectionTableActions?.getPermissions() || false;
+  $: canCreate = $tableData.data?.actionAccess?.create;
 
   let refetching = false;
   let loadingMore = false;
@@ -172,7 +171,7 @@
       </Tooltip>
 
       <Button
-        disabled={!$collectionTableActions || loading}
+        disabled={loading}
         on:click={async () => {
           refetching = true;
           await $tableData.refetch();
@@ -192,9 +191,11 @@
         <MenuFlyout alignment="start" placement="bottom" bind:open={viewDropdownOpen}>
           <svelte:fragment slot="flyout">
             <MenuFlyoutItem
-              disabled={!$collectionTableActions || loading}
-              on:click={() => {
-                $collectionTableActions?.refetchData();
+              disabled={loading}
+              on:click={async () => {
+                refetching = true;
+                await $tableData.refetch();
+                refetching = false;
               }}
             >
               <FluentIcon name="ArrowClockwise16Regular" slot="icon" />
@@ -269,7 +270,11 @@
     bind:uploadStatus
     bind:loading={uploadLoading}
     tenant={data.tenant}
-    refetchData={async () => $collectionTableActions?.refetchData()}
+    refetchData={async () => {
+      refetching = true;
+      await $tableData.refetch();
+      refetching = false;
+    }}
   />
 
   <div class="new-table-wrapper">
@@ -308,7 +313,7 @@
     padding: 20px;
     flex-grow: 1;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     box-sizing: border-box;
   }
 </style>
