@@ -232,7 +232,7 @@
     });
   }
 
-  function handleRowClick(evt: PointerEvent | MouseEvent, row: Row<unknown>) {
+  function handleRowClick(evt: PointerEvent | MouseEvent, row: Row<Doc>) {
     const lastRowIndex = lastSelectedRowIndex;
     const thisRowIndex = row.index;
 
