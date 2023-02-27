@@ -414,6 +414,9 @@
       {/each}
     </div>
   </div>
+  {#if ($tableData.data?.data?.totalDocs || 0) === 0 && $tableData.loading}
+    <Loading message="Loading documents..." style="padding: 20px;" />
+  {/if}
   {#if ($tableData.data?.data?.totalDocs || 0) > ($tableData.data?.data?.docs || []).length}
     <div class="table-buttons">
       {#if loadingMore}
