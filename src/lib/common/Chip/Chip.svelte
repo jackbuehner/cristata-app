@@ -40,6 +40,7 @@
     --fds-subtle-fill-tertiary: {href
     ? Color(themeColor[colorShade]).alpha(0.17).string()
     : `var(--fds-subtle-fill-transparent)`};
+    white-space: nowrap;
     {$$restProps['style']}
   "
   {...$$restProps}
