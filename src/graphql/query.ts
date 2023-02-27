@@ -53,6 +53,9 @@ cache.subscribe((value) => {
   }
 });
 
+// track loading
+const loading = writable<Record<string, Record<string, boolean>>>({});
+
 function getOperationInfo(query: DocumentNode) {
   const operation = getOperationAST(query);
   const operationName = operation && operation.name && operation.name.value;
@@ -87,6 +90,18 @@ export async function query<DataType = unknown, VariablesType = unknown>({
     }
   }
 
+  // set the loading is occuring
+  if (operationName) {
+    console.log('h', operationName, varKey);
+    loading.update((state) => ({
+      ...state,
+      [operationName]: {
+        ...(state[operationName] || {}),
+        [varKey]: true,
+      },
+    }));
+  }
+
   return fetch(`${server.location}/v3/${opts.tenant}`, {
     method: 'POST',
     credentials: 'include',
@@ -118,7 +133,8 @@ export async function query<DataType = unknown, VariablesType = unknown>({
       }
 
       // cache the result so it can be used immediately (cache is lost on page refresh)
-      if (operationName)
+      if (operationName) {
+        console.log('s', operationName, varKey);
         cache.update((state) => ({
           ...state,
           [operationName]: {
@@ -132,6 +148,14 @@ export async function query<DataType = unknown, VariablesType = unknown>({
             },
           },
         }));
+        loading.update((state) => ({
+          ...state,
+          [operationName]: {
+            ...(state[operationName] || {}),
+            [varKey]: false,
+          },
+        }));
+      }
 
       return json;
     }
@@ -147,35 +171,21 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
 }): Readable<StoreReturnType<DataType>> {
   const varKey = createVariableKey(opts.variables || {}, opts.tenant);
 
-  return derived(cache, ($cache) => {
-    if (!$cache[opts.queryName]?.[varKey]) {
-      return {
-        refetch: async () => {},
-        fetchNextPage: async () => {
-          return {
-            setStore: (merged: DataType) => {
-              return merged;
-            },
-          };
-        },
-        fetchMore: async () => {
-          return {
-            setStore: (merged: DataType) => {
-              return merged;
-            },
-          };
-        },
-      };
-    }
+  return derived([cache, loading], ([$cache, $loading]) => {
     return {
-      data: $cache[opts.queryName]?.[varKey].value.data,
-      errors: $cache[opts.queryName]?.[varKey].value.errors,
+      data: $cache[opts.queryName]?.[varKey]?.value.data,
+      errors: $cache[opts.queryName]?.[varKey]?.value.errors,
+      loading: $loading[opts.queryName]?.[varKey] || false,
       refetch: async () => {
+        if (!$cache[opts.queryName]) return;
+        if (!$cache[opts.queryName][varKey]) return;
+
         const queryOpts = $cache[opts.queryName]?.[varKey].queryOpts;
         await query({ fetch, ...queryOpts, expireCache: 1 });
       },
       fetchNextPage: async (page: number = (opts?.variables as any)?.page || 1) => {
         if (!$cache[opts.queryName]) return;
+        if (!$cache[opts.queryName][varKey]) return;
 
         const queryOpts = $cache[opts.queryName][varKey].queryOpts;
 
@@ -186,7 +196,7 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
         });
 
         return {
-          current: $cache[opts.queryName]?.[varKey].value.data as DataType,
+          current: $cache[opts.queryName][varKey].value.data as DataType,
           next: next?.data,
           setStore: (merged: DataType) => {
             setUpdatedData(queryOpts, varKey, merged);
@@ -196,6 +206,7 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
       },
       fetchMore: async (offset: number, limit = 10) => {
         if (!$cache[opts.queryName]) return;
+        if (!$cache[opts.queryName][varKey]) return;
 
         const queryOpts = $cache[opts.queryName][varKey].queryOpts;
 
@@ -206,7 +217,7 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
         });
 
         return {
-          current: $cache[opts.queryName]?.[varKey].value.data as DataType,
+          current: $cache[opts.queryName][varKey].value.data as DataType,
           next: next?.data,
           setStore: (merged: DataType) => {
             setUpdatedData(queryOpts, varKey, merged);
@@ -299,6 +310,7 @@ export type GraphqlQueryReturn<DataType> = ReturnType<DataType> | null;
 interface ReturnType<DataType> {
   data?: DataType;
   errors?: any;
+  loading?: boolean;
 }
 
 export interface StoreReturnType<DataType> extends ReturnType<DataType> {
