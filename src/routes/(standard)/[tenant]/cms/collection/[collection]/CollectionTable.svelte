@@ -198,7 +198,7 @@
     data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
-    debugAll: true,
+    debugAll: false,
     enableSorting: true,
     enableMultiSort: true,
     manualSorting: true,
@@ -394,11 +394,9 @@
                   size={$compactMode ? 16 : 18}
                   labelStyle="display: flex; margin-left: 3px;"
                   on:click={(evt) => {
-                    console.log(evt);
                     evt.stopPropagation();
                   }}
                   on:change={(evt) => {
-                    console.log(evt.detail);
                     row.toggleSelected(evt.detail.checked);
                     lastSelectedRowIndex = row.index;
                   }}

@@ -38,8 +38,6 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
     return sort;
   })();
 
-  console.log(sort);
-
   //generate a GraphQL API query based on the collection
   const GENERATED_COLLECTION_QUERY = parse(
     jsonToGraphQLQuery(

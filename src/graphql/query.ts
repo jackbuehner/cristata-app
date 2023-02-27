@@ -92,7 +92,6 @@ export async function query<DataType = unknown, VariablesType = unknown>({
 
   // set the loading is occuring
   if (operationName) {
-    console.log('h', operationName, varKey);
     loading.update((state) => ({
       ...state,
       [operationName]: {
@@ -134,7 +133,6 @@ export async function query<DataType = unknown, VariablesType = unknown>({
 
       // cache the result so it can be used immediately (cache is lost on page refresh)
       if (operationName) {
-        console.log('s', operationName, varKey);
         cache.update((state) => ({
           ...state,
           [operationName]: {
