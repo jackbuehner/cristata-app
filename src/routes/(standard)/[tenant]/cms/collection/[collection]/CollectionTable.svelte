@@ -443,11 +443,11 @@
 
 <div style="position: relative;">
   <BulkActions show={selectedIds.length > 0}>
-    <Button on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
+    <Button disabled={selectedIds.length === 0} on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
       <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
       Delete
     </Button>
-    <Button on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
+    <Button disabled={selectedIds.length === 0} on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
       <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
       Archive
     </Button>
