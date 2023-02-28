@@ -346,6 +346,7 @@
                   indeterminate={$table.getIsSomeRowsSelected()}
                   size={$compactMode ? 16 : 18}
                   labelStyle="display: flex; margin-left: 3px;"
+                  disabled={$table.getRowModel().rows.length === 0}
                   on:click={(evt) => {
                     evt.stopPropagation();
                   }}
