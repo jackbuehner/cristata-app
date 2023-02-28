@@ -34,31 +34,35 @@
       {#each refDataWithStandardKeys as data}
         {@const _id = data._id ? `${data._id}` : undefined}
         {@const photo = data.photo ? `${data.photo}` : undefined}
-        <img
-          src={photo ? photo : _id ? genAvatar(_id) : ''}
-          alt=""
-          style="width: 20px; height: 20px; border-radius: 50%;"
-        />
-      {/each}
-    {/if}
-    {#each refDataWithStandardKeys as data, index}
-      {@const name = data.name ? `${data.name}` : undefined}
-      {@const _id = data._id ? `${data._id}` : undefined}
-      {@const photo = data.photo ? `${data.photo}` : undefined}
-      <div class="ref-wrapper">
-        {#if collection === 'User' && !info.table.options.meta?.compactMode}
+        {#if _id}
           <img
             src={photo ? photo : _id ? genAvatar(_id) : ''}
             alt=""
             style="width: 20px; height: 20px; border-radius: 50%;"
           />
         {/if}
-        {#if info.table.options.meta?.compactMode && index < refDataWithStandardKeys.length - 1}
-          <span>{name || _id}, </span>
-        {:else}
-          <span>{name || _id}</span>
-        {/if}
-      </div>
+      {/each}
+    {/if}
+    {#each refDataWithStandardKeys as data, index}
+      {@const name = data.name ? `${data.name}` : undefined}
+      {@const _id = data._id ? `${data._id}` : undefined}
+      {@const photo = data.photo ? `${data.photo}` : undefined}
+      {#if name && _id}
+        <div class="ref-wrapper">
+          {#if collection === 'User' && !info.table.options.meta?.compactMode}
+            <img
+              src={photo ? photo : _id ? genAvatar(_id) : ''}
+              alt=""
+              style="width: 20px; height: 20px; border-radius: 50%;"
+            />
+          {/if}
+          {#if info.table.options.meta?.compactMode && index < refDataWithStandardKeys.length - 1}
+            <span>{name || _id}, </span>
+          {:else}
+            <span>{name || _id}</span>
+          {/if}
+        </div>
+      {/if}
     {/each}
   </div>
 {:else if Array.isArray(fieldData)}
