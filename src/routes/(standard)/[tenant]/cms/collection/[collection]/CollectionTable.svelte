@@ -8,6 +8,7 @@
   import ArchiveSelectedDocs from '$lib/dialogs/ArchiveSelectedDocs.svelte';
   import DeleteSelectedDocs from '$lib/dialogs/DeleteSelectedDocs.svelte';
   import { compactMode } from '$stores/compactMode';
+  import { motionMode } from '$stores/motionMode';
   import { hasKey } from '$utils/hasKey';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
@@ -23,7 +24,9 @@
   } from '@tanstack/svelte-table';
   import { Button } from 'fluent-svelte';
   import { createEventDispatcher } from 'svelte';
+  import { expoOut } from 'svelte/easing';
   import { writable } from 'svelte/store';
+  import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
   import BulkActions from './BulkActions.svelte';
   import ValueCell from './ValueCell.svelte';
@@ -376,40 +379,43 @@
     <div role="rowgroup" class="tbody">
       {#each $table.getRowModel().rows as row, i}
         {@const href = `${links.href}/${row.original?.[links.hrefSuffixKey]}${links.hrefSearch || ''}`}
-        <a
-          role="row"
-          {href}
-          target={links.windowName}
-          on:click={(evt) => handleRowClick(evt, row)}
-          on:dblclick={(evt) => {
-            if (!isInputElem(evt.target) && !isCheckbox(evt.target)) goto(href);
-          }}
-        >
-          {#each row.getVisibleCells() as cell}
-            <span role="cell" style="width: {cell.column.getSize()}px">
-              {#if cell.column.id === '__checkbox'}
-                <StatelessCheckbox
-                  checked={row.getIsSelected()}
-                  disabled={!row.getCanSelect()}
-                  indeterminate={row.getIsSomeSelected()}
-                  size={$compactMode ? 16 : 18}
-                  labelStyle="display: flex; margin-left: 3px;"
-                  on:click={(evt) => {
-                    evt.stopPropagation();
-                  }}
-                  on:change={(evt) => {
-                    row.toggleSelected(evt.detail.checked);
-                    lastSelectedRowIndex = row.index;
-                  }}
-                />
-              {:else}
-                <span class="cell-content" class:noWrap={$table.options.meta?.noWrap}>
-                  <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
-                </span>
-              {/if}
-            </span>
-          {/each}
-        </a>
+        {#key href}
+          <a
+            role="row"
+            {href}
+            target={links.windowName}
+            on:click={(evt) => handleRowClick(evt, row)}
+            on:dblclick={(evt) => {
+              if (!isInputElem(evt.target) && !isCheckbox(evt.target)) goto(href);
+            }}
+            in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+          >
+            {#each row.getVisibleCells() as cell}
+              <span role="cell" style="width: {cell.column.getSize()}px">
+                {#if cell.column.id === '__checkbox'}
+                  <StatelessCheckbox
+                    checked={row.getIsSelected()}
+                    disabled={!row.getCanSelect()}
+                    indeterminate={row.getIsSomeSelected()}
+                    size={$compactMode ? 16 : 18}
+                    labelStyle="display: flex; margin-left: 3px;"
+                    on:click={(evt) => {
+                      evt.stopPropagation();
+                    }}
+                    on:change={(evt) => {
+                      row.toggleSelected(evt.detail.checked);
+                      lastSelectedRowIndex = row.index;
+                    }}
+                  />
+                {:else}
+                  <span class="cell-content" class:noWrap={$table.options.meta?.noWrap}>
+                    <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
+                  </span>
+                {/if}
+              </span>
+            {/each}
+          </a>
+        {/key}
       {/each}
     </div>
   </div>
