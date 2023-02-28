@@ -470,6 +470,7 @@
       </Button>
     {:else}
       <Button
+        disabled={selectedIds.length !== 1}
         on:click={() => {
           navigator.clipboard.writeText(`${$page.url.origin}${firstSelectedHref}`);
         }}
