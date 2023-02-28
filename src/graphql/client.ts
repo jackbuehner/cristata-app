@@ -1,11 +1,13 @@
 import { browser } from '$app/environment';
-import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { LocalStorageWrapper, persistCache } from 'apollo3-cache-persist';
 import { merge } from 'merge-anything';
 import type { FilterQuery } from 'mongoose';
 import type { Paged } from '../interfaces/cristata/paged';
 import { server } from '../utils/constants';
 import { ClientConsumer } from './ClientConsumer';
+
+import * as apolloRaw from '@apollo/client';
+const { ApolloClient, InMemoryCache } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 const collectionPluralNames = [
   'articles',

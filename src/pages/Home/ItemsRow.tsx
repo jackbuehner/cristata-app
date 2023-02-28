@@ -1,13 +1,16 @@
 import type { DashboardConfigQuery } from '$graphql/graphql';
 import { get as getProperty } from '$utils/objectPath';
-import { gql, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
+import { gql } from 'graphql-tag';
 import { DateTime } from 'luxon';
 import { useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { genAvatar } from '../../utils/genAvatar';
 import type { themeType } from '../../utils/theme/theme';
+
+import * as apolloRaw from '@apollo/client';
+const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 type CollectionRow = NonNullable<
   NonNullable<DashboardConfigQuery['configuration']>['dashboard']['collectionRows'][0]

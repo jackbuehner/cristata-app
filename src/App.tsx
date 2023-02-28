@@ -1,5 +1,4 @@
 import { browser } from '$app/environment';
-import { ApolloProvider } from '@apollo/client';
 import { ModalProvider } from '@cristata/react-modal-hook';
 import { css, Global, ThemeProvider } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
@@ -13,6 +12,9 @@ import { createClient } from './graphql/client';
 import { DropdownProvider } from './hooks/useDropdown';
 import { persistor, store } from './redux/store';
 import { theme as themeC } from './utils/theme/theme';
+
+import * as apolloRaw from '@apollo/client';
+const { ApolloProvider } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 export interface IGridCols {
   side: number;

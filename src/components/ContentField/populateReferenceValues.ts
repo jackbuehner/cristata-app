@@ -1,4 +1,5 @@
-import { ApolloClient, gql } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
+import { gql } from 'graphql-tag';
 import mongoose from 'mongoose';
 import { uncapitalize } from '../../utils/uncapitalize';
 

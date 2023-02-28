@@ -1,4 +1,3 @@
-import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { CircularProgress } from '@material-ui/core';
@@ -24,6 +23,10 @@ import { isJSON } from '../../../utils/isJSON';
 import type { themeType } from '../../../utils/theme/theme';
 import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilterRow';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
+
+import * as apolloRaw from '@apollo/client';
+const { NetworkStatus, useApolloClient, useQuery } = ((apolloRaw as any).default ??
+  apolloRaw) as typeof apolloRaw;
 
 function PhotoLibraryPage() {
   const dispatch = useAppDispatch();

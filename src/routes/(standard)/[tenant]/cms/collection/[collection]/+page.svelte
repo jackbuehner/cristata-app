@@ -1,19 +1,14 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import { afterNavigate, goto } from '$app/navigation';
+  import { afterNavigate, goto, invalidate } from '$app/navigation';
   import { page } from '$app/stores';
-  import type { mongoFilterType } from '$graphql/client';
   import UploadFile from '$lib/cms/UploadFile.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
-  import { CollectionTable } from '$react/CMS/CollectionPage/CollectionTable';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
-  import { collectionTableActions } from '$stores/collectionTable';
-  import { capitalize } from '$utils/capitalize';
-  import { dashToCamelCase } from '$utils/dashToCamelCase';
   import { hasKey } from '$utils/hasKey';
-  import { isJSON } from '$utils/isJSON';
   import { notEmpty } from '$utils/notEmpty';
+  import { uncapitalize } from '$utils/uncapitalize';
   import {
     Button,
     MenuFlyout,
@@ -23,86 +18,24 @@
     TextBox,
     Tooltip,
   } from 'fluent-svelte';
-  import pluralize from 'pluralize';
   import { hooks } from 'svelte-preprocess-react';
   import type { PageData } from './$types';
+  import CollectionTable from './CollectionTable.svelte';
 
   export let data: PageData;
+  $: ({ data: tableData } = data.table);
 
-  $: collectionName = capitalize(pluralize.singular(dashToCamelCase(data.params.collection)));
-  $: collectionNameSingular = pluralize.singular(data.params.collection.replaceAll('-', ' '));
+  $: collectionName = data.collection.schemaName;
+  $: collectionNameSingular = uncapitalize(data.collection.name.singular);
   $: collection = data.configuration?.collections?.filter(notEmpty).find((col) => col.name === collectionName);
 
   $: pageTitle =
     // if defined, attempt to use the page title in the query string
     $page.url.searchParams.get('__pageTitle') ||
-    // otherwise, build a title using the collection string
-    data.params.collection.slice(0, 1).toLocaleUpperCase() +
-      data.params.collection.slice(1).replace('-', ' ') +
-      ' collection';
+    // otherwise, build a title using the collection name
+    data.collection.name.plural + ' collection';
 
   $: if (browser) document.title = `${pageTitle} - Cristata`;
-
-  // build a filter for the table based on url search params
-  const defaultFilter: mongoFilterType = { hidden: { $ne: true }, archived: { $ne: true } };
-  let mongoFilter = createMongoFilter();
-  afterNavigate(() => {
-    mongoFilter = createMongoFilter();
-  });
-
-  /**
-   * Constructs a filter for the collection table that is
-   * compatible with the filter query accepted by monogdb.
-   */
-  function createMongoFilter() {
-    const filter = { ...defaultFilter };
-    $page.url.searchParams.forEach((value, param) => {
-      // ignore values that start with two underscores because these are
-      // parameters used in the page instead of filters
-      if (param.indexOf('__') === 0) return;
-
-      // if the param name is _search, search the text index
-      if (param === '_search') {
-        filter.$text = { $search: value };
-        return;
-      }
-
-      // handle special filters, which are in the format key:filterName:filterValue
-      if (value.includes(':') && value.split(':').length === 2) {
-        const [filterName, filterValue] = value.split(':');
-
-        if (filterName === 'size') {
-          filter[param] = { $size: parseInt(filterValue) || 0 };
-          return;
-        }
-
-        return;
-      }
-
-      const isNegated = param[0] === '!';
-      const isArray = isJSON(value) && Array.isArray(JSON.parse(value));
-
-      const parseBooleanString = (str: string) => {
-        if (str.toLowerCase() === 'true') return true;
-        else if (str.toLowerCase() === 'false') return false;
-        return undefined;
-      };
-
-      if (isNegated && isArray) filter[param.slice(1)] = { $nin: JSON.parse(value) };
-      if (isNegated && !isArray)
-        filter[param.slice(1)] = {
-          $ne: parseBooleanString(value) !== undefined ? parseBooleanString(value) : parseFloat(value) || value,
-        };
-      if (!isNegated && isArray) filter[param] = { $in: JSON.parse(value) };
-      if (!isNegated && !isArray)
-        filter[param] = !isNaN(parseFloat(value))
-          ? { $eq: parseFloat(value) }
-          : parseBooleanString(value) !== undefined
-          ? { $eq: parseBooleanString(value) }
-          : { $regex: value, $options: 'i' };
-    });
-    return filter;
-  }
 
   // keep the search box value representative of the URL search params
   let searchBoxValue = calculateSearchBoxValue();
@@ -183,27 +116,12 @@
     uploadInput?.click();
   }
 
-  // track table items that have been selected
-  let selectedIds: string[] = [];
-  function setSelectedIds(newValue: string[] | ((selectedIds: string[]) => string[])) {
-    if (Array.isArray(newValue)) selectedIds = newValue;
-    else selectedIds = newValue(selectedIds);
-  }
-  let lastSelectedId: string | undefined = undefined;
-  function setLastSelectedId(newValue: string | ((lastSelectedId: string | undefined) => string)) {
-    if (typeof newValue === 'string') lastSelectedId = newValue;
-    else lastSelectedId = newValue(lastSelectedId);
-  }
-
   // check whether the current user is allowed to create a new document
-  $: canCreate = $collectionTableActions?.getPermissions() || false;
+  $: canCreate = $tableData.data?.actionAccess?.create;
 
-  // ! temporary
-  let loading = false;
-  function setLoading(newValue: boolean | ((isLoloadingading: boolean) => boolean)) {
-    if (typeof newValue === 'boolean') loading = newValue;
-    else loading = newValue(loading);
-  }
+  let refetching = false;
+  let loadingMore = false;
+  $: loading = refetching || loadingMore || $tableData.loading;
 </script>
 
 <div class="wrapper">
@@ -229,7 +147,7 @@
             variant="accent"
             disabled={!!uploadStatus || uploadLoading || !canCreate || loading || !collection?.canCreateAndGet}
             on:click={upload}
-            style="width: 120px;"
+            style="width: 130px;"
           >
             {#if uploadLoading}
               <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
@@ -253,9 +171,11 @@
       </Tooltip>
 
       <Button
-        disabled={!$collectionTableActions || loading}
-        on:click={() => {
-          $collectionTableActions?.refetchData();
+        disabled={loading}
+        on:click={async () => {
+          refetching = true;
+          await $tableData.refetch();
+          refetching = false;
         }}
         style="width: 130px;"
       >
@@ -271,9 +191,11 @@
         <MenuFlyout alignment="start" placement="bottom" bind:open={viewDropdownOpen}>
           <svelte:fragment slot="flyout">
             <MenuFlyoutItem
-              disabled={!$collectionTableActions || loading}
-              on:click={() => {
-                $collectionTableActions?.refetchData();
+              disabled={loading}
+              on:click={async () => {
+                refetching = true;
+                await $tableData.refetch();
+                refetching = false;
               }}
             >
               <FluentIcon name="ArrowClockwise16Regular" slot="icon" />
@@ -289,7 +211,7 @@
                   setSearchFilters();
                 }}
               >
-                Exit {data.params.collection.replace('-', ' ')} archive
+                Exit {uncapitalize(data.collection.name.plural)} archive
               </MenuFlyoutItem>
             {:else}
               <MenuFlyoutItem
@@ -300,7 +222,7 @@
                   setSearchFilters();
                 }}
               >
-                View archived {data.params.collection.replace('-', ' ')}
+                View archived {uncapitalize(data.collection.name.plural)}
               </MenuFlyoutItem>
             {/if}
             <MenuFlyoutDivider />
@@ -348,18 +270,29 @@
     bind:uploadStatus
     bind:loading={uploadLoading}
     tenant={data.tenant}
-    refetchData={async () => $collectionTableActions?.refetchData()}
+    refetchData={async () => {
+      refetching = true;
+      await $tableData.refetch();
+      refetching = false;
+    }}
   />
 
-  <div class="table-wrapper">
-    <react:CollectionTable
-      collection={collectionName}
-      filter={mongoFilter}
-      ref={() => {}}
-      isLoading={loading}
-      setIsLoading={setLoading}
-      selectedIdsState={[selectedIds, setSelectedIds]}
-      lastSelectedIdState={[lastSelectedId, setLastSelectedId]}
+  <div class="new-table-wrapper">
+    <CollectionTable
+      collection={data.collection}
+      {tableData}
+      schema={data.table.schema}
+      tableDataFilter={data.table.filter}
+      tableDataSort={data.table.sort}
+      bind:loadingMore
+      on:sort={(evt) => {
+        // backup the current sort in localstorage so it can be restored later
+        localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+
+        if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+          invalidate('collection-table');
+        }
+      }}
     />
   </div>
 </div>
@@ -376,12 +309,11 @@
     flex-grow: 1;
   }
 
-  .table-wrapper {
-    position: relative;
+  .new-table-wrapper {
     padding: 20px;
-    overflow: hidden;
-    height: 100%;
-    box-sizing: border-box;
     flex-grow: 1;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 </style>

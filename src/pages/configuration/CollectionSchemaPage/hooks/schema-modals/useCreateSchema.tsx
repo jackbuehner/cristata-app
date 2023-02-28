@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import type { DocumentNode } from '@apollo/client';
-import { gql, useApolloClient } from '@apollo/client';
+
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'svelte-preprocess-react/react-router';
@@ -9,6 +10,9 @@ import { useWindowModal } from '../../../../../hooks/useWindowModal';
 import { capitalize } from '../../../../../utils/capitalize';
 import { dashToCamelCase } from '../../../../../utils/dashToCamelCase';
 import { slugify } from '../../../../../utils/slugify';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function useCreateSchema(collectionNames: string[]): [React.ReactNode, () => void, () => void] {
   const [Window, showModal, hideModal] = useWindowModal(() => {

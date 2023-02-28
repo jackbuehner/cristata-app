@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import { useModal } from '@cristata/react-modal-hook';
 import styled from '@emotion/styled';
 import { Delete16Regular, Edit16Regular, TextDescription20Regular } from '@fluentui/react-icons';
@@ -15,6 +14,9 @@ import { PlainModal } from '../../Modal';
 import { Select } from '../../Select';
 import { WidgetActions, WidgetLabel, WidgetWrapper } from '../components/Widget';
 import type { PhotoWidgetOptions } from './PhotoWidget';
+
+import * as apolloRaw from '@apollo/client';
+const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface IPhotoWidgetNodeView extends NodeViewProps {
   extension: Node<PhotoWidgetOptions>;

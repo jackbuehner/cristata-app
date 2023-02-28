@@ -225,16 +225,21 @@
           label: 'Schemas',
           type: 'category',
         },
-        ...(data.configuration?.collections
-          ?.map((col) => {
-            if (!col) return;
-            return {
-              label: col.name,
-              href: `/${data.authUser.tenant}/configuration/schema/${col.name}#0`,
-              icon: 'CircleSmall20Filled',
-            };
-          })
-          .filter(notEmpty) || []),
+        ...(
+          data.configuration?.collections
+            ?.map((col) => {
+              if (!col) return;
+              if (col.name === 'File') return;
+              if (col.name === 'Photo') return;
+              if (col.name === 'Activity') return;
+              return {
+                label: col.name,
+                href: `/${data.authUser.tenant}/configuration/schema/${col.name}#0`,
+                icon: 'CircleSmall20Filled',
+              };
+            })
+            .filter(notEmpty) || []
+        ).sort((a, b) => a.label.localeCompare(b.label)),
       ]
     : isCmsRoute
     ? [
@@ -279,7 +284,10 @@
                   type: 'expander',
                   children: (group?.items || [])
                     .filter(notEmpty)
-                    .filter((item) => item.label !== 'Files' && item.label !== 'Photo library')
+                    .filter(
+                      (item) =>
+                        item.label !== 'Files' && item.label !== 'Photo library' && item.label !== 'Activities'
+                    )
                     .map((item) => {
                       return {
                         label: item.label,

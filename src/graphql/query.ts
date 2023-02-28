@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import { server } from '$utils/constants';
+import { hasKey } from '$utils/hasKey';
 import { flattenObject } from 'flatten-anything';
 import { getOperationAST, print, type DocumentNode } from 'graphql';
 import type { Readable } from 'svelte/store';
@@ -52,6 +53,21 @@ cache.subscribe((value) => {
   }
 });
 
+// track loading
+const loading = writable<Record<string, Record<string, boolean>>>({});
+
+function getOperationInfo(query: DocumentNode) {
+  const operation = getOperationAST(query);
+  const operationName = operation && operation.name && operation.name.value;
+  const topSelectionName: string | undefined = (() => {
+    const firstSelection = operation?.selectionSet.selections?.[0];
+    // @ts-expect-error these exsit
+    return firstSelection?.alias || firstSelection?.name.value || undefined;
+  })();
+
+  return { operation, operationName, topSelectionName };
+}
+
 export async function query<DataType = unknown, VariablesType = unknown>({
   fetch: _fetch,
   ...opts
@@ -59,13 +75,7 @@ export async function query<DataType = unknown, VariablesType = unknown>({
   const fetch = _fetch;
   if (opts.skip) return {};
 
-  const operation = getOperationAST(opts.query);
-  const operationName = operation && operation.name && operation.name.value;
-  const topSelectionName: string | undefined = (() => {
-    const firstSelection = operation?.selectionSet.selections?.[0];
-    // @ts-expect-error these exsit
-    return firstSelection?.alias || firstSelection?.name.value || undefined;
-  })();
+  const { operationName, topSelectionName } = getOperationInfo(opts.query);
   const varKey = createVariableKey(opts.variables || {}, opts.tenant);
 
   if (operationName && opts.useCache && get(cache)[operationName]?.[varKey]) {
@@ -78,6 +88,17 @@ export async function query<DataType = unknown, VariablesType = unknown>({
     } else {
       return get(cache)[operationName][varKey].value as ReturnType<DataType>;
     }
+  }
+
+  // set the loading is occuring
+  if (operationName) {
+    loading.update((state) => ({
+      ...state,
+      [operationName]: {
+        ...(state[operationName] || {}),
+        [varKey]: true,
+      },
+    }));
   }
 
   return fetch(`${server.location}/v3/${opts.tenant}`, {
@@ -111,7 +132,7 @@ export async function query<DataType = unknown, VariablesType = unknown>({
       }
 
       // cache the result so it can be used immediately (cache is lost on page refresh)
-      if (operationName)
+      if (operationName) {
         cache.update((state) => ({
           ...state,
           [operationName]: {
@@ -125,6 +146,14 @@ export async function query<DataType = unknown, VariablesType = unknown>({
             },
           },
         }));
+        loading.update((state) => ({
+          ...state,
+          [operationName]: {
+            ...(state[operationName] || {}),
+            [varKey]: false,
+          },
+        }));
+      }
 
       return json;
     }
@@ -139,17 +168,88 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
   tenant: string;
 }): Readable<StoreReturnType<DataType>> {
   const varKey = createVariableKey(opts.variables || {}, opts.tenant);
-  return derived(cache, ($cache) => {
-    if (!$cache[opts.queryName]?.[varKey]) return { refetch: async () => {} };
+
+  return derived([cache, loading], ([$cache, $loading]) => {
     return {
-      data: $cache[opts.queryName]?.[varKey].value.data,
-      errors: $cache[opts.queryName]?.[varKey].value.errors,
+      data: $cache[opts.queryName]?.[varKey]?.value.data,
+      errors: $cache[opts.queryName]?.[varKey]?.value.errors,
+      loading: $loading[opts.queryName]?.[varKey] || false,
       refetch: async () => {
+        if (!$cache[opts.queryName]) return;
+        if (!$cache[opts.queryName][varKey]) return;
+
         const queryOpts = $cache[opts.queryName]?.[varKey].queryOpts;
         await query({ fetch, ...queryOpts, expireCache: 1 });
       },
+      fetchNextPage: async (page: number = (opts?.variables as any)?.page || 1) => {
+        if (!$cache[opts.queryName]) return;
+        if (!$cache[opts.queryName][varKey]) return;
+
+        const queryOpts = $cache[opts.queryName][varKey].queryOpts;
+
+        const next = await query<DataType>({
+          fetch,
+          ...queryOpts,
+          variables: { ...(queryOpts.variables || {}), page: page + 1 },
+        });
+
+        return {
+          current: $cache[opts.queryName][varKey].value.data as DataType,
+          next: next?.data,
+          setStore: (merged: DataType) => {
+            setUpdatedData(queryOpts, varKey, merged);
+            return merged;
+          },
+        };
+      },
+      fetchMore: async (offset: number, limit = 10) => {
+        if (!$cache[opts.queryName]) return;
+        if (!$cache[opts.queryName][varKey]) return;
+
+        const queryOpts = $cache[opts.queryName][varKey].queryOpts;
+
+        const next = await query<DataType>({
+          fetch,
+          ...queryOpts,
+          variables: { ...(queryOpts.variables || {}), offset, limit },
+        });
+
+        return {
+          current: $cache[opts.queryName][varKey].value.data as DataType,
+          next: next?.data,
+          setStore: (merged: DataType) => {
+            setUpdatedData(queryOpts, varKey, merged);
+            return merged;
+          },
+        };
+      },
     } as StoreReturnType<DataType>;
   });
+}
+
+function setUpdatedData<DataType = unknown>(
+  queryOpts: Omit<GraphqlQueryOptions<unknown>, 'fetch'>,
+  varKey: string,
+  merged: DataType
+) {
+  const { operationName } = getOperationInfo(queryOpts.query);
+
+  if (operationName) {
+    cache.update((state) => ({
+      ...state,
+      [operationName]: {
+        ...state[operationName],
+        [varKey]: {
+          ...state[operationName][varKey],
+          time: new Date().getTime(),
+          value: {
+            ...state[operationName][varKey].value,
+            data: merged,
+          },
+        },
+      },
+    }));
+  }
 }
 
 export async function queryWithStore<DataType = unknown, VariablesType = unknown>(
@@ -163,7 +263,24 @@ export async function queryWithStore<DataType = unknown, VariablesType = unknown
 
   const operation = getOperationAST(opts.query);
   const operationName = (operation && operation.name && operation.name.value) || undefined;
-  if (!operationName) return readable({ refetch: async () => {} });
+  if (!operationName)
+    return readable({
+      refetch: async () => {},
+      fetchNextPage: async () => {
+        return {
+          setStore: (merged: DataType) => {
+            return merged;
+          },
+        };
+      },
+      fetchMore: async () => {
+        return {
+          setStore: (merged: DataType) => {
+            return merged;
+          },
+        };
+      },
+    });
 
   return getQueryStore<DataType, VariablesType>({
     queryName: operationName,
@@ -191,8 +308,16 @@ export type GraphqlQueryReturn<DataType> = ReturnType<DataType> | null;
 interface ReturnType<DataType> {
   data?: DataType;
   errors?: any;
+  loading?: boolean;
 }
 
 export interface StoreReturnType<DataType> extends ReturnType<DataType> {
   refetch: () => Promise<void>;
+  fetchNextPage: (
+    page?: number
+  ) => Promise<{ current?: DataType; next?: DataType; setStore: (merged: DataType) => DataType }>;
+  fetchMore: (
+    offset: number,
+    limit?: number
+  ) => Promise<{ current?: DataType; next?: DataType; setStore: (merged: DataType) => DataType }>;
 }

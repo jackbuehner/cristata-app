@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { gql, useApolloClient } from '@apollo/client';
+
 import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+import { gql } from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
@@ -15,6 +16,9 @@ import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { deepen } from '../CollectionItemPage/useFindDoc';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function useNewItemModal(
   collectionName: string,

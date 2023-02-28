@@ -1,4 +1,3 @@
-import { NetworkStatus, useQuery } from '@apollo/client';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Dismiss24Regular, Edit24Regular, PanelRightContract24Regular } from '@fluentui/react-icons';
@@ -11,6 +10,9 @@ import { Offline } from '../../../components/Offline';
 import type { PHOTO__TYPE } from '../../../graphql/queries';
 import { PHOTO } from '../../../graphql/queries';
 import type { themeType } from '../../../utils/theme/theme';
+
+import * as apolloRaw from '@apollo/client';
+const { NetworkStatus, useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface IPhotoLibraryFlyout {
   photo_id: string;

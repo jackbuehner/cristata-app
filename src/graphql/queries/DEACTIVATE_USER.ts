@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns profile _id
  */
-const DEACTIVATE_USER = gql(
+const DEACTIVATE_USER = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {

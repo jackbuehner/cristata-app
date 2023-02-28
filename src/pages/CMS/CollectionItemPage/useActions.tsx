@@ -1,6 +1,7 @@
 import { get as getProperty } from '$utils/objectPath';
-import { gql, useApolloClient } from '@apollo/client';
+
 import type { CollectionPermissions } from '@jackbuehner/cristata-api/dist/types/config';
+import { gql } from 'graphql-tag';
 import pluralize from 'pluralize';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -18,6 +19,9 @@ import { uncapitalize } from '../../../utils/uncapitalize';
 import type { RenderFields } from './CollectionItemPage';
 import { usePublishModal } from './usePublishModal';
 import { useShareModal } from './useShareModal';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface UseActionsParams {
   y: EntryY;

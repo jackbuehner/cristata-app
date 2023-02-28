@@ -1,4 +1,3 @@
-import { useApolloClient } from '@apollo/client';
 import { useModal } from '@cristata/react-modal-hook';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -22,6 +21,9 @@ import { listOxford } from '../../../utils/listOxford';
 import type { colorType, themeType } from '../../../utils/theme/theme';
 import type { GetYFieldsOptions } from './getYFields';
 import { PreviewFrame } from './PreviewFrame';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface SidebarProps {
   docInfo: {

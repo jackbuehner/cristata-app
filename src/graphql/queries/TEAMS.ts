@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import type { Paged } from '../../interfaces/cristata/paged';
 import { paged } from '../paged';
@@ -6,7 +6,7 @@ import { paged } from '../paged';
 /**
  * Gets all teams.
  */
-const TEAMS = gql(
+const TEAMS = parse(
   jsonToGraphQLQuery({
     query: {
       __variables: {

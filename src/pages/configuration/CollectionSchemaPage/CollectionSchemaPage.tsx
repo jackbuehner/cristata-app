@@ -1,7 +1,7 @@
-import type { DocumentNode } from '@apollo/client';
-import { gql, useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import type { SetStateAction } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import ReactRouterPrompt from 'react-router-prompt';
@@ -20,6 +20,9 @@ import { OptionsTab } from './tabs/OptionsTab';
 import { QueriesTab } from './tabs/QueriesTab';
 import { SchemaTab } from './tabs/SchemaTab';
 import { useGetRawConfig } from './useGetRawConfig';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function CollectionSchemaPage() {
   const theme = useTheme();

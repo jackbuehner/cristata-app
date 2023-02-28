@@ -1,6 +1,6 @@
-import { gql, useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { gql } from 'graphql-tag';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '../../../components/Button';
@@ -11,6 +11,9 @@ import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/
 import { server } from '../../../utils/constants';
 import type { themeType } from '../../../utils/theme/theme';
 import { useGetBillingStatus } from './useGetBillingStatus';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function BillingPaymentsPage() {
   const dispatch = useAppDispatch();

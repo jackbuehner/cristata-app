@@ -1,7 +1,7 @@
 import type { ApolloError } from '@apollo/client';
-import { gql, NetworkStatus, useQuery } from '@apollo/client';
 import type { CollectionPermissionsActions } from '@jackbuehner/cristata-api/dist/types/config';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+import { gql } from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
@@ -10,6 +10,10 @@ import type { EntryY } from '../../../components/Tiptap/hooks/useY';
 import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
+
+import * as apolloRaw from '@apollo/client';
+const { ApolloProvider, NetworkStatus, useQuery } = ((apolloRaw as any).default ??
+  apolloRaw) as typeof apolloRaw;
 
 function useFindDoc(
   collection: string,

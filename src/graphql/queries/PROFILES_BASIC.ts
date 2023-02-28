@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import type { Paged } from '../../interfaces/cristata/paged';
 import { paged } from '../paged';
@@ -6,7 +6,7 @@ import { paged } from '../paged';
 /**
  * Gets basic data about a set of users: name, _id, current_title, email, phone, and photo.
  */
-const PROFILES_BASIC = gql(
+const PROFILES_BASIC = parse(
   jsonToGraphQLQuery({
     query: {
       __variables: {

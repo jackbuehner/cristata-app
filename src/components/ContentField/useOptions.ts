@@ -1,6 +1,7 @@
 import { get as getProperty } from '$utils/objectPath';
-import { gql, useApolloClient } from '@apollo/client';
+
 import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
+import { gql } from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
@@ -8,6 +9,9 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useState } from 'react';
 import { deepen } from '../../pages/CMS/CollectionItemPage/useFindDoc';
 import { uncapitalize } from '../../utils/uncapitalize';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 type Option = { value: string; label: string; disabled?: boolean; reason?: string };
 

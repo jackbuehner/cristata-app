@@ -1,5 +1,4 @@
 import type { ApolloClient } from '@apollo/client';
-import { useApolloClient } from '@apollo/client';
 import { HocuspocusProvider, WebSocketStatus } from '@hocuspocus/provider';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import pluralize from 'pluralize';
@@ -16,6 +15,9 @@ import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { useAwareness } from './useAwareness';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};

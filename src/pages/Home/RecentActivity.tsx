@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import ColorHash from 'color-hash';
@@ -15,6 +14,9 @@ import { genAvatar } from '../../utils/genAvatar';
 import { listOxford } from '../../utils/listOxford';
 import type { themeType } from '../../utils/theme/theme';
 import { uncapitalize } from '../../utils/uncapitalize';
+
+import * as apolloRaw from '@apollo/client';
+const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 /**
  * Displays the recent actiivty in the CMS.
