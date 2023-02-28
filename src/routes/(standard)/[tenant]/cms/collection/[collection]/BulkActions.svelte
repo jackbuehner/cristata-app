@@ -9,7 +9,7 @@
 <style>
   div.actions {
     position: absolute;
-    bottom: -24px;
+    bottom: -60px;
     opacity: 0;
     transition: 240ms;
     left: 50%;
@@ -26,7 +26,7 @@
   }
 
   div.actions.show {
-    bottom: 36px;
+    bottom: 0px;
     opacity: 1;
   }
 
