@@ -1,4 +1,5 @@
-import adapter from '@sveltejs/adapter-vercel';
+import adapterNode from '@sveltejs/adapter-node';
+import adapterVercel from '@sveltejs/adapter-vercel';
 import preprocess from 'svelte-preprocess';
 import preprocessReact from 'svelte-preprocess-react/preprocessReact';
 
@@ -9,7 +10,7 @@ const config = {
   }),
 
   kit: {
-    adapter: adapter(),
+    adapter: process.env.ADAPTER === 'node' ? adapterNode() : adapterVercel(),
     alias: {
       $components: 'src/components',
       $utils: 'src/utils',
