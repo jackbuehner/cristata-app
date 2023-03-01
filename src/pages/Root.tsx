@@ -2,7 +2,6 @@ import { browser } from '$app/environment';
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import styled from '@emotion/styled';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Color from 'color';
 import type { FallbackProps } from 'react-error-boundary';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -12,8 +11,6 @@ import now from '~build/time';
 import App from '../App';
 import '../init';
 import { theme } from '../utils/theme';
-
-const queryClient = new QueryClient();
 
 const appTheme = theme(
   browser && window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -129,26 +126,24 @@ function Root({ children }: { children?: React.ReactNode }) {
       })}
     >
       <ErrorBoundary FallbackComponent={AppErrorFallback}>
-        <QueryClientProvider client={queryClient}>
-          <App children={children} />
-          <Tooltip
-            place={'bottom'}
-            effect={'float'}
-            delayShow={600}
-            delayHide={100}
-            theme={theme(
-              browser && window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            )}
-            overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
-              if (place === desiredPlace && effect === 'float')
-                return {
-                  top: pos.top + 2,
-                  left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
-                };
-              return pos;
-            }}
-          />
-        </QueryClientProvider>
+        <App children={children} />
+        <Tooltip
+          place={'bottom'}
+          effect={'float'}
+          delayShow={600}
+          delayHide={100}
+          theme={theme(
+            browser && window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          )}
+          overridePosition={(pos, currentEvent, currentTarget, refNode, place, desiredPlace, effect) => {
+            if (place === desiredPlace && effect === 'float')
+              return {
+                top: pos.top + 2,
+                left: pos.left + (refNode?.offsetWidth || 0) / 2 + 8,
+              };
+            return pos;
+          }}
+        />
       </ErrorBoundary>
     </CacheProvider>
   );
