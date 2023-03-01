@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { hasKey } from '@jackbuehner/cristata-utils';
   import now from '~build/time';
   import { persistor } from '../redux/store';
 </script>
@@ -7,7 +8,13 @@
 <div class="errorwrapper">
   <div class="errorblock">
     <p>{$page.error?.message}</p>
-    <p style="font-size: 14px; font-style: italic;">{`\n Build date: ${now.toISOString()}`}</p>
+    <p style="font-size: 14px; font-style: italic;">
+      {#if $page.error && hasKey('transaction', $page.error)}
+        Error ID: {$page.error?.transaction}
+        <br />
+      {/if}
+      Build date: {now.toISOString()}
+    </p>
     <button on:click={() => (window.location.href = window.location.href)}>Try again</button>
     <button
       on:click={async () => {
@@ -84,7 +91,7 @@
     gap: 10px;
     position: absolute;
     bottom: 100px;
-    width: 260px;
+    width: 290px;
     align-items: center;
   }
 
@@ -104,5 +111,6 @@
 
   p {
     margin: 0;
+    text-align: center;
   }
 </style>

@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import react from '@vitejs/plugin-react';
@@ -7,6 +8,8 @@ import BuildInfo from 'vite-plugin-info';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
+
+process.env.VITE_BUILD_START_DATE_TIME = new Date().toISOString();
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -727,6 +730,17 @@ export default defineConfig({
       injectRegister: 'inline',
     }),
     codegen(),
+    // Put the Sentry vite plugin after all other plugins
+    sentryVitePlugin({
+      org: 'jack-buehner',
+      project: 'cristata-app',
+      include: './dist',
+      release: process.env.VITE_BUILD_START_DATE_TIME,
+
+      // Auth tokens can be obtained from https://sentry.io/settings/account/api/auth-tokens/
+      // and need `project:releases` and `org:read` scopes
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+    }),
   ],
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
