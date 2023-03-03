@@ -10,7 +10,7 @@ import {
   type TeamsListQuery,
   type TeamsListQueryVariables,
   type UsersListQuery,
-  type UsersListQueryVariables,
+  type UsersListQueryVariables
 } from '$graphql/graphql';
 import { query, queryWithStore, type GraphqlQueryReturn, type StoreReturnType } from '$graphql/query';
 import { authCache, authUserValidator, type AuthUserType } from '$stores/authCache';
@@ -28,7 +28,8 @@ import type { LayoutData, LayoutLoad } from './$types';
 export const ssr = false;
 export const prerender = false;
 
-export const load = (async ({ params, url, fetch }) => {
+export const load = (async ({ params, url, fetch, parent }) => {
+  const {tauri} = await parent()
   const { tenant } = params;
 
   // get/set the session id
@@ -194,6 +195,7 @@ export const load = (async ({ params, url, fetch }) => {
     basicProfiles: await basicProfiles,
     basicTeams: await basicTeams,
     tenant: params.tenant,
+    tauri,
   };
 
   // make the layout data available in the window
@@ -229,4 +231,5 @@ interface LayoutDataType {
   basicProfiles: Readable<StoreReturnType<UsersListQuery>>;
   basicTeams: Readable<StoreReturnType<TeamsListQuery>>;
   tenant: string;
+  tauri: boolean;
 }

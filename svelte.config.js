@@ -1,4 +1,4 @@
-import adapterNode from '@sveltejs/adapter-node';
+import adapterStatic from '@sveltejs/adapter-static';
 import adapterVercel from '@sveltejs/adapter-vercel';
 import preprocess from 'svelte-preprocess';
 import preprocessReact from 'svelte-preprocess-react/preprocessReact';
@@ -10,7 +10,16 @@ const config = {
   }),
 
   kit: {
-    adapter: process.env.ADAPTER === 'node' ? adapterNode() : adapterVercel(),
+    adapter:
+      process.env.ADAPTER === 'static'
+        ? adapterStatic({
+            pages: 'build',
+            assets: 'build',
+            fallback: '200.html',
+            precompress: true,
+            strict: true,
+          })
+        : adapterVercel(),
     alias: {
       $components: 'src/components',
       $utils: 'src/utils',
@@ -22,6 +31,10 @@ const config = {
     },
     env: {
       publicPrefix: 'VITE_',
+    },
+    prerender: {
+      crawl: false,
+      entries: ['*'],
     },
   },
 };

@@ -12,7 +12,18 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false
+      "all": false,
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
+      }
     },
     "bundle": {
       "active": true,
@@ -55,12 +66,13 @@
     },
     "windows": [
       {
-        "fullscreen": false,
-        "height": 800,
-        "resizable": true,
         "title": "Cristata",
         "width": 1000,
-        "theme": "Dark"
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "transparent": true,
+        "decorations": false
       }
     ]
   }
