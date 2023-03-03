@@ -105,7 +105,7 @@
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <img
         src="window-controls/minimize.svg"
-        alt="Close"
+        alt="Minimize"
         title="Minimize"
         class="window-controls windows"
         on:click={() => appWindow.minimize()}
@@ -114,8 +114,8 @@
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <img
           src="window-controls/restore.svg"
-          alt="Close"
-          title="Maximize"
+          alt="Restore"
+          title="Restore"
           class="window-controls windows"
           on:click={() => appWindow.toggleMaximize()}
         />
@@ -123,7 +123,7 @@
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <img
           src="window-controls/maximize.svg"
-          alt="Close"
+          alt="Maximize"
           title="Maximize"
           class="window-controls windows"
           on:click={() => appWindow.toggleMaximize()}

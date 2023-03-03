@@ -706,7 +706,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             </ToolbarTabList>
           )}
 
-          <ToolbarMeta>
+          <ToolbarMeta data-tauri-drag-region>
             <div
               css={css`
                 display: flex;
@@ -827,7 +827,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           </ToolbarMeta>
         </ToolbarTabRow>
         {props.compact ? null : (
-          <ToolbarActionRowContainer theme={theme}>
+          <ToolbarActionRowContainer theme={theme} data-tauri-drag-region>
             <ToolbarRow isActive={activeTab === 'home'}>
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().undo().run()}
