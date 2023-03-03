@@ -2,16 +2,6 @@
   import 'fluent-svelte/theme.css';
   import { onMount } from 'svelte';
   import { pwaInfo } from 'virtual:pwa-info';
-  import { browser } from '$app/environment';
-  import type { LayoutData } from './$types'
-
-  export let data: LayoutData;
-
-  onMount(() => {
-    if (browser) {
-      document.documentElement.setAttribute('tauri', data.tauri || false)
-    }
-  })
 
   let ReloadPrompt: ConstructorOfATypedSvelteComponent;
   onMount(async () => {

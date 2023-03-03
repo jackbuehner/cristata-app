@@ -2,6 +2,7 @@
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { server } from '$utils/constants';
+  import { appWindow } from '@tauri-apps/api/window';
   import { Flyout, IconButton, PersonPicture, TextBlock } from 'fluent-svelte';
   import { onDestroy, onMount } from 'svelte';
   import type { LayoutData } from '../../routes/(standard)/[tenant]/$types';
@@ -40,11 +41,21 @@
     }
   });
 
+  let isMaximized = false;
+  onMount(async () => {
+    if (data.tauri) {
+      isMaximized = await appWindow.isMaximized();
+      appWindow.onResized(async () => {
+        isMaximized = await appWindow.isMaximized();
+      });
+    }
+  });
+
   // right controls: <- -> | title     […] [_] [■] [X]
   // left controls:  [X] [_] [■] | <- -> | title     […]
 </script>
 
-<div class="titlebar" class:browserFocused>
+<div class="titlebar" class:browserFocused class:tauri={data.tauri} data-tauri-drag-region>
   <div class="left">
     {#if !isMacLike}
       <svg xmlns="http://www.w3.org/2000/svg" width="41.57" height="26" viewBox="0 0 31.1775 36">
@@ -56,7 +67,7 @@
         />
       </svg>
     {/if}
-    <TextBlock variant="caption">
+    <TextBlock variant="caption" data-tauri-drag-region>
       {#if $page.url.hostname === 'cristata.app'}
         Cristata (Preview)
       {:else}
@@ -65,7 +76,7 @@
     </TextBlock>
   </div>
   <div class="right">
-    <div class="account">
+    <div class="account" data-tauri-drag-region class:tauri={data.tauri}>
       <Flyout
         placement="bottom"
         alignment="end"
@@ -75,7 +86,10 @@
           --fds-flyout-transition-offset: translateY(-24px) /* this is twice the default */
         "
       >
-        <IconButton style="padding: 2px;">
+        <IconButton>
+          {#if data.tauri}
+            <TextBlock variant="caption" style="margin-right: 10px;">{data.authUser.name}</TextBlock>
+          {/if}
           <PersonPicture
             size={26}
             src="{server.location}/v3/{data.authUser.tenant}/user-photo/{data.authUser._id}"
@@ -87,6 +101,43 @@
         </svelte:fragment>
       </Flyout>
     </div>
+    {#if data.tauri}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <img
+        src="window-controls/minimize.svg"
+        alt="Close"
+        title="Minimize"
+        class="window-controls windows"
+        on:click={() => appWindow.minimize()}
+      />
+      {#if isMaximized}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <img
+          src="window-controls/restore.svg"
+          alt="Close"
+          title="Maximize"
+          class="window-controls windows"
+          on:click={() => appWindow.toggleMaximize()}
+        />
+      {:else}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <img
+          src="window-controls/maximize.svg"
+          alt="Close"
+          title="Maximize"
+          class="window-controls windows"
+          on:click={() => appWindow.toggleMaximize()}
+        />
+      {/if}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <img
+        src="window-controls/close.svg"
+        alt="Close"
+        title="Close"
+        class="window-controls windows close"
+        on:click={() => appWindow.close()}
+      />
+    {/if}
   </div>
 </div>
 
@@ -105,17 +156,23 @@
     user-select: none;
     justify-content: space-between;
     background-color: #f3f3f3;
+    background-color: transparent;
     padding: 0 16px;
     box-sizing: border-box;
     color: #888888;
   }
 
-  .titlebar.browserFocused {
+  .titlebar.browserFocused,
+  .titlebar.browserFocused .account.tauri :global(.icon-button) {
     color: #000000;
+  }
+  .titlebar.browserFocused .window-controls.windows {
+    opacity: 1;
   }
 
   @media (prefers-color-scheme: dark) {
-    .titlebar.browserFocused {
+    .titlebar.browserFocused,
+    .titlebar.browserFocused .account.tauri :global(.icon-button) {
       color: #ffffff;
     }
   }
@@ -150,6 +207,11 @@
     }
   }
 
+  .titlebar.tauri {
+    background-color: transparent;
+    padding-right: 0;
+  }
+
   .account {
     -webkit-app-region: no-drag;
     app-region: no-drag;
@@ -157,5 +219,13 @@
   .account :global(.flyout) {
     min-inline-size: 300px;
     padding: 0;
+  }
+  .account :global(.icon-button) {
+    padding: 2px;
+  }
+  .account.tauri :global(.icon-button) {
+    padding: 4px 10px 3px;
+    border-radius: 0;
+    color: #888888;
   }
 </style>

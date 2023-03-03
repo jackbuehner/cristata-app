@@ -4,7 +4,8 @@
     "beforeBuildCommand": "npm run tauri:build",
     "beforeDevCommand": "npm run tauri:dev",
     "devPath": "http://localhost:4000",
-    "distDir": "../build"
+    "distDir": "../build",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "Cristata",

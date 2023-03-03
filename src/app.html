@@ -186,6 +186,11 @@
       }
     </style>
     <title>Cristata</title>
+    <script>
+      if (!!window.__TAURI__) {
+        document.documentElement.setAttribute('tauri', true);
+      }
+    </script>
     %sveltekit.head%
   </head>
 
@@ -202,7 +207,19 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-    <div class="root-splash-wrapper">
+    <div class="root-splash-wrapper" data-tauri-drag-region>
+      <div class="root-titlebar" data-tauri-drag-region>
+        <div class="left"></div>
+        <div class="right">
+          <img
+            src="window-controls/close.svg"
+            alt="Close"
+            title="Close"
+            class="window-controls windows close forceInvert"
+            onclick="window.__TAURI__.window.appWindow.close()"
+          />
+        </div>
+      </div>
       <style>
         :root {
           --fds-accent-dark-1: 253, 54%, 47%;
@@ -226,16 +243,103 @@
           -webkit-app-region: drag;
         }
 
-        .root-splash-wrapper,
-        html {
+        .root-splash-wrapper {
           background: #5438b9;
         }
 
         @media (prefers-color-scheme: dark) {
-          .root-splash-wrapper,
-          html {
+          .root-splash-wrapper {
             background: #242424;
           }
+        }
+
+        .root-titlebar {
+          display: none;
+          flex-direction: row;
+          align-items: center;
+          position: fixed;
+          left: env(titlebar-area-x, 0);
+          top: env(titlebar-area-y, 0);
+          width: env(titlebar-area-width, 100%);
+          height: env(titlebar-area-height, 33px);
+          -webkit-app-region: drag;
+          app-region: drag;
+          user-select: none;
+          justify-content: space-between;
+          background-color: #f3f3f3;
+          background-color: transparent;
+          padding: 0 0 0 16px;
+          box-sizing: border-box;
+          color: #ffffff;
+          font-family: var(--fds-font-family-small);
+          font-size: var(--fds-caption-font-size);
+          font-weight: 400;
+          line-height: 16px;
+        }
+
+        html[tauri='true'] .root-titlebar {
+          display: flex;
+        }
+
+        .root-titlebar svg {
+          width: 16px;
+          height: 16px;
+          margin: 0 16px 0 0;
+          fill: var(--fds-accent-default);
+        }
+
+        .root-titlebar .left {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+        }
+
+        .root-titlebar .right {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-end;
+        }
+
+        .window-controls.windows {
+          display: inline-block;
+          height: 10px;
+          padding: 12px 18px 11px;
+          filter: var(--invertImage100);
+          -webkit-app-region: no-drag;
+          user-drag: none;
+          -webkit-user-drag: none;
+          opacity: 0.4;
+        }
+        .window-controls.windows:hover {
+          opacity: 1;
+        }
+        .window-controls.windows.close {
+          height: 14px;
+          padding: 10px 16px 9px;
+        }
+        .window-controls.windows.close:hover {
+          background-color: #3bd4e3;
+          filter: invert(100%);
+        }
+        .window-controls.windows.close:active {
+          background-color: #4cd8e3;
+          filter: invert(100%);
+        }
+        .window-controls.windows:not(.close):hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+        .window-controls.windows:not(.close):active {
+          background-color: rgba(0, 0, 0, 0.12);
+        }
+        @media (prefers-color-scheme: dark) {
+          .window-controls.windows {
+            filter: invert(100%);
+          }
+        }
+        .window-controls.windows.forceInvert {
+          filter: invert(100%);
         }
 
         .root-splash-app-name {

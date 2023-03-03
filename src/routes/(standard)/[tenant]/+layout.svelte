@@ -262,6 +262,9 @@
     border-radius: 6px 0 0 0;
     /* position: relative; */
   }
+  div#content-outer.tauri {
+    background-color: rgba(255, 255, 255, 0.7);
+  }
 
   div#content {
     /* position: absolute; */
@@ -283,8 +286,8 @@
       color: var(--color-neutral-dark-1400);
     }
     div#content-outer.tauri {
-    background-color: rgba(255, 255, 255, 0.03);
-  }
+      background-color: rgba(255, 255, 255, 0.03);
+    }
   }
 
   div#app.tauri {

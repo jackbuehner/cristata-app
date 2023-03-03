@@ -33,6 +33,7 @@ fn main() {
                 main_window.unminimize().unwrap();
                 main_window.maximize().unwrap();
                 main_window.unmaximize().unwrap();
+                main_window.set_focus()?;
             }
 
             Ok(())
