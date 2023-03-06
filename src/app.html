@@ -187,9 +187,95 @@
     </style>
     <title>Cristata</title>
     <script>
+      /**
+       * From https://css-tricks.com/converting-color-spaces-in-javascript/
+       */
+      function RGBToHSL(r, g, b) {
+        // Make r, g, and b fractions of 1
+        r /= 255;
+        g /= 255;
+        b /= 255;
+
+        // Find greatest and smallest channel values
+        let cmin = Math.min(r, g, b),
+          cmax = Math.max(r, g, b),
+          delta = cmax - cmin,
+          h = 0,
+          s = 0,
+          l = 0;
+
+        // Calculate hue
+        // No difference
+        if (delta == 0) h = 0;
+        // Red is max
+        else if (cmax == r) h = ((g - b) / delta) % 6;
+        // Green is max
+        else if (cmax == g) h = (b - r) / delta + 2;
+        // Blue is max
+        else h = (r - g) / delta + 4;
+
+        h = Math.round(h * 60);
+
+        // Make negative hues positive behind 360°
+        if (h < 0) h += 360;
+
+        // Calculate lightness
+        l = (cmax + cmin) / 2;
+
+        // Calculate saturation
+        s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+        // Multiply l and s by 100
+        s = +(s * 100).toFixed(1);
+        l = +(l * 100).toFixed(1);
+
+        return 'hsl(' + h + ',' + s + '%,' + l + '%)';
+      }
+    </script>
+    <script>
       if (!!window.__TAURI__) {
         document.documentElement.setAttribute('tauri', true);
       }
+
+      async function setFocusAttr(focused = true) {
+        document.documentElement.setAttribute('data-focus', focused);
+
+        const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-dark-mode', darkMode);
+
+        if (window.__TAURI__) {
+          // sets the correct window border color
+          window.__TAURI__.invoke('set_window_color', { active: focused });
+
+          // gets the operating system accent color and makes it a css variable
+          const accentColor = await window.__TAURI__.invoke('get_accent_color');
+          document.documentElement.style.setProperty('--windowAccent', accentColor);
+
+          // set fluent-svelte colors
+          const [r, g, b] = accentColor.replace('rgb(', '').replace(')', '').split(', ');
+          const hsl = RGBToHSL(r, g, b);
+          document.documentElement.style.setProperty(
+            darkMode ? '--fds-accent-light-2' : '--fds-accent-dark-1',
+            hsl.replace('hsl(', '').replace(')', '')
+          );
+        } else {
+          // use the default accent color
+          let lightModeColor = 'rgb(84, 56, 185)';
+          let darkModeColor = 'rgb(181, 173, 235)';
+          document.documentElement.style.setProperty(
+            '--windowAccent',
+            darkMode ? darkModeColor : lightModeColor
+          );
+        }
+      }
+
+      setFocusAttr(window.document.hasFocus());
+      window.addEventListener('focus', () => {
+        setFocusAttr(true);
+      });
+      window.addEventListener('blur', () => {
+        setFocusAttr(false);
+      });
     </script>
     %sveltekit.head%
   </head>
@@ -224,6 +310,11 @@
         :root {
           --fds-accent-dark-1: 253, 54%, 47%;
           --fds-accent-light-2: 253, 49%, 80%;
+        }
+
+        /* this is updated by tauri to match the operating system accent color (is applicable) */
+        html {
+          --windowAccent: rgb(84, 56, 185);
         }
 
         .root-splash-wrapper {
