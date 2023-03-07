@@ -14,13 +14,14 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let handle = app.handle();
-            style_window(handle, "main");
+            style_window(handle, "main")
+                .expect("failed to style main window");
         
             Ok(())
         })
         .on_window_event(|event| {
             match event.event() {
-                tauri::WindowEvent::CloseRequested { api, .. } => {
+                tauri::WindowEvent::CloseRequested { .. } => {
                     // Remove the window from the list of managed windows
                     // so we can open a new window with the same label
                     // in the future.
