@@ -15,7 +15,7 @@ const config = {
         ? adapterStatic({
             pages: 'build',
             assets: 'build',
-            fallback: '200.html',
+            fallback: 'index.html',
             precompress: true,
             strict: true,
           })
