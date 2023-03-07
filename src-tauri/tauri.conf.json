@@ -29,8 +29,8 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
+      "category": "Productivity",
+      "copyright": "Jack Buehner",
       "deb": {
         "depends": []
       },
@@ -43,6 +43,7 @@
         "icons/icon.ico"
       ],
       "identifier": "app.cristata",
+      "publisher": "Cristata",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
