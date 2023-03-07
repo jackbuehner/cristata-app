@@ -23,7 +23,8 @@
         "minimize": true,
         "unmaximize": true,
         "unminimize": true,
-        "startDragging": true
+        "startDragging": true,
+        "create": true
       }
     },
     "bundle": {
@@ -68,8 +69,8 @@
     "windows": [
       {
         "title": "Cristata",
-        "width": 1200,
-        "height": 800,
+        "width": 1100,
+        "height": 700,
         "resizable": true,
         "fullscreen": false,
         "transparent": true,

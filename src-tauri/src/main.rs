@@ -13,48 +13,146 @@ use winreg::RegKey;
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            let main_window = app.get_window("main").unwrap();
-
-            // apply window shadows, which also ensures that corners are correctly rounded
-            #[cfg(any(windows, target_os = "macos"))]
-            window_shadows::set_shadow(&main_window, true).unwrap();
-
-            #[cfg(target_os = "windows")]
-            // read system info from the registry
-            let hklm = RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
-
-            // read the build number and version number
-            let cur_ver = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")?;
-            let reg_build_number: String = cur_ver.get_value("CurrentBuildNumber")?;
-            let build_number: u32 = reg_build_number.parse().unwrap();
-            let reg_current_version: String = cur_ver.get_value("CurrentVersion")?;
-
-            // only apply vibrancy if windows 11 or higher
-            if build_number > 22000 && reg_current_version == "6.3" {
-                window_vibrancy::apply_mica(&main_window)
-                .expect("Unsupported platform! 'apply_mica' is only supported on Windows");
-            
-                // we must minimize and maximize to force mica to apply
-                main_window.minimize().unwrap();
-                main_window.unminimize().unwrap();
-                main_window.maximize().unwrap();
-                main_window.unmaximize().unwrap();
-                main_window.set_focus()?;
-            }
-
+            let handle = app.handle();
+            style_window(handle, "main");
+        
             Ok(())
+        })
+        .on_window_event(|event| {
+            match event.event() {
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    event.window().hide().unwrap();
+                    api.prevent_close();
+                }
+                _ => {}
+            }
         })
         .invoke_handler(tauri::generate_handler![
             greet,
             set_window_color,
             get_accent_color,
-            set_decorations
+            set_decorations,
+            open_window
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
     println!("Tauri main function running");
 }
+
+fn style_window(handle: tauri::AppHandle, label: &str) -> Result<(), tauri::Error> {
+    let window = handle.get_window(label);
+
+    match window {
+        Some(window) => {
+            // apply window shadows, which also ensures that corners are correctly rounded
+            #[cfg(any(windows, target_os = "macos"))]
+            window_shadows::set_shadow(&window, true).unwrap();
+
+            #[cfg(target_os = "windows")]
+            {
+                // read system info from the registry
+                let hklm = RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
+
+                // read the build number and version number
+                let cur_ver = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")?;
+                let reg_build_number: String = cur_ver.get_value("CurrentBuildNumber")?;
+                let build_number: u32 = reg_build_number.parse().unwrap();
+                let reg_current_version: String = cur_ver.get_value("CurrentVersion")?;
+
+                // only apply vibrancy if windows 11 or higher
+                if build_number > 22000 && reg_current_version == "6.3" {
+                    window_vibrancy::apply_mica(&window)
+                    .expect("Unsupported platform! 'apply_mica' is only supported on Windows");
+                
+                    // we must minimize and maximize to force mica to apply
+                    window.minimize().unwrap();
+                    window.unminimize().unwrap();
+                    window.maximize().unwrap();
+                    window.unmaximize().unwrap();
+                    window.set_focus()?;
+                }
+
+                Ok(())
+            }
+        }
+        None => { Ok(()) }
+    }
+}
+
+
+#[tauri::command]
+async fn open_window(handle: tauri::AppHandle, label: String, title: String, location: String, width: Option<f64>, height: Option<f64>) {
+    let maybe_window = handle.get_window(&label);
+
+    let window_width = match width {
+        Some(width) => { width }
+        None => { 1000.0 }
+    };
+    let window_height = match height {
+        Some(height) => { height }
+        None => { 700.0 }
+    };
+
+
+    match maybe_window {
+        Some(window) => {
+            window.unminimize()
+                .expect("failed to unminimize window");
+            window.show()
+                .expect("failed to show window");
+            window.set_focus()
+                .expect("failed to focus window");
+        }
+        None => {
+            let window = tauri::WindowBuilder::new(
+                &handle,
+                &label, /* the unique window label */
+                tauri::WindowUrl::App(location.into())
+            )
+                .decorations(true)
+                .transparent(true)
+                .resizable(true)
+                .fullscreen(false)
+                .focused(true)
+                .title(&title)
+                .inner_size(window_width, window_height)
+                .build()
+                .unwrap();
+
+            window.eval(&format!("window.name = '{}';", label))
+                .expect("failed to set javascript window name from tauri window label");
+        
+            style_window(handle, &label).expect("failed to style newly-created window");
+        }
+    }
+    
+    
+}
+
+// async fn open_window(window: tauri::Window, label: &str, title: &str) {
+//     let handle = &window.app_handle();
+
+//     let docs_window = tauri::WindowBuilder::new(
+//         handle,
+//         "external", /* the unique window label */
+//         tauri::WindowUrl::External("https://tauri.app/".parse().unwrap())
+//       ).build().unwrap();
+
+    // tauri::WindowBuilder::new(
+    //     handle,
+    //     "external", /* the unique window label */
+    //     tauri::WindowUrl::External("https://tauri.app/".parse().unwrap())
+    // )
+    //     .decorations(true)
+    //     .transparent(true)
+    //     .resizable(true).
+    //     fullscreen(false)
+    //     .focused(true)
+    //     .title(title)
+    //     .build()
+    //     .unwrap();
+// }
 
 #[tauri::command]
 fn greet(name: &str) -> String {
