@@ -64,7 +64,10 @@
       "csp": null
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": ["https://server.cristata.app/releases/app/{{target}}/{{arch}}/{{current_version}}"],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJEQUI4RThGQUIwMjAyM0YKUldRL0FnS3JqNDZyTGU5NGRqWkpUWTl2L1lNL1AxQU5xbjNjRzZjR05rMlVOMHlkSisweEY3cHYK"
     },
     "windows": [
       {
