@@ -235,6 +235,13 @@
     <script>
       if (!!window.__TAURI__) {
         document.documentElement.setAttribute('tauri', true);
+
+        // toggle decorations status based on current url
+        window.__TAURI__.invoke('set_decorations', { decorations: false });
+        window.addEventListener('beforeunload', (event) => {
+          // we are leaving Cristata, so we need window decorations
+          window.__TAURI__.invoke('set_decorations', { decorations: true });
+        });
       }
 
       async function setFocusAttr(focused = true) {

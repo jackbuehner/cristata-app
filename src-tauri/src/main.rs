@@ -44,7 +44,12 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, set_window_color, get_accent_color])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            set_window_color,
+            get_accent_color,
+            set_decorations
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
@@ -54,6 +59,12 @@ fn main() {
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}!", name)
+}
+
+#[tauri::command]
+fn set_decorations(window: tauri::Window, decorations: bool) {
+    window.set_decorations(decorations)
+        .expect("failed to change decorations status");
 }
 
 // Gets the windows accent color.
