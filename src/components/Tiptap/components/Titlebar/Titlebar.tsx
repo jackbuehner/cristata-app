@@ -164,7 +164,7 @@ function Titlebar(props: ITitlebar) {
               alt='Close'
               title='Close'
               className='window-controls windows close'
-              onClick={() => appWindow.minimize()}
+              onClick={() => appWindow.close()}
             />
           </>
         ) : null}
