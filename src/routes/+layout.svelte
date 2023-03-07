@@ -22,6 +22,11 @@
 {/if}
 
 <style>
+  /* links */
+  :global(a) {
+    color: var(--windowAccent);
+  }
+
   /* acrylic menys */
   @supports (backdrop-filter: var(--fds-acrylic-blur-factor)) {
     @keyframes fadein {
