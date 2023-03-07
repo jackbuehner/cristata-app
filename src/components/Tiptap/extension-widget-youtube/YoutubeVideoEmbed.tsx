@@ -1,3 +1,4 @@
+import { openWindow } from '$utils/openWindow';
 import { useModal } from '@cristata/react-modal-hook';
 import styled from '@emotion/styled';
 import { Delete16Regular, Edit16Regular, Open16Regular, TextDescription20Regular } from '@fluentui/react-icons';
@@ -90,7 +91,13 @@ function YoutubeVideoEmbed(props: IYoutubeVideoEmbed) {
             {
               icon: <Open16Regular />,
               label: 'Open on YouTube',
-              onClick: () => window.open(`https://youtube.com/watch?v=${props.node.attrs.videoId}`),
+              onClick: () =>
+                openWindow(
+                  `https://youtube.com/watch?v=${props.node.attrs.videoId}`,
+                  `youtube-${props.node.attrs.videoId}`,
+                  undefined,
+                  { customName: 'YouTube' }
+                ),
             },
             {
               active: props.node.attrs.showCaption,

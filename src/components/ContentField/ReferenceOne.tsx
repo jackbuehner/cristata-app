@@ -14,6 +14,7 @@ import { Field } from './Field';
 import { populateReferenceValues } from './populateReferenceValues';
 import { useOptions } from './useOptions';
 
+import { openWindow } from '$utils/openWindow';
 import * as apolloRaw from '@apollo/client';
 const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
@@ -86,27 +87,27 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
               disabled={false}
               onClick={() => {
                 if (isURL(internalState._id)) {
-                  window.open(internalState._id, props.collection + internalState._id, 'location=no');
+                  openWindow(internalState._id, props.collection + internalState._id, 'location=no');
                 } else if (props.collection.toLowerCase() === 'user') {
-                  window.open(
+                  openWindow(
                     `/${tenant}/profile/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else if (props.collection.toLowerCase() === 'team') {
-                  window.open(
+                  openWindow(
                     `/${tenant}/teams/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else if (props.collection.toLowerCase() === 'photo') {
-                  window.open(
+                  openWindow(
                     `/${tenant}/cms/photo/library/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else {
-                  window.open(
+                  openWindow(
                     `/${tenant}/cms/collection/${pluralize(props.collection.toLowerCase())}/${
                       internalState._id
                     }`,

@@ -18,6 +18,7 @@ import { populateReferenceValues } from './populateReferenceValues';
 import type { Option } from './useOptions';
 import { useOptions } from './useOptions';
 
+import { openWindow } from '$utils/openWindow';
 import * as apolloRaw from '@apollo/client';
 const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
@@ -184,19 +185,19 @@ function Selected(props: SelectedProps) {
                           disabled={false}
                           onClick={() => {
                             if (isURL(_id)) {
-                              window.open(_id, props.collection + _id, 'location=no');
+                              openWindow(_id, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'user') {
-                              window.open(`/${tenant}/profile/${_id}`, props.collection + _id, 'location=no');
+                              openWindow(`/${tenant}/profile/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'team') {
-                              window.open(`/${tenant}/teams/${_id}`, props.collection + _id, 'location=no');
+                              openWindow(`/${tenant}/teams/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'photo') {
-                              window.open(
+                              openWindow(
                                 `/${tenant}/cms/photo/library/${_id}`,
                                 props.collection + _id,
                                 'location=no'
                               );
                             } else {
-                              window.open(
+                              openWindow(
                                 `/${tenant}/cms/collection/${pluralize(props.collection.toLowerCase())}/${_id}`,
                                 props.collection + _id,
                                 'location=no'

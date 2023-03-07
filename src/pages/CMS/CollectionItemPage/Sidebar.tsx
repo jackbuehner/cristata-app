@@ -22,6 +22,7 @@ import type { colorType, themeType } from '../../../utils/theme/theme';
 import type { GetYFieldsOptions } from './getYFields';
 import { PreviewFrame } from './PreviewFrame';
 
+import { openWindow } from '$utils/openWindow';
 import * as apolloRaw from '@apollo/client';
 const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
@@ -236,10 +237,11 @@ function Sidebar(props: SidebarProps) {
                   data-place={'bottom'}
                   data-offset={`{ 'bottom': 4 }`}
                   onClick={() => {
-                    window.open(
+                    openWindow(
                       `/${tenant}/profile/${profile._id}`,
                       'sidebar_user' + props.docInfo._id + profile._id,
-                      'location=no'
+                      'location=no',
+                      { width: 500, height: 700 }
                     );
                   }}
                 />
@@ -311,10 +313,11 @@ function Sidebar(props: SidebarProps) {
                 color={props.isEmbedded ? 'blue' : 'primary'}
                 key={user._id}
                 onClick={() => {
-                  window.open(
+                  openWindow(
                     `/${tenant}/profile/${user._id}`,
                     'sidebar_user' + props.docInfo._id + user._id,
-                    'location=no'
+                    'location=no',
+                    { width: 500, height: 700 }
                   );
                 }}
               >
@@ -330,10 +333,11 @@ function Sidebar(props: SidebarProps) {
                 color={props.isEmbedded ? 'blue' : 'primary'}
                 key={team._id}
                 onClick={() => {
-                  window.open(
+                  openWindow(
                     `/${tenant}/teams/${team._id}`,
                     'sidebar_team' + props.docInfo._id + team._id,
-                    'location=no'
+                    'location=no',
+                    { width: 480, height: 700 }
                   );
                 }}
               >
@@ -369,11 +373,7 @@ function Sidebar(props: SidebarProps) {
                 const url = new URL(window.location.href);
                 url.pathname = url.pathname + '/version/' + version.timestamp;
 
-                window.open(
-                  url.toString(),
-                  `sidebar_version_open` + props.docInfo._id + version.timestamp,
-                  'location=no'
-                );
+                openWindow(url, `sidebar_version_open` + props.docInfo._id + version.timestamp, 'location=no');
               };
 
               return (
