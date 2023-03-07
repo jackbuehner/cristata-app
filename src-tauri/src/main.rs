@@ -21,8 +21,10 @@ fn main() {
         .on_window_event(|event| {
             match event.event() {
                 tauri::WindowEvent::CloseRequested { api, .. } => {
-                    event.window().hide().unwrap();
-                    api.prevent_close();
+                    // Remove the window from the list of managed windows
+                    // so we can open a new window with the same label
+                    // in the future.
+                    event.window().windows().remove(event.window().label());
                 }
                 _ => {}
             }
