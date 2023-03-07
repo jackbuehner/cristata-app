@@ -97,7 +97,7 @@
     "tauri:build": "cross-env-shell NODE_OPTIONS=--max-old-space-size=8128 ADAPTER=static \"tsc && vite build\"",
     "preview": "ADAPTER=static vite preview --port ${PORT:=4000}",
     "start": "cross-env vercel dev",
-    "sync": "cross-env-shell VITE_BUILD_START_DATE_TIME=1970-01-01T00:00:00.000Z \"svelte-kit sync\"",
+    "sync": "cross-env-shell VITE_BUILD_START_DATE_TIME=1970-01-01T00:00:00.000Z VITE_SENTRY_DSN=? \"svelte-kit sync\"",
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
     "format": "prettier --plugin-search-dir . --write .",
     "postinstall": "patch-package",
