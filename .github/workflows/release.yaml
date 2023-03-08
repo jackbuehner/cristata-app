@@ -47,7 +47,7 @@ jobs:
           swap-size-gb: 10
 
       - name: 'Memory: Configure pagefile (Windows only)'
-        uses: al-cheb/configure-pagefile-action@v1.2
+        uses: al-cheb/configure-pagefile-action@v1.3
         with:
           minimum-size: 16GB
           maximum-size: 32GB
