@@ -51,7 +51,7 @@ jobs:
         with:
           minimum-size: 16GB
           maximum-size: 32GB
-          disk-root: 'D:'
+          disk-root: 'C:' # node.exe is on the C drive (repository files are on the D drive)
 
       - name: 'Memory: Set up pagefile (Windows only)'
         run: |
