@@ -177,7 +177,7 @@
 
       <!-- side navigation and main content -->
       <!-- TODO: Make a component with two slots: one that takes the navigation and another that takes the content. Use the component in layouts for the routes that are used here. -->
-      <div id="app" class:tauri={data.tauri}>
+      <div id="app" class:mica={data.features?.mica} class:acrylic={data.features?.acrylic}>
         <!-- side navigation -->
         {#if window?.name === ''}
           <NavigationPane {data} />
@@ -185,7 +185,7 @@
 
         <!-- the rest of the content -->
         <!-- svelte-ignore missing-declaration -->
-        <div id="content-outer" class:tauri={data.tauri}>
+        <div id="content-outer" class:mica={data.features?.mica} class:acrylic={data.features?.acrylic}>
           {#key unique}
             <div style="height: 100%; width: 100%;">
               {#if !waiting}
@@ -262,9 +262,6 @@
     border-radius: 6px 0 0 0;
     /* position: relative; */
   }
-  div#content-outer.tauri {
-    background-color: rgba(255, 255, 255, 0.7);
-  }
 
   div#content {
     /* position: absolute; */
@@ -285,12 +282,28 @@
       background-color: #272727;
       color: var(--color-neutral-dark-1400);
     }
-    div#content-outer.tauri {
+  }
+
+  /* mica styles */
+  div#app.mica {
+    background-color: transparent;
+  }
+  div#content-outer.mica {
+    background-color: rgba(255, 255, 255, 0.7);
+  }
+  @media (prefers-color-scheme: dark) {
+    div#content-outer.mica {
       background-color: rgba(255, 255, 255, 0.03);
     }
   }
 
-  div#app.tauri {
-    background-color: transparent;
+  /* acrylic styles */
+  div#app.acrylic {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  @media (prefers-color-scheme: dark) {
+    div#app.acrylic {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
   }
 </style>

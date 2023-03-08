@@ -55,7 +55,13 @@
   // left controls:  [X] [_] [■] | <- -> | title     […]
 </script>
 
-<div class="titlebar" class:browserFocused class:tauri={data.tauri} data-tauri-drag-region>
+<div
+  class="titlebar"
+  class:browserFocused
+  class:mica={data.features?.mica}
+  class:acrylic={data.features?.acrylic}
+  data-tauri-drag-region
+>
   <div class="left">
     {#if !isMacLike}
       <svg xmlns="http://www.w3.org/2000/svg" width="41.57" height="26" viewBox="0 0 31.1775 36">
@@ -207,11 +213,23 @@
     }
   }
 
-  .titlebar.tauri {
+  /* mica styles */
+  .titlebar.mica {
     background-color: transparent;
     padding-right: 0;
   }
 
+  /* acrylic styles */
+  .titlebar.acrylic {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  @media (prefers-color-scheme: dark) {
+    .titlebar.acrylic {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  /* account picker */
   .account {
     -webkit-app-region: no-drag;
     app-region: no-drag;

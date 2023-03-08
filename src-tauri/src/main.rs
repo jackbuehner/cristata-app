@@ -35,7 +35,8 @@ fn main() {
             set_window_color,
             get_accent_color,
             set_decorations,
-            open_window
+            open_window,
+            get_windows_version
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -54,21 +55,26 @@ fn style_window(handle: tauri::AppHandle, label: &str) -> Result<(), tauri::Erro
 
             #[cfg(target_os = "windows")]
             {
-                // read system info from the registry
-                let hklm = RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
+                let (build_number, reg_current_version) = get_windows_os_version()?;
 
-                // read the build number and version number
-                let cur_ver = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")?;
-                let reg_build_number: String = cur_ver.get_value("CurrentBuildNumber")?;
-                let build_number: u32 = reg_build_number.parse().unwrap();
-                let reg_current_version: String = cur_ver.get_value("CurrentVersion")?;
-
-                // only apply vibrancy if windows 11 or higher
-                if build_number > 22000 && reg_current_version == "6.3" {
+                // only apply mica effect if windows 11 or higher
+                if build_number >= 22000 && reg_current_version == "6.3" {
                     window_vibrancy::apply_mica(&window)
                     .expect("Unsupported platform! 'apply_mica' is only supported on Windows");
                 
                     // we must minimize and maximize to force mica to apply
+                    window.minimize().unwrap();
+                    window.unminimize().unwrap();
+                    window.maximize().unwrap();
+                    window.unmaximize().unwrap();
+                    window.set_focus()?;
+                }
+                // apply acrylic effect if window 10 1909 or higher
+                else if build_number >= 17763 && reg_current_version == "6.3" {
+                    window_vibrancy::apply_acrylic(&window, Some((0, 0, 0, 0)))
+                        .expect("Unsupported platform! 'apply_acrylic' is only supported on Windows");
+
+                    // we must minimize and maximize to force acrylic to apply
                     window.minimize().unwrap();
                     window.unminimize().unwrap();
                     window.maximize().unwrap();
@@ -81,6 +87,31 @@ fn style_window(handle: tauri::AppHandle, label: &str) -> Result<(), tauri::Erro
         }
         None => { Ok(()) }
     }
+}
+
+fn get_windows_os_version() -> Result<(u32, String), tauri::Error> {
+    match cfg!(target_os = "windows") {
+        true => {
+            // read system info from the registry
+            let hklm = RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
+
+            // read the build number and version number
+            let cur_ver = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")?;
+            let reg_build_number: String = cur_ver.get_value("CurrentBuildNumber")?;
+            let build_number: u32 = reg_build_number.parse().unwrap();
+            let reg_current_version: String = cur_ver.get_value("CurrentVersion")?;
+
+            return Ok((build_number, reg_current_version));
+        }
+        false => {
+            return Ok((0, "".to_owned()));
+        }
+    }
+}
+
+#[tauri::command]
+fn get_windows_version() -> (u32, String) {
+    return get_windows_os_version().expect("failed to get windows version");
 }
 
 
