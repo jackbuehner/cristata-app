@@ -37,11 +37,12 @@ jobs:
         env:
           NPM_GH_PASS: ${{ secrets.NPM_GH_PASS }}
 
-      - name: Build and release
-        uses: tauri-apps/tauri-action@v0
+      - name: Create .env 🤫
+        uses: DeveloperRic/action-create-env@v1.0.2
+        with:
+          include_env_vars: true
         env:
           NODE_OPTIONS: --max-old-space-size=8128
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_AUTH_BASE_URL: ${{ secrets.VITE_AUTH_BASE_URL }}
           VITE_HOCUSPOCUS_BASE_URL: ${{ secrets.VITE_HOCUSPOCUS_BASE_URL }}
@@ -51,6 +52,11 @@ jobs:
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+      - name: Build and release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: 'App v__VERSION__'
