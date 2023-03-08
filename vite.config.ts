@@ -752,9 +752,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       external: [],
-      cache: false,
     },
-    sourcemap: false,
   },
   ssr: {
     // add libraries containing invalid ESM here
