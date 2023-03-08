@@ -1,6 +1,6 @@
 {
   "name": "cristata-app",
-  "version": "0.10.0",
+  "version": "0.10.0-beta.1",
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.4.17",
@@ -92,9 +92,9 @@
   },
   "scripts": {
     "dev": "cross-env ADAPTER=vercel vite",
-    "build": "cross-env-shell NODE_OPTIONS=--max-old-space-size=16256 ADAPTER=vercel \"tsc && vite build\"",
+    "build": "cross-env-shell NODE_OPTIONS=${NODE_OPTIONS:=--max-old-space-size=16256} ADAPTER=vercel \"tsc && vite build\"",
     "tauri:dev": "cross-env ADAPTER=static vite",
-    "tauri:build": "cross-env-shell NODE_OPTIONS=--max-old-space-size=16256 ADAPTER=static \"tsc && vite build\"",
+    "tauri:build": "cross-env-shell NODE_OPTIONS=${NODE_OPTIONS:=--max-old-space-size=16256} ADAPTER=static \"tsc && vite build\"",
     "preview": "ADAPTER=static vite preview --port ${PORT:=4000}",
     "start": "cross-env vercel dev",
     "sync": "cross-env-shell VITE_BUILD_START_DATE_TIME=1970-01-01T00:00:00.000Z VITE_SENTRY_DSN=? \"svelte-kit sync\"",
