@@ -48,6 +48,10 @@ jobs:
 
       - name: 'Memory: Configure pagefile (Windows only)'
         uses: al-cheb/configure-pagefile-action@v1.2
+        with:
+          minimum-size: 16GB
+          maximum-size: 32GB
+          disk-root: 'D:'
 
       - name: 'Memory: Set up pagefile (Windows only)'
         run: |
