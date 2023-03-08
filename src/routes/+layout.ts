@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { browser } from '$app/environment';
 import { getTauriVersion } from '@tauri-apps/api/app';
 import type { LayoutLoad } from './$types';
 
@@ -11,7 +11,9 @@ export const load = (async () => {
         .catch(() => false)
     : false;
 
-  if (tauri) {
+  if (browser && tauri) {
+    const { invoke } = await import('@tauri-apps/api');
+
     const [build, _version]: [number, string] = await invoke('get_windows_version');
     const version = parseFloat(_version);
 
