@@ -37,21 +37,8 @@ jobs:
         env:
           NPM_GH_PASS: ${{ secrets.NPM_GH_PASS }}
 
-      - name: Create .env 🤫
+      - name: Create .env (required for build step)
         uses: DeveloperRic/action-create-env@v1.0.2
-        with:
-          include_env_vars: true
-        env:
-          NODE_OPTIONS: --max-old-space-size=8128
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_AUTH_BASE_URL: ${{ secrets.VITE_AUTH_BASE_URL }}
-          VITE_HOCUSPOCUS_BASE_URL: ${{ secrets.VITE_HOCUSPOCUS_BASE_URL }}
-          VITE_API_PROTOCOL: ${{ secrets.VITE_API_PROTOCOL }}
-          VITE_WS_PROTOCOL: ${{ secrets.VITE_WS_PROTOCOL }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
       - name: 'Memory: set swap space (Linux only)'
         if: runner.os == 'Linux'
@@ -70,6 +57,16 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_OPTIONS: --max-old-space-size=8128
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_AUTH_BASE_URL: ${{ secrets.VITE_AUTH_BASE_URL }}
+          VITE_HOCUSPOCUS_BASE_URL: ${{ secrets.VITE_HOCUSPOCUS_BASE_URL }}
+          VITE_API_PROTOCOL: ${{ secrets.VITE_API_PROTOCOL }}
+          VITE_WS_PROTOCOL: ${{ secrets.VITE_WS_PROTOCOL }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: 'App v__VERSION__'
