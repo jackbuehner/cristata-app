@@ -186,6 +186,108 @@
       }
     </style>
     <title>Cristata</title>
+    <script>
+      /**
+       * From https://css-tricks.com/converting-color-spaces-in-javascript/
+       */
+      function RGBToHSL(r, g, b) {
+        // Make r, g, and b fractions of 1
+        r /= 255;
+        g /= 255;
+        b /= 255;
+
+        // Find greatest and smallest channel values
+        let cmin = Math.min(r, g, b),
+          cmax = Math.max(r, g, b),
+          delta = cmax - cmin,
+          h = 0,
+          s = 0,
+          l = 0;
+
+        // Calculate hue
+        // No difference
+        if (delta == 0) h = 0;
+        // Red is max
+        else if (cmax == r) h = ((g - b) / delta) % 6;
+        // Green is max
+        else if (cmax == g) h = (b - r) / delta + 2;
+        // Blue is max
+        else h = (r - g) / delta + 4;
+
+        h = Math.round(h * 60);
+
+        // Make negative hues positive behind 360°
+        if (h < 0) h += 360;
+
+        // Calculate lightness
+        l = (cmax + cmin) / 2;
+
+        // Calculate saturation
+        s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+        // Multiply l and s by 100
+        s = +(s * 100).toFixed(1);
+        l = +(l * 100).toFixed(1);
+
+        return 'hsl(' + h + ',' + s + '%,' + l + '%)';
+      }
+    </script>
+    <script>
+      if (!!window.__TAURI__) {
+        document.documentElement.setAttribute('tauri', true);
+
+        __TAURI__.event.listen('tauri://update-status', (res) => {
+          console.log('Update status: ', res);
+        });
+
+        // toggle decorations status based on current url
+        window.__TAURI__.invoke('set_decorations', { decorations: false });
+        window.addEventListener('beforeunload', (event) => {
+          // we are leaving Cristata, so we need window decorations
+          window.__TAURI__.invoke('set_decorations', { decorations: true });
+        });
+      }
+
+      async function setFocusAttr(focused = true) {
+        document.documentElement.setAttribute('data-focus', focused);
+
+        const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-dark-mode', darkMode);
+
+        if (window.__TAURI__) {
+          // sets the correct window border color
+          window.__TAURI__.invoke('set_window_color', { active: focused });
+
+          // gets the operating system accent color and makes it a css variable
+          const accentColor = await window.__TAURI__.invoke('get_accent_color');
+          document.documentElement.style.setProperty('--windowAccent', accentColor);
+
+          // set fluent-svelte colors
+          const [r, g, b] = accentColor.replace('rgb(', '').replace(')', '').split(', ');
+          const hsl = RGBToHSL(r, g, b);
+          document.documentElement.style.setProperty(
+            darkMode ? '--fds-accent-light-2' : '--fds-accent-dark-1',
+            hsl.replace('hsl(', '').replace(')', '')
+          );
+        } else {
+          // use the default accent color
+          let lightModeColor = 'rgb(84, 56, 185)';
+          let darkModeColor = 'rgb(181, 173, 235)';
+          document.documentElement.style.setProperty(
+            '--windowAccent',
+            darkMode ? darkModeColor : lightModeColor
+          );
+        }
+      }
+
+      setFocusAttr(window.document.hasFocus());
+      window.addEventListener('focus', () => {
+        setFocusAttr(true);
+      });
+      window.addEventListener('blur', () => {
+        setFocusAttr(false);
+      });
+    </script>
     %sveltekit.head%
   </head>
 
@@ -202,11 +304,28 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-    <div class="root-splash-wrapper">
+    <div class="root-splash-wrapper" data-tauri-drag-region>
+      <div class="root-titlebar" data-tauri-drag-region>
+        <div class="left"></div>
+        <div class="right">
+          <img
+            src="window-controls/close.svg"
+            alt="Close"
+            title="Close"
+            class="window-controls windows close forceInvert"
+            onclick="window.__TAURI__.window.appWindow.close()"
+          />
+        </div>
+      </div>
       <style>
         :root {
           --fds-accent-dark-1: 253, 54%, 47%;
           --fds-accent-light-2: 253, 49%, 80%;
+        }
+
+        /* this is updated by tauri to match the operating system accent color (is applicable) */
+        html {
+          --windowAccent: rgb(84, 56, 185);
         }
 
         .root-splash-wrapper {
@@ -226,16 +345,103 @@
           -webkit-app-region: drag;
         }
 
-        .root-splash-wrapper,
-        html {
+        .root-splash-wrapper {
           background: #5438b9;
         }
 
         @media (prefers-color-scheme: dark) {
-          .root-splash-wrapper,
-          html {
+          .root-splash-wrapper {
             background: #242424;
           }
+        }
+
+        .root-titlebar {
+          display: none;
+          flex-direction: row;
+          align-items: center;
+          position: fixed;
+          left: env(titlebar-area-x, 0);
+          top: env(titlebar-area-y, 0);
+          width: env(titlebar-area-width, 100%);
+          height: env(titlebar-area-height, 33px);
+          -webkit-app-region: drag;
+          app-region: drag;
+          user-select: none;
+          justify-content: space-between;
+          background-color: #f3f3f3;
+          background-color: transparent;
+          padding: 0 0 0 16px;
+          box-sizing: border-box;
+          color: #ffffff;
+          font-family: var(--fds-font-family-small);
+          font-size: var(--fds-caption-font-size);
+          font-weight: 400;
+          line-height: 16px;
+        }
+
+        html[tauri='true'] .root-titlebar {
+          display: flex;
+        }
+
+        .root-titlebar svg {
+          width: 16px;
+          height: 16px;
+          margin: 0 16px 0 0;
+          fill: var(--fds-accent-default);
+        }
+
+        .root-titlebar .left {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+        }
+
+        .root-titlebar .right {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-end;
+        }
+
+        .window-controls.windows {
+          display: inline-block;
+          height: 10px;
+          padding: 12px 18px 11px;
+          filter: var(--invertImage100);
+          -webkit-app-region: no-drag;
+          user-drag: none;
+          -webkit-user-drag: none;
+          opacity: 0.4;
+        }
+        .window-controls.windows:hover {
+          opacity: 1;
+        }
+        .window-controls.windows.close {
+          height: 14px;
+          padding: 10px 16px 9px;
+        }
+        .window-controls.windows.close:hover {
+          background-color: #3bd4e3;
+          filter: invert(100%);
+        }
+        .window-controls.windows.close:active {
+          background-color: #4cd8e3;
+          filter: invert(100%);
+        }
+        .window-controls.windows:not(.close):hover {
+          background-color: rgba(0, 0, 0, 0.08);
+        }
+        .window-controls.windows:not(.close):active {
+          background-color: rgba(0, 0, 0, 0.12);
+        }
+        @media (prefers-color-scheme: dark) {
+          .window-controls.windows {
+            filter: invert(100%);
+          }
+        }
+        .window-controls.windows.forceInvert {
+          filter: invert(100%);
         }
 
         .root-splash-app-name {
@@ -309,7 +515,7 @@
 
         #nprogress .peg {
           height: 2px;
-          background-color: rgba(84, 56, 185, 1);
+          background-color: hsl(var(--fds-accent-dark-1));
         }
 
         @media (prefers-color-scheme: dark) {
@@ -317,7 +523,7 @@
             background-color: rgba(191, 180, 229, 0.1);
           }
           #nprogress .peg {
-            background-color: rgba(191, 180, 229, 1);
+            background-color: hsl(var(--fds-accent-light-2));
           }
         }
       </style>

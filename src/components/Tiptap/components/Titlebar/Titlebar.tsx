@@ -1,8 +1,9 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular, Home16Regular } from '@fluentui/react-icons';
+import { appWindow } from '@tauri-apps/api/window';
 import Color from 'color';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { useNavigate } from 'svelte-preprocess-react/react-router';
 import type { themeType } from '../../../../utils/theme/theme';
@@ -50,9 +51,19 @@ function Titlebar(props: ITitlebar) {
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect?.().x || 0;
 
+  const [isMaximized, setIsMaximized] = useState(false);
+  useEffect(() => {
+    (async () => {
+      setIsMaximized(await appWindow.isMaximized());
+      appWindow.onResized(async () => {
+        setIsMaximized(await appWindow.isMaximized());
+      });
+    })();
+  });
+
   return (
     <Wrapper>
-      <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX}>
+      <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX} data-tauri-drag-region>
         {props.isBackstageOpen ? null : (
           <>
             <QuickAccess>
@@ -116,10 +127,47 @@ function Titlebar(props: ITitlebar) {
                 );
               })}
             </QuickAccess>
-            <Divider />
+            <Divider data-tauri-drag-region />
           </>
         )}
-        <Title isBackstageOpen={props.isBackstageOpen}>{props.title || 'Cristata'}</Title>
+        <Title isBackstageOpen={props.isBackstageOpen} data-tauri-drag-region>
+          {props.title || 'Cristata'}
+        </Title>
+        {appWindow ? (
+          <>
+            <img
+              src='window-controls/minimize.svg'
+              alt='Minimize'
+              title='Minimize'
+              className='window-controls windows'
+              onClick={() => appWindow.minimize()}
+            />
+            {isMaximized ? (
+              <img
+                src='window-controls/restore.svg'
+                alt='Restore'
+                title='Restore'
+                className='window-controls windows'
+                onClick={() => appWindow.toggleMaximize()}
+              />
+            ) : (
+              <img
+                src='window-controls/maximize.svg'
+                alt='Maximize'
+                title='Maximize'
+                className='window-controls windows'
+                onClick={() => appWindow.toggleMaximize()}
+              />
+            )}
+            <img
+              src='window-controls/close.svg'
+              alt='Close'
+              title='Close'
+              className='window-controls windows close'
+              onClick={() => appWindow.close()}
+            />
+          </>
+        ) : null}
       </TITLEBAR>
     </Wrapper>
   );

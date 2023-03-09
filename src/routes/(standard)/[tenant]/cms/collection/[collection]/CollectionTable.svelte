@@ -10,6 +10,7 @@
   import { compactMode } from '$stores/compactMode';
   import { motionMode } from '$stores/motionMode';
   import { hasKey } from '$utils/hasKey';
+  import { openWindow } from '$utils/openWindow';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import {
@@ -52,8 +53,7 @@
     href: `/${$page.params.tenant}/cms/collection/${$page.params.collection}`,
     hrefSuffixKey: collection.config?.data?.configuration?.collection?.by?.one || '_id',
     hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
-    windowName:
-      shouldOpenMaximized && window.matchMedia('(display-mode: standalone)').matches ? 'editor' : undefined,
+    windowName: `editor-${$page.params.tenant}-${collection.schemaName}-`,
   };
 
   let columns: ColumnDef<Doc>[] = [];
@@ -383,7 +383,6 @@
           <a
             role="row"
             {href}
-            target={links.windowName}
             on:click={(evt) => handleRowClick(evt, row)}
             on:dblclick={(evt) => {
               if (!isInputElem(evt.target) && !isCheckbox(evt.target)) goto(href);
@@ -465,9 +464,9 @@
         disabled={selectedIds.length !== 1}
         on:click={(evt) => {
           evt.preventDefault();
-          window.open(
+          openWindow(
             `${VITE_API_PROTOCOL}//${VITE_API_BASE_URL}/filestore/${$page.params.tenant}/${selectedIds[0]}`,
-            links.windowName + 'preview',
+            links.windowName + selectedIds[0],
             'location=no'
           );
         }}
@@ -490,7 +489,7 @@
         disabled={selectedIds.length !== 1}
         on:click={(evt) => {
           evt.preventDefault();
-          window.open(firstSelectedHref, links.windowName, 'location=no');
+          openWindow(firstSelectedHref, links.windowName + selectedIds[0], 'location=no');
         }}
       >
         <FluentIcon name="Open20Regular" mode="buttonIconLeft" />

@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import '../../office-icon/colors1.css';
 
 /** @jsxImportSource @emotion/react */
+import { openWindow } from '$utils/openWindow';
 import { useModal } from '@cristata/react-modal-hook';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -402,7 +403,12 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           text: 'Get Microsoft Editor',
           color: 'blue',
           onClick: () => {
-            window.open(`https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`);
+            openWindow(
+              `https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`,
+              'microsoft-editor',
+              undefined,
+              { customName: 'Get Microsoft Editor' }
+            );
             return true;
           },
         }}
@@ -706,7 +712,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             </ToolbarTabList>
           )}
 
-          <ToolbarMeta>
+          <ToolbarMeta data-tauri-drag-region>
             <div
               css={css`
                 display: flex;
@@ -726,10 +732,11 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                     data-place={'bottom'}
                     data-offset={`{ 'bottom': 4 }`}
                     onClick={() => {
-                      window.open(
+                      openWindow(
                         `${tenant}/profile/${profile._id}`,
                         'tiptap_awareness_user' + profile._id,
-                        'location=no'
+                        'location=no',
+                        { width: 500, height: 700 }
                       );
                     }}
                   />
@@ -827,7 +834,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           </ToolbarMeta>
         </ToolbarTabRow>
         {props.compact ? null : (
-          <ToolbarActionRowContainer theme={theme}>
+          <ToolbarActionRowContainer theme={theme} data-tauri-drag-region>
             <ToolbarRow isActive={activeTab === 'home'}>
               <ToolbarRowIconButton
                 onClick={() => editor.chain().focus().undo().run()}

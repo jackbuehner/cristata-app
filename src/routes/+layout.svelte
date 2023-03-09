@@ -22,6 +22,11 @@
 {/if}
 
 <style>
+  /* links */
+  :global(a) {
+    color: var(--windowAccent);
+  }
+
   /* acrylic menys */
   @supports (backdrop-filter: var(--fds-acrylic-blur-factor)) {
     @keyframes fadein {
@@ -60,20 +65,20 @@
       }
     }
 
-    :global(:root .menu-flyout-anchor .menu-flyout) {
+    :global(html[tauri='false'] .menu-flyout-anchor .menu-flyout) {
       background-color: transparent;
     }
-    :global(:root .flyout-anchor .flyout) {
+    :global(html[tauri='false'] .flyout-anchor .flyout) {
       animation: clearBackgroundColor 500ms ease forwards;
     }
     @media (prefers-color-scheme: dark) {
-      :global(:root .flyout-anchor .flyout) {
+      :global(html[tauri='false'] .flyout-anchor .flyout) {
         animation: clearBackgroundColorDark 500ms ease forwards;
       }
     }
 
-    :global(:root .menu-flyout-anchor .menu-flyout-surface-container::before),
-    :global(:root .flyout-anchor .flyout::before) {
+    :global(html[tauri='false'] .menu-flyout-anchor .menu-flyout-surface-container::before),
+    :global(html[tauri='false'] .flyout-anchor .flyout::before) {
       content: '';
       top: 0;
       left: 0;
@@ -88,8 +93,8 @@
       backdrop-filter: var(--fds-acrylic-blur-factor);
       border-radius: var(--fds-overlay-corner-radius);
     }
-    :global(:root .menu-flyout-anchor .menu-flyout-surface-container::after),
-    :global(:root .flyout-anchor .flyout::after) {
+    :global(html[tauri='false'] .menu-flyout-anchor .menu-flyout-surface-container::after),
+    :global(html[tauri='false'] .flyout-anchor .flyout::after) {
       content: '';
       position: absolute;
       inset: 0;
@@ -104,10 +109,10 @@
     }
   }
 
-  :global(:root .menu-flyout-anchor .menu-flyout-surface-container::before),
-  :global(:root .menu-flyout-anchor .menu-flyout-surface-container::after),
-  :global(:root .flyout-anchor .flyout::before),
-  :global(:root .flyout-anchor .flyout::after) {
+  :global(html[tauri='false'] .menu-flyout-anchor .menu-flyout-surface-container::before),
+  :global(html[tauri='false'] .menu-flyout-anchor .menu-flyout-surface-container::after),
+  :global(html[tauri='false'] .flyout-anchor .flyout::before),
+  :global(html[tauri='false'] .flyout-anchor .flyout::after) {
     --fds-overlay-corner-radius: 8px;
     --fds-acrylic-blur-factor: blur(60px) saturate(125%) brightness(108%);
 
@@ -116,10 +121,10 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :global(:root .menu-flyout-anchor .menu-flyout-surface-container::before),
-    :global(:root .menu-flyout-anchor .menu-flyout-surface-container::after),
-    :global(:root .flyout-anchor .flyout::before),
-    :global(:root .flyout-anchor .flyout::after) {
+    :global(html[tauri='false'] .menu-flyout-anchor .menu-flyout-surface-container::before),
+    :global(html[tauri='false'] .menu-flyout-anchor .menu-flyout-surface-container::after),
+    :global(html[tauri='false'] .flyout-anchor .flyout::before),
+    :global(html[tauri='false'] .flyout-anchor .flyout::after) {
       --fds-acrylic-blur-factor: blur(32px) saturate(600%);
       --fds-acrylic-background-default: linear-gradient(0deg, rgb(44, 44, 44, 15%), rgb(44, 44, 44, 15%)),
         rgba(33, 33, 33, 80%);

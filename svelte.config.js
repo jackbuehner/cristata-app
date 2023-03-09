@@ -1,4 +1,5 @@
-import adapter from '@sveltejs/adapter-vercel';
+import adapterStatic from '@sveltejs/adapter-static';
+import adapterVercel from '@sveltejs/adapter-vercel';
 import preprocess from 'svelte-preprocess';
 import preprocessReact from 'svelte-preprocess-react/preprocessReact';
 
@@ -8,8 +9,25 @@ const config = {
     preprocess: preprocess({ sourceMap: true }),
   }),
 
+  /** @type {import('@sveltejs/vite-plugin-svelte').SvelteOptions['onwarn']} */
+  onwarn: (warning, defaultHandler) => {
+    // do not log errors from fluent-svelte
+    if (warning.filename.indexOf('/node_modules/fluent-svelte') === 0) return;
+
+    defaultHandler(warning);
+  },
+
   kit: {
-    adapter: adapter(),
+    adapter:
+      process.env.ADAPTER === 'static'
+        ? adapterStatic({
+            pages: 'build',
+            assets: 'build',
+            fallback: 'index.html',
+            precompress: true,
+            strict: true,
+          })
+        : adapterVercel(),
     alias: {
       $components: 'src/components',
       $utils: 'src/utils',
@@ -21,6 +39,10 @@ const config = {
     },
     env: {
       publicPrefix: 'VITE_',
+    },
+    prerender: {
+      crawl: false,
+      entries: ['*'],
     },
   },
 };
