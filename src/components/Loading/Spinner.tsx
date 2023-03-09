@@ -1,7 +1,7 @@
-import { css, SerializedStyles, useTheme } from '@emotion/react';
-import styled, { CSSObject } from '@emotion/styled';
+import { css, useTheme, type SerializedStyles } from '@emotion/react';
+import styled, { type CSSObject } from '@emotion/styled';
 import { CircularProgress } from '@material-ui/core';
-import { colorShade, colorType, themeType } from '../../utils/theme/theme';
+import type { colorShade, colorType, themeType } from '../../utils/theme/theme';
 
 const Component = styled(CircularProgress)<{
   theme: themeType;

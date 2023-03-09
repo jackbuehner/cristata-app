@@ -7,14 +7,15 @@ import {
   Dismiss16Regular,
   Edit16Regular,
 } from '@fluentui/react-icons';
-import { NodeViewWrapper, NodeViewContent, NodeViewProps, Node } from '@tiptap/react';
+import type { Node, NodeViewProps } from '@tiptap/react';
+import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
+import Color from 'color';
+import { DateTime } from 'luxon';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { IconButton } from '../../Button';
 import { TextArea } from '../../TextArea';
-import { CommentOptions } from './comment';
-import { DateTime } from 'luxon';
-import Color from 'color';
+import type { CommentOptions } from './comment';
 
 interface ICommentContainer extends NodeViewProps {
   extension: Node<CommentOptions>;

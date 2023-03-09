@@ -1,10 +1,12 @@
 import { Node } from '@tiptap/core';
-import { JSONContent, ReactNodeViewRenderer } from '@tiptap/react';
-import { Node as ProsemirrorNode, Slice } from 'prosemirror-model';
-import { TextSelection } from 'prosemirror-state';
-import { CommentContainer } from './CommentContainer';
-import { v4 as uuidv4 } from 'uuid';
+import type { JSONContent } from '@tiptap/react';
+import { ReactNodeViewRenderer } from '@tiptap/react';
 import Color from 'color';
+import type { Node as ProsemirrorNode } from 'prosemirror-model';
+import { Slice } from 'prosemirror-model';
+import { TextSelection } from 'prosemirror-state';
+import { v4 as uuidv4 } from 'uuid';
+import { CommentContainer } from './CommentContainer';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {

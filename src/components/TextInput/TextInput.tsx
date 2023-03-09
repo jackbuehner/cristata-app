@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { InputHTMLAttributes } from 'react';
-import { themeType } from '../../utils/theme/theme';
+import type { InputHTMLAttributes } from 'react';
+import type { themeType } from '../../utils/theme/theme';
 
 interface ITextInputBase {
   font?: 'headline' | 'body' | 'detail';

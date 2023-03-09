@@ -1,7 +1,7 @@
 import { Extension } from '@tiptap/core';
 import { getMarkType } from '@tiptap/react';
 import { Plugin, PluginKey } from 'prosemirror-state';
-import { Deletion } from '.';
+import { Deletion } from './';
 import { setDeletionFunction } from './deletion';
 
 const DeletionEventHandler = Extension.create({

@@ -1,10 +1,11 @@
-import { isSchemaDef, isTypeTuple, SchemaDefType } from '@jackbuehner/cristata-generator-schema';
-import { parseSchemaComponents } from '@jackbuehner/cristata-generator-schema';
+import type { SchemaDefType } from '@jackbuehner/cristata-generator-schema';
+import { isSchemaDef, isTypeTuple, parseSchemaComponents } from '@jackbuehner/cristata-generator-schema';
 import { Fragment } from 'react';
 import { useAppSelector } from '../../../../redux/hooks';
 import { BranchCard } from './BranchCard';
 import { DocArrayCard } from './DocArrayCard';
-import { SchemaCard, SchemaCardProps } from './SchemaCard';
+import type { SchemaCardProps } from './SchemaCard';
+import { SchemaCard } from './SchemaCard';
 
 interface SchemaTabProps {}
 

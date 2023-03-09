@@ -1,12 +1,14 @@
+import { openWindow } from '$utils/openWindow';
+import { useModal } from '@cristata/react-modal-hook';
 import { Delete16Regular, Edit16Regular, Open16Regular } from '@fluentui/react-icons';
-import { NodeViewWrapper, NodeViewProps, Node } from '@tiptap/react';
+import type { Node, NodeViewProps } from '@tiptap/react';
+import { NodeViewWrapper } from '@tiptap/react';
 import IframeResizer from 'iframe-resizer-react';
 import { useRef, useState } from 'react';
-import { useModal } from '@cristata/react-modal-hook';
 import { PlainModal } from '../../Modal';
 import { TextInput } from '../../TextInput';
-import { WidgetWrapper, WidgetActions, WidgetLabel } from '../components/Widget';
-import { SweepwidgetWidgetOptions } from './sweepwidgetWidget';
+import { WidgetActions, WidgetLabel, WidgetWrapper } from '../components/Widget';
+import type { SweepwidgetWidgetOptions } from './sweepwidgetWidget';
 
 interface ISweepwidget extends NodeViewProps {
   extension: Node<SweepwidgetWidgetOptions>;
@@ -82,7 +84,13 @@ function Sweepwidget(props: ISweepwidget) {
             {
               icon: <Open16Regular />,
               label: 'Open giveaway landing page',
-              onClick: () => window.open(`https://sweepwidget.com/view/${props.node.attrs.id}`),
+              onClick: () =>
+                openWindow(
+                  `https://sweepwidget.com/view/${props.node.attrs.id}`,
+                  `sweepwidget-${props.node.attrs.id}`,
+                  undefined,
+                  { customName: 'SweepWidget' }
+                ),
             },
             {
               icon: <Edit16Regular />,

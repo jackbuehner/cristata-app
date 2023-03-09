@@ -1,0 +1,27 @@
+query CollectionConfig($collectionName: String!) {
+  configuration {
+    collection(name: $collectionName) {
+      name
+      pluralName
+      canPublish
+      withPermissions
+      schemaDef
+      generationOptions {
+        mandatoryWatchers
+        previewUrl
+        dynamicPreviewHref
+        nameField
+        disableCreateMutation
+        disableHideMutation
+        disableArchiveMutation
+        disablePublishMutation
+        independentPublishedDocCopy
+      }
+      by {
+        one
+        many
+      }
+      canCreateAndGet
+    }
+  }
+}

@@ -1,21 +1,22 @@
-import { useQuery } from '@apollo/client';
+import { useModal } from '@cristata/react-modal-hook';
 import styled from '@emotion/styled';
 import { Delete16Regular, Edit16Regular, TextDescription20Regular } from '@fluentui/react-icons';
-import { NodeViewWrapper, NodeViewProps, Node, NodeViewContent } from '@tiptap/react';
+import type { Node, NodeViewProps } from '@tiptap/react';
+import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
 import { useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useModal } from '@cristata/react-modal-hook';
 import { ClientConsumer } from '../../../graphql/client';
-import {
-  PHOTOS_BASIC_BY_REGEXNAME_OR_URL,
-  PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE,
-} from '../../../graphql/queries';
+import type { PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE } from '../../../graphql/queries';
+import { PHOTOS_BASIC_BY_REGEXNAME_OR_URL } from '../../../graphql/queries';
 import { InputGroup } from '../../InputGroup';
 import { Label } from '../../Label';
 import { PlainModal } from '../../Modal';
 import { Select } from '../../Select';
-import { WidgetWrapper, WidgetActions, WidgetLabel } from '../components/Widget';
-import { PhotoWidgetOptions } from './PhotoWidget';
+import { WidgetActions, WidgetLabel, WidgetWrapper } from '../components/Widget';
+import type { PhotoWidgetOptions } from './PhotoWidget';
+
+import * as apolloRaw from '@apollo/client';
+const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface IPhotoWidgetNodeView extends NodeViewProps {
   extension: Node<PhotoWidgetOptions>;
@@ -140,7 +141,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
                 ? '0 0 20px 0'
                 : '20px 0',
           }}
-          src={photo?.photo_url}
+          src={photo?.photo_url || props.node.attrs.photoUrl}
           alt={''}
         />
         <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
@@ -176,7 +177,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             show={props.node.attrs.showCaption}
             showPlaceholder={props.node.textContent.length === 0}
           />
-          <Source>{photo?.people.photo_created_by}</Source>
+          <Source>{photo?.people.photo_created_by || props.node.attrs.photoCredit}</Source>
         </Caption>
       </WidgetWrapper>
     </NodeViewWrapper>

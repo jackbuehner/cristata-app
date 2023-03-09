@@ -1,0 +1,9 @@
+query BasicProfileMe {
+  user {
+    _id
+    name
+    email
+    current_title
+    photo
+  }
+}

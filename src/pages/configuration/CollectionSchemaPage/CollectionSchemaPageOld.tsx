@@ -1,18 +1,23 @@
-import { DocumentNode, gql, useApolloClient } from '@apollo/client';
-import { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
+import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
 import collectionSchema from '@jackbuehner/cristata-api/dist/json-schemas/collection.schema.json';
-import Editor, { Monaco } from '@monaco-editor/react';
-import { type editor } from 'monaco-editor';
+import type { Monaco } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
+import type { editor } from 'monaco-editor';
 import parserBabel from 'prettier/parser-babel';
 import prettier from 'prettier/standalone';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useLocation, useParams } from 'svelte-preprocess-react/react-router';
 import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { cristataCodeDarkTheme } from '../cristataCodeDarkTheme';
 import { useGetRawConfig } from './useGetRawConfig';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function CollectionSchemaPage() {
   const dispatch = useAppDispatch();

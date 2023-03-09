@@ -1,7 +1,7 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { LinearProgress } from '@rmwc/linear-progress';
-import { themeType } from '../../utils/theme/theme';
+import type { themeType } from '../../utils/theme/theme';
 
 const Wrapper = styled.div<{ theme?: themeType }>`
   display: flex;

@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns profile _id
  */
-const MIGRATE_USER_ACCOUNT = gql(
+const MIGRATE_USER_ACCOUNT = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {
@@ -33,4 +33,4 @@ type MIGRATE_USER_ACCOUNT__DOC_TYPE = {
 };
 
 export { MIGRATE_USER_ACCOUNT };
-export type { MIGRATE_USER_ACCOUNT__TYPE, MIGRATE_USER_ACCOUNT__DOC_TYPE };
+export type { MIGRATE_USER_ACCOUNT__DOC_TYPE, MIGRATE_USER_ACCOUNT__TYPE };

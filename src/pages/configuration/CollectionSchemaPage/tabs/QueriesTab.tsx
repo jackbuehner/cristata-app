@@ -1,15 +1,15 @@
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { isSchemaDef } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
+import pluralize from 'pluralize';
 import { Button } from '../../../../components/Button';
 import { Checkbox, Code, Text } from '../../../../components/ContentField';
 import { Field } from '../../../../components/ContentField/Field';
-import { useAppSelector, useAppDispatch } from '../../../../redux/hooks';
-import { setDefaultQueryOption, setCustomQueries } from '../../../../redux/slices/collectionSlice';
-import pluralize from 'pluralize';
+import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
+import { setCustomQueries, setDefaultQueryOption } from '../../../../redux/slices/collectionSlice';
+import type { colorType } from '../../../../utils/theme/theme';
 import { uncapitalize } from '../../../../utils/uncapitalize';
-import { colorType } from '../../../../utils/theme/theme';
-import { useTheme } from '@emotion/react';
 
 function QueriesTab() {
   const state = useAppSelector(({ collectionConfig }) => collectionConfig);

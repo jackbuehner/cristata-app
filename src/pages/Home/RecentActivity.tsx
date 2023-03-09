@@ -1,18 +1,22 @@
-import { useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { capitalize } from '../../utils/capitalize';
 import ColorHash from 'color-hash';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
-import { Fragment, MouseEventHandler } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { HISTORY, HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
+import type { MouseEventHandler } from 'react';
+import React, { Fragment } from 'react';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
+import type { HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
+import { HISTORY } from '../../graphql/queries';
 import { camelToDashCase } from '../../utils/camelToDashCase';
+import { capitalize } from '../../utils/capitalize';
 import { genAvatar } from '../../utils/genAvatar';
-import { themeType } from '../../utils/theme/theme';
-import { uncapitalize } from '../../utils/uncapitalize';
 import { listOxford } from '../../utils/listOxford';
+import type { themeType } from '../../utils/theme/theme';
+import { uncapitalize } from '../../utils/uncapitalize';
+
+import * as apolloRaw from '@apollo/client';
+const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 /**
  * Displays the recent actiivty in the CMS.
@@ -20,8 +24,9 @@ import { listOxford } from '../../utils/listOxford';
  * The recent activity is retireved from the `/history` endpoint.
  */
 function RecentActivity() {
-  const theme = useTheme() as themeType;
-  const navigate = useNavigate();
+  const theme = useTheme();
+
+  const tenant = location.pathname.split('/')[1];
 
   const { data } = useQuery<HISTORY__TYPE>(HISTORY, {
     variables: { limit: 25, exclude: ['User'] },
@@ -190,7 +195,7 @@ function RecentActivity() {
           });
 
           return (
-            <ItemWrapper theme={theme} key={index}>
+            <ItemWrapper key={index}>
               <Item>
                 <ListNames
                   NameComponent={Bold}
@@ -198,7 +203,7 @@ function RecentActivity() {
                   TextWrapperComponent={Text}
                   names={users.map((user) => ({
                     name: user.name,
-                    onClick: () => navigate(`/profile/${user._id}`),
+                    href: `/${tenant}/profile/${user._id}`,
                     photo: user.photo || genAvatar(user._id),
                   }))}
                   appendText={
@@ -220,7 +225,7 @@ function RecentActivity() {
                   }}
                 />
               </Item>
-              <DateComponent theme={theme}>{DateTime.fromISO(at).toRelative()}</DateComponent>
+              <DateComponent>{DateTime.fromISO(at).toRelative()}</DateComponent>
             </ItemWrapper>
           );
         })
@@ -240,33 +245,40 @@ function ItemName({
 }) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = window.location.pathname.split('/')[1];
 
   const pathCollectionName = camelToDashCase(uncapitalize(pluralize(collectionName)));
 
-  const handleClick = () => {
-    if (collectionName === 'Photo' && itemId) navigate(`/cms/photos/library/${itemId}`);
-    else if (itemId) navigate(`/cms/collection/${pathCollectionName}/${itemId}`);
-    else navigate(`/cms/collection/${pathCollectionName}`);
+  const href = (() => {
+    if (collectionName === 'Photo' && itemId) return `/${tenant}/cms/photos/library/${itemId}`;
+    if (collectionName === 'Team' && itemId) return `/${tenant}/teams/${itemId}`;
+    if (collectionName === 'User' && itemId) return `/${tenant}/profile/${itemId}`;
+    else if (itemId) return `/${tenant}/cms/collection/${pathCollectionName}/${itemId}`;
+    else return `/${tenant}/cms/collection/${pathCollectionName}`;
+  })();
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    e.preventDefault();
+    navigate(href);
   };
 
   return (
-    <Bold theme={theme} onClick={handleClick}>
+    <Bold onClick={handleClick} href={href}>
       {itemName}
     </Bold>
   );
 }
 
 interface IListNames {
-  NameComponent: React.ComponentType<{ onClick?: MouseEventHandler<HTMLElement>; theme: themeType }>;
+  NameComponent: React.ComponentType<{ href?: string }>;
   PhotoComponent: React.ComponentType<{
-    onClick?: MouseEventHandler<HTMLElement>;
-    theme: themeType;
+    onClick?: React.MouseEventHandler;
     src?: string;
   }>;
   TextWrapperComponent: React.ComponentType;
   names: Array<{
     name: string;
-    onClick?: MouseEventHandler<HTMLElement>;
+    href?: string;
     photo?: string;
   }>;
   appendText?: React.ReactNode;
@@ -278,7 +290,7 @@ interface IListNames {
 }
 
 function ListNames(props: IListNames) {
-  const theme = useTheme() as themeType;
+  const navigate = useNavigate();
 
   // @ts-expect-error 'bkdr' is a vlid hash config value
   const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
@@ -314,23 +326,23 @@ function ListNames(props: IListNames) {
           photoWidth={props.photos.photoWidth}
           ids={props.names.map((n) => n.name)}
         >
-          {props.names.slice(0, props.photos.maxPhotos || 3).map(({ photo, onClick }, index) => {
-            return <props.PhotoComponent src={photo} theme={theme} onClick={onClick} key={index} />;
+          {props.names.slice(0, props.photos.maxPhotos || 3).map(({ photo, href }, index) => {
+            return <props.PhotoComponent src={photo} onClick={() => navigate(href || '?')} key={index} />;
           })}
         </PhotosWrapper>
       ) : null}
       <props.TextWrapperComponent>
         {props.names.length === 1 ? (
-          <props.NameComponent theme={theme} onClick={props.names[0].onClick}>
+          <props.NameComponent href={props.names[0].href}>
             <span>{props.names[0].name}</span>
           </props.NameComponent>
         ) : props.names.length === 2 ? (
           <>
-            <props.NameComponent theme={theme} onClick={props.names[0].onClick}>
+            <props.NameComponent href={props.names[0].href}>
               <span>{props.names[0].name}</span>
             </props.NameComponent>
             <span> and </span>
-            <props.NameComponent theme={theme} onClick={props.names[1].onClick}>
+            <props.NameComponent href={props.names[1].href}>
               <span>{props.names[1].name}</span>
             </props.NameComponent>
           </>
@@ -339,7 +351,7 @@ function ListNames(props: IListNames) {
             {props.names.slice(0, props.names.length - 1).map((name, index: number) => {
               return (
                 <Fragment key={index}>
-                  <props.NameComponent theme={theme} onClick={name.onClick}>
+                  <props.NameComponent href={name.href}>
                     <span key={index}>{name.name}</span>
                   </props.NameComponent>
                   <span>, </span>
@@ -347,7 +359,7 @@ function ListNames(props: IListNames) {
               );
             })}
             <span>and </span>
-            <props.NameComponent theme={theme} onClick={props.names.slice(-1)[0].onClick}>
+            <props.NameComponent href={props.names.slice(-1)[0].href}>
               <span>{props.names.slice(-1)[0].name}</span>
             </props.NameComponent>
           </>
@@ -358,7 +370,7 @@ function ListNames(props: IListNames) {
   );
 }
 
-const ItemWrapper = styled.div<{ theme: themeType }>`
+const ItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -367,10 +379,10 @@ const ItemWrapper = styled.div<{ theme: themeType }>`
   color: ${({ theme }) => theme.color.neutral[theme.mode][1400]};
   padding: 8px 0;
   &:first-of-type {
-    margin-top: 12px;
-    @media (max-width: 1200px) {
-      margin-top: 6px;
-    }
+    margin-top: -8px;
+  }
+  &:last-of-type {
+    margin-bottom: -8px;
   }
 `;
 
@@ -384,21 +396,22 @@ const Text = styled.div`
   margin: 0 8px;
 `;
 
-const DateComponent = styled.div<{ theme: themeType }>`
+const DateComponent = styled.div`
   flex-shrink: 0;
   font-size: 11px;
   color: ${({ theme }) => theme.color.neutral[theme.mode][900]};
 `;
 
-const Bold = styled.a<{ theme: themeType }>`
+const Bold = styled.a`
   font-weight: 700;
-  cursor: pointer;
+  text-decoration: none;
+  color: currentColor;
   &:hover {
     text-decoration: underline;
   }
 `;
 
-const ProfilePhoto = styled.div<{ theme: themeType; src?: string }>`
+const ProfilePhoto = styled.div<{ src?: string }>`
   width: 24px;
   height: 24px;
   flex-shrink: 0;

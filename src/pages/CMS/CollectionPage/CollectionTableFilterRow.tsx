@@ -1,13 +1,12 @@
-import styled from '@emotion/styled';
 import { css, useTheme } from '@emotion/react';
+import styled from '@emotion/styled';
 import Color from 'color';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
+import { Button, IconButton } from '../../../components/Button';
 import FluentIcon from '../../../components/FluentIcon';
-import { IconButton } from '../../../components/Button';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { isJSON } from '../../../utils/isJSON';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { capitalize } from '../../../utils/capitalize';
-import { Button } from '../../../components/Button';
+import { isJSON } from '../../../utils/isJSON';
 
 interface CollectionTableFilterRowProps {
   collectionName: string;
@@ -19,6 +18,7 @@ function CollectionTableFilterRow(props: CollectionTableFilterRowProps) {
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(search);
   const theme = useTheme();
+  const tenant = location.pathname.split('/')[1];
 
   const labels = props.schemaDef.map(([key, def]) => ({
     key,

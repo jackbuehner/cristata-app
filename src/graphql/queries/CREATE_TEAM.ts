@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns profile _id
  */
-const CREATE_TEAM = gql(
+const CREATE_TEAM = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {
@@ -39,4 +39,4 @@ type CREATE_TEAM__DOC_TYPE = {
 };
 
 export { CREATE_TEAM };
-export type { CREATE_TEAM__TYPE, CREATE_TEAM__DOC_TYPE };
+export type { CREATE_TEAM__DOC_TYPE, CREATE_TEAM__TYPE };

@@ -1,6 +1,6 @@
 import { Extension } from '@tiptap/core';
-import { DeletionKit } from '../extension-deletion';
 import { AdditionKit } from '../extension-addition';
+import { DeletionKit } from '../extension-deletion';
 import { ManageChanges } from '../extension-manage-changes';
 
 interface TrackChangesOptions {}

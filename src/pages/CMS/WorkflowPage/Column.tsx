@@ -1,9 +1,8 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
-import React from 'react';
 import useDimensions from 'react-cool-dimensions';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { Card } from './Card';
 
 /**
@@ -153,7 +152,7 @@ function ColumnSpace(props: {
 
 interface CardType {
   _id: string;
-  name?: string;
+  name?: string | null;
   stage: number;
   in: string;
 }

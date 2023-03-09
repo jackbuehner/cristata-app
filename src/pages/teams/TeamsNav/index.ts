@@ -1,1 +1,0 @@
-export { TeamsNav } from './TeamsNav';

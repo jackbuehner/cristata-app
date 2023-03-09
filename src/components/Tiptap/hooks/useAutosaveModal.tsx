@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { useWindowModal } from '../../../hooks/useWindowModal';
 
 function useAutosaveModal(): [React.ReactNode, () => void, () => void] {

@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns profile _id
  */
-const CREATE_USER = gql(
+const CREATE_USER = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {
@@ -43,4 +43,4 @@ type CREATE_USER__DOC_TYPE = {
 };
 
 export { CREATE_USER };
-export type { CREATE_USER__TYPE, CREATE_USER__DOC_TYPE };
+export type { CREATE_USER__DOC_TYPE, CREATE_USER__TYPE };

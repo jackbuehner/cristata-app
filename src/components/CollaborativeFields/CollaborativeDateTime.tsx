@@ -6,11 +6,12 @@ import 'antd/lib/date-picker/style/index.css';
 import { DateTime as Luxon } from 'luxon';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { YTextEvent } from 'yjs';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
+import type { YTextEvent } from 'yjs';
 import { formatISODate } from '../../utils/formatISODate';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
+import type { CollaborativeFieldProps } from './';
+import { CollaborativeFieldWrapper } from './';
 
 interface CollaborativeDateTimeProps extends CollaborativeFieldProps {
   onChange?: (date: Luxon | null) => void;

@@ -1,7 +1,8 @@
-import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import mongoose from 'mongoose';
-import { Paged } from '../../interfaces/cristata/paged';
+import type { Paged } from '../../interfaces/cristata/paged';
 import { getPasswordStatus } from '../../utils/axios/getPasswordStatus';
 import { isObjectId } from '../../utils/isObjectId';
 
@@ -15,7 +16,7 @@ async function selectProfile(inputValue: string, client: ApolloClient<Normalized
     slug: string;
   };
   const QUERY = (input: string) =>
-    gql(
+    parse(
       jsonToGraphQLQuery({
         query: {
           users: {

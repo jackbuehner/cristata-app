@@ -1,10 +1,11 @@
-import { DocumentNode, gql, useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import type { GenCollectionInput } from '@jackbuehner/cristata-api/dist/graphql/helpers/generators/genCollection';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import ReactRouterPrompt from 'react-router-prompt';
 import { toast } from 'react-toastify';
+import { useParams } from 'svelte-preprocess-react/react-router';
 import { Spinner } from '../../../components/Loading';
 import { PlainModal } from '../../../components/Modal';
 import { Offline } from '../../../components/Offline';
@@ -13,6 +14,9 @@ import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/
 import { setActionAccess, setCollection, setIsLoading } from '../../../redux/slices/collectionSlice';
 import { ActionAccessCard } from '../CollectionSchemaPage/tabs/ActionAccessCard';
 import { useGetRawConfig } from '../CollectionSchemaPage/useGetRawConfig';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function SystemCollectionPage() {
   const theme = useTheme();

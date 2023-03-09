@@ -1,3 +1,4 @@
+import { get as getProperty } from '$utils/objectPath';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -9,22 +10,17 @@ import {
 import Color from 'color';
 import { DateTime } from 'luxon';
 import { merge } from 'merge-anything';
-import { get as getProperty } from 'object-path';
-import React, { FunctionComponentElement, useEffect, useState } from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  DraggableProvidedDragHandleProps,
-  Droppable,
-  DropResult,
-  ResponderProvided,
-} from 'react-beautiful-dnd';
+import type { FunctionComponentElement } from 'react';
+import React, { useEffect, useState } from 'react';
+import type { DraggableProvidedDragHandleProps, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { v4 as uuidv4 } from 'uuid';
-import * as Y from 'yjs';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
-import { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type * as Y from 'yjs';
+import type { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
+import type { CollaborativeFieldProps } from './';
+import { CollaborativeFieldWrapper } from './';
 
 interface CollaborativeDocArrayProps extends CollaborativeFieldProps {
   stateFieldKey: string;

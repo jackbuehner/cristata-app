@@ -1,0 +1,5 @@
+mutation SaveUserEdits($_id: ObjectID!, $input: UserModifyInput!) {
+  userModify(_id: $_id, input: $input) {
+    _id
+  }
+}

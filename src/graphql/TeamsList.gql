@@ -1,0 +1,14 @@
+query TeamsList($page: Int, $limit: Int!) {
+  teams(page: $page, limit: $limit, sort: "{ \"_id\": 1 }") {
+    docs {
+      _id
+      name
+      members {
+        _id
+      }
+      organizers {
+        _id
+      }
+    }
+  }
+}

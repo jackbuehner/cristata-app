@@ -1,9 +1,10 @@
-import { get as getProperty, set as setProperty } from 'object-path';
+import { get as getProperty, set as setProperty } from '$utils/objectPath';
 import { v4 as uuidv4 } from 'uuid';
-import * as Y from 'yjs';
-import { DeconstructedSchemaDefType } from '../../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { getYFields, GetYFieldsOptions } from '../../../../pages/CMS/CollectionItemPage/getYFields';
-import { EntryY } from '../../../Tiptap/hooks/useY';
+import type * as Y from 'yjs';
+import type { DeconstructedSchemaDefType } from '../../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { GetYFieldsOptions } from '../../../../pages/CMS/CollectionItemPage/getYFields';
+import { getYFields } from '../../../../pages/CMS/CollectionItemPage/getYFields';
+import type { EntryY } from '../../../Tiptap/hooks/useY';
 
 /**
  * DocArrays are stored in a yjs shared array. The value
@@ -85,7 +86,7 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
           // values of the the properies inside the object at this index
           const defs = populate.schema
             .filter(([docKey]) => !docKey.includes('#'))
-            .map(([docKey, docDef]): typeof populate.schema[0] => {
+            .map(([docKey, docDef]): (typeof populate.schema)[0] => {
               const docArrayKey = docKey.replace(searchKey, replaceKey);
               return [docArrayKey, docDef];
             });

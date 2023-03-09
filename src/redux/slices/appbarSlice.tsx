@@ -1,7 +1,8 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import React from 'react';
-import { FluentIconNames } from '../../components/FluentIcon';
-import { colorType } from '../../utils/theme/theme';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import * as toolkitRaw from '@reduxjs/toolkit';
+import type { FluentIconNames } from '../../components/FluentIcon';
+import type { colorType } from '../../utils/theme/theme';
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
 
 export interface AppbarState {
   name: string;
@@ -30,7 +31,7 @@ const initialState: AppbarState = {
   color: 'primary',
   actions: [],
   loading: false,
-  showSearch: true,
+  showSearch: false,
 };
 
 export const appbarSlice = createSlice({

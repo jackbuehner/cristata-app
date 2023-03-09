@@ -1,9 +1,10 @@
 import styled from '@emotion/styled';
 import { AlignLeft20Regular, AlignRight20Regular, Delete16Regular } from '@fluentui/react-icons';
-import { Node, NodeViewContent, NodeViewProps, NodeViewWrapper } from '@tiptap/react';
+import type { Node, NodeViewProps } from '@tiptap/react';
+import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
 import { useRef, useState } from 'react';
 import { WidgetActions, WidgetLabel, WidgetWrapper } from '../components/Widget';
-import { PullQuoteOptions } from './PullQuote';
+import type { PullQuoteOptions } from './PullQuote';
 
 interface IPullQuoteNodeView extends NodeViewProps {
   extension: Node<PullQuoteOptions>;

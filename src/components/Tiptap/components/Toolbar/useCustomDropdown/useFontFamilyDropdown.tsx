@@ -1,5 +1,5 @@
-import { Editor } from '@tiptap/react';
-import { tiptapOptions } from '../../../../../config';
+import type { Editor } from '@tiptap/react';
+import type { tiptapOptions } from '../../../../../config';
 import { useDropdown } from '../../../../../hooks/useDropdown';
 import { Menu } from '../../../../Menu';
 

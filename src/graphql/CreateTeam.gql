@@ -1,0 +1,5 @@
+mutation CreateTeam($name: String!, $slug: String!, $members: [ObjectID]!, $organizers: [ObjectID]!) {
+  teamCreate(name: $name, slug: $slug, members: $members, organizers: $organizers) {
+    _id
+  }
+}

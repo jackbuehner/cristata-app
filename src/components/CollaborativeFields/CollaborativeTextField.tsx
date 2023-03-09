@@ -1,10 +1,12 @@
 import styled from '@emotion/styled';
-import { Editor } from '@tiptap/core';
-import { EditorContent, JSONContent } from '@tiptap/react';
+import type { Editor } from '@tiptap/core';
+import type { JSONContent } from '@tiptap/react';
+import { EditorContent } from '@tiptap/react';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import { CollaborativeFieldProps, CollaborativeFieldWrapper } from '.';
-import { colorType } from '../../utils/theme/theme';
+import type { colorType } from '../../utils/theme/theme';
 import { useTipTapEditor } from '../Tiptap/hooks';
+import type { CollaborativeFieldProps } from './';
+import { CollaborativeFieldWrapper } from './';
 import { editorExtensions } from './editorExtensions';
 
 interface CollaborativeTextFieldProps extends CollaborativeFieldProps {

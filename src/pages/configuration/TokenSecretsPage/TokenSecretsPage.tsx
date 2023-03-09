@@ -1,16 +1,19 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { Button } from '../../../components/Button';
+import { Text } from '../../../components/ContentField';
+import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { useGetTokensAndSecrets } from './useGetTokensAndSecrets';
-import { Text } from '../../../components/ContentField';
-import { Button } from '../../../components/Button';
-import { DocumentNode } from 'graphql';
-import { gql, useApolloClient } from '@apollo/client';
-import { toast } from 'react-toastify';
-import { Offline } from '../../../components/Offline';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function TokenSecretsPage() {
   const dispatch = useAppDispatch();

@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import type { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { UniqueIdentifier } from '@dnd-kit/core';
+import styled from '@emotion/styled';
 import {
   ChevronDown24Regular,
   ChevronUp24Regular,
   Dismiss24Regular,
   ReOrderDotsHorizontal24Regular,
 } from '@fluentui/react-icons';
-import styled from '@emotion/styled';
+import React, { useState } from 'react';
+import type { colorType } from '../../utils/theme/theme';
+import { buttonEffect } from '../Button';
 import { Card } from './Card';
 import { CardLabel } from './CardLabel';
 import { CardLabelCaption } from './CardLabelCaption';
-import { colorType } from '../../utils/theme/theme';
-import { buttonEffect } from '../Button';
 
 interface SortableItemProps {
   id: UniqueIdentifier;

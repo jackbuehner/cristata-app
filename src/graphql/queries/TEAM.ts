@@ -1,10 +1,10 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
  * Gets a team and its members
  */
-const TEAM = gql(
+const TEAM = parse(
   jsonToGraphQLQuery({
     query: {
       __variables: {
@@ -65,4 +65,4 @@ type TEAM_USER__DOC_TYPE = {
 };
 
 export { TEAM };
-export type { TEAM__TYPE, TEAM__DOC_TYPE };
+export type { TEAM__DOC_TYPE, TEAM__TYPE };

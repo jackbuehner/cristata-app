@@ -1,0 +1,3 @@
+query FathomDashboard {
+  fathomDashboard
+}

@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import Color from 'color';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
-import { colorType } from '../../../../utils/theme/theme';
+import type { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
+import type { colorType } from '../../../../utils/theme/theme';
 import { Button, buttonEffect } from '../../../Button';
 import FluentIcon from '../../../FluentIcon';
 import { downloadEmailHTML } from './downloadEmailHTML';

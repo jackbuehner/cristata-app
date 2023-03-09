@@ -1,13 +1,18 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { DocumentNode, gql, useApolloClient } from '@apollo/client';
+
+import type { DocumentNode } from 'graphql';
+import { gql } from 'graphql-tag';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { Text } from '../../../../../components/ContentField';
 import { useWindowModal } from '../../../../../hooks/useWindowModal';
 import { capitalize } from '../../../../../utils/capitalize';
 import { dashToCamelCase } from '../../../../../utils/dashToCamelCase';
 import { slugify } from '../../../../../utils/slugify';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 function useCreateSchema(collectionNames: string[]): [React.ReactNode, () => void, () => void] {
   const [Window, showModal, hideModal] = useWindowModal(() => {
@@ -16,6 +21,7 @@ function useCreateSchema(collectionNames: string[]): [React.ReactNode, () => voi
     const [name, setName] = useState<string>('');
     const [displayName, setDisplayName] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const tenant = location.pathname.split('/')[1];
 
     const nameAlreadyExists = collectionNames.some((colName) => colName === name);
 
@@ -38,7 +44,7 @@ function useCreateSchema(collectionNames: string[]): [React.ReactNode, () => voi
             })
             .then(({ data }) => {
               if (data?.setRawConfigurationCollection) {
-                navigate(`/configuration/Schema/${name}#0`);
+                navigate(`/${tenant}/configuration/Schema/${name}#0`);
                 return true;
               }
               return false;

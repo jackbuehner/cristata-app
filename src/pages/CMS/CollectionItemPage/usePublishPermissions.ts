@@ -1,6 +1,6 @@
+import { get as getProperty } from '$utils/objectPath';
 import { useMemo } from 'react';
-import { get as getProperty } from 'object-path';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
 interface UsePublishPermissionsParams {
   publishActionAccess?: boolean;

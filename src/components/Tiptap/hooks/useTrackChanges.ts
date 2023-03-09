@@ -1,8 +1,8 @@
-import { Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import { useEffect, useState } from 'react';
-import * as Y from 'yjs';
+import type * as Y from 'yjs';
 import { SetDocAttrStep } from '../utilities/SetDocAttrStep';
-import { IYSettingsMap } from './useY';
+import type { IYSettingsMap } from './useY';
 
 function useTrackChanges({ editor, ydoc, ySettingsMap }: TrackChangesProps): ReturnType {
   // manage whether track changes is on

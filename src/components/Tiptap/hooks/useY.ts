@@ -1,19 +1,23 @@
-import { ApolloClient, useApolloClient } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 import { HocuspocusProvider, WebSocketStatus } from '@hocuspocus/provider';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import pluralize from 'pluralize';
-import { DependencyList, useEffect, useRef, useState } from 'react';
-import * as awarenessProtocol from 'y-protocols/awareness.js';
+import type { DependencyList } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type * as awarenessProtocol from 'y-protocols/awareness.js';
 import { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { getYFields, GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
+import { getYFields } from '../../../pages/CMS/CollectionItemPage/getYFields';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setIsLoading } from '../../../redux/slices/cmsItemSlice';
 import { capitalize } from '../../../utils/capitalize';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { useAwareness } from './useAwareness';
-import packageJson from '../../../../package.json';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 class YProvider {
   #ydocs: Record<string, Y.Doc> = {};
@@ -42,7 +46,7 @@ class YProvider {
       // register with a WebRTC provider
       const providerOptions = {
         awareness: wsProvider.awareness,
-        password: name + 'cristata-development' + packageJson.version,
+        password: name + 'cristata-development' + __APP_VERSION__,
       };
       if (import.meta.env.NODE_ENV === 'production') {
         providerOptions.password = (
@@ -96,12 +100,11 @@ function useY(
     let mounted = true;
     const y = providerRef.current;
 
-    const tenant = localStorage.getItem('tenant');
-    const appVersion = packageJson.version;
+    const tenant = location.pathname.split('/')[1];
     const docName = versionDate
       ? `${tenant}.${collectionName}.${id}.${versionDate}`
       : `${tenant}.${collectionName}.${id}`;
-    y.create(docName, user._id, appVersion).then((data) => {
+    y.create(docName, user._id, __APP_VERSION__).then((data) => {
       if (mounted) {
         setYdoc(data.ydoc);
         setWebProvider(data.webProvider);
@@ -279,5 +282,5 @@ interface FieldY extends EntryY {
 
 type FakeProvider = { awareness: awarenessProtocol.Awareness; connected?: boolean };
 
-export type { IYSettingsMap, FakeProvider, EntryY, FieldY };
+export type { EntryY, FakeProvider, FieldY, IYSettingsMap };
 export { useY };

@@ -8,19 +8,19 @@ import {
   Edit16Regular,
   MoreHorizontal16Regular,
 } from '@fluentui/react-icons';
-import { CommandProps, Editor } from '@tiptap/react';
+import type { CommandProps, Editor } from '@tiptap/react';
 import { DateTime } from 'luxon';
-import { Transaction } from 'prosemirror-state';
+import type { Transaction } from 'prosemirror-state';
 import React, { useEffect, useRef, useState } from 'react';
 import scrollIntoView from 'scroll-into-view-if-needed';
 import { v4 as uuidv4 } from 'uuid';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { genAvatar } from '../../../utils/genAvatar';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { Button, IconButton } from '../../Button';
 import { Menu } from '../../Menu';
 import { TextArea } from '../../TextArea';
-import { CommentStorage } from './powerComment';
+import type { CommentStorage } from './powerComment';
 
 interface CommentPanelProps {
   editor?: Editor | null;

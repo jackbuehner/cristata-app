@@ -4,7 +4,7 @@ import { Button } from '../../../../components/Button';
 import { Checkbox, SelectOne, Text } from '../../../../components/ContentField';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { setCustomMutations, setDefaultMutationOption } from '../../../../redux/slices/collectionSlice';
-import { colorType } from '../../../../utils/theme/theme';
+import type { colorType } from '../../../../utils/theme/theme';
 import { uncapitalize } from '../../../../utils/uncapitalize';
 import { getFieldTypes } from './getFieldTypes';
 

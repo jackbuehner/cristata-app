@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns document _id
  */
-const CREATE_FILE = gql(
+const CREATE_FILE = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {
@@ -39,4 +39,4 @@ type CREATE_FILE__DOC_TYPE = {
 };
 
 export { CREATE_FILE };
-export type { CREATE_FILE__TYPE, CREATE_FILE__DOC_TYPE };
+export type { CREATE_FILE__DOC_TYPE, CREATE_FILE__TYPE };

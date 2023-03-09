@@ -1,0 +1,12 @@
+overwrite: true
+schema: 'https://server.cristata.app/v3/troop-370'
+documents: ['src/**/*.gql', 'src/**/*.graphql']
+generates:
+  src/graphql/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-document-nodes
+      - typescript-operations
+  src/graphql/graphql.schema.json:
+    plugins:
+      - introspection

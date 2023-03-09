@@ -1,7 +1,8 @@
+import { get as getProperty } from '$utils/objectPath';
 import styled from '@emotion/styled';
-import { isSchemaDef, isSchemaDefOrType, SchemaType } from '@jackbuehner/cristata-generator-schema';
+import type { SchemaType } from '@jackbuehner/cristata-generator-schema';
+import { isSchemaDef, isSchemaDefOrType } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
-import { get as getProperty } from 'object-path';
 import { useDispatch } from 'react-redux';
 import { Button } from '../../../../components/Button';
 import {
@@ -31,7 +32,7 @@ import {
   setWithPermissions,
 } from '../../../../redux/slices/collectionSlice';
 import { hasKey } from '../../../../utils/hasKey';
-import { colorType } from '../../../../utils/theme/theme';
+import type { colorType } from '../../../../utils/theme/theme';
 import { useConfirmDelete } from '../hooks/useConfirmDelete';
 import { ActionAccessCard } from './ActionAccessCard';
 import { getFieldTypes } from './getFieldTypes';

@@ -1,6 +1,6 @@
+import type { HocuspocusProvider } from '@hocuspocus/provider';
 import { useEffect, useState } from 'react';
-import { WebrtcProvider } from 'y-webrtc';
-import { HocuspocusProvider } from '@hocuspocus/provider';
+import type { WebrtcProvider } from 'y-webrtc';
 
 /**
  * Builds an array of objects of type `IAwarenessProfile` with duplicate values

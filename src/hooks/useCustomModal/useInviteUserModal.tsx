@@ -1,35 +1,36 @@
-import { useApolloClient } from '@apollo/client';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Checkbox } from '../../components/Checkbox';
 import { InputGroup } from '../../components/InputGroup';
 import { Label } from '../../components/Label';
 import { TextInput } from '../../components/TextInput';
-import { CREATE_USER, CREATE_USER__TYPE } from '../../graphql/queries';
+import type { CREATE_USER__TYPE } from '../../graphql/queries';
+import { CREATE_USER } from '../../graphql/queries';
 import { slugify } from '../../utils/slugify';
 import { useWindowModal } from '../useWindowModal';
+
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
+
+interface UseInviteUserModalParams {
+  afterInvite?: (userId: string) => Promise<void>;
+}
 
 /**
  * Use a modal for inviting a new user.
  */
-function useInviteUserModal(): [React.ReactNode, () => void, () => void] {
+function useInviteUserModal(params?: UseInviteUserModalParams): [React.ReactNode, () => void, () => void] {
   const client = useApolloClient();
 
   // create the modal
   const [Window, showModal, hideModal] = useWindowModal(() => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isLoading, setIsLoading] = useState(false);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [name, setName] = useState<string>();
     const username = slugify(name || '', '.');
     const slug = slugify(name || '');
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [email, setEmail] = useState<string>();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [phone, setPhone] = useState<string>();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [title, setTitle] = useState<string>();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [retired, setRetired] = useState<boolean>();
 
     /**
@@ -53,6 +54,7 @@ function useInviteUserModal(): [React.ReactNode, () => void, () => void] {
         .then((res) => {
           if (res.data?.userCreate._id) {
             toast.success(`Sent the user an invitation.`);
+            params?.afterInvite?.(res.data.userCreate._id);
             return true;
           }
           return false;

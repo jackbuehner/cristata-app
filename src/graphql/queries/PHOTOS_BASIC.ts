@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { Paged } from '../../interfaces/cristata/paged';
+import type { Paged } from '../../interfaces/cristata/paged';
 import { paged } from '../paged';
 
 /**
  * Gets some basic data about a collection of photos.
  */
-const PHOTOS_BASIC = gql(
+const PHOTOS_BASIC = parse(
   jsonToGraphQLQuery({
     query: {
       __variables: {
@@ -55,4 +55,4 @@ type PHOTOS_BASIC__DOC_TYPE = {
 };
 
 export { PHOTOS_BASIC };
-export type { PHOTOS_BASIC__TYPE, PHOTOS_BASIC__DOC_TYPE };
+export type { PHOTOS_BASIC__DOC_TYPE, PHOTOS_BASIC__TYPE };

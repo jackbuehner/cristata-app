@@ -5,8 +5,9 @@ import { Offline } from '../../../components/Offline';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import { formatISODate } from '../../../utils/formatISODate';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { useGetServiceUsage } from './useGetServiceUsage';
+
 function BillingServiceUsagePage() {
   const dispatch = useAppDispatch();
   const theme = useTheme() as themeType;

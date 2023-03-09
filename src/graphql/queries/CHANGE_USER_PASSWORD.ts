@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns profile _id
  */
-const CHANGE_USER_PASSWORD = gql(
+const CHANGE_USER_PASSWORD = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {
@@ -35,4 +35,4 @@ type CHANGE_USER_PASSWORD__DOC_TYPE = {
 };
 
 export { CHANGE_USER_PASSWORD };
-export type { CHANGE_USER_PASSWORD__TYPE, CHANGE_USER_PASSWORD__DOC_TYPE };
+export type { CHANGE_USER_PASSWORD__DOC_TYPE, CHANGE_USER_PASSWORD__TYPE };

@@ -1,0 +1,6 @@
+query WorkflowCounts {
+  workflow {
+    stage: _id
+    count
+  }
+}

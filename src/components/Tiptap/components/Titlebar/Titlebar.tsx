@@ -1,11 +1,12 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular, Home16Regular } from '@fluentui/react-icons';
+import { appWindow } from '@tauri-apps/api/window';
 import Color from 'color';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { themeType } from '../../../../utils/theme/theme';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
+import type { themeType } from '../../../../utils/theme/theme';
 
 interface ITitlebar {
   title?: string;
@@ -23,6 +24,7 @@ interface ITitlebar {
 function Titlebar(props: ITitlebar) {
   const navigate = useNavigate();
   const theme = useTheme() as themeType;
+  const tenant = location.pathname.split('/')[1];
 
   // update tooltip listener when component changes
   useEffect(() => {
@@ -43,20 +45,25 @@ function Titlebar(props: ITitlebar) {
       // on unmount, set it back to the primary color
       document
         .querySelector(`meta[name='theme-color']`)
-        ?.setAttribute(
-          `content`,
-          theme.mode === 'light'
-            ? theme.color.primary[800]
-            : Color(theme.color.neutral[theme.mode][200]).darken(0.24).string()
-        );
+        ?.setAttribute(`content`, theme.mode === 'light' ? '#f3f3f3' : '#202020');
   }, [theme.color.blue, theme.color.neutral, theme.color.primary, theme.mode]);
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect?.().x || 0;
 
+  const [isMaximized, setIsMaximized] = useState(false);
+  useEffect(() => {
+    (async () => {
+      setIsMaximized(await appWindow.isMaximized());
+      appWindow.onResized(async () => {
+        setIsMaximized(await appWindow.isMaximized());
+      });
+    })();
+  });
+
   return (
     <Wrapper>
-      <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX}>
+      <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX} data-tauri-drag-region>
         {props.isBackstageOpen ? null : (
           <>
             <QuickAccess>
@@ -74,7 +81,7 @@ function Titlebar(props: ITitlebar) {
                 navigator.windowControlsOverlay?.visible ? (
                   <>
                     <TitlebarButton
-                      onClick={() => navigate(-1)}
+                      // onClick={() => navigate(-1)}
                       data-tip={'Go back'}
                       iconSize={16}
                       width={customTitlebarOffsetX !== 0 ? 33 : undefined}
@@ -82,7 +89,7 @@ function Titlebar(props: ITitlebar) {
                       <ArrowLeft20Regular />
                     </TitlebarButton>
                     <TitlebarButton
-                      onClick={() => navigate(1)}
+                      // onClick={() => navigate(1)}
                       data-tip={'Go forward'}
                       iconSize={16}
                       width={customTitlebarOffsetX !== 0 ? 33 : undefined}
@@ -96,7 +103,12 @@ function Titlebar(props: ITitlebar) {
                   </>
                 ) : null
               }
-              <TitlebarButton onClick={() => navigate('/')} data-tip={'Navigate home'} iconSize={16} width={33}>
+              <TitlebarButton
+                onClick={() => navigate(`/${tenant}/`)}
+                data-tip={'Navigate home'}
+                iconSize={16}
+                width={33}
+              >
                 <Home16Regular />
               </TitlebarButton>
               {props.actions?.map((action, index) => {
@@ -115,10 +127,47 @@ function Titlebar(props: ITitlebar) {
                 );
               })}
             </QuickAccess>
-            <Divider />
+            <Divider data-tauri-drag-region />
           </>
         )}
-        <Title isBackstageOpen={props.isBackstageOpen}>{props.title || 'Cristata'}</Title>
+        <Title isBackstageOpen={props.isBackstageOpen} data-tauri-drag-region>
+          {props.title || 'Cristata'}
+        </Title>
+        {appWindow ? (
+          <>
+            <img
+              src='window-controls/minimize.svg'
+              alt='Minimize'
+              title='Minimize'
+              className='window-controls windows'
+              onClick={() => appWindow.minimize()}
+            />
+            {isMaximized ? (
+              <img
+                src='window-controls/restore.svg'
+                alt='Restore'
+                title='Restore'
+                className='window-controls windows'
+                onClick={() => appWindow.toggleMaximize()}
+              />
+            ) : (
+              <img
+                src='window-controls/maximize.svg'
+                alt='Maximize'
+                title='Maximize'
+                className='window-controls windows'
+                onClick={() => appWindow.toggleMaximize()}
+              />
+            )}
+            <img
+              src='window-controls/close.svg'
+              alt='Close'
+              title='Close'
+              className='window-controls windows close'
+              onClick={() => appWindow.close()}
+            />
+          </>
+        ) : null}
       </TITLEBAR>
     </Wrapper>
   );

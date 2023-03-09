@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import IframeResizer from 'iframe-resizer-react';
 import { useEffect, useRef } from 'react';
 import { isJSON } from '../../../../utils/isJSON';
-import { EntryY } from '../../hooks/useY';
+import type { EntryY } from '../../hooks/useY';
 
 interface ExternalFrameProps {
   src: string;

@@ -3,14 +3,16 @@ import styled from '@emotion/styled';
 import { ChevronDown20Regular, ErrorCircle20Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import mongoose from 'mongoose';
-import Select, { BaseSelectRef, Option } from 'rc-select';
-import { BaseOptionType, DefaultOptionType, LabelInValueType, RawValueType } from 'rc-select/lib/Select';
-import { CSSProperties as CSS, useCallback, useEffect, useRef, useState } from 'react';
+import type { BaseSelectRef } from 'rc-select';
+import Select, { Option } from 'rc-select';
+import type { BaseOptionType, DefaultOptionType, LabelInValueType, RawValueType } from 'rc-select/lib/Select';
+import type { CSSProperties as CSS } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { buttonEffect } from '../Button';
-import { FieldProps } from './Field';
 import { replaceCircular } from '../../utils/replaceCircular';
+import type { colorType, themeType } from '../../utils/theme/theme';
+import { buttonEffect } from '../Button';
+import type { FieldProps } from './Field';
 
 const isValidObjectId = mongoose.Types.ObjectId.isValid;
 

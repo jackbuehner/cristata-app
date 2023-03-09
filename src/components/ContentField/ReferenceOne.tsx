@@ -1,18 +1,22 @@
-import { useApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Dismiss24Regular, Open24Regular } from '@fluentui/react-icons';
-import { FieldDef } from '@jackbuehner/cristata-generator-schema';
+import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import { Combobox } from '.';
 import { capitalize } from '../../utils/capitalize';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
-import { Field, FieldProps } from './Field';
+import { Combobox } from './';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 import { populateReferenceValues } from './populateReferenceValues';
 import { useOptions } from './useOptions';
+
+import { openWindow } from '$utils/openWindow';
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface ReferenceOneProps extends Omit<FieldProps, 'children'> {
   value: UnpopulatedValue | null;
@@ -83,27 +87,27 @@ function ReferenceOne({ onChange, ...props }: ReferenceOneProps) {
               disabled={false}
               onClick={() => {
                 if (isURL(internalState._id)) {
-                  window.open(internalState._id, props.collection + internalState._id, 'location=no');
+                  openWindow(internalState._id, props.collection + internalState._id, 'location=no');
                 } else if (props.collection.toLowerCase() === 'user') {
-                  window.open(
+                  openWindow(
                     `/${tenant}/profile/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else if (props.collection.toLowerCase() === 'team') {
-                  window.open(
+                  openWindow(
                     `/${tenant}/teams/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else if (props.collection.toLowerCase() === 'photo') {
-                  window.open(
+                  openWindow(
                     `/${tenant}/cms/photo/library/${internalState._id}`,
                     props.collection + internalState._id,
                     'location=no'
                   );
                 } else {
-                  window.open(
+                  openWindow(
                     `/${tenant}/cms/collection/${pluralize(props.collection.toLowerCase())}/${
                       internalState._id
                     }`,

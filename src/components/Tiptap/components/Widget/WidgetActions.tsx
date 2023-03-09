@@ -1,6 +1,6 @@
-import { colorType, themeType } from '../../../../utils/theme/theme';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import type { colorType, themeType } from '../../../../utils/theme/theme';
 import { IconButton } from '../../../Button';
 
 interface IWidgetActions extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {

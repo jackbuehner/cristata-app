@@ -1,0 +1,32 @@
+query Team($team_id: ObjectID!) {
+  teamActionAccess(_id: $team_id) {
+    modify
+    hide
+  }
+  userActionAccess {
+    deactivate
+  }
+  team(_id: $team_id) {
+    _id
+    name
+    slug
+    members {
+      _id
+      name
+      email
+      current_title
+      photo
+      flags
+      retired
+    }
+    organizers {
+      _id
+      name
+      email
+      current_title
+      photo
+      flags
+      retired
+    }
+  }
+}

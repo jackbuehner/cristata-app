@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { Paged } from '../../interfaces/cristata/paged';
+import type { Paged } from '../../interfaces/cristata/paged';
 import { isObjectId } from '../../utils/isObjectId';
 import { paged } from '../paged';
 
@@ -11,7 +11,7 @@ import { paged } from '../paged';
  */
 const PHOTOS_BASIC_BY_REGEXNAME_OR_URL = (input: string) => {
   const isId = isObjectId(input);
-  return gql(
+  return parse(
     jsonToGraphQLQuery({
       query: {
         __variables: {
@@ -68,4 +68,4 @@ type PHOTOS_BASIC_BY_REGEXNAME_OR_URL__DOC_TYPE = {
 };
 
 export { PHOTOS_BASIC_BY_REGEXNAME_OR_URL };
-export type { PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE, PHOTOS_BASIC_BY_REGEXNAME_OR_URL__DOC_TYPE };
+export type { PHOTOS_BASIC_BY_REGEXNAME_OR_URL__DOC_TYPE, PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE };

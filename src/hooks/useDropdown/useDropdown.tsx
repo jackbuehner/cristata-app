@@ -1,5 +1,6 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { NavigateOptions, To, useNavigate } from 'react-router-dom';
+import type React from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
 import { DropdownContext } from './_DropdownContext';
 
 /**
@@ -14,7 +15,10 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
     dropdownRef: (el: HTMLOListElement) => void,
     props: T,
     more: {
-      navigate: (to: To, options?: NavigateOptions) => void;
+      navigate: (
+        to: Parameters<ReturnType<typeof useNavigate>>[0],
+        options?: Parameters<ReturnType<typeof useNavigate>>[1]
+      ) => void;
       close: () => void;
       firstElementChildHeight: number;
     }
@@ -63,7 +67,10 @@ function useDropdown<T extends Record<string, unknown> = Record<string, unknown>
   };
 
   const _navigate = useNavigate();
-  const navigate = (to: To, options?: NavigateOptions): void => {
+  const navigate = (
+    to: Parameters<ReturnType<typeof useNavigate>>[0],
+    options?: Parameters<ReturnType<typeof useNavigate>>[1]
+  ): void => {
     _navigate(to, options);
     hideDropdown();
   };

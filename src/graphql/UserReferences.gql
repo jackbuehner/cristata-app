@@ -1,0 +1,10 @@
+query UserReferences($_id: ObjectID!, $limit: Int) {
+  userReferences(_id: $_id, limit: $limit) {
+    count
+    collection: _id
+    docs {
+      name
+      url
+    }
+  }
+}

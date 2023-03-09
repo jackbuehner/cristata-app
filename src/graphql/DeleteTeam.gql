@@ -1,0 +1,3 @@
+mutation DeleteTeam($_id: ObjectID!) {
+  teamDelete(_id: $_id)
+}

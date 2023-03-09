@@ -1,0 +1,5 @@
+mutation SaveUserDeactivate($_id: ObjectID!, $retired: Boolean) {
+  userDeactivate(_id: $_id, deactivate: $retired) {
+    retired
+  }
+}

@@ -10,6 +10,7 @@
 
 # development
 /dev-dist
+/.svelte-kit
 
 # production
 /build

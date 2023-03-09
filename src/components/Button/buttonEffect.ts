@@ -1,5 +1,5 @@
 import Color from 'color';
-import { colorType, themeType, colorShade } from '../../utils/theme/theme';
+import type { colorShade, colorType, themeType } from '../../utils/theme/theme';
 
 function buttonEffect(
   color: colorType,

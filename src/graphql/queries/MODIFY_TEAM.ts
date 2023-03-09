@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns team _id
  */
-const MODIFY_TEAM = gql(
+const MODIFY_TEAM = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {
@@ -35,4 +35,4 @@ type MODIFY_TEAM__DOC_TYPE = {
 };
 
 export { MODIFY_TEAM };
-export type { MODIFY_TEAM__TYPE, MODIFY_TEAM__DOC_TYPE };
+export type { MODIFY_TEAM__DOC_TYPE, MODIFY_TEAM__TYPE };

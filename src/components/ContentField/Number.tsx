@@ -1,8 +1,9 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { InputHTMLAttributes } from 'react';
-import { colorType, themeType } from '../../utils/theme/theme';
-import { Field, FieldProps } from './Field';
+import type { InputHTMLAttributes } from 'react';
+import type { colorType, themeType } from '../../utils/theme/theme';
+import type { FieldProps } from './Field';
+import { Field } from './Field';
 
 interface NumberProps extends Omit<FieldProps, 'children'>, InputHTMLAttributes<HTMLInputElement> {
   type: 'Float' | 'Int';

@@ -1,16 +1,20 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { ApolloClient, gql, useMutation } from '@apollo/client';
+import { get as getProperty } from '$utils/objectPath';
+import type { ApolloClient } from '@apollo/client';
 import { useTheme } from '@emotion/react';
-import { get as getProperty } from 'object-path';
+import { gql } from 'graphql-tag';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { DateTime, Text } from '../../../components/ContentField';
-import { EntryY } from '../../../components/Tiptap/hooks/useY';
-import { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { EntryY } from '../../../components/Tiptap/hooks/useY';
+import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useWindowModal } from '../../../hooks/useWindowModal';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { RenderFields } from './CollectionItemPage';
+import type { RenderFields } from './CollectionItemPage';
+
+import * as apolloRaw from '@apollo/client';
+const { useMutation } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface UsePublishModal {
   y: EntryY;

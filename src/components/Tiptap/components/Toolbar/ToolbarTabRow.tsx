@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import Color from 'color';
-import { themeType } from '../../../../utils/theme/theme';
+import type { themeType } from '../../../../utils/theme/theme';
 
 interface IToolbarTabRow {
   theme: themeType;

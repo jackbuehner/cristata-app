@@ -1,34 +1,32 @@
-import { NetworkStatus, useApolloClient, useQuery } from '@apollo/client';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { CircularProgress } from '@material-ui/core';
 import Color from 'color';
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
+import { useLocation, useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { v4 as uuidv4 } from 'uuid';
 import { Chip } from '../../../components/Chip';
 import FluentIcon from '../../../components/FluentIcon';
 import { Menu } from '../../../components/Menu';
 import { Offline } from '../../../components/Offline';
-import { mongoFilterType } from '../../../graphql/client';
-import {
-  CREATE_PHOTO,
-  CREATE_PHOTO__TYPE,
-  CREATE_PHOTO__VARIABLES,
-  PHOTOS_BASIC,
-  PHOTOS_BASIC__TYPE,
-} from '../../../graphql/queries';
+import type { mongoFilterType } from '../../../graphql/client';
+import type { CREATE_PHOTO__TYPE, CREATE_PHOTO__VARIABLES, PHOTOS_BASIC__TYPE } from '../../../graphql/queries';
+import { CREATE_PHOTO, PHOTOS_BASIC } from '../../../graphql/queries';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
 import { useDropdown } from '../../../hooks/useDropdown';
 import { useAppDispatch } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName, setAppSearchShown } from '../../../redux/slices/appbarSlice';
 import { getSignedRequest } from '../../../utils/getSignedRequest';
 import { isJSON } from '../../../utils/isJSON';
-import { themeType } from '../../../utils/theme/theme';
+import type { themeType } from '../../../utils/theme/theme';
 import { CollectionTableFilterRow } from '../CollectionPage/CollectionTableFilterRow';
 import { PhotoLibraryFlyout } from './PhotoLibraryFlyout';
+
+import * as apolloRaw from '@apollo/client';
+const { NetworkStatus, useApolloClient, useQuery } = ((apolloRaw as any).default ??
+  apolloRaw) as typeof apolloRaw;
 
 function PhotoLibraryPage() {
   const dispatch = useAppDispatch();
@@ -37,7 +35,7 @@ function PhotoLibraryPage() {
   const searchParams = new URLSearchParams(location.search);
   const navigate = useNavigate();
   const client = useApolloClient();
-  const tenant = localStorage.getItem('tenant');
+  const tenant = location.pathname.split('/')[1];
   const [{ schemaDef }] = useCollectionSchemaConfig('Photo');
 
   // construct a filter
@@ -277,7 +275,7 @@ function PhotoLibraryPage() {
           refetch();
 
           // open the photo metadata
-          if (_id) navigate(`/cms/photos/library/${_id}`);
+          if (_id) navigate(`/${tenant}/cms/photos/library/${_id}`);
         })
         .catch((error) => {
           setIsLoading(false);
@@ -431,7 +429,7 @@ function PhotoLibraryPage() {
                       theme={theme}
                       isSelected={photo_id === photo._id}
                       onClick={() => {
-                        if (photo_id !== photo._id) navigate(`/cms/photos/library/${photo._id}`);
+                        if (photo_id !== photo._id) navigate(`/${tenant}/cms/photos/library/${photo._id}`);
                       }}
                     >
                       <ImageBG src={photo.photo_url} theme={theme} />

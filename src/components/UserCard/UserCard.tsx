@@ -1,8 +1,8 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import Color from 'color';
-import { useNavigate } from 'react-router-dom';
-import { themeType } from '../../utils/theme/theme';
+import { useNavigate } from 'svelte-preprocess-react/react-router';
+import type { themeType } from '../../utils/theme/theme';
 import { buttonEffect } from '../Button';
 
 interface IUserCard {
@@ -18,6 +18,7 @@ interface IUserCard {
 function UserCard(props: IUserCard) {
   const theme = useTheme() as themeType;
   const navigate = useNavigate();
+  const tenant = location.pathname.split('/')[1];
 
   return (
     <Component
@@ -25,7 +26,7 @@ function UserCard(props: IUserCard) {
       href={props.href}
       onClick={(e) => {
         e.preventDefault();
-        if (props.href) navigate(props.href);
+        if (props.href) navigate(`/${tenant}${props.href}`);
       }}
     >
       <ProfilePhoto theme={theme} src={props.photo || ''} />

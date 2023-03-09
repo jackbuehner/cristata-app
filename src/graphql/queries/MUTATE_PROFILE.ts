@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { parse } from 'graphql';
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
 /**
@@ -6,7 +6,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
  *
  * @returns profile _id
  */
-const MUTATE_PROFILE = gql(
+const MUTATE_PROFILE = parse(
   jsonToGraphQLQuery({
     mutation: {
       __variables: {
@@ -35,4 +35,4 @@ type MUTATE_PROFILE__DOC_TYPE = {
 };
 
 export { MUTATE_PROFILE };
-export type { MUTATE_PROFILE__TYPE, MUTATE_PROFILE__DOC_TYPE };
+export type { MUTATE_PROFILE__DOC_TYPE, MUTATE_PROFILE__TYPE };

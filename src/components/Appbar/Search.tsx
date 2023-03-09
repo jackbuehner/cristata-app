@@ -1,10 +1,10 @@
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'svelte-preprocess-react/react-router';
 import { useAppDispatch } from '../../redux/hooks';
 import { setAppSearchShown } from '../../redux/slices/appbarSlice';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { IconButton } from '../Button';
 import { FluentIcon } from '../FluentIcon';
 
@@ -19,6 +19,7 @@ function Search(props: SearchProps) {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+  const tenant = location.pathname.split('/')[1];
 
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const isCustomTitlebarVisible = navigator.windowControlsOverlay?.visible;
@@ -35,7 +36,7 @@ function Search(props: SearchProps) {
   const executeSearch = () => {
     if (value.length > 0) searchParams.set('_search', value);
     else searchParams.delete('_search');
-    navigate(`${pathname}?${searchParams.toString()}`);
+    navigate(`/${tenant}${pathname}?${searchParams.toString()}`);
   };
 
   return (

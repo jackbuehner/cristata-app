@@ -1,24 +1,19 @@
+import { openWindow } from '$utils/openWindow';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Dismiss24Regular, Open24Regular, ReOrderDotsHorizontal24Regular } from '@fluentui/react-icons';
 import Color from 'color';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  DraggableProvidedDragHandleProps,
-  Droppable,
-  DropResult,
-  ResponderProvided,
-} from 'react-beautiful-dnd';
-import * as Y from 'yjs';
+import type { DraggableProvidedDragHandleProps, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import type * as Y from 'yjs';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { capitalize } from '../../utils/capitalize';
-import { colorType, themeType } from '../../utils/theme/theme';
+import type { colorType, themeType } from '../../utils/theme/theme';
 import { Button, buttonEffect } from '../Button';
-import { EntryY } from '../Tiptap/hooks/useY';
-import { Value } from './CollaborativeCombobox';
+import type { EntryY } from '../Tiptap/hooks/useY';
+import type { Value } from './CollaborativeCombobox';
 
 interface SelectedReferenceItemsProps {
   onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
@@ -122,19 +117,19 @@ function SelectedReferenceItems(props: SelectedReferenceItemsProps) {
                           disabled={false}
                           onClick={() => {
                             if (isURL(_id)) {
-                              window.open(_id, props.collection + _id, 'location=no');
+                              openWindow(_id, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'user') {
-                              window.open(`/${tenant}/profile/${_id}`, props.collection + _id, 'location=no');
+                              openWindow(`/${tenant}/profile/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'team') {
-                              window.open(`/${tenant}/teams/${_id}`, props.collection + _id, 'location=no');
+                              openWindow(`/${tenant}/teams/${_id}`, props.collection + _id, 'location=no');
                             } else if (props.collection.toLowerCase() === 'photo') {
-                              window.open(
+                              openWindow(
                                 `/${tenant}/cms/photo/library/${_id}`,
                                 props.collection + _id,
                                 'location=no'
                               );
                             } else {
-                              window.open(
+                              openWindow(
                                 `/${tenant}/cms/collection/${pluralize(props.collection.toLowerCase())}/${_id}`,
                                 props.collection + _id,
                                 'location=no'

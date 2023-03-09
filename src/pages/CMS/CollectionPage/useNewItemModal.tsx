@@ -1,12 +1,14 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { gql, useApolloClient } from '@apollo/client';
-import { isTypeTuple, MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
+
+import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+import { gql } from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
 import { useEffect, useState } from 'react';
-import { NavigateFunction } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import type { useNavigate } from 'svelte-preprocess-react/react-router';
 import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator';
 import { Checkbox, DateTime, Number, ReferenceOne, SelectMany, Text } from '../../../components/ContentField';
 import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaConfig';
@@ -15,13 +17,17 @@ import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { uncapitalize } from '../../../utils/uncapitalize';
 import { deepen } from '../CollectionItemPage/useFindDoc';
 
+import * as apolloRaw from '@apollo/client';
+const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
+
 function useNewItemModal(
   collectionName: string,
-  navigate: NavigateFunction
+  navigate: ReturnType<typeof useNavigate>
 ): [React.ReactNode, () => void, () => void] {
   const [WindowModal, showModal, hideModal] = useWindowModal(() => {
     const client = useApolloClient();
     const [loading, setLoading] = useState(false);
+    const tenant = location.pathname.split('/')[1];
 
     const [{ schemaDef, by }] = useCollectionSchemaConfig(collectionName);
     const requiredFields = schemaDef.filter(
@@ -111,7 +117,7 @@ function useNewItemModal(
         .then(({ data }) => {
           // navigate to the new document upon successful creation
           navigate(
-            `/cms/collection/${uncapitalize(camelToDashCase(collectionName))}/${
+            `${tenant}/cms/collection/${uncapitalize(camelToDashCase(collectionName))}/${
               data?.response?.[by?.one || '_id']
             }`
           );

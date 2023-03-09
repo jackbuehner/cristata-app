@@ -1,4 +1,4 @@
-import * as Y from 'yjs';
+import type * as Y from 'yjs';
 
 /**
  * Dates are stored in a shared text type.
