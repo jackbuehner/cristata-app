@@ -9,6 +9,14 @@ const config = {
     preprocess: preprocess({ sourceMap: true }),
   }),
 
+  /** @type {import('@sveltejs/vite-plugin-svelte').SvelteOptions['onwarn']} */
+  onwarn: (warning, defaultHandler) => {
+    // do not log errors from fluent-svelte
+    if (warning.filename.indexOf('/node_modules/fluent-svelte') === 0) return;
+
+    defaultHandler(warning);
+  },
+
   kit: {
     adapter:
       process.env.ADAPTER === 'static'
