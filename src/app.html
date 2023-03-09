@@ -236,6 +236,10 @@
       if (!!window.__TAURI__) {
         document.documentElement.setAttribute('tauri', true);
 
+        __TAURI__.event.listen('tauri://update-status', (res) => {
+          console.log('Update status: ', res);
+        });
+
         // toggle decorations status based on current url
         window.__TAURI__.invoke('set_decorations', { decorations: false });
         window.addEventListener('beforeunload', (event) => {
