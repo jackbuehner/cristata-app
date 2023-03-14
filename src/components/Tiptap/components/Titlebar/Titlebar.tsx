@@ -54,10 +54,12 @@ function Titlebar(props: ITitlebar) {
   const [isMaximized, setIsMaximized] = useState(false);
   useEffect(() => {
     (async () => {
-      setIsMaximized(await appWindow.isMaximized());
-      appWindow.onResized(async () => {
-        setIsMaximized(await appWindow.isMaximized());
-      });
+      if (document.documentElement.getAttribute('tauri') === 'true') {
+        setIsMaximized((await appWindow?.isMaximized()) || false);
+        appWindow?.onResized(async () => {
+          setIsMaximized((await appWindow?.isMaximized()) || false);
+        });
+      }
     })();
   });
 

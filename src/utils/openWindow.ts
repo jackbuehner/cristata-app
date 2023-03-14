@@ -1,5 +1,4 @@
 import { slugify } from '@jackbuehner/cristata-utils';
-import { app, invoke } from '@tauri-apps/api';
 
 interface OpenWindowOpts {
   customName?: string;
@@ -8,21 +7,29 @@ interface OpenWindowOpts {
 }
 
 export function openWindow(url: string | URL, target: string, features?: string, opts?: OpenWindowOpts) {
-  const isTauriApp = app
-    .getVersion()
-    .then(() => true)
-    .catch(() => false);
+  import('@tauri-apps/api')
+    .then(async ({ app, invoke }) => {
+      const isTauriApp = await app
+        .getVersion()
+        .then(() => true)
+        .catch(() => false);
 
-  return isTauriApp.then((isTauriApp) => {
-    if (isTauriApp && invoke) {
-      return invoke('open_window', {
-        label: slugify(target, '-'),
-        title: opts?.customName || 'Cristata',
-        location: url.toString(),
-        width: opts?.width,
-        height: opts?.height,
-      });
-    }
-    return window.open(url, target, features);
-  });
+      if (isTauriApp) {
+        // open a new tauri window
+        invoke('open_window', {
+          label: slugify(target, '-'),
+          title: opts?.customName || 'Cristata',
+          location: url.toString(),
+          width: opts?.width,
+          height: opts?.height,
+        });
+      } else {
+        // fall back to the browser-provided window.open command
+        window.open(url, target, features);
+      }
+    })
+    .catch(() => {
+      // fall back to the browser-provided window.open command
+      window.open(url, target, features);
+    });
 }

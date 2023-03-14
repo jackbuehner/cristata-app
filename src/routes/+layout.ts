@@ -1,15 +1,16 @@
 import { browser } from '$app/environment';
-import { getTauriVersion } from '@tauri-apps/api/app';
 import type { LayoutLoad } from './$types';
 
 export const ssr = false;
 
 export const load = (async () => {
-  const tauri = getTauriVersion
-    ? await getTauriVersion()
+  const tauri = await import('@tauri-apps/api/app')
+    .then(async ({ getTauriVersion }) => {
+      return await getTauriVersion()
         .then(() => true)
-        .catch(() => false)
-    : false;
+        .catch(() => false);
+    })
+    .catch(() => false);
 
   if (browser && tauri) {
     const { invoke } = await import('@tauri-apps/api');
