@@ -122,9 +122,9 @@ function usePublishModal(params: UsePublishModal): [React.ReactNode, () => void,
             <DateTime
               label={'Choose update date and time'}
               description={'Indicate that this document has been updated since its publish date.'}
-              value={timestamp === '0001-01-01T01:00:00.000Z' ? null : timestampU || null}
+              value={timestampU === '0001-01-01T01:00:00.000Z' ? null : timestampU || null}
               onChange={(date) => {
-                if (date) setTimestamp(date.toUTC().toISO());
+                if (date) setTimestampU(date.toUTC().toISO());
               }}
               placeholder={'Pick a time'}
               isEmbedded
