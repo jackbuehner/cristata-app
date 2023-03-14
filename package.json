@@ -1,6 +1,6 @@
 {
   "name": "cristata-app",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.4.17",
