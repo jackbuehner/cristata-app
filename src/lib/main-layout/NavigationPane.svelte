@@ -571,7 +571,7 @@
     position: fixed;
     z-index: 99999;
     left: 290px;
-    bottom: 50px;
+    bottom: 67px;
   }
   .settings-flyout.collapsedPane {
     left: 50px;
