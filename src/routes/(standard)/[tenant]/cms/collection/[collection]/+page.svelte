@@ -6,6 +6,7 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
+  import { motionMode } from '$stores/motionMode';
   import { hasKey } from '$utils/hasKey';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
@@ -19,6 +20,8 @@
     Tooltip,
   } from 'fluent-svelte';
   import { hooks } from 'svelte-preprocess-react';
+  import { expoOut } from 'svelte/easing';
+  import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
   import CollectionTable from './CollectionTable.svelte';
 
@@ -126,9 +129,22 @@
 
 <div class="wrapper">
   <div class="header">
-    <PageTitle fullWidth>
-      {pageTitle}<span style="font-size: 65%; margin-left: 10px;">{uploadStatus || ''}</span>
-    </PageTitle>
+    {#key pageTitle}
+      <div
+        in:fly={{ y: 26, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+        style="
+          margin: 32px 0 20px 0;
+          min-height: 40px;
+        "
+      >
+        <PageTitle fullWidth>
+          {pageTitle}
+          <span style="font-size: 65%; margin-left: 10px;">
+            {uploadStatus || ''}
+          </span>
+        </PageTitle>
+      </div>
+    {/key}
 
     <ActionRow fullWidth>
       <Tooltip
