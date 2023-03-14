@@ -7,8 +7,11 @@
   import DeleteTeamDialog from '$lib/dialogs/DeleteTeamDialog.svelte';
   import ManageTeamDialog from '$lib/dialogs/ManageTeamDialog.svelte';
   import { compactMode } from '$stores/compactMode';
+  import { motionMode } from '$stores/motionMode';
   import { notEmpty } from '$utils/notEmpty';
   import { Button, ProgressRing, TextBlock } from 'fluent-svelte';
+  import { expoOut } from 'svelte/easing';
+  import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
   import PersonCard from './PersonCard.svelte';
 
@@ -20,6 +23,19 @@
   let loading = false;
   let listWidth = 1000;
   let flyoutOpen: Record<string, boolean> = {};
+
+  // allow items (e.g. text and person cards) to fly in, but only after the page
+  // has initially transitioned in (after 270 ms)
+  let canFlyItems = false;
+  $: {
+    if ($team?.data?.team?.members) {
+      setTimeout(() => {
+        canFlyItems = true;
+      }, 270);
+    } else {
+      canFlyItems = false;
+    }
+  }
 
   let addMemberDialogOpen = false;
   let addOrganizerDialogOpen = false;
@@ -71,73 +87,85 @@
 </ActionRow>
 
 {#if $team.data?.team}
-  <PageSubtitle style="width: 100%;">
-    <div class="subtitle-row">
-      <span style="flex-grow: 1;">Organizers</span>
-      <Button on:click={() => (addOrganizerDialogOpen = !addOrganizerDialogOpen)}>Add organizer</Button>
-    </div>
-  </PageSubtitle>
+  <div in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}>
+    <PageSubtitle style="width: 100%;">
+      <div class="subtitle-row">
+        <span style="flex-grow: 1;">Organizers</span>
+        <Button on:click={() => (addOrganizerDialogOpen = !addOrganizerDialogOpen)}>Add organizer</Button>
+      </div>
+    </PageSubtitle>
 
-  <section
-    class="person-list"
-    bind:clientWidth={listWidth}
-    class:small={listWidth < 500}
-    class:compact={$compactMode}
-  >
-    {#if ($team.data?.team?.organizers || []).length === 0}
-      <TextBlock>This team has no organizers.</TextBlock>
-    {/if}
-    {#each ($team.data?.team?.organizers || [])
-      .filter(notEmpty)
-      .sort((a, b) => a.name.localeCompare(b.name)) as person}
-      {#if $team.data?.team}
-        <PersonCard
-          {person}
-          bind:open={flyoutOpen[person._id]}
-          bind:loading
-          team={$team.data.team}
-          canDeactivate={$team.data.userActionAccess?.deactivate || false}
-          afterSaveChange={async () => {
-            await $team.refetch();
-          }}
-        />
+    <section
+      class="person-list"
+      bind:clientWidth={listWidth}
+      class:small={listWidth < 500}
+      class:compact={$compactMode}
+    >
+      {#if ($team.data?.team?.organizers || []).length === 0}
+        <div
+          in:fly={{ y: canFlyItems ? 40 : 0, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+        >
+          <TextBlock>This team has no organizers.</TextBlock>
+        </div>
       {/if}
-    {/each}
-  </section>
+      {#each ($team.data?.team?.organizers || [])
+        .filter(notEmpty)
+        .sort((a, b) => a.name.localeCompare(b.name)) as person}
+        {#if $team.data?.team}
+          <PersonCard
+            {person}
+            bind:open={flyoutOpen[person._id]}
+            bind:loading
+            team={$team.data.team}
+            canDeactivate={$team.data.userActionAccess?.deactivate || false}
+            afterSaveChange={async () => {
+              await $team.refetch();
+            }}
+            flyIn={canFlyItems}
+          />
+        {/if}
+      {/each}
+    </section>
 
-  <PageSubtitle style="width: 100%;">
-    <div class="subtitle-row">
-      <span style="flex-grow: 1;">Members</span>
-      <Button on:click={() => (addMemberDialogOpen = !addMemberDialogOpen)}>Add member</Button>
-    </div>
-  </PageSubtitle>
+    <PageSubtitle style="width: 100%;">
+      <div class="subtitle-row">
+        <span style="flex-grow: 1;">Members</span>
+        <Button on:click={() => (addMemberDialogOpen = !addMemberDialogOpen)}>Add member</Button>
+      </div>
+    </PageSubtitle>
 
-  <section
-    class="person-list"
-    bind:clientWidth={listWidth}
-    class:small={listWidth < 500}
-    class:compact={$compactMode}
-  >
-    {#if ($team.data?.team?.members || []).length === 0}
-      <TextBlock>This team has no regular members.</TextBlock>
-    {/if}
-    {#each ($team.data?.team?.members || [])
-      .filter(notEmpty)
-      .sort((a, b) => a.name.localeCompare(b.name)) as person}
-      {#if $team.data?.team}
-        <PersonCard
-          {person}
-          bind:open={flyoutOpen[person._id]}
-          bind:loading
-          team={$team.data.team}
-          canDeactivate={$team.data.userActionAccess?.deactivate || false}
-          afterSaveChange={async () => {
-            await $team.refetch();
-          }}
-        />
+    <section
+      class="person-list"
+      bind:clientWidth={listWidth}
+      class:small={listWidth < 500}
+      class:compact={$compactMode}
+    >
+      {#if ($team.data?.team?.members || []).length === 0}
+        <div
+          in:fly={{ y: canFlyItems ? 40 : 0, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+        >
+          <TextBlock>This team has no regular members.</TextBlock>
+        </div>
       {/if}
-    {/each}
-  </section>
+      {#each ($team.data?.team?.members || [])
+        .filter(notEmpty)
+        .sort((a, b) => a.name.localeCompare(b.name)) as person}
+        {#if $team.data?.team}
+          <PersonCard
+            {person}
+            bind:open={flyoutOpen[person._id]}
+            bind:loading
+            team={$team.data.team}
+            canDeactivate={$team.data.userActionAccess?.deactivate || false}
+            afterSaveChange={async () => {
+              await $team.refetch();
+            }}
+            flyIn={canFlyItems}
+          />
+        {/if}
+      {/each}
+    </section>
+  </div>
 
   {#key $team.data?.team}
     {#if $team.data?.team}

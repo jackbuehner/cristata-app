@@ -5,17 +5,21 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import RemoveFromTeamDialog from '$lib/dialogs/RemoveFromTeamDialog.svelte';
   import { compactMode } from '$stores/compactMode';
+  import { motionMode } from '$stores/motionMode';
   import { server } from '$utils/constants';
   import { genAvatar } from '$utils/genAvatar';
   import { notEmpty } from '$utils/notEmpty';
   import { getPasswordStatus } from '@jackbuehner/cristata-utils';
   import { Button, MenuFlyout, MenuFlyoutDivider, MenuFlyoutItem, TextBlock } from 'fluent-svelte';
   import { print } from 'graphql';
+  import { expoOut } from 'svelte/easing';
+  import { fly } from 'svelte/transition';
 
   export let open = false;
   export let person: NonNullable<NonNullable<NonNullable<TeamQuery['team']>['members']>[0]>;
   export let team: NonNullable<TeamQuery['team']> | undefined = undefined;
   export let canDeactivate = false;
+  export let flyIn = false;
 
   export let loading = false;
   export let beforeSaveChange: (() => Promise<void>) | undefined = undefined;
@@ -96,7 +100,10 @@
   }
 </script>
 
-<div class="person-card">
+<div
+  class="person-card"
+  in:fly={{ y: flyIn ? 40 : 0, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+>
   <Button
     on:click={() => {
       open = !open;
