@@ -7,7 +7,7 @@
   import { compactMode } from '$stores/compactMode';
   import { genAvatar } from '$utils/genAvatar';
   import { notEmpty } from '$utils/notEmpty';
-  import { Button, TextBlock } from 'fluent-svelte';
+  import { Button, InfoBar, TextBlock } from 'fluent-svelte';
   import PersonCard from '../[team_id]/PersonCard.svelte';
   import type { PageData } from './$types';
 
@@ -56,9 +56,37 @@
   {/if}
 </section>
 
-{#if ($unassignedUsers.data?.teamUnassignedUsers || []).length > 0}
-  <PageSubtitle>Active users without teams</PageSubtitle>
+<PageSubtitle>Active users without teams</PageSubtitle>
 
+<div class="margin-wrapper">
+  {#if $unassignedUsers.loading}
+    <Loading message="Checking..." style="margin-top: 20px;" />
+  {:else if ($unassignedUsers.data?.teamUnassignedUsers || []).length === 0}
+    <InfoBar severity="success" title="Every user is in a team. " closable={false}>
+      Thanks for being secure and organized!
+      <Button slot="action" on:click={$unassignedUsers.refetch}>
+        <FluentIcon name="ArrowClockwise16Regular" mode="buttonIconLeft" />
+        Refresh list
+      </Button>
+    </InfoBar>
+  {:else}
+    <InfoBar
+      severity="caution"
+      title="These users need to be associated with a team or deactivated."
+      closable={false}
+    >
+      Prevent users from retaining access to your organization's data after they have been removed from their
+      team by deactivating their account. If a user in this list should not be deactivated, add them to their
+      team.
+      <Button slot="action" on:click={$unassignedUsers.refetch}>
+        <FluentIcon name="ArrowClockwise16Regular" mode="buttonIconLeft" />
+        Refresh list
+      </Button>
+    </InfoBar>
+  {/if}
+</div>
+
+{#if !$unassignedUsers.loading && ($unassignedUsers.data?.teamUnassignedUsers || []).length > 0}
   <section class="unassigned-users" class:small={width < 500} class:compact={$compactMode}>
     {#each ($unassignedUsers.data?.teamUnassignedUsers || [])
       .filter(notEmpty)
@@ -69,7 +97,8 @@
 {/if}
 
 <style>
-  section {
+  section,
+  div.margin-wrapper {
     margin: 10px auto;
     padding: 0 20px;
     max-width: 1000px;

@@ -358,7 +358,7 @@
           icon: 'ContactCardGroup16Regular',
           href: `/${data.authUser.tenant}/teams/home`,
         },
-        ...($collapsedPane
+        ...($collapsedPane || $basicTeams.loading
           ? []
           : [
               {
@@ -461,6 +461,9 @@
     {/if}
     {#if isProfilesRoute && !$collapsedPane && $basicProfiles.loading}
       <Loading message="Downloading profiles..." style="margin: 20px;" />
+    {/if}
+    {#if isTeamsRoute && !$collapsedPane && $basicTeams.loading}
+      <Loading message="Downloading teams..." style="margin: 20px;" />
     {/if}
   </svelte:fragment>
 </NavigationView>
