@@ -4,6 +4,7 @@
   import type { UsersListQuery } from '$graphql/graphql';
   import { queryCacheStore } from '$graphql/query';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import Loading from '$lib/common/Loading.svelte';
   import NavigationView from '$lib/common/NavigationView.svelte';
   import { useCreateSchema } from '$react/configuration/CollectionSchemaPage/hooks/schema-modals/useCreateSchema';
   import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
@@ -105,70 +106,72 @@
     },
   ];
 
-  $: profilesListMenuItems = ($basicProfiles.data?.users?.docs || [])
-    .filter(notEmpty)
-    .filter((profile) => {
-      if (hideInactiveUsers) return !profile.r;
-      return true;
-    })
-    .map((profile) => {
-      if (sortUsersByLastName) {
-        const parenthesis = profile.name.match(/\(.+?\)/g);
-        const names = profile.name
-          .replace(/\(.+?\)/g, '')
-          .trim()
-          .split(' ');
-        const lastName = names.slice(-1)[0];
-        const remainingNames = names.slice(0, -1);
-        return {
-          ...profile,
-          name: `${lastName}${remainingNames ? `, ${remainingNames.join(' ')}` : ''} ${(parenthesis || []).join(
-            ' '
-          )}`.trim(),
-          originalName: profile.name,
-        };
-      }
-      return profile;
-    })
-    .sort((a, b) => {
-      return a.name.localeCompare(b.name);
-    })
-    .reduce<
-      {
-        char: string;
-        profiles: (NonNullable<UsersListQuery['users']>['docs'][0] & { originalName?: string })[];
-      }[]
-    >((groups, profile) => {
-      const char = profile.name[0].toUpperCase();
-      const group = groups.find((group) => group.char === char);
-      if (!group) {
-        groups.push({ char, profiles: [profile] });
-        return groups;
-      }
-      group.profiles.push(profile);
-      return groups;
-    }, [])
-    .map((group) => {
-      return [
-        {
-          label: group.char,
-          type: 'category',
-        },
-        ...group.profiles.map((profile) => {
-          const url = new URL(`https://cristata.app/${data.authUser.tenant}/profile/${profile._id}`);
-          url.searchParams.set('_id', profile._id);
-          url.searchParams.set('name', profile.originalName || profile.name);
-          if (profile.c) url.searchParams.set('current_title', profile.c);
+  $: profilesListMenuItems = $basicProfiles.loading
+    ? []
+    : ($basicProfiles.data?.users?.docs || [])
+        .filter(notEmpty)
+        .filter((profile) => {
+          if (hideInactiveUsers) return !profile.r;
+          return true;
+        })
+        .map((profile) => {
+          if (sortUsersByLastName) {
+            const parenthesis = profile.name.match(/\(.+?\)/g);
+            const names = profile.name
+              .replace(/\(.+?\)/g, '')
+              .trim()
+              .split(' ');
+            const lastName = names.slice(-1)[0];
+            const remainingNames = names.slice(0, -1);
+            return {
+              ...profile,
+              name: `${lastName}${remainingNames ? `, ${remainingNames.join(' ')}` : ''} ${(
+                parenthesis || []
+              ).join(' ')}`.trim(),
+              originalName: profile.name,
+            };
+          }
+          return profile;
+        })
+        .sort((a, b) => {
+          return a.name.localeCompare(b.name);
+        })
+        .reduce<
+          {
+            char: string;
+            profiles: (NonNullable<UsersListQuery['users']>['docs'][0] & { originalName?: string })[];
+          }[]
+        >((groups, profile) => {
+          const char = profile.name[0].toUpperCase();
+          const group = groups.find((group) => group.char === char);
+          if (!group) {
+            groups.push({ char, profiles: [profile] });
+            return groups;
+          }
+          group.profiles.push(profile);
+          return groups;
+        }, [])
+        .map((group) => {
+          return [
+            {
+              label: group.char,
+              type: 'category',
+            },
+            ...group.profiles.map((profile) => {
+              const url = new URL(`https://cristata.app/${data.authUser.tenant}/profile/${profile._id}`);
+              url.searchParams.set('_id', profile._id);
+              url.searchParams.set('name', profile.originalName || profile.name);
+              if (profile.c) url.searchParams.set('current_title', profile.c);
 
-          return {
-            label: profile.name,
-            icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${profile._id}`,
-            href: `${url.pathname}${url.search}`,
-          };
-        }),
-      ];
-    })
-    .flat();
+              return {
+                label: profile.name,
+                icon: `${server.location}/v3/${data.authUser.tenant}/user-photo/${profile._id}`,
+                href: `${url.pathname}${url.search}`,
+              };
+            }),
+          ];
+        })
+        .flat();
 
   $: routeMenuItems = isConfigRoute
     ? [
@@ -455,6 +458,9 @@
   <svelte:fragment slot="internal">
     {#if isApiPage && !$collapsedPane}
       <react:PlaygroundNavigation />
+    {/if}
+    {#if isProfilesRoute && !$collapsedPane && $basicProfiles.loading}
+      <Loading message="Downloading profiles..." style="margin: 20px;" />
     {/if}
   </svelte:fragment>
 </NavigationView>
