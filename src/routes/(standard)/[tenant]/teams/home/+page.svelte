@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import Loading from '$lib/common/Loading.svelte';
   import { PageSubtitle, PageTitle } from '$lib/common/PageTitle';
   import CreateTeamDialog from '$lib/dialogs/CreateTeamDialog.svelte';
   import { compactMode } from '$stores/compactMode';
@@ -37,18 +38,22 @@
 </div>
 
 <section class="teams-list" bind:clientWidth={width} class:small={width < 500} class:compact={$compactMode}>
-  {#each ($basicTeams.data?.teams?.docs || []).filter(notEmpty) as team}
-    {@const membersCount = team.organizers?.length + team.members?.length || 0}
-    <Button href="/{data.authUser.tenant}/teams/{team._id}?name={encodeURIComponent(team.name)}">
-      <article>
-        <img src={genAvatar(team._id, 36, 'bauhaus')} alt="" class="team-photo" />
-        <div class="team-meta">
-          <TextBlock>{team.name}</TextBlock>
-          <TextBlock>{membersCount} {membersCount === 1 ? 'member' : 'members'}</TextBlock>
-        </div>
-      </article>
-    </Button>
-  {/each}
+  {#if $basicTeams.loading}
+    <Loading message="Downloading teams..." style="margin-top: 20px;" />
+  {:else}
+    {#each ($basicTeams.data?.teams?.docs || []).filter(notEmpty) as team}
+      {@const membersCount = team.organizers?.length + team.members?.length || 0}
+      <Button href="/{data.authUser.tenant}/teams/{team._id}?name={encodeURIComponent(team.name)}">
+        <article>
+          <img src={genAvatar(team._id, 36, 'bauhaus')} alt="" class="team-photo" />
+          <div class="team-meta">
+            <TextBlock>{team.name}</TextBlock>
+            <TextBlock>{membersCount} {membersCount === 1 ? 'member' : 'members'}</TextBlock>
+          </div>
+        </article>
+      </Button>
+    {/each}
+  {/if}
 </section>
 
 {#if ($unassignedUsers.data?.teamUnassignedUsers || []).length > 0}
