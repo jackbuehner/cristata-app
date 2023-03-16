@@ -1,35 +1,45 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import FluentIcon from '$lib/common/FluentIcon.svelte';
-  import Loading from '$lib/common/Loading.svelte';
-  import { ActionRow, PageSubtitle, PageTitle } from '$lib/common/PageTitle';
-  import CreateTeamDialog from '$lib/dialogs/CreateTeamDialog.svelte';
-  import { compactMode } from '$stores/compactMode';
-  import { genAvatar } from '$utils/genAvatar';
-  import { notEmpty } from '$utils/notEmpty';
-  import { Button, InfoBar, TextBlock, TextBox } from 'fluent-svelte';
-  import type { PageData } from './$types';
   import { FieldWrapper } from '$lib/common/Field';
+  import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import { ActionRow, PageSubtitle, PageTitle } from '$lib/common/PageTitle';
+  import { Button, ProgressRing, TextBox } from 'fluent-svelte';
+  import type { PageData } from './$types';
 
   export let data: PageData;
+  $: ({ profilesAppConfig } = data);
 
-  const nameFieldCaptionDefault = 'The name of this user. This does not change the username or slug.';
-  const emailFieldCaptionDefault = "The user's email. Try to only use your organization's email domain.";
-  const phoneFieldCaptionDefault =
-    'Add your number so coworkers can contact you about your work. It is only available to users with Cristata accounts.';
-  const twitterFieldCaptionDefault = 'Let everyone know where to follow you.';
-  const bioFieldCaptionDefault =
-    'A short biography highlighting accomplishments and qualifications. It should be in paragraph form and written in the third person.';
-  const titleFieldCaptionDefault = 'The position or job title for the user.';
+  $: defaultFieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.defaultFieldDescriptions;
+  $: fieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.fieldDescriptions;
 
-  let nameFieldCaption = 'The name of this user. This does not change the username or slug.';
-  let emailFieldCaption = "The user's email. Try to only use your organization's email domain.";
-  let phoneFieldCaption =
-    'Add your number so coworkers can contact you about your work. It is only available to users with Cristata accounts.';
-  let twitterFieldCaption = 'Let everyone know where to follow you.';
-  let bioFieldCaption =
-    'A short biography highlighting accomplishments and qualifications. It should be in paragraph form and written in the third person.';
-  let titleFieldCaption = 'The position or job title for the user.';
+  let nameFieldCaption: string = ' ';
+  $: if (fieldDescriptions && !$profilesAppConfig.loading && nameFieldCaption === ' ') {
+    nameFieldCaption = fieldDescriptions.name;
+  }
+
+  let emailFieldCaption: string = ' ';
+  $: if (fieldDescriptions && !$profilesAppConfig.loading && emailFieldCaption === ' ') {
+    emailFieldCaption = fieldDescriptions.email;
+  }
+
+  let phoneFieldCaption: string = ' ';
+  $: if (fieldDescriptions && !$profilesAppConfig.loading && phoneFieldCaption === ' ') {
+    phoneFieldCaption = fieldDescriptions.phone;
+  }
+
+  let twitterFieldCaption: string = ' ';
+  $: if (fieldDescriptions && !$profilesAppConfig.loading && twitterFieldCaption === ' ') {
+    twitterFieldCaption = fieldDescriptions.twitter;
+  }
+
+  let bioFieldCaption: string = ' ';
+  $: if (fieldDescriptions && !$profilesAppConfig.loading && bioFieldCaption === ' ') {
+    bioFieldCaption = fieldDescriptions.biography;
+  }
+
+  let titleFieldCaption: string = ' ';
+  $: if (fieldDescriptions && !$profilesAppConfig.loading && titleFieldCaption === ' ') {
+    titleFieldCaption = fieldDescriptions.title;
+  }
 </script>
 
 <PageTitle>Configure profiles app</PageTitle>
@@ -40,9 +50,24 @@
       <FluentIcon name="Save16Regular" mode="buttonIconLeft" />
       Save configuration
     </Button>
-    <Button>
-      <FluentIcon name="ArrowReset16Regular" mode="buttonIconLeft" />
-      Discard changes
+    <Button
+      style="width: 160px;"
+      on:click={() => {
+        nameFieldCaption = ' ';
+        emailFieldCaption = ' ';
+        phoneFieldCaption = ' ';
+        twitterFieldCaption = ' ';
+        bioFieldCaption = ' ';
+        titleFieldCaption = ' ';
+        $profilesAppConfig.refetch();
+      }}
+    >
+      {#if $profilesAppConfig.loading}
+        <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
+      {:else}
+        <FluentIcon name="ArrowClockwise16Regular" mode="buttonIconLeft" />
+        Discard changes
+      {/if}
     </Button>
   {/if}
 </ActionRow>
@@ -55,42 +80,96 @@
   <FieldWrapper label="Name" forId="custom-description-name">
     <div class="custom-description-field">
       <TextBox type="text" id="custom-description-name" bind:value={nameFieldCaption} />
-      <Button on:click={() => (nameFieldCaption = nameFieldCaptionDefault)}>Restore default</Button>
+      <Button
+        disabled={!defaultFieldDescriptions ||
+          $profilesAppConfig.loading ||
+          nameFieldCaption === defaultFieldDescriptions.name}
+        on:click={() => {
+          if (defaultFieldDescriptions) nameFieldCaption = defaultFieldDescriptions.name;
+        }}
+      >
+        Restore default
+      </Button>
     </div>
   </FieldWrapper>
 
   <FieldWrapper label="Email address" forId="custom-description-email">
     <div class="custom-description-field">
       <TextBox type="text" id="custom-description-email" bind:value={emailFieldCaption} />
-      <Button on:click={() => (emailFieldCaption = emailFieldCaptionDefault)}>Restore default</Button>
+      <Button
+        disabled={!defaultFieldDescriptions ||
+          $profilesAppConfig.loading ||
+          emailFieldCaption === defaultFieldDescriptions.email}
+        on:click={() => {
+          if (defaultFieldDescriptions) emailFieldCaption = defaultFieldDescriptions.email;
+        }}
+      >
+        Restore default
+      </Button>
     </div>
   </FieldWrapper>
 
   <FieldWrapper label="Phone" forId="custom-description-phone">
     <div class="custom-description-field">
       <TextBox type="text" id="custom-description-phone" bind:value={phoneFieldCaption} />
-      <Button on:click={() => (phoneFieldCaption = phoneFieldCaptionDefault)}>Restore default</Button>
+      <Button
+        disabled={!defaultFieldDescriptions ||
+          $profilesAppConfig.loading ||
+          phoneFieldCaption === defaultFieldDescriptions.phone}
+        on:click={() => {
+          if (defaultFieldDescriptions) phoneFieldCaption = defaultFieldDescriptions.phone;
+        }}
+      >
+        Restore default
+      </Button>
     </div>
   </FieldWrapper>
 
   <FieldWrapper label="Twitter" forId="custom-description-twitter">
     <div class="custom-description-field">
       <TextBox type="text" id="custom-description-twitter" bind:value={twitterFieldCaption} />
-      <Button on:click={() => (twitterFieldCaption = twitterFieldCaptionDefault)}>Restore default</Button>
+      <Button
+        disabled={!defaultFieldDescriptions ||
+          $profilesAppConfig.loading ||
+          twitterFieldCaption === defaultFieldDescriptions.twitter}
+        on:click={() => {
+          if (defaultFieldDescriptions) twitterFieldCaption = defaultFieldDescriptions.twitter;
+        }}
+      >
+        Restore default
+      </Button>
     </div>
   </FieldWrapper>
 
   <FieldWrapper label="Biography" forId="custom-description-biography">
     <div class="custom-description-field">
       <TextBox type="text" id="custom-description-biography" bind:value={bioFieldCaption} />
-      <Button on:click={() => (bioFieldCaption = bioFieldCaptionDefault)}>Restore default</Button>
+      <Button
+        disabled={!defaultFieldDescriptions ||
+          $profilesAppConfig.loading ||
+          bioFieldCaption === defaultFieldDescriptions.biography}
+        on:click={() => {
+          if (defaultFieldDescriptions) bioFieldCaption = defaultFieldDescriptions.biography;
+        }}
+      >
+        Restore default
+      </Button>
     </div>
   </FieldWrapper>
 
   <FieldWrapper label="Title" forId="custom-description-title">
     <div class="custom-description-field">
       <TextBox type="text" id="custom-description-title" bind:value={titleFieldCaption} />
-      <Button on:click={() => (titleFieldCaption = titleFieldCaptionDefault)}>Restore default</Button>
+      <Button
+        disabled={!defaultFieldDescriptions ||
+          $profilesAppConfig.loading ||
+          titleFieldCaption === defaultFieldDescriptions.title}
+        on:click={() => {
+          if (defaultFieldDescriptions) titleFieldCaption = defaultFieldDescriptions.title;
+        }}
+      >
+        Restore default
+      </Button>
     </div>
   </FieldWrapper>
 </section>
