@@ -2,7 +2,10 @@
   import { FieldWrapper } from '$lib/common/Field';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageSubtitle, PageTitle } from '$lib/common/PageTitle';
+  import ActionAccessCard from '$lib/configuration/ActionAccessCard.svelte';
+  import type { Collection } from '@jackbuehner/cristata-api/dist/types/config';
   import { Button, ProgressRing, TextBox } from 'fluent-svelte';
+  import { onMount } from 'svelte';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -10,6 +13,8 @@
 
   $: defaultFieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.defaultFieldDescriptions;
   $: fieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.fieldDescriptions;
+  $: rawCollection = $profilesAppConfig.data?.configuration?.collection?.raw;
+  $: actionAccess = (JSON.parse(rawCollection || '{}') as Collection)?.actionAccess;
 
   let nameFieldCaption: string = ' ';
   $: if (fieldDescriptions && !$profilesAppConfig.loading && nameFieldCaption === ' ') {
@@ -40,6 +45,48 @@
   $: if (fieldDescriptions && !$profilesAppConfig.loading && titleFieldCaption === ' ') {
     titleFieldCaption = fieldDescriptions.title;
   }
+
+  type AA = typeof actionAccess.modify.users;
+
+  let getUsers: AA = [' '];
+  $: if (actionAccess && !$profilesAppConfig.loading && getUsers[0] === ' ') {
+    getUsers = actionAccess.get.users;
+  }
+  let getTeams: AA = [' '];
+  $: if (actionAccess && !$profilesAppConfig.loading && getTeams[0] === ' ') {
+    getTeams = actionAccess.get.teams;
+  }
+
+  let modifyUsers: AA = [' '];
+  $: if (actionAccess && !$profilesAppConfig.loading && modifyUsers[0] === ' ') {
+    modifyUsers = actionAccess.modify.users;
+  }
+  let modifyTeams: AA = [' '];
+  $: if (actionAccess && !$profilesAppConfig.loading && modifyTeams[0] === ' ') {
+    modifyTeams = actionAccess.modify.teams;
+  }
+
+  let createUsers: AA = [' '];
+  $: if (actionAccess && !$profilesAppConfig.loading && createUsers[0] === ' ') {
+    modifyUsers = actionAccess.create.users;
+  }
+  let createTeams: AA = [' '];
+  $: if (actionAccess && !$profilesAppConfig.loading && createTeams[0] === ' ') {
+    createTeams = actionAccess.create.teams;
+  }
+
+  let deactivateUsers: AA = [' '];
+  $: if (actionAccess?.deactivate && !$profilesAppConfig.loading && !deactivateUsers) {
+    deactivateUsers = actionAccess.deactivate.users;
+  }
+  let deactivateTeams: AA = [' '];
+  $: if (actionAccess?.deactivate && !$profilesAppConfig.loading && !deactivateTeams) {
+    deactivateTeams = actionAccess.deactivate.teams;
+  }
+
+  onMount(() => {
+    document.title = 'Configure profiles app';
+  });
 </script>
 
 <PageTitle>Configure profiles app</PageTitle>
@@ -59,6 +106,16 @@
         twitterFieldCaption = ' ';
         bioFieldCaption = ' ';
         titleFieldCaption = ' ';
+
+        getUsers = [' '];
+        getTeams = [' '];
+        createUsers = [' '];
+        createTeams = [' '];
+        modifyUsers = [' '];
+        modifyTeams = [' '];
+        deactivateUsers = [' '];
+        deactivateTeams = [' '];
+
         $profilesAppConfig.refetch();
       }}
     >
@@ -175,21 +232,25 @@
 </section>
 
 <PageSubtitle
-  caption="Choose which users and teams can add, remove, and edit users. Users can always edit their own name, email, phone, twitter, and biography."
+  caption="Choose which users and teams can add, remove, edit, and deactivate users. Users can always edit their own name, email, phone, twitter, and biography."
 >
   Permissions
 </PageSubtitle>
 
 <section>
-  <Button variant="standard" href="{data.authUser.tenant}/configuration/system-collection/User/action-access">
-    <FluentIcon name="Edit16Regular" mode="buttonIconLeft" />
-    Edit in the system collection editor
-  </Button>
+  <div class="action-grid">
+    <ActionAccessCard bind:users={getUsers} bind:teams={getTeams}>View profiles</ActionAccessCard>
+    <ActionAccessCard bind:users={createUsers} bind:teams={createTeams}>Create profiles</ActionAccessCard>
+    <ActionAccessCard bind:users={modifyUsers} bind:teams={modifyTeams}>Modify profiles</ActionAccessCard>
+    <ActionAccessCard bind:users={deactivateUsers} bind:teams={deactivateTeams}>
+      Deactivate profiles
+    </ActionAccessCard>
+  </div>
 </section>
 
 <style>
   section {
-    margin: 0 auto;
+    margin: 0 auto 30px auto;
     padding: 0 20px;
     max-width: 1000px;
   }
@@ -202,5 +263,13 @@
   }
   .custom-description-field > :global(.button) {
     white-space: pre;
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 15px;
+    margin-top: 15px;
   }
 </style>

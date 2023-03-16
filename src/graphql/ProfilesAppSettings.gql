@@ -20,5 +20,8 @@ query ProfilesAppSettings {
         }
       }
     }
+    collection(name: "User") {
+      raw
+    }
   }
 }

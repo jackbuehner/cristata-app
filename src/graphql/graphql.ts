@@ -2865,6 +2865,9 @@ export const ProfilesAppSettings = gql`
         }
       }
     }
+    collection(name: "User") {
+      raw
+    }
   }
 }
     `;
@@ -3076,7 +3079,7 @@ export type ProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User',
 export type ProfilesAppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProfilesAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string }, defaultFieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } } } | null };
+export type ProfilesAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string }, defaultFieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } }, collection?: { __typename?: 'ConfigurationCollection', raw: any } | null } | null };
 
 export type RemoveUserFromTeamMutationVariables = Exact<{
   _id: Scalars['ObjectID'];
