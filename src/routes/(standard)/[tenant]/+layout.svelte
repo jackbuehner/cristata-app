@@ -98,7 +98,8 @@
     ($page.url.pathname.includes('/cms/') &&
       !$page.url.pathname.includes('/cms/workflow') &&
       !($page.url.pathname.includes('/cms/collection/') && $page.url.pathname.split('/').length === 5)) ||
-    $page.url.pathname.includes('/configuration/');
+    ($page.url.pathname.includes('/configuration/') &&
+      !$page.url.pathname.includes('/configuration/app/profiles'));
 
   // variables for page transitions
   let unique = {};
