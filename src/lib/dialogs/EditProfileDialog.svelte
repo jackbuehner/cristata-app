@@ -1,13 +1,20 @@
 <script lang="ts">
-  import { SaveUserDeactivate, SaveUserEdits } from '$graphql/graphql';
+  import { SaveUserDeactivate, SaveUserEdits, type ProfilesFieldDescriptionsQuery } from '$graphql/graphql';
   import { server } from '$utils/constants';
+  import dompurify from 'dompurify';
   import { Button, Checkbox, ContentDialog, InfoBar, ProgressRing, TextBlock, TextBox } from 'fluent-svelte';
   import { print } from 'graphql';
+
+  type ProfileAppConfig = NonNullable<
+    NonNullable<NonNullable<ProfilesFieldDescriptionsQuery['configuration']>['apps']>['profiles']
+  >;
+  type FieldDescriptions = Omit<ProfileAppConfig['fieldDescriptions'], '__typename'>;
 
   export let open = false;
   export let canManage = false;
 
   export let tenant: string;
+  export let fieldDescriptions: FieldDescriptions;
 
   export let _id: string;
   export let name: string;
@@ -116,44 +123,38 @@
 
   <div class="field">
     <TextBlock>Name</TextBlock>
-    <TextBlock variant="caption">The name of this user. This does not change the username or slug.</TextBlock>
+    <TextBlock variant="caption">{fieldDescriptions.name}</TextBlock>
     <TextBox type="text" bind:value={name} on:change={() => (hasChanged = true)} />
   </div>
 
   <div class="field">
     <TextBlock>Email address</TextBlock>
-    <TextBlock variant="caption">The user's email. Try to only use your organizaion's email domain.</TextBlock>
+    <TextBlock variant="caption">{fieldDescriptions.email}</TextBlock>
     <TextBox type="email" bind:value={email} on:change={() => (hasChanged = true)} />
   </div>
 
   <div class="field">
     <TextBlock>Phone</TextBlock>
-    <TextBlock variant="caption">
-      Add your number so coworkers can contact you about your work. It is only available to users with Cristata
-      accounts.
-    </TextBlock>
+    <TextBlock variant="caption">{fieldDescriptions.phone}</TextBlock>
     <TextBox type="tel" bind:value={phone} on:change={() => (hasChanged = true)} />
   </div>
 
   <div class="field">
     <TextBlock>Twitter</TextBlock>
-    <TextBlock variant="caption">Let everyone know where to follow you.</TextBlock>
+    <TextBlock variant="caption">{fieldDescriptions.twitter}</TextBlock>
     <TextBox type="text" bind:value={twitter} on:change={() => (hasChanged = true)} />
   </div>
 
   <div class="field">
     <TextBlock>Biography</TextBlock>
-    <TextBlock variant="caption">
-      A short biography highlighting accomplishments and qualifications. It should be in paragraph form and
-      written in the third person.
-    </TextBlock>
+    <TextBlock variant="caption">{fieldDescriptions.biography}</TextBlock>
     <TextBox type="text" bind:value={biography} on:change={() => (hasChanged = true)} />
   </div>
 
   {#if canManage}
     <div class="field">
       <TextBlock>Title</TextBlock>
-      <TextBlock variant="caption">The position or job title for the user.</TextBlock>
+      <TextBlock variant="caption">{@html dompurify.sanitize(fieldDescriptions.title)}</TextBlock>
       <TextBox bind:value={current_title} on:change={() => (hasChanged = true)} />
     </div>
     <div class="field">

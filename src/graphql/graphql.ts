@@ -306,6 +306,15 @@ export type ConfigurationProfilesAppFieldDescriptions = {
   twitter: Scalars['String'];
 };
 
+export type ConfigurationProfilesAppFieldDescriptionsInput = {
+  biography?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  phone?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
+  twitter?: InputMaybe<Scalars['String']>;
+};
+
 export type ConfigurationSecurity = {
   __typename?: 'ConfigurationSecurity';
   introspection: Scalars['Boolean'];
@@ -607,7 +616,7 @@ export type Mutation = {
    * System groups that are provided in the query are removed upon receipt.
    */
   setConfigurationNavigationSub: Array<Maybe<ConfigurationNavigationSubGroup>>;
-  setProfilesAppFieldDescription?: Maybe<Scalars['Void']>;
+  setProfilesAppFieldDescriptions?: Maybe<Scalars['Void']>;
   setRawConfigurationCollection?: Maybe<Scalars['JSON']>;
   setSecret: Scalars['String'];
   /**
@@ -1016,9 +1025,8 @@ export type MutationSetConfigurationNavigationSubArgs = {
 };
 
 
-export type MutationSetProfilesAppFieldDescriptionArgs = {
-  description?: InputMaybe<Scalars['String']>;
-  field: Scalars['String'];
+export type MutationSetProfilesAppFieldDescriptionsArgs = {
+  input: ConfigurationProfilesAppFieldDescriptionsInput;
 };
 
 
@@ -2529,31 +2537,17 @@ export type UserTeamsArgs = {
 
 export type UserCollectionActionAccess = {
   __typename?: 'UserCollectionActionAccess';
-  archive?: Maybe<UserCollectionActionAccessObject>;
-  bypassDocPermissions?: Maybe<UserCollectionActionAccessObject>;
   create?: Maybe<UserCollectionActionAccessObject>;
   deactivate?: Maybe<UserCollectionActionAccessObject>;
-  delete?: Maybe<UserCollectionActionAccessObject>;
   get?: Maybe<UserCollectionActionAccessObject>;
-  hide?: Maybe<UserCollectionActionAccessObject>;
-  lock?: Maybe<UserCollectionActionAccessObject>;
   modify?: Maybe<UserCollectionActionAccessObject>;
-  publish?: Maybe<UserCollectionActionAccessObject>;
-  watch?: Maybe<UserCollectionActionAccessObject>;
 };
 
 export type UserCollectionActionAccessInput = {
-  archive?: InputMaybe<UserCollectionActionAccessObjectInput>;
-  bypassDocPermissions?: InputMaybe<UserCollectionActionAccessObjectInput>;
   create?: InputMaybe<UserCollectionActionAccessObjectInput>;
   deactivate?: InputMaybe<UserCollectionActionAccessObjectInput>;
-  delete?: InputMaybe<UserCollectionActionAccessObjectInput>;
   get?: InputMaybe<UserCollectionActionAccessObjectInput>;
-  hide?: InputMaybe<UserCollectionActionAccessObjectInput>;
-  lock?: InputMaybe<UserCollectionActionAccessObjectInput>;
   modify?: InputMaybe<UserCollectionActionAccessObjectInput>;
-  publish?: InputMaybe<UserCollectionActionAccessObjectInput>;
-  watch?: InputMaybe<UserCollectionActionAccessObjectInput>;
 };
 
 export type UserCollectionActionAccessObject = {
@@ -2918,6 +2912,24 @@ export const ProfilesAppSettings = gql`
   }
 }
     `;
+export const ProfilesFieldDescriptions = gql`
+    query ProfilesFieldDescriptions {
+  configuration {
+    apps {
+      profiles {
+        fieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+      }
+    }
+  }
+}
+    `;
 export const RemoveUserFromTeam = gql`
     mutation RemoveUserFromTeam($_id: ObjectID!, $input: TeamModifyInput!) {
   teamModify(_id: $_id, input: $input) {
@@ -3127,6 +3139,11 @@ export type ProfilesAppSettingsQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type ProfilesAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string }, defaultFieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } }, collection?: { __typename?: 'ConfigurationCollection', raw: any } | null } | null };
+
+export type ProfilesFieldDescriptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProfilesFieldDescriptionsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } } } | null };
 
 export type RemoveUserFromTeamMutationVariables = Exact<{
   _id: Scalars['ObjectID'];

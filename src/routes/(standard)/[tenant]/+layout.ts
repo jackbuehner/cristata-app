@@ -3,14 +3,17 @@ import { goto } from '$app/navigation';
 import {
   BasicProfileMe,
   GlobalConfig,
+  ProfilesFieldDescriptions,
   TeamsList,
   UsersList,
   type BasicProfileMeQuery,
   type GlobalConfigQuery,
+  type ProfilesFieldDescriptionsQuery,
+  type ProfilesFieldDescriptionsQueryVariables,
   type TeamsListQuery,
   type TeamsListQueryVariables,
   type UsersListQuery,
-  type UsersListQueryVariables
+  type UsersListQueryVariables,
 } from '$graphql/graphql';
 import { query, queryWithStore, type GraphqlQueryReturn, type StoreReturnType } from '$graphql/query';
 import { authCache, authUserValidator, type AuthUserType } from '$stores/authCache';
@@ -29,7 +32,7 @@ export const ssr = false;
 export const prerender = false;
 
 export const load = (async ({ params, url, fetch, parent }) => {
-  const {tauri} = await parent()
+  const { tauri } = await parent();
   const { tenant } = params;
 
   // get/set the session id
@@ -177,6 +180,17 @@ export const load = (async ({ params, url, fetch, parent }) => {
     showStatus();
   });
 
+  const profilesFieldDescriptions = queryWithStore<
+    ProfilesFieldDescriptionsQuery,
+    ProfilesFieldDescriptionsQueryVariables
+  >({
+    fetch,
+    tenant: params.tenant,
+    query: ProfilesFieldDescriptions,
+    useCache: false,
+    waitForQuery: false,
+  });
+
   function showStatus() {
     if (authUserPending) setSplashStatusText('Checking authentication...');
     else if (configPending) setSplashStatusText('Loading configuration...');
@@ -188,14 +202,15 @@ export const load = (async ({ params, url, fetch, parent }) => {
   showStatus();
 
   const data: LayoutDataType = {
-    authUser: await authUser,
+    authUser: authUser,
     sessionId,
     configuration: (await config)?.data?.configuration,
     me: (await me)?.data?.user,
-    basicProfiles: await basicProfiles,
-    basicTeams: await basicTeams,
+    basicProfiles: basicProfiles,
+    basicTeams: basicTeams,
     tenant: params.tenant,
     tauri,
+    profilesFieldDescriptions: profilesFieldDescriptions,
   };
 
   // make the layout data available in the window
@@ -224,12 +239,13 @@ async function switchTenant(tenant: string, currentLocation: URL) {
 }
 
 interface LayoutDataType {
-  authUser: AuthUserType;
+  authUser: Promise<AuthUserType>;
   sessionId: string;
   configuration: GlobalConfigQuery['configuration'];
   me: BasicProfileMeQuery['user'];
-  basicProfiles: Readable<StoreReturnType<UsersListQuery>>;
-  basicTeams: Readable<StoreReturnType<TeamsListQuery>>;
+  basicProfiles: Promise<Readable<StoreReturnType<UsersListQuery>>>;
+  basicTeams: Promise<Readable<StoreReturnType<TeamsListQuery>>>;
   tenant: string;
   tauri: boolean;
+  profilesFieldDescriptions: Promise<Readable<StoreReturnType<ProfilesFieldDescriptionsQuery>>>;
 }

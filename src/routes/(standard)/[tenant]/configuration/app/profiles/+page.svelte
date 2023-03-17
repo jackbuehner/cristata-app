@@ -10,7 +10,7 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
-  $: ({ profilesAppConfig } = data);
+  $: ({ profilesAppConfig, profilesFieldDescriptions } = data);
 
   $: defaultFieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.defaultFieldDescriptions;
   $: fieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.fieldDescriptions;
@@ -120,6 +120,7 @@
       .finally(() => {
         saving = false;
         $profilesAppConfig.refetch();
+        $profilesFieldDescriptions.refetch();
       });
   }
 </script>

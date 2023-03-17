@@ -258,7 +258,9 @@ function clearStoreData<VariablesType = unknown>(queryOpts: Omit<GraphqlQueryOpt
 
   if (operationName) {
     cache.update((state) => {
-      delete state[operationName][varKey];
+      if (state[operationName] && typeof state[operationName] === 'object' && state[operationName][varKey]) {
+        delete state[operationName][varKey];
+      }
       return state;
     });
   }

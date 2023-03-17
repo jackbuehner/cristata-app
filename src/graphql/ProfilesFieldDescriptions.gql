@@ -1,0 +1,16 @@
+query ProfilesFieldDescriptions {
+  configuration {
+    apps {
+      profiles {
+        fieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+      }
+    }
+  }
+}
