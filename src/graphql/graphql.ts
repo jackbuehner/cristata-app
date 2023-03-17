@@ -695,6 +695,8 @@ export type Mutation = {
    * Certain fields are removed from the document (_id, slug, and any that start with __)
    */
   userClone?: Maybe<User>;
+  /** Sets the action access config for the User collection. */
+  userCollectionSetActionAccess?: Maybe<UserCollectionActionAccess>;
   /** Create a new User document. */
   userCreate?: Maybe<User>;
   /**
@@ -1141,6 +1143,11 @@ export type MutationTeamWatchArgs = {
 
 export type MutationUserCloneArgs = {
   _id: Scalars['ObjectID'];
+};
+
+
+export type MutationUserCollectionSetActionAccessArgs = {
+  actionAccess: UserCollectionActionAccessInput;
 };
 
 
@@ -2518,6 +2525,46 @@ export type UserTeamsArgs = {
   offset?: InputMaybe<Scalars['Int']>;
   page?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<Scalars['JSON']>;
+};
+
+export type UserCollectionActionAccess = {
+  __typename?: 'UserCollectionActionAccess';
+  archive?: Maybe<UserCollectionActionAccessObject>;
+  bypassDocPermissions?: Maybe<UserCollectionActionAccessObject>;
+  create?: Maybe<UserCollectionActionAccessObject>;
+  deactivate?: Maybe<UserCollectionActionAccessObject>;
+  delete?: Maybe<UserCollectionActionAccessObject>;
+  get?: Maybe<UserCollectionActionAccessObject>;
+  hide?: Maybe<UserCollectionActionAccessObject>;
+  lock?: Maybe<UserCollectionActionAccessObject>;
+  modify?: Maybe<UserCollectionActionAccessObject>;
+  publish?: Maybe<UserCollectionActionAccessObject>;
+  watch?: Maybe<UserCollectionActionAccessObject>;
+};
+
+export type UserCollectionActionAccessInput = {
+  archive?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  bypassDocPermissions?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  create?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  deactivate?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  delete?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  get?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  hide?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  lock?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  modify?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  publish?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  watch?: InputMaybe<UserCollectionActionAccessObjectInput>;
+};
+
+export type UserCollectionActionAccessObject = {
+  __typename?: 'UserCollectionActionAccessObject';
+  teams?: Maybe<Array<Scalars['String']>>;
+  users?: Maybe<Array<Scalars['String']>>;
+};
+
+export type UserCollectionActionAccessObjectInput = {
+  teams?: InputMaybe<Array<Scalars['String']>>;
+  users?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type UserConstantcontact = {

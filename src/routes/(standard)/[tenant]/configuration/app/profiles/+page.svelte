@@ -3,6 +3,7 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageSubtitle, PageTitle } from '$lib/common/PageTitle';
   import ActionAccessCard from '$lib/configuration/ActionAccessCard.svelte';
+  import { stringifyArray } from '$utils/stringifyArray';
   import type { Collection } from '@jackbuehner/cristata-api/dist/types/config';
   import { Button, ProgressRing, TextBox } from 'fluent-svelte';
   import { onMount } from 'svelte';
@@ -87,15 +88,52 @@
   onMount(() => {
     document.title = 'Configure profiles app';
   });
+
+  function cleanArray(arr: (string | 0)[]): string[] {
+    // The `stringifyArray` function converts the action access arrays to provide the number `0` as a string `"`"
+    // since the API requires strings.
+    // The server will convert `"0"` back to `0`.
+    return stringifyArray(arr.filter((value) => value !== ' '));
+  }
+
+  let saving = false;
+
+  function saveChanges() {
+    saving = true;
+    data
+      .saveProfilesAppConfigChanges({
+        fieldDescriptions: {
+          name: nameFieldCaption,
+          email: emailFieldCaption,
+          phone: phoneFieldCaption,
+          twitter: twitterFieldCaption,
+          biography: bioFieldCaption,
+          title: titleFieldCaption,
+        },
+        actionAccess: {
+          get: { users: cleanArray(getUsers), teams: cleanArray(getTeams) },
+          create: { users: cleanArray(createUsers), teams: cleanArray(createTeams) },
+          modify: { users: cleanArray(modifyUsers), teams: cleanArray(modifyTeams) },
+          deactivate: { users: stringifyArray(deactivateUsers), teams: cleanArray(deactivateTeams) },
+        },
+      })
+      .finally(() => {
+        saving = false;
+      });
+  }
 </script>
 
 <PageTitle>Configure profiles app</PageTitle>
 
 <ActionRow>
   {#if true}
-    <Button variant="accent">
-      <FluentIcon name="Save16Regular" mode="buttonIconLeft" />
-      Save configuration
+    <Button variant="accent" style="width: 174px;" on:click={saveChanges} disabled={$profilesAppConfig.loading}>
+      {#if saving}
+        <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
+      {:else}
+        <FluentIcon name="Save16Regular" mode="buttonIconLeft" />
+        Save configuration
+      {/if}
     </Button>
     <Button
       style="width: 160px;"
