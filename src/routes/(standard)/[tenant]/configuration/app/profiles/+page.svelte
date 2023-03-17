@@ -119,6 +119,7 @@
       })
       .finally(() => {
         saving = false;
+        $profilesAppConfig.refetch();
       });
   }
 </script>
@@ -127,7 +128,12 @@
 
 <ActionRow>
   {#if true}
-    <Button variant="accent" style="width: 174px;" on:click={saveChanges} disabled={$profilesAppConfig.loading}>
+    <Button
+      variant="accent"
+      style="width: 174px;"
+      on:click={saveChanges}
+      disabled={$profilesAppConfig.loading || saving}
+    >
       {#if saving}
         <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
       {:else}
@@ -156,6 +162,7 @@
 
         $profilesAppConfig.refetch();
       }}
+      disabled={$profilesAppConfig.loading || saving}
     >
       {#if $profilesAppConfig.loading}
         <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
