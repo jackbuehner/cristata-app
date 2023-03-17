@@ -211,6 +211,11 @@
           icon: 'ContentView20Regular',
         },
         {
+          label: 'Profiles',
+          href: `/${data.authUser.tenant}/configuration/app/profiles`,
+          icon: 'Person20Regular',
+        },
+        {
           label: 'System collections',
           type: 'category',
         },

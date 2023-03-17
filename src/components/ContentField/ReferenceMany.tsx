@@ -132,7 +132,8 @@ interface SelectedProps {
 
 function Selected(props: SelectedProps) {
   const theme = useTheme() as themeType;
-  const [internalState, setInternalState] = props.internalState;
+  const [_internalState, setInternalState] = props.internalState;
+  const internalState = _internalState.filter((valueObj) => valueObj._id !== ' ');
   const tenant = location.pathname.split('/')[1];
 
   return (

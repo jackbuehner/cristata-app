@@ -20,7 +20,7 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
-  $: ({ profile: _profile, references } = data);
+  $: ({ profile: _profile, references, profilesFieldDescriptions } = data);
   $: profile = $_profile.data?.user;
   $: teams = (profile?.teams?.docs || []).filter(notEmpty).sort((a, b) => a.name.localeCompare(b.name));
   $: userReferences = ($references.data?.userReferences || []).sort((a, b) =>
@@ -28,6 +28,7 @@
   );
   $: isSelf = profile?._id === data.authUser._id.toHexString();
   $: ({ temporary, expired, expiresAt } = getPasswordStatus((profile?.flags || []).filter(notEmpty)));
+  $: fieldDescriptions = $profilesFieldDescriptions.data?.configuration?.apps.profiles.fieldDescriptions;
   $: canEdit = $_profile.data?.userActionAccess?.modify || isSelf;
   $: canManage = $_profile.data?.userActionAccess?.modify && $_profile.data?.userActionAccess?.deactivate;
   $: name = profile?.name || $page.url.searchParams.get('name');
@@ -98,7 +99,7 @@
 
   {#if profile}
     <div class="button-row" in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}>
-      {#if canEdit}
+      {#if canEdit && fieldDescriptions}
         <Button variant="accent" on:click={() => (editDialogOpen = true)}>
           <FluentIcon name="Edit16Regular" mode="buttonIconLeft" />
           Edit profile
@@ -338,21 +339,24 @@
       </Expander>
     </div>
 
-    <EditProfileDialog
-      bind:open={editDialogOpen}
-      tenant={data.authUser.tenant}
-      canManage={canManage || false}
-      _id={profile._id}
-      name={profile.name}
-      email={profile.email || undefined}
-      phone={`${profile.phone || ''}` || undefined}
-      twitter={profile.twitter || undefined}
-      biography={profile.biography || undefined}
-      current_title={profile.current_title || undefined}
-      retired={profile.retired || false}
-      handleSumbit={() => $_profile.refetch()}
-      handleCancel={() => $_profile.refetch()}
-    />
+    {#if fieldDescriptions}
+      <EditProfileDialog
+        bind:open={editDialogOpen}
+        tenant={data.authUser.tenant}
+        canManage={canManage || false}
+        _id={profile._id}
+        name={profile.name}
+        email={profile.email || undefined}
+        phone={`${profile.phone || ''}` || undefined}
+        twitter={profile.twitter || undefined}
+        biography={profile.biography || undefined}
+        current_title={profile.current_title || undefined}
+        retired={profile.retired || false}
+        handleSumbit={() => $_profile.refetch()}
+        handleCancel={() => $_profile.refetch()}
+        {fieldDescriptions}
+      />
+    {/if}
   {:else}
     <Loading message={name ? `Loading ${name}'s profile...` : 'Loading profile...'} style="margin-top: 20px;" />
   {/if}

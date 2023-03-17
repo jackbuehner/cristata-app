@@ -1,0 +1,27 @@
+query ProfilesAppSettings {
+  configuration {
+    apps {
+      profiles {
+        fieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+        defaultFieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+      }
+    }
+    collection(name: "User") {
+      raw
+    }
+  }
+}

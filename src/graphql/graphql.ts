@@ -140,6 +140,7 @@ export type CollectionTimestamps = {
 
 export type Configuration = {
   __typename?: 'Configuration';
+  apps: ConfigurationApps;
   collection?: Maybe<ConfigurationCollection>;
   collections?: Maybe<Array<Maybe<ConfigurationCollection>>>;
   dashboard: ConfigurationDashboard;
@@ -151,6 +152,12 @@ export type Configuration = {
 
 export type ConfigurationCollectionArgs = {
   name: Scalars['String'];
+};
+
+export type ConfigurationApps = {
+  __typename?: 'ConfigurationApps';
+  profiles: ConfigurationProfilesApp;
+  void?: Maybe<Scalars['Void']>;
 };
 
 export type ConfigurationCollection = {
@@ -281,6 +288,31 @@ export type ConfigurationNavigationSubGroupItemsInput = {
   label: Scalars['String'];
   to: Scalars['String'];
   uuid: Scalars['String'];
+};
+
+export type ConfigurationProfilesApp = {
+  __typename?: 'ConfigurationProfilesApp';
+  defaultFieldDescriptions: ConfigurationProfilesAppFieldDescriptions;
+  fieldDescriptions: ConfigurationProfilesAppFieldDescriptions;
+};
+
+export type ConfigurationProfilesAppFieldDescriptions = {
+  __typename?: 'ConfigurationProfilesAppFieldDescriptions';
+  biography: Scalars['String'];
+  email: Scalars['String'];
+  name: Scalars['String'];
+  phone: Scalars['String'];
+  title: Scalars['String'];
+  twitter: Scalars['String'];
+};
+
+export type ConfigurationProfilesAppFieldDescriptionsInput = {
+  biography?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  phone?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
+  twitter?: InputMaybe<Scalars['String']>;
 };
 
 export type ConfigurationSecurity = {
@@ -584,6 +616,7 @@ export type Mutation = {
    * System groups that are provided in the query are removed upon receipt.
    */
   setConfigurationNavigationSub: Array<Maybe<ConfigurationNavigationSubGroup>>;
+  setProfilesAppFieldDescriptions?: Maybe<Scalars['Void']>;
   setRawConfigurationCollection?: Maybe<Scalars['JSON']>;
   setSecret: Scalars['String'];
   /**
@@ -667,17 +700,12 @@ export type Mutation = {
    */
   teamWatch?: Maybe<Team>;
   /**
-   * Set whether an existing User document is archived.
-   * This mutation sets archived: true by default.
-   * Archived User documents should not be presented to clients
-   * unless they explicitly request to view archived items.
-   */
-  userArchive?: Maybe<User>;
-  /**
    * Clone an existing User document.
    * Certain fields are removed from the document (_id, slug, and any that start with __)
    */
   userClone?: Maybe<User>;
+  /** Sets the action access config for the User collection. */
+  userCollectionSetActionAccess?: Maybe<UserCollectionActionAccess>;
   /** Create a new User document. */
   userCreate?: Maybe<User>;
   /**
@@ -685,22 +713,6 @@ export type Mutation = {
    * This mutation deactivates by default.
    */
   userDeactivate?: Maybe<User>;
-  /** Deletes a User document. */
-  userDelete?: Maybe<Scalars['Void']>;
-  /**
-   * Set whether an existing User document is hidden.
-   * This mutation sets hidden: true by default.
-   * Hidden User documents should not be presented to clients;
-   * this is analogous to moving the document to a deleted items folder
-   */
-  userHide?: Maybe<User>;
-  /**
-   * Set whether an existing User document is locked.
-   * This mutation sets locked: true by default.
-   * Locked User documents should only be editable by the server
-   * and by admins.
-   */
-  userLock?: Maybe<User>;
   /**
    * Migrate a user without a local account.
    * Sends a email with the new user's new username and temporary password.
@@ -714,13 +726,6 @@ export type Mutation = {
   userPasswordChange?: Maybe<User>;
   /** Resend an invitation for a user with a temporary password. */
   userResendInvite?: Maybe<User>;
-  /**
-   * Add a watcher to a User document.
-   * This mutation adds the watcher by default. If a user _id is
-   * not specified, for the watcher, the currently authenticated user will
-   * be used.
-   */
-  userWatch?: Maybe<User>;
   /**
    * Set whether an existing WebConfig document is archived.
    * This mutation sets archived: true by default.
@@ -1020,6 +1025,11 @@ export type MutationSetConfigurationNavigationSubArgs = {
 };
 
 
+export type MutationSetProfilesAppFieldDescriptionsArgs = {
+  input: ConfigurationProfilesAppFieldDescriptionsInput;
+};
+
+
 export type MutationSetRawConfigurationCollectionArgs = {
   name: Scalars['String'];
   raw?: InputMaybe<Scalars['JSON']>;
@@ -1139,14 +1149,13 @@ export type MutationTeamWatchArgs = {
 };
 
 
-export type MutationUserArchiveArgs = {
+export type MutationUserCloneArgs = {
   _id: Scalars['ObjectID'];
-  archive?: InputMaybe<Scalars['Boolean']>;
 };
 
 
-export type MutationUserCloneArgs = {
-  _id: Scalars['ObjectID'];
+export type MutationUserCollectionSetActionAccessArgs = {
+  actionAccess: UserCollectionActionAccessInput;
 };
 
 
@@ -1175,23 +1184,6 @@ export type MutationUserDeactivateArgs = {
 };
 
 
-export type MutationUserDeleteArgs = {
-  _id: Scalars['ObjectID'];
-};
-
-
-export type MutationUserHideArgs = {
-  _id: Scalars['ObjectID'];
-  hide?: InputMaybe<Scalars['Boolean']>;
-};
-
-
-export type MutationUserLockArgs = {
-  _id: Scalars['ObjectID'];
-  lock?: InputMaybe<Scalars['Boolean']>;
-};
-
-
 export type MutationUserMigrateToPasswordArgs = {
   _id: Scalars['ObjectID'];
 };
@@ -1211,13 +1203,6 @@ export type MutationUserPasswordChangeArgs = {
 
 export type MutationUserResendInviteArgs = {
   _id: Scalars['ObjectID'];
-};
-
-
-export type MutationUserWatchArgs = {
-  _id: Scalars['ObjectID'];
-  watch?: InputMaybe<Scalars['Boolean']>;
-  watcher?: InputMaybe<Scalars['ObjectID']>;
 };
 
 
@@ -2550,6 +2535,32 @@ export type UserTeamsArgs = {
   sort?: InputMaybe<Scalars['JSON']>;
 };
 
+export type UserCollectionActionAccess = {
+  __typename?: 'UserCollectionActionAccess';
+  create?: Maybe<UserCollectionActionAccessObject>;
+  deactivate?: Maybe<UserCollectionActionAccessObject>;
+  get?: Maybe<UserCollectionActionAccessObject>;
+  modify?: Maybe<UserCollectionActionAccessObject>;
+};
+
+export type UserCollectionActionAccessInput = {
+  create?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  deactivate?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  get?: InputMaybe<UserCollectionActionAccessObjectInput>;
+  modify?: InputMaybe<UserCollectionActionAccessObjectInput>;
+};
+
+export type UserCollectionActionAccessObject = {
+  __typename?: 'UserCollectionActionAccessObject';
+  teams?: Maybe<Array<Scalars['String']>>;
+  users?: Maybe<Array<Scalars['String']>>;
+};
+
+export type UserCollectionActionAccessObjectInput = {
+  teams?: InputMaybe<Array<Scalars['String']>>;
+  users?: InputMaybe<Array<Scalars['String']>>;
+};
+
 export type UserConstantcontact = {
   __typename?: 'UserConstantcontact';
   access_token?: Maybe<Scalars['String']>;
@@ -2872,6 +2883,53 @@ export const Profile = gql`
   }
 }
     `;
+export const ProfilesAppSettings = gql`
+    query ProfilesAppSettings {
+  configuration {
+    apps {
+      profiles {
+        fieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+        defaultFieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+      }
+    }
+    collection(name: "User") {
+      raw
+    }
+  }
+}
+    `;
+export const ProfilesFieldDescriptions = gql`
+    query ProfilesFieldDescriptions {
+  configuration {
+    apps {
+      profiles {
+        fieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+      }
+    }
+  }
+}
+    `;
 export const RemoveUserFromTeam = gql`
     mutation RemoveUserFromTeam($_id: ObjectID!, $input: TeamModifyInput!) {
   teamModify(_id: $_id, input: $input) {
@@ -3076,6 +3134,16 @@ export type ProfileQueryVariables = Exact<{
 
 
 export type ProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, phone?: number | null, email?: string | null, twitter?: string | null, biography?: string | null, current_title?: string | null, photo?: string | null, retired?: boolean | null, slug: string, username?: string | null, flags: Array<string | null>, hidden: boolean, locked: boolean, archived: boolean, methods?: Array<string | null> | null, timestamps?: { __typename?: 'UserTimestamps', joined_at: any, created_at: any, modified_at: any, last_login_at: any, last_active_at: any } | null, people?: { __typename?: 'CollectionPeople', created_by?: { __typename?: 'User', name: string } | null, last_modified_by?: { __typename?: 'User', name: string } | null } | null, teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string } | null> } | null } | null, userActionAccess?: { __typename?: 'CollectionActionAccess', modify: boolean, deactivate?: boolean | null } | null };
+
+export type ProfilesAppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProfilesAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string }, defaultFieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } }, collection?: { __typename?: 'ConfigurationCollection', raw: any } | null } | null };
+
+export type ProfilesFieldDescriptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProfilesFieldDescriptionsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } } } | null };
 
 export type RemoveUserFromTeamMutationVariables = Exact<{
   _id: Scalars['ObjectID'];

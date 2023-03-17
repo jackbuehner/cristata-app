@@ -252,12 +252,29 @@ function setUpdatedData<DataType = unknown>(
   }
 }
 
+function clearStoreData<VariablesType = unknown>(queryOpts: Omit<GraphqlQueryOptions<VariablesType>, 'fetch'>) {
+  const { operationName } = getOperationInfo(queryOpts.query);
+  const varKey = createVariableKey(queryOpts.variables || {}, queryOpts.tenant);
+
+  if (operationName) {
+    cache.update((state) => {
+      if (state[operationName] && typeof state[operationName] === 'object' && state[operationName][varKey]) {
+        delete state[operationName][varKey];
+      }
+      return state;
+    });
+  }
+}
+
 export async function queryWithStore<DataType = unknown, VariablesType = unknown>(
   opts: GraphqlQueryOptions<VariablesType> & { waitForQuery?: boolean }
 ): Promise<Readable<StoreReturnType<DataType>>> {
   await new Promise<void>(async (resolve) => {
+    clearStoreData(opts);
+
     if (opts.waitForQuery) await query(opts);
     else query(opts);
+
     resolve();
   });
 
