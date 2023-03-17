@@ -77,11 +77,11 @@
   }
 
   let deactivateUsers: AA = [' '];
-  $: if (actionAccess?.deactivate && !$profilesAppConfig.loading && !deactivateUsers) {
+  $: if (actionAccess?.deactivate && !$profilesAppConfig.loading && deactivateUsers[0] === ' ') {
     deactivateUsers = actionAccess.deactivate.users;
   }
   let deactivateTeams: AA = [' '];
-  $: if (actionAccess?.deactivate && !$profilesAppConfig.loading && !deactivateTeams) {
+  $: if (actionAccess?.deactivate && !$profilesAppConfig.loading && deactivateTeams[0] === ' ') {
     deactivateTeams = actionAccess.deactivate.teams;
   }
 
