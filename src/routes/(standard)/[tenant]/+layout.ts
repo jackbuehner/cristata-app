@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import type { MaybePromise } from '$app/forms';
 import { goto } from '$app/navigation';
 import {
   BasicProfileMe,
@@ -239,13 +240,13 @@ async function switchTenant(tenant: string, currentLocation: URL) {
 }
 
 interface LayoutDataType {
-  authUser: Promise<AuthUserType>;
+  authUser: MaybePromise<AuthUserType>;
   sessionId: string;
   configuration: GlobalConfigQuery['configuration'];
   me: BasicProfileMeQuery['user'];
-  basicProfiles: Promise<Readable<StoreReturnType<UsersListQuery>>>;
-  basicTeams: Promise<Readable<StoreReturnType<TeamsListQuery>>>;
+  basicProfiles: MaybePromise<Readable<StoreReturnType<UsersListQuery>>>;
+  basicTeams: MaybePromise<Readable<StoreReturnType<TeamsListQuery>>>;
   tenant: string;
   tauri: boolean;
-  profilesFieldDescriptions: Promise<Readable<StoreReturnType<ProfilesFieldDescriptionsQuery>>>;
+  profilesFieldDescriptions: MaybePromise<Readable<StoreReturnType<ProfilesFieldDescriptionsQuery>>>;
 }
