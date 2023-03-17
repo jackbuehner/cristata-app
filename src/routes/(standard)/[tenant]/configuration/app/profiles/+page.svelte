@@ -68,7 +68,7 @@
 
   let createUsers: AA = [' '];
   $: if (actionAccess && !$profilesAppConfig.loading && createUsers[0] === ' ') {
-    modifyUsers = actionAccess.create.users;
+    createUsers = actionAccess.create.users;
   }
   let createTeams: AA = [' '];
   $: if (actionAccess && !$profilesAppConfig.loading && createTeams[0] === ' ') {
