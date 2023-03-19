@@ -273,7 +273,7 @@
     overflow: auto;
     width: 100%;
     height: 100%;
-    will-change: transform;
+    /* will-change: transform; */
   }
   @media (prefers-color-scheme: dark) {
     div#app {
