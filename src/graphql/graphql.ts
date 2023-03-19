@@ -2949,6 +2949,18 @@ export const DeleteTeam = gql`
   teamDelete(_id: $_id)
 }
     `;
+export const Event = gql`
+    query Event($_id: ObjectID!) {
+  cristataEvent(_id: $_id) {
+    _id
+    at
+    name
+    reason
+    document
+    webhook
+  }
+}
+    `;
 export const EventsList = gql`
     query EventsList($limit: Int!, $offset: Int, $sort: JSON, $filter: JSON) {
   cristataEvents(limit: $limit, offset: $offset, sort: $sort, filter: $filter) {
@@ -3300,6 +3312,13 @@ export type DeleteTeamMutationVariables = Exact<{
 
 
 export type DeleteTeamMutation = { __typename?: 'Mutation', teamDelete?: any | null };
+
+export type EventQueryVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type EventQuery = { __typename?: 'Query', cristataEvent?: { __typename?: 'CristataEvent', _id: any, at: any, name: string, reason: string, document?: any | null, webhook?: any | null } | null };
 
 export type EventsListQueryVariables = Exact<{
   limit: Scalars['Int'];

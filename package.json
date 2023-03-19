@@ -39,6 +39,7 @@
     "@tiptap/extension-underline": "^2.0.0-beta.199",
     "@tiptap/react": "^2.0.0-beta.199",
     "@tiptap/starter-kit": "^2.0.0-beta.199",
+    "@uwu/monaco-svelte": "^1.1.0",
     "antd": "^4.21.5",
     "apollo3-cache-persist": "^0.14.0",
     "array-move": "^4.0.0",

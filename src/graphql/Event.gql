@@ -1,0 +1,10 @@
+query Event($_id: ObjectID!) {
+  cristataEvent(_id: $_id) {
+    _id
+    at
+    name
+    reason
+    document
+    webhook
+  }
+}

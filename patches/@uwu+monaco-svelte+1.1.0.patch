@@ -1,0 +1,13 @@
+diff --git a/node_modules/@uwu/monaco-svelte/src/index.svelte b/node_modules/@uwu/monaco-svelte/src/index.svelte
+index 785bcc0..428dc8e 100644
+--- a/node_modules/@uwu/monaco-svelte/src/index.svelte
++++ b/node_modules/@uwu/monaco-svelte/src/index.svelte
+@@ -15,7 +15,7 @@
+ 		width: string = "30rem",
+     noCDN: Monaco = undefined;
+ 
+-	let ed: IStandaloneCodeEditor;
++	export let ed: IStandaloneCodeEditor;
+ 
+ 	const isWritable = <T>(s: Readable<T>): s is Writable<T> => s["set"];
+ 
