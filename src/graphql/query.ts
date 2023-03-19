@@ -23,6 +23,7 @@ export interface GraphqlQueryOptions<VariablesType> {
   expireCache?: number;
   fetchNextPages?: boolean;
   skip?: boolean;
+  _varKey?: string;
 }
 
 // cache store
@@ -76,7 +77,7 @@ export async function query<DataType = unknown, VariablesType = unknown>({
   if (opts.skip) return {};
 
   const { operationName, topSelectionName } = getOperationInfo(opts.query);
-  const varKey = createVariableKey(opts.variables || {}, opts.tenant);
+  const varKey = opts._varKey || createVariableKey(opts.variables || {}, opts.tenant);
 
   if (operationName && opts.useCache && get(cache)[operationName]?.[varKey]) {
     if (opts.persistCache || opts.expireCache) {
@@ -166,7 +167,7 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
   queryName: string;
   variables?: VariablesType;
   tenant: string;
-}): Readable<StoreReturnType<DataType>> {
+}): Readable<StoreReturnType<DataType, VariablesType>> {
   const varKey = createVariableKey(opts.variables || {}, opts.tenant);
 
   return derived([cache, loading], ([$cache, $loading]) => {
@@ -174,12 +175,24 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
       data: $cache[opts.queryName]?.[varKey]?.value.data,
       errors: $cache[opts.queryName]?.[varKey]?.value.errors,
       loading: $loading[opts.queryName]?.[varKey] || false,
-      refetch: async () => {
+      refetch: async (updatedVariables) => {
+        console.log(updatedVariables);
         if (!$cache[opts.queryName]) return;
         if (!$cache[opts.queryName][varKey]) return;
 
         const queryOpts = $cache[opts.queryName]?.[varKey].queryOpts;
-        await query({ fetch, ...queryOpts, expireCache: 1 });
+        await query({
+          fetch,
+          ...queryOpts,
+          variables: {
+            ...(queryOpts.variables || {}),
+            ...(updatedVariables || {}),
+          },
+          expireCache: 1,
+
+          // make sure that the varKey remains the same even though the variables changed
+          _varKey: varKey,
+        });
       },
       fetchNextPage: async (page: number = (opts?.variables as any)?.page || 1) => {
         if (!$cache[opts.queryName]) return;
@@ -223,7 +236,7 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
           },
         };
       },
-    } as StoreReturnType<DataType>;
+    } as StoreReturnType<DataType, VariablesType>;
   });
 }
 
@@ -254,7 +267,7 @@ function setUpdatedData<DataType = unknown>(
 
 function clearStoreData<VariablesType = unknown>(queryOpts: Omit<GraphqlQueryOptions<VariablesType>, 'fetch'>) {
   const { operationName } = getOperationInfo(queryOpts.query);
-  const varKey = createVariableKey(queryOpts.variables || {}, queryOpts.tenant);
+  const varKey = queryOpts._varKey || createVariableKey(queryOpts.variables || {}, queryOpts.tenant);
 
   if (operationName) {
     cache.update((state) => {
@@ -268,7 +281,7 @@ function clearStoreData<VariablesType = unknown>(queryOpts: Omit<GraphqlQueryOpt
 
 export async function queryWithStore<DataType = unknown, VariablesType = unknown>(
   opts: GraphqlQueryOptions<VariablesType> & { waitForQuery?: boolean }
-): Promise<Readable<StoreReturnType<DataType>>> {
+): Promise<Readable<StoreReturnType<DataType, VariablesType>>> {
   await new Promise<void>(async (resolve) => {
     clearStoreData(opts);
 
@@ -328,8 +341,8 @@ interface ReturnType<DataType> {
   loading?: boolean;
 }
 
-export interface StoreReturnType<DataType> extends ReturnType<DataType> {
-  refetch: () => Promise<void>;
+export interface StoreReturnType<DataType, VariablesType> extends ReturnType<DataType> {
+  refetch: (updatedVariables?: Partial<VariablesType>) => Promise<void>;
   fetchNextPage: (
     page?: number
   ) => Promise<{ current?: DataType; next?: DataType; setStore: (merged: DataType) => DataType }>;
