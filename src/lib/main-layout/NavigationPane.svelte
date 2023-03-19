@@ -202,6 +202,16 @@
           icon: 'Key20Regular',
         },
         {
+          label: 'Event log',
+          href: `/${data.authUser.tenant}/configuration/security/events`,
+          icon: 'Receipt20Regular',
+        },
+        {
+          label: 'Webhooks',
+          href: `/${data.authUser.tenant}/configuration/security/webhooks`,
+          icon: 'Connector20Regular',
+        },
+        {
           label: 'Apps',
           type: 'category',
         },
