@@ -570,11 +570,11 @@
   }
 
   /* row size */
-  div[role='rowgroup'] div[role="row"] {
+  div[role='rowgroup'] [role="row"] {
     min-height: 40px;
     height: unset;
   }
-  div[role='table'].compact div[role='rowgroup'] div[role="row"] {
+  div[role='table'].compact div[role='rowgroup'] [role="row"] {
     min-height: 30px;
     height: 30px;
   }
