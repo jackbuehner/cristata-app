@@ -1,0 +1,13 @@
+query EventsList($limit: Int!, $offset: Int, $sort: JSON, $filter: JSON) {
+  cristataEvents(limit: $limit, offset: $offset, sort: $sort, filter: $filter) {
+    docs {
+      _id
+      at
+      name
+      reason
+      document
+      webhook
+    }
+    totalDocs
+  }
+}

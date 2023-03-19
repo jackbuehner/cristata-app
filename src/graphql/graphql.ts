@@ -396,6 +396,66 @@ export type ContentQuick_Links = {
   path?: Maybe<Scalars['String']>;
 };
 
+export type CristataEvent = {
+  __typename?: 'CristataEvent';
+  _id: Scalars['ObjectID'];
+  archived: Scalars['Boolean'];
+  at: Scalars['Date'];
+  document?: Maybe<Scalars['JSON']>;
+  hidden: Scalars['Boolean'];
+  history?: Maybe<Array<Maybe<CollectionHistory>>>;
+  locked: Scalars['Boolean'];
+  name: Scalars['String'];
+  people?: Maybe<CollectionPeople>;
+  reason: Scalars['String'];
+  timestamps?: Maybe<CollectionTimestamps>;
+  webhook?: Maybe<Scalars['JSON']>;
+  yState?: Maybe<Scalars['String']>;
+};
+
+export type CristataEventModifyInput = {
+  void?: InputMaybe<Scalars['Void']>;
+  yState?: InputMaybe<Scalars['String']>;
+};
+
+export type CristataWebhook = {
+  __typename?: 'CristataWebhook';
+  _id: Scalars['ObjectID'];
+  archived: Scalars['Boolean'];
+  collections: Array<Maybe<Scalars['String']>>;
+  filters?: Maybe<Array<Maybe<CristataWebhookFilters>>>;
+  hidden: Scalars['Boolean'];
+  history?: Maybe<Array<Maybe<CollectionHistory>>>;
+  locked: Scalars['Boolean'];
+  name: Scalars['String'];
+  people?: Maybe<CollectionPeople>;
+  timestamps?: Maybe<CollectionTimestamps>;
+  triggers: Array<Maybe<Scalars['String']>>;
+  url: Scalars['String'];
+  verb: Scalars['String'];
+  yState?: Maybe<Scalars['String']>;
+};
+
+export type CristataWebhookFilters = {
+  __typename?: 'CristataWebhookFilters';
+  conditon: Scalars['String'];
+  key: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type CristataWebhookModifyInput = {
+  filters?: InputMaybe<Array<InputMaybe<CristataWebhookModifyInputFilters>>>;
+  void?: InputMaybe<Scalars['Void']>;
+  yState?: InputMaybe<Scalars['String']>;
+};
+
+export type CristataWebhookModifyInputFilters = {
+  conditon?: InputMaybe<Scalars['String']>;
+  key?: InputMaybe<Scalars['String']>;
+  value?: InputMaybe<Scalars['String']>;
+  yState?: InputMaybe<Scalars['String']>;
+};
+
 export type File = {
   __typename?: 'File';
   _id: Scalars['ObjectID'];
@@ -506,6 +566,17 @@ export type Mutation = {
    * be used.
    */
   contentWatch?: Maybe<Content>;
+  /**
+   * Clone an existing CristataWebhook document.
+   * Certain fields are removed from the document (_id, slug, and any that start with __)
+   */
+  cristataWebhookClone?: Maybe<CristataWebhook>;
+  /** Create a new CristataWebhook document. */
+  cristataWebhookCreate?: Maybe<CristataWebhook>;
+  /** Deletes a CristataWebhook document. */
+  cristataWebhookDelete?: Maybe<Scalars['Void']>;
+  /** Modify an existing CristataWebhook document. */
+  cristataWebhookModify?: Maybe<CristataWebhook>;
   deleteCollection?: Maybe<Scalars['Void']>;
   /**
    * Clone an existing File document.
@@ -827,6 +898,31 @@ export type MutationContentWatchArgs = {
   _id: Scalars['ObjectID'];
   watch?: InputMaybe<Scalars['Boolean']>;
   watcher?: InputMaybe<Scalars['ObjectID']>;
+};
+
+
+export type MutationCristataWebhookCloneArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type MutationCristataWebhookCreateArgs = {
+  collections?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  name: Scalars['String'];
+  triggers?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  url: Scalars['String'];
+  verb: Scalars['String'];
+};
+
+
+export type MutationCristataWebhookDeleteArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type MutationCristataWebhookModifyArgs = {
+  _id: Scalars['ObjectID'];
+  input: CristataWebhookModifyInput;
 };
 
 
@@ -1348,6 +1444,34 @@ export type PagedCollectionActivity = {
 export type PagedContent = {
   __typename?: 'PagedContent';
   docs: Array<Maybe<Content>>;
+  hasNextPage?: Maybe<Scalars['Boolean']>;
+  hasPrevPage?: Maybe<Scalars['Boolean']>;
+  limit?: Maybe<Scalars['Int']>;
+  nextPage?: Maybe<Scalars['Int']>;
+  page?: Maybe<Scalars['Int']>;
+  pagingCounter?: Maybe<Scalars['Int']>;
+  prevPage?: Maybe<Scalars['Int']>;
+  totalDocs?: Maybe<Scalars['Int']>;
+  totalPages?: Maybe<Scalars['Int']>;
+};
+
+export type PagedCristataEvent = {
+  __typename?: 'PagedCristataEvent';
+  docs: Array<Maybe<CristataEvent>>;
+  hasNextPage?: Maybe<Scalars['Boolean']>;
+  hasPrevPage?: Maybe<Scalars['Boolean']>;
+  limit?: Maybe<Scalars['Int']>;
+  nextPage?: Maybe<Scalars['Int']>;
+  page?: Maybe<Scalars['Int']>;
+  pagingCounter?: Maybe<Scalars['Int']>;
+  prevPage?: Maybe<Scalars['Int']>;
+  totalDocs?: Maybe<Scalars['Int']>;
+  totalPages?: Maybe<Scalars['Int']>;
+};
+
+export type PagedCristataWebhook = {
+  __typename?: 'PagedCristataWebhook';
+  docs: Array<Maybe<CristataWebhook>>;
   hasNextPage?: Maybe<Scalars['Boolean']>;
   hasPrevPage?: Maybe<Scalars['Boolean']>;
   limit?: Maybe<Scalars['Int']>;
@@ -1900,6 +2024,20 @@ export type Query = {
    * If _id is omitted, the API will return all Content documents.
    */
   contentsPublic?: Maybe<PagedPrunedContent>;
+  /** Get a CristataEvent document by _id. */
+  cristataEvent?: Maybe<CristataEvent>;
+  /**
+   * Get a set of CristataEvent documents by _id.
+   * If _id is omitted, the API will return all CristataEvent documents.
+   */
+  cristataEvents?: Maybe<PagedCristataEvent>;
+  /** Get a CristataWebhook document by _id. */
+  cristataWebhook?: Maybe<CristataWebhook>;
+  /**
+   * Get a set of CristataWebhook documents by _id.
+   * If _id is omitted, the API will return all CristataWebhook documents.
+   */
+  cristataWebhooks?: Maybe<PagedCristataWebhook>;
   /**
    * Get an authenticated URL to the fathom analytics dashboard.
    * Only administrators can use this query.
@@ -2130,6 +2268,36 @@ export type QueryContentsArgs = {
 
 
 export type QueryContentsPublicArgs = {
+  _ids?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
+  filter?: InputMaybe<Scalars['JSON']>;
+  limit: Scalars['Int'];
+  offset?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
+export type QueryCristataEventArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type QueryCristataEventsArgs = {
+  _ids?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
+  filter?: InputMaybe<Scalars['JSON']>;
+  limit: Scalars['Int'];
+  offset?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
+export type QueryCristataWebhookArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type QueryCristataWebhooksArgs = {
   _ids?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
   filter?: InputMaybe<Scalars['JSON']>;
   limit: Scalars['Int'];
@@ -2781,6 +2949,21 @@ export const DeleteTeam = gql`
   teamDelete(_id: $_id)
 }
     `;
+export const EventsList = gql`
+    query EventsList($limit: Int!, $offset: Int, $sort: JSON, $filter: JSON) {
+  cristataEvents(limit: $limit, offset: $offset, sort: $sort, filter: $filter) {
+    docs {
+      _id
+      at
+      name
+      reason
+      document
+      webhook
+    }
+    totalDocs
+  }
+}
+    `;
 export const FathomDashboard = gql`
     query FathomDashboard {
   fathomDashboard
@@ -3117,6 +3300,16 @@ export type DeleteTeamMutationVariables = Exact<{
 
 
 export type DeleteTeamMutation = { __typename?: 'Mutation', teamDelete?: any | null };
+
+export type EventsListQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  offset?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+  filter?: InputMaybe<Scalars['JSON']>;
+}>;
+
+
+export type EventsListQuery = { __typename?: 'Query', cristataEvents?: { __typename?: 'PagedCristataEvent', totalDocs?: number | null, docs: Array<{ __typename?: 'CristataEvent', _id: any, at: any, name: string, reason: string, document?: any | null, webhook?: any | null } | null> } | null };
 
 export type FathomDashboardQueryVariables = Exact<{ [key: string]: never; }>;
 
