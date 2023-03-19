@@ -3247,6 +3247,18 @@ export const UsersList = gql`
   }
 }
     `;
+export const WebhooksList = gql`
+    query WebhooksList($limit: Int!, $offset: Int, $sort: JSON, $filter: JSON) {
+  cristataWebhooks(limit: $limit, offset: $offset, sort: $sort, filter: $filter) {
+    docs {
+      _id
+      name
+      triggers
+    }
+    totalDocs
+  }
+}
+    `;
 export const WorkflowComplete = gql`
     query WorkflowComplete($collections: [String] = null, $exclude: [String] = null) {
   workflow(collections: $collections, exclude: $exclude) {
@@ -3432,6 +3444,16 @@ export type UsersListQueryVariables = Exact<{
 
 
 export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null, c?: string | null } | null> } | null };
+
+export type WebhooksListQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  offset?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+  filter?: InputMaybe<Scalars['JSON']>;
+}>;
+
+
+export type WebhooksListQuery = { __typename?: 'Query', cristataWebhooks?: { __typename?: 'PagedCristataWebhook', totalDocs?: number | null, docs: Array<{ __typename?: 'CristataWebhook', _id: any, name: string, triggers: Array<string | null> } | null> } | null };
 
 export type WorkflowCompleteQueryVariables = Exact<{
   collections?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;

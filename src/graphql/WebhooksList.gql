@@ -1,0 +1,10 @@
+query WebhooksList($limit: Int!, $offset: Int, $sort: JSON, $filter: JSON) {
+  cristataWebhooks(limit: $limit, offset: $offset, sort: $sort, filter: $filter) {
+    docs {
+      _id
+      name
+      triggers
+    }
+    totalDocs
+  }
+}
