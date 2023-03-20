@@ -107,8 +107,8 @@
   let unique = {};
   let waiting = false;
   let showSpinner = false;
-  const delay = 130;
-  const duration = 270;
+  $: delay = $motionMode === 'reduced' ? 0 : 130;
+  $: duration = $motionMode === 'reduced' ? 0 : 270;
 
   /**
    * Trigger the page transition by re-rendering the content div (which contains the slot)
