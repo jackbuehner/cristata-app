@@ -244,9 +244,11 @@ interface LayoutDataType {
   sessionId: string;
   configuration: GlobalConfigQuery['configuration'];
   me: BasicProfileMeQuery['user'];
-  basicProfiles: MaybePromise<Readable<StoreReturnType<UsersListQuery>>>;
-  basicTeams: MaybePromise<Readable<StoreReturnType<TeamsListQuery>>>;
+  basicProfiles: MaybePromise<Readable<StoreReturnType<UsersListQuery, UsersListQueryVariables>>>;
+  basicTeams: MaybePromise<Readable<StoreReturnType<TeamsListQuery, TeamsListQueryVariables>>>;
   tenant: string;
   tauri: boolean;
-  profilesFieldDescriptions: MaybePromise<Readable<StoreReturnType<ProfilesFieldDescriptionsQuery>>>;
+  profilesFieldDescriptions: MaybePromise<
+    Readable<StoreReturnType<ProfilesFieldDescriptionsQuery, ProfilesFieldDescriptionsQueryVariables>>
+  >;
 }
