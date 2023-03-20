@@ -1,0 +1,5 @@
+mutation ModifyWebhook($_id: ObjectID!, $input: CristataWebhookModifyInput!) {
+  cristataWebhookModify(_id: $_id, input: $input) {
+    _id
+  }
+}

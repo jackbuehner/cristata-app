@@ -438,19 +438,23 @@ export type CristataWebhook = {
 
 export type CristataWebhookFilters = {
   __typename?: 'CristataWebhookFilters';
-  conditon: Scalars['String'];
+  condition: Scalars['String'];
   key: Scalars['String'];
   value: Scalars['String'];
 };
 
 export type CristataWebhookModifyInput = {
+  collections?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   filters?: InputMaybe<Array<InputMaybe<CristataWebhookModifyInputFilters>>>;
-  void?: InputMaybe<Scalars['Void']>;
+  name?: InputMaybe<Scalars['String']>;
+  triggers?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  url?: InputMaybe<Scalars['String']>;
+  verb?: InputMaybe<Scalars['String']>;
   yState?: InputMaybe<Scalars['String']>;
 };
 
 export type CristataWebhookModifyInputFilters = {
-  conditon?: InputMaybe<Scalars['String']>;
+  condition?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
   value?: InputMaybe<Scalars['String']>;
   yState?: InputMaybe<Scalars['String']>;
@@ -3031,6 +3035,13 @@ export const GlobalConfig = gql`
   }
 }
     `;
+export const ModifyWebhook = gql`
+    mutation ModifyWebhook($_id: ObjectID!, $input: CristataWebhookModifyInput!) {
+  cristataWebhookModify(_id: $_id, input: $input) {
+    _id
+  }
+}
+    `;
 export const Profile = gql`
     query Profile($_id: ObjectID!) {
   user(_id: $_id) {
@@ -3247,6 +3258,23 @@ export const UsersList = gql`
   }
 }
     `;
+export const Webhook = gql`
+    query Webhook($_id: ObjectID!) {
+  cristataWebhook(_id: $_id) {
+    _id
+    name
+    verb
+    url
+    triggers
+    collections
+    filters {
+      key
+      condition
+      value
+    }
+  }
+}
+    `;
 export const WebhooksList = gql`
     query WebhooksList($limit: Int!, $offset: Int, $sort: JSON, $filter: JSON) {
   cristataWebhooks(limit: $limit, offset: $offset, sort: $sort, filter: $filter) {
@@ -3352,6 +3380,14 @@ export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GlobalConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collections?: Array<{ __typename?: 'ConfigurationCollection', name: string, canCreateAndGet?: boolean | null, pluralLabel: string } | null> | null, navigation: { __typename?: 'ConfigurationNavigation', main: Array<{ __typename?: 'ConfigurationNavigationMainItem', icon: string, label: string, to: string } | null>, cmsNav: Array<{ __typename?: 'ConfigurationNavigationSubGroup', label: string, uuid: string, items: Array<{ __typename?: 'ConfigurationNavigationSubGroupItems', icon: string, label: string, to: string, uuid: string } | null> } | null> }, dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, name: string, lastModifiedBy: string, lastModifiedAt: string, photo?: string | null }, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string } } | null> } } | null };
 
+export type ModifyWebhookMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+  input: CristataWebhookModifyInput;
+}>;
+
+
+export type ModifyWebhookMutation = { __typename?: 'Mutation', cristataWebhookModify?: { __typename?: 'CristataWebhook', _id: any } | null };
+
 export type ProfileQueryVariables = Exact<{
   _id: Scalars['ObjectID'];
 }>;
@@ -3444,6 +3480,13 @@ export type UsersListQueryVariables = Exact<{
 
 
 export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null, c?: string | null } | null> } | null };
+
+export type WebhookQueryVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type WebhookQuery = { __typename?: 'Query', cristataWebhook?: { __typename?: 'CristataWebhook', _id: any, name: string, verb: string, url: string, triggers: Array<string | null>, collections: Array<string | null>, filters?: Array<{ __typename?: 'CristataWebhookFilters', key: string, condition: string, value: string } | null> | null } | null };
 
 export type WebhooksListQueryVariables = Exact<{
   limit: Scalars['Int'];

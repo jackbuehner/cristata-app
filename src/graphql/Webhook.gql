@@ -1,0 +1,15 @@
+query Webhook($_id: ObjectID!) {
+  cristataWebhook(_id: $_id) {
+    _id
+    name
+    verb
+    url
+    triggers
+    collections
+    filters {
+      key
+      condition
+      value
+    }
+  }
+}
