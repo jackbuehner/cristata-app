@@ -57,6 +57,9 @@
               const collection = docDetails?.collection;
               const collectionMessage = collection ? `in the ${collection} collection` : '';
 
+              if (event.name === 'create') {
+                return `A document was created ${collectionMessage} via a ${event.reason} command`;
+              }
               if (event.name === 'modify') {
                 return `A document was modified ${collectionMessage} via a ${event.reason} command`;
               }

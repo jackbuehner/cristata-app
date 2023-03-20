@@ -3,7 +3,7 @@
 
   export let triggers: (string | null)[];
 
-  const triggerList = ['modify', 'publish', 'unpublish', 'delete'];
+  const triggerList = ['create', 'modify', 'publish', 'unpublish', 'delete'];
 </script>
 
 {#each triggerList as trigger}
