@@ -1,8 +1,11 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { FieldWrapper } from '$lib/common/Field';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
+  import DeleteWebhook from '$lib/dialogs/DeleteWebhook.svelte';
   import { motionMode } from '$stores/motionMode';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { Button, ComboBox, ProgressRing, TextBox } from 'fluent-svelte';
@@ -18,6 +21,7 @@
   $: if (browser) document.title = webhookData?.name ? `Webhook: ${webhookData.name}` : 'Webhook';
 
   let saving = false;
+  let deleteDialogOpen = false;
 </script>
 
 <PageTitle>
@@ -63,6 +67,15 @@
       <FluentIcon name="Save16Regular" mode="buttonIconLeft" />
       Save changes
     {/if}
+  </Button>
+  <Button
+    disabled={!webhookData || saving}
+    on:click={async () => {
+      deleteDialogOpen = true;
+    }}
+  >
+    <FluentIcon name="Delete16Regular" mode="buttonIconLeft" />
+    Delete
   </Button>
   <Button
     style="width: 100px;"
@@ -127,6 +140,15 @@
     </div>
   </section>
 {/if}
+
+<DeleteWebhook
+  _id={$page.params.webhook_id}
+  tenant={$page.params.tenant}
+  bind:open={deleteDialogOpen}
+  handleSumbit={async () => {
+    goto(`/${$page.params.tenant}/configuration/security/webhooks`);
+  }}
+/>
 
 <style>
   section {

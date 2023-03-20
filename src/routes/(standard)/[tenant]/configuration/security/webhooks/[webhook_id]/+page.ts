@@ -1,4 +1,5 @@
 import {
+  DeleteWebhook,
   ModifyWebhook,
   Webhook,
   type CristataWebhookModifyInput,
@@ -32,8 +33,21 @@ export const load = (async ({ params, fetch }) => {
     });
   };
 
+  const deleteWebhook = async (_id: string) => {
+    return await fetch(`${server.location}/v3/${params.tenant}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: print(DeleteWebhook),
+        variables: { _id },
+      }),
+    });
+  };
+
   return {
     webhook,
     saveWebhookChanges: saveChanges,
+    deleteWebhook,
   };
 }) satisfies PageLoad;

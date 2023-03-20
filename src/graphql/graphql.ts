@@ -2966,6 +2966,11 @@ export const DeleteTeam = gql`
   teamDelete(_id: $_id)
 }
     `;
+export const DeleteWebhook = gql`
+    mutation DeleteWebhook($_id: ObjectID!) {
+  cristataWebhookDelete(_id: $_id)
+}
+    `;
 export const Event = gql`
     query Event($_id: ObjectID!) {
   cristataEvent(_id: $_id) {
@@ -3376,6 +3381,13 @@ export type DeleteTeamMutationVariables = Exact<{
 
 
 export type DeleteTeamMutation = { __typename?: 'Mutation', teamDelete?: any | null };
+
+export type DeleteWebhookMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type DeleteWebhookMutation = { __typename?: 'Mutation', cristataWebhookDelete?: any | null };
 
 export type EventQueryVariables = Exact<{
   _id: Scalars['ObjectID'];
