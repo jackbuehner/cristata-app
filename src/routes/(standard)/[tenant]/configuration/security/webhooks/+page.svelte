@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { goto } from '$app/navigation';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
   import { notEmpty } from '@jackbuehner/cristata-utils';
@@ -19,6 +20,16 @@
 
     <ActionRow fullWidth>
       {#if true}
+        <Button
+          variant="accent"
+          on:click={() => {
+            goto(`/${data.authUser.tenant}/configuration/security/webhooks/create`);
+          }}
+          disabled={$webhooksList.loading}
+        >
+          <FluentIcon name="Add16Regular" mode="buttonIconLeft" />
+          Create webhook
+        </Button>
         <Button
           style="width: 130px;"
           on:click={() => {

@@ -1,0 +1,11 @@
+mutation CreateWebhook(
+  $name: String!
+  $url: String!
+  $verb: String!
+  $collections: [String]
+  $triggers: [String]
+) {
+  cristataWebhookCreate(name: $name, url: $url, verb: $verb, collections: $collections, triggers: $triggers) {
+    _id
+  }
+}

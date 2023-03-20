@@ -2920,6 +2920,19 @@ export const CreateTeam = gql`
   }
 }
     `;
+export const CreateWebhook = gql`
+    mutation CreateWebhook($name: String!, $url: String!, $verb: String!, $collections: [String], $triggers: [String]) {
+  cristataWebhookCreate(
+    name: $name
+    url: $url
+    verb: $verb
+    collections: $collections
+    triggers: $triggers
+  ) {
+    _id
+  }
+}
+    `;
 export const DashboardConfig = gql`
     query DashboardConfig {
   configuration {
@@ -3340,6 +3353,17 @@ export type CreateTeamMutationVariables = Exact<{
 
 
 export type CreateTeamMutation = { __typename?: 'Mutation', teamCreate?: { __typename?: 'Team', _id: any } | null };
+
+export type CreateWebhookMutationVariables = Exact<{
+  name: Scalars['String'];
+  url: Scalars['String'];
+  verb: Scalars['String'];
+  collections?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
+  triggers?: InputMaybe<Array<InputMaybe<Scalars['String']>> | InputMaybe<Scalars['String']>>;
+}>;
+
+
+export type CreateWebhookMutation = { __typename?: 'Mutation', cristataWebhookCreate?: { __typename?: 'CristataWebhook', _id: any } | null };
 
 export type DashboardConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
