@@ -56,14 +56,13 @@ function Sidebar(props: ISidebar) {
   const theme = useTheme() as themeType;
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
-  const tenant = location.pathname.split('/')[1];
 
   const closeFunction = () => {
     const params = new URLSearchParams(search);
     props.closeFunction?.(params);
     props.setIsOpen(false);
     props.setHeader('');
-    navigate(`/${tenant}${(pathname + '?' + params.toString() + hash, { replace: true })}`);
+    navigate(`${pathname + '?' + params.toString() + hash}`, { replace: true });
   };
 
   return (
