@@ -2913,6 +2913,20 @@ export const CreateFile = gql`
   }
 }
     `;
+export const CreatePhoto = gql`
+    mutation CreatePhoto($name: String!, $file_type: String!, $size_bytes: Int!, $uuid: String!, $width: Int!, $height: Int!) {
+  photoCreate(
+    name: $name
+    file_type: $file_type
+    size_bytes: $size_bytes
+    uuid: $uuid
+    width: $width
+    height: $height
+  ) {
+    _id
+  }
+}
+    `;
 export const CreateTeam = gql`
     mutation CreateTeam($name: String!, $slug: String!, $members: [ObjectID]!, $organizers: [ObjectID]!) {
   teamCreate(name: $name, slug: $slug, members: $members, organizers: $organizers) {
@@ -3348,6 +3362,18 @@ export type CreateFileMutationVariables = Exact<{
 
 
 export type CreateFileMutation = { __typename?: 'Mutation', fileCreate?: { __typename?: 'File', _id: any } | null };
+
+export type CreatePhotoMutationVariables = Exact<{
+  name: Scalars['String'];
+  file_type: Scalars['String'];
+  size_bytes: Scalars['Int'];
+  uuid: Scalars['String'];
+  width: Scalars['Int'];
+  height: Scalars['Int'];
+}>;
+
+
+export type CreatePhotoMutation = { __typename?: 'Mutation', photoCreate?: { __typename?: 'Photo', _id: any } | null };
 
 export type CreateTeamMutationVariables = Exact<{
   name: Scalars['String'];
