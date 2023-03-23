@@ -449,14 +449,19 @@
 
 <div style="position: relative;">
   <BulkActions show={selectedIds.length > 0}>
-    <Button disabled={selectedIds.length === 0} on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
-      <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
-      Delete
-    </Button>
-    <Button disabled={selectedIds.length === 0} on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
-      <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
-      Archive
-    </Button>
+    {#if $tableData.data?.actionAccess?.hide}
+      <Button disabled={selectedIds.length === 0} on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
+        <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
+        Delete
+      </Button>
+    {/if}
+
+    {#if $tableData.data?.actionAccess?.archive}
+      <Button disabled={selectedIds.length === 0} on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
+        <FluentIcon name="Archive20Regular" mode="buttonIconLeft" />
+        Archive
+      </Button>
+    {/if}
 
     {#if collection.schemaName === 'File'}
       <Button
