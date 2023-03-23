@@ -318,7 +318,7 @@
               lastSelectedRowIndex = row.index;
             }}
           />
-          <div class="name" class:compact={$table.options.meta?.compactMode}>
+          <div class="name" class:compact={$table.options.meta?.compactMode} title={row.getValue('name')}>
             {row.getValue('name')}
           </div>
         </a>
