@@ -3,6 +3,7 @@
   import { afterNavigate, goto, invalidate } from '$app/navigation';
   import { page } from '$app/stores';
   import UploadFile from '$lib/cms/UploadFile.svelte';
+  import UploadPhoto from '$lib/cms/UploadPhoto.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
@@ -39,7 +40,9 @@
     // if defined, attempt to use the page title in the query string
     $page.url.searchParams.get('__pageTitle') ||
     // otherwise, build a title using the collection name
-    data.collection.name.plural + ' collection';
+    collectionName === 'Photo'
+      ? 'Photo library'
+      : data.collection.name.plural + ' collection';
 
   $: if (browser) document.title = `${pageTitle} - Cristata`;
 
@@ -194,6 +197,20 @@
               Upload file
             {/if}
           </Button>
+        {:else if collectionName === 'Photo'}
+          <Button
+            variant="accent"
+            disabled={!!uploadStatus || uploadLoading || !canCreate || loading || !collection?.canCreateAndGet}
+            on:click={upload}
+            style="width: 140px;"
+          >
+            {#if uploadLoading}
+              <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
+            {:else}
+              <FluentIcon name="ArrowUpload16Regular" mode="buttonIconLeft" />
+              Upload photo
+            {/if}
+          </Button>
         {:else}
           <Button
             variant="accent"
@@ -333,6 +350,19 @@
   </div>
 
   <UploadFile
+    bind:uploadInput
+    bind:uploadProgress
+    bind:uploadStatus
+    bind:loading={uploadLoading}
+    tenant={data.tenant}
+    refetchData={async () => {
+      refetching = true;
+      await $tableData.refetch();
+      refetching = false;
+    }}
+  />
+
+  <UploadPhoto
     bind:uploadInput
     bind:uploadProgress
     bind:uploadStatus
