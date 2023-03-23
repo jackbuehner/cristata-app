@@ -7,6 +7,7 @@
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
   import { motionMode } from '$stores/motionMode';
+  import { server } from '$utils/constants';
   import { hasKey } from '$utils/hasKey';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
@@ -19,10 +20,12 @@
     TextBox,
     Tooltip,
   } from 'fluent-svelte';
+  import { onMount } from 'svelte';
   import { hooks } from 'svelte-preprocess-react';
   import { expoOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
+  import CollectionGrid from './CollectionGrid.svelte';
   import CollectionTable from './CollectionTable.svelte';
 
   export let data: PageData;
@@ -125,6 +128,25 @@
   let refetching = false;
   let loadingMore = false;
   $: loading = refetching || loadingMore || $tableData.loading;
+
+  // the document list layout for this collection
+  let persistedViewLayout: string = '';
+  onMount(() => {
+    persistedViewLayout = (browser && localStorage.getItem(`${collectionName}:viewLayout`)) || '';
+  });
+  let viewLayout: 'table' | 'grid';
+  $: viewLayout =
+    persistedViewLayout === 'grid'
+      ? 'grid'
+      : persistedViewLayout === 'table'
+      ? 'table'
+      : collectionName === 'Photo'
+      ? 'grid'
+      : 'table';
+  function setViewLayout(layout: typeof viewLayout) {
+    localStorage.setItem(`${collectionName}:viewLayout`, layout);
+    viewLayout = layout;
+  }
 </script>
 
 <div class="wrapper">
@@ -242,6 +264,36 @@
               </MenuFlyoutItem>
             {/if}
             <MenuFlyoutDivider />
+            <MenuFlyoutItem cascading>
+              <FluentIcon name="Grid16Regular" slot="icon" />
+              Layout
+              <svelte:fragment slot="flyout">
+                <MenuFlyoutItem
+                  indented={viewLayout !== 'grid'}
+                  disabled={collectionName !== 'Photo'}
+                  on:click={() => {
+                    setViewLayout('grid');
+                  }}
+                >
+                  {#if viewLayout === 'grid'}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Thumbnails
+                </MenuFlyoutItem>
+                <MenuFlyoutItem
+                  indented={viewLayout !== 'table'}
+                  on:click={() => {
+                    setViewLayout('table');
+                  }}
+                >
+                  {#if viewLayout === 'table'}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Details
+                </MenuFlyoutItem>
+              </svelte:fragment>
+            </MenuFlyoutItem>
+            <MenuFlyoutDivider />
             <MenuFlyoutItem disabled>
               <FluentIcon name="Filter16Regular" slot="icon" />
               Filter
@@ -293,24 +345,46 @@
     }}
   />
 
-  <div class="new-table-wrapper">
-    <CollectionTable
-      collection={data.collection}
-      {tableData}
-      schema={data.table.schema}
-      tableDataFilter={data.table.filter}
-      tableDataSort={data.table.sort}
-      bind:loadingMore
-      on:sort={(evt) => {
-        // backup the current sort in localstorage so it can be restored later
-        localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+  {#if viewLayout === 'grid'}
+    <div class="grid-layout-wrapper">
+      <CollectionGrid
+        collection={data.collection}
+        {tableData}
+        schema={data.table.schema}
+        tableDataFilter={data.table.filter}
+        tableDataSort={data.table.sort}
+        photoTemplate={`${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`}
+        bind:loadingMore
+        on:sort={(evt) => {
+          // backup the current sort in localstorage so it can be restored later
+          localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
 
-        if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
-          invalidate('collection-table');
-        }
-      }}
-    />
-  </div>
+          if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+            invalidate('collection-table');
+          }
+        }}
+      />
+    </div>
+  {:else}
+    <div class="new-table-wrapper">
+      <CollectionTable
+        collection={data.collection}
+        {tableData}
+        schema={data.table.schema}
+        tableDataFilter={data.table.filter}
+        tableDataSort={data.table.sort}
+        bind:loadingMore
+        on:sort={(evt) => {
+          // backup the current sort in localstorage so it can be restored later
+          localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+
+          if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+            invalidate('collection-table');
+          }
+        }}
+      />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -326,6 +400,14 @@
   }
 
   .new-table-wrapper {
+    padding: 20px;
+    flex-grow: 1;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .grid-layout-wrapper {
     padding: 20px;
     flex-grow: 1;
     height: 100%;
