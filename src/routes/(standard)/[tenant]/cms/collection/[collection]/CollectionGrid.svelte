@@ -325,13 +325,15 @@
           on:click={() => {
             if ($tableData?.data?.data?.docs) {
               loadingMore = true;
-              $tableData.fetchMore($tableData.data.data.docs.length, 10).then(({ current, next, setStore }) => {
-                if (current && next) {
-                  const allDocs = [...(current.data?.docs || []), ...(next.data?.docs || [])];
-                  setStore({ ...current, data: { totalDocs: current.data?.totalDocs || 0, docs: allDocs } });
-                  loadingMore = false;
-                }
-              });
+              $tableData
+                .fetchMore($tableData.data.data.docs.length, collection.schemaName === 'Photo' ? 50 : 10)
+                .then(({ current, next, setStore }) => {
+                  if (current && next) {
+                    const allDocs = [...(current.data?.docs || []), ...(next.data?.docs || [])];
+                    setStore({ ...current, data: { totalDocs: current.data?.totalDocs || 0, docs: allDocs } });
+                    loadingMore = false;
+                  }
+                });
             }
           }}
         >
