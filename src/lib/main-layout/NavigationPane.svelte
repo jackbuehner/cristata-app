@@ -250,6 +250,7 @@
               if (col.name === 'File') return;
               if (col.name === 'Photo') return;
               if (col.name === 'Activity') return;
+              if (col.name.indexOf('Cristata') === 0) return;
               return {
                 label: col.name,
                 href: `/${data.authUser.tenant}/configuration/schema/${col.name}#0`,
@@ -304,7 +305,10 @@
                     .filter(notEmpty)
                     .filter(
                       (item) =>
-                        item.label !== 'Files' && item.label !== 'Photo library' && item.label !== 'Activities'
+                        item.label !== 'Files' &&
+                        item.label !== 'Photo library' &&
+                        item.label !== 'Activities' &&
+                        item.label.indexOf('Cristata') !== 0
                     )
                     .map((item) => {
                       return {
