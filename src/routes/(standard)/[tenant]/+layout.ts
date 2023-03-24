@@ -203,12 +203,12 @@ export const load = (async ({ params, url, fetch, parent }) => {
   showStatus();
 
   const data: LayoutDataType = {
-    authUser: authUser,
+    authUser: await authUser,
     sessionId,
     configuration: (await config)?.data?.configuration,
     me: (await me)?.data?.user,
-    basicProfiles: basicProfiles,
-    basicTeams: basicTeams,
+    basicProfiles: await basicProfiles,
+    basicTeams: await basicTeams,
     tenant: params.tenant,
     tauri,
     profilesFieldDescriptions: profilesFieldDescriptions,
