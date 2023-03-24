@@ -250,7 +250,6 @@ function ItemName({
   const pathCollectionName = camelToDashCase(uncapitalize(pluralize(collectionName)));
 
   const href = (() => {
-    if (collectionName === 'Photo' && itemId) return `/${tenant}/cms/photos/library/${itemId}`;
     if (collectionName === 'Team' && itemId) return `/${tenant}/teams/${itemId}`;
     if (collectionName === 'User' && itemId) return `/${tenant}/profile/${itemId}`;
     else if (itemId) return `/${tenant}/cms/collection/${pathCollectionName}/${itemId}`;

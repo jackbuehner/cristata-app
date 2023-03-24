@@ -30,7 +30,8 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
 
     // if sort is empty, use the default sort key and order because an empty sort object is invalid
     if (Object.keys(sort).length === 0) {
-      const defaultSortKey = url.searchParams.get('__defaultSortKey') || 'name';
+      const defaultSortKey =
+        url.searchParams.get('__defaultSortKey') || collection.schemaName === 'Photo' ? '_id' : 'name';
       const defaultSortKeyOrder = url.searchParams.get('__defaultSortKeyOrder') === '1' ? 1 : -1;
       sort[defaultSortKey] = defaultSortKeyOrder;
     }
@@ -45,7 +46,7 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
         query: {
           __name: 'CollectionTableData',
           __variables: {
-            limit: `Int! = 20`,
+            limit: `Int!`,
             filter: `JSON = ${JSON.stringify(JSON.stringify(filter))}`,
             sort: `JSON = ${JSON.stringify(JSON.stringify(sort))}`,
             offset: `Int`,
@@ -111,7 +112,7 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
             name: string;
             photo?: string;
           };
-          crelast_modified_byated_by?: {
+          last_modified_by?: {
             _id: string;
             name: string;
             photo?: string;
@@ -135,6 +136,7 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
     useCache: true,
     expireCache: 1000 * 30, // 30 seconds
     variables: {
+      limit: collection.schemaName === 'Photo' ? 100 : 20,
       filter: JSON.stringify(filter),
       sort: JSON.stringify(sort),
       collection: collection.schemaName,

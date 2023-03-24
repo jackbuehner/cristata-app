@@ -1,0 +1,19 @@
+mutation CreatePhoto(
+  $name: String!
+  $file_type: String!
+  $size_bytes: Int!
+  $uuid: String!
+  $width: Int!
+  $height: Int!
+) {
+  photoCreate(
+    name: $name
+    file_type: $file_type
+    size_bytes: $size_bytes
+    uuid: $uuid
+    width: $width
+    height: $height
+  ) {
+    _id
+  }
+}

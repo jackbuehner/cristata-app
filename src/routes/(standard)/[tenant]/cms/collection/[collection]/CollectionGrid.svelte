@@ -2,7 +2,6 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
-  import FluentIcon from '$lib/common/FluentIcon.svelte';
   import Loading from '$lib/common/Loading.svelte';
   import { compactMode } from '$stores/compactMode';
   import { motionMode } from '$stores/motionMode';
@@ -11,10 +10,8 @@
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import {
     createSvelteTable,
-    flexRender,
     getCoreRowModel,
     renderComponent,
-    type Column,
     type ColumnDef,
     type Row,
     type TableOptions,
@@ -34,10 +31,18 @@
   export let tableData: NonNullable<PageData['table']>['data'];
   export let tableDataFilter: NonNullable<PageData['table']>['filter'];
   export let tableDataSort: NonNullable<PageData['table']>['sort'];
+  /**
+   * A template string for the thumbnail.
+   *
+   * `{{_id}}` inside the template string will be replaced with the `_id` of the document
+   */
+  export let photoTemplate: string;
 
   interface SchemaDef extends AppSchemaDef {
     docs?: undefined;
   }
+
+  const oneAccessor = collection.config?.data?.configuration?.collection?.by.one;
 
   type Doc = NonNullable<NonNullable<NonNullable<typeof $tableData.data>['data']>['docs']>[0];
 
@@ -74,23 +79,9 @@
         return -1;
       })
       .filter((x): x is [string, SchemaDef] => {
-        const [key, def] = x;
+        const [key] = x;
 
-        if (key === 'permissions.users') return false;
-        if (key === 'permissions.teams') return false;
-        if (key === 'people.created_by') return false;
-        if (key === 'people.last_modified_by') return false;
-        if (key === 'timestamps.modified_at') return false;
-        if (key === 'timestamps.updated_at') return false;
-
-        // an array of documents can not be represented by a column
-        const isSubDocArray = def.type === 'DocArray';
-        if (isSubDocArray) return false;
-
-        // hide hidden columns
-        if (def.column?.hidden === true) return false;
-
-        return true;
+        return key === 'name' || key === 'tags';
       })
       .map(([key, def]): ColumnDef<Doc> | null => {
         // use predefined values for publish timestamps
@@ -141,39 +132,7 @@
           enableSorting: false,
         };
       })
-      .filter(notEmpty)
-      .sort((a, b) => (a.id === 'timestamps.published_at' ? 1 : 0)) || []),
-    {
-      header: collection.schemaName === 'File' ? 'Uploaded by' : 'Created by',
-      accessorKey: 'people.created_by',
-      id: 'people.created_by',
-      cell: (info) =>
-        renderComponent(ValueCell, { info, key: 'people.created_by', def: { type: ['User', 'ObjectId'] } }),
-      size: 150,
-      enableSorting: false,
-    },
-    {
-      header: 'Last modified by',
-      accessorKey: 'people.last_modified_by',
-      id: 'people.last_modified_by',
-      cell: (info) =>
-        renderComponent(ValueCell, {
-          info,
-          key: 'people.last_modified_by',
-          def: { type: ['User', 'ObjectId'] },
-        }),
-      size: 150,
-      enableSorting: false,
-    },
-    {
-      header: 'Last modified',
-      accessorKey: 'timestamps.modified_at',
-      id: 'timestamps.modified_at',
-      cell: (info) =>
-        renderComponent(ValueCell, { info, key: 'timestamps.modified_at', def: { type: 'Date' } }),
-      size: 190,
-      enableSorting: true,
-    },
+      .filter(notEmpty) || []),
   ];
 
   let colName = collection.colName;
@@ -308,104 +267,51 @@
       (row) => row.original[collection.config?.data?.configuration?.collection?.by.one || '_id']
     ) as string[];
 
-  function toggleSort(column: Column<Doc>, sortable: boolean, shiftKey?: boolean) {
-    if (sortable) column.toggleSorting(undefined, shiftKey);
-  }
-
   export let loadingMore = false;
 </script>
 
 <div class="wrapper">
-  <div role="table" class:compact={$table.options.meta?.compactMode}>
-    <div role="rowgroup" class="thead">
-      {#each $table.getHeaderGroups() as headerGroup}
-        <div role="row">
-          {#each headerGroup.headers as header}
-            {@const sortable = header.column.getCanSort()}
-            <span
-              role="columnheader"
-              style="width: {header.getSize()}px;"
-              class:sortable
-              tabindex="0"
-              on:keyup={(evt) => {
-                if (evt.key === 'Enter') toggleSort(header.column, sortable, evt.shiftKey);
-              }}
-              on:click={(evt) => toggleSort(header.column, sortable, evt.shiftKey)}
-            >
-              {#if header.id === '__checkbox'}
-                <StatelessCheckbox
-                  checked={$table.getIsAllRowsSelected()}
-                  indeterminate={$table.getIsSomeRowsSelected()}
-                  size={$compactMode ? 16 : 18}
-                  labelStyle="display: flex; margin-left: 3px;"
-                  disabled={$table.getRowModel().rows.length === 0}
-                  on:click={(evt) => {
-                    evt.stopPropagation();
-                  }}
-                  on:change={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    $table.toggleAllRowsSelected();
-                  }}
-                />
-              {:else if !header.isPlaceholder}
-                <svelte:component this={flexRender(header.column.columnDef.header, header.getContext())} />
-                {#if sortable}
-                  <span class="sort-chevron" style="--width: {header.getSize()}px">
-                    {#if header.column.getIsSorted() === 'asc'}
-                      <FluentIcon name="ChevronUp16Regular" />
-                    {:else if header.column.getIsSorted() === 'desc'}
-                      <FluentIcon name="ChevronDown16Regular" />
-                    {/if}
-                  </span>
-                {/if}
-              {/if}
-            </span>
-          {/each}
-        </div>
-      {/each}
-    </div>
-    <div role="rowgroup" class="tbody">
-      {#each $table.getRowModel().rows as row, i}
-        {@const href = `${links.href}/${row.original?.[links.hrefSuffixKey]}${links.hrefSearch || ''}`}
-        {#key href}
-          <a
-            role="row"
-            {href}
-            on:click={(evt) => handleRowClick(evt, row)}
-            on:dblclick={(evt) => {
-              if (!isInputElem(evt.target) && !isCheckbox(evt.target)) goto(href);
+  <div class="grid" class:compact={$table.options.meta?.compactMode}>
+    {#each $table.getRowModel().rows as row, i}
+      {@const href = `${links.href}/${row.original?.[links.hrefSuffixKey]}${links.hrefSearch || ''}`}
+      {@const photoHref = photoTemplate.replace('{{_id}}', row.original[oneAccessor || '_id'])}
+      {#key href}
+        <a
+          {href}
+          on:click={(evt) => handleRowClick(evt, row)}
+          on:dblclick={(evt) => {
+            if (!isInputElem(evt.target) && !isCheckbox(evt.target)) goto(href);
+          }}
+          in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+        >
+          <div class="photo" style={`--photoUrl: url(${photoHref})`} />
+          <StatelessCheckbox
+            checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            indeterminate={row.getIsSomeSelected()}
+            size={$compactMode ? 16 : 18}
+            labelStyle="
+              position: absolute;
+              top: 10px;
+              left: 10px;
+              background: white;
+              border-radius: var(--fds-control-corner-radius);
+              display: {row.getIsSelected() ? 'block' : 'none'};
+            "
+            on:click={(evt) => {
+              evt.stopPropagation();
             }}
-            in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
-          >
-            {#each row.getVisibleCells() as cell}
-              <span role="cell" style="width: {cell.column.getSize()}px">
-                {#if cell.column.id === '__checkbox'}
-                  <StatelessCheckbox
-                    checked={row.getIsSelected()}
-                    disabled={!row.getCanSelect()}
-                    indeterminate={row.getIsSomeSelected()}
-                    size={$compactMode ? 16 : 18}
-                    labelStyle="display: flex; margin-left: 3px;"
-                    on:click={(evt) => {
-                      evt.stopPropagation();
-                    }}
-                    on:change={(evt) => {
-                      row.toggleSelected(evt.detail.checked);
-                      lastSelectedRowIndex = row.index;
-                    }}
-                  />
-                {:else}
-                  <span class="cell-content" class:noWrap={$table.options.meta?.noWrap}>
-                    <svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
-                  </span>
-                {/if}
-              </span>
-            {/each}
-          </a>
-        {/key}
-      {/each}
-    </div>
+            on:change={(evt) => {
+              row.toggleSelected(evt.detail.checked);
+              lastSelectedRowIndex = row.index;
+            }}
+          />
+          <div class="name" class:compact={$table.options.meta?.compactMode} title={row.getValue('name')}>
+            {row.getValue('name')}
+          </div>
+        </a>
+      {/key}
+    {/each}
   </div>
   {#if ($tableData.data?.data?.totalDocs || 0) === 0 && $tableData.loading}
     <Loading message="Loading documents..." style="padding: 20px;" />
@@ -457,6 +363,8 @@
     width: 100%;
     height: 100%;
     overflow: auto;
+    padding: 10px;
+    box-sizing: border-box;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -465,112 +373,76 @@
     }
   }
 
-  div[role='table'] {
+  div.grid {
     width: fit-content;
     font-family: var(--fds-font-family-text);
     font-size: var(--fds-body-font-size);
     font-weight: 400;
     line-height: 20px;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 130px);
+    grid-auto-rows: min-content;
+    justify-content: space-between;
+    align-items: start;
+    gap: 10px;
+    width: 100%;
+  }
+  div.grid.compact {
+    gap: 4px;
+    grid-template-columns: repeat(auto-fill, 110px);
   }
 
-  
-
-  /* row style */
-  [role='row'] {
+  a {
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-  }
-  a[role='row'] {
+    position: relative;
+    flex-direction: column;
     text-decoration: none;
     color: inherit;
-    cursor: default;
-  }
-  a[role='row']:hover {
-    background-color: var(--fds-subtle-fill-secondary);
-  }
-  a[role='row']:active {
-    background-color: var(--fds-subtle-fill-tertiary);
-    color: var(--fds-text-secondary);
-  }
-
-  /* row size */
-  div[role='rowgroup'] [role="row"] {
-    min-height: 40px;
-    height: unset;
-  }
-  div[role='table'].compact div[role='rowgroup'] [role="row"] {
-    min-height: 30px;
-    height: 30px;
-  }
-
-  /* header row */
-  div[role='rowgroup'].thead div[role="row"] {
-    border-bottom: 1px solid var(--border-color);
-    min-height: 42px;
-    height: 42px;
-  }
-  div[role='rowgroup'].thead {
-    position:sticky;
-    top: 0;
-    background-color: #ffffff;
-    z-index: 1;
-  }
-  @media (prefers-color-scheme: dark) {
-    div[role='rowgroup'].thead {
-      background-color: #272727;
-    }
-  }
-  div[role='table'].compact div[role='rowgroup'].thead div[role="row"] {
-    min-height: 36px;
-  }
-
-  /* cell */
-  span[role='columnheader'], span[role='cell'] {
-    padding: 4px 0 4px 10px;
+    padding: 5px;
     box-sizing: border-box;
+    width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    border-radius: var(--fds-control-corner-radius);
   }
-
-  /* header sorting */
-  span[role='columnheader'].sortable {
-    position: relative;
-    cursor: pointer;
-  }
-  span[role='columnheader'].sortable:hover {
+  a:hover {
     background-color: var(--fds-subtle-fill-secondary);
   }
-  span[role='columnheader'].sortable:active {
+  a:active {
     background-color: var(--fds-subtle-fill-tertiary);
     color: var(--fds-text-secondary);
   }
-  .sort-chevron {
-    position: absolute;
-    top: 0;
-    left: calc(var(--width) / 2 - 16px);
-    width: 16px;
-    height: 16px;
+
+  a:hover :global(.checkbox-container) {
+    display: block !important;
   }
-  .sort-chevron > :global(svg) {
-    fill: currentColor
-  }
-  
-  /* disable text wrapping of cell content when compact mode is enabled */
-  span[role='cell'] {
-    overflow: hidden;
-  }
-  span.cell-content {
-    display: block;
+
+  div.name {
+    font-size: 13.5px;
+    line-height: 1.3;
+    padding-top: 5px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-break: break-word;
+    user-select: none;
   }
-  span.cell-content.noWrap {
-    white-space: nowrap;
+  div.name.compact {
+    font-size: 13px;
+    -webkit-line-clamp: 3;
+  }
+
+  div.photo {
+    display: flex;
+    flex-shrink: 0;
+    width: 100%;
+    aspect-ratio: 1.4 / 1;
+    background-image: var(--photoUrl);
+    background-size: contain;
+    background-position: bottom;
+    background-repeat: no-repeat;
   }
 
   /* table load more button */

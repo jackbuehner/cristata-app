@@ -134,14 +134,6 @@
     // skip transition if pathname does not change
     if (navigation.from?.url.pathname === navigation.to?.url.pathname) return handleEndTransition();
 
-    // skip transition if clicking between photos in the library
-    if (
-      navigation.from?.url.pathname.includes(`/paladin-news/cms/photos/library`) &&
-      navigation.to?.url.pathname.includes(`/paladin-news/cms/photos/library`)
-    ) {
-      return handleEndTransition();
-    }
-
     // animate a fancy transition between pages
     triggerTransition();
   }

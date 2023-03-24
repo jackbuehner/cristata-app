@@ -2861,6 +2861,21 @@ export type WorkflowGroupDoc = {
 };
 
 
+export const ActivitiesList = gql`
+    query ActivitiesList($page: Int, $limit: Int!, $filter: JSON, $sort: JSON) {
+  activities(page: $page, limit: $limit, filter: $filter, sort: $sort) {
+    docs {
+      _id
+      colName
+      docId
+      type
+      userIds {
+        name
+      }
+    }
+  }
+}
+    `;
 export const BasicProfileMe = gql`
     query BasicProfileMe {
   user {
@@ -2908,6 +2923,20 @@ export const CreateFile = gql`
     file_type: $file_type
     size_bytes: $size_bytes
     uuid: $uuid
+  ) {
+    _id
+  }
+}
+    `;
+export const CreatePhoto = gql`
+    mutation CreatePhoto($name: String!, $file_type: String!, $size_bytes: Int!, $uuid: String!, $width: Int!, $height: Int!) {
+  photoCreate(
+    name: $name
+    file_type: $file_type
+    size_bytes: $size_bytes
+    uuid: $uuid
+    width: $width
+    height: $height
   ) {
     _id
   }
@@ -3327,6 +3356,16 @@ export const WorkflowCounts = gql`
   }
 }
     `;
+export type ActivitiesListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit: Scalars['Int'];
+  filter?: InputMaybe<Scalars['JSON']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+}>;
+
+
+export type ActivitiesListQuery = { __typename?: 'Query', activities?: { __typename?: 'PagedActivity', docs: Array<{ __typename?: 'Activity', _id: any, colName: string, docId: any, type: string, userIds: Array<{ __typename?: 'User', name: string } | null> } | null> } | null };
+
 export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3348,6 +3387,18 @@ export type CreateFileMutationVariables = Exact<{
 
 
 export type CreateFileMutation = { __typename?: 'Mutation', fileCreate?: { __typename?: 'File', _id: any } | null };
+
+export type CreatePhotoMutationVariables = Exact<{
+  name: Scalars['String'];
+  file_type: Scalars['String'];
+  size_bytes: Scalars['Int'];
+  uuid: Scalars['String'];
+  width: Scalars['Int'];
+  height: Scalars['Int'];
+}>;
+
+
+export type CreatePhotoMutation = { __typename?: 'Mutation', photoCreate?: { __typename?: 'Photo', _id: any } | null };
 
 export type CreateTeamMutationVariables = Exact<{
   name: Scalars['String'];

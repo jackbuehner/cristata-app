@@ -3,10 +3,12 @@
   import { afterNavigate, goto, invalidate } from '$app/navigation';
   import { page } from '$app/stores';
   import UploadFile from '$lib/cms/UploadFile.svelte';
+  import UploadPhoto from '$lib/cms/UploadPhoto.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
   import { motionMode } from '$stores/motionMode';
+  import { server } from '$utils/constants';
   import { hasKey } from '$utils/hasKey';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
@@ -19,11 +21,14 @@
     TextBox,
     Tooltip,
   } from 'fluent-svelte';
+  import { onMount } from 'svelte';
   import { hooks } from 'svelte-preprocess-react';
   import { expoOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
+  import CollectionGrid from './CollectionGrid.svelte';
   import CollectionTable from './CollectionTable.svelte';
+  import DetailsPane from './DetailsPane.svelte';
 
   export let data: PageData;
   $: ({ data: tableData } = data.table);
@@ -36,7 +41,9 @@
     // if defined, attempt to use the page title in the query string
     $page.url.searchParams.get('__pageTitle') ||
     // otherwise, build a title using the collection name
-    data.collection.name.plural + ' collection';
+    collectionName === 'Photo'
+      ? 'Photo library'
+      : data.collection.name.plural + ' collection';
 
   $: if (browser) document.title = `${pageTitle} - Cristata`;
 
@@ -125,6 +132,44 @@
   let refetching = false;
   let loadingMore = false;
   $: loading = refetching || loadingMore || $tableData.loading;
+
+  // the document list layout for this collection
+  let persistedViewLayout: string = '';
+  onMount(() => {
+    persistedViewLayout = (browser && localStorage.getItem(`${collectionName}:viewLayout`)) || '';
+  });
+  let viewLayout: 'table' | 'grid';
+  $: viewLayout =
+    persistedViewLayout === 'grid'
+      ? 'grid'
+      : persistedViewLayout === 'table'
+      ? 'table'
+      : collectionName === 'Photo'
+      ? 'grid'
+      : 'table';
+  function setViewLayout(layout: typeof viewLayout) {
+    localStorage.setItem(`${collectionName}:viewLayout`, layout);
+    viewLayout = layout;
+  }
+
+  // the details pane setting for this collection
+  let persistedDetailsPane: string = '';
+  onMount(() => {
+    persistedDetailsPane = (browser && localStorage.getItem(`${collectionName}:detailsPane`)) || '';
+  });
+  let detailsPane: boolean;
+  $: detailsPane =
+    persistedDetailsPane === 'true'
+      ? true
+      : persistedDetailsPane === 'false'
+      ? false
+      : collectionName === 'Photo'
+      ? true
+      : false;
+  function setDetailsPaneEnabled(enabled: typeof detailsPane) {
+    localStorage.setItem(`${collectionName}:detailsPane`, `${enabled}`);
+    detailsPane = enabled;
+  }
 </script>
 
 <div class="wrapper">
@@ -170,6 +215,20 @@
             {:else}
               <FluentIcon name="ArrowUpload16Regular" mode="buttonIconLeft" />
               Upload file
+            {/if}
+          </Button>
+        {:else if collectionName === 'Photo'}
+          <Button
+            variant="accent"
+            disabled={!!uploadStatus || uploadLoading || !canCreate || loading || !collection?.canCreateAndGet}
+            on:click={upload}
+            style="width: 140px;"
+          >
+            {#if uploadLoading}
+              <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
+            {:else}
+              <FluentIcon name="ArrowUpload16Regular" mode="buttonIconLeft" />
+              Upload photo
             {/if}
           </Button>
         {:else}
@@ -242,6 +301,64 @@
               </MenuFlyoutItem>
             {/if}
             <MenuFlyoutDivider />
+            <MenuFlyoutItem cascading>
+              <FluentIcon name="Grid16Regular" slot="icon" />
+              Layout
+              <svelte:fragment slot="flyout">
+                <MenuFlyoutItem
+                  indented={viewLayout !== 'grid'}
+                  disabled={collectionName !== 'Photo'}
+                  on:click={() => {
+                    setViewLayout('grid');
+                  }}
+                >
+                  {#if viewLayout === 'grid'}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Thumbnails
+                </MenuFlyoutItem>
+                <MenuFlyoutItem
+                  indented={viewLayout !== 'table'}
+                  on:click={() => {
+                    setViewLayout('table');
+                  }}
+                >
+                  {#if viewLayout === 'table'}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Details
+                </MenuFlyoutItem>
+              </svelte:fragment>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem cascading>
+              <FluentIcon name="PanelRight16Regular" slot="icon" />
+              Details pane
+              <svelte:fragment slot="flyout">
+                <MenuFlyoutItem
+                  indented={!detailsPane}
+                  on:click={() => {
+                    setDetailsPaneEnabled(true);
+                  }}
+                >
+                  {#if !!detailsPane}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Show
+                </MenuFlyoutItem>
+                <MenuFlyoutItem
+                  indented={!!detailsPane}
+                  on:click={() => {
+                    setDetailsPaneEnabled(false);
+                  }}
+                >
+                  {#if !detailsPane}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Hide
+                </MenuFlyoutItem>
+              </svelte:fragment>
+            </MenuFlyoutItem>
+            <MenuFlyoutDivider />
             <MenuFlyoutItem disabled>
               <FluentIcon name="Filter16Regular" slot="icon" />
               Filter
@@ -293,23 +410,74 @@
     }}
   />
 
-  <div class="new-table-wrapper">
-    <CollectionTable
-      collection={data.collection}
-      {tableData}
-      schema={data.table.schema}
-      tableDataFilter={data.table.filter}
-      tableDataSort={data.table.sort}
-      bind:loadingMore
-      on:sort={(evt) => {
-        // backup the current sort in localstorage so it can be restored later
-        localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+  <UploadPhoto
+    bind:uploadInput
+    bind:uploadProgress
+    bind:uploadStatus
+    bind:loading={uploadLoading}
+    tenant={data.tenant}
+    refetchData={async () => {
+      refetching = true;
+      await $tableData.refetch();
+      refetching = false;
+    }}
+  />
 
-        if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
-          invalidate('collection-table');
-        }
-      }}
-    />
+  <div class="explorer">
+    {#if viewLayout === 'grid'}
+      <div class="grid-layout-wrapper explorer-main">
+        <CollectionGrid
+          collection={data.collection}
+          {tableData}
+          schema={data.table.schema}
+          tableDataFilter={data.table.filter}
+          tableDataSort={data.table.sort}
+          photoTemplate={`${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`}
+          bind:loadingMore
+          on:sort={(evt) => {
+            // backup the current sort in localstorage so it can be restored later
+            localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+
+            if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+              invalidate('collection-table');
+            }
+          }}
+        />
+      </div>
+    {:else}
+      <div class="new-table-wrapper explorer-main">
+        <CollectionTable
+          collection={data.collection}
+          {tableData}
+          schema={data.table.schema}
+          tableDataFilter={data.table.filter}
+          tableDataSort={data.table.sort}
+          bind:loadingMore
+          on:sort={(evt) => {
+            // backup the current sort in localstorage so it can be restored later
+            localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+
+            if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+              invalidate('collection-table');
+            }
+          }}
+        />
+      </div>
+    {/if}
+
+    {#if !!detailsPane}
+      <div class="explorer-pane">
+        <DetailsPane
+          totalDocs={$tableData.data?.data?.totalDocs || 0}
+          collection={data.collection}
+          {tableData}
+          schema={data.table.schema}
+          photoTemplate={data.collection.schemaName === 'Photo'
+            ? `${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`
+            : ''}
+        />
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -318,6 +486,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
   }
 
   .header :global(.text-box-container) {
@@ -325,11 +494,36 @@
     flex-grow: 1;
   }
 
-  .new-table-wrapper {
-    padding: 20px;
-    flex-grow: 1;
+  .explorer {
+    display: flex;
+    flex-direction: row;
     height: 100%;
     overflow: hidden;
     box-sizing: border-box;
+
+    margin: 20px;
+    --border-color: var(--color-neutral-light-200);
+    box-shadow: 0 0 0 1px var(--border-color);
+    border-radius: var(--fds-control-corner-radius);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .explorer {
+      --border-color: var(--color-neutral-dark-200);
+    }
+  }
+
+  .explorer > div {
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .explorer-main {
+    flex-grow: 1;
+  }
+
+  .explorer-pane {
+    flex-shrink: 0;
   }
 </style>
