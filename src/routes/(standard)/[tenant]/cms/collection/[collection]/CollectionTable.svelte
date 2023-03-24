@@ -26,6 +26,7 @@
   import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
   import BulkActions from './BulkActions.svelte';
+  import { selectedIds } from './selectedIdsStore';
   import ValueCell from './ValueCell.svelte';
 
   export let collection: NonNullable<PageData['collection']>;
@@ -301,7 +302,7 @@
   }
 
   let lastSelectedRowIndex = 0;
-  $: selectedIds = $table
+  $: $selectedIds = $table
     .getSelectedRowModel()
     .rows.map(
       (row) => row.original[collection.config?.data?.configuration?.collection?.by.one || '_id']
@@ -438,10 +439,8 @@
 {#if collection.config?.data?.configuration?.collection}
   <div style="position: relative;">
     <BulkActions
-      show={selectedIds.length > 0}
       collection={collection.config.data.configuration.collection}
       {tableData}
-      {selectedIds}
       {shouldOpenMaximized}
     />
   </div>

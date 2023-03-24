@@ -8,12 +8,13 @@
   import { openWindow } from '$utils/openWindow';
   import { Button } from 'fluent-svelte';
   import type { PageData } from './$types';
+  import { selectedIds } from './selectedIdsStore';
 
-  export let show = false;
   export let tableData: NonNullable<PageData['table']>['data'];
-  export let selectedIds: string[] = [];
   export let collection: NonNullable<NonNullable<CollectionConfigQuery['configuration']>['collection']>;
   export let shouldOpenMaximized = false;
+
+  $: show = $selectedIds.length > 0;
 
   const links = {
     href: `/${$page.params.tenant}/cms/collection/${$page.params.collection}`,
@@ -23,7 +24,7 @@
   };
 
   $: firstSelectedHref = `${links.href}/${
-    ($tableData?.data?.data?.docs || []).find((doc: { _id: string }) => doc._id === selectedIds[0])?.[
+    ($tableData?.data?.data?.docs || []).find((doc: { _id: string }) => doc._id === $selectedIds[0])?.[
       links.hrefSuffixKey
     ]
   }${links.hrefSearch || ''}`;
@@ -34,14 +35,14 @@
 
 <div class="actions" class:show>
   {#if $tableData.data?.actionAccess?.hide}
-    <Button disabled={selectedIds.length === 0} on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
+    <Button disabled={$selectedIds.length === 0} on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
       <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
       Delete
     </Button>
   {/if}
 
   {#if $tableData.data?.actionAccess?.archive}
-    <Button disabled={selectedIds.length === 0} on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
+    <Button disabled={$selectedIds.length === 0} on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
       <FluentIcon name="Archive20Regular" mode="buttonIconLeft" />
       Archive
     </Button>
@@ -49,13 +50,13 @@
 
   {#if collection.name === 'File'}
     <Button
-      href="{VITE_API_PROTOCOL}//{VITE_API_BASE_URL}/filestore/{$page.params.tenant}/{selectedIds[0]}"
-      disabled={selectedIds.length !== 1}
+      href="{VITE_API_PROTOCOL}//{VITE_API_BASE_URL}/filestore/{$page.params.tenant}/{$selectedIds[0]}"
+      disabled={$selectedIds.length !== 1}
       on:click={(evt) => {
         evt.preventDefault();
         openWindow(
-          `${VITE_API_PROTOCOL}//${VITE_API_BASE_URL}/filestore/${$page.params.tenant}/${selectedIds[0]}`,
-          links.windowName + selectedIds[0],
+          `${VITE_API_PROTOCOL}//${VITE_API_BASE_URL}/filestore/${$page.params.tenant}/${$selectedIds[0]}`,
+          links.windowName + $selectedIds[0],
           'location=no'
         );
       }}
@@ -65,7 +66,7 @@
     </Button>
   {:else}
     <Button
-      disabled={selectedIds.length !== 1}
+      disabled={$selectedIds.length !== 1}
       on:click={() => {
         navigator.clipboard.writeText(`${$page.url.origin}${firstSelectedHref}`);
       }}
@@ -75,10 +76,10 @@
     </Button>
     <Button
       href={firstSelectedHref}
-      disabled={selectedIds.length !== 1}
+      disabled={$selectedIds.length !== 1}
       on:click={(evt) => {
         evt.preventDefault();
-        openWindow(firstSelectedHref, links.windowName + selectedIds[0], 'location=no');
+        openWindow(firstSelectedHref, links.windowName + $selectedIds[0], 'location=no');
       }}
     >
       <FluentIcon name="Open20Regular" mode="buttonIconLeft" />
@@ -91,7 +92,7 @@
   bind:open={deleteDialogOpen}
   tenant={$page.params.tenant}
   byOne={collection.by.one}
-  {selectedIds}
+  selectedIds={$selectedIds}
   schemaName={collection.name}
   handleSumbit={async () => {
     await $tableData.refetch();
@@ -102,7 +103,7 @@
   bind:open={archiveDialogOpen}
   tenant={$page.params.tenant}
   byOne={collection.by.one}
-  {selectedIds}
+  selectedIds={$selectedIds}
   schemaName={collection.name}
   handleSumbit={async () => {
     await $tableData.refetch();
