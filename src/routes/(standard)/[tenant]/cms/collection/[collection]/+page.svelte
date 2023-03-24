@@ -151,6 +151,25 @@
     localStorage.setItem(`${collectionName}:viewLayout`, layout);
     viewLayout = layout;
   }
+
+  // the details pane setting for this collection
+  let persistedDetailsPane: string = '';
+  onMount(() => {
+    persistedDetailsPane = (browser && localStorage.getItem(`${collectionName}:detailsPane`)) || '';
+  });
+  let detailsPane: boolean;
+  $: detailsPane =
+    persistedDetailsPane === 'true'
+      ? true
+      : persistedDetailsPane === 'false'
+      ? false
+      : collectionName === 'Photo'
+      ? true
+      : false;
+  function setDetailsPaneEnabled(enabled: typeof detailsPane) {
+    localStorage.setItem(`${collectionName}:detailsPane`, `${enabled}`);
+    detailsPane = enabled;
+  }
 </script>
 
 <div class="wrapper">
@@ -311,6 +330,34 @@
                 </MenuFlyoutItem>
               </svelte:fragment>
             </MenuFlyoutItem>
+            <MenuFlyoutItem cascading>
+              <FluentIcon name="PanelRight16Regular" slot="icon" />
+              Details pane
+              <svelte:fragment slot="flyout">
+                <MenuFlyoutItem
+                  indented={!detailsPane}
+                  on:click={() => {
+                    setDetailsPaneEnabled(true);
+                  }}
+                >
+                  {#if !!detailsPane}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Show
+                </MenuFlyoutItem>
+                <MenuFlyoutItem
+                  indented={!!detailsPane}
+                  on:click={() => {
+                    setDetailsPaneEnabled(false);
+                  }}
+                >
+                  {#if !detailsPane}
+                    <FluentIcon name="Checkmark16Regular" slot="icon" />
+                  {/if}
+                  Hide
+                </MenuFlyoutItem>
+              </svelte:fragment>
+            </MenuFlyoutItem>
             <MenuFlyoutDivider />
             <MenuFlyoutItem disabled>
               <FluentIcon name="Filter16Regular" slot="icon" />
@@ -418,17 +465,19 @@
       </div>
     {/if}
 
-    <div class="explorer-pane">
-      <DetailsPane
-        totalDocs={$tableData.data?.data?.totalDocs || 0}
-        collection={data.collection}
-        {tableData}
-        schema={data.table.schema}
-        photoTemplate={data.collection.schemaName === 'Photo'
-          ? `${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`
-          : ''}
-      />
-    </div>
+    {#if !!detailsPane}
+      <div class="explorer-pane">
+        <DetailsPane
+          totalDocs={$tableData.data?.data?.totalDocs || 0}
+          collection={data.collection}
+          {tableData}
+          schema={data.table.schema}
+          photoTemplate={data.collection.schemaName === 'Photo'
+            ? `${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`
+            : ''}
+        />
+      </div>
+    {/if}
   </div>
 </div>
 
