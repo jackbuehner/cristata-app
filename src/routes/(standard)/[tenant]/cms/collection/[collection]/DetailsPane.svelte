@@ -260,7 +260,7 @@
 
       <section>
         <TextBlock variant="bodyStrong" tag="h2">Details</TextBlock>
-        <div class="details-grid">
+        <div class="details-grid" class:compact={$compactMode}>
           {#each de.filter(([key]) => key !== 'tags' && key !== 'categories') as [key, def]}
             {@const value = getProperty(doc, key) ?? ''}
             {@const label = def.column?.label || (key === 'timestamps.published_at' ? 'Published at' : key)}
@@ -313,7 +313,7 @@
       {#if activitiesList}
         <section>
           <TextBlock variant="bodyStrong" tag="h2">Activity</TextBlock>
-          <div>
+          <div class="activities-list" class:compact={$compactMode}>
             {#await activitiesList}
               <Loading message="Loading activity..." />
             {:then activitiesListData}
@@ -387,8 +387,11 @@
   div.details-grid {
     display: grid;
     grid-template-columns: 0.6fr 1fr;
-    gap: 0 10px;
+    gap: 6px 15px;
     grid-template-rows: auto;
+  }
+  div.details-grid.compact {
+    gap: 2px 10px;
   }
 
   div.details-grid > :global(*:nth-child(even)) {
@@ -402,8 +405,18 @@
     margin: 2px 0;
     flex-wrap: wrap;
   }
-
   .chips-wrapper.compact {
     gap: 3px;
+  }
+
+  div.activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  div.activities-list.compact {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
   }
 </style>
