@@ -109,9 +109,11 @@
 
 <aside class="wrapper">
   {#if $selectedIds.length === 1 && doc?.name}
-    <TextBlock variant="subtitle" tah="h1">
-      {doc.name}
-    </TextBlock>
+    <a href={getHrefWithParam('name', `${doc.name}`)} style="color: inherit;">
+      <TextBlock variant="subtitle" tah="h1">
+        {doc.name}
+      </TextBlock>
+    </a>
   {:else if $selectedIds.length > 0}
     <TextBlock variant="subtitle" tah="h1">
       {$selectedIds.length} selected
