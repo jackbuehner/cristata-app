@@ -1,16 +1,12 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { VITE_API_BASE_URL, VITE_API_PROTOCOL } from '$env/static/public';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import Loading from '$lib/common/Loading.svelte';
-  import ArchiveSelectedDocs from '$lib/dialogs/ArchiveSelectedDocs.svelte';
-  import DeleteSelectedDocs from '$lib/dialogs/DeleteSelectedDocs.svelte';
   import { compactMode } from '$stores/compactMode';
   import { motionMode } from '$stores/motionMode';
   import { hasKey } from '$utils/hasKey';
-  import { openWindow } from '$utils/openWindow';
   import type { SchemaDef as AppSchemaDef } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import {
@@ -46,7 +42,7 @@
 
   // if the field is a body field that is rendered as a tiptap editor,
   // we want to open it in maximized mode for easy access to the editor
-  const shouldOpenMaximized = schema.find(([key, def]) => key === 'body' && def.field?.tiptap);
+  const shouldOpenMaximized = !!schema.find(([key, def]) => key === 'body' && def.field?.tiptap);
 
   // row links behaviors
   const links = {
@@ -311,19 +307,11 @@
       (row) => row.original[collection.config?.data?.configuration?.collection?.by.one || '_id']
     ) as string[];
 
-  $: firstSelectedHref = `${links.href}/${
-    ($tableData?.data?.data?.docs || []).find((doc: { _id: string }) => doc._id === selectedIds[0])?.[
-      links.hrefSuffixKey
-    ]
-  }${links.hrefSearch || ''}`;
-
   function toggleSort(column: Column<Doc>, sortable: boolean, shiftKey?: boolean) {
     if (sortable) column.toggleSorting(undefined, shiftKey);
   }
 
   export let loadingMore = false;
-  let archiveDialogOpen = false;
-  let deleteDialogOpen = false;
 </script>
 
 <div class="wrapper">
@@ -447,84 +435,17 @@
   {/if}
 </div>
 
-<div style="position: relative;">
-  <BulkActions show={selectedIds.length > 0}>
-    {#if $tableData.data?.actionAccess?.hide}
-      <Button disabled={selectedIds.length === 0} on:click={() => (deleteDialogOpen = !deleteDialogOpen)}>
-        <FluentIcon name="Delete20Regular" mode="buttonIconLeft" />
-        Delete
-      </Button>
-    {/if}
-
-    {#if $tableData.data?.actionAccess?.archive}
-      <Button disabled={selectedIds.length === 0} on:click={() => (archiveDialogOpen = !archiveDialogOpen)}>
-        <FluentIcon name="Archive20Regular" mode="buttonIconLeft" />
-        Archive
-      </Button>
-    {/if}
-
-    {#if collection.schemaName === 'File'}
-      <Button
-        href="{VITE_API_PROTOCOL}//{VITE_API_BASE_URL}/filestore/{$page.params.tenant}/{selectedIds[0]}"
-        disabled={selectedIds.length !== 1}
-        on:click={(evt) => {
-          evt.preventDefault();
-          openWindow(
-            `${VITE_API_PROTOCOL}//${VITE_API_BASE_URL}/filestore/${$page.params.tenant}/${selectedIds[0]}`,
-            links.windowName + selectedIds[0],
-            'location=no'
-          );
-        }}
-      >
-        <FluentIcon name="Open20Regular" mode="buttonIconLeft" />
-        Open preview
-      </Button>
-    {:else}
-      <Button
-        disabled={selectedIds.length !== 1}
-        on:click={() => {
-          navigator.clipboard.writeText(`${$page.url.origin}${firstSelectedHref}`);
-        }}
-      >
-        <FluentIcon name="Link20Regular" mode="buttonIconLeft" />
-        Copy link
-      </Button>
-      <Button
-        href={firstSelectedHref}
-        disabled={selectedIds.length !== 1}
-        on:click={(evt) => {
-          evt.preventDefault();
-          openWindow(firstSelectedHref, links.windowName + selectedIds[0], 'location=no');
-        }}
-      >
-        <FluentIcon name="Open20Regular" mode="buttonIconLeft" />
-        Open in Editor
-      </Button>
-    {/if}
-  </BulkActions>
-</div>
-
-<DeleteSelectedDocs
-  bind:open={deleteDialogOpen}
-  tenant={$page.params.tenant}
-  byOne={collection.config?.data?.configuration?.collection?.by.one}
-  {selectedIds}
-  schemaName={collection.schemaName}
-  handleSumbit={async () => {
-    await $tableData.refetch();
-  }}
-/>
-
-<ArchiveSelectedDocs
-  bind:open={archiveDialogOpen}
-  tenant={$page.params.tenant}
-  byOne={collection.config?.data?.configuration?.collection?.by.one}
-  {selectedIds}
-  schemaName={collection.schemaName}
-  handleSumbit={async () => {
-    await $tableData.refetch();
-  }}
-/>
+{#if collection.config?.data?.configuration?.collection}
+  <div style="position: relative;">
+    <BulkActions
+      show={selectedIds.length > 0}
+      collection={collection.config.data.configuration.collection}
+      {tableData}
+      {selectedIds}
+      {shouldOpenMaximized}
+    />
+  </div>
+{/if}
 
 <style>
   div.wrapper {
