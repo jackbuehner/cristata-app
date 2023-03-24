@@ -6525,6 +6525,47 @@
             "deprecationReason": null
           },
           {
+            "name": "photoHide",
+            "description": "Set whether an existing Photo document is hidden.\nThis mutation sets hidden: true by default.\nHidden Photo documents should not be presented to clients;\nthis is analogous to moving the document to a deleted items folder",
+            "args": [
+              {
+                "name": "_id",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "ObjectID",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "hide",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "Photo",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "photoModify",
             "description": "Modify an existing Photo document.",
             "args": [

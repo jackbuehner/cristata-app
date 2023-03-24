@@ -643,6 +643,13 @@ export type Mutation = {
   photoCollectionSetActionAccess?: Maybe<PhotoCollectionActionAccess>;
   /** Create a new Photo document. */
   photoCreate?: Maybe<Photo>;
+  /**
+   * Set whether an existing Photo document is hidden.
+   * This mutation sets hidden: true by default.
+   * Hidden Photo documents should not be presented to clients;
+   * this is analogous to moving the document to a deleted items folder
+   */
+  photoHide?: Maybe<Photo>;
   /** Modify an existing Photo document. */
   photoModify?: Maybe<Photo>;
   /**
@@ -1047,6 +1054,12 @@ export type MutationPhotoCreateArgs = {
   tags?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   uuid: Scalars['String'];
   width: Scalars['Int'];
+};
+
+
+export type MutationPhotoHideArgs = {
+  _id: Scalars['ObjectID'];
+  hide?: InputMaybe<Scalars['Boolean']>;
 };
 
 
