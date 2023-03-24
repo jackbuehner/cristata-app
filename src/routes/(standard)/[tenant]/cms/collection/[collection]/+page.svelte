@@ -41,9 +41,7 @@
     // if defined, attempt to use the page title in the query string
     $page.url.searchParams.get('__pageTitle') ||
     // otherwise, build a title using the collection name
-    collectionName === 'Photo'
-      ? 'Photo library'
-      : data.collection.name.plural + ' collection';
+    (collectionName === 'Photo' ? 'Photo library' : data.collection.name.plural + ' collection');
 
   $: if (browser) document.title = `${pageTitle} - Cristata`;
 
@@ -170,6 +168,7 @@
     localStorage.setItem(`${collectionName}:detailsPane`, `${enabled}`);
     detailsPane = enabled;
   }
+  $: console.log(persistedViewLayout);
 </script>
 
 <div class="wrapper">
