@@ -1,0 +1,13 @@
+query ActivitiesList($page: Int, $limit: Int!, $filter: JSON, $sort: JSON) {
+  activities(page: $page, limit: $limit, filter: $filter, sort: $sort) {
+    docs {
+      _id
+      colName
+      docId
+      type
+      userIds {
+        name
+      }
+    }
+  }
+}

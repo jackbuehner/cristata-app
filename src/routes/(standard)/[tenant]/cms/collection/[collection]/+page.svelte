@@ -28,6 +28,7 @@
   import type { PageData } from './$types';
   import CollectionGrid from './CollectionGrid.svelte';
   import CollectionTable from './CollectionTable.svelte';
+  import DetailsPane from './DetailsPane.svelte';
 
   export let data: PageData;
   $: ({ data: tableData } = data.table);
@@ -375,46 +376,60 @@
     }}
   />
 
-  {#if viewLayout === 'grid'}
-    <div class="grid-layout-wrapper">
-      <CollectionGrid
+  <div class="explorer">
+    {#if viewLayout === 'grid'}
+      <div class="grid-layout-wrapper explorer-main">
+        <CollectionGrid
+          collection={data.collection}
+          {tableData}
+          schema={data.table.schema}
+          tableDataFilter={data.table.filter}
+          tableDataSort={data.table.sort}
+          photoTemplate={`${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`}
+          bind:loadingMore
+          on:sort={(evt) => {
+            // backup the current sort in localstorage so it can be restored later
+            localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+
+            if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+              invalidate('collection-table');
+            }
+          }}
+        />
+      </div>
+    {:else}
+      <div class="new-table-wrapper explorer-main">
+        <CollectionTable
+          collection={data.collection}
+          {tableData}
+          schema={data.table.schema}
+          tableDataFilter={data.table.filter}
+          tableDataSort={data.table.sort}
+          bind:loadingMore
+          on:sort={(evt) => {
+            // backup the current sort in localstorage so it can be restored later
+            localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
+
+            if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
+              invalidate('collection-table');
+            }
+          }}
+        />
+      </div>
+    {/if}
+
+    <div class="explorer-pane">
+      <DetailsPane
+        totalDocs={$tableData.data?.data?.totalDocs || 0}
         collection={data.collection}
         {tableData}
         schema={data.table.schema}
-        tableDataFilter={data.table.filter}
-        tableDataSort={data.table.sort}
-        photoTemplate={`${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`}
-        bind:loadingMore
-        on:sort={(evt) => {
-          // backup the current sort in localstorage so it can be restored later
-          localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
-
-          if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
-            invalidate('collection-table');
-          }
-        }}
+        photoTemplate={data.collection.schemaName === 'Photo'
+          ? `${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`
+          : ''}
       />
     </div>
-  {:else}
-    <div class="new-table-wrapper">
-      <CollectionTable
-        collection={data.collection}
-        {tableData}
-        schema={data.table.schema}
-        tableDataFilter={data.table.filter}
-        tableDataSort={data.table.sort}
-        bind:loadingMore
-        on:sort={(evt) => {
-          // backup the current sort in localstorage so it can be restored later
-          localStorage.setItem(`table.${data.collection.schemaName}.sort`, JSON.stringify(evt.detail.new));
-
-          if (JSON.stringify(evt.detail.old) !== JSON.stringify(evt.detail.new)) {
-            invalidate('collection-table');
-          }
-        }}
-      />
-    </div>
-  {/if}
+  </div>
 </div>
 
 <style>
@@ -422,6 +437,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
   }
 
   .header :global(.text-box-container) {
@@ -429,19 +445,36 @@
     flex-grow: 1;
   }
 
-  .new-table-wrapper {
-    padding: 20px;
-    flex-grow: 1;
+  .explorer {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    margin: 20px;
+    --border-color: var(--color-neutral-light-200);
+    box-shadow: 0 0 0 1px var(--border-color);
+    border-radius: var(--fds-control-corner-radius);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .explorer {
+      --border-color: var(--color-neutral-dark-200);
+    }
+  }
+
+  .explorer > div {
     height: 100%;
     overflow: hidden;
     box-sizing: border-box;
   }
 
-  .grid-layout-wrapper {
-    padding: 20px;
+  .explorer-main {
     flex-grow: 1;
-    height: 100%;
-    overflow: hidden;
-    box-sizing: border-box;
+  }
+
+  .explorer-pane {
+    flex-shrink: 0;
   }
 </style>
