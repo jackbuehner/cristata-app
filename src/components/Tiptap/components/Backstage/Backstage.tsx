@@ -4,6 +4,7 @@ import Color from 'color';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import type { Action } from '../../../../pages/CMS/CollectionItemPage/useActions';
+import { setExplorerIsOpen } from '../../../../redux/slices/graphiqlSlice';
 import type { colorType } from '../../../../utils/theme/theme';
 import { Button, buttonEffect } from '../../../Button';
 import FluentIcon from '../../../FluentIcon';
@@ -74,7 +75,10 @@ function Backstage(props: BackstageProps) {
           <NavButton
             color={'blue'}
             icon={<FluentIcon name='CloudArrowUp24Regular' />}
-            onClick={publishAction.action}
+            onClick={(evt) => {
+              publishAction.action(evt);
+              props.setIsOpen(false);
+            }}
             disabled={publishAction.disabled}
           >
             Publish
@@ -149,7 +153,13 @@ function Backstage(props: BackstageProps) {
         ) : activeTabIndex === 2 ? (
           <div>
             <ViewTitle>Share</ViewTitle>
-            <TabButton onClick={shareAction?.action}>
+            <TabButton
+              onClick={(evt) => {
+                shareAction?.action(evt);
+                setExplorerIsOpen(false);
+                props.setIsOpen(false);
+              }}
+            >
               <FluentIcon name='Share24Regular' />
               <div>
                 <TabButtonName>Share with other people</TabButtonName>
@@ -166,7 +176,10 @@ function Backstage(props: BackstageProps) {
                   color={action.color}
                   key={index}
                   disabled={action.disabled}
-                  onClick={action.action}
+                  onClick={(evt) => {
+                    action.action(evt);
+                    props.setIsOpen(false);
+                  }}
                   data-tip={action['data-tip']}
                 >
                   <FluentIcon name={action.icon || 'CircleSmall20Filled'} />
