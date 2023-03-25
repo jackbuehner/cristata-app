@@ -434,7 +434,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       return (
         <Field
           key={reactKey}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           label={fieldName}
           description={description}
           isEmbedded={isEmbedded}
@@ -495,7 +495,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             label={fieldName}
             description={description}
             y={fieldY}
-            color={isEmbedded ? 'blue' : 'primary'}
+            color={'primary'}
             disabled={disabled}
             isEmbedded={isEmbedded}
             collection={pluralize.singular(collection)}
@@ -511,7 +511,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           description={description}
           y={fieldY}
           // only show the value if it is truthy
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           // disable when the api requires the field to always have a value but a default
           // value for when no specific photo is selected is not defined
           disabled={disabled || (def.required && def.default === undefined)}
@@ -531,7 +531,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           description={description}
           type={'md'}
           y={fieldY}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
           showPreviewTab={!previewUrl}
@@ -550,7 +550,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={description}
             y={fieldY}
             options={options}
-            color={isEmbedded ? 'blue' : 'primary'}
+            color={'primary'}
             disabled={disabled}
             isEmbedded={isEmbedded}
           />
@@ -563,7 +563,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           label={fieldName}
           description={description}
           y={fieldY}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
         />
@@ -578,7 +578,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           label={fieldName}
           description={description}
           y={fieldY}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
         />
@@ -597,7 +597,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             y={fieldY}
             options={options}
             number={'integer'}
-            color={isEmbedded ? 'blue' : 'primary'}
+            color={'primary'}
             disabled={disabled}
             isEmbedded={isEmbedded}
           />
@@ -609,7 +609,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           label={fieldName}
           description={description}
           y={fieldY}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
         />
@@ -628,7 +628,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             y={fieldY}
             options={options}
             number={'decimal'}
-            color={isEmbedded ? 'blue' : 'primary'}
+            color={'primary'}
             disabled={disabled}
             isEmbedded={isEmbedded}
           />
@@ -641,7 +641,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           allowDecimals
           description={description}
           y={fieldY}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
         />
@@ -659,7 +659,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             description={description}
             y={fieldY}
             options={options}
-            color={isEmbedded ? 'blue' : 'primary'}
+            color={'primary'}
             disabled={disabled}
             isEmbedded={isEmbedded}
           />
@@ -671,7 +671,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           label={fieldName}
           description={description}
           y={fieldY}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
         />
@@ -690,7 +690,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             y={fieldY}
             options={options}
             number={'integer'}
-            color={isEmbedded ? 'blue' : 'primary'}
+            color={'primary'}
             disabled={disabled}
             isEmbedded={isEmbedded}
           />
@@ -703,7 +703,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           description={description}
           y={fieldY}
           number={'integer'}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
         />
@@ -722,7 +722,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
             y={fieldY}
             options={options}
             number={'decimal'}
-            color={isEmbedded ? 'blue' : 'primary'}
+            color={'primary'}
             disabled={disabled}
             isEmbedded={isEmbedded}
           />
@@ -735,7 +735,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           description={description}
           y={fieldY}
           number={'decimal'}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
         />
@@ -750,7 +750,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           label={fieldName}
           description={description}
           y={fieldY}
-          color={isEmbedded ? 'blue' : 'primary'}
+          color={'primary'}
           disabled={disabled}
           isEmbedded={isEmbedded}
           placeholder={'Pick a time'}
@@ -762,7 +762,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     return (
       <Field
         key={reactKey}
-        color={isEmbedded ? 'blue' : 'primary'}
+        color={'primary'}
         label={fieldName}
         description={description}
         isEmbedded={isEmbedded}

@@ -36,7 +36,7 @@ import {
   useSidebar,
   useTipTapEditor,
   useTrackChanges,
-  useWordCount,
+  useWordCount
 } from './hooks';
 import type { FieldY, IYSettingsMap } from './hooks/useY';
 import './office-icon/colors1.css';
@@ -625,7 +625,7 @@ const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType; P
 `;
 
 const IndeterminateProgress = styled(LinearProgress)<{ theme: themeType }>`
-  --mdc-theme-primary: ${({ theme }) => theme.color.blue[theme.mode === 'light' ? 800 : 300]};
+  --mdc-theme-primary: ${({ theme }) => theme.color.primary[theme.mode === 'light' ? 800 : 300]};
   left: 0;
   bottom: 0;
   position: absolute;

@@ -57,13 +57,13 @@ function Backstage(props: BackstageProps) {
     <Container isOpen={props.isOpen}>
       <NavPane>
         <NavButton
-          color={'blue'}
+          color={'primary'}
           icon={<FluentIcon name='ArrowCircleLeft24Regular' />}
           onClick={() => props.setIsOpen(false)}
         ></NavButton>
         {saveAction ? (
           <NavButton
-            color={'blue'}
+            color={'primary'}
             icon={<FluentIcon name='Save24Regular' />}
             onClick={saveAction.action}
             disabled={saveAction.disabled}
@@ -73,7 +73,7 @@ function Backstage(props: BackstageProps) {
         ) : null}
         {publishAction ? (
           <NavButton
-            color={'blue'}
+            color={'primary'}
             icon={<FluentIcon name='CloudArrowUp24Regular' />}
             onClick={(evt) => {
               publishAction.action(evt);
@@ -85,28 +85,28 @@ function Backstage(props: BackstageProps) {
           </NavButton>
         ) : null}
         {/* <NavButton
-          color={'blue'}
+          color={'primary'}
           icon={<FluentIcon name='Print24Regular' />}
           onClick={() => setActiveTabIndex(0)}
         >
           Print
         </NavButton> */}
         <NavButton
-          color={'blue'}
+          color={'primary'}
           icon={<FluentIcon name='ArrowExportUp24Regular' />}
           onClick={() => setActiveTabIndex(1)}
         >
           Export
         </NavButton>
         <NavButton
-          color={'blue'}
+          color={'primary'}
           icon={<FluentIcon name='Share24Regular' />}
           onClick={() => setActiveTabIndex(2)}
         >
           Share
         </NavButton>
         <NavButton
-          color={'blue'}
+          color={'primary'}
           icon={<FluentIcon name='MoreHorizontal24Regular' />}
           onClick={() => setActiveTabIndex(3)}
         >
@@ -210,7 +210,7 @@ const Container = styled.div<{ isOpen: boolean }>`
 const NavPane = styled.nav`
   background-color: ${({ theme }) =>
     theme.mode === 'light'
-      ? theme.color.blue[800]
+      ? theme.color.primary[800]
       : Color(theme.color.neutral.dark[100]).lighten(0.5).string()};
 `;
 
@@ -254,7 +254,7 @@ const NavButton = styled(Button)`
 const TabButton = styled.div<{ color?: colorType; disabled?: boolean; 'data-tip'?: string }>`
   ${({ color, theme, disabled }) =>
     buttonEffect(
-      color || 'blue',
+      color || 'primary',
       theme.mode === 'dark' ? 300 : 800,
       theme,
       disabled || false,

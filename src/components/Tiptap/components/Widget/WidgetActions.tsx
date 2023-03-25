@@ -31,7 +31,7 @@ function WidgetActions({ isVisible, actions, ...props }: IWidgetActions) {
                 : 'transparent',
             }}
             border={{ base: '1px solid transparent' }}
-            color={color ? color : 'blue'}
+            color={color ? color : 'primary'}
             disabled={disabled}
             height={`28px`}
             icon={icon}

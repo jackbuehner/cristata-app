@@ -196,7 +196,7 @@ function Sidebar(props: SidebarProps) {
                   code: opt.value,
                 };
               })}
-              color={props.isEmbedded ? 'blue' : 'primary'}
+              color={'primary'}
               disabled={props.loading || props.disabled || props.stage.current === '5.2'}
               isEmbedded
             />
@@ -213,7 +213,7 @@ function Sidebar(props: SidebarProps) {
                 };
               })}
               number={'decimal'}
-              color={props.isEmbedded ? 'blue' : 'primary'}
+              color={'primary'}
               disabled={props.loading || props.disabled || props.stage.current === 5.2}
               isEmbedded
               showCurrentSelectionInOptions
@@ -310,7 +310,7 @@ function Sidebar(props: SidebarProps) {
             return (
               <AccessRow
                 theme={theme}
-                color={props.isEmbedded ? 'blue' : 'primary'}
+                color={'primary'}
                 key={user._id}
                 onClick={() => {
                   openWindow(
@@ -330,7 +330,7 @@ function Sidebar(props: SidebarProps) {
             return (
               <AccessRow
                 theme={theme}
-                color={props.isEmbedded ? 'blue' : 'primary'}
+                color={'primary'}
                 key={team._id}
                 onClick={() => {
                   openWindow(

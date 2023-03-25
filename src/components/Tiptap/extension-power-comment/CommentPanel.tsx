@@ -254,7 +254,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
           items={[
             {
               label: 'Edit comment',
-              color: 'blue',
+              color: 'primary',
               icon: <Edit16Regular />,
               onClick: () => {
                 setIsEditMode(true);
@@ -294,7 +294,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
         <>
           <CardButton
             icon={<MoreHorizontal16Regular />}
-            color={'blue'}
+            color={'primary'}
             indexFromRight={0}
             onClick={showCommentDropdown}
           />
@@ -317,7 +317,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
           <ButtonRow>
             <CommentIconButton
               theme={theme}
-              color={'blue'}
+              color={'primary'}
               icon={<Dismiss16Regular />}
               onClick={() => {
                 if (message === '' && comment.attrs.replies.length === 0) deleteThread();
@@ -381,7 +381,7 @@ function Comment({ comment, tr, dispatch, state, editor, user }: CommentProps) {
         <div style={{ marginTop: 10, display: 'flex', justifyContent: 'right', marginRight: -2 }}>
           <Button
             height={28}
-            color={'blue'}
+            color={'primary'}
             icon={<ArrowReplyDown16Regular />}
             onClick={() => addNewReply()}
             disabled={!user || !editor.isEditable}
@@ -440,7 +440,7 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
           items={[
             {
               label: 'Edit comment',
-              color: 'blue',
+              color: 'primary',
               icon: <Edit16Regular />,
               onClick: () => setIsEditMode(true),
               disabled: !editor.isEditable,
@@ -524,7 +524,7 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
     <ReplyContainer onMouseOver={() => setIsMouseOver(true)} onMouseLeave={() => setIsMouseOver(false)}>
       <CardButton
         icon={<MoreHorizontal16Regular />}
-        color={'blue'}
+        color={'primary'}
         isHidden={!isMouseOver}
         onClick={showCommentDropdown}
       />
@@ -547,7 +547,7 @@ function Reply({ editor, setHideReplyButton, ...props }: ReplyProps) {
           <ButtonRow>
             <CommentIconButton
               theme={theme}
-              color={'blue'}
+              color={'primary'}
               icon={<Dismiss16Regular />}
               onClick={() => {
                 if (replyMessage === '') deleteCommentReply();
@@ -594,7 +594,9 @@ const Card = styled.div<{ theme: themeType; hasCursor: boolean }>`
   width: 270px;
   border: 1px solid
     ${({ theme, hasCursor }) =>
-      hasCursor ? theme.color.blue[theme.mode === 'dark' ? 300 : 800] : theme.color.neutral[theme.mode][200]};
+      hasCursor
+        ? theme.color.primary[theme.mode === 'dark' ? 300 : 800]
+        : theme.color.neutral[theme.mode][200]};
   border-radius: ${({ theme }) => theme.radius};
   *::selection {
     background-color: transparent !important;
@@ -619,7 +621,7 @@ const ProfilePhotoBorder = styled.div<{ theme: themeType; hasCursor: boolean }>`
   position: absolute;
   border-radius: ${({ theme }) => `calc(${theme.radius} - 0.6px) 0 0 calc(${theme.radius} - 0.6px)`};
   box-shadow: ${({ theme, hasCursor }) =>
-    hasCursor ? `${theme.color.blue[theme.mode === 'dark' ? 300 : 800]} 0px 0px 0px 1.5px` : ``};
+    hasCursor ? `${theme.color.primary[theme.mode === 'dark' ? 300 : 800]} 0px 0px 0px 1.5px` : ``};
   width: 10px;
   height: 20px;
   top: 0;
@@ -694,7 +696,7 @@ const MessageField = styled(TextArea)<{ theme: themeType }>`
     background-color: #c4dffc !important;
   }
   &:focus {
-    box-shadow: ${({ theme }) => theme.color.blue[theme.mode === 'dark' ? 300 : 800]} 0px 0px 0px 2px inset;
+    box-shadow: ${({ theme }) => theme.color.primary[theme.mode === 'dark' ? 300 : 800]} 0px 0px 0px 2px inset;
   }
 `;
 

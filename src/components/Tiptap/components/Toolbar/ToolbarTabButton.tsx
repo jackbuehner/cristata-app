@@ -25,7 +25,7 @@ const ToolbarTabButton = styled(Button)<IToolbarTabButton>`
           position: absolute;
           width: calc(100% - 28px);
           height: 3px;
-          background-color: ${theme.mode === 'light' ? theme.color.blue[800] : theme.color.blue[400]};
+          background-color: ${theme.mode === 'light' ? theme.color.primary[800] : theme.color.primary[400]};
           bottom: -1px;
           left: 14px;
           display: flex;

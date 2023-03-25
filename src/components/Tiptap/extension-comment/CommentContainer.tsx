@@ -255,7 +255,7 @@ function CommentContainer(props: ICommentContainer) {
                 />
                 <CommentIconButton
                   theme={theme}
-                  color={'blue'}
+                  color={'primary'}
                   icon={<Checkmark16Regular />}
                   onClick={(e) => {
                     setIsEditMode(false);

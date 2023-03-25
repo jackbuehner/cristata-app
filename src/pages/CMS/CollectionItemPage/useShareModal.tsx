@@ -1,10 +1,9 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { get as getProperty } from '$utils/objectPath';
+import { useTheme } from '@emotion/react';
 import ColorHash from 'color-hash';
 import { useRef } from 'react';
 import { useLocation } from 'svelte-preprocess-react/react-router';
-
-/* eslint-disable react-hooks/rules-of-hooks */
-import { useTheme } from '@emotion/react';
 import { Button } from '../../../components/Button';
 import { CollaborativeFieldWrapper, CollaborativeReferenceMany } from '../../../components/CollaborativeFields';
 import type { EntryY } from '../../../components/Tiptap/hooks/useY';
@@ -64,7 +63,7 @@ function useShareModal(
         cancelButton: null,
         continueButton: {
           text: 'Done',
-          color: isFs ? 'blue' : color,
+          color: color,
         },
         styleString: `width: 370px; background-color: ${
           theme.mode === 'dark' ? theme.color.neutral.dark[100] : `#ffffff`
@@ -86,7 +85,7 @@ function useShareModal(
                   {window.location.href}
                 </textarea>
                 <Button
-                  color={isFs ? 'blue' : color}
+                  color={color}
                   onClick={() => {
                     linkRef.current?.select();
                     document.execCommand('copy');
@@ -101,7 +100,7 @@ function useShareModal(
               <CollaborativeReferenceMany
                 y={{ ...y, field: 'permissions.users', user }}
                 label={'Users'}
-                color={isFs ? 'blue' : color}
+                color={color}
                 disabled={itemState.isLoading || JSON.stringify(y.data) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'User'}
@@ -113,7 +112,7 @@ function useShareModal(
               <CollaborativeReferenceMany
                 y={{ ...y, field: 'permissions.teams', user }}
                 label={'Teams'}
-                color={isFs ? 'blue' : color}
+                color={color}
                 disabled={itemState.isLoading || JSON.stringify(y.data) === JSON.stringify({})}
                 isEmbedded={true}
                 collection={'Team'}

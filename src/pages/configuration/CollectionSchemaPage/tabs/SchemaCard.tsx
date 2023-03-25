@@ -234,7 +234,7 @@ const icons: Record<
     ),
   },
   datetime: {
-    color: 'blue',
+    color: 'primary',
     path: (
       <path
         xmlns='http://www.w3.org/2000/svg'

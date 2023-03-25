@@ -48,7 +48,7 @@ function SidebarHeader(props: ISidebarHeader) {
         <IconButton
           onClick={props.closeFunction}
           icon={<Dismiss12Regular />}
-          color={'blue'}
+          color={'primary'}
           backgroundColor={{ base: 'transparent' }}
           border={{ base: '1px solid transparent' }}
           cssExtra={css`

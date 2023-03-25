@@ -144,7 +144,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               return {
                 onClick: () => editor?.chain().focus().setFontSize(size).run(),
                 label: size,
-                color: 'blue',
+                color: 'primary',
               };
             }) || []
           }
@@ -183,7 +183,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h1 className={'title'}>Title</h1>,
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -197,7 +197,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .setItalic()
                   .run(),
               label: <p className={'subtitle'}>Subtitle</p>,
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -212,7 +212,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h1>Heading 1</h1>,
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -227,7 +227,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h2>Heading 2</h2>,
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -242,7 +242,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <h3>Heading 3</h3>,
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -260,7 +260,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   <p>Blockquote</p>
                 </blockquote>
               ),
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -278,7 +278,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   <code>Code Block</code>
                 </pre>
               ),
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -292,7 +292,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <p>Hanging Indent</p>,
-              color: 'blue',
+              color: 'primary',
             },
             {
               onClick: () =>
@@ -306,7 +306,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   .selectParentNode()
                   .run(),
               label: <p>Paragraph</p>,
-              color: 'blue',
+              color: 'primary',
             },
           ]}
           noIcons
@@ -336,7 +336,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               return {
                 onClick: () => props.layouts?.setLayout(option.value),
                 label: option.label,
-                color: 'blue',
+                color: 'primary',
               };
             }) || []
           }
@@ -366,10 +366,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       <PlainModal
         hideModal={hideLinkModal}
         title={`Insert Link`}
-        cancelButton={{ color: 'blue' }}
+        cancelButton={{ color: 'primary' }}
         continueButton={{
           text: 'Insert',
-          color: 'blue',
+          color: 'primary',
           onClick: () => {
             const result = editor?.chain().focus().setLink({ href: link }).run();
             // return whether the action was successful
@@ -381,7 +381,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       >
         <Text
           label={'Location'}
-          color={'blue'}
+          color={'primary'}
           name={'insert-link'}
           id={'insert-link'}
           font={'detail'}
@@ -401,7 +401,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
         text={`Add the Microsoft Editor extension to your browser to recieve spelling, grammar, and refinement suggestions on the content of this document. You will need to sign in with your Microsoft 365 Account.`}
         continueButton={{
           text: 'Get Microsoft Editor',
-          color: 'blue',
+          color: 'primary',
           onClick: () => {
             openWindow(
               `https://www.microsoft.com/en-us/microsoft-365/microsoft-editor`,
@@ -414,7 +414,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
         }}
         cancelButton={{
           text: 'Close',
-          color: 'blue',
+          color: 'primary',
           onClick: () => {
             hideMSFTEditorModal();
             return true;
@@ -439,10 +439,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       <PlainModal
         hideModal={hideSweepwidgetModal}
         title={`SweepWidget Giveaway`}
-        cancelButton={{ color: 'blue' }}
+        cancelButton={{ color: 'primary' }}
         continueButton={{
           text: 'Insert',
-          color: 'blue',
+          color: 'primary',
           onClick: () => {
             if (editor) {
               editor.chain().focus().insertSweepwidgetWidget('34804-gfbwtdns').run();
@@ -474,7 +474,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           value={idValue}
           onChange={handleIdFieldChange}
           placeholder={`Type sweepwidget id...`}
-          color={'blue'}
+          color={'primary'}
           isEmbedded
         />
       </PlainModal>
@@ -507,10 +507,10 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
       <PlainModal
         hideModal={hideYoutubeModal}
         title={`Insert YouTube video`}
-        cancelButton={{ color: 'blue' }}
+        cancelButton={{ color: 'primary' }}
         continueButton={{
           text: 'Insert',
-          color: 'blue',
+          color: 'primary',
           onClick: () => {
             if (editor) {
               editor.chain().focus().insertYoutubeWidget(idValue).run();
@@ -529,7 +529,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
           value={videoUrl}
           onChange={handleVideoUrlFieldChange}
           placeholder={`Type youtube video url...`}
-          color={'blue'}
+          color={'primary'}
           isEmbedded
         />
       </PlainModal>
@@ -613,19 +613,19 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
             {
               onClick: showPhotoWidgetModal,
               label: 'Photo',
-              color: 'blue',
+              color: 'primary',
               disabled: !props.options?.features.widgets?.photoWidget,
             },
             {
               onClick: showSweepwidgetModal,
               label: 'SweepWidget Giveaway',
-              color: 'blue',
+              color: 'primary',
               disabled: !props.options?.features.widgets?.sweepwidget,
             },
             {
               onClick: showYoutubeModal,
               label: 'Youtube Video',
-              color: 'blue',
+              color: 'primary',
               disabled: !props.options?.features.widgets?.youtube,
             },
           ]}
@@ -656,12 +656,12 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
         <ToolbarTabRow theme={theme} width={props.tiptapWidth} compact={props.compact}>
           {props.compact ? null : (
             <ToolbarTabList width={props.tiptapWidth}>
-              <ToolbarTabButton theme={theme} color={'blue'} onClick={() => props.setIsBackstageOpen(true)}>
+              <ToolbarTabButton theme={theme} color={'primary'} onClick={() => props.setIsBackstageOpen(true)}>
                 File
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
-                color={'blue'}
+                color={'primary'}
                 isActive={activeTab === 'home'}
                 onClick={() => setActiveTab('home')}
               >
@@ -669,7 +669,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
-                color={'blue'}
+                color={'primary'}
                 isActive={activeTab === 'insert'}
                 onClick={() => setActiveTab('insert')}
               >
@@ -677,7 +677,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
-                color={'blue'}
+                color={'primary'}
                 isActive={activeTab === 'layout'}
                 onClick={() => setActiveTab('layout')}
               >
@@ -685,7 +685,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </ToolbarTabButton>
               <ToolbarTabButton
                 theme={theme}
-                color={'blue'}
+                color={'primary'}
                 isActive={activeTab === 'review'}
                 onClick={() => setActiveTab('review')}
               >
@@ -693,7 +693,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </ToolbarTabButton>
               {/* <ToolbarTabButton
                 theme={theme}
-                color={'blue'}
+                color={'primary'}
                 isActive={activeTab === 'email'}
                 onClick={() => setActiveTab('email')}
               >
@@ -702,7 +702,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               {tableIsActive ? (
                 <ToolbarTabButton
                   theme={theme}
-                  color={'blue'}
+                  color={'primary'}
                   isActive={activeTab === 'table'}
                   onClick={() => setActiveTab('table')}
                 >
@@ -747,7 +747,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               <>
                 <ToolbarMetaIconButton
                   icon={<Database20Regular />}
-                  color={'blue'}
+                  color={'primary'}
                   onClick={() => {
                     if (props.isSidebarOpen && props.sidebarTitle === 'Document properties') {
                       props.setIsSidebarOpen(false);
@@ -776,7 +776,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 />
                 <ToolbarMetaIconButton
                   icon={<CommentMultiple20Regular />}
-                  color={'blue'}
+                  color={'primary'}
                   onClick={() => {
                     if (props.isSidebarOpen && props.sidebarTitle === 'Comments') {
                       props.setIsSidebarOpen(false);
@@ -804,7 +804,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                 {shareAction ? (
                   <ToolbarMetaIconButton
                     icon={<Share20Regular />}
-                    color={'blue'}
+                    color={'primary'}
                     onClick={(e) => shareAction.action(e)}
                     isActive={false}
                     data-tip={`Share this document`}
@@ -823,7 +823,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
                   navigate(pathname + '?' + params.toString() + hash, { replace: true });
                 }}
                 icon={isMax ? <ArrowMinimize20Regular /> : <ArrowMaximize20Regular />}
-                color={'blue'}
+                color={'primary'}
                 data-tip={(isMax ? 'Minimize' : 'Maximize') + ' editor'}
                 data-delay-show={0}
                 data-effect={'solid'}
@@ -853,7 +853,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               <ToolbarDivider />
               <Combobox
                 onClick={showFontFamilyDropdown}
-                color={'blue'}
+                color={'primary'}
                 disabled={
                   props.isDisabled ||
                   !editor.can().setFontFamily('Georgia') ||
@@ -872,7 +872,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               </Combobox>
               <Combobox
                 onClick={showFontSizeDropdown}
-                color={'blue'}
+                color={'primary'}
                 disabled={props.isDisabled || (props.options?.features.fontSizes || []).length === 0}
                 width={`52px`}
                 cssContainerExtra={css`
@@ -954,7 +954,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               {props.options?.features.textStylePicker ? (
                 <Combobox
                   onClick={showTextStyleDropdown}
-                  color={'blue'}
+                  color={'primary'}
                   width={`128px`}
                   disabled={props.isDisabled}
                 >
@@ -1092,7 +1092,7 @@ function Toolbar({ editor, isMax, ...props }: IToolbar) {
               <ToolbarRow isActive={activeTab === 'layout'}>
                 <Combobox
                   onClick={showLayoutDropdown}
-                  color={'blue'}
+                  color={'primary'}
                   width={`128px`}
                   disabled={props.isDisabled}
                 >
