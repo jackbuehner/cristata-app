@@ -151,20 +151,22 @@
       })()}
 
       {#if photoHref}
-        <a
-          href={photoHrefNoTransforn}
-          on:click={(evt) => {
-            evt.preventDefault();
-            window.open(photoHrefNoTransforn, photoHrefNoTransforn, 'location=no');
-          }}
-        >
-          <img
-            src={photoHref}
-            alt=""
-            width="100%"
-            style="object-fit: contain; object-position: left; aspect-ratio: 1.4 / 1; margin-top: 20px;"
-          />
-        </a>
+        {#key photoHref}
+          <a
+            href={photoHrefNoTransforn}
+            on:click={(evt) => {
+              evt.preventDefault();
+              window.open(photoHrefNoTransforn, photoHrefNoTransforn, 'location=no');
+            }}
+          >
+            <img
+              src={photoHref}
+              alt=""
+              width="100%"
+              style="object-fit: contain; object-position: left; aspect-ratio: 1.4 / 1; margin-top: 20px;"
+            />
+          </a>
+        {/key}
       {/if}
 
       <section>
