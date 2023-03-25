@@ -100,6 +100,7 @@
       !($page.url.pathname.includes('/cms/collection/') && $page.url.pathname.split('/').length === 5)) ||
     ($page.url.pathname.includes('/configuration/') &&
       !$page.url.pathname.includes('/configuration/app/profiles') &&
+      !$page.url.pathname.includes('/configuration/app/photos') &&
       !$page.url.pathname.includes('/configuration/security/event') &&
       !$page.url.pathname.includes('/configuration/security/webhook'));
 

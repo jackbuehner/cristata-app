@@ -10,7 +10,7 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
-  $: ({ profilesAppConfig, profilesFieldDescriptions } = data);
+  $: ({ profilesAppConfig, fieldDescriptions: profilesFieldDescriptions } = data);
 
   $: defaultFieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.defaultFieldDescriptions;
   $: fieldDescriptions = $profilesAppConfig.data?.configuration?.apps.profiles.fieldDescriptions;

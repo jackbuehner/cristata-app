@@ -1,0 +1,25 @@
+query PhotosAppSettings {
+  configuration {
+    apps {
+      photos {
+        fieldDescriptions {
+          name
+          source
+          tags
+          requireAuth
+          note
+        }
+        defaultFieldDescriptions {
+          name
+          source
+          tags
+          requireAuth
+          note
+        }
+      }
+    }
+    collection(name: "Photo") {
+      raw
+    }
+  }
+}

@@ -1,4 +1,4 @@
-query ProfilesFieldDescriptions {
+query FieldDescriptions {
   configuration {
     apps {
       profiles {
@@ -9,6 +9,15 @@ query ProfilesFieldDescriptions {
           twitter
           biography
           title
+        }
+      }
+      photos {
+        fieldDescriptions {
+          name
+          source
+          tags
+          requireAuth
+          note
         }
       }
     }

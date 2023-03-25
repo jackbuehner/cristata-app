@@ -1,3 +1,5 @@
+import type { FieldDescriptionsQuery, FieldDescriptionsQueryVariables } from '$graphql/graphql';
+import { getQueryStore } from '$graphql/query';
 import { get as getProperty } from '$utils/objectPath';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -8,11 +10,11 @@ import Color from 'color';
 import ColorHash from 'color-hash';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
-import type { SetStateAction } from 'react';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState, type SetStateAction } from 'react';
 import useDimensions from 'react-cool-dimensions';
 import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
+import { useStore } from 'svelte-preprocess-react';
 import { useLocation, useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
 import {
@@ -41,6 +43,7 @@ import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSch
 import { parseSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
+import type { PageData } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/$types';
 import { capitalize } from '../../../utils/capitalize';
 import { server } from '../../../utils/constants';
 import { dashToCamelCase } from '../../../utils/dashToCamelCase';
@@ -60,7 +63,9 @@ import { useWatching } from './useWatching';
 // @ts-expect-error 'bkdr' is a vlid hash config value
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
-interface CollectionItemPageProps {}
+interface CollectionItemPageProps {
+  data?: PageData;
+}
 
 function CollectionItemPage(props: CollectionItemPageProps) {
   let { collection, item_id, version_date } = useParams() as {
@@ -70,7 +75,14 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   };
 
   if (!!collection && !!item_id) {
-    return <CollectionItemPageReal collection={collection} item_id={item_id} version_date={version_date} />;
+    return (
+      <CollectionItemPageReal
+        collection={collection}
+        item_id={item_id}
+        version_date={version_date}
+        data={props.data}
+      />
+    );
   }
 
   return null;
@@ -80,9 +92,10 @@ interface CollectionItemPageRealProps {
   collection: string;
   item_id: string;
   version_date?: string;
+  data?: PageData;
 }
 
-function CollectionItemPageReal({ collection, item_id, version_date }: CollectionItemPageRealProps) {
+function CollectionItemPageReal({ collection, item_id, version_date, data }: CollectionItemPageRealProps) {
   const authUserState = useAppSelector((state) => state.authUser);
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
@@ -111,13 +124,14 @@ function CollectionItemPageReal({ collection, item_id, version_date }: Collectio
     schemaDef,
   }); // create or load y
 
-  return <CollectionItemPageContent y={y} user={user} />;
+  return <CollectionItemPageContent y={y} user={user} data={data} />;
 }
 
 interface CollectionItemPageContentProps {
   y: EntryY;
   user: ReturnType<typeof useAwareness>[0];
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
+  data?: PageData;
 }
 
 function CollectionItemPageContent(props: CollectionItemPageContentProps) {
@@ -306,6 +320,18 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   const [isShowingCollapsed, setIsShowingCollapsed] = useState(false);
 
+  const fieldDescriptionsStore = useMemo(
+    () =>
+      getQueryStore<FieldDescriptionsQuery, FieldDescriptionsQueryVariables>({
+        queryName: 'FieldDescriptions',
+        variables: {},
+        tenant,
+      }),
+    [tenant]
+  );
+  const fieldDescriptions = useStore(fieldDescriptionsStore);
+  const photosFieldDescriptions = fieldDescriptions.data?.configuration?.apps.photos.fieldDescriptions;
+
   const renderFields: RenderFields = (
     input,
     index,
@@ -338,6 +364,18 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       readOnly ||
       props.y.wsStatus !== WebSocketStatus.Connected ||
       isOldVersion;
+
+    const description = (() => {
+      if (collectionName === 'Photo' && photosFieldDescriptions) {
+        if (key === 'name') return photosFieldDescriptions.name;
+        if (key === 'people.photo_created_by') return photosFieldDescriptions.source;
+        if (key === 'tags') return photosFieldDescriptions.tags;
+        if (key === 'require_auth') return photosFieldDescriptions.requireAuth;
+        if (key === 'note') return photosFieldDescriptions.note;
+      }
+
+      return def.field?.description;
+    })();
 
     // use this key for yjs shared type key for doc array contents
     // so there shared type for each field in the array is unique
@@ -398,7 +436,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           key={reactKey}
           color={isEmbedded ? 'blue' : 'primary'}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           isEmbedded={isEmbedded}
         >
           <EmbeddedFieldContainer theme={theme}>
@@ -455,7 +493,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           <CollaborativeReferenceMany
             key={reactKey}
             label={fieldName}
-            description={def.field?.description}
+            description={description}
             y={fieldY}
             color={isEmbedded ? 'blue' : 'primary'}
             disabled={disabled}
@@ -470,7 +508,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeReferenceOne
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           // only show the value if it is truthy
           color={isEmbedded ? 'blue' : 'primary'}
@@ -490,7 +528,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeCode
           key={reactKey}
           label={fieldName + ' (Markdown)'}
-          description={def.field?.description}
+          description={description}
           type={'md'}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
@@ -509,7 +547,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           <CollaborativeSelectOne
             key={reactKey}
             label={fieldName}
-            description={def.field?.description}
+            description={description}
             y={fieldY}
             options={options}
             color={isEmbedded ? 'blue' : 'primary'}
@@ -523,7 +561,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeTextField
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
           disabled={disabled}
@@ -538,7 +576,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeCheckbox
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
           disabled={disabled}
@@ -555,7 +593,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           <CollaborativeSelectOne
             key={reactKey}
             label={fieldName}
-            description={def.field?.description}
+            description={description}
             y={fieldY}
             options={options}
             number={'integer'}
@@ -569,7 +607,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeNumberField
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
           disabled={disabled}
@@ -586,7 +624,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           <CollaborativeSelectOne
             key={reactKey}
             label={fieldName}
-            description={def.field?.description}
+            description={description}
             y={fieldY}
             options={options}
             number={'decimal'}
@@ -601,7 +639,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           key={reactKey}
           label={fieldName}
           allowDecimals
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
           disabled={disabled}
@@ -618,7 +656,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           <CollaborativeSelectMany
             key={reactKey}
             label={fieldName}
-            description={def.field?.description}
+            description={description}
             y={fieldY}
             options={options}
             color={isEmbedded ? 'blue' : 'primary'}
@@ -631,7 +669,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeSelectMany
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
           disabled={disabled}
@@ -648,7 +686,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           <CollaborativeSelectMany
             key={reactKey}
             label={fieldName}
-            description={def.field?.description}
+            description={description}
             y={fieldY}
             options={options}
             number={'integer'}
@@ -662,7 +700,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeSelectMany
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           number={'integer'}
           color={isEmbedded ? 'blue' : 'primary'}
@@ -680,7 +718,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
           <CollaborativeSelectMany
             key={reactKey}
             label={fieldName}
-            description={def.field?.description}
+            description={description}
             y={fieldY}
             options={options}
             number={'decimal'}
@@ -694,7 +732,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeSelectMany
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           number={'decimal'}
           color={isEmbedded ? 'blue' : 'primary'}
@@ -710,7 +748,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         <CollaborativeDateTime
           key={reactKey}
           label={fieldName}
-          description={def.field?.description}
+          description={description}
           y={fieldY}
           color={isEmbedded ? 'blue' : 'primary'}
           disabled={disabled}
@@ -726,7 +764,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
         key={reactKey}
         color={isEmbedded ? 'blue' : 'primary'}
         label={fieldName}
-        description={def.field?.description}
+        description={description}
         isEmbedded={isEmbedded}
       >
         <code>{JSON.stringify(def, null, 2)}</code>

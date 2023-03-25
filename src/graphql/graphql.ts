@@ -156,6 +156,7 @@ export type ConfigurationCollectionArgs = {
 
 export type ConfigurationApps = {
   __typename?: 'ConfigurationApps';
+  photos: ConfigurationPhotosApp;
   profiles: ConfigurationProfilesApp;
   void?: Maybe<Scalars['Void']>;
 };
@@ -288,6 +289,29 @@ export type ConfigurationNavigationSubGroupItemsInput = {
   label: Scalars['String'];
   to: Scalars['String'];
   uuid: Scalars['String'];
+};
+
+export type ConfigurationPhotosApp = {
+  __typename?: 'ConfigurationPhotosApp';
+  defaultFieldDescriptions: ConfigurationPhotosAppFieldDescriptions;
+  fieldDescriptions: ConfigurationPhotosAppFieldDescriptions;
+};
+
+export type ConfigurationPhotosAppFieldDescriptions = {
+  __typename?: 'ConfigurationPhotosAppFieldDescriptions';
+  name: Scalars['String'];
+  note: Scalars['String'];
+  requireAuth: Scalars['String'];
+  source: Scalars['String'];
+  tags: Scalars['String'];
+};
+
+export type ConfigurationPhotosAppFieldDescriptionsInput = {
+  name: Scalars['String'];
+  note: Scalars['String'];
+  requireAuth: Scalars['String'];
+  source: Scalars['String'];
+  tags: Scalars['String'];
 };
 
 export type ConfigurationProfilesApp = {
@@ -698,6 +722,7 @@ export type Mutation = {
    * System groups that are provided in the query are removed upon receipt.
    */
   setConfigurationNavigationSub: Array<Maybe<ConfigurationNavigationSubGroup>>;
+  setPhotosAppFieldDescriptions?: Maybe<Scalars['Void']>;
   setProfilesAppFieldDescriptions?: Maybe<Scalars['Void']>;
   setRawConfigurationCollection?: Maybe<Scalars['JSON']>;
   setSecret: Scalars['String'];
@@ -1135,6 +1160,11 @@ export type MutationPostWatchArgs = {
 export type MutationSetConfigurationNavigationSubArgs = {
   input: Array<InputMaybe<ConfigurationNavigationSubGroupInput>>;
   key: Scalars['String'];
+};
+
+
+export type MutationSetPhotosAppFieldDescriptionsArgs = {
+  input: ConfigurationPhotosAppFieldDescriptionsInput;
 };
 
 
@@ -3045,6 +3075,33 @@ export const FathomDashboard = gql`
   fathomDashboard
 }
     `;
+export const FieldDescriptions = gql`
+    query FieldDescriptions {
+  configuration {
+    apps {
+      profiles {
+        fieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+      }
+      photos {
+        fieldDescriptions {
+          name
+          source
+          tags
+          requireAuth
+          note
+        }
+      }
+    }
+  }
+}
+    `;
 export const GlobalConfig = gql`
     query GlobalConfig {
   configuration {
@@ -3099,6 +3156,33 @@ export const ModifyWebhook = gql`
     mutation ModifyWebhook($_id: ObjectID!, $input: CristataWebhookModifyInput!) {
   cristataWebhookModify(_id: $_id, input: $input) {
     _id
+  }
+}
+    `;
+export const PhotosAppSettings = gql`
+    query PhotosAppSettings {
+  configuration {
+    apps {
+      photos {
+        fieldDescriptions {
+          name
+          source
+          tags
+          requireAuth
+          note
+        }
+        defaultFieldDescriptions {
+          name
+          source
+          tags
+          requireAuth
+          note
+        }
+      }
+    }
+    collection(name: "Photo") {
+      raw
+    }
   }
 }
     `;
@@ -3174,24 +3258,6 @@ export const ProfilesAppSettings = gql`
     }
     collection(name: "User") {
       raw
-    }
-  }
-}
-    `;
-export const ProfilesFieldDescriptions = gql`
-    query ProfilesFieldDescriptions {
-  configuration {
-    apps {
-      profiles {
-        fieldDescriptions {
-          name
-          email
-          phone
-          twitter
-          biography
-          title
-        }
-      }
     }
   }
 }
@@ -3475,6 +3541,11 @@ export type FathomDashboardQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type FathomDashboardQuery = { __typename?: 'Query', fathomDashboard?: string | null };
 
+export type FieldDescriptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FieldDescriptionsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } }, photos: { __typename?: 'ConfigurationPhotosApp', fieldDescriptions: { __typename?: 'ConfigurationPhotosAppFieldDescriptions', name: string, source: string, tags: string, requireAuth: string, note: string } } } } | null };
+
 export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3488,6 +3559,11 @@ export type ModifyWebhookMutationVariables = Exact<{
 
 export type ModifyWebhookMutation = { __typename?: 'Mutation', cristataWebhookModify?: { __typename?: 'CristataWebhook', _id: any } | null };
 
+export type PhotosAppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PhotosAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', photos: { __typename?: 'ConfigurationPhotosApp', fieldDescriptions: { __typename?: 'ConfigurationPhotosAppFieldDescriptions', name: string, source: string, tags: string, requireAuth: string, note: string }, defaultFieldDescriptions: { __typename?: 'ConfigurationPhotosAppFieldDescriptions', name: string, source: string, tags: string, requireAuth: string, note: string } } }, collection?: { __typename?: 'ConfigurationCollection', raw: any } | null } | null };
+
 export type ProfileQueryVariables = Exact<{
   _id: Scalars['ObjectID'];
 }>;
@@ -3499,11 +3575,6 @@ export type ProfilesAppSettingsQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type ProfilesAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string }, defaultFieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } }, collection?: { __typename?: 'ConfigurationCollection', raw: any } | null } | null };
-
-export type ProfilesFieldDescriptionsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ProfilesFieldDescriptionsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } } } | null };
 
 export type RemoveUserFromTeamMutationVariables = Exact<{
   _id: Scalars['ObjectID'];

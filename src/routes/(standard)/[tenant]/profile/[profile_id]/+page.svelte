@@ -20,7 +20,7 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
-  $: ({ profile: _profile, references, profilesFieldDescriptions } = data);
+  $: ({ profile: _profile, references, fieldDescriptions: profilesFieldDescriptions } = data);
   $: profile = $_profile.data?.user;
   $: teams = (profile?.teams?.docs || []).filter(notEmpty).sort((a, b) => a.name.localeCompare(b.name));
   $: userReferences = ($references.data?.userReferences || []).sort((a, b) =>
