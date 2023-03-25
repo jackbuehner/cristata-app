@@ -162,7 +162,6 @@
     user-select: none;
     justify-content: space-between;
     background-color: #f3f3f3;
-    background-color: transparent;
     padding: 0 16px;
     box-sizing: border-box;
     color: #888888;
