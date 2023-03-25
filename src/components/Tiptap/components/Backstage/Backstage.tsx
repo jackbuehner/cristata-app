@@ -185,7 +185,7 @@ function Backstage(props: BackstageProps) {
 
 const Container = styled.div<{ isOpen: boolean }>`
   position: absolute;
-  top: 33px;
+  top: 0;
   left: 0;
   bottom: 0;
   right: 0;

@@ -1,6 +1,9 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import { page } from '$app/stores';
+  import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import { title } from '$stores/title';
+  import { titlebarActions } from '$stores/titlebarActions';
   import { server } from '$utils/constants';
   import { appWindow } from '@tauri-apps/api/window';
   import { Flyout, IconButton, PersonPicture, TextBlock } from 'fluent-svelte';
@@ -62,9 +65,15 @@
   class:acrylic={data.features?.acrylic}
   data-tauri-drag-region
 >
-  <div class="left">
+  <div class="left" class:tauri={data.tauri}>
     {#if !isMacLike}
-      <svg xmlns="http://www.w3.org/2000/svg" width="41.57" height="26" viewBox="0 0 31.1775 36">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="41.57"
+        height="26"
+        viewBox="0 0 31.1775 36"
+        class:noMargin={$titlebarActions.length > 0}
+      >
         <path
           d="m28.1553 10.7445-8.1515-4.7059v12.7647l8.1515-4.7059zM7.4376 8.1969l11.0557 6.3824V5.1667l-2.9039-1.676ZM12.683 30.8327l2.9064 1.677 8.081-4.665-10.9852-6.3409zM25.182 26.9724l2.9736-1.7166v-9.4132l-11.1275 6.424zM5.9264 9.0687l-2.903 1.6758-.0006 9.412 11.0544-6.3825zM3.0229 25.2555l8.1495 4.704.0028-12.764-8.1521 4.706z"
         />
@@ -73,7 +82,29 @@
         />
       </svg>
     {/if}
+    {#if $titlebarActions.length > 0}
+      <div class="divider" />
+      {#each $titlebarActions as action}
+        <IconButton
+          title={action.label}
+          on:click={(evt) => action.action(evt)}
+          disabled={action.disabled}
+          class={action.active ? 'active' : ''}
+          style="--inline-size: {action.size || 16}px;"
+        >
+          {#if action.iconHtml}
+            {@html action.iconHtml}
+          {:else}
+            <FluentIcon name={action.icon} />
+          {/if}
+        </IconButton>
+      {/each}
+      <div class="divider" />
+    {/if}
     <TextBlock variant="caption" data-tauri-drag-region>
+      {#if $title}
+        {$title} -
+      {/if}
       {#if $page.url.hostname === 'cristata.app'}
         Cristata (Preview)
       {:else}
@@ -202,6 +233,9 @@
     margin: 0 16px 0 0;
     fill: var(--color-primary-800);
   }
+  svg.noMargin {
+    margin-right: 8px;
+  }
   @media (prefers-color-scheme: dark) {
     .titlebar {
       background-color: #202020;
@@ -244,5 +278,42 @@
     padding: 4px 10px 3px;
     border-radius: 0;
     color: #888888;
+  }
+
+  /* vertical divider */
+  div.divider {
+    width: 0;
+    height: calc(env(titlebar-area-height, 33px) * 0.6);
+    border-left: 1px solid rgba(255, 255, 255, 0.4);
+    margin: 0 8px;
+  }
+
+  /* action icons */
+  div.left :global(.icon-button) {
+    --rgb: 0, 0, 0;
+    padding: 2px;
+  }
+  @media (prefers-color-scheme: dark) {
+    div.left :global(.icon-button) {
+      --rgb: 255, 255, 255;
+    }
+  }
+  div.left :global(.icon-button:hover:not(.disabled)) {
+    background-color: rgba(var(--rgb), 0.08);
+  }
+  div.left :global(.icon-button:active:not(.disabled)) {
+    background-color: rgba(var(--rgb), 0.12);
+  }
+  div.left :global(.icon-button.active) {
+    background-color: rgba(var(--rgb), 0.1);
+  }
+
+  div.left :global(.icon-button svg) {
+    inline-size: var(--inline-size, 16px);
+  }
+
+  div.left.tauri :global(.icon-button) {
+    border-radius: 0;
+    block-size: env(titlebar-area-height, 33px);
   }
 </style>
