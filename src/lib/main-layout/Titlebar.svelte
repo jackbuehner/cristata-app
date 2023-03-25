@@ -292,6 +292,8 @@
   div.left :global(.icon-button) {
     --rgb: 0, 0, 0;
     padding: 2px;
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
   }
   @media (prefers-color-scheme: dark) {
     div.left :global(.icon-button) {
