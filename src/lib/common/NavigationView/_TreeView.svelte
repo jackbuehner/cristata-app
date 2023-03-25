@@ -42,10 +42,6 @@
     localStorage.setItem('treeViewState', JSON.stringify(treeViewState || {}));
   }
 
-  $: {
-    if (collapsed) collapseAllTrees();
-  }
-
   $: footer = (tree || []).find((tr) => tr.name === 'footer');
 
   let collapsedFlyoutAnchor: Record<string, HTMLDivElement> = {};
@@ -65,7 +61,7 @@
       <hr />
     {:else if type === 'category' || type === 'expander'}
       {#if __depth > 0 || type === 'expander'}
-        {@const expanded = treeViewState?.[id(name)]}
+        {@const expanded = collapsed ? false : treeViewState?.[id(name)]}
         {@const flyoutRect = collapsedFlyoutWrapper[name]?.getBoundingClientRect()}
         {@const flyoutAnchorRect = collapsedFlyoutAnchor[name]?.getBoundingClientRect()}
         {@const flyoutOffScreenPixels = Math.max(0, flyoutAnchorRect?.bottom - windowHeight) || 0}
