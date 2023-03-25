@@ -2,7 +2,7 @@
   import NavigationPane from './NavigationView/_NavigationPane.svelte';
   import type { MenuItem } from './NavigationView/_NavigationTypes';
 
-  export let mode: 'left' = 'left';
+  export let variant: 'left' | 'leftCompact' = 'left';
   export let headerText = '';
   export let menuItems: MenuItem[] = [];
   export let showBackArrow: boolean = false;
@@ -11,13 +11,14 @@
   export let collapsedPane: boolean = false;
 </script>
 
-{#if mode === 'left'}
+{#if variant === 'left' || variant === 'leftCompact'}
   <NavigationPane
     {headerText}
     {menuItems}
     {showBackArrow}
     {hideMenuButton}
     {compact}
+    {variant}
     bind:collapsed={collapsedPane}
   >
     <svelte:fragment slot="custom">

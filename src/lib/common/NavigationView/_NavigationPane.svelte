@@ -2,6 +2,7 @@
   import { afterNavigate } from '$app/navigation';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { IconButton, ListItem } from 'fluent-svelte';
+  import { focusTrap } from 'fluent-svelte/internal';
   import type { MenuItem, Tree } from './_NavigationTypes';
   import TreeView from './_TreeView.svelte';
 
@@ -11,6 +12,9 @@
   export let hideMenuButton: boolean = false;
   export let compact: boolean = false;
   export let collapsed: boolean = false;
+  export let variant: 'left' | 'leftCompact' = 'left';
+
+  $: _focusTrap = variant === 'leftCompact' && !collapsed ? focusTrap : () => {};
 
   function itemMap(item: MenuItem): Tree {
     return {
@@ -33,7 +37,7 @@
   });
 </script>
 
-<aside class:collapsed>
+<aside class:collapsed class:leftCompact={variant === 'leftCompact'} use:_focusTrap>
   {#if (!headerText && !hideMenuButton) || showBackArrow}
     <div class="buttonrow">
       {#if showBackArrow}
@@ -64,7 +68,24 @@
       <slot name="internal" />
     </svelte:fragment>
   </TreeView>
+
+  {#if variant === 'leftCompact'}
+    <div
+      class="navigation-pane-click-away"
+      class:darken={!collapsed}
+      on:click={() => (collapsed = true)}
+      on:keypress={(evt) => {
+        if (evt.key === 'Esc') {
+          collapsed = true;
+        }
+      }}
+    />
+  {/if}
 </aside>
+
+{#if variant === 'leftCompact'}
+  <div class="spacer" />
+{/if}
 
 <style>
   aside {
@@ -81,11 +102,53 @@
     width: 50px;
   }
 
+  aside.leftCompact {
+    position: absolute;
+    background-color: black;
+    height: calc(100% - env(titlebar-area-height, 33px));
+    z-index: 999;
+    background-color: #f3f3f3;
+    box-shadow: inset -1px 0 0 0 var(--fds-surface-stroke-flyout), var(--fds-flyout-shadow);
+    /* border-radius: 0 6px 6px 0; */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    aside.leftCompact {
+      background-color: #202020;
+    }
+  }
+
+  aside.leftCompact.collapsed {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .spacer {
+    width: 50px;
+  }
+
   span {
     font-weight: 500;
   }
 
   .buttonrow {
     margin: 3px 5px 3px 9px;
+  }
+
+  .navigation-pane-click-away {
+    align-items: center;
+    block-size: 100%;
+    display: none;
+    flex-direction: column;
+    inline-size: 100%;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    justify-content: center;
+    position: fixed;
+    z-index: -1;
+  }
+  .navigation-pane-click-away.darken {
+    display: flex;
   }
 </style>
