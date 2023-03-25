@@ -3,14 +3,14 @@ import type { MaybePromise } from '$app/forms';
 import { goto } from '$app/navigation';
 import {
   BasicProfileMe,
+  FieldDescriptions,
   GlobalConfig,
-  ProfilesFieldDescriptions,
   TeamsList,
   UsersList,
   type BasicProfileMeQuery,
+  type FieldDescriptionsQuery,
+  type FieldDescriptionsQueryVariables,
   type GlobalConfigQuery,
-  type ProfilesFieldDescriptionsQuery,
-  type ProfilesFieldDescriptionsQueryVariables,
   type TeamsListQuery,
   type TeamsListQueryVariables,
   type UsersListQuery,
@@ -181,21 +181,23 @@ export const load = (async ({ params, url, fetch, parent }) => {
     showStatus();
   });
 
-  const profilesFieldDescriptions = queryWithStore<
-    ProfilesFieldDescriptionsQuery,
-    ProfilesFieldDescriptionsQueryVariables
-  >({
+  let fieldDescriptionsPending = true;
+  const fieldDescriptions = queryWithStore<FieldDescriptionsQuery, FieldDescriptionsQueryVariables>({
     fetch,
     tenant: params.tenant,
-    query: ProfilesFieldDescriptions,
+    query: FieldDescriptions,
     useCache: false,
     waitForQuery: false,
+  }).finally(() => {
+    fieldDescriptionsPending = false;
+    showStatus();
   });
 
   function showStatus() {
     if (authUserPending) setSplashStatusText('Checking authentication...');
     else if (configPending) setSplashStatusText('Loading configuration...');
     else if (mePending) setSplashStatusText('Loading profile...');
+    else if (fieldDescriptionsPending) setSplashStatusText('Loading fields...');
     else if (profilesPending) setSplashStatusText('Loading contacts list...');
     else if (basicTeamsPending) setSplashStatusText('Loading teams list...');
     else setSplashStatusText('Loading page...');
@@ -211,7 +213,7 @@ export const load = (async ({ params, url, fetch, parent }) => {
     basicTeams: await basicTeams,
     tenant: params.tenant,
     tauri,
-    profilesFieldDescriptions: profilesFieldDescriptions,
+    fieldDescriptions: fieldDescriptions,
   };
 
   // make the layout data available in the window
@@ -248,7 +250,7 @@ interface LayoutDataType {
   basicTeams: MaybePromise<Readable<StoreReturnType<TeamsListQuery, TeamsListQueryVariables>>>;
   tenant: string;
   tauri: boolean;
-  profilesFieldDescriptions: MaybePromise<
-    Readable<StoreReturnType<ProfilesFieldDescriptionsQuery, ProfilesFieldDescriptionsQueryVariables>>
+  fieldDescriptions: MaybePromise<
+    Readable<StoreReturnType<FieldDescriptionsQuery, FieldDescriptionsQueryVariables>>
   >;
 }

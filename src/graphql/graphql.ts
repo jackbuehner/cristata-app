@@ -3045,6 +3045,24 @@ export const FathomDashboard = gql`
   fathomDashboard
 }
     `;
+export const FieldDescriptions = gql`
+    query FieldDescriptions {
+  configuration {
+    apps {
+      profiles {
+        fieldDescriptions {
+          name
+          email
+          phone
+          twitter
+          biography
+          title
+        }
+      }
+    }
+  }
+}
+    `;
 export const GlobalConfig = gql`
     query GlobalConfig {
   configuration {
@@ -3174,24 +3192,6 @@ export const ProfilesAppSettings = gql`
     }
     collection(name: "User") {
       raw
-    }
-  }
-}
-    `;
-export const ProfilesFieldDescriptions = gql`
-    query ProfilesFieldDescriptions {
-  configuration {
-    apps {
-      profiles {
-        fieldDescriptions {
-          name
-          email
-          phone
-          twitter
-          biography
-          title
-        }
-      }
     }
   }
 }
@@ -3475,6 +3475,11 @@ export type FathomDashboardQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type FathomDashboardQuery = { __typename?: 'Query', fathomDashboard?: string | null };
 
+export type FieldDescriptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FieldDescriptionsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } } } | null };
+
 export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3499,11 +3504,6 @@ export type ProfilesAppSettingsQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type ProfilesAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string }, defaultFieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } }, collection?: { __typename?: 'ConfigurationCollection', raw: any } | null } | null };
-
-export type ProfilesFieldDescriptionsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ProfilesFieldDescriptionsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', apps: { __typename?: 'ConfigurationApps', profiles: { __typename?: 'ConfigurationProfilesApp', fieldDescriptions: { __typename?: 'ConfigurationProfilesAppFieldDescriptions', name: string, email: string, phone: string, twitter: string, biography: string, title: string } } } } | null };
 
 export type RemoveUserFromTeamMutationVariables = Exact<{
   _id: Scalars['ObjectID'];

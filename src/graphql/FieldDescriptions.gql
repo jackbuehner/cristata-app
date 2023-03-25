@@ -1,4 +1,4 @@
-query ProfilesFieldDescriptions {
+query FieldDescriptions {
   configuration {
     apps {
       profiles {

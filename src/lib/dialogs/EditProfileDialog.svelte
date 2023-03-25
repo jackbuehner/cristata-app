@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { SaveUserDeactivate, SaveUserEdits, type ProfilesFieldDescriptionsQuery } from '$graphql/graphql';
+  import { SaveUserDeactivate, SaveUserEdits, type FieldDescriptionsQuery } from '$graphql/graphql';
   import { server } from '$utils/constants';
   import dompurify from 'dompurify';
   import { Button, Checkbox, ContentDialog, InfoBar, ProgressRing, TextBlock, TextBox } from 'fluent-svelte';
   import { print } from 'graphql';
 
   type ProfileAppConfig = NonNullable<
-    NonNullable<NonNullable<ProfilesFieldDescriptionsQuery['configuration']>['apps']>['profiles']
+    NonNullable<NonNullable<FieldDescriptionsQuery['configuration']>['apps']>['profiles']
   >;
   type FieldDescriptions = Omit<ProfileAppConfig['fieldDescriptions'], '__typename'>;
 
