@@ -247,6 +247,7 @@ const Tiptap = (props: ITiptap) => {
           disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || false,
           action: (evt) => {
             const saveAction = props.actions?.find((action) => action?.label === 'Save');
+            // @ts-expect-error it doesn't matter
             if (saveAction) saveAction.action(evt);
             else showAutosaveModal();
           },
