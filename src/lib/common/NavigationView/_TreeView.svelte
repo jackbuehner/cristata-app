@@ -77,9 +77,19 @@
             --top: {top}px;
             --screenOffset: {flyoutOffScreenPixels > 0 ? flyoutOffScreenPixels + 8 : 0}px;
             --maxHeight: {windowHeight || 0}px;
+            display: {collapsed ? 'flex' : 'block'};
           "
         >
           {#if __depth === 0 && collapsed}
+            <IconButton
+              class="tree-view-collapsed-flyout-button {compact ? 'compact' : ''}"
+              title={name}
+              on:click={() => {
+                collapsedFlyoutOpen[name] = !collapsedFlyoutOpen[name];
+              }}
+            >
+              <FluentIcon name={icon || ''} />
+            </IconButton>
             <MenuFlyout
               bind:open={collapsedFlyoutOpen[name]}
               alignment="start"
@@ -89,9 +99,6 @@
               bind:anchorElement={collapsedFlyoutAnchor[name]}
               closable
             >
-              <IconButton class="tree-view-collapsed-flyout-button {compact ? 'compact' : ''}" title={name}>
-                <FluentIcon name={icon || ''} />
-              </IconButton>
               <svelte:fragment slot="flyout">
                 <TextBlock class="category-header" variant="bodyStrong">{name}</TextBlock>
                 <svelte:self {__depth} tree={pages} {compact} />
