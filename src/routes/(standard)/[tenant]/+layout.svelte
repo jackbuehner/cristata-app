@@ -255,7 +255,7 @@
     background-color: #ffffff;
     color: var(--color-neutral-light-1400);
     border-radius: 6px 0 0 0;
-    /* position: relative; */
+    position: relative;
   }
 
   div#content {

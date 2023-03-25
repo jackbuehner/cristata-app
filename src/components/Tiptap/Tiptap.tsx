@@ -497,7 +497,7 @@ const Container = styled.div<{ theme: themeType; isMaximized: boolean }>`
   overflow: hidden;
   height: 100%;
   ${({ isMaximized }) =>
-    isMaximized ? `position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1000` : 'z-index: 1'};
+    isMaximized ? `position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 998` : 'z-index: 1'};
 `;
 
 const Content = styled(EditorContent)<{ tiptapwidth: number; theme: themeType; ProseMirrorCSS?: string }>`

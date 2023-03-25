@@ -1,7 +1,6 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ArrowLeft20Regular, ArrowRight20Regular, Home16Regular } from '@fluentui/react-icons';
-import { appWindow } from '@tauri-apps/api/window';
 import Color from 'color';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
@@ -51,18 +50,6 @@ function Titlebar(props: ITitlebar) {
   //@ts-expect-error windowControlsOverlay is only available in some browsers
   const customTitlebarOffsetX = navigator.windowControlsOverlay?.getBoundingClientRect?.().x || 0;
 
-  const [isMaximized, setIsMaximized] = useState(false);
-  useEffect(() => {
-    (async () => {
-      if (document.documentElement.getAttribute('tauri') === 'true') {
-        setIsMaximized((await appWindow?.isMaximized()) || false);
-        appWindow?.onResized(async () => {
-          setIsMaximized((await appWindow?.isMaximized()) || false);
-        });
-      }
-    })();
-  });
-
   return (
     <Wrapper>
       <TITLEBAR theme={theme} offsetX={customTitlebarOffsetX} data-tauri-drag-region>
@@ -77,42 +64,6 @@ function Titlebar(props: ITitlebar) {
                 // if the horizontal offset is greater than 0, this means the window controls are on the left, which means we need a divider to separate the window controls from the quick access buttons
                 customTitlebarOffsetX > 0 ? <Divider /> : null
               }
-              {
-                // only show history navigation when the titlebar replaces the default titlebar
-                //@ts-expect-error windowControlsOverlay is only available in some browsers
-                navigator.windowControlsOverlay?.visible ? (
-                  <>
-                    <TitlebarButton
-                      // onClick={() => navigate(-1)}
-                      data-tip={'Go back'}
-                      iconSize={16}
-                      width={customTitlebarOffsetX !== 0 ? 33 : undefined}
-                    >
-                      <ArrowLeft20Regular />
-                    </TitlebarButton>
-                    <TitlebarButton
-                      // onClick={() => navigate(1)}
-                      data-tip={'Go forward'}
-                      iconSize={16}
-                      width={customTitlebarOffsetX !== 0 ? 33 : undefined}
-                    >
-                      <ArrowRight20Regular />
-                    </TitlebarButton>
-                    {
-                      // if the horizontal offset is 0, this means the window controls are on the right, which means we need a divider to separate the larger size history buttons
-                      customTitlebarOffsetX === 0 ? <Divider /> : null
-                    }
-                  </>
-                ) : null
-              }
-              <TitlebarButton
-                onClick={() => navigate(`/${tenant}/`)}
-                data-tip={'Navigate home'}
-                iconSize={16}
-                width={33}
-              >
-                <Home16Regular />
-              </TitlebarButton>
               {props.actions?.map((action, index) => {
                 return (
                   <TitlebarButton
@@ -135,41 +86,6 @@ function Titlebar(props: ITitlebar) {
         <Title isBackstageOpen={props.isBackstageOpen} data-tauri-drag-region>
           {props.title || 'Cristata'}
         </Title>
-        {appWindow ? (
-          <>
-            <img
-              src='window-controls/minimize.svg'
-              alt='Minimize'
-              title='Minimize'
-              className='window-controls windows'
-              onClick={() => appWindow.minimize()}
-            />
-            {isMaximized ? (
-              <img
-                src='window-controls/restore.svg'
-                alt='Restore'
-                title='Restore'
-                className='window-controls windows'
-                onClick={() => appWindow.toggleMaximize()}
-              />
-            ) : (
-              <img
-                src='window-controls/maximize.svg'
-                alt='Maximize'
-                title='Maximize'
-                className='window-controls windows'
-                onClick={() => appWindow.toggleMaximize()}
-              />
-            )}
-            <img
-              src='window-controls/close.svg'
-              alt='Close'
-              title='Close'
-              className='window-controls windows close'
-              onClick={() => appWindow.close()}
-            />
-          </>
-        ) : null}
       </TITLEBAR>
     </Wrapper>
   );

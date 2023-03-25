@@ -8,7 +8,7 @@
   import NavigationView from '$lib/common/NavigationView.svelte';
   import { useCreateSchema } from '$react/configuration/CollectionSchemaPage/hooks/schema-modals/useCreateSchema';
   import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
-  import { collapsedPane } from '$stores/collapsedPane';
+  import { collapsedPane, collapsedPaneCompact } from '$stores/collapsedPane';
   import { compactMode } from '$stores/compactMode';
   import { motionMode } from '$stores/motionMode';
   import { server } from '$utils/constants';
@@ -464,30 +464,43 @@
 
   let settingFlyoutOpen = false;
   let toolboxFlyoutOpen = false;
+
+  $: navPaneCompactMode =
+    $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === 'force';
 </script>
 
-<NavigationView
-  mode={'left'}
-  menuItems={[...menuFooterItems, ...mainMenuItems, ...routeMenuItems]}
-  showBackArrow
-  compact={$compactMode}
-  bind:collapsedPane={$collapsedPane}
->
-  <svelte:fragment slot="custom" />
-  <svelte:fragment slot="internal">
-    {#if isApiPage && !$collapsedPane}
-      <react:PlaygroundNavigation />
-    {/if}
-    {#if isProfilesRoute && !$collapsedPane && $basicProfiles.loading}
-      <Loading message="Downloading profiles..." style="margin: 20px;" />
-    {/if}
-    {#if isTeamsRoute && !$collapsedPane && $basicTeams.loading}
-      <Loading message="Downloading teams..." style="margin: 20px;" />
-    {/if}
-  </svelte:fragment>
-</NavigationView>
+{#if navPaneCompactMode}
+  <NavigationView
+    variant="leftCompact"
+    menuItems={[...menuFooterItems, ...mainMenuItems, ...routeMenuItems]}
+    showBackArrow
+    compact={$compactMode}
+    bind:collapsedPane={$collapsedPaneCompact}
+  />
+{:else}
+  <NavigationView
+    variant="left"
+    menuItems={[...menuFooterItems, ...mainMenuItems, ...routeMenuItems]}
+    showBackArrow
+    compact={$compactMode}
+    bind:collapsedPane={$collapsedPane}
+  >
+    <svelte:fragment slot="custom" />
+    <svelte:fragment slot="internal">
+      {#if isApiPage && !$collapsedPane}
+        <react:PlaygroundNavigation />
+      {/if}
+      {#if isProfilesRoute && !$collapsedPane && $basicProfiles.loading}
+        <Loading message="Downloading profiles..." style="margin: 20px;" />
+      {/if}
+      {#if isTeamsRoute && !$collapsedPane && $basicTeams.loading}
+        <Loading message="Downloading teams..." style="margin: 20px;" />
+      {/if}
+    </svelte:fragment>
+  </NavigationView>
+{/if}
 
-<div class="settings-flyout" class:collapsedPane={$collapsedPane}>
+<div class="settings-flyout" class:collapsedPane={navPaneCompactMode ? $collapsedPaneCompact : $collapsedPane}>
   <Flyout bind:open={settingFlyoutOpen} placement="right">
     <svelte:fragment slot="flyout">
       <div class="settings-flyout-flex">
@@ -507,7 +520,11 @@
   </Flyout>
 </div>
 
-<div class="toolbox-flyout" class:compactMode={$compactMode} class:collapsedPane={$collapsedPane}>
+<div
+  class="toolbox-flyout"
+  class:compactMode={$compactMode}
+  class:collapsedPane={navPaneCompactMode ? $collapsedPaneCompact : $collapsedPane}
+>
   <MenuFlyout alignment="start" placement="top" bind:open={toolboxFlyoutOpen}>
     <svelte:fragment slot="flyout">
       {#if isConfigRoute}
