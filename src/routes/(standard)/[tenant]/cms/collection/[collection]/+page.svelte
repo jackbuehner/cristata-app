@@ -19,7 +19,7 @@
     MenuFlyoutItem,
     ProgressRing,
     TextBox,
-    Tooltip
+    Tooltip,
   } from 'fluent-svelte';
   import { onMount } from 'svelte';
   import { hooks } from 'svelte-preprocess-react';
@@ -132,7 +132,7 @@
   $: loading = refetching || loadingMore || $tableData.loading;
 
   // the document list layout for this collection
-  let persistedViewLayout: string = '';
+  $: persistedViewLayout = (browser && localStorage.getItem(`${collectionName}:viewLayout`)) || '';
   onMount(() => {
     persistedViewLayout = (browser && localStorage.getItem(`${collectionName}:viewLayout`)) || '';
   });
@@ -151,7 +151,7 @@
   }
 
   // the details pane setting for this collection
-  let persistedDetailsPane: string = '';
+  $: persistedDetailsPane = (browser && localStorage.getItem(`${collectionName}:detailsPane`)) || '';
   onMount(() => {
     persistedDetailsPane = (browser && localStorage.getItem(`${collectionName}:detailsPane`)) || '';
   });
