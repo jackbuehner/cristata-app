@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { beforeNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
   import type { UsersListQuery } from '$graphql/graphql';
   import { queryCacheStore } from '$graphql/query';
@@ -467,6 +467,10 @@
 
   $: navPaneCompactMode =
     $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === 'force';
+
+  beforeNavigate(() => {
+    $collapsedPaneCompact = true;
+  });
 </script>
 
 {#if navPaneCompactMode}
