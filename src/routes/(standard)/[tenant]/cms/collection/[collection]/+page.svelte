@@ -19,7 +19,7 @@
     MenuFlyoutItem,
     ProgressRing,
     TextBox,
-    Tooltip,
+    Tooltip
   } from 'fluent-svelte';
   import { onMount } from 'svelte';
   import { hooks } from 'svelte-preprocess-react';
@@ -168,7 +168,6 @@
     localStorage.setItem(`${collectionName}:detailsPane`, `${enabled}`);
     detailsPane = enabled;
   }
-  $: console.log(persistedViewLayout);
 </script>
 
 <div class="wrapper">
@@ -431,7 +430,7 @@
           schema={data.table.schema}
           tableDataFilter={data.table.filter}
           tableDataSort={data.table.sort}
-          photoTemplate={`${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`}
+          photoTemplate={`${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}?tr=w-150`}
           bind:loadingMore
           on:sort={(evt) => {
             // backup the current sort in localstorage so it can be restored later
@@ -472,7 +471,7 @@
           {tableData}
           schema={data.table.schema}
           photoTemplate={data.collection.schemaName === 'Photo'
-            ? `${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}`
+            ? `${server.httpProtocol}//${server.path}/photo/${data.params.tenant}/{{_id}}?tr=w-300`
             : ''}
         />
       </div>

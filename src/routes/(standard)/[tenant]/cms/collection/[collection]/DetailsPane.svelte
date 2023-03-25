@@ -143,13 +143,19 @@
       {@const tags = tagsDef && isStringArray(doc.tags) ? doc.tags : []}
 
       {@const photoHref = photoTemplate?.replace('{{_id}}', getProperty(doc, oneAccessor))}
+      {@const photoHrefNoTransforn = (() => {
+        if (!photoHref) return '';
+        const url = new URL(photoHref);
+        url.searchParams.delete('tr');
+        return url.toString();
+      })()}
 
       {#if photoHref}
         <a
-          href={photoHref}
+          href={photoHrefNoTransforn}
           on:click={(evt) => {
             evt.preventDefault();
-            window.open(photoHref, photoHref, 'location=no');
+            window.open(photoHrefNoTransforn, photoHrefNoTransforn, 'location=no');
           }}
         >
           <img
@@ -176,10 +182,10 @@
           </Button>
           {#if photoHref}
             <Button
-              href={photoHref}
+              href={photoHrefNoTransforn}
               on:click={(evt) => {
                 evt.preventDefault();
-                window.open(photoHref, photoHref, 'location=no');
+                window.open(photoHrefNoTransforn, photoHrefNoTransforn, 'location=no');
               }}
             >
               <FluentIcon name="Open20Regular" mode="buttonIconLeft" />
@@ -376,7 +382,11 @@
     display: flex;
     flex-direction: row;
     gap: 10px;
+    flex-wrap: wrap;
   }
+  /* div.button-row :global(.button) {
+    white-space: nowrap;
+  } */
 
   section {
     margin: 20px 0 25px 0;
