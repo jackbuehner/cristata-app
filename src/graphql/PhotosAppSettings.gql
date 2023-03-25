@@ -1,16 +1,6 @@
-query FieldDescriptions {
+query PhotosAppSettings {
   configuration {
     apps {
-      profiles {
-        fieldDescriptions {
-          name
-          email
-          phone
-          twitter
-          biography
-          title
-        }
-      }
       photos {
         fieldDescriptions {
           name
@@ -19,7 +9,17 @@ query FieldDescriptions {
           requireAuth
           note
         }
+        defaultFieldDescriptions {
+          name
+          source
+          tags
+          requireAuth
+          note
+        }
       }
+    }
+    collection(name: "Photo") {
+      raw
     }
   }
 }

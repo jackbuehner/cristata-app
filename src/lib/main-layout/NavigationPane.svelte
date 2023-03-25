@@ -226,6 +226,11 @@
           icon: 'Person20Regular',
         },
         {
+          label: 'Photos',
+          href: `/${data.authUser.tenant}/configuration/app/photos`,
+          icon: 'Image20Regular',
+        },
+        {
           label: 'System collections',
           type: 'category',
         },

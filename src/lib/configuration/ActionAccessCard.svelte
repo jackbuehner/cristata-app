@@ -26,7 +26,7 @@
       label="__in-select"
       collection="User"
       values={(users || []).map((value) =>
-        value === 0 ? { _id: 'any', label: 'Any user' } : { _id: value }
+        value === 0 || value === '0' ? { _id: 'any', label: 'Any user' } : { _id: value }
       ) || []}
       injectOptions={[{ value: 'any', label: 'Any user' }]}
       onChange={handleUsersChange}
@@ -39,7 +39,7 @@
       label="__in-select"
       collection="Team"
       values={(teams || []).map((value) =>
-        value === 0 ? { _id: 'any', label: 'Any team' } : { _id: value }
+        value === 0 || value === '0' ? { _id: 'any', label: 'Any team' } : { _id: value }
       ) || []}
       injectOptions={[{ value: 'any', label: 'Any team' }]}
       onChange={handleTeamsChange}
