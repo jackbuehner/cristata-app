@@ -1,5 +1,8 @@
+import FluentIcon from '$components/FluentIcon';
+import { openWindow } from '$utils/openWindow';
+import * as apolloRaw from '@apollo/client';
 import { useModal } from '@cristata/react-modal-hook';
-import { useTheme } from '@emotion/react';
+import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ChevronUpDown24Regular, Open24Regular, PeopleTeam16Regular } from '@fluentui/react-icons';
 import type { NumberOption, StringOption } from '@jackbuehner/cristata-generator-schema';
@@ -7,7 +10,7 @@ import Color from 'color';
 import JSONCrush from 'jsoncrush';
 import { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { Button, buttonEffect } from '../../../components/Button';
+import { Button, buttonEffect, IconButton } from '../../../components/Button';
 import { Checkbox } from '../../../components/Checkbox';
 import { CollaborativeSelectOne } from '../../../components/CollaborativeFields';
 import { populateReferenceValues } from '../../../components/ContentField/populateReferenceValues';
@@ -21,9 +24,8 @@ import { listOxford } from '../../../utils/listOxford';
 import type { colorType, themeType } from '../../../utils/theme/theme';
 import type { GetYFieldsOptions } from './getYFields';
 import { PreviewFrame } from './PreviewFrame';
+import type { Action } from './useActions';
 
-import { openWindow } from '$utils/openWindow';
-import * as apolloRaw from '@apollo/client';
 const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
 
 interface SidebarProps {
@@ -54,6 +56,7 @@ interface SidebarProps {
   getFieldValues: (opts: GetYFieldsOptions) => Promise<any>;
   hideVersions?: boolean;
   previewFrame?: React.ReactNode;
+  actions?: Action[];
 }
 
 function Sidebar(props: SidebarProps) {
@@ -146,6 +149,71 @@ function Sidebar(props: SidebarProps) {
 
   return (
     <Container theme={theme} compact={props.compact}>
+      {!props.isEmbedded ? (
+        <ButtonRow>
+          {props.actions?.map(
+            (
+              {
+                label,
+                type,
+                icon,
+                action,
+                onAuxClick,
+                color,
+                disabled,
+                'data-tip': dataTip,
+                showChevron,
+                flipChevron,
+              },
+              index
+            ) => {
+              if (type === 'icon' && icon) {
+                return (
+                  <IconButton
+                    key={index}
+                    icon={<FluentIcon name={icon} />}
+                    onClick={action}
+                    onAuxClick={onAuxClick}
+                    color={color || 'primary'}
+                    disabled={disabled}
+                    data-tip={dataTip || label}
+                    data-delay-show={0}
+                    data-effect={'solid'}
+                    data-place={'bottom'}
+                    data-offset={`{ 'bottom': 4 }`}
+                    cssExtra={css`
+                      -webkit-app-region: no-drag;
+                      app-region: no-drag;
+                    `}
+                  />
+                );
+              }
+              return (
+                <Button
+                  key={index}
+                  icon={icon ? <FluentIcon name={icon} /> : undefined}
+                  onClick={action}
+                  onAuxClick={onAuxClick}
+                  color={color || 'primary'}
+                  disabled={disabled}
+                  data-tip={dataTip || label}
+                  data-effect={'solid'}
+                  data-place={'bottom'}
+                  data-offset={`{ 'bottom': 4 }`}
+                  showChevron={showChevron}
+                  flipChevron={flipChevron}
+                  cssExtra={css`
+                    -webkit-app-region: no-drag;
+                    app-region: no-drag;
+                  `}
+                >
+                  {label}
+                </Button>
+              );
+            }
+          )}
+        </ButtonRow>
+      ) : null}
       <SectionTitle theme={theme}>Document Information</SectionTitle>
       <DocInfoRow theme={theme}>
         <div>ID</div>
@@ -562,6 +630,17 @@ const VersionCard = styled.div`
   }
   > *:nth-of-type(2) {
     color: ${({ theme }) => theme.color.neutral[theme.mode][1000]};
+  }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  margin: 20px 0 10px 0;
+
+  > button:not(:last-of-type) {
+    flex-grow: 1;
   }
 `;
 
