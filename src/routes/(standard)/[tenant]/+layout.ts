@@ -186,7 +186,8 @@ export const load = (async ({ params, url, fetch, parent }) => {
     fetch,
     tenant: params.tenant,
     query: FieldDescriptions,
-    useCache: false,
+    persistCache: 900000, // 15 minutes
+    useCache: true,
     waitForQuery: false,
   }).finally(() => {
     fieldDescriptionsPending = false;
@@ -195,9 +196,9 @@ export const load = (async ({ params, url, fetch, parent }) => {
 
   function showStatus() {
     if (authUserPending) setSplashStatusText('Checking authentication...');
-    else if (configPending) setSplashStatusText('Loading configuration...');
-    else if (mePending) setSplashStatusText('Loading profile...');
     else if (fieldDescriptionsPending) setSplashStatusText('Loading fields...');
+    else if (mePending) setSplashStatusText('Loading profile...');
+    else if (configPending) setSplashStatusText('Loading configuration...');
     else if (profilesPending) setSplashStatusText('Loading contacts list...');
     else if (basicTeamsPending) setSplashStatusText('Loading teams list...');
     else setSplashStatusText('Loading page...');
@@ -213,7 +214,7 @@ export const load = (async ({ params, url, fetch, parent }) => {
     basicTeams: await basicTeams,
     tenant: params.tenant,
     tauri,
-    fieldDescriptions: fieldDescriptions,
+    fieldDescriptions: await fieldDescriptions,
   };
 
   // make the layout data available in the window
