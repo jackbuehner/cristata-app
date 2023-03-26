@@ -47,6 +47,36 @@
 <PageSubtitle>Updates</PageSubtitle>
 
 <div class="margin">
+  <Expander expanded>
+    <FluentIcon name="Megaphone24Regular" slot="icon" />
+    What's new to Cristata (March 2023)
+    <svelte:fragment slot="content">
+      <ul style="padding-inline-start: 24px; line-height: 1.5;">
+        <li>
+          <b>New photo library:</b> View and load more photos at once, easily search for photos, select unlimited
+          photos, and set notes for each photo.
+        </li>
+        <li>
+          <b>Collection page layouts:</b> Use the "View" menu to switch layouts. Enable the details pane for easy
+          access to document details.
+        </li>
+        <li>
+          <b>Revamped teams app:</b> Easily add invite new members and add them to your team at the same time.
+        </li>
+        <li>
+          <b>Improved profile details:</b> View which documents reference a profile and other account details in
+          the "Advanced" section.
+        </li>
+        <li>
+          <b>Better navigation:</b> The navigation pane is now always visible – even while in a full screen editor.
+          Expanded menus are no longer lost when toggling between the collapsed and uncollapsed navigation pane mode.
+        </li>
+        <li>
+          <b>Administration:</b> View events, create webhooks, and configure the profiles and photos apps.
+        </li>
+      </ul>
+    </svelte:fragment>
+  </Expander>
   <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (February 2023)
@@ -68,7 +98,7 @@
       </ul>
     </svelte:fragment>
   </Expander>
-  <Expander>
+  <!-- <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (January 2023)
     <svelte:fragment slot="content">
@@ -108,7 +138,7 @@
         </li>
       </ul>
     </svelte:fragment>
-  </Expander>
+  </Expander> -->
 </div>
 
 <PageSubtitle>Activity</PageSubtitle>
