@@ -1,5 +1,8 @@
 import type { FieldDescriptionsQuery, FieldDescriptionsQueryVariables } from '$graphql/graphql';
 import { getQueryStore } from '$graphql/query';
+import LoadingSvelte from '$lib/common/Loading.svelte';
+import { PageTitle as PageTitleSvelte } from '$lib/common/PageTitle';
+import { title } from '$stores/title';
 import { get as getProperty } from '$utils/objectPath';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -14,7 +17,7 @@ import { Fragment, useEffect, useMemo, useState, type SetStateAction } from 'rea
 import useDimensions from 'react-cool-dimensions';
 import ReactRouterPrompt from 'react-router-prompt';
 import ReactTooltip from 'react-tooltip';
-import { useStore } from 'svelte-preprocess-react';
+import { reactify, useStore } from 'svelte-preprocess-react';
 import { useLocation, useNavigate, useParams } from 'svelte-preprocess-react/react-router';
 import { Button } from '../../../components/Button';
 import {
@@ -42,7 +45,6 @@ import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaCon
 import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { parseSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { setAppActions, setAppLoading, setAppName } from '../../../redux/slices/appbarSlice';
 import type { PageData } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/$types';
 import { capitalize } from '../../../utils/capitalize';
 import { server } from '../../../utils/constants';
@@ -66,6 +68,9 @@ const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' 
 interface CollectionItemPageProps {
   data?: PageData;
 }
+
+const PageTitle = reactify(PageTitleSvelte);
+const Loading = reactify(LoadingSvelte);
 
 function CollectionItemPage(props: CollectionItemPageProps) {
   let { collection, item_id, version_date } = useParams() as {
@@ -202,8 +207,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   }
   if (docName.includes('undefined')) docName = collectionName;
 
-  // set the document title
-  const title = (() => {
+  // calculate the document title
+  const pageTitle = useMemo(() => {
     let title = '';
 
     // show document name in the title
@@ -216,8 +221,18 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     title += ' - Cristata';
 
     return title;
-  })();
-  if (document.title !== title) document.title = title;
+  }, [docName, isLoading]);
+
+  // set the page title
+  useEffect(() => {
+    if (!props.isEmbedded) {
+      title.set(pageTitle.replace('- Cristata', '') || '');
+      document.title = pageTitle;
+      return () => {
+        title.set('');
+      };
+    }
+  }, [pageTitle, props.isEmbedded]);
 
   // calculate publish permissions
   const {
@@ -444,7 +459,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               y={fieldY}
               user={props.user}
               docName={`${collection}.${item_id}`}
-              title={title}
+              title={pageTitle}
               options={def.field.tiptap}
               isDisabled={disabled || publishLocked ? true : isHTML ? true : def.field.readonly}
               showLoading={isLoading}
@@ -866,48 +881,26 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
       isOldVersion,
     getFieldValues,
     hideVersions: isOldVersion,
+    actions: [
+      ...quickActions.map((action, index) => {
+        return {
+          label: action.label,
+          type: action.type,
+          icon: action.icon,
+          action: action.action,
+          color: action.color,
+          disabled: action.disabled,
+          'data-tip': action['data-tip'],
+        };
+      }),
+      {
+        label: 'More actions',
+        type: 'icon',
+        icon: 'MoreHorizontal24Regular',
+        action: showActionDropdown,
+      },
+    ] satisfies Action[],
   };
-
-  // keep loading state synced
-  const [lastAppLoading, setLastAppLoading] = useState(false);
-  useEffect(() => {
-    if (loading !== lastAppLoading) {
-      setLastAppLoading(loading);
-      dispatch(setAppLoading(loading));
-    }
-  }, [dispatch, lastAppLoading, loading]);
-
-  // configure app bar
-  useEffect(() => {
-    dispatch(setAppName(title.replace(' - Cristata', '')));
-  }, [dispatch, title]);
-  useEffect(() => {
-    if (isOldVersion) {
-      dispatch(setAppActions([]));
-    } else {
-      dispatch(
-        setAppActions([
-          ...quickActions.map((action, index) => {
-            return {
-              label: action.label,
-              type: action.type,
-              icon: action.icon,
-              action: action.action,
-              color: action.color,
-              disabled: action.disabled,
-              'data-tip': action['data-tip'],
-            };
-          }),
-          {
-            label: 'More actions',
-            type: 'icon',
-            icon: 'MoreHorizontal24Regular',
-            action: showActionDropdown,
-          },
-        ])
-      );
-    }
-  }, [dispatch, props.y.awareness.length, quickActions, showActionDropdown, isOldVersion]);
 
   const { observe: contentRef, width: contentWidth } = useDimensions();
 
@@ -1135,7 +1128,26 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
                     })()
                   }
 
-                  <div style={{ maxWidth: 800, padding: props.isEmbedded ? 0 : 40, margin: '0 auto' }}>
+                  <div
+                    style={{
+                      maxWidth: 800,
+                      padding: props.isEmbedded ? 0 : 40,
+                      margin: '0 auto',
+                    }}
+                  >
+                    {/* {contentWidth > 700 ? (
+                      <PageTitle style='padding: 0;'>
+                        <span
+                          style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'baseline' }}
+                        >
+                          Edit document
+                          {loading ? (
+                            <Loading size={12} message='Loading properties...' style='margin-left: 10px;' />
+                          ) : null}
+                        </span>
+                      </PageTitle>
+                    ) : null} */}
+
                     {contentWidth <= 700 ? <Sidebar {...sidebarProps} compact={true} /> : null}
                     {processSchemaDef(schemaDef, false, { collapsed: false }).map(renderFields)}
 

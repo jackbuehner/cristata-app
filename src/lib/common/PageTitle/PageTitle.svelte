@@ -2,10 +2,11 @@
   import { TextBlock } from 'fluent-svelte';
 
   export let fullWidth = false;
+  export let style = '';
 </script>
 
-<h1 class:fullWidth>
-  <TextBlock variant="title"><slot /></TextBlock>
+<h1 class:fullWidth {style}>
+  <TextBlock variant="title" tag="span"><slot /></TextBlock>
 </h1>
 
 <style>
