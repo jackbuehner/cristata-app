@@ -1406,6 +1406,22 @@
             "deprecationReason": null
           },
           {
+            "name": "hasRichTextBody",
+            "description": "Whether the body field in the schema definition is a rich text (tiptap) field.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "name",
             "description": null,
             "args": [],

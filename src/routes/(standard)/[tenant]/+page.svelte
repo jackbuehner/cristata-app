@@ -118,7 +118,7 @@
     <FluentIcon name="Pulse24Regular" slot="icon" />
     Recent activity
     <svelte:fragment slot="content">
-      <react:RecentActivity />
+      <react:RecentActivity {data} />
     </svelte:fragment>
   </Expander>
   <Expander href="/{data.tenant}/cms/workflow">

@@ -71,8 +71,15 @@ function Card(props: CardType) {
   // get the dimensions of the card
   const { observe: cardRef, height: cardHeight } = useDimensions();
 
+  // if the field is a body field that is rendered as a tiptap editor,
+  // we want to open it in maximized mode for easy access to the editor
+  const shouldOpenMaximized = !!schemaDef.find(([key, def]) => key === 'body' && def.field?.tiptap);
+
   const canAccessById = by?.one === '_id';
-  const to = canAccessById ? `/cms/collection/${camelToDashCase(props.in)}/${props._id}` : undefined;
+  const itemQueryString = shouldOpenMaximized ? '?fs=1&props=1' : '';
+  const to = canAccessById
+    ? `/cms/collection/${camelToDashCase(props.in)}/${props._id}${itemQueryString}`
+    : undefined;
 
   return (
     <div>

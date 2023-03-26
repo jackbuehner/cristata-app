@@ -1,31 +1,32 @@
-import { useTheme } from '@emotion/react';
+import * as apolloRaw from '@apollo/client';
 import styled from '@emotion/styled';
+import { notEmpty } from '@jackbuehner/cristata-utils';
 import ColorHash from 'color-hash';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
-import type { MouseEventHandler } from 'react';
 import React, { Fragment } from 'react';
 import { useNavigate } from 'svelte-preprocess-react/react-router';
 import type { HISTORY__DOC_TYPE, HISTORY__TYPE } from '../../graphql/queries';
 import { HISTORY } from '../../graphql/queries';
+import type { PageData } from '../../routes/(standard)/[tenant]/$types';
 import { camelToDashCase } from '../../utils/camelToDashCase';
 import { capitalize } from '../../utils/capitalize';
 import { genAvatar } from '../../utils/genAvatar';
 import { listOxford } from '../../utils/listOxford';
-import type { themeType } from '../../utils/theme/theme';
 import { uncapitalize } from '../../utils/uncapitalize';
 
-import * as apolloRaw from '@apollo/client';
 const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
+
+interface RecentActivityProps {
+  data: PageData;
+}
 
 /**
  * Displays the recent actiivty in the CMS.
  *
  * The recent activity is retireved from the `/history` endpoint.
  */
-function RecentActivity() {
-  const theme = useTheme();
-
+function RecentActivity(props: RecentActivityProps) {
   const tenant = location.pathname.split('/')[1];
 
   const { data } = useQuery<HISTORY__TYPE>(HISTORY, {
@@ -194,6 +195,14 @@ function RecentActivity() {
               : 'modified';
           });
 
+          const maybeCollectionName = capitalize(pluralize.singular(item.in));
+
+          // if the field is a body field that is rendered as a tiptap editor,
+          // we want to open it in maximized mode for easy access to the editor
+          const shouldOpenMaximized = !!props.data.configuration?.collections
+            ?.filter(notEmpty)
+            .find((col) => col.name === maybeCollectionName)?.hasRichTextBody;
+
           return (
             <ItemWrapper key={index}>
               <Item>
@@ -210,9 +219,10 @@ function RecentActivity() {
                     <>
                       <span> {listOxford(types.reverse())} </span>
                       <ItemName
-                        collectionName={capitalize(pluralize.singular(item.in))}
+                        collectionName={maybeCollectionName}
                         itemName={item.name}
                         itemId={item._id}
+                        shouldOpenMaximized={shouldOpenMaximized}
                       />
                       <span> in </span>
                       <span>{item.in}</span>
@@ -238,21 +248,24 @@ function ItemName({
   collectionName,
   itemName,
   itemId,
+  shouldOpenMaximized,
 }: {
   collectionName: string;
   itemName: string;
   itemId?: string;
+  shouldOpenMaximized?: boolean;
 }) {
-  const theme = useTheme() as themeType;
   const navigate = useNavigate();
   const tenant = window.location.pathname.split('/')[1];
 
   const pathCollectionName = camelToDashCase(uncapitalize(pluralize(collectionName)));
 
+  const itemQueryString = shouldOpenMaximized ? '?fs=1&props=1' : '';
+
   const href = (() => {
     if (collectionName === 'Team' && itemId) return `/${tenant}/teams/${itemId}`;
     if (collectionName === 'User' && itemId) return `/${tenant}/profile/${itemId}`;
-    else if (itemId) return `/${tenant}/cms/collection/${pathCollectionName}/${itemId}`;
+    else if (itemId) return `/${tenant}/cms/collection/${pathCollectionName}/${itemId}${itemQueryString}`;
     else return `/${tenant}/cms/collection/${pathCollectionName}`;
   })();
 

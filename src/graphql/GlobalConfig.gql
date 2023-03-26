@@ -4,6 +4,7 @@ query GlobalConfig {
       name
       pluralLabel: pluralName
       canCreateAndGet
+      hasRichTextBody
     }
     navigation {
       main {
