@@ -1,5 +1,6 @@
 import type { FieldDescriptionsQuery, FieldDescriptionsQueryVariables } from '$graphql/graphql';
 import { getQueryStore } from '$graphql/query';
+import { title } from '$stores/title';
 import { get as getProperty } from '$utils/objectPath';
 import { css, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -202,8 +203,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
   }
   if (docName.includes('undefined')) docName = collectionName;
 
-  // set the document title
-  const title = (() => {
+  // calculate the document title
+  const pageTitle = useMemo(() => {
     let title = '';
 
     // show document name in the title
@@ -216,8 +217,18 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
     title += ' - Cristata';
 
     return title;
-  })();
-  if (document.title !== title) document.title = title;
+  }, [docName, isLoading]);
+
+  // set the page title
+  useEffect(() => {
+    if (!props.isEmbedded) {
+      title.set(pageTitle.replace('- Cristata', '') || '');
+      document.title = pageTitle;
+      return () => {
+        title.set('');
+      };
+    }
+  }, [pageTitle, props.isEmbedded]);
 
   // calculate publish permissions
   const {
@@ -444,7 +455,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
               y={fieldY}
               user={props.user}
               docName={`${collection}.${item_id}`}
-              title={title}
+              title={pageTitle}
               options={def.field.tiptap}
               isDisabled={disabled || publishLocked ? true : isHTML ? true : def.field.readonly}
               showLoading={isLoading}
@@ -879,8 +890,8 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   // configure app bar
   useEffect(() => {
-    dispatch(setAppName(title.replace(' - Cristata', '')));
-  }, [dispatch, title]);
+    dispatch(setAppName(pageTitle.replace(' - Cristata', '')));
+  }, [dispatch, pageTitle]);
   useEffect(() => {
     if (isOldVersion) {
       dispatch(setAppActions([]));

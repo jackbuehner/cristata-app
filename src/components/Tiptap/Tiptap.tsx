@@ -36,7 +36,7 @@ import {
   useSidebar,
   useTipTapEditor,
   useTrackChanges,
-  useWordCount
+  useWordCount,
 } from './hooks';
 import type { FieldY, IYSettingsMap } from './hooks/useY';
 import './office-icon/colors1.css';
@@ -303,14 +303,6 @@ const Tiptap = (props: ITiptap) => {
       titlebarActions.set([]);
     };
   });
-
-  // set the page title
-  useEffect(() => {
-    title.set(props.title?.replace('- Cristata', '') || '');
-    return () => {
-      title.set('');
-    };
-  }, [props.title]);
 
   return (
     <Container theme={theme} isMaximized={props.isMaximized || false} ref={observe}>
