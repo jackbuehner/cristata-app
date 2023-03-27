@@ -2913,8 +2913,11 @@ export const ActivitiesList = gql`
       _id
       colName
       docId
+      docName: name
       type
+      at
       userIds {
+        _id
         name
       }
     }
@@ -3446,7 +3449,7 @@ export type ActivitiesListQueryVariables = Exact<{
 }>;
 
 
-export type ActivitiesListQuery = { __typename?: 'Query', activities?: { __typename?: 'PagedActivity', docs: Array<{ __typename?: 'Activity', _id: any, colName: string, docId: any, type: string, userIds: Array<{ __typename?: 'User', name: string } | null> } | null> } | null };
+export type ActivitiesListQuery = { __typename?: 'Query', activities?: { __typename?: 'PagedActivity', docs: Array<{ __typename?: 'Activity', _id: any, colName: string, docId: any, type: string, at: any, docName?: string | null, userIds: Array<{ __typename?: 'User', _id: any, name: string } | null> } | null> } | null };
 
 export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
 

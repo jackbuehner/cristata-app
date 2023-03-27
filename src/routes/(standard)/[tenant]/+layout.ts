@@ -242,7 +242,7 @@ async function switchTenant(tenant: string, currentLocation: URL) {
   else throw redirect(307, url.href);
 }
 
-interface LayoutDataType {
+export interface LayoutDataType {
   authUser: MaybePromise<AuthUserType>;
   sessionId: string;
   configuration: GlobalConfigQuery['configuration'];

@@ -24,6 +24,12 @@ export interface GraphqlQueryOptions<VariablesType> {
   fetchNextPages?: boolean;
   skip?: boolean;
   _varKey?: string;
+  /**
+   * Whether the store value should be reset to undefined.
+   *
+   * Default: `true`
+   */
+  clearStoreBeforeFetch?: boolean;
 }
 
 // cache store
@@ -283,7 +289,7 @@ export async function queryWithStore<DataType = unknown, VariablesType = unknown
   opts: GraphqlQueryOptions<VariablesType> & { waitForQuery?: boolean }
 ): Promise<Readable<StoreReturnType<DataType, VariablesType>>> {
   await new Promise<void>(async (resolve) => {
-    clearStoreData(opts);
+    if (opts.clearStoreBeforeFetch !== false) clearStoreData(opts);
 
     if (opts.waitForQuery) await query(opts);
     else query(opts);

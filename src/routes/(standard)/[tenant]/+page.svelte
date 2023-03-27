@@ -1,11 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
   import FluentIcon from '$common/FluentIcon.svelte';
   import { PageSubtitle, PageTitle } from '$common/PageTitle';
   import { TileButton } from '$common/TileButton';
+  import RecentActivity from '$lib/home/RecentActivity.svelte';
   import { ItemsRow } from '$react/Home/ItemsRow';
-  import { RecentActivity } from '$react/Home/RecentActivity';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
   import { copy } from 'copy-anything';
@@ -13,6 +12,7 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
+  $: ({ recentActivity } = data);
 </script>
 
 <PageTitle>Dashboard</PageTitle>
@@ -148,7 +148,12 @@
     <FluentIcon name="Pulse24Regular" slot="icon" />
     Recent activity
     <svelte:fragment slot="content">
-      <react:RecentActivity {data} />
+      <RecentActivity
+        activities={($recentActivity.data?.activities?.docs || []).filter(notEmpty)}
+        tenant={data.tenant}
+        configuration={data.configuration}
+        loading={$recentActivity.loading && !$recentActivity.data?.activities?.docs}
+      />
     </svelte:fragment>
   </Expander>
   <Expander href="/{data.tenant}/cms/workflow">

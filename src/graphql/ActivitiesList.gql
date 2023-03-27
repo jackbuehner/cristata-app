@@ -4,8 +4,11 @@ query ActivitiesList($page: Int, $limit: Int!, $filter: JSON, $sort: JSON) {
       _id
       colName
       docId
+      docName: name
       type
+      at
       userIds {
+        _id
         name
       }
     }
