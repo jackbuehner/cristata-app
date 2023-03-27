@@ -25,7 +25,7 @@
 
   // configure the navigation progress bar
   NProgress.configure({
-    parent: 'body',
+    parent: '#content-outer',
     easing: 'ease',
     speed: 500,
     trickle: true,
