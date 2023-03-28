@@ -3,6 +3,9 @@ query UsersList($page: Int, $limit: Int!) {
     docs {
       _id
       name
+      s: slug
+      u: username
+      e: email
       r: retired
       c: current_title
     }

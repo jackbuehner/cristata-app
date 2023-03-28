@@ -2,10 +2,10 @@
   import { beforeNavigate, goto } from '$app/navigation';
   import { page } from '$app/stores';
   import type { UsersListQuery } from '$graphql/graphql';
-  import { queryCacheStore } from '$graphql/query';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import Loading from '$lib/common/Loading.svelte';
   import NavigationView from '$lib/common/NavigationView.svelte';
+  import InviteUserDialog from '$lib/dialogs/InviteUserDialog.svelte';
   import { useCreateSchema } from '$react/configuration/CollectionSchemaPage/hooks/schema-modals/useCreateSchema';
   import { PlaygroundNavigation } from '$react/playground/PlaygroundNavigation';
   import { collapsedPane, collapsedPaneCompact } from '$stores/collapsedPane';
@@ -24,11 +24,11 @@
     ToggleSwitch,
   } from 'fluent-svelte';
   import { hooks } from 'svelte-preprocess-react';
-  import { useInviteUserModal } from '../../hooks/useCustomModal';
   import type { LayoutData } from '../../routes/(standard)/[tenant]/$types';
 
   export let data: LayoutData;
-  $: ({ basicProfiles, basicTeams } = data);
+  $: ({ basicProfiles, basicTeams, fieldDescriptions: _fieldDescriptions } = data);
+  $: profilesFieldDescriptions = $_fieldDescriptions.data?.configuration?.apps.profiles.fieldDescriptions;
 
   $: isConfigRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/configuration/`);
   $: isCmsRoute = $page.url.pathname.includes(`/${data.authUser.tenant}/cms/`);
@@ -462,7 +462,8 @@
 
   $: collectionNames = data.configuration?.collections?.map((col) => col?.name).filter(notEmpty) || [];
   $: createSchemaHookStore = hooks(() => useCreateSchema(collectionNames));
-  $: inviteUserModalHookStore = hooks(() => useInviteUserModal());
+
+  let inviteUserDialogOpen = false;
 
   let hideInactiveUsers = true;
   let sortUsersByLastName = true;
@@ -561,15 +562,12 @@
         </MenuFlyoutItem>
       {/if}
       {#if isProfilesRoute}
-        {#if $inviteUserModalHookStore}
-          {@const [, showModal] = $inviteUserModalHookStore}
-          <MenuFlyoutItem on:click={showModal}>
-            <svelte:fragment slot="icon">
-              <FluentIcon name="PersonAdd20Regular" />
-            </svelte:fragment>
-            Invite new user
-          </MenuFlyoutItem>
-        {/if}
+        <MenuFlyoutItem on:click={() => (inviteUserDialogOpen = !inviteUserDialogOpen)}>
+          <svelte:fragment slot="icon">
+            <FluentIcon name="PersonAdd20Regular" />
+          </svelte:fragment>
+          Invite new user
+        </MenuFlyoutItem>
         <MenuFlyoutDivider />
         <MenuFlyoutItem on:click={() => $basicProfiles.refetch()}>
           <svelte:fragment slot="icon">
@@ -599,15 +597,12 @@
         </MenuFlyoutItem>
       {/if}
       {#if isTeamsRoute}
-        {#if $inviteUserModalHookStore}
-          {@const [, showModal] = $inviteUserModalHookStore}
-          <MenuFlyoutItem on:click={showModal}>
-            <svelte:fragment slot="icon">
-              <FluentIcon name="PersonAdd20Regular" />
-            </svelte:fragment>
-            Invite new user
-          </MenuFlyoutItem>
-        {/if}
+        <MenuFlyoutItem on:click={() => (inviteUserDialogOpen = !inviteUserDialogOpen)}>
+          <svelte:fragment slot="icon">
+            <FluentIcon name="PersonAdd20Regular" />
+          </svelte:fragment>
+          Invite new user
+        </MenuFlyoutItem>
         <MenuFlyoutDivider />
         <MenuFlyoutItem on:click={() => $basicTeams.refetch()}>
           <svelte:fragment slot="icon">
@@ -619,6 +614,13 @@
     </svelte:fragment>
   </MenuFlyout>
 </div>
+
+<InviteUserDialog
+  bind:open={inviteUserDialogOpen}
+  tenant={data.authUser.tenant}
+  fieldDescriptions={profilesFieldDescriptions}
+  basicProfiles={data.basicProfiles}
+/>
 
 <style>
   .settings-flyout {

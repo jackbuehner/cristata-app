@@ -1,0 +1,21 @@
+mutation CreateUser(
+  $name: String!
+  $username: String!
+  $slug: String!
+  $email: String!
+  $phone: Float
+  $current_title: String!
+  $retired: Boolean
+) {
+  userCreate(
+    name: $name
+    username: $username
+    slug: $slug
+    email: $email
+    current_title: $current_title
+    phone: $phone
+    retired: $retired
+  ) {
+    _id
+  }
+}

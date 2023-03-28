@@ -1,16 +1,23 @@
 <script lang="ts">
   import { ReferenceOne } from '$components/ContentField';
-  import { RemoveUserFromTeam } from '$graphql/graphql';
+  import { RemoveUserFromTeam, type FieldDescriptionsQuery } from '$graphql/graphql';
   import { server } from '$utils/constants';
   import { notEmpty } from '$utils/notEmpty';
   import { Button, ContentDialog, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
   import { print } from 'graphql';
-  import { hooks } from 'svelte-preprocess-react';
-  import { useInviteUserModal } from '../../hooks/useCustomModal';
+  import type { LayoutDataType } from '../../routes/(standard)/[tenant]/+layout';
+  import InviteUserDialog from './InviteUserDialog.svelte';
+
+  type ProfileAppConfig = NonNullable<
+    NonNullable<NonNullable<FieldDescriptionsQuery['configuration']>['apps']>['profiles']
+  >;
+  type FieldDescriptions = Omit<ProfileAppConfig['fieldDescriptions'], '__typename'>;
 
   export let open = false;
 
   export let tenant: string;
+  export let profilesFieldDescriptions: FieldDescriptions | undefined = undefined;
+  export let basicProfiles: LayoutDataType['basicProfiles'];
 
   export let team_id: string;
   export let organizers: string[];
@@ -29,6 +36,8 @@
   let hasChanged = false;
   let loadingSubmit = false;
   let loadingCancel = false;
+
+  let inviteUserDialogOpen = false;
 
   async function addUser(userIdToAdd: string): Promise<boolean> {
     const res = await fetch(`${server.location}/v3/${tenant}`, {
@@ -87,8 +96,6 @@
   async function afterInvite(invitedUserId: string) {
     handleSave(invitedUserId);
   }
-
-  $: inviteUserModalHookStore = hooks(() => useInviteUserModal({ afterInvite }));
 </script>
 
 <ContentDialog
@@ -125,13 +132,10 @@
     </InfoBar>
   {/if}
 
-  {#if $inviteUserModalHookStore}
-    {@const [, showModal] = $inviteUserModalHookStore}
-    <InfoBar severity="information" title="Need to invite someone new?">
-      Use the invitation dialog. They will be added to this team upon invitation.
-      <Button slot="action" on:click={showModal}>Invite new user</Button>
-    </InfoBar>
-  {/if}
+  <InfoBar severity="information" title="Need to invite someone new?">
+    Use the invitation dialog. They will be added to this team upon invitation.
+    <Button slot="action" on:click={() => (inviteUserDialogOpen = true)}>Invite new user</Button>
+  </InfoBar>
 
   <svelte:fragment slot="footer">
     <Button
@@ -168,6 +172,14 @@
     </Button>
   </svelte:fragment>
 </ContentDialog>
+
+<InviteUserDialog
+  bind:open={inviteUserDialogOpen}
+  {tenant}
+  fieldDescriptions={profilesFieldDescriptions}
+  {basicProfiles}
+  handleSumbit={afterInvite}
+/>
 
 <style>
   div.field {

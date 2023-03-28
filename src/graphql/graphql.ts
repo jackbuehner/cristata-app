@@ -2997,6 +2997,21 @@ export const CreateTeam = gql`
   }
 }
     `;
+export const CreateUser = gql`
+    mutation CreateUser($name: String!, $username: String!, $slug: String!, $email: String!, $phone: Float, $current_title: String!, $retired: Boolean) {
+  userCreate(
+    name: $name
+    username: $username
+    slug: $slug
+    email: $email
+    current_title: $current_title
+    phone: $phone
+    retired: $retired
+  ) {
+    _id
+  }
+}
+    `;
 export const CreateWebhook = gql`
     mutation CreateWebhook($name: String!, $url: String!, $verb: String!, $collections: [String], $triggers: [String]) {
   cristataWebhookCreate(
@@ -3384,6 +3399,9 @@ export const UsersList = gql`
     docs {
       _id
       name
+      s: slug
+      u: username
+      e: email
       r: retired
       c: current_title
     }
@@ -3494,6 +3512,19 @@ export type CreateTeamMutationVariables = Exact<{
 
 
 export type CreateTeamMutation = { __typename?: 'Mutation', teamCreate?: { __typename?: 'Team', _id: any } | null };
+
+export type CreateUserMutationVariables = Exact<{
+  name: Scalars['String'];
+  username: Scalars['String'];
+  slug: Scalars['String'];
+  email: Scalars['String'];
+  phone?: InputMaybe<Scalars['Float']>;
+  current_title: Scalars['String'];
+  retired?: InputMaybe<Scalars['Boolean']>;
+}>;
+
+
+export type CreateUserMutation = { __typename?: 'Mutation', userCreate?: { __typename?: 'User', _id: any } | null };
 
 export type CreateWebhookMutationVariables = Exact<{
   name: Scalars['String'];
@@ -3656,7 +3687,7 @@ export type UsersListQueryVariables = Exact<{
 }>;
 
 
-export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, r?: boolean | null, c?: string | null } | null> } | null };
+export type UsersListQuery = { __typename?: 'Query', users?: { __typename?: 'PagedUser', docs: Array<{ __typename?: 'User', _id: any, name: string, s: string, u?: string | null, e?: string | null, r?: boolean | null, c?: string | null } | null> } | null };
 
 export type WebhookQueryVariables = Exact<{
   _id: Scalars['ObjectID'];

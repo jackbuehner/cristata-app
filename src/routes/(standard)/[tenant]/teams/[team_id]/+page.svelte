@@ -16,7 +16,8 @@
   import PersonCard from './PersonCard.svelte';
 
   export let data: PageData;
-  $: ({ team } = data);
+  $: ({ team, fieldDescriptions } = data);
+  $: profilesFieldDescriptions = $fieldDescriptions.data?.configuration?.apps.profiles.fieldDescriptions;
 
   $: name = $team.data?.team?.name || $page.url.searchParams.get('name');
 
@@ -175,6 +176,8 @@
         members={$team.data.team.members.filter(notEmpty).map(({ _id }) => _id)}
         organizers={$team.data.team.organizers.filter(notEmpty).map(({ _id }) => _id)}
         tenant={data.authUser.tenant}
+        {profilesFieldDescriptions}
+        basicProfiles={data.basicProfiles}
         mode="member"
         handleSumbit={async () => {
           loading = true;
@@ -188,6 +191,8 @@
         members={$team.data.team.members.filter(notEmpty).map(({ _id }) => _id)}
         organizers={$team.data.team.organizers.filter(notEmpty).map(({ _id }) => _id)}
         tenant={data.authUser.tenant}
+        {profilesFieldDescriptions}
+        basicProfiles={data.basicProfiles}
         mode="organizer"
         handleSumbit={async () => {
           loading = true;
