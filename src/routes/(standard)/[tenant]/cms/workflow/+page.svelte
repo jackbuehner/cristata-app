@@ -1,19 +1,22 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import { BoardCard, BoardColumn, BoardWrapper } from '$lib/common/Board';
   import { FilterChip } from '$lib/common/Chip';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
   import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
-  import { WorkflowPage } from '$react/CMS/WorkflowPage';
+  import { motionMode } from '$stores/motionMode';
   import { themeMode } from '$stores/themeMode';
   import { camelToDashCase } from '$utils/camelToDashCase';
   import { notEmpty } from '$utils/notEmpty';
+  import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { Button, MenuFlyout, MenuFlyoutItem, ProgressRing } from 'fluent-svelte';
   import pluralize from 'pluralize';
   import { onMount } from 'svelte';
   import { hooks } from 'svelte-preprocess-react';
+  import { expoOut } from 'svelte/easing';
+  import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -71,6 +74,8 @@
 
   let refetching = false;
   let createDropdownOpen = false;
+
+  $: workflow = $workflowComplete.data?.workflow?.filter(notEmpty) || [];
 </script>
 
 <div class="wrapper">
@@ -100,14 +105,13 @@
       </div>
 
       <Button
+        disabled={$workflowComplete.loading}
         on:click={async () => {
-          refetching = true;
           await $workflowComplete.refetch();
-          refetching = false;
         }}
         style="width: 130px;"
       >
-        {#if refetching}
+        {#if $workflowComplete.loading}
           <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
         {:else}
           <FluentIcon name="ArrowClockwise16Regular" mode="buttonIconLeft" />
@@ -170,7 +174,62 @@
     {/if}
   </div>
 
-  <react:WorkflowPage data={$workflowComplete.data?.workflow} />
+  <BoardWrapper columns={4}>
+    {#each [workflow.find((group) => group._id === 1) || { _id: 1, count: 0, docs: [] }, workflow.find((group) => group._id === 2) || { _id: 2, count: 0, docs: [] }, workflow.find((group) => group._id === 3) || { _id: 3, count: 0, docs: [] }, workflow.find((group) => group._id === 4) || { _id: 4, count: 0, docs: [] }] as group}
+      <BoardColumn
+        title={group._id === 1
+          ? 'Planning'
+          : group._id === 2
+          ? 'Draft'
+          : group._id === 3
+          ? 'In review'
+          : 'Ready'}
+      >
+        {#each group.docs.filter(notEmpty) || [] as doc}
+          {@const collection = data.configuration?.collections
+            ?.filter(notEmpty)
+            .find((col) => col.name === doc.in)}
+          {@const deconstructedSchema = deconstructSchema(JSON.parse(collection?.schemaDef || '{}'))}
+
+          {@const pluralLabel = collection?.pluralLabel}
+
+          {@const defaultColor = (() => {
+            if (parseInt(`${doc.stage}`) === 1) return 'indigo';
+            if (parseInt(`${doc.stage}`) === 2) return 'orange';
+            if (parseInt(`${doc.stage}`) === 3) return 'red';
+            if (parseInt(`${doc.stage}`) === 4) return 'blue';
+            return 'neutral';
+          })()}
+
+          {@const stageChips = deconstructedSchema.find(([key]) => key === 'stage')?.[1].column?.chips}
+          {@const stageChip =
+            stageChips && Array.isArray(stageChips)
+              ? stageChips.find((chip) => chip.value === doc.stage) || { value: doc.stage }
+              : { value: doc.stage }}
+
+          {@const shouldOpenMaximized = !!deconstructedSchema.find(
+            ([key, def]) => key === 'body' && def.field?.tiptap
+          )}
+
+          {@const canAccessById = collection?.by?.one === '_id'}
+          {@const itemQueryString = shouldOpenMaximized ? '?fs=1&props=1' : ''}
+          {@const href = canAccessById
+            ? `${data.tenant}/cms/collection/${camelToDashCase(doc.in)}/${doc._id}${itemQueryString}`
+            : undefined}
+
+          <div in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}>
+            <BoardCard
+              label={pluralLabel}
+              chip={{ value: stageChip.value, label: stageChip.label, color: stageChip.color || defaultColor }}
+              {href}
+            >
+              {doc.name}
+            </BoardCard>
+          </div>
+        {/each}
+      </BoardColumn>
+    {/each}
+  </BoardWrapper>
 </div>
 
 <style>

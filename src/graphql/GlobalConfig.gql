@@ -5,6 +5,11 @@ query GlobalConfig {
       pluralLabel: pluralName
       canCreateAndGet
       hasRichTextBody
+      schemaDef
+      by {
+        one
+        many
+      }
     }
     navigation {
       main {

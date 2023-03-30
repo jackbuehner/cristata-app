@@ -11,7 +11,9 @@
   export let color: colorType = 'green';
   export let shade: { dark: colorShadeType; light: colorShadeType } = { dark: 300, light: 800 };
   $: themeColor =
-    color === 'neutral' ? theme($themeMode).color.neutral[$themeMode] : theme($themeMode).color[color];
+    color === 'neutral' || !color
+      ? theme($themeMode).color.neutral[$themeMode]
+      : theme($themeMode).color[color];
   $: colorShade = (() => {
     if (color === 'neutral') return 1200;
     return $themeMode === 'light' ? shade.light : shade.dark;
