@@ -222,14 +222,18 @@ function useY(
     },
   };
 
-  const [sharedValues, setSharedValues] = useState<Record<string, unknown>>({});
-  const [sharedValuesInternal, setSharedValuesInternal] = useState<Record<string, unknown>>({});
+  const [_sharedValues, _setSharedValues] = useState<[Record<string, unknown>, Record<string, unknown>]>([
+    {},
+    {},
+  ]);
   const handleDocUpdate = AwesomeDebouncePromise(async () => {
     if (schemaDef) {
-      setSharedValues(await retObj.getData());
-      setSharedValuesInternal(await retObj.getData({ retainReferenceObjects: true, keepJsonParsed: true }));
+      const sharedValues = (await retObj.getData()) ?? {};
+      const setSharedValuesInternal =
+        (await retObj.getData({ retainReferenceObjects: true, keepJsonParsed: true })) ?? {};
+      _setSharedValues([sharedValues, setSharedValuesInternal]);
     }
-  }, 300);
+  }, 500);
   useEffect(() => {
     if (ydoc && schemaDef) {
       ydoc.on('update', handleDocUpdate);
@@ -239,6 +243,7 @@ function useY(
     }
   });
 
+  const [sharedValues, sharedValuesInternal] = _sharedValues;
   return { ...retObj, data: sharedValues, fullData: sharedValuesInternal };
 }
 
