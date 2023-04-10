@@ -52,10 +52,10 @@ import { dashToCamelCase } from '../../../utils/dashToCamelCase';
 import { genAvatar } from '../../../utils/genAvatar';
 import type { colorType, themeType } from '../../../utils/theme/theme';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import type { GetYFieldsOptions } from './getYFields';
-import { getYFields } from './getYFields';
 import { PreviewFrame } from './PreviewFrame';
 import { Sidebar } from './Sidebar';
+import type { GetYFieldsOptions } from './getYFields';
+import { getYFields } from './getYFields';
 import type { Action } from './useActions';
 import { useActions } from './useActions';
 import { useFindDoc } from './useFindDoc';
@@ -80,14 +80,7 @@ function CollectionItemPage(props: CollectionItemPageProps) {
   };
 
   if (!!collection && !!item_id) {
-    return (
-      <CollectionItemPageReal
-        collection={collection}
-        item_id={item_id}
-        version_date={version_date}
-        data={props.data}
-      />
-    );
+    return <CollectionItemPageReal collection={collection} item_id={item_id} version_date={version_date} />;
   }
 
   return null;
@@ -97,10 +90,9 @@ interface CollectionItemPageRealProps {
   collection: string;
   item_id: string;
   version_date?: string;
-  data?: PageData;
 }
 
-function CollectionItemPageReal({ collection, item_id, version_date, data }: CollectionItemPageRealProps) {
+function CollectionItemPageReal({ collection, item_id, version_date }: CollectionItemPageRealProps) {
   const authUserState = useAppSelector((state) => state.authUser);
   const collectionName = capitalize(pluralize.singular(dashToCamelCase(collection)));
 
@@ -129,14 +121,13 @@ function CollectionItemPageReal({ collection, item_id, version_date, data }: Col
     schemaDef,
   }); // create or load y
 
-  return <CollectionItemPageContent y={y} user={user} data={data} />;
+  return <CollectionItemPageContent y={y} user={user} />;
 }
 
 interface CollectionItemPageContentProps {
   y: EntryY;
   user: ReturnType<typeof useAwareness>[0];
   isEmbedded?: boolean; // controls whether header, padding, tiptap, etc are hidden
-  data?: PageData;
 }
 
 function CollectionItemPageContent(props: CollectionItemPageContentProps) {
