@@ -44,7 +44,7 @@ function ExternalFrame({ src, tiptapwidth, setIframehtmlstring, ...props }: Exte
 
     window.addEventListener('message', reportMessages, false);
     return () => {
-      window.removeEventListener('message', reportMessages);
+      window.removeEventListener('message', reportMessages, false);
     };
   }, [setIframehtmlstring, src, props.y.fullData]);
 
