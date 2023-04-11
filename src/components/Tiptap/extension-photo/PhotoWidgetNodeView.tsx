@@ -1,9 +1,10 @@
+import { query } from '$graphql/query';
 import { useModal } from '@cristata/react-modal-hook';
 import styled from '@emotion/styled';
 import { Delete16Regular, Edit16Regular, TextDescription20Regular } from '@fluentui/react-icons';
 import type { Node, NodeViewProps } from '@tiptap/react';
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ClientConsumer } from '../../../graphql/client';
 import type { PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE } from '../../../graphql/queries';
@@ -15,40 +16,40 @@ import { Select } from '../../Select';
 import { WidgetActions, WidgetLabel, WidgetWrapper } from '../components/Widget';
 import type { PhotoWidgetOptions } from './PhotoWidget';
 
-import * as apolloRaw from '@apollo/client';
-const { useQuery } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
-
 interface IPhotoWidgetNodeView extends NodeViewProps {
   extension: Node<PhotoWidgetOptions>;
 }
 
 function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
-  const widgetRef = useRef<HTMLDivElement>(null);
   const { updateAttributes } = props;
   const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
 
   // get the photo from the database using the photoId attribute
-  const PHOTO_QUERY = useQuery<PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE>(
-    PHOTOS_BASIC_BY_REGEXNAME_OR_URL(props.node.attrs.photoId),
-    {
-      fetchPolicy: 'no-cache',
-    }
-  );
-  const photo = PHOTO_QUERY.data?.photos?.docs?.[0];
-
-  // set the photo url and credit attributes
   useEffect(() => {
-    if (photo && props.editor.isEditable) {
-      if (photo.photo_url) updateAttributes({ photoUrl: photo.photo_url });
-      if (photo.people?.photo_created_by) updateAttributes({ photoCredit: photo.people.photo_created_by });
-    }
-  }, [photo, props.editor.isEditable, updateAttributes]);
+    query<PHOTOS_BASIC_BY_REGEXNAME_OR_URL__TYPE>({
+      fetch,
+      tenant: window.location.pathname.split('/')[1],
+      query: PHOTOS_BASIC_BY_REGEXNAME_OR_URL(props.node.attrs.photoId),
+      useCache: false,
+    }).then((result) => {
+      const photo = result?.data?.photos?.docs?.[0];
+
+      // set the photo url and credit attributes
+      if (photo && props.editor.isEditable) {
+        if (photo.photo_url && photo.photo_url !== props.node.attrs.photoUrl) {
+          updateAttributes({ photoUrl: photo.photo_url });
+        }
+        if (photo.people?.photo_created_by && photo.people.photo_created_by !== props.node.attrs.photoCredit) {
+          updateAttributes({ photoCredit: photo.people.photo_created_by });
+        }
+      }
+    });
+  }, [props.node.attrs.photoId]);
 
   // insert photo widget
   const [showPhotoWidgetModal, hidePhotoWidgetModal] = useModal(() => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [photoId, setPhotoId] = useState<HTMLTextAreaElement['value']>(props.node.attrs.photoId);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [photoId, setPhotoId] = useState<string>(props.node.attrs.photoId);
+    const [photoUrl, setPhotoUrl] = useState<string>(props.node.attrs.photoUrl);
     const [photoPos, setPhotoPos] = useState<string>(props.node.attrs.position);
 
     return (
@@ -58,7 +59,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
         continueButton={{
           text: 'Insert',
           onClick: () => {
-            updateAttributes({ photoId: photoId, position: photoPos });
+            updateAttributes({ photoId, photoUrl, position: photoPos });
             return true;
           },
           disabled: photoId.length < 1 || !props.editor.isEditable,
@@ -86,6 +87,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
                     const options = data?.photos.docs.map((photo) => ({
                       value: photo._id,
                       label: photo.name,
+                      photoUrl: photo.photo_url,
                     }));
 
                     // return the options array
@@ -93,7 +95,12 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
                   }}
                   async
                   val={photoId}
-                  onChange={(valueObj) => (valueObj ? setPhotoId(valueObj.value) : null)}
+                  onChange={(valueObj) => {
+                    if (valueObj) {
+                      setPhotoId(valueObj.value);
+                      setPhotoUrl(valueObj.photoUrl);
+                    }
+                  }}
                 />
               )}
             </ClientConsumer>
@@ -130,7 +137,6 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
     <NodeViewWrapper contentEditable={false}>
       <WidgetWrapper
         position={props.node.attrs.position}
-        ref={widgetRef}
         onMouseOver={() => setIsMouseOver(true)}
         onMouseOut={() => setIsMouseOver(false)}
       >
@@ -141,7 +147,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
                 ? '0 0 20px 0'
                 : '20px 0',
           }}
-          src={photo?.photo_url || props.node.attrs.photoUrl}
+          src={props.node.attrs.photoUrl + '?tr=w-600'}
           alt={''}
         />
         <WidgetLabel isVisible={isMouseOver} data-drag-handle draggable={true}>
@@ -177,7 +183,7 @@ function PhotoWidgetNodeView(props: IPhotoWidgetNodeView) {
             show={props.node.attrs.showCaption}
             showPlaceholder={props.node.textContent.length === 0}
           />
-          <Source>{photo?.people.photo_created_by || props.node.attrs.photoCredit}</Source>
+          <Source>{props.node.attrs.photoCredit}</Source>
         </Caption>
       </WidgetWrapper>
     </NodeViewWrapper>
