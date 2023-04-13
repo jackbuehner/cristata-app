@@ -18,6 +18,7 @@
   p {
     padding: 0 20px;
     max-width: 1000px;
+    display: block;
   }
   :global(.text-block.type-subtitle.page-subtitle-h2) {
     margin: 25px auto 10px auto;
