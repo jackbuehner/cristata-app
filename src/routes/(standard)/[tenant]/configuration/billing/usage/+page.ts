@@ -7,6 +7,7 @@ export const load = (async ({ params }) => {
     fetch,
     tenant: params.tenant,
     query: ServiceUsage,
+    clearStoreBeforeFetch: false,
   });
 
   return { serviceUsage };

@@ -14,7 +14,7 @@
 
 <PageTitle>Service usage</PageTitle>
 
-<ActionRow fullWidth>
+<ActionRow>
   <Button
     style="width: 140px;"
     on:click={() => {

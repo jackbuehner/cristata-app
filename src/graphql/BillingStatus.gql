@@ -1,0 +1,11 @@
+query BillingStatus {
+  billing {
+    features {
+      allowDiskUse
+    }
+    stripe_customer_id
+    stripe_subscription_id
+    subscription_last_payment
+    subscription_active
+  }
+}

@@ -97,6 +97,7 @@
   $: showAppBar =
     $page.url.pathname.includes('/configuration/') &&
     !$page.url.pathname.includes('/configuration/billing/usage') &&
+    !$page.url.pathname.includes('/configuration/billing/payments') &&
     !$page.url.pathname.includes('/configuration/app/profiles') &&
     !$page.url.pathname.includes('/configuration/app/photos') &&
     !$page.url.pathname.includes('/configuration/security/event') &&

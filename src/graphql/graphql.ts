@@ -2935,6 +2935,19 @@ export const BasicProfileMe = gql`
   }
 }
     `;
+export const BillingStatus = gql`
+    query BillingStatus {
+  billing {
+    features {
+      allowDiskUse
+    }
+    stripe_customer_id
+    stripe_subscription_id
+    subscription_last_payment
+    subscription_active
+  }
+}
+    `;
 export const CollectionConfig = gql`
     query CollectionConfig($collectionName: String!) {
   configuration {
@@ -3495,6 +3508,11 @@ export type BasicProfileMeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type BasicProfileMeQuery = { __typename?: 'Query', user?: { __typename?: 'User', _id: any, name: string, email?: string | null, current_title?: string | null, photo?: string | null } | null };
+
+export type BillingStatusQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BillingStatusQuery = { __typename?: 'Query', billing: { __typename?: 'Billing', stripe_customer_id?: string | null, stripe_subscription_id?: string | null, subscription_last_payment?: string | null, subscription_active: boolean, features: { __typename?: 'BillingFeatures', allowDiskUse: boolean } } };
 
 export type CollectionConfigQueryVariables = Exact<{
   collectionName: Scalars['String'];
