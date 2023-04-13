@@ -2,6 +2,7 @@ query BillingStatus {
   billing {
     features {
       allowDiskUse
+      useCustomIntegrations
     }
     stripe_customer_id
     stripe_subscription_id

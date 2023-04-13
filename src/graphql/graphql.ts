@@ -66,6 +66,7 @@ export type Billing = {
 export type BillingFeatures = {
   __typename?: 'BillingFeatures';
   allowDiskUse: Scalars['Boolean'];
+  useCustomIntegrations: Scalars['Boolean'];
 };
 
 export type Collection = {
@@ -1405,11 +1406,17 @@ export type MutationBilling = {
 export type MutationBillingFeatures = {
   __typename?: 'MutationBillingFeatures';
   allowDiskUse: Scalars['Boolean'];
+  useCustomIntegrations: Scalars['Boolean'];
 };
 
 
 export type MutationBillingFeaturesAllowDiskUseArgs = {
   allowDiskUse: Scalars['Boolean'];
+};
+
+
+export type MutationBillingFeaturesUseCustomIntegrationsArgs = {
+  useCustomIntegrations: Scalars['Boolean'];
 };
 
 export type Newsletter = {
@@ -2940,6 +2947,7 @@ export const BillingStatus = gql`
   billing {
     features {
       allowDiskUse
+      useCustomIntegrations
     }
     stripe_customer_id
     stripe_subscription_id
@@ -3512,7 +3520,7 @@ export type BasicProfileMeQuery = { __typename?: 'Query', user?: { __typename?: 
 export type BillingStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BillingStatusQuery = { __typename?: 'Query', billing: { __typename?: 'Billing', stripe_customer_id?: string | null, stripe_subscription_id?: string | null, subscription_last_payment?: string | null, subscription_active: boolean, features: { __typename?: 'BillingFeatures', allowDiskUse: boolean } } };
+export type BillingStatusQuery = { __typename?: 'Query', billing: { __typename?: 'Billing', stripe_customer_id?: string | null, stripe_subscription_id?: string | null, subscription_last_payment?: string | null, subscription_active: boolean, features: { __typename?: 'BillingFeatures', allowDiskUse: boolean, useCustomIntegrations: boolean } } };
 
 export type CollectionConfigQueryVariables = Exact<{
   collectionName: Scalars['String'];

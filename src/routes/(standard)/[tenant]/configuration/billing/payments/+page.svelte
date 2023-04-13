@@ -9,6 +9,7 @@
   import { Button, Expander, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
   import { expoOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
+  import PlanCard from './PlanCards.svelte';
 
   export let data;
   $: ({ billingStatus } = data);
@@ -50,12 +51,14 @@
   <div in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}>
     {#if $billingStatus.errors}
       <div class="error">
-        <InfoBar severity="critical" title="Failed to save changes">
+        <InfoBar severity="critical" title="Failed to load status">
           {JSON.stringify($billingStatus.errors)}
         </InfoBar>
       </div>
     {:else if $billingStatus.data?.billing.subscription_active}
-      <PageSubtitle caption="Thank you!">You are currently subscribed to Cristata</PageSubtitle>
+      <PageSubtitle caption="Thank you! Please email billing-change@cristata.app to switch to a different plan."
+        >You are currently subscribed to Cristata</PageSubtitle
+      >
       <section>
         <form
           style="margin-top: 10px;"
@@ -72,7 +75,7 @@
           <Button type="submit">View invoices</Button>
         </form>
         <Expander expanded style="margin-top: 10px;">
-          Advanced options
+          Advanced options & add-ons
           <svelte:fragment slot="content">
             <StatelessCheckbox
               disabled={$billingStatus.loading || updating}
@@ -110,14 +113,64 @@
                   });
               }}
             >
-              Allow using disk space when query memory exceeds the limit ($0.03 / hour)
+              Allow using disk space when query memory exceeds the limit ($0.03 / hour, by period)
             </StatelessCheckbox>
             <TextBlock style="margin-left: 28px; opacity: 0.8;">
               This ensures that high-memory queries can finish executing. It is only necessary to enable if your
               queries get the <code>QueryExceededMemoryLimitNoDiskUseAllowed</code> error.
             </TextBlock>
+            <br />
+            <br />
+            <StatelessCheckbox
+              disabled={$billingStatus.loading || updating}
+              checked={$billingStatus.data.billing.features.useCustomIntegrations}
+              on:change={(evt) => {
+                updating = true;
+                fetch(`${server.location}/v3/${data.authUser.tenant}`, {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    query: `
+                  mutation SetUseCustomIntegrations($useCustomIntegrations: Boolean!) {
+                    billing {
+                      features {
+                        useCustomIntegrations(useCustomIntegrations: $useCustomIntegrations)
+                      }
+                    }
+                  }
+                `,
+                    variables: { useCustomIntegrations: evt.detail.checked || false },
+                  }),
+                })
+                  .finally(() => {
+                    error = '';
+                    updating = false;
+                  })
+                  .then((res) => {
+                    if (res.status === 200) {
+                      $billingStatus.refetch();
+                    } else throw new Error(`${res.status}: ${res.statusText}`);
+                  })
+                  .catch((err) => {
+                    error = `Failed to change integrations subscription setting. (${err.message})`;
+                  });
+              }}
+            >
+              Use embedded previews ($50 / period)
+            </StatelessCheckbox>
+            <TextBlock style="margin-left: 28px; opacity: 0.8;">
+              This allows showing previews at the top of the document editor or as a separate tab. These
+              previews update as soon as content changes. The rich text editor is required for this feature.
+            </TextBlock>
           </svelte:fragment>
         </Expander>
+      </section>
+
+      <PageSubtitle>Plans</PageSubtitle>
+
+      <section class="plans">
+        <PlanCard />
       </section>
     {:else if canceled}
       <PageSubtitle caption=":(">Subscription cancelled</PageSubtitle>
@@ -152,6 +205,12 @@
           </form>
         {/if}
       </section>
+
+      <PageSubtitle>Plans</PageSubtitle>
+
+      <section class="plans">
+        <PlanCard />
+      </section>
     {/if}
   </div>
 {/if}
@@ -162,5 +221,12 @@
     margin: 0 auto 20px auto;
     padding: 0 20px;
     max-width: 1000px;
+  }
+
+  section.plans {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
   }
 </style>
