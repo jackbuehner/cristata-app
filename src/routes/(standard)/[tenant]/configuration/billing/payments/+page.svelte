@@ -46,7 +46,7 @@
   </div>
 {/if}
 
-{#if !$billingStatus.loading}
+{#if $billingStatus.data}
   <div in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}>
     {#if $billingStatus.errors}
       <div class="error">
