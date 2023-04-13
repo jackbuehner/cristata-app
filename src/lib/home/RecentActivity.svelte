@@ -212,14 +212,18 @@
                 flex-direction: row;
               "
                 >
-                  <Button variant="hyperlink" style="padding: 0;" href="/{tenant}/profile/{user._id}">
+                  <Button
+                    variant="hyperlink"
+                    style="padding: 0; white-space: nowrap;"
+                    href="/{tenant}/profile/{user._id}"
+                  >
                     {user.name}
                   </Button>
 
-                  <span class="activity-text" style="white-space: nowrap;">
+                  <span class="activity-text" style="white-space: pre;">
                     {#if users.length === 2}
                       {#if index === 0}
-                        and
+                        {' and'}
                       {/if}
                     {:else if users.length >= 3}
                       {#if index === users.length - 2}
@@ -237,7 +241,7 @@
               {#each doc.actions as type}
                 {#if type === 'created'}
                   created
-                {:else if type === 'ydoc-modified' || type === 'modified'}
+                {:else if type === 'ydoc-modified' || type === 'modified' || type === 'patched'}
                   modified
                 {:else if type === 'published'}
                   published
@@ -336,6 +340,7 @@
     flex-direction: row;
     align-items: center;
     gap: 3px;
+    flex-wrap: wrap;
   }
 
   .activity :global(.button.style-hyperlink) {
