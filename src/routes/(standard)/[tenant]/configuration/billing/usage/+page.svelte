@@ -64,12 +64,12 @@
     not the space that you might use. Keeps tabs on how much space you are consuming here.
   </TextBlock>
 
-  <TextBlock tag="h3" variant="bodyStrong" class="subsubhead">Billable queries</TextBlock>
+  <TextBlock tag="h3" variant="bodyStrong" class="subsubhead">Database storage</TextBlock>
   <TextBlock tag="span" variant="bodyLarge">
     {(($serviceUsage.data?.billing.usage.storage.database || 0) / 1000000000).toFixed(2)} GB
   </TextBlock>
 
-  <TextBlock tag="h3" variant="bodyStrong" class="subsubhead">Total queries</TextBlock>
+  <TextBlock tag="h3" variant="bodyStrong" class="subsubhead">File storage</TextBlock>
   <TextBlock tag="span" variant="bodyLarge">
     {(($serviceUsage.data?.billing.usage.storage.files || 0) / 1000000000).toFixed(2)} GB
   </TextBlock>
