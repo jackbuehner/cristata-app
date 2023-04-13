@@ -3316,6 +3316,23 @@ export const SaveUserEdits = gql`
   }
 }
     `;
+export const ServiceUsage = gql`
+    query ServiceUsage($month: Int, $year: Int) {
+  billing {
+    usage {
+      api(month: $month, year: $year) {
+        billable
+        total
+        since
+      }
+      storage {
+        database
+        files
+      }
+    }
+  }
+}
+    `;
 export const SignS3 = gql`
     query SignS3($fileName: String!, $fileType: String!, $s3Bucket: String!) {
   s3Sign(fileName: $fileName, fileType: $fileType, s3Bucket: $s3Bucket) {
@@ -3648,6 +3665,14 @@ export type SaveUserEditsMutationVariables = Exact<{
 
 
 export type SaveUserEditsMutation = { __typename?: 'Mutation', userModify?: { __typename?: 'User', _id: any } | null };
+
+export type ServiceUsageQueryVariables = Exact<{
+  month?: InputMaybe<Scalars['Int']>;
+  year?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type ServiceUsageQuery = { __typename?: 'Query', billing: { __typename?: 'Billing', usage: { __typename?: 'Usage', api?: { __typename?: 'ApiUsage', billable: number, total: number, since: any } | null, storage: { __typename?: 'UsageStorage', database: number, files: number } } } };
 
 export type SignS3QueryVariables = Exact<{
   fileName: Scalars['String'];

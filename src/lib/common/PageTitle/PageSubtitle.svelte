@@ -5,9 +5,7 @@
   export let caption: string = '';
 </script>
 
-<h2>
-  <TextBlock variant="subtitle" tag="span" {style}><slot /></TextBlock>
-</h2>
+<TextBlock variant="subtitle" tag="h2" class="page-subtitle-h2" {style}><slot /></TextBlock>
 
 {#if caption}
   <p>
@@ -16,12 +14,12 @@
 {/if}
 
 <style>
-  h2,
+  :global(.text-block.type-subtitle.page-subtitle-h2),
   p {
     padding: 0 20px;
     max-width: 1000px;
   }
-  h2 {
+  :global(.text-block.type-subtitle.page-subtitle-h2) {
     margin: 25px auto 10px auto;
   }
   p {

@@ -1,0 +1,15 @@
+query ServiceUsage($month: Int, $year: Int) {
+  billing {
+    usage {
+      api(month: $month, year: $year) {
+        billable
+        total
+        since
+      }
+      storage {
+        database
+        files
+      }
+    }
+  }
+}
