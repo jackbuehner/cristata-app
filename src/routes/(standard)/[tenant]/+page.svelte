@@ -47,7 +47,28 @@
 <PageSubtitle>Updates</PageSubtitle>
 
 <div class="margin">
-  <Expander expanded>
+  <Expander>
+    <FluentIcon name="Megaphone24Regular" slot="icon" />
+    What's new to Cristata (April 2023)
+    <svelte:fragment slot="content">
+      <ul style="padding-inline-start: 24px; line-height: 1.5;">
+        <li>
+          <b>Optimized photo widgets:</b> Embdeded photo widgets use smaller photo sizes for better performance.
+          Photo widgets no longer check photo metadata when any text changes and instead only update metadata on
+          first load.
+        </li>
+        <li>
+          <b>Clear usage metrics and billing:</b> The usage metrics and billing pages were re-built to include more
+          information.
+        </li>
+        <li>
+          <b>More settings:</b> Configure field descriptions and permissions for the photo library and user profiles
+          app.
+        </li>
+      </ul>
+    </svelte:fragment>
+  </Expander>
+  <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (March 2023)
     <svelte:fragment slot="content">
@@ -77,7 +98,7 @@
       </ul>
     </svelte:fragment>
   </Expander>
-  <Expander>
+  <!-- <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (February 2023)
     <svelte:fragment slot="content">
@@ -97,7 +118,7 @@
         </li>
       </ul>
     </svelte:fragment>
-  </Expander>
+  </Expander> -->
   <!-- <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (January 2023)
