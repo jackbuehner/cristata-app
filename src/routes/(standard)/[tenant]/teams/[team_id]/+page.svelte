@@ -21,6 +21,8 @@
 
   $: name = $team.data?.team?.name || $page.url.searchParams.get('name');
 
+  let key = 0;
+
   let loading = false;
   let listWidth = 1000;
   let flyoutOpen: Record<string, boolean> = {};
@@ -53,7 +55,7 @@
   {#if canModifyTeam}
     <Button
       variant="accent"
-      disabled={loading || !$team.data?.team}
+      disabled={$team.loading || !$team.data?.team}
       on:click={() => (manageTeamDialogOpen = !manageTeamDialogOpen)}
     >
       <FluentIcon name="Settings16Regular" mode="buttonIconLeft" />
@@ -61,15 +63,13 @@
     </Button>
   {/if}
   <Button
-    disabled={loading || !$team.data?.team}
+    disabled={$team.loading || !$team.data?.team}
     on:click={async () => {
-      loading = true;
       await $team.refetch();
-      loading = false;
     }}
     style="width: 130px;"
   >
-    {#if loading}
+    {#if loading || $team.loading}
       <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
     {:else}
       <FluentIcon name="ArrowClockwise16Regular" mode="buttonIconLeft" />
@@ -78,7 +78,7 @@
   </Button>
   {#if canHideTeam}
     <Button
-      disabled={loading || !$team.data?.team}
+      disabled={$team.loading || !$team.data?.team}
       on:click={() => (deleteTeamDialogOpen = !deleteTeamDialogOpen)}
     >
       <FluentIcon name="Delete16Regular" mode="buttonIconLeft" />
@@ -168,7 +168,7 @@
     </section>
   </div>
 
-  {#key $team.data?.team}
+  {#key key}
     {#if $team.data?.team}
       <AddTeamMemberDialog
         bind:open={addMemberDialogOpen}
@@ -180,9 +180,7 @@
         basicProfiles={data.basicProfiles}
         mode="member"
         handleSumbit={async () => {
-          loading = true;
           await $team.refetch();
-          loading = false;
         }}
       />
       <AddTeamMemberDialog
@@ -195,9 +193,7 @@
         basicProfiles={data.basicProfiles}
         mode="organizer"
         handleSumbit={async () => {
-          loading = true;
           await $team.refetch();
-          loading = false;
         }}
       />
       {#if canHideTeam}
@@ -208,9 +204,7 @@
           slug={$team.data.team.slug}
           tenant={data.authUser.tenant}
           handleSumbit={async () => {
-            loading = true;
             await $team.refetch();
-            loading = false;
           }}
         />
       {/if}
@@ -225,9 +219,10 @@
             .map(({ _id, name }) => ({ _id, label: name }))}
           tenant={data.authUser.tenant}
           handleSumbit={async () => {
-            loading = true;
-            await $team.refetch();
-            loading = false;
+            $team.refetch();
+          }}
+          handleCancel={async () => {
+            key++;
           }}
         />
       {/if}

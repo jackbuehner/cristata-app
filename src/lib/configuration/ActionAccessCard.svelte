@@ -1,18 +1,10 @@
 <script lang="ts">
-  import { ReferenceMany } from '$components/ContentField';
   import { FieldWrapper } from '$lib/common/Field';
+  import { SelectMany, type Option } from '$lib/common/Select';
   import { TextBlock } from 'fluent-svelte';
 
-  export let users: (string | 0)[] | undefined = [];
-  export let teams: (string | 0)[] | undefined = [];
-
-  type PopulatedValue = { _id: string; label: string };
-  function handleUsersChange(newValues: PopulatedValue[]) {
-    users = newValues.map((value) => (value._id === 'any' ? 0 : value._id));
-  }
-  function handleTeamsChange(newValues: PopulatedValue[]) {
-    teams = newValues.map((value) => (value._id === 'any' ? 0 : value._id));
-  }
+  export let users: Option[] = [];
+  export let teams: Option[] = [];
 </script>
 
 <article>
@@ -21,28 +13,21 @@
   </div>
 
   <FieldWrapper label="Users" forId="">
-    <react:ReferenceMany
-      id="test"
-      label="__in-select"
-      collection="User"
-      values={(users || []).map((value) =>
-        value === 0 || value === '0' ? { _id: 'any', label: 'Any user' } : { _id: value }
-      ) || []}
-      injectOptions={[{ value: 'any', label: 'Any user' }]}
-      onChange={handleUsersChange}
+    <SelectMany
+      reference={{
+        collection: 'User',
+      }}
+      bind:selectedOptions={users}
+      options={[{ _id: 'any', label: 'Any user' }]}
     />
   </FieldWrapper>
 
   <FieldWrapper label="Teams" forId="">
-    <react:ReferenceMany
-      id="test"
-      label="__in-select"
-      collection="Team"
-      values={(teams || []).map((value) =>
-        value === 0 || value === '0' ? { _id: 'any', label: 'Any team' } : { _id: value }
-      ) || []}
-      injectOptions={[{ value: 'any', label: 'Any team' }]}
-      onChange={handleTeamsChange}
+    <SelectMany
+      reference={{
+        collection: 'Team',
+      }}
+      bind:selectedOptions={teams}
     />
   </FieldWrapper>
 </article>

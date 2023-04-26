@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { ReferenceMany } from '$components/ContentField';
   import { RemoveUserFromTeam } from '$graphql/graphql';
+  import { SelectMany, type Option } from '$lib/common/Select';
   import { server } from '$utils/constants';
   import { Button, ContentDialog, InfoBar, ProgressRing, TextBlock, TextBox } from 'fluent-svelte';
   import { print } from 'graphql';
@@ -9,12 +9,10 @@
 
   export let tenant: string;
 
-  type UnpopulatedValue = { _id: string; label?: string };
-
   export let _id: string;
   export let name: string;
-  export let members: UnpopulatedValue[];
-  export let organizers: UnpopulatedValue[];
+  export let members: Option[];
+  export let organizers: Option[];
 
   export let handleAction: (() => Promise<void>) | undefined = undefined;
   export let handleSumbit: (() => Promise<void>) | undefined = undefined;
@@ -68,7 +66,7 @@
 </script>
 
 <ContentDialog
-  title="Edit profile"
+  title="Edit team"
   bind:open
   trapFocus={false}
   size="standard"
@@ -93,25 +91,23 @@
 
   <div class="field nocaption">
     <TextBlock>Organizers</TextBlock>
-    <react:ReferenceMany
-      label="__in-select"
-      collection="User"
-      values={organizers}
-      onChange={(newValues) => {
-        organizers = newValues;
+    <SelectMany
+      reference={{
+        collection: 'User',
       }}
+      bind:selectedOptions={organizers}
+      on:change={() => (hasChanged = true)}
     />
   </div>
 
   <div class="field nocaption">
     <TextBlock>Members</TextBlock>
-    <react:ReferenceMany
-      label="__in-select"
-      collection="User"
-      values={members}
-      onChange={(newValues) => {
-        members = newValues;
+    <SelectMany
+      reference={{
+        collection: 'User',
       }}
+      bind:selectedOptions={members}
+      on:change={() => (hasChanged = true)}
     />
   </div>
 

@@ -15,6 +15,7 @@ export const load = (async ({ params, fetch }) => {
     query: ProfilesAppSettings,
     useCache: false,
     waitForQuery: false,
+    clearStoreBeforeFetch: true,
   });
 
   async function saveProfilesAppConfigChanges(data: SaveChangesData) {

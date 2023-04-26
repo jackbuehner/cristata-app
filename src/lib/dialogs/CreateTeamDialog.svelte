@@ -1,6 +1,7 @@
 <script lang="ts">
   import { MultiSelect } from '$components/Select';
   import { CreateTeam, SaveUserDeactivate, SaveUserEdits } from '$graphql/graphql';
+  import { SelectMany, type Option } from '$lib/common/Select';
   import { selectProfile } from '$react/teams/selectProfile';
   import { server } from '$utils/constants';
   import { slugify } from '$utils/slugify';
@@ -13,8 +14,8 @@
 
   let name = '';
   $: slug = slugify(name);
-  let members: string[] = [];
-  let organizers: string[] = [];
+  let members: Option[] = [];
+  let organizers: Option[] = [];
 
   export let handleAction: (() => Promise<void>) | undefined = undefined;
   export let handleSumbit: ((_id: string) => Promise<void>) | undefined = undefined;
@@ -33,7 +34,12 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         query: print(CreateTeam),
-        variables: { name, slug, members, organizers },
+        variables: {
+          name,
+          slug,
+          members: members.map((opt) => opt._id),
+          organizers: organizers.map((opt) => opt._id),
+        },
       }),
     })
       .then(async (res) => {
@@ -57,7 +63,7 @@
 </script>
 
 <ContentDialog
-  title="Edit profile"
+  title="Create team"
   bind:open
   size="standard"
   style="
@@ -79,37 +85,31 @@
 
   <div class="field">
     <TextBlock>Team slug</TextBlock>
-    <TextBlock variant="caption"
-      >Automatically generated based on the team name. Once set, it cannot be changed.</TextBlock
-    >
+    <TextBlock variant="caption">
+      Automatically generated based on the team name. Once set, it cannot be changed.
+    </TextBlock>
     <TextBox type="text" value={slug} on:change={() => (hasChanged = true)} disabled />
   </div>
 
   <div class="field">
     <TextBlock>Organizers</TextBlock>
     <TextBlock variant="caption">The people in charge of this team.</TextBlock>
-    <react:MultiSelect
-      loadOptions={selectProfile}
-      async
-      val={organizers}
-      on:change={(valueObjs) => {
-        if (valueObjs) organizers = valueObjs.map((obj) => obj.value);
-        hasChanged = true;
+    <SelectMany
+      reference={{
+        collection: 'User',
       }}
+      bind:selectedOptions={organizers}
     />
   </div>
 
   <div class="field">
     <TextBlock>Members</TextBlock>
     <TextBlock variant="caption">Let everyone know where to follow you.</TextBlock>
-    <react:MultiSelect
-      loadOptions={selectProfile}
-      async
-      val={members}
-      on:change={(valueObjs) => {
-        if (valueObjs) members = valueObjs.map((obj) => obj.value);
-        hasChanged = true;
+    <SelectMany
+      reference={{
+        collection: 'User',
       }}
+      bind:selectedOptions={members}
     />
   </div>
 

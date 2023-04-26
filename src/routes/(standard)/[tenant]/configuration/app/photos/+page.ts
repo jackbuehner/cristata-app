@@ -15,6 +15,7 @@ export const load = (async ({ params, fetch }) => {
     query: PhotosAppSettings,
     useCache: false,
     waitForQuery: false,
+    clearStoreBeforeFetch: true,
   });
 
   async function savePhotosAppConfigChanges(data: SaveChangesData) {

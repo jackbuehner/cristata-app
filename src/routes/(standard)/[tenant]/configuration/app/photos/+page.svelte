@@ -2,11 +2,13 @@
   import { FieldWrapper } from '$lib/common/Field';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageSubtitle, PageTitle } from '$lib/common/PageTitle';
+  import type { Option } from '$lib/common/Select';
   import ActionAccessCard from '$lib/configuration/ActionAccessCard.svelte';
   import { stringifyArray } from '$utils/stringifyArray';
   import type { Collection } from '@jackbuehner/cristata-api/dist/types/config';
   import { Button, ProgressRing, TextBox } from 'fluent-svelte';
   import { onMount } from 'svelte';
+  import { writable } from 'svelte/store';
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -15,7 +17,9 @@
   $: defaultFieldDescriptions = $photosAppConfig.data?.configuration?.apps.photos.defaultFieldDescriptions;
   $: fieldDescriptions = $photosAppConfig.data?.configuration?.apps.photos.fieldDescriptions;
   $: rawCollection = $photosAppConfig.data?.configuration?.collection?.raw;
-  $: actionAccess = (JSON.parse(rawCollection || '{}') as Collection)?.actionAccess;
+
+  const actionAccess = writable<Collection['actionAccess'] | undefined>(undefined);
+  $: actionAccess.set((JSON.parse(rawCollection || '{}') as Collection)?.actionAccess);
 
   let nameFieldCaption: string = ' ';
   $: if (fieldDescriptions && !$photosAppConfig.loading && nameFieldCaption === ' ') {
@@ -42,53 +46,60 @@
     noteFieldCaption = fieldDescriptions.note;
   }
 
-  type AA = typeof actionAccess.modify.users;
-
-  let getUsers: AA = [' '];
-  $: if (actionAccess && !$photosAppConfig.loading && getUsers[0] === ' ') {
-    getUsers = actionAccess.get.users;
+  function adjustUsers(value: string | 0): Option {
+    return value === 0 ? { _id: 'any', label: 'Any user' } : { _id: value };
   }
-  let getTeams: AA = [' '];
-  $: if (actionAccess && !$photosAppConfig.loading && getTeams[0] === ' ') {
-    getTeams = actionAccess.get.teams;
+  function adjustTeams(value: string | 0): Option {
+    return value === 0 ? { _id: 'any', label: 'Any team' } : { _id: value };
   }
 
-  let modifyUsers: AA = [' '];
-  $: if (actionAccess && !$photosAppConfig.loading && modifyUsers[0] === ' ') {
-    modifyUsers = actionAccess.modify.users;
-  }
-  let modifyTeams: AA = [' '];
-  $: if (actionAccess && !$photosAppConfig.loading && modifyTeams[0] === ' ') {
-    modifyTeams = actionAccess.modify.teams;
-  }
+  let getUsers: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    getUsers = actionAccess?.get.users.map(adjustUsers) || [];
+  });
+  let getTeams: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    getTeams = actionAccess?.get.teams.map(adjustTeams) || [];
+  });
 
-  let createUsers: AA = [' '];
-  $: if (actionAccess && !$photosAppConfig.loading && createUsers[0] === ' ') {
-    createUsers = actionAccess.create.users;
-  }
-  let createTeams: AA = [' '];
-  $: if (actionAccess && !$photosAppConfig.loading && createTeams[0] === ' ') {
-    createTeams = actionAccess.create.teams;
-  }
+  let modifyUsers: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    modifyUsers = actionAccess?.modify.users.map(adjustUsers) || [];
+  });
+  let modifyTeams: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    modifyTeams = actionAccess?.modify.teams.map(adjustTeams) || [];
+  });
 
-  let hideUsers: AA = [' '];
-  $: if (actionAccess?.hide && !$photosAppConfig.loading && hideUsers[0] === ' ') {
-    hideUsers = actionAccess.hide.users;
-  }
-  let hideTeams: AA = [' '];
-  $: if (actionAccess?.hide && !$photosAppConfig.loading && hideTeams[0] === ' ') {
-    hideTeams = actionAccess.hide.teams;
-  }
+  let createUsers: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    createUsers = actionAccess?.create.users.map(adjustUsers) || [];
+  });
+  let createTeams: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    createTeams = actionAccess?.create.teams.map(adjustTeams) || [];
+  });
+
+  let hideUsers: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    hideUsers = actionAccess?.hide?.users.map(adjustUsers) || [];
+  });
+  let hideTeams: Option[] = [];
+  actionAccess.subscribe((actionAccess) => {
+    hideTeams = actionAccess?.hide?.teams.map(adjustTeams) || [];
+  });
 
   onMount(() => {
     document.title = 'Configure photos app';
   });
 
-  function cleanArray(arr: (string | 0)[]): string[] {
+  function cleanArray(arr: Option[]): string[] {
     // The `stringifyArray` function converts the action access arrays to provide the number `0` as a string `"`"
     // since the API requires strings.
     // The server will convert `"0"` back to `0`.
-    return stringifyArray(arr.filter((value) => value !== ' '));
+    return stringifyArray(
+      arr.map((value) => (value._id === 'any' ? 0 : value._id)).filter((value) => value !== ' ')
+    );
   }
 
   let saving = false;
@@ -108,7 +119,7 @@
           get: { users: cleanArray(getUsers), teams: cleanArray(getTeams) },
           create: { users: cleanArray(createUsers), teams: cleanArray(createTeams) },
           modify: { users: cleanArray(modifyUsers), teams: cleanArray(modifyTeams) },
-          hide: { users: stringifyArray(hideUsers), teams: cleanArray(hideTeams) },
+          hide: { users: cleanArray(hideUsers), teams: cleanArray(hideTeams) },
         },
       })
       .finally(() => {
@@ -144,15 +155,6 @@
         tagsFieldCaption = ' ';
         requireAuthFieldCaption = ' ';
         noteFieldCaption = ' ';
-
-        getUsers = [' '];
-        getTeams = [' '];
-        createUsers = [' '];
-        createTeams = [' '];
-        modifyUsers = [' '];
-        modifyTeams = [' '];
-        hideUsers = [' '];
-        hideTeams = [' '];
 
         $photosAppConfig.refetch();
       }}
