@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ReferenceOne } from '$components/ContentField';
   import { RemoveUserFromTeam, type FieldDescriptionsQuery } from '$graphql/graphql';
+  import { SelectOne, type Option } from '$lib/common/Select';
   import { server } from '$utils/constants';
   import { notEmpty } from '$utils/notEmpty';
   import { Button, ContentDialog, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
@@ -24,8 +25,7 @@
   export let members: string[];
   export let mode: 'member' | 'organizer';
 
-  type PopulatedValue = { _id: string; label: string };
-  let personToAdd: PopulatedValue | null = null;
+  let personToAdd: Option | null = null;
   $: personIsAlreadyInTeam = !![...members, ...organizers].find((userId) => userId === personToAdd?._id);
 
   export let handleAction: (() => Promise<void>) | undefined = undefined;
@@ -116,13 +116,11 @@
 
   <div class="field nocaption">
     <TextBlock>Select a person</TextBlock>
-    <react:ReferenceOne
-      label="__in-select"
-      collection="User"
-      value={personToAdd}
-      onChange={(newValue) => {
-        personToAdd = newValue;
+    <SelectOne
+      reference={{
+        collection: 'User',
       }}
+      bind:selectedOption={personToAdd}
     />
   </div>
 
