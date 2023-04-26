@@ -8,6 +8,10 @@ import { derived, get, readable, writable } from 'svelte/store';
 
 export interface GraphqlQueryOptions<VariablesType> {
   fetch: typeof fetch;
+  /**
+   * AbosrtSignal provided to `fetch`
+   */
+  signal?: AbortSignal;
   tenant: string;
   query: DocumentNode;
   variables?: VariablesType;
@@ -27,7 +31,7 @@ export interface GraphqlQueryOptions<VariablesType> {
   /**
    * Whether the store value should be reset to undefined.
    *
-   * Default: `true`
+   * Default: `false`
    */
   clearStoreBeforeFetch?: boolean;
 }
@@ -110,6 +114,7 @@ export async function query<DataType = unknown, VariablesType = unknown>({
 
   return fetch(`${server.location}/v3/${opts.tenant}`, {
     method: 'POST',
+    signal: opts.signal,
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -182,7 +187,6 @@ export function getQueryStore<DataType = unknown, VariablesType = unknown>(opts:
       errors: $cache[opts.queryName]?.[varKey]?.value.errors,
       loading: $loading[opts.queryName]?.[varKey] || false,
       refetch: async (updatedVariables) => {
-        console.log(updatedVariables);
         if (!$cache[opts.queryName]) return;
         if (!$cache[opts.queryName][varKey]) return;
 
@@ -289,7 +293,7 @@ export async function queryWithStore<DataType = unknown, VariablesType = unknown
   opts: GraphqlQueryOptions<VariablesType> & { waitForQuery?: boolean }
 ): Promise<Readable<StoreReturnType<DataType, VariablesType>>> {
   await new Promise<void>(async (resolve) => {
-    if (opts.clearStoreBeforeFetch !== false) clearStoreData(opts);
+    if (opts.clearStoreBeforeFetch) clearStoreData(opts);
 
     if (opts.waitForQuery) await query(opts);
     else query(opts);

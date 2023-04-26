@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { overrideItemIdKeyNameBeforeInitialisingDndZones } from 'svelte-dnd-action';
 import type { LayoutLoad } from './$types';
 
 export const ssr = false;
@@ -28,6 +29,8 @@ export const load = (async () => {
       },
     };
   }
+
+  overrideItemIdKeyNameBeforeInitialisingDndZones('_id');
 
   return { tauri };
 }) satisfies LayoutLoad;
