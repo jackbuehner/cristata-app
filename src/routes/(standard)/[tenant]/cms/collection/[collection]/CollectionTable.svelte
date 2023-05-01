@@ -236,9 +236,10 @@
     const lastRowIndex = lastSelectedRowIndex;
     const thisRowIndex = row.index;
 
+    console.log(evt);
+
     if (
-      isPointerEvent(evt) &&
-      evt.pointerType === 'mouse' &&
+      ((isPointerEvent(evt) && evt.pointerType === 'mouse') || !isPointerEvent(evt)) &&
       !isInputElem(evt.target) &&
       !isCheckbox(evt.target)
     ) {
