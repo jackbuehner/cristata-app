@@ -26,8 +26,8 @@
   import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
   import BulkActions from './BulkActions.svelte';
-  import { selectedIds } from './selectedIdsStore';
   import ValueCell from './ValueCell.svelte';
+  import { selectedIds } from './selectedIdsStore';
 
   export let collection: NonNullable<PageData['collection']>;
   export let schema: NonNullable<PageData['table']>['schema'];
@@ -48,7 +48,7 @@
   // row links behaviors
   const links = {
     href: `/${$page.params.tenant}/cms/collection/${$page.params.collection}`,
-    hrefSuffixKey: collection.config?.data?.configuration?.collection?.by?.one || '_id',
+    hrefSuffixKey: collection.config.by?.one || '_id',
     hrefSearch: shouldOpenMaximized ? '?fs=1&props=1' : undefined,
     windowName: `editor-${$page.params.tenant}-${collection.schemaName}-`,
   };
@@ -304,9 +304,7 @@
   let lastSelectedRowIndex = 0;
   $: $selectedIds = $table
     .getSelectedRowModel()
-    .rows.map(
-      (row) => row.original[collection.config?.data?.configuration?.collection?.by.one || '_id']
-    ) as string[];
+    .rows.map((row) => row.original[collection.config.by.one || '_id']) as string[];
 
   function toggleSort(column: Column<Doc>, sortable: boolean, shiftKey?: boolean) {
     if (sortable) column.toggleSorting(undefined, shiftKey);
@@ -438,13 +436,9 @@
   {/if}
 </div>
 
-{#if collection.config?.data?.configuration?.collection}
+{#if collection.config}
   <div style="position: relative;">
-    <BulkActions
-      collection={collection.config.data.configuration.collection}
-      {tableData}
-      {shouldOpenMaximized}
-    />
+    <BulkActions collection={collection.config} {tableData} {shouldOpenMaximized} />
   </div>
 {/if}
 

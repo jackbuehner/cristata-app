@@ -1,10 +1,9 @@
 import type { mongoFilterType } from '$graphql/client';
 import { queryWithStore } from '$graphql/query';
 import { docDefsToQueryObjectCols } from '$react/CMS/CollectionItemPage/useFindDoc';
-import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
 import { isJSON, uncapitalize } from '@jackbuehner/cristata-utils';
 import { parse } from 'graphql';
-import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
+import { VariableType, jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
 import type { PageLoad } from './$types';
@@ -15,10 +14,6 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
   depends('collection-table');
 
   const { collection } = await parent();
-
-  const deconstructedSchema = deconstructSchema(
-    JSON.parse(collection.config?.data?.configuration?.collection?.schemaDef || '{}')
-  );
 
   const filter = createMongoFilter(url.searchParams);
   const sort = (() => {
@@ -64,7 +59,7 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
               ...merge(
                 { _id: true },
                 // field used for navigating to item editor
-                { [collection.config?.data?.configuration?.collection?.by?.one || '_id']: true },
+                { [collection.config.by?.one || '_id']: true },
                 // standard people and timestamps shown at the end of every table
                 {
                   people: {
@@ -84,7 +79,7 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
                   },
                 },
                 // fields used in the table columns
-                ...deconstructedSchema.map(docDefsToQueryObjectCols)
+                ...collection.deconstructedSchema.map(docDefsToQueryObjectCols)
               ),
             },
           },
@@ -150,7 +145,7 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
       filter,
       sort,
       data: await tableData,
-      schema: deconstructedSchema,
+      schema: collection.deconstructedSchema,
     },
   };
 }) satisfies PageLoad;

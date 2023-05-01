@@ -61,7 +61,7 @@
   // we want to open it in maximized mode for easy access to the editor
   const shouldOpenMaximized = !!schema.find(([key, def]) => key === 'body' && def.field?.tiptap);
 
-  const oneAccessor = collection.config?.data?.configuration?.collection?.by?.one || '_id';
+  const oneAccessor = collection.config.by?.one || '_id';
 
   const links = {
     href: `/${$page.params.tenant}/cms/collection/${$page.params.collection}`,
