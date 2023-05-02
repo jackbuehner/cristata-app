@@ -24,7 +24,12 @@
     if (selectedOptions.length !== unique.length) selectedOptions = [...unique];
   })();
 
-  const dispatch = createEventDispatcher<{ dragfinalize: Option[]; dragconsider: Option[] }>();
+  const dispatch = createEventDispatcher<{
+    dismiss: Option[];
+    dismissall: Option[];
+    dragfinalize: Option[];
+    dragconsider: Option[];
+  }>();
 
   const flipDurationMs = 200;
   let dragging = false;
@@ -80,7 +85,13 @@
 
 {#if showClearAll}
   <div class="selection-actions">
-    <Button on:click={() => (selectedOptions = [])} {disabled}>Clear all</Button>
+    <Button
+      on:click={() => {
+        selectedOptions = [];
+        dispatch('dismissall', selectedOptions);
+      }}
+      {disabled}>Clear all</Button
+    >
   </div>
 {/if}
 
@@ -116,6 +127,7 @@
         on:startdrag={(evt) => startDrag(evt.detail)}
         on:dismiss={() => {
           selectedOptions = selectedOptions.filter((value) => value._id !== _id);
+          dispatch('dismiss', selectedOptions);
         }}
         draggable
         {dragging}
