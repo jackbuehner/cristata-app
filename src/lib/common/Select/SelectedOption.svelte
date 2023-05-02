@@ -20,6 +20,8 @@
 
   export let draggable = false;
   export let dragging = false;
+
+  export let hideId = false;
 </script>
 
 <div class="selected-item" on:keydown on:focus on:blur on:mousedown on:touchstart>
@@ -52,7 +54,9 @@
   </div>
   <div class="select-item-detail">
     <div class="selected-item-label">{label || _id}</div>
-    <div class="selected-item-id">{_id}</div>
+    {#if !hideId}
+      <div class="selected-item-id">{_id}</div>
+    {/if}
   </div>
   {#if openable}
     <IconButton on:click={() => dispatch('open')}>

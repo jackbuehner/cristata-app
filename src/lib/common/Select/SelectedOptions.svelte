@@ -14,6 +14,7 @@
   export let disabled = false;
   export let reference: (FieldDef['reference'] & { collection: string }) | undefined = undefined;
   export let options: Option[] | undefined = undefined;
+  export let hideIds = false;
 
   $: (() => {
     const unique: Option[] = [];
@@ -124,6 +125,7 @@
             handleOpenReference(_id, reference, $page.params.tenant);
           }
         }}
+        hideId={hideIds}
       />
     </div>
   {/each}

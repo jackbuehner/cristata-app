@@ -228,7 +228,7 @@ The `on:select` event occurs when the selected values change. It fires upon sele
   </TextBox>
 {/if}
 
-<SelectedOptions bind:selectedOptions {disabled} {reference} {options} />
+<SelectedOptions bind:selectedOptions {disabled} {reference} {options} hideIds />
 
 <style>
   :global(.combobox-cristata) {
