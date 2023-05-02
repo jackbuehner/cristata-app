@@ -3,7 +3,7 @@ import { uncapitalize } from '@jackbuehner/cristata-utils';
 import { gql } from 'graphql-tag';
 import mongoose from 'mongoose';
 
-type UnpopulatedValue = { _id: string; label?: string; [key: string]: unknown };
+type UnpopulatedValue = { _id: string; label?: string };
 type PopulatedValue = { _id: string; label: string; [key: string]: unknown };
 
 async function populateReferenceValues(

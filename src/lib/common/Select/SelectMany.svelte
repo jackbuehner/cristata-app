@@ -1,11 +1,14 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import type { YStore } from '$utils/createYStore';
   import { isObjectId } from '$utils/isObjectId';
   import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
+  import arrayDifferences from 'array-differences';
   import { ComboBox, TextBox, TextBoxButton } from 'fluent-svelte';
-  import { createEventDispatcher, tick } from 'svelte';
-  import type { Option } from '.';
+  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
+  import type * as Y from 'yjs';
+  import type { Option, YDocOption } from '.';
   import SelectedOptions from './SelectedOptions.svelte';
   import { getReferenceOptions } from './getReferenceOptions';
   import { populateReferenceValues } from './populateReferenceValues';
@@ -16,6 +19,15 @@
    * Disables the field.
    */
   export let disabled = false;
+
+  /**
+   * A yjs document that should be updated with the values of this field.
+   */
+  export let ydoc: YStore['ydoc'] | undefined = undefined;
+  export let ydocKey: string = '';
+
+  // this will be updated by a subsriber to ydoc, which is why this is not marked reactive
+  let yarray = $ydoc?.getArray<YDocOption<string>>(ydocKey);
 
   /**
    * The current values that are selected.
@@ -46,6 +58,100 @@
   // expose changes to selected options via change event
   const dispatch = createEventDispatcher();
   $: dispatch('change', selectedOptions);
+
+  let oldSelectedOptions = selectedOptions;
+  function handleDragFinalize(evt: CustomEvent<Option[]> | Option[]) {
+    if (!$ydoc) return;
+    const newOptions = Array.isArray(evt) ? evt : evt.detail;
+
+    // calculate the difference between the old options and the new options
+    // so that a ydoc transaction can be created that only contains
+    // the exact differences
+    const diff = arrayDifferences(oldSelectedOptions, newOptions || selectedOptions);
+    if (diff.length === 0) return;
+
+    // update the ydoc shared type value
+    $ydoc.transact(() => {
+      diff.forEach(([diffType, index, maybeOption]) => {
+        if (!yarray) return;
+
+        if (diffType === 'deleted') {
+          yarray.delete(index);
+          return;
+        }
+
+        // maybeOption is only supposed to be undefined when diffType === 'deleted'
+        if (!maybeOption) return;
+        const { _id, ..._option } = maybeOption;
+        const option: YDocOption<string> = {
+          ..._option,
+          label: _option.label || _id,
+          value: _id,
+        };
+
+        if (diffType === 'inserted') {
+          yarray.insert(index, [option]);
+          return;
+        }
+
+        if (diffType === 'modified') {
+          // remove from existing location
+          yarray.delete(index);
+
+          // add to new location
+          yarray.insert(index, [option]);
+
+          return;
+        }
+      });
+    });
+
+    // finally, update the old selected options
+    oldSelectedOptions = newOptions || selectedOptions;
+  }
+
+  /**
+   * Handle changes to y array shared type by updating the selected options and old selected options
+   */
+  function handleYArrayChange(evt: Y.YArrayEvent<YDocOption<string>>) {
+    const yarray = $ydoc?.getArray<YDocOption<string>>(ydocKey);
+
+    if (yarray && evt.changes.delta) {
+      selectedOptions = yarray.toArray().map(convertToOption);
+      oldSelectedOptions = yarray.toArray().map(convertToOption);
+    }
+  }
+
+  /**
+   * Converts an option of type `YDocOption` to an option of type `Option`.
+   */
+  function convertToOption({ value, ...option }: YDocOption<string>): Option {
+    return {
+      ...option,
+      _id: value,
+    };
+  }
+
+  // listen for changes in the array shared type
+  ydoc?.subscribe(
+    ($ydoc) => {
+      yarray = $ydoc?.getArray<YDocOption<string>>(ydocKey);
+      if (!yarray) return;
+
+      // ensure the initial value matches the shared type value
+      if (selectedOptions.length !== yarray.toArray().length) {
+        selectedOptions = yarray.toArray().map(convertToOption);
+        oldSelectedOptions = yarray.toArray().map(convertToOption);
+      }
+
+      yarray.observe(handleYArrayChange);
+    },
+    () => {
+      // stop listening for changes in the array shared type
+      // during cleanup to prevent memory leaks
+      yarray?.unobserve(handleYArrayChange);
+    }
+  );
 
   /**
    * The value inside the textbox that is displayed
@@ -93,6 +199,9 @@
     } else {
       selectedOptions = [...selectedOptions, { label: textValue, _id: textValue }];
     }
+
+    // also update the shared type value
+    handleDragFinalize(selectedOptions);
   }
 
   /**
@@ -181,6 +290,9 @@ The `on:select` event occurs when the selected values change. It fires upon sele
           { label: evt.detail.name, _id: evt.detail.value, disabled: evt.detail.disabled },
         ];
 
+        // and update the shared type value
+        handleDragFinalize(selectedOptions);
+
         // clear the value of the combobox so that the most recently selected item can be removed from the list
         // (the component will re-select the best match based on the value)
         tick().then(() => {
@@ -210,6 +322,9 @@ The `on:select` event occurs when the selected values change. It fires upon sele
           ...selectedOptions,
           { label: evt.detail.name, _id: evt.detail.value, disabled: evt.detail.disabled },
         ];
+
+        // and update the shared type value
+        handleDragFinalize(selectedOptions);
       }}
     />
   {/key}
@@ -228,7 +343,16 @@ The `on:select` event occurs when the selected values change. It fires upon sele
   </TextBox>
 {/if}
 
-<SelectedOptions bind:selectedOptions {disabled} {reference} {options} hideIds />
+<SelectedOptions
+  bind:selectedOptions
+  {disabled}
+  {reference}
+  {options}
+  on:dragfinalize={handleDragFinalize}
+  on:dismiss={handleDragFinalize}
+  on:dismissall={handleDragFinalize}
+  hideIds
+/>
 
 <style>
   :global(.combobox-cristata) {
