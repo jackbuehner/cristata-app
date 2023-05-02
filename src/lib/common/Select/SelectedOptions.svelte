@@ -19,6 +19,16 @@
   export let reference: (FieldDef['reference'] & { collection: string }) | undefined = undefined;
   export let options: Option[] | undefined = undefined;
 
+  $: (() => {
+    const unique: Option[] = [];
+    selectedOptions.forEach((value) => {
+      if (!unique.map(({ _id }) => _id).includes(value._id)) unique.push(value);
+    });
+    if (selectedOptions.length !== unique.length) selectedOptions = [...unique];
+  })();
+
+  const dispatch = createEventDispatcher<{ dragfinalize: Option[]; dragconsider: Option[] }>();
+
   const flipDurationMs = 200;
   let dragging = false;
   function handleDndConsider(evt: CustomEvent<DndEvent<Option>>) {
