@@ -1,0 +1,12 @@
+diff --git a/node_modules/array-differences/dist/src/index.d.ts b/node_modules/array-differences/dist/src/index.d.ts
+index b71ac57..50d5612 100644
+--- a/node_modules/array-differences/dist/src/index.d.ts
++++ b/node_modules/array-differences/dist/src/index.d.ts
+@@ -1,5 +1,5 @@
+-export declare type DifferenceType = ['inserted' | 'deleted' | 'modified', number, any?];
+-declare function arrayDifferences(arrayA: any[], arrayB: any[], comparisonFn?: typeof defaultComparisonFn): DifferenceType[];
++export declare type DifferenceType<T> = ['inserted' | 'deleted' | 'modified', number, T?];
++declare function arrayDifferences<T>(arrayA: T[], arrayB: T[], comparisonFn?: typeof defaultComparisonFn): DifferenceType<T>[];
+ declare namespace arrayDifferences {
+     var reconstructArray: (array: any[], differences: DifferenceType[], inPlace?: boolean) => any[];
+ }
