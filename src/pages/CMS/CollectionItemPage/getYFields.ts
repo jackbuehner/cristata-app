@@ -11,7 +11,11 @@ interface GetYFieldsOptions {
   keepJsonParsed?: boolean;
 }
 
-async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opts?: GetYFieldsOptions) {
+async function getYFields(
+  ydoc: EntryY['ydoc'],
+  _schemaDef: DeconstructedSchemaDefType,
+  opts?: GetYFieldsOptions
+) {
   const schemaDef = JSON.parse(JSON.stringify(_schemaDef)) as DeconstructedSchemaDefType;
   const data: any = {};
 
@@ -19,7 +23,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
 
   await Promise.all(
     schemaDef.map(async ([key, def]) => {
-      if (!y.ydoc) return;
+      if (!ydoc) return;
 
       const [schemaType, isArray] = (() => {
         const schemaType: MongooseSchemaType | 'DocArray' = isTypeTuple(def.type) ? def.type[1] : def.type;
@@ -39,7 +43,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
         // arrays of booleans are not supported in the app
         if (isArray) return;
 
-        const boolean = new fieldUtils.shared.Boolean(y.ydoc);
+        const boolean = new fieldUtils.shared.Boolean(ydoc);
         setProperty(data, key, boolean.get(key));
       }
 
@@ -47,12 +51,12 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
         // arrays of dates are not supported in the app
         if (isArray) return;
 
-        const date = new fieldUtils.shared.Date(y.ydoc);
+        const date = new fieldUtils.shared.Date(ydoc);
         setProperty(data, key, date.get(key));
       }
 
       if (schemaType === 'DocArray') {
-        const array = new fieldUtils.shared.DocArray(y.ydoc);
+        const array = new fieldUtils.shared.DocArray(ydoc);
 
         // construct the object with details on how to replace
         // the identifier in the schema to use a unique id for
@@ -74,7 +78,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
         let arrayValue: Record<string, unknown>[] = [];
         if (def.docs) {
           const namedSubdocSchemas = def.docs.filter(([docKey]) => !docKey.includes('#'));
-          arrayValue = await array.get(key, { y, opts, schema: namedSubdocSchemas }, replace);
+          arrayValue = await array.get(key, { y: { ydoc }, opts, schema: namedSubdocSchemas }, replace);
         } else {
           arrayValue = await array.get(key, undefined, replace);
         }
@@ -88,7 +92,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
       }
 
       if (schemaType === 'Float') {
-        const float = new fieldUtils.shared.Float(y.ydoc);
+        const float = new fieldUtils.shared.Float(ydoc);
         if (isArray || options || reference) {
           const ids = float.get(key, true).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
@@ -106,7 +110,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
       }
 
       if (schemaType === 'Number') {
-        const integer = new fieldUtils.shared.Integer(y.ydoc);
+        const integer = new fieldUtils.shared.Integer(ydoc);
         if (isArray || options || reference) {
           const ids = integer.get(key, true).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
@@ -116,7 +120,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
       }
 
       if (schemaType === 'ObjectId') {
-        const reference = new fieldUtils.shared.Reference(y.ydoc);
+        const reference = new fieldUtils.shared.Reference(ydoc);
         const values = reference.get(key);
         if (opts?.retainReferenceObjects) {
           setProperty(data, key, isArray ? values : values[0]);
@@ -127,7 +131,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
       }
 
       if (schemaType === 'String') {
-        const string = new fieldUtils.shared.String(y.ydoc);
+        const string = new fieldUtils.shared.String(ydoc);
         if (isArray || options || reference) {
           const ids = (await string.get(key, true, false, false)).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
@@ -152,7 +156,7 @@ async function getYFields(y: EntryY, _schemaDef: DeconstructedSchemaDefType, opt
       // so that they can have a shared type created
       if (match) {
         const defs = parseSchemaDefType(match.fields, key);
-        const values = await getYFields(y, defs, opts);
+        const values = await getYFields(ydoc, defs, opts);
         defs.forEach(([subvalueKey]) => {
           // set the data for each key
           setProperty(data, subvalueKey, getProperty(values, subvalueKey));

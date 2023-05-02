@@ -62,7 +62,7 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
 
   async get(
     key: K,
-    populate?: { schema: DeconstructedSchemaDefType; y: EntryY; opts?: GetYFieldsOptions },
+    populate?: { schema: DeconstructedSchemaDefType; y: { ydoc: EntryY['ydoc'] }; opts?: GetYFieldsOptions },
     replace?: { searchKey: string; replaceKey: string; replaceSuffix?: string }
   ): Promise<Record<string, unknown>[]> {
     const type = this.#ydoc.getArray<Record<string, unknown> & { uuid: string }>(key);
@@ -92,7 +92,7 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
             });
 
           // get the field data for the object at this index
-          const data = await getYFields(populate.y, defs, populate.opts);
+          const data = await getYFields(populate.y.ydoc, defs, populate.opts);
 
           // get the object with data to use for this index
           const obj = getProperty(data, replaceKey);
