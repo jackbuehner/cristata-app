@@ -1,13 +1,9 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import FluentIcon from '$lib/common/FluentIcon.svelte';
-  import { isURL } from '$utils/isURL';
-  import { openWindow } from '$utils/openWindow';
   import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
   import { slugify } from '@jackbuehner/cristata-utils';
-  import { Button, IconButton } from 'fluent-svelte';
-  import pluralize from 'pluralize';
-  import { onMount } from 'svelte';
+  import { Button } from 'fluent-svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { SOURCES, TRIGGERS, dndzone } from 'svelte-dnd-action';
   import { flip } from 'svelte/animate';
   import type { Option } from '.';
@@ -38,6 +34,7 @@
     }
     // update the options
     selectedOptions = evt.detail.items;
+    dispatch('dragconsider', evt.detail.items);
   }
   function handleDndFinalize(evt: CustomEvent<DndEvent<Option>>) {
     // Ensure dragging is stopped on drag finish via pointer (mouse, touch)
@@ -46,6 +43,7 @@
     }
     // update the options
     selectedOptions = evt.detail.items;
+    dispatch('dragfinalize', evt.detail.items);
   }
   function startDrag(evt: Event) {
     // preventing default to prevent lag on touch devices (because of the browser checking for screen scrolling)
