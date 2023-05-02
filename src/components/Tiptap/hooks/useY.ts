@@ -1,11 +1,13 @@
+import { YProvider } from '$utils/YProvider';
 import type { ApolloClient } from '@apollo/client';
-import { HocuspocusProvider, WebSocketStatus } from '@hocuspocus/provider';
+import type { HocuspocusProvider } from '@hocuspocus/provider';
+import { WebSocketStatus } from '@hocuspocus/provider';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import pluralize from 'pluralize';
 import type { DependencyList } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type * as awarenessProtocol from 'y-protocols/awareness.js';
-import { WebrtcProvider } from 'y-webrtc';
+import type { WebrtcProvider } from 'y-webrtc';
 import * as Y from 'yjs';
 import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 import type { GetYFieldsOptions } from '../../../pages/CMS/CollectionItemPage/getYFields';
@@ -18,72 +20,6 @@ import { useAwareness } from './useAwareness';
 
 import * as apolloRaw from '@apollo/client';
 const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
-
-class YProvider {
-  #ydocs: Record<string, Y.Doc> = {};
-  #webProviders: Record<string, WebrtcProvider> = {};
-  #wsProviders: Record<string, HocuspocusProvider> = {};
-
-  async create(name: string, _id: string, appVersion: string) {
-    if (!this.has(name)) {
-      // create a new Y document
-      const ydoc = new Y.Doc();
-      this.#ydocs[name] = ydoc;
-
-      // register with a Hocuspocus server provider
-      const wsProvider = new HocuspocusProvider({
-        url: `${import.meta.env.VITE_WS_PROTOCOL}//${import.meta.env.VITE_HOCUSPOCUS_BASE_URL}`,
-        name,
-        document: ydoc,
-        parameters: { _id, appVersion },
-        onDisconnect() {
-          // reconnect on disconnect
-          wsProvider.shouldConnect = true;
-        },
-      });
-      this.#wsProviders[name] = wsProvider;
-
-      // register with a WebRTC provider
-      const providerOptions = {
-        awareness: wsProvider.awareness,
-        password: name + 'cristata-development' + __APP_VERSION__,
-      };
-      if (import.meta.env.NODE_ENV === 'production') {
-        providerOptions.password = (
-          await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(name))
-        ).toString();
-      }
-      // @ts-expect-error all properties are actually optional
-      const webProvider = new WebrtcProvider(name, ydoc, providerOptions);
-      this.#webProviders[name] = webProvider;
-    }
-
-    return this.get(name);
-  }
-
-  get(name: string) {
-    const ydoc = this.#ydocs[name];
-    const webProvider = this.#webProviders[name];
-    const wsProvider = this.#wsProviders[name];
-
-    return { ydoc, webProvider, wsProvider };
-  }
-
-  has(name: string): boolean {
-    return !!Object.keys(this.#ydocs).find((key) => key === name);
-  }
-
-  delete(name: string): void {
-    if (this.has(name)) {
-      this.#ydocs[name].destroy();
-      delete this.#ydocs[name];
-      this.#webProviders[name].destroy();
-      delete this.#webProviders[name];
-      this.#wsProviders[name].destroy();
-      delete this.#wsProviders[name];
-    }
-  }
-}
 
 function useY(
   { collection, id, versionDate, user, schemaDef }: UseYProps,
@@ -121,7 +57,6 @@ function useY(
       y.delete(docName);
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collection, id, ...deps]);
 
   const awareness = useAwareness({ provider: wsProvider, user }); // get list of who is editing the doc
@@ -187,7 +122,7 @@ function useY(
     setLoading,
     async getData(opts?: GetYFieldsOptions) {
       if (schemaDef) {
-        const res = await getYFields(this, schemaDef, opts);
+        const res = await getYFields(this.ydoc, schemaDef, opts);
         res._id = id;
         return res;
       }
