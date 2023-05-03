@@ -1,0 +1,89 @@
+<script lang="ts">
+  import { SelectMany } from '$lib/common/Select';
+  import type { YStore } from '$utils/createYStore';
+  import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
+  import { FieldWrapper } from '.';
+
+  export let key: DeconstructedSchemaDefType[0][0];
+  export let def: DeconstructedSchemaDefType[0][1];
+  // export let mode: 'editor' | 'publish' | 'create' = 'editor';
+  export let ydoc: YStore['ydoc'];
+  export let disabled = false;
+
+  $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
+  $: isArrayType =
+    (isTypeTuple(def.type) && Array.isArray(def.type[1])) ||
+    (!isTypeTuple(def.type) && Array.isArray(def.type));
+
+  $: readOnly =
+    def.field?.readonly === true || def.type === 'DocArray'
+      ? def.docs?.[0]?.[1]?.modifiable !== true
+      : def.modifiable !== true;
+
+  $: fieldName = (() => {
+    let fieldName = def.field?.label || key;
+
+    // if a field is readonly, add readonly to the field name
+    if (readOnly) fieldName += ' (read only)';
+
+    return fieldName;
+  })();
+
+  $: description = def.field?.description;
+
+  // disable the field if the disabled prop is provided OR it is readonly
+  $: _disabled = disabled || readOnly;
+
+  $: ydocKey = key;
+</script>
+
+{#if def.type === 'DocArray' || type === 'DocArray'}
+  <p>DocArray: {key}</p>
+{:else if key.includes('#')}
+  <p>Internal: {key}</p>
+{:else if key === 'body' && def.field?.tiptap}
+  <p>TipTap: {key}</p>
+{:else if def.field?.reference?.collection || isTypeTuple(def.type)}
+  <!-- TODO: add property for adding filter and sort to the query -->
+
+  {@const collection = isTypeTuple(def.type)
+    ? def.type[0].replace('[', '').replace(']', '')
+    : def.field?.reference?.collection || ''}
+
+  {#if isArrayType}
+    <p>Reference Many: {key}</p>
+  {:else}
+    <p>Reference One: {key}</p>
+  {/if}
+{:else if type === 'String' && def.field?.markdown}
+  <p>Markdown: {key}</p>
+{:else if type === 'String'}
+  <p>Text: {key}</p>
+{:else if type === 'Boolean'}
+  <p>Checkbox: {key}</p>
+{:else if type === 'Number'}
+  <p>Integer: {key}</p>
+{:else if type === 'Float'}
+  <p>Float: {key}</p>
+{:else if type === 'Date'}
+  <p>Date: {key}</p>
+{:else if Array.isArray(type) && type[0] === 'String'}
+  {@const options = def.field?.options?.map((opt) => {
+    return {
+      label: opt.label,
+      _id: opt.value.toString(),
+      disabled: opt.disabled,
+    };
+  })}
+  <FieldWrapper label={fieldName} {description} forId={key}>
+    <SelectMany {disabled} {options} {ydoc} {ydocKey} />
+  </FieldWrapper>
+  <p>Text Array: {key}</p>
+{:else if Array.isArray(type) && type[0] === 'Number'}
+  <p>Text Integer: {key}</p>
+{:else if Array.isArray(type) && type[0] === 'Float'}
+  <p>Text Float: {key}</p>
+{:else}
+  <p>Unsupported Type ({JSON.stringify(type)}): {key}</p>
+{/if}
+<hr />
