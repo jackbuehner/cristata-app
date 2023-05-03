@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { StatelessCheckbox } from '$lib/common/Checkbox';
   import { SelectMany, SelectOne } from '$lib/common/Select';
   import type { YStore } from '$utils/createYStore';
   import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
@@ -81,7 +82,9 @@
     <p>Text: {key}</p>
   {/if}
 {:else if type === 'Boolean'}
-  <p>Checkbox: {key}</p>
+  <FieldWrapper label={fieldName} {description} forId={key} mode="checkbox">
+    <StatelessCheckbox {disabled} {ydoc} {ydocKey} id={key} />
+  </FieldWrapper>
 {:else if type === 'Number'}
   {#if options}
     <FieldWrapper label={fieldName} {description} forId={key}>
@@ -115,4 +118,3 @@
 {:else}
   <p>Unsupported Type ({JSON.stringify(type)}): {key}</p>
 {/if}
-<hr />
