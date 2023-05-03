@@ -6,7 +6,7 @@
   import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
   import arrayDifferences from 'array-differences';
   import { ComboBox, TextBox, TextBoxButton } from 'fluent-svelte';
-  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
+  import { createEventDispatcher, tick } from 'svelte';
   import type * as Y from 'yjs';
   import type { Option, YDocOption } from '.';
   import SelectedOptions from './SelectedOptions.svelte';
@@ -351,7 +351,7 @@ The `on:select` event occurs when the selected values change. It fires upon sele
   on:dragfinalize={handleDragFinalize}
   on:dismiss={handleDragFinalize}
   on:dismissall={handleDragFinalize}
-  hideIds
+  hideIds={!reference}
 />
 
 <style>
