@@ -66,21 +66,24 @@ import { useWatching } from './useWatching';
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
 interface CollectionItemPageProps {
-  data?: PageData;
+  collection: string;
+  item_id: string;
+  tenant: string;
+  version_date?: string;
 }
 
 const PageTitle = reactify(PageTitleSvelte);
 const Loading = reactify(LoadingSvelte);
 
 function CollectionItemPage(props: CollectionItemPageProps) {
-  let { collection, item_id, version_date } = useParams() as {
-    collection: string;
-    item_id: string;
-    version_date?: string;
-  };
-
-  if (!!collection && !!item_id) {
-    return <CollectionItemPageReal collection={collection} item_id={item_id} version_date={version_date} />;
+  if (!!props.collection && !!props.item_id) {
+    return (
+      <CollectionItemPageReal
+        collection={props.collection}
+        item_id={props.item_id}
+        version_date={props.version_date}
+      />
+    );
   }
 
   return null;
@@ -171,7 +174,7 @@ function CollectionItemPageContent(props: CollectionItemPageContentProps) {
 
   // function to get the values of the fields for previews (used in sidebar)
   const getFieldValues = async (opts: GetYFieldsOptions) => {
-    return merge(data, { yState: undefined }, await getYFields(props.y, schemaDef, opts));
+    return merge(data, { yState: undefined }, await getYFields(props.y?.ydoc, schemaDef, opts));
   };
 
   const hasLoadedAtLeastOnce = JSON.stringify(props.y.data) !== JSON.stringify({}) && props.y.synced;
