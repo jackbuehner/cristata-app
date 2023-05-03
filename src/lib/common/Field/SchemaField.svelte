@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SelectMany } from '$lib/common/Select';
+  import { SelectMany, SelectOne } from '$lib/common/Select';
   import type { YStore } from '$utils/createYStore';
   import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
   import { FieldWrapper } from '.';
@@ -35,6 +35,15 @@
   $: _disabled = disabled || readOnly;
 
   $: ydocKey = key;
+
+  // process the options to be ready for SelectOne/SelectMany, if available/applicable
+  $: options = def.field?.options?.map((opt) => {
+    return {
+      label: opt.label,
+      _id: opt.value.toString(),
+      disabled: opt.disabled,
+    };
+  });
 </script>
 
 {#if def.type === 'DocArray' || type === 'DocArray'}
@@ -50,39 +59,59 @@
     ? def.type[0].replace('[', '').replace(']', '')
     : def.field?.reference?.collection || ''}
 
+  {@const reference = { ...(def.field?.reference || {}), collection }}
+
   {#if isArrayType}
-    <p>Reference Many: {key}</p>
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <SelectMany {disabled} {ydoc} {ydocKey} {reference} />
+    </FieldWrapper>
   {:else}
-    <p>Reference One: {key}</p>
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <SelectOne {disabled} {ydoc} {ydocKey} {reference} />
+    </FieldWrapper>
   {/if}
 {:else if type === 'String' && def.field?.markdown}
   <p>Markdown: {key}</p>
 {:else if type === 'String'}
-  <p>Text: {key}</p>
+  {#if options}
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
+    </FieldWrapper>
+  {:else}
+    <p>Text: {key}</p>
+  {/if}
 {:else if type === 'Boolean'}
   <p>Checkbox: {key}</p>
 {:else if type === 'Number'}
-  <p>Integer: {key}</p>
+  {#if options}
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
+    </FieldWrapper>
+  {:else}
+    <p>Integer: {key}</p>
+  {/if}
 {:else if type === 'Float'}
-  <p>Float: {key}</p>
+  {#if options}
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
+    </FieldWrapper>
+  {:else}
+    <p>Float: {key}</p>
+  {/if}
 {:else if type === 'Date'}
   <p>Date: {key}</p>
 {:else if Array.isArray(type) && type[0] === 'String'}
-  {@const options = def.field?.options?.map((opt) => {
-    return {
-      label: opt.label,
-      _id: opt.value.toString(),
-      disabled: opt.disabled,
-    };
-  })}
   <FieldWrapper label={fieldName} {description} forId={key}>
-    <SelectMany {disabled} {options} {ydoc} {ydocKey} />
+    <SelectMany {disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
-  <p>Text Array: {key}</p>
 {:else if Array.isArray(type) && type[0] === 'Number'}
-  <p>Text Integer: {key}</p>
+  <FieldWrapper label={fieldName} {description} forId={key}>
+    <SelectOne {disabled} {ydoc} {ydocKey} {options} />
+  </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'Float'}
-  <p>Text Float: {key}</p>
+  <FieldWrapper label={fieldName} {description} forId={key}>
+    <SelectOne {disabled} {ydoc} {ydocKey} {options} />
+  </FieldWrapper>
 {:else}
   <p>Unsupported Type ({JSON.stringify(type)}): {key}</p>
 {/if}
