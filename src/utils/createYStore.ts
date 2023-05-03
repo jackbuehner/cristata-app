@@ -179,7 +179,7 @@ interface IYSettingsMap {
   collection: string;
 }
 
-interface AwarenessUser {
+export interface AwarenessUser {
   name: string;
   color: string;
   sessionId: string;
