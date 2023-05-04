@@ -7,12 +7,17 @@
   import { getProperty } from '$utils/objectPath.js';
   import type { HocuspocusProvider } from '@hocuspocus/provider';
   import { deconstructSchema, isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+  import { notEmpty } from '@jackbuehner/cristata-utils';
+  import ColorHash from 'color-hash';
   import { copy } from 'copy-anything';
   import { Button, InfoBar } from 'fluent-svelte';
   import { onDestroy, onMount } from 'svelte';
   import type { WebrtcProvider } from 'y-webrtc';
   import * as Y from 'yjs';
   import Sidebar from './Sidebar.svelte';
+
+  // @ts-expect-error 'bkdr' is a vlid hash config value
+  const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
   export let data;
   $: ({ docData } = data);
@@ -65,7 +70,7 @@
     publishActionAccess: docData?.data?.actionAccess.publish || false,
   }));
 
-  $: disabled = false;
+  $: disabled = isOldVersion || publishLocked || false;
 </script>
 
 <div class="content-wrapper">
@@ -164,6 +169,25 @@
     {sharedData}
     {awareness}
     tenant={data.params.tenant}
+    permissions={{
+      users:
+        getProperty($fullSharedData, 'permissions.users')?.map((user) => ({
+          ...user,
+          _id: user.value,
+          name: user.name || user.label || 'User',
+          color: colorHash.hex(user.value || '0'),
+        })) || [],
+      teams:
+        getProperty($fullSharedData, 'permissions.teams')
+          ?.filter(notEmpty)
+          .map((value) => {
+            if (typeof value === 'string') {
+              return { _id: value, color: colorHash.hex(value || '0') };
+            }
+            return { _id: value.value, label: value.label, color: colorHash.hex(value.value || '0') };
+          }) || [],
+    }}
+    hideVersions={isOldVersion}
   />
   <!-- <div class="sidebar">
     {#if stageDef}
