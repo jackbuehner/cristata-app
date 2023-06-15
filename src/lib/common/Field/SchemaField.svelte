@@ -1,7 +1,8 @@
 <script lang="ts">
   import { StatelessCheckbox } from '$lib/common/Checkbox';
   import { SelectMany, SelectOne } from '$lib/common/Select';
-  import type { YStore } from '$utils/createYStore';
+  import { TextTiptap } from '$lib/common/Tiptap';
+  import type { AwarenessUser, YStore } from '$utils/createYStore';
   import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
   import { FieldWrapper } from '.';
 
@@ -9,7 +10,9 @@
   export let def: DeconstructedSchemaDefType[0][1];
   // export let mode: 'editor' | 'publish' | 'create' = 'editor';
   export let ydoc: YStore['ydoc'];
+  export let wsProvider: YStore['wsProvider'];
   export let disabled = false;
+  export let user: AwarenessUser;
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -78,8 +81,12 @@
     <FieldWrapper label={fieldName} {description} forId={key}>
       <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
+  {:else if !!$ydoc && !!$wsProvider}
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} />
+    </FieldWrapper>
   {:else}
-    <p>Text: {key}</p>
+    <p>Error: The collaborative document or websocket was not fouund.</p>
   {/if}
 {:else if type === 'Boolean'}
   <FieldWrapper label={fieldName} {description} forId={key} mode="checkbox">
@@ -90,16 +97,24 @@
     <FieldWrapper label={fieldName} {description} forId={key}>
       <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
+  {:else if !!$ydoc && !!$wsProvider}
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={false} />
+    </FieldWrapper>
   {:else}
-    <p>Integer: {key}</p>
+    <p>Error: The collaborative document or websocket was not fouund.</p>
   {/if}
 {:else if type === 'Float'}
   {#if options}
     <FieldWrapper label={fieldName} {description} forId={key}>
       <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
+  {:else if !!$ydoc && !!$wsProvider}
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={true} />
+    </FieldWrapper>
   {:else}
-    <p>Float: {key}</p>
+    <p>Error: The collaborative document or websocket was not fouund.</p>
   {/if}
 {:else if type === 'Date'}
   <p>Date: {key}</p>

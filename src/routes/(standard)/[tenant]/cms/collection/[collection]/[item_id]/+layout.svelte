@@ -144,13 +144,12 @@
               </InfoBar>
             {/if}
           </div>
-          {$synced}
 
           <!-- TODO: move this logic to a special SchemaDefField component that determines the correct -->
           <!-- field based on thnpme schema definition -->
           <!-- The component should have three modes: editor, publish, and create (to support all three cases) -->
           {#each data.helpers.processSchemaDef() as [key, def]}
-            <SchemaField {key} {def} {ydoc} {disabled} />
+            <SchemaField {key} {def} {ydoc} {disabled} {wsProvider} user={data.yuser} />
           {/each}
         </div>
       </div>

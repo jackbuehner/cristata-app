@@ -27,6 +27,32 @@
     color: var(--windowAccent);
   }
 
+  /* collaboration */
+  :global(.collaboration-cursor__caret) {
+    position: relative;
+    margin-left: -0.5px;
+    margin-right: -0.5px;
+    border-left: 0.5px solid #0d0d0d;
+    border-right: 0.5px solid #0d0d0d;
+    word-break: normal;
+    pointer-events: none;
+  }
+  :global(.collaboration-cursor__label) {
+    position: absolute;
+    top: -1.4em;
+    left: -1px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 680;
+    line-height: normal;
+    user-select: none;
+    color: #111111;
+    font-family: var(--fds-font-family-small);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0;
+    white-space: nowrap;
+  }
+
   /* acrylic menys */
   @supports (backdrop-filter: var(--fds-acrylic-blur-factor)) {
     @keyframes fadein {
