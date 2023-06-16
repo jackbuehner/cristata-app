@@ -1,7 +1,7 @@
 <script lang="ts">
   import { StatelessCheckbox } from '$lib/common/Checkbox';
   import { SelectMany, SelectOne } from '$lib/common/Select';
-  import { TextTiptap } from '$lib/common/Tiptap';
+  import { NumberTiptap, RichTiptap, TextTiptap } from '$lib/common/Tiptap';
   import type { AwarenessUser, YStore } from '$utils/createYStore';
   import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
   import { FieldWrapper } from '.';
@@ -55,7 +55,13 @@
 {:else if key.includes('#')}
   <p>Internal: {key}</p>
 {:else if key === 'body' && def.field?.tiptap}
-  <p>TipTap: {key}</p>
+  {#if !!$ydoc && !!$wsProvider}
+    <FieldWrapper label={fieldName} {description} forId={key}>
+      <RichTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} options={def.field.tiptap} />
+    </FieldWrapper>
+  {:else}
+    <p>Error: The collaborative document or websocket was not found ({key}).</p>
+  {/if}
 {:else if def.field?.reference?.collection || isTypeTuple(def.type)}
   <!-- TODO: add property for adding filter and sort to the query -->
 
@@ -86,7 +92,7 @@
       <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} />
     </FieldWrapper>
   {:else}
-    <p>Error: The collaborative document or websocket was not fouund.</p>
+    <p>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Boolean'}
   <FieldWrapper label={fieldName} {description} forId={key} mode="checkbox">
@@ -99,10 +105,10 @@
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
     <FieldWrapper label={fieldName} {description} forId={key}>
-      <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={false} />
+      <NumberTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={false} />
     </FieldWrapper>
   {:else}
-    <p>Error: The collaborative document or websocket was not fouund.</p>
+    <p>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Float'}
   {#if options}
@@ -111,10 +117,10 @@
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
     <FieldWrapper label={fieldName} {description} forId={key}>
-      <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={true} />
+      <NumberTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={true} />
     </FieldWrapper>
   {:else}
-    <p>Error: The collaborative document or websocket was not fouund.</p>
+    <p>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Date'}
   <p>Date: {key}</p>

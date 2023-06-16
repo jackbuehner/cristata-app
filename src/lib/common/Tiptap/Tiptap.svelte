@@ -21,6 +21,7 @@
   export let user: AwarenessUser;
 
   export let extensions: AnyExtension[];
+  export let noTextFormatting = false;
 
   let element: HTMLDivElement;
   let editor: Editor | null = null;
@@ -59,28 +60,22 @@
 </script>
 
 <div class="text-box-container" class:disabled>
-  <div style="width: 100%;" bind:this={element} />
+  <div style="width: 100%;" bind:this={element} class:textFormatting={!noTextFormatting} />
   <div class="text-box-underline" />
 </div>
 
 <style>
   div :global(p) {
     margin: 0;
-    line-height: 20px;
   }
   div :global(.ProseMirror) {
     background-color: transparent;
     border: none;
     border-radius: var(--fds-control-corner-radius);
     box-sizing: border-box;
-    color: var(--fds-text-primary);
     cursor: unset;
     flex: 1 1 auto;
-    font-family: var(--fds-font-family-text);
-    font-size: var(--fds-body-font-size);
-    font-weight: 400;
     inline-size: 100%;
-    line-height: 20px;
     margin: 0;
     min-block-size: 30px;
     outline: none;
@@ -91,22 +86,35 @@
     -ms-user-select: none;
     user-select: none;
   }
+  div.textFormatting :global(.ProseMirror) {
+    color: var(--fds-text-primary);
+    font-family: var(--fds-font-family-text);
+    font-size: var(--fds-body-font-size);
+    font-weight: 400;
+    line-height: 20px;
+  }
   div :global(.ProseMirror)::-moz-placeholder {
-    color: var(--fds-text-secondary);
     -moz-user-select: none;
     user-select: none;
   }
-  div :global(.ProseMirror):-ms-input-placeholder {
+  div.textFormatting :global(.ProseMirror)::-moz-placeholder {
     color: var(--fds-text-secondary);
+  }
+  div :global(.ProseMirror):-ms-input-placeholder {
     -ms-user-select: none;
     user-select: none;
   }
-  div :global(.ProseMirror)::placeholder {
+  div.textFormatting :global(.ProseMirror):-ms-input-placeholder {
     color: var(--fds-text-secondary);
+  }
+  div :global(.ProseMirror)::placeholder {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+  }
+  div.textFormatting :global(.ProseMirror)::placeholder {
+    color: var(--fds-text-secondary);
   }
   div :global(.ProseMirror)::-webkit-search-cancel-button,
   div :global(.ProseMirror)::-webkit-search-decoration,

@@ -8,5 +8,10 @@
   },
   "terminal.integrated.tabs.defaultColor": "terminal.ansiCyan",
   "terminal.integrated.tabs.defaultIcon": "organization",
-  "typescript.preferences.autoImportFileExcludePatterns": ["src/lib/**/[_]*.*"]
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "src/lib/**/[_]*.*"
+  ],
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+  }
 }
