@@ -75,7 +75,7 @@
     align-items: stretch;
     margin-top: 6px;
     background-color: var(--fds-card-background-default);
-    border: 1px solid var(--fds-card-stroke-default);
+    box-shadow: inset 0 0 0 1px var(--fds-control-stroke-default);
     border-radius: var(--fds-control-corner-radius);
   }
 

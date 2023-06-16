@@ -137,6 +137,7 @@
   div.actions :global(.button) {
     border-radius: 0px;
     white-space: nowrap;
+    box-shadow: none;
   }
   div.actions :global(.button:first-child) {
     border-top-left-radius: var(--fds-control-corner-radius);
