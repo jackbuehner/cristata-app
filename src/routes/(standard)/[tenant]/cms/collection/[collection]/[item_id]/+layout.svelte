@@ -1,23 +1,12 @@
 <script lang="ts">
   import { SchemaField } from '$lib/common/Field/index.js';
-  import { SelectOne } from '$lib/common/Select/index.js';
-  import { CollectionItemPage } from '$react/CMS/CollectionItemPage';
-  import { YProvider } from '$utils/YProvider.js';
   import { createYStore } from '$utils/createYStore.js';
   import { getProperty } from '$utils/objectPath.js';
-  import type { HocuspocusProvider } from '@hocuspocus/provider';
-  import { deconstructSchema, isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+  import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
-  import ColorHash from 'color-hash';
   import { copy } from 'copy-anything';
   import { Button, InfoBar } from 'fluent-svelte';
-  import { onDestroy, onMount } from 'svelte';
-  import type { WebrtcProvider } from 'y-webrtc';
-  import * as Y from 'yjs';
   import Sidebar from './Sidebar.svelte';
-
-  // @ts-expect-error 'bkdr' is a vlid hash config value
-  const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
   export let data;
   $: ({ docData } = data);
@@ -174,39 +163,24 @@
           ...user,
           _id: user.value,
           name: user.name || user.label || 'User',
-          color: colorHash.hex(user.value || '0'),
+          color: data.helpers.colorHash.hex(user.value || '0'),
         })) || [],
       teams:
         getProperty($fullSharedData, 'permissions.teams')
           ?.filter(notEmpty)
           .map((value) => {
             if (typeof value === 'string') {
-              return { _id: value, color: colorHash.hex(value || '0') };
+              return { _id: value, color: data.helpers.colorHash.hex(value || '0') };
             }
-            return { _id: value.value, label: value.label, color: colorHash.hex(value.value || '0') };
+            return {
+              _id: value.value,
+              label: value.label,
+              color: data.helpers.colorHash.hex(value.value || '0'),
+            };
           }) || [],
     }}
     hideVersions={isOldVersion}
   />
-  <!-- <div class="sidebar">
-    {#if stageDef}
-      <SelectOne
-        {disabled}
-        {ydoc}
-        ydocKey="stage"
-        options={stageDef.field?.options?.map((opt) => {
-          return {
-            label: opt.label,
-            _id: opt.value.toString(),
-            disabled: opt.disabled,
-          };
-        }) || []}
-        showCurrentSelectionOnDropdown
-        hideSelected={false}
-      />
-      <SchemaField key="stage" def={stageDef} {ydoc} />
-    {/if}
-  </div> -->
 </div>
 
 <button
@@ -244,11 +218,6 @@
     min-width: 0;
     overflow: auto;
     flex-grow: 1;
-  }
-
-  .sidebar {
-    width: 310px;
-    background: black;
   }
 
   .alerts-wrapper {

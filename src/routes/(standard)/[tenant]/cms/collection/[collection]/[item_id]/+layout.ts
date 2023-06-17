@@ -5,12 +5,14 @@ import { genAvatar } from '$utils/genAvatar';
 import { getProperty } from '$utils/objectPath';
 import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
 import { uncapitalize } from '@jackbuehner/cristata-utils';
-import ColorHash from 'color-hash';
+import _ColorHash from 'color-hash';
 import gql from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import type { LayoutLoad } from './$types';
 
+// @ts-expect-error https://github.com/zenozeng/color-hash/issues/42
+const ColorHash: typeof _ColorHash = _ColorHash.default || _ColorHash;
 // @ts-expect-error 'bkdr' is a vlid hash config value
 const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
 
@@ -146,6 +148,7 @@ export const load = (async ({ parent, params, url }) => {
     helpers: {
       processSchemaDef,
       calcPublishPermissions,
+      colorHash
     },
   };
 }) satisfies LayoutLoad;
