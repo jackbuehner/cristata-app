@@ -209,7 +209,7 @@
     --fds-control-stroke-secondary-overlay: hsla(0, 0%, 0%, 10.44%);
     box-shadow: inset 0 0 0 1px var(--fds-control-stroke-default),
       inset 0 -1px 0 0 var(--fds-control-stroke-secondary-overlay);
-    padding: 5px 12px 6.5px 12px;
+    /* padding: 5px 12px 6.5px 12px; */
   }
   @media (prefers-color-scheme: dark) {
     :global(:root .button.style-standard) {

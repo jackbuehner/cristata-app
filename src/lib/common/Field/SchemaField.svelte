@@ -1,5 +1,6 @@
 <script lang="ts">
   import { StatelessCheckbox } from '$lib/common/Checkbox';
+  import { DateTime } from '$lib/common/DateTime';
   import { SelectMany, SelectOne } from '$lib/common/Select';
   import { NumberTiptap, RichTiptap, TextTiptap } from '$lib/common/Tiptap';
   import type { AwarenessUser, YStore } from '$utils/createYStore';
@@ -123,7 +124,9 @@
     <p>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Date'}
-  <p>Date: {key}</p>
+  <FieldWrapper label={fieldName} {description} forId={key}>
+    <DateTime {disabled} {ydoc} {ydocKey} />
+  </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'String'}
   <FieldWrapper label={fieldName} {description} forId={key}>
     <SelectMany {disabled} {ydoc} {ydocKey} {options} />
