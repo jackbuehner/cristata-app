@@ -107,15 +107,9 @@
     background-color: black;
     height: calc(100% - env(titlebar-area-height, 33px));
     z-index: 999;
-    background-color: #f3f3f3;
+    background-color: var(--titlebar-bg);
     box-shadow: inset -1px 0 0 0 var(--fds-surface-stroke-flyout), var(--fds-flyout-shadow);
     /* border-radius: 0 6px 6px 0; */
-  }
-
-  @media (prefers-color-scheme: dark) {
-    aside.leftCompact {
-      background-color: #202020;
-    }
   }
 
   aside.leftCompact.collapsed {
@@ -126,6 +120,8 @@
 
   .spacer {
     width: 50px;
+    flex-grow: 0;
+    flex-shrink: 0;
   }
 
   span {
