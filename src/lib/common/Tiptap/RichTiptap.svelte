@@ -243,7 +243,7 @@
 {/await}
 
 <div class="richtiptap" class:fullscreen bind:clientWidth={tiptapwidth}>
-  <Ribbon fullscreen />
+  <Ribbon />
   <div class="richtiptap-content">
     <div
       style="

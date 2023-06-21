@@ -9,8 +9,6 @@
   import ReviewTabPanel from './tabpanels/ReviewTabPanel.svelte';
   import TableTabPanel from './tabpanels/TableTabPanel.svelte';
 
-  export let fullscreen = false;
-
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
   let mouseOverActiveTab = false;
@@ -272,11 +270,16 @@
 
   .tabs {
     position: relative;
+    display: flex;
+    flex-direction: row;
+    height: 30px;
   }
 
   .tabs :global(.button.style-standard) {
     background-color: transparent;
     box-shadow: none;
+    padding-left: 11px;
+    padding-right: 11px;
   }
 
   .tabs :global(.button.style-standard):hover {
@@ -290,7 +293,7 @@
 
   .tabline {
     margin: 0px;
-    bottom: 5px;
+    bottom: 0px;
     left: 111.573px;
     width: 41.3646px;
     height: 3px;
