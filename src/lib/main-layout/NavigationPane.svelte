@@ -483,7 +483,7 @@
   <NavigationView
     variant="leftCompact"
     menuItems={[...menuFooterItems, ...mainMenuItems, ...routeMenuItems]}
-    showBackArrow
+    showBackArrow={false}
     compact={$compactMode}
     bind:collapsedPane={$collapsedPaneCompact}
   />

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { afterNavigate } from '$app/navigation';
+  import { page } from '$app/stores';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
   import { DateTime } from '$lib/common/DateTime';
   import { SelectMany, SelectOne } from '$lib/common/Select';
@@ -49,6 +51,15 @@
       disabled: opt.disabled,
     };
   });
+
+  //
+  $: fullscreen = $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === 'force';
+  afterNavigate(() => {
+    console.log(new URL(window.location.href).searchParams.get('fs') === '1');
+    fullscreen =
+      new URL(window.location.href).searchParams.get('fs') === '1' ||
+      new URL(window.location.href).searchParams.get('fs') === 'force';
+  });
 </script>
 
 {#if def.type === 'DocArray' || type === 'DocArray'}
@@ -58,7 +69,7 @@
 {:else if key === 'body' && def.field?.tiptap}
   {#if !!$ydoc && !!$wsProvider}
     <FieldWrapper label={fieldName} {description} forId={key}>
-      <RichTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} options={def.field.tiptap} />
+      <RichTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} options={def.field.tiptap} {fullscreen} />
     </FieldWrapper>
   {:else}
     <p>Error: The collaborative document or websocket was not found ({key}).</p>

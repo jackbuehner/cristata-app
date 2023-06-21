@@ -23,6 +23,8 @@
   export let extensions: AnyExtension[];
   export let noTextFormatting = false;
 
+  export let style = '';
+
   let element: HTMLDivElement;
   let editor: Editor | null = null;
 
@@ -59,7 +61,7 @@
   });
 </script>
 
-<div class="text-box-container" class:disabled>
+<div class="text-box-container" class:disabled {style}>
   <div style="width: 100%;" bind:this={element} class:textFormatting={!noTextFormatting} />
   <div class="text-box-underline" />
 </div>
