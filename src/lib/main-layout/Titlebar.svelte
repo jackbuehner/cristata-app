@@ -192,7 +192,7 @@
     app-region: drag;
     user-select: none;
     justify-content: space-between;
-    background-color: #f3f3f3;
+    background-color: var(--titlebar-bg);
     padding: 0 16px;
     box-sizing: border-box;
     color: #888888;
@@ -237,10 +237,6 @@
     margin-right: 8px;
   }
   @media (prefers-color-scheme: dark) {
-    .titlebar {
-      background-color: #202020;
-    }
-
     svg {
       fill: var(--color-primary-300);
     }
