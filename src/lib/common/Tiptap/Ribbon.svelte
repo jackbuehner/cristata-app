@@ -257,13 +257,13 @@
     }
   }
 
-  .tabpanel :global(.panel > .button):hover,
-  .tabpanel :global(.panel > .icon-button):hover {
+  .tabpanel :global(.panel > .button):hover:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .icon-button):hover:not(disabled):not(.disabled) {
     background-color: var(--fds-subtle-fill-secondary) !important;
   }
 
-  .tabpanel :global(.panel > .button):active,
-  .tabpanel :global(.panel > .icon-button):active {
+  .tabpanel :global(.panel > .button):active:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .icon-button):active:not(disabled):not(.disabled) {
     background-color: var(--fds-subtle-fill-tertiary) !important;
     color: var(--fds-text-secondary);
   }
@@ -282,11 +282,11 @@
     padding-right: 11px;
   }
 
-  .tabs :global(.button.style-standard):hover {
+  .tabs :global(.button.style-standard):hover:not(disabled):not(.disabled) {
     background-color: var(--fds-subtle-fill-secondary);
   }
 
-  .tabs :global(.button.style-standard):active {
+  .tabs :global(.button.style-standard):active:not(disabled):not(.disabled) {
     background-color: var(--fds-subtle-fill-tertiary);
     color: var(--fds-text-secondary);
   }
