@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
   import type { Editor } from '@tiptap/core';
   import { Button, IconButton, MenuFlyout, MenuFlyoutDivider, MenuFlyoutItem } from 'fluent-svelte';
   import type { tiptapOptions } from '../../../config';
@@ -54,6 +55,7 @@
   }
 
   let fileMenuOpen = false;
+  let saveDocDialogOpen = false;
 </script>
 
 <div class="ribbon">
@@ -62,20 +64,20 @@
       <div class="tabs" bind:this={tabsContainerElement}>
         <MenuFlyout alignment="start" placement="bottom" offset={0} bind:open={fileMenuOpen}>
           <svelte:fragment slot="flyout">
-            <MenuFlyoutItem hint="Ctrl + S">
+            <MenuFlyoutItem hint="Ctrl + S" on:click={() => (saveDocDialogOpen = !saveDocDialogOpen)}>
               <FluentIcon name="Save20Regular" />
               Save
             </MenuFlyoutItem>
-            <MenuFlyoutItem hint="Ctrl + Shift + S">
+            <MenuFlyoutItem hint="Ctrl + Shift + S" disabled>
               <FluentIcon name="CloudArrowUp20Regular" />
               Publish
             </MenuFlyoutItem>
             <MenuFlyoutDivider />
-            <MenuFlyoutItem hint="Ctrl + P">
+            <MenuFlyoutItem hint="Ctrl + P" disabled>
               <FluentIcon name="Print20Regular" />
               Print
             </MenuFlyoutItem>
-            <MenuFlyoutItem cascading>
+            <MenuFlyoutItem cascading disabled>
               <FluentIcon name="ArrowExportUp20Regular" />
               Export
               <svelte:fragment slot="flyout">
@@ -84,24 +86,24 @@
                 <MenuFlyoutItem>Email-ready HTML (.html)</MenuFlyoutItem>
               </svelte:fragment>
             </MenuFlyoutItem>
-            <MenuFlyoutItem>
+            <MenuFlyoutItem disabled>
               <FluentIcon name="Share20Regular" />
               Share
             </MenuFlyoutItem>
             <MenuFlyoutDivider />
-            <MenuFlyoutItem>
+            <MenuFlyoutItem disabled>
               <FluentIcon name="Eye20Regular" />
               Watch
             </MenuFlyoutItem>
-            <MenuFlyoutItem>
+            <MenuFlyoutItem disabled>
               <FluentIcon name="Delete20Regular" />
               Delete
             </MenuFlyoutItem>
-            <MenuFlyoutItem>
+            <MenuFlyoutItem disabled>
               <FluentIcon name="Archive20Regular" />
               Archive
             </MenuFlyoutItem>
-            <MenuFlyoutItem>
+            <MenuFlyoutItem disabled>
               <FluentIcon name="DocumentMultiple20Regular" />
               Duplicate
             </MenuFlyoutItem>
@@ -184,6 +186,8 @@
     <TableTabPanel visible={activeTab === 'table'} {editor} {options} />
   </div>
 </div>
+
+<SaveDocumentDialog bind:open={saveDocDialogOpen} />
 
 <style>
   .ribbon {

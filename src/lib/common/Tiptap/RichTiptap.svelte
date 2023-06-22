@@ -1,6 +1,7 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
   import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
+  import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
   import { titlebarActions } from '$stores/titlebarActions';
   import type { Editor } from '@tiptap/core';
   import less from 'less';
@@ -16,6 +17,8 @@
   export let user: ComponentProps<Tiptap>['user'];
   export let options: tiptapOptions | undefined = undefined;
   export let fullscreen = false;
+
+  let saveDocDialogOpen = false;
 
   const parsedCss = less.render(
     `
@@ -173,8 +176,7 @@
       {
         label: 'Save',
         icon: 'Save20Regular',
-        disabled: true,
-        action: () => null,
+        action: () => (saveDocDialogOpen = true),
         // disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || false,
         // action: (evt) => {
         //   const saveAction = props.actions?.find((action) => action?.label === 'Save');
@@ -270,6 +272,7 @@
       />
     </div>
   </div>
+  <SaveDocumentDialog bind:open={saveDocDialogOpen} />
   <div class="footer-wrapper">
     <div class="footer">footer</div>
   </div>
