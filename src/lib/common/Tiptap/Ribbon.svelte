@@ -217,7 +217,7 @@
     white-space: nowrap;
     flex-wrap: nowrap;
     align-content: flex-start;
-
+    gap: 4px;
     position: absolute;
     left: 0;
     box-sizing: border-box;
@@ -257,15 +257,40 @@
     }
   }
 
+  .tabpanel {
+    --mouse-hover: #e1dfdd;
+    --mouse-active: #c8c6c4;
+    --tool-active: #d2d0ce;
+    --tool-active-hover: #979593;
+  }
+  @media (prefers-color-scheme: dark) {
+    .tabpanel {
+      --mouse-hover: #484644;
+      --mouse-active: #797775;
+      --tool-active: #605e5c;
+      --tool-active-hover: #8a8886;
+    }
+  }
+
+  .tabpanel :global(.panel > .button.active),
+  .tabpanel :global(.panel > .icon-button.active) {
+    background-color: var(--tool-active) !important;
+    background-color: var(--mouse-hover) !important;
+  }
+
+  .tabpanel :global(.panel > .button.active):hover:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .icon-button.active):hover:not(disabled):not(.disabled) {
+    box-shadow: inset 0 0 0 1px var(--tool-active-hover);
+  }
+
   .tabpanel :global(.panel > .button):hover:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .icon-button):hover:not(disabled):not(.disabled) {
-    background-color: var(--fds-subtle-fill-secondary) !important;
+    background-color: var(--mouse-hover) !important;
   }
 
   .tabpanel :global(.panel > .button):active:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .icon-button):active:not(disabled):not(.disabled) {
-    background-color: var(--fds-subtle-fill-tertiary) !important;
-    color: var(--fds-text-secondary);
+    background-color: var(--mouse-active) !important;
   }
 
   .tabs {
