@@ -2,6 +2,7 @@
   import { beforeNavigate } from '$app/navigation';
   import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
   import { titlebarActions } from '$stores/titlebarActions';
+  import type { Editor } from '@tiptap/core';
   import less from 'less';
   import type { ComponentProps } from 'svelte';
   import type { tiptapOptions } from '../../../config';
@@ -153,26 +154,27 @@
   );
 
   let tiptapwidth = 0;
+  let editor: Editor | null;
 
   $: if (fullscreen) {
     titlebarActions.set([
       {
         label: 'Undo',
         icon: 'ArrowUndo20Regular',
-        // disabled: !editor?.can().undo(),
-        // action: () => editor?.chain().focus().undo().run(),
-        action: () => null,
+        disabled: !editor?.can().undo(),
+        action: () => editor?.chain().focus().undo().run(),
       },
       {
         label: 'Redo',
         icon: 'ArrowRedo20Regular',
-        // disabled: !editor?.can().redo(),
-        // action: () => editor?.chain().focus().redo().run(),
-        action: () => null,
+        disabled: !editor?.can().redo(),
+        action: () => editor?.chain().focus().redo().run(),
       },
       {
         label: 'Save',
         icon: 'Save20Regular',
+        disabled: true,
+        action: () => null,
         // disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || false,
         // action: (evt) => {
         //   const saveAction = props.actions?.find((action) => action?.label === 'Save');
@@ -180,7 +182,6 @@
         //   if (saveAction) saveAction.action(evt);
         //   else showAutosaveModal();
         // },
-        action: () => null,
         size: 20,
       },
       {
@@ -243,7 +244,7 @@
 {/await}
 
 <div class="richtiptap" class:fullscreen bind:clientWidth={tiptapwidth}>
-  <Ribbon />
+  <Ribbon {editor} {options} />
   <div class="richtiptap-content">
     <div
       style="
@@ -265,6 +266,7 @@
         extensions={editorExtensions.tiptap}
         noTextFormatting
         style="background: none !important; box-shadow: none !important;"
+        bind:editor
       />
     </div>
   </div>

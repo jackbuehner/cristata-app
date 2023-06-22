@@ -2,12 +2,18 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import type { Editor } from '@tiptap/core';
   import { Button, IconButton, MenuFlyout, MenuFlyoutDivider, MenuFlyoutItem } from 'fluent-svelte';
+  import type { tiptapOptions } from '../../../config';
   import HomeTabPanel from './tabpanels/HomeTabPanel.svelte';
   import InsertTabPanel from './tabpanels/InsertTabPanel.svelte';
   import LayoutTabPanel from './tabpanels/LayoutTabPanel.svelte';
   import ReviewTabPanel from './tabpanels/ReviewTabPanel.svelte';
   import TableTabPanel from './tabpanels/TableTabPanel.svelte';
+  import ViewTabPanel from './tabpanels/ViewTabPanel.svelte';
+
+  export let editor: Editor | null;
+  export let options: tiptapOptions | undefined = undefined;
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
@@ -46,14 +52,15 @@
     if (tabName === activeTab) mouseOverActiveTab = false;
     else mouseOverActiveTab = false;
   }
+
+  let fileMenuOpen = false;
 </script>
 
 <div class="ribbon">
   <div style="padding: 0 8px;">
     <div class="top">
       <div class="tabs" bind:this={tabsContainerElement}>
-        <MenuFlyout alignment="start" placement="bottom" offset={0}>
-          <Button>File</Button>
+        <MenuFlyout alignment="start" placement="bottom" offset={0} bind:open={fileMenuOpen}>
           <svelte:fragment slot="flyout">
             <MenuFlyoutItem hint="Ctrl + S">
               <FluentIcon name="Save20Regular" />
@@ -100,6 +107,7 @@
             </MenuFlyoutItem>
           </svelte:fragment>
         </MenuFlyout>
+        <Button on:click={() => (fileMenuOpen = !fileMenuOpen)}>File</Button>
         <Button
           data-tab={'home'}
           on:click={handleTabClick}
@@ -132,6 +140,14 @@
         >
           Review
         </Button>
+        <Button
+          data-tab={'view'}
+          on:click={handleTabClick}
+          on:mouseenter={handleTabMouseEnter}
+          on:mouseleave={handleTabMouseLeave}
+        >
+          View
+        </Button>
         <div class="tabline" style="width: {activeTabWidth}px; left: {activeTabLeft}px;" />
       </div>
       <div class="focuszone">
@@ -160,11 +176,12 @@
     </div>
   </div>
   <div class="tabpanel">
-    <HomeTabPanel visible={activeTab === 'home'} />
-    <InsertTabPanel visible={activeTab === 'insert'} />
-    <LayoutTabPanel visible={activeTab === 'layout'} />
-    <ReviewTabPanel visible={activeTab === 'review'} />
-    <TableTabPanel visible={activeTab === 'table'} />
+    <HomeTabPanel visible={activeTab === 'home'} {editor} {options} />
+    <InsertTabPanel visible={activeTab === 'insert'} {editor} {options} />
+    <LayoutTabPanel visible={activeTab === 'layout'} {editor} {options} />
+    <ReviewTabPanel visible={activeTab === 'review'} {editor} {options} />
+    <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
+    <TableTabPanel visible={activeTab === 'table'} {editor} {options} />
   </div>
 </div>
 
@@ -291,6 +308,35 @@
   .tabpanel :global(.panel > .button):active:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .icon-button):active:not(disabled):not(.disabled) {
     background-color: var(--mouse-active) !important;
+  }
+
+  .tabpanel :global(.button.style-standard) {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .tabpanel :global(.icon-button) {
+    padding: 6px;
+  }
+  .tabpanel :global(.icon-button svg) {
+    inline-size: 18px;
+  }
+
+  .tabpanel :global(.button.disabled svg),
+  .tabpanel :global(.icon-button.disabled svg) {
+    fill: #3a3a38ff;
+    opacity: 0.4;
+  }
+  @media (prefers-color-scheme: dark) {
+    .tabpanel :global(.button.disabled svg),
+    .tabpanel :global(.icon-button.disabled svg) {
+      fill: #d4d4d4ff;
+    }
+  }
+
+  .tabpanel :global(.panel > .menu-flyout-wrapper) {
+    margin-right: -4px;
+    height: 32px;
   }
 
   .tabs {

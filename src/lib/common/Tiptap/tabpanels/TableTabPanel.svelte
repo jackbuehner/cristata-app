@@ -1,18 +1,14 @@
 <script lang="ts">
-  import FluentIcon from '$lib/common/FluentIcon.svelte';
-  import { IconButton } from 'fluent-svelte';
+  import type { Editor } from '@tiptap/core';
+  import type { tiptapOptions } from '../../../../config';
 
+  export let editor: Editor | null;
   export let visible = false;
+  export let disabled = false;
+  export let options: tiptapOptions | undefined = undefined;
 </script>
 
-<div class="panel" class:visible>
-  <IconButton>
-    <FluentIcon name="ArrowUndo20Regular" />
-  </IconButton>
-  <IconButton>
-    <FluentIcon name="ArrowRedo20Regular" />
-  </IconButton>
-</div>
+<div class="panel" class:visible />
 
 <style>
 </style>

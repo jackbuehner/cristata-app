@@ -26,7 +26,7 @@
   export let style = '';
 
   let element: HTMLDivElement;
-  let editor: Editor | null = null;
+  export let editor: Editor | null = null;
 
   onMount(() => {
     editor = new Editor({
