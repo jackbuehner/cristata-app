@@ -248,13 +248,15 @@
     transition: transform 0.15s ease 0s, opacity 0.15s ease 0s;
   }
 
-  .tabpanel :global(.panel > .button) {
+  .tabpanel :global(.panel > .button),
+  .tabpanel :global(.panel > .tooltip-wrapper > .button) {
     height: 32px;
     background-color: transparent !important;
     box-shadow: none;
   }
 
-  .tabpanel :global(.panel > .icon-button) {
+  .tabpanel :global(.panel > .icon-button),
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button) {
     width: 32px;
     height: 32px;
   }
@@ -290,46 +292,61 @@
   }
 
   .tabpanel :global(.panel > .button.active),
-  .tabpanel :global(.panel > .icon-button.active) {
+  .tabpanel :global(.panel > .icon-button.active),
+  .tabpanel :global(.panel > .tooltip-wrapper > .button.active),
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button.active) {
     background-color: var(--tool-active) !important;
     background-color: var(--mouse-hover) !important;
   }
 
   .tabpanel :global(.panel > .button.active):hover:not(disabled):not(.disabled),
-  .tabpanel :global(.panel > .icon-button.active):hover:not(disabled):not(.disabled) {
+  .tabpanel :global(.panel > .icon-button.active):hover:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .tooltip-wrapper > .button.active):hover:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button.active):hover:not(disabled):not(.disabled) {
     box-shadow: inset 0 0 0 1px var(--tool-active-hover);
   }
 
   .tabpanel :global(.panel > .button):hover:not(disabled):not(.disabled),
-  .tabpanel :global(.panel > .icon-button):hover:not(disabled):not(.disabled) {
+  .tabpanel :global(.panel > .icon-button):hover:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .tooltip-wrapper > .button):hover:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button):hover:not(disabled):not(.disabled) {
     background-color: var(--mouse-hover) !important;
   }
 
   .tabpanel :global(.panel > .button):active:not(disabled):not(.disabled),
-  .tabpanel :global(.panel > .icon-button):active:not(disabled):not(.disabled) {
+  .tabpanel :global(.panel > .icon-button):active:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .tooltip-wrapper > .button):active:not(disabled):not(.disabled),
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button):active:not(disabled):not(.disabled) {
     background-color: var(--mouse-active) !important;
   }
 
-  .tabpanel :global(.button.style-standard) {
+  .tabpanel :global(.panel > .tooltip-wrapper > .button.style-standard),
+  .tabpanel :global(.panel > .button.style-standard) {
     padding-left: 6px;
     padding-right: 6px;
   }
 
-  .tabpanel :global(.icon-button) {
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button),
+  .tabpanel :global(.panel > .icon-button) {
     padding: 6px;
   }
-  .tabpanel :global(.icon-button svg) {
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button svg),
+  .tabpanel :global(.panel > .icon-button svg) {
     inline-size: 18px;
   }
 
-  .tabpanel :global(.button.disabled svg),
-  .tabpanel :global(.icon-button.disabled svg) {
+  .tabpanel :global(.panel > .tooltip-wrapper > .button.disabled svg),
+  .tabpanel :global(.panel > .tooltip-wrapper > .icon-button.disabled svg),
+  .tabpanel :global(.panel > .button.disabled svg),
+  .tabpanel :global(.panel > .icon-button.disabled svg) {
     fill: #3a3a38ff;
     opacity: 0.4;
   }
   @media (prefers-color-scheme: dark) {
-    .tabpanel :global(.button.disabled svg),
-    .tabpanel :global(.icon-button.disabled svg) {
+    .tabpanel :global(.panel > .tooltip-wrapper > .button.disabled svg),
+    .tabpanel :global(.panel > .tooltip-wrapper > .icon-button.disabled svg),
+    .tabpanel :global(.panel > .button.disabled svg),
+    .tabpanel :global(.panel > .icon-button.disabled svg) {
       fill: #d4d4d4ff;
     }
   }
