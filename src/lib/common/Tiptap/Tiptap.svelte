@@ -2,6 +2,7 @@
   import type { AwarenessUser } from '$utils/createYStore';
   import type { HocuspocusProvider } from '@hocuspocus/provider';
   import { Editor, type AnyExtension } from '@tiptap/core';
+  import BubbleMenu from '@tiptap/extension-bubble-menu';
   import Collaboration from '@tiptap/extension-collaboration';
   import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
   import { onDestroy, onMount } from 'svelte';
@@ -27,6 +28,7 @@
 
   let element: HTMLDivElement;
   export let editor: Editor | null = null;
+  export let bubbleMenuParagraph: HTMLElement | undefined = undefined;
 
   onMount(() => {
     editor = new Editor({
@@ -41,6 +43,16 @@
         }),
         // show cursor locations when collaborating
         CollaborationCursor.configure({ provider: $wsProvider }),
+        BubbleMenu.configure({
+          pluginKey: 'bubbleMenuParagraph',
+          element: bubbleMenuParagraph,
+          shouldShow: ({ editor }) => {
+            return editor.isActive('paragraph') && editor.state.selection.from !== editor.state.selection.to;
+          },
+          tippyOptions: {
+            placement: 'top-start',
+          },
+        }),
       ],
       onTransaction: () => {
         // force re-render so `editor.isActive` works as expected

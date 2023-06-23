@@ -7,6 +7,7 @@
   import less from 'less';
   import type { ComponentProps } from 'svelte';
   import type { tiptapOptions } from '../../../config';
+  import BubbleMenuParagraph from './BubbleMenuParagraph.svelte';
   import Ribbon from './Ribbon.svelte';
   import Tiptap from './Tiptap.svelte';
 
@@ -17,6 +18,8 @@
   export let user: ComponentProps<Tiptap>['user'];
   export let options: tiptapOptions | undefined = undefined;
   export let fullscreen = false;
+
+  let bubbleMenuParagraph: HTMLDivElement;
 
   let saveDocDialogOpen = false;
 
@@ -259,23 +262,30 @@
         margin: {tiptapwidth <= 680 ? `0 auto` : `20px auto`};
       "
     >
-      <Tiptap
-        {disabled}
-        {ydoc}
-        {ydocKey}
-        {wsProvider}
-        {user}
-        extensions={editorExtensions.tiptap}
-        noTextFormatting
-        style="background: none !important; box-shadow: none !important;"
-        bind:editor
-      />
+      {#key bubbleMenuParagraph}
+        <Tiptap
+          {disabled}
+          {ydoc}
+          {ydocKey}
+          {wsProvider}
+          {user}
+          extensions={editorExtensions.tiptap}
+          noTextFormatting
+          style="background: none !important; box-shadow: none !important;"
+          bind:editor
+          {bubbleMenuParagraph}
+        />
+      {/key}
     </div>
   </div>
   <SaveDocumentDialog bind:open={saveDocDialogOpen} />
   <div class="footer-wrapper">
     <div class="footer">footer</div>
   </div>
+</div>
+
+<div class="bubble-menu paragraph" bind:this={bubbleMenuParagraph}>
+  <BubbleMenuParagraph {editor} {options} />
 </div>
 
 <style>

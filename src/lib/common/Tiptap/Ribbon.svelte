@@ -388,7 +388,7 @@
     bottom: 0px;
     left: 111.573px;
     width: 41.3646px;
-    height: 3px;
+    height: 2.4px;
     pointer-events: none;
     position: absolute;
     transition: all 150ms cubic-bezier(0.17, 0.17, 0, 1) 0s;
