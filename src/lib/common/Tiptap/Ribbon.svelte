@@ -12,6 +12,7 @@
   import ReviewTabPanel from './tabpanels/ReviewTabPanel.svelte';
   import TableTabPanel from './tabpanels/TableTabPanel.svelte';
   import ViewTabPanel from './tabpanels/ViewTabPanel.svelte';
+  import YoutubeTabPanel from './tabpanels/YoutubeTabPanel.svelte';
 
   export let editor: Editor | null;
   export let options: tiptapOptions | undefined = undefined;
@@ -38,6 +39,10 @@
       activeTab = clickedTabName;
       mouseOverActiveTab = true;
     }
+  }
+
+  function setTab(tabName: string) {
+    activeTab = tabName;
   }
 
   function handleTabMouseEnter(evt: CustomEvent) {
@@ -150,6 +155,16 @@
         >
           View
         </Button>
+        {#if editor?.isActive('youtubeWidget')}
+          <Button
+            data-tab={'youtube'}
+            on:click={handleTabClick}
+            on:mouseenter={handleTabMouseEnter}
+            on:mouseleave={handleTabMouseLeave}
+          >
+            YouTube
+          </Button>
+        {/if}
         <div class="tabline" style="width: {activeTabWidth}px; left: {activeTabLeft}px;" />
       </div>
       <div class="focuszone">
@@ -184,6 +199,7 @@
     <ReviewTabPanel visible={activeTab === 'review'} {editor} {options} />
     <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
     <TableTabPanel visible={activeTab === 'table'} {editor} {options} />
+    <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />
   </div>
 </div>
 

@@ -47,7 +47,10 @@
           pluginKey: 'bubbleMenuParagraph',
           element: bubbleMenuParagraph,
           shouldShow: ({ editor }) => {
-            return editor.isActive('paragraph') && editor.state.selection.from !== editor.state.selection.to;
+            return (
+              (editor.isActive('paragraph') || editor.isActive('youtubeWidget', { showCaption: true })) &&
+              editor.state.selection.from !== editor.state.selection.to
+            );
           },
           tippyOptions: {
             placement: 'top-start',

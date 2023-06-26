@@ -1,7 +1,8 @@
 <script lang="ts">
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import YoutubeVideoIdDialog from '$lib/dialogs/YoutubeVideoIdDialog.svelte';
   import type { Editor } from '@tiptap/core';
-  import { Button, IconButton, MenuFlyout, MenuFlyoutDivider, MenuFlyoutItem } from 'fluent-svelte';
+  import { Button, IconButton, MenuFlyout, MenuFlyoutItem } from 'fluent-svelte';
   import type { tiptapOptions } from '../../../../config';
 
   export let editor: Editor | null;
@@ -10,6 +11,7 @@
   export let options: tiptapOptions | undefined = undefined;
 
   let widgetsMenuOpen = false;
+  let insertYoutubeWidgetDialogOpen = false;
 </script>
 
 <div class="panel" class:visible>
@@ -72,11 +74,23 @@
 
   <MenuFlyout alignment="start" placement="bottom" offset={0} bind:open={widgetsMenuOpen}>
     <svelte:fragment slot="flyout">
-      <MenuFlyoutItem>SweepWidget giveaway</MenuFlyoutItem>
-      <MenuFlyoutItem>YouTube video</MenuFlyoutItem>
+      <MenuFlyoutItem disabled>SweepWidget giveaway</MenuFlyoutItem>
+      <MenuFlyoutItem
+        disabled={disabled || !editor?.can().insertYoutubeWidget('')}
+        on:click={() => (insertYoutubeWidgetDialogOpen = !insertYoutubeWidgetDialogOpen)}
+      >
+        YouTube video
+      </MenuFlyoutItem>
     </svelte:fragment>
   </MenuFlyout>
-  <Button on:click={() => (widgetsMenuOpen = !widgetsMenuOpen)} disabled={disabled || true}>
+  <YoutubeVideoIdDialog
+    bind:open={insertYoutubeWidgetDialogOpen}
+    {editor}
+    handleSumbit={async (videoId) => {
+      editor?.chain().focus().insertYoutubeWidget(videoId).run();
+    }}
+  />
+  <Button on:click={() => (widgetsMenuOpen = !widgetsMenuOpen)} {disabled}>
     <FluentIcon name="Apps20Regular" mode="ribbonButtonIconLeft" />
     Widgets
     <FluentIcon name="ChevronDown20Regular" mode="ribbonButtonIconRight" />
@@ -181,6 +195,3 @@
     </FluentIcon>
   </IconButton>
 </div>
-
-<style>
-</style>

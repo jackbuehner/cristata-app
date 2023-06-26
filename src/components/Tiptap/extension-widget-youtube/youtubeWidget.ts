@@ -1,6 +1,6 @@
 import { Node } from '@tiptap/core';
-import { ReactNodeViewRenderer } from '@tiptap/react';
-import { YoutubeVideoEmbed } from './YoutubeVideoEmbed';
+import { SvelteNodeViewRenderer } from 'svelte-tiptap';
+import YoutubeNodeView from './YoutubeNodeView.svelte';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -22,7 +22,7 @@ const YoutubeWidget = Node.create<YoutubeWidgetOptions>({
 
   draggable: true,
 
-  allowGapCursor: false,
+  allowGapCursor: true,
 
   /**
    *
@@ -41,7 +41,16 @@ const YoutubeWidget = Node.create<YoutubeWidgetOptions>({
         renderHTML: (attributes) => ({
           'data-show-caption': attributes.showCaption,
         }),
-        parseHTML: (element) => element.getAttribute('data-show-caption') || false,
+        parseHTML: (element) => element.getAttribute('data-show-caption') === 'true' || false,
+      },
+      playerPaused: {
+        default: true,
+        renderHTML: (attributes) => ({
+          'data-player-paused': attributes.playerPaused,
+        }),
+        parseHTML: () => true,
+        isRequired: false,
+        rendered: false,
       },
     };
   },
@@ -80,16 +89,16 @@ const YoutubeWidget = Node.create<YoutubeWidgetOptions>({
             // set the type of the empty node to the youtube video type
             state.tr.setBlockType(state.selection.from - 2, state.selection.to - 2, this.type, { videoId });
 
-            return dispatch(state.tr);
+            dispatch(state.tr);
           }
 
-          return false;
+          return true;
         },
     };
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(YoutubeVideoEmbed);
+    return SvelteNodeViewRenderer(YoutubeNodeView);
   },
 });
 
