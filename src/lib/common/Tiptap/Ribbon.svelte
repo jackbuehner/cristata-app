@@ -158,7 +158,8 @@
         </Button>
         {#if editor?.isActive('youtubeWidget')}
           <Button
-            data-tab={'youtube'}
+            data-tab="youtube"
+            data-contextual="true"
             on:click={handleTabClick}
             on:mouseenter={handleTabMouseEnter}
             on:mouseleave={handleTabMouseLeave}
@@ -168,7 +169,8 @@
         {/if}
         {#if editor?.isActive('photoWidget')}
           <Button
-            data-tab={'photo'}
+            data-tab="photo"
+            data-contextual="true"
             on:click={handleTabClick}
             on:mouseenter={handleTabMouseEnter}
             on:mouseleave={handleTabMouseLeave}
@@ -409,6 +411,10 @@
   .tabs :global(.button.style-standard):active:not(disabled):not(.disabled) {
     background-color: var(--fds-subtle-fill-tertiary);
     color: var(--fds-text-secondary);
+  }
+
+  .tabs :global(.button.style-standard[data-contextual='true']) {
+    color: var(--fds-accent-default);
   }
 
   .tabline {
