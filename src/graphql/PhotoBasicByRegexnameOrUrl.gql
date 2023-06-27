@@ -1,0 +1,14 @@
+query PhotoBasicByRegexnameOrUrl($limit: Int!, $page: Int, $sort: JSON, $filter: JSON) {
+  photos(limit: $limit, page: $page, sort: $sort, filter: $filter) {
+    docs {
+      _id
+      name
+      photo_url
+      tags
+      people {
+        photo_created_by
+      }
+    }
+    totalDocs
+  }
+}

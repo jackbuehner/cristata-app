@@ -1,43 +1,49 @@
 <script lang="ts">
   import { FieldWrapper } from '$lib/common/Field';
-  import type { Editor } from '@tiptap/core';
-  import { Button, ContentDialog, ProgressRing, TextBox } from 'fluent-svelte';
+  import { SelectOne, type Option } from '$lib/common/Select';
+  import { Button, ContentDialog, ProgressRing } from 'fluent-svelte';
 
   export let open = false;
-  export let editor: Editor | null;
-  export let title = 'Insert YouTube video';
+  export let title = 'Insert photo';
 
   export let handleAction: (() => Promise<void>) | undefined = undefined;
-  export let handleSumbit: ((videoId: string) => Promise<void>) | undefined = undefined;
+  export let handleSumbit: ((_id: string) => Promise<void>) | undefined = undefined;
   export let handleCancel: (() => Promise<void>) | undefined = undefined;
 
   let hasChanged = false;
   let loadingSubmit = false;
   let loadingCancel = false;
 
-  let videoUrl = '';
-  $: videoId = (() => {
-    const regex =
-      /(?:youtube(?:-nocookie)?\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/gi;
-    return [...videoUrl.matchAll(regex)]?.[0]?.[1] || '';
-  })();
+  let selectedPhoto: Option | null = null;
 </script>
 
-<ContentDialog {title} bind:open size="standard">
-  <FieldWrapper label="Video URL" forId="videoUrl">
-    <TextBox type="text" bind:value={videoUrl} on:change={() => (hasChanged = true)} id="videoUrl" />
+<ContentDialog {title} bind:open size="standard" style="min-height: 480px;">
+  <FieldWrapper
+    label="Photo"
+    forId="photoId"
+    description="New photos can be uploaded via the photo library. Photos must have photo credit/attribution to be selectable."
+  >
+    <SelectOne
+      reference={{
+        collection: 'Photo',
+        require: ['people.photo_created_by'],
+      }}
+      bind:selectedOption={selectedPhoto}
+      on:change={() => (hasChanged = true)}
+    />
   </FieldWrapper>
 
   <svelte:fragment slot="footer">
     <Button
       variant="accent"
-      disabled={!hasChanged || !videoId}
+      disabled={!hasChanged || !selectedPhoto?._id}
       on:click={async () => {
+        if (!selectedPhoto) return;
         loadingSubmit = true;
         await handleAction?.();
-        await handleSumbit?.(videoId);
+        await handleSumbit?.(selectedPhoto._id);
         open = false;
-        videoUrl = '';
+        selectedPhoto = null;
         loadingSubmit = false;
       }}
     >
@@ -56,7 +62,7 @@
           loadingCancel = false;
         }
         open = false;
-        videoUrl = '';
+        selectedPhoto = null;
       }}
     >
       {#if loadingCancel}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import PhotoWidgetDialog from '$lib/dialogs/PhotoWidgetDialog.svelte';
   import YoutubeVideoIdDialog from '$lib/dialogs/YoutubeVideoIdDialog.svelte';
   import type { Editor } from '@tiptap/core';
   import { Button, IconButton, MenuFlyout, MenuFlyoutItem } from 'fluent-svelte';
@@ -12,6 +13,7 @@
 
   let widgetsMenuOpen = false;
   let insertYoutubeWidgetDialogOpen = false;
+  let insertPhotoWidgetDialogOpen = false;
 </script>
 
 <div class="panel" class:visible>
@@ -33,7 +35,17 @@
     </FluentIcon>
     Horizontal Line
   </Button>
-  <Button disabled={disabled || true}>
+
+  <PhotoWidgetDialog
+    bind:open={insertPhotoWidgetDialogOpen}
+    handleSumbit={async (photoId) => {
+      editor?.chain().focus().insertPhotoWidget(photoId).run();
+    }}
+  />
+  <Button
+    disabled={disabled || !editor?.can().insertPhotoWidget('')}
+    on:click={() => (insertPhotoWidgetDialogOpen = !insertPhotoWidgetDialogOpen)}
+  >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path

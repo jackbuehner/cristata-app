@@ -3206,6 +3206,22 @@ export const ModifyWebhook = gql`
   }
 }
     `;
+export const PhotoBasicByRegexnameOrUrl = gql`
+    query PhotoBasicByRegexnameOrUrl($limit: Int!, $page: Int, $sort: JSON, $filter: JSON) {
+  photos(limit: $limit, page: $page, sort: $sort, filter: $filter) {
+    docs {
+      _id
+      name
+      photo_url
+      tags
+      people {
+        photo_created_by
+      }
+    }
+    totalDocs
+  }
+}
+    `;
 export const PhotosAppSettings = gql`
     query PhotosAppSettings {
   configuration {
@@ -3643,6 +3659,16 @@ export type ModifyWebhookMutationVariables = Exact<{
 
 
 export type ModifyWebhookMutation = { __typename?: 'Mutation', cristataWebhookModify?: { __typename?: 'CristataWebhook', _id: any } | null };
+
+export type PhotoBasicByRegexnameOrUrlQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  page?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+  filter?: InputMaybe<Scalars['JSON']>;
+}>;
+
+
+export type PhotoBasicByRegexnameOrUrlQuery = { __typename?: 'Query', photos?: { __typename?: 'PagedPhoto', totalDocs?: number | null, docs: Array<{ __typename?: 'Photo', _id: any, name: string, photo_url?: string | null, tags?: Array<string | null> | null, people?: { __typename?: 'PhotoPeople', photo_created_by?: string | null } | null } | null> } | null };
 
 export type PhotosAppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 

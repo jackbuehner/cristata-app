@@ -9,6 +9,7 @@
   import HomeTabPanel from './tabpanels/HomeTabPanel.svelte';
   import InsertTabPanel from './tabpanels/InsertTabPanel.svelte';
   import LayoutTabPanel from './tabpanels/LayoutTabPanel.svelte';
+  import PhotoTabPanel from './tabpanels/PhotoTabPanel.svelte';
   import ReviewTabPanel from './tabpanels/ReviewTabPanel.svelte';
   import TableTabPanel from './tabpanels/TableTabPanel.svelte';
   import ViewTabPanel from './tabpanels/ViewTabPanel.svelte';
@@ -165,6 +166,16 @@
             YouTube
           </Button>
         {/if}
+        {#if editor?.isActive('photoWidget')}
+          <Button
+            data-tab={'photo'}
+            on:click={handleTabClick}
+            on:mouseenter={handleTabMouseEnter}
+            on:mouseleave={handleTabMouseLeave}
+          >
+            Photo
+          </Button>
+        {/if}
         <div class="tabline" style="width: {activeTabWidth}px; left: {activeTabLeft}px;" />
       </div>
       <div class="focuszone">
@@ -200,6 +211,7 @@
     <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
     <TableTabPanel visible={activeTab === 'table'} {editor} {options} />
     <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />
+    <PhotoTabPanel visible={activeTab === 'photo'} {editor} {setTab} />
   </div>
 </div>
 

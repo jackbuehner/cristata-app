@@ -57,10 +57,12 @@
   }
   div.field.nocaption .field-label {
     margin-bottom: 6px;
+    white-space: break-spaces;
   }
   div.field .caption {
     margin-bottom: 6px;
     opacity: 0.8;
+    white-space: break-spaces;
   }
 
   div.field.checkbox {

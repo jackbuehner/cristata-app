@@ -1,6 +1,6 @@
 import { Node } from '@tiptap/core';
-import { ReactNodeViewRenderer } from '@tiptap/react';
-import { PhotoWidgetNodeView } from './PhotoWidgetNodeView';
+import { SvelteNodeViewRenderer } from 'svelte-tiptap';
+import PhotoWidgetNodeView from './PhotoWidgetNodeView.svelte';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -101,16 +101,16 @@ const PhotoWidget = Node.create<PhotoWidgetOptions>({
             // set the type of the empty node to the photo widget type
             state.tr.setBlockType(state.selection.from - 2, state.selection.to - 2, this.type, { photoId });
 
-            return dispatch(state.tr);
+            dispatch(state.tr);
           }
 
-          return false;
+          return true;
         },
     };
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(PhotoWidgetNodeView);
+    return SvelteNodeViewRenderer(PhotoWidgetNodeView);
   },
 });
 
