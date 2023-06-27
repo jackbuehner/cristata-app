@@ -3,6 +3,7 @@
   import PhotoWidgetDialog from '$lib/dialogs/PhotoWidgetDialog.svelte';
   import type { Editor } from '@tiptap/core';
   import { Button, IconButton, Tooltip } from 'fluent-svelte';
+  import { tick } from 'svelte';
 
   export let editor: Editor | null;
   export let visible = false;
@@ -15,8 +16,10 @@
     photoTabWasActive = true;
   }
   $: if (!editor?.isActive('photoWidget') && photoTabWasActive === true) {
-    if (visible) setTab('home');
-    photoTabWasActive = false;
+    tick().then(() => {
+      if (visible) setTab('home');
+      photoTabWasActive = false;
+    });
   }
 
   let width = 1000;

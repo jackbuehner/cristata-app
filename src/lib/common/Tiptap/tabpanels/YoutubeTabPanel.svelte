@@ -3,6 +3,7 @@
   import YoutubeVideoIdDialog from '$lib/dialogs/YoutubeVideoIdDialog.svelte';
   import type { Editor } from '@tiptap/core';
   import { Button, IconButton, Tooltip } from 'fluent-svelte';
+  import { tick } from 'svelte';
 
   export let editor: Editor | null;
   export let visible = false;
@@ -15,8 +16,10 @@
     youtubeWasActive = true;
   }
   $: if (!editor?.isActive('youtubeWidget') && youtubeWasActive === true) {
-    if (visible) setTab('home');
-    youtubeWasActive = false;
+    tick().then(() => {
+      if (visible) setTab('home');
+      youtubeWasActive = false;
+    });
   }
 
   let width = 1000;
