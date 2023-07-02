@@ -1,5 +1,6 @@
 <script lang="ts">
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import LinkDialog from '$lib/dialogs/LinkDialog.svelte';
   import PhotoWidgetDialog from '$lib/dialogs/PhotoWidgetDialog.svelte';
   import YoutubeVideoIdDialog from '$lib/dialogs/YoutubeVideoIdDialog.svelte';
   import type { Editor } from '@tiptap/core';
@@ -14,6 +15,7 @@
   let widgetsMenuOpen = false;
   let insertYoutubeWidgetDialogOpen = false;
   let insertPhotoWidgetDialogOpen = false;
+  let insertLinkDialogOpen = false;
 </script>
 
 <div class="panel" class:visible>
@@ -108,7 +110,22 @@
     <FluentIcon name="ChevronDown20Regular" mode="ribbonButtonIconRight" />
   </Button>
 
-  <Button disabled={disabled || true}>
+  <LinkDialog
+    bind:open={insertLinkDialogOpen}
+    {editor}
+    handleSumbit={async (href) => {
+      if (href) {
+        editor?.chain().focus().setLink({ href }).run();
+      } else {
+        editor?.chain().focus().unsetLink().run();
+      }
+    }}
+  />
+  <Button
+    disabled={disabled || !editor?.can().setLink({ href: '' })}
+    on:click={() => (insertLinkDialogOpen = !insertLinkDialogOpen)}
+    class={editor?.isActive('link') ? 'active' : ''}
+  >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path
@@ -125,6 +142,7 @@
     </FluentIcon>
     Link
   </Button>
+
   <Button disabled={disabled || true}>
     <FluentIcon name="TextQuote20Regular" mode="ribbonButtonIconLeft" />
     Pull quote

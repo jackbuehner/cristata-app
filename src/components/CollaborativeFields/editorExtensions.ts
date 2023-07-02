@@ -119,6 +119,7 @@ const editorExtensions = {
       HTMLAttributes: {
         target: '_self',
         rel: 'noopener noreferrer nofollow',
+        onclick: 'return false;',
       },
       openOnClick: false,
       linkOnPaste: true,
