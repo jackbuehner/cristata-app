@@ -61,11 +61,13 @@
     else mouseOverActiveTab = false;
   }
 
+  let width = 1000;
+
   let fileMenuOpen = false;
   let saveDocDialogOpen = false;
 </script>
 
-<div class="ribbon">
+<div class="ribbon" bind:offsetWidth={width}>
   <div style="padding: 0 8px;">
     <div class="top">
       <div class="tabs" bind:this={tabsContainerElement}>
@@ -117,80 +119,93 @@
           </svelte:fragment>
         </MenuFlyout>
         <Button on:click={() => (fileMenuOpen = !fileMenuOpen)}>File</Button>
-        <Button
-          data-tab={'home'}
-          on:click={handleTabClick}
-          on:mouseenter={handleTabMouseEnter}
-          on:mouseleave={handleTabMouseLeave}
-        >
-          Home
-        </Button>
-        <Button
-          data-tab={'insert'}
-          on:click={handleTabClick}
-          on:mouseenter={handleTabMouseEnter}
-          on:mouseleave={handleTabMouseLeave}
-        >
-          Insert
-        </Button>
-        <Button
-          data-tab={'layout'}
-          on:click={handleTabClick}
-          on:mouseenter={handleTabMouseEnter}
-          on:mouseleave={handleTabMouseLeave}
-        >
-          Layout
-        </Button>
-        <Button
-          data-tab={'review'}
-          on:click={handleTabClick}
-          on:mouseenter={handleTabMouseEnter}
-          on:mouseleave={handleTabMouseLeave}
-        >
-          Review
-        </Button>
-        <Button
-          data-tab={'view'}
-          on:click={handleTabClick}
-          on:mouseenter={handleTabMouseEnter}
-          on:mouseleave={handleTabMouseLeave}
-        >
-          View
-        </Button>
-        {#if editor?.isActive('youtubeWidget')}
+        {#if width > 400}
           <Button
-            data-tab="youtube"
-            data-contextual="true"
+            data-tab={'home'}
             on:click={handleTabClick}
             on:mouseenter={handleTabMouseEnter}
             on:mouseleave={handleTabMouseLeave}
           >
-            YouTube
+            Home
           </Button>
-        {/if}
-        {#if editor?.isActive('photoWidget')}
           <Button
-            data-tab="photo"
-            data-contextual="true"
+            data-tab={'insert'}
             on:click={handleTabClick}
             on:mouseenter={handleTabMouseEnter}
             on:mouseleave={handleTabMouseLeave}
           >
-            Photo
+            Insert
           </Button>
-        {/if}
-        {#if editor?.isActive('pullQuote')}
           <Button
-            data-tab="pullQuote"
-            data-contextual="true"
+            data-tab={'layout'}
             on:click={handleTabClick}
             on:mouseenter={handleTabMouseEnter}
             on:mouseleave={handleTabMouseLeave}
           >
-            Pull Quote
+            Layout
           </Button>
+          <Button
+            data-tab={'review'}
+            on:click={handleTabClick}
+            on:mouseenter={handleTabMouseEnter}
+            on:mouseleave={handleTabMouseLeave}
+          >
+            Review
+          </Button>
+          <Button
+            data-tab={'view'}
+            on:click={handleTabClick}
+            on:mouseenter={handleTabMouseEnter}
+            on:mouseleave={handleTabMouseLeave}
+          >
+            View
+          </Button>
+          {#if editor?.isActive('youtubeWidget')}
+            <Button
+              data-tab="youtube"
+              data-contextual="true"
+              on:click={handleTabClick}
+              on:mouseenter={handleTabMouseEnter}
+              on:mouseleave={handleTabMouseLeave}
+            >
+              YouTube
+            </Button>
+          {/if}
+          {#if editor?.isActive('photoWidget')}
+            <Button
+              data-tab="photo"
+              data-contextual="true"
+              on:click={handleTabClick}
+              on:mouseenter={handleTabMouseEnter}
+              on:mouseleave={handleTabMouseLeave}
+            >
+              Photo
+            </Button>
+          {/if}
+          {#if editor?.isActive('pullQuote')}
+            <Button
+              data-tab="pullQuote"
+              data-contextual="true"
+              on:click={handleTabClick}
+              on:mouseenter={handleTabMouseEnter}
+              on:mouseleave={handleTabMouseLeave}
+            >
+              Pull Quote
+            </Button>
+          {/if}
+          {#if editor?.can().deleteTable()}
+            <Button
+              data-tab="table"
+              data-contextual="true"
+              on:click={handleTabClick}
+              on:mouseenter={handleTabMouseEnter}
+              on:mouseleave={handleTabMouseLeave}
+            >
+              Table
+            </Button>
+          {/if}
+          <div class="tabline" style="width: {activeTabWidth}px; left: {activeTabLeft}px;" />
         {/if}
-        <div class="tabline" style="width: {activeTabWidth}px; left: {activeTabLeft}px;" />
       </div>
       <div class="focuszone">
         {#if $page.url.searchParams.get('fs') === '1'}
@@ -217,17 +232,19 @@
       </div>
     </div>
   </div>
-  <div class="tabpanel">
-    <HomeTabPanel visible={activeTab === 'home'} {editor} {options} />
-    <InsertTabPanel visible={activeTab === 'insert'} {editor} {options} />
-    <LayoutTabPanel visible={activeTab === 'layout'} {editor} {options} />
-    <ReviewTabPanel visible={activeTab === 'review'} {editor} {options} />
-    <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
-    <TableTabPanel visible={activeTab === 'table'} {editor} {options} />
-    <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />
-    <PhotoTabPanel visible={activeTab === 'photo'} {editor} {setTab} />
-    <PullQuoteTabPanel visible={activeTab === 'pullQuote'} {editor} {setTab} />
-  </div>
+  {#if width > 400}
+    <div class="tabpanel">
+      <HomeTabPanel visible={activeTab === 'home'} {editor} {options} />
+      <InsertTabPanel visible={activeTab === 'insert'} {editor} {options} />
+      <LayoutTabPanel visible={activeTab === 'layout'} {editor} {options} />
+      <ReviewTabPanel visible={activeTab === 'review'} {editor} {options} />
+      <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
+      <TableTabPanel visible={activeTab === 'table'} {editor} {options} {setTab} />
+      <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />
+      <PhotoTabPanel visible={activeTab === 'photo'} {editor} {setTab} />
+      <PullQuoteTabPanel visible={activeTab === 'pullQuote'} {editor} {setTab} />
+    </div>
+  {/if}
 </div>
 
 <SaveDocumentDialog bind:open={saveDocDialogOpen} />

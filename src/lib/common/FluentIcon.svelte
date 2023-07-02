@@ -123,6 +123,12 @@
   :global(svg > path.OfficeIconColors_m213) {
     fill: #ed3d3bff;
   }
+  :global(svg > path.OfficeIconColors_m223) {
+    fill: #83beecff;
+  }
+  :global(svg > path.OfficeIconColors_m224) {
+    fill: #0063b1ff;
+  }
   :global(svg > path.OfficeIconColors_m2226) {
     fill: #de6c00ff;
   }
@@ -161,6 +167,12 @@
     }
     :global(svg > path.OfficeIconColors_m213) {
       fill: #e94c4fff;
+    }
+    :global(svg > path.OfficeIconColors_m223) {
+      fill: #0063b1ff;
+    }
+    :global(svg > path.OfficeIconColors_m224) {
+      fill: #83beecff;
     }
     :global(svg > path.OfficeIconColors_m2226) {
       fill: #ffffff00;

@@ -152,7 +152,7 @@
     Pull quote
   </Button>
 
-  <Button disabled={disabled || true}>
+  <Button {disabled} on:click={() => editor?.chain().focus().insertTable().run()}>
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path
