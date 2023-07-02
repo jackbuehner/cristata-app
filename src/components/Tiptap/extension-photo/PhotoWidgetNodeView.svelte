@@ -18,7 +18,6 @@
   export let updateAttributes: NodeViewProps['updateAttributes'];
 
   $: {
-    console.log(node.attrs.photoId);
     getPhotoDetails(node.attrs.photoId);
   }
 

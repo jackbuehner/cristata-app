@@ -10,6 +10,7 @@
   import InsertTabPanel from './tabpanels/InsertTabPanel.svelte';
   import LayoutTabPanel from './tabpanels/LayoutTabPanel.svelte';
   import PhotoTabPanel from './tabpanels/PhotoTabPanel.svelte';
+  import PullQuoteTabPanel from './tabpanels/PullQuoteTabPanel.svelte';
   import ReviewTabPanel from './tabpanels/ReviewTabPanel.svelte';
   import TableTabPanel from './tabpanels/TableTabPanel.svelte';
   import ViewTabPanel from './tabpanels/ViewTabPanel.svelte';
@@ -178,6 +179,17 @@
             Photo
           </Button>
         {/if}
+        {#if editor?.isActive('pullQuote')}
+          <Button
+            data-tab="pullQuote"
+            data-contextual="true"
+            on:click={handleTabClick}
+            on:mouseenter={handleTabMouseEnter}
+            on:mouseleave={handleTabMouseLeave}
+          >
+            Pull Quote
+          </Button>
+        {/if}
         <div class="tabline" style="width: {activeTabWidth}px; left: {activeTabLeft}px;" />
       </div>
       <div class="focuszone">
@@ -214,6 +226,7 @@
     <TableTabPanel visible={activeTab === 'table'} {editor} {options} />
     <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />
     <PhotoTabPanel visible={activeTab === 'photo'} {editor} {setTab} />
+    <PullQuoteTabPanel visible={activeTab === 'pullQuote'} {editor} {setTab} />
   </div>
 </div>
 

@@ -143,10 +143,15 @@
     Link
   </Button>
 
-  <Button disabled={disabled || true}>
+  <Button
+    disabled={disabled || !editor?.can().insertPullQuote()}
+    on:click={() => editor?.chain().focus().insertPullQuote().run()}
+    class={editor?.isActive('pullQuote') ? 'active' : ''}
+  >
     <FluentIcon name="TextQuote20Regular" mode="ribbonButtonIconLeft" />
     Pull quote
   </Button>
+
   <Button disabled={disabled || true}>
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">

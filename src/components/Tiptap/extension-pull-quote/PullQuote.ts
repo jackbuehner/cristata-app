@@ -1,6 +1,6 @@
 import { Node } from '@tiptap/core';
-import { ReactNodeViewRenderer } from '@tiptap/react';
-import { PullQuoteNodeView } from './PullQuoteNodeView';
+import { SvelteNodeViewRenderer } from 'svelte-tiptap';
+import PullQuoteNodeView from './PullQuoteNodeView.svelte';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -74,24 +74,24 @@ const PullQuote = Node.create<PullQuoteOptions>({
             state.tr.setBlockType(state.selection.from - 2, state.selection.to - 2, this.type);
 
             // insert placeholder text
-            chain()
-              .focus()
-              .setTextSelection(state.selection.from - 2)
-              .insertContent('pull quote')
-              .setTextSelection({ from: state.selection.from - 2, to: state.selection.from + 8 })
-              .setBold()
-              .run();
+            // chain()
+            //   .focus()
+            //   .setTextSelection(state.selection.from - 2)
+            //   .insertContent('pull quote')
+            //   .setTextSelection({ from: state.selection.from - 2, to: state.selection.from + 8 })
+            //   .setBold()
+            //   .run();
 
             return dispatch(state.tr);
           }
 
-          return false;
+          return true;
         },
     };
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(PullQuoteNodeView);
+    return SvelteNodeViewRenderer(PullQuoteNodeView);
   },
 });
 

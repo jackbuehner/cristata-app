@@ -1,5 +1,6 @@
 <script lang="ts">
   export let position: 'left' | 'right' | 'center' = 'center';
+  export let noBorder = false;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -7,6 +8,7 @@
   class="widget-wrapper"
   class:left={position === 'left'}
   class:right={position === 'right'}
+  class:noBorder
   on:click
   contenteditable="false"
 >
@@ -38,5 +40,9 @@
     border-top: 1px solid #cccccc;
     border-bottom: 1px solid #cccccc;
     margin: 20px 0;
+  }
+
+  .widget-wrapper.noBorder {
+    border: none !important;
   }
 </style>
