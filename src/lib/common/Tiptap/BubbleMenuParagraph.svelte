@@ -1,7 +1,7 @@
 <script lang="ts">
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import type { Editor } from '@tiptap/core';
-  import { ComboBox, IconButton } from 'fluent-svelte';
+  import { IconButton } from 'fluent-svelte';
   import type { tiptapOptions } from '../../../config';
 
   export let editor: Editor | null;
@@ -97,6 +97,8 @@
     </FluentIcon>
   </IconButton>
 
+  <span class="bar" />
+
   <IconButton disabled={disabled || true}>
     <FluentIcon>
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -123,6 +125,60 @@
       </svg>
     </FluentIcon>
   </IconButton>
+
+  <span class="bar" />
+
+  <IconButton
+    on:click={() => editor?.chain().focus().toggleBulletList().run()}
+    disabled={disabled || !editor?.can().toggleBulletList()}
+    class={editor?.isActive('bulletList') ? 'active' : ''}
+  >
+    <FluentIcon>
+      <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+        <path
+          type="path"
+          class="OfficeIconColors_HighContrast"
+          d="M 410 410 h -308 v -308 h 308 m 0 717 v 307 h -308 v -307 m 308 717 v 307 h -308 v -307 m 1844 -512 h -1229 v -102 h 1229 m 0 -717 v 102 h -1229 v -102 m 1229 1433 v 103 h -1229 v -103 z"
+        />
+        <path
+          type="path"
+          class="OfficeIconColors_m24"
+          d="M 410 410 h -308 v -308 h 308 m 0 717 v 307 h -308 v -307 m 308 717 v 307 h -308 v -307 z"
+        />
+        <path
+          type="path"
+          class="OfficeIconColors_m22"
+          d="M 1946 1024 h -1229 v -102 h 1229 m 0 -717 v 102 h -1229 v -102 m 1229 1433 v 103 h -1229 v -103 z"
+        />
+      </svg>
+    </FluentIcon>
+  </IconButton>
+
+  <IconButton
+    on:click={() => editor?.chain().focus().toggleOrderedList().run()}
+    disabled={disabled || !editor?.can().toggleOrderedList()}
+    class={editor?.isActive('orderedList') ? 'active' : ''}
+  >
+    <FluentIcon>
+      <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+        <path
+          type="path"
+          class="OfficeIconColors_HighContrast"
+          d="M 307 0 v 512 h -81 v -413 q -41 29 -105 46 v -69 q 24 -7 44 -16 q 19 -8 37 -17 q 18 -9 36 -20 q 17 -10 35 -23 m 145 1229 h -316 v -39 q 0 -45 26 -86 q 26 -41 93 -94 q 31 -25 52 -44 q 20 -18 33 -35 q 12 -16 17 -32 q 5 -15 5 -35 q 0 -38 -22 -59 q -23 -21 -60 -21 q -65 0 -125 57 v -78 q 31 -23 63 -35 q 32 -11 77 -11 q 69 0 110 35 q 40 36 40 103 q 0 32 -6 56 q -7 25 -24 48 q -17 23 -45 48 q -29 26 -72 60 q -38 30 -55 50 q -18 20 -18 38 v 4 h 227 m -11 636 q 0 68 -49 109 q -50 42 -135 42 q -32 0 -66 -8 q -35 -8 -52 -19 v -79 q 22 18 54 29 q 32 11 64 11 q 47 0 74 -22 q 27 -22 27 -60 q 0 -83 -125 -83 h -43 v -66 h 41 q 51 0 81 -19 q 30 -19 30 -59 q 0 -35 -23 -54 q -24 -18 -63 -18 q -54 0 -98 35 v -73 q 22 -12 53 -20 q 31 -7 66 -7 q 63 0 105 31 q 41 32 41 89 q 0 48 -26 79 q -26 32 -72 44 v 2 q 54 6 85 37 q 31 32 31 79 m 1539 -771 h -1229 v -102 h 1229 m 0 -717 v 102 h -1229 v -102 m 1229 1433 v 103 h -1229 v -103 z"
+        />
+        <path
+          type="path"
+          class="OfficeIconColors_m24"
+          d="M 307 0 v 512 h -81 v -413 q -41 29 -105 46 v -69 q 24 -7 44 -16 q 19 -8 37 -17 q 18 -9 36 -20 q 17 -10 35 -23 m 145 1229 h -316 v -39 q 0 -45 26 -86 q 26 -41 93 -94 q 31 -25 52 -44 q 20 -18 33 -35 q 12 -16 17 -32 q 5 -15 5 -35 q 0 -38 -22 -59 q -23 -21 -60 -21 q -65 0 -125 57 v -78 q 31 -23 63 -35 q 32 -11 77 -11 q 69 0 110 35 q 40 36 40 103 q 0 32 -6 56 q -7 25 -24 48 q -17 23 -45 48 q -29 26 -72 60 q -38 30 -55 50 q -18 20 -18 38 v 4 h 227 m -11 636 q 0 68 -49 109 q -50 42 -135 42 q -32 0 -66 -8 q -35 -8 -52 -19 v -79 q 22 18 54 29 q 32 11 64 11 q 47 0 74 -22 q 27 -22 27 -60 q 0 -83 -125 -83 h -43 v -66 h 41 q 51 0 81 -19 q 30 -19 30 -59 q 0 -35 -23 -54 q -24 -18 -63 -18 q -54 0 -98 35 v -73 q 22 -12 53 -20 q 31 -7 66 -7 q 63 0 105 31 q 41 32 41 89 q 0 48 -26 79 q -26 32 -72 44 v 2 q 54 6 85 37 q 31 32 31 79 z"
+        />
+        <path
+          type="path"
+          class="OfficeIconColors_m22"
+          d="M 1946 1024 h -1229 v -102 h 1229 m 0 -717 v 102 h -1229 v -102 m 1229 1433 v 103 h -1229 v -103 z"
+        />
+      </svg>
+    </FluentIcon>
+  </IconButton>
 </div>
 
 <style>
@@ -135,6 +191,11 @@
     box-sizing: border-box;
     box-shadow: rgba(0, 0, 0, 0.133) 0px 1.6px 3.6px 0px, rgba(0, 0, 0, 0.11) 0px 0.3px 0.9px 0px;
     padding: 4px;
+
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    gap: 4px;
   }
 
   .menu :global(.button),
@@ -154,7 +215,7 @@
     display: inline-flex;
     height: 24px;
     align-items: center;
-    margin: 4px 4px;
+    margin: 0px 4px;
     width: 1px;
     background-color: var(--fds-control-strong-fill-disabled);
     opacity: 0.6;
