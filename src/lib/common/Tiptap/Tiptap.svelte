@@ -8,6 +8,7 @@
   import { onDestroy, onMount } from 'svelte';
   import type { Readable } from 'svelte/store';
   import type * as Y from 'yjs';
+  import { richTextParams } from './richTextParams';
 
   /**
    * A yjs document that should be updated with the values of this field.
@@ -60,6 +61,17 @@
       onTransaction: () => {
         // force re-render so `editor.isActive` works as expected
         editor = editor;
+      },
+      onSelectionUpdate: ({ editor }) => {
+        // if comments panel is not open, open it when anchor is placed in the comment
+        if ($richTextParams.obj.comments !== 1) {
+          const anchorIsInComment = editor.state.selection.$anchor
+            .marks()
+            .some((mark) => mark.type.name === 'powerComment');
+          if (anchorIsInComment) {
+            $richTextParams.set('comments', 1);
+          }
+        }
       },
     });
   });

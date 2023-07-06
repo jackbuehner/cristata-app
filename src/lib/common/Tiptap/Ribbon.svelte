@@ -5,7 +5,9 @@
   import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
   import type { Editor } from '@tiptap/core';
   import { Button, IconButton, MenuFlyout, MenuFlyoutDivider, MenuFlyoutItem } from 'fluent-svelte';
+  import type { ComponentProps } from 'svelte';
   import type { tiptapOptions } from '../../../config';
+  import type Tiptap from './Tiptap.svelte';
   import HomeTabPanel from './tabpanels/HomeTabPanel.svelte';
   import InsertTabPanel from './tabpanels/InsertTabPanel.svelte';
   import LayoutTabPanel from './tabpanels/LayoutTabPanel.svelte';
@@ -18,6 +20,7 @@
 
   export let editor: Editor | null;
   export let options: tiptapOptions | undefined = undefined;
+  export let user: ComponentProps<Tiptap>['user'] | null = null;
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
@@ -235,9 +238,9 @@
   {#if width > 400}
     <div class="tabpanel">
       <HomeTabPanel visible={activeTab === 'home'} {editor} {options} />
-      <InsertTabPanel visible={activeTab === 'insert'} {editor} {options} />
+      <InsertTabPanel visible={activeTab === 'insert'} {editor} {options} {user} />
       <LayoutTabPanel visible={activeTab === 'layout'} {editor} {options} />
-      <ReviewTabPanel visible={activeTab === 'review'} {editor} {options} />
+      <ReviewTabPanel visible={activeTab === 'review'} {editor} {options} {user} />
       <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
       <TableTabPanel visible={activeTab === 'table'} {editor} {options} {setTab} />
       <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />

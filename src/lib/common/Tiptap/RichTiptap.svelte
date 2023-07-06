@@ -1,15 +1,23 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
   import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
+  import FluentIcon from '$lib/common/FluentIcon.svelte';
   import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
+  import { SidebarHeader } from '$lib/sidebar';
+  import { motionMode } from '$stores/motionMode';
   import { titlebarActions } from '$stores/titlebarActions';
   import type { Editor } from '@tiptap/core';
+  import { IconButton, TextBlock, Tooltip } from 'fluent-svelte';
   import less from 'less';
   import type { ComponentProps } from 'svelte';
+  import { expoOut, linear } from 'svelte/easing';
+  import { fade, fly } from 'svelte/transition';
   import type { tiptapOptions } from '../../../config';
   import BubbleMenuParagraph from './BubbleMenuParagraph.svelte';
   import Ribbon from './Ribbon.svelte';
   import Tiptap from './Tiptap.svelte';
+  import { richTextParams } from './richTextParams';
+  import CommentsSidebar from './sidebars/CommentsSidebar.svelte';
 
   export let ydoc: ComponentProps<Tiptap>['ydoc'];
   export let ydocKey: ComponentProps<Tiptap>['ydocKey'];
@@ -242,6 +250,9 @@
   beforeNavigate(() => {
     titlebarActions.set([]);
   });
+
+  $: delay = $motionMode === 'reduced' ? 0 : 130;
+  $: duration = $motionMode === 'reduced' ? 0 : 270;
 </script>
 
 {#await parsedCss then { css }}
@@ -249,33 +260,123 @@
 {/await}
 
 <div class="richtiptap" class:fullscreen bind:clientWidth={tiptapwidth}>
-  <Ribbon {editor} {options} />
-  <div class="richtiptap-content">
+  <Ribbon {editor} {options} {user} />
+  <div class="main-middle">
+    <div class="richtiptap-content">
+      <div
+        style="
+          max-width: {tiptapwidth <= 680 ? `unset` : `768px`};
+          width: {tiptapwidth <= 680 ? `100%` : `calc(100% - 40px)`};
+          box-sizing: border-box;
+          background-color: white;
+          border: {tiptapwidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`};
+          padding: {tiptapwidth <= 680 ? `24px 20px` : `68px 88px`};
+          margin: {tiptapwidth <= 680 ? `0 auto` : `20px auto`};
+        "
+      >
+        {#key bubbleMenuParagraph}
+          <Tiptap
+            {disabled}
+            {ydoc}
+            {ydocKey}
+            {wsProvider}
+            {user}
+            extensions={editorExtensions.tiptap}
+            noTextFormatting
+            style="background: none !important; box-shadow: none !important;"
+            bind:editor
+            {bubbleMenuParagraph}
+          />
+        {/key}
+      </div>
+    </div>
     <div
-      style="
-        max-width: {tiptapwidth <= 680 ? `unset` : `768px`};
-        width: {tiptapwidth <= 680 ? `100%` : `calc(100% - 40px)`};
-        box-sizing: border-box;
-        background-color: white;
-        border: {tiptapwidth <= 680 ? `none` : `1px solid rgb(171, 171, 171)`};
-        padding: {tiptapwidth <= 680 ? `24px 20px` : `68px 88px`};
-        margin: {tiptapwidth <= 680 ? `0 auto` : `20px auto`};
-      "
+      class="sidebar-wrapper"
+      class:navActive={$richTextParams.activeCount > 1}
+      class:hidden={!$richTextParams.primaryActive}
     >
-      {#key bubbleMenuParagraph}
-        <Tiptap
-          {disabled}
-          {ydoc}
-          {ydocKey}
-          {wsProvider}
-          {user}
-          extensions={editorExtensions.tiptap}
-          noTextFormatting
-          style="background: none !important; box-shadow: none !important;"
-          bind:editor
-          {bubbleMenuParagraph}
-        />
-      {/key}
+      {#if $richTextParams.primaryActive === 'comments'}
+        <div
+          class="sidebar-content"
+          in:fly={{ y: 20, duration, easing: expoOut, delay }}
+          out:fade={{ duration: delay }}
+        >
+          <CommentsSidebar {editor} {user} />
+        </div>
+      {:else}
+        <div
+          class="sidebar-content"
+          in:fly={{ y: 20, duration, easing: expoOut, delay }}
+          out:fade={{ duration: delay }}
+        >
+          <SidebarHeader
+            on:click={() => {
+              if ($richTextParams.primaryActive) {
+                $richTextParams.set($richTextParams.primaryActive, 0);
+              }
+            }}
+          >
+            Pane
+          </SidebarHeader>
+          <TextBlock style="padding: 0 16px;">
+            Something went wrong while loading this pane. <br /><br />
+            (<code>Pane: {$richTextParams.primaryActive}</code>)
+          </TextBlock>
+        </div>
+      {/if}
+      <div class="sidebar-content-placeholder" />
+      {#if $richTextParams.activeCount > 1}
+        <div class="sidebar-bar" />
+        <div
+          class="sidebar-nav"
+          on:mousedown={(evt) => {
+            // cancel scroll mode on middle click
+            if (evt.button === 1) {
+              evt.preventDefault();
+            }
+          }}
+        >
+          {#each Object.entries($richTextParams.obj) as [key, value]}
+            {#if value === 1 || value === 2}
+              {#if key === 'comments'}
+                <Tooltip text="Comments" placement="left">
+                  <IconButton
+                    on:click={() => $richTextParams.set('comments', 1)}
+                    on:auxclick={() => $richTextParams.set('comments', 0)}
+                    class={$richTextParams.primaryActive === 'comments' ? 'active' : ''}
+                  >
+                    <FluentIcon>
+                      <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                        <path
+                          type="path"
+                          class="OfficeIconColors_HighContrast"
+                          d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                        />
+                        <path
+                          type="path"
+                          class="OfficeIconColors_m233"
+                          d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                        />
+                      </svg>
+                    </FluentIcon>
+                  </IconButton>
+                </Tooltip>
+              {/if}
+              {#if key === 'props'}
+                <Tooltip text="Document properties" placement="left">
+                  <IconButton
+                    on:click={() => $richTextParams.set('props', 1)}
+                    on:auxclick={() => $richTextParams.set('props', 0)}
+                    class={$richTextParams.primaryActive === 'props' ? 'active' : ''}
+                  >
+                    <FluentIcon name="Database20Regular" />
+                  </IconButton>
+                </Tooltip>
+              {/if}
+            {/if}
+          {/each}
+        </div>
+      {/if}
     </div>
   </div>
   <SaveDocumentDialog bind:open={saveDocDialogOpen} />
@@ -285,7 +386,7 @@
 </div>
 
 <div class="bubble-menu paragraph" bind:this={bubbleMenuParagraph}>
-  <BubbleMenuParagraph {editor} {options} />
+  <BubbleMenuParagraph {editor} {options} {user} />
 </div>
 
 <style>
@@ -301,10 +402,19 @@
     border: 2px solid var(--titlebar-bg);
   }
 
+  .main-middle {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    width: 100%;
+    height: 1px;
+  }
+
   .richtiptap-content {
     overflow: auto;
     width: 100%;
     flex-grow: 1;
+    scroll-behavior: smooth;
   }
 
   .richtiptap.fullscreen {
@@ -346,5 +456,84 @@
     border-radius: var(--fds-control-corner-radius) var(--fds-control-corner-radius) 0 0;
     font-size: 12px;
     line-height: 24px;
+  }
+
+  .sidebar-wrapper {
+    --sidebarmargin: 8px;
+    width: 300px;
+    flex-shrink: 0;
+    background-color: var(--fds-solid-background-quarternary);
+    margin: var(--sidebarmargin) var(--sidebarmargin) var(--sidebarmargin) 0;
+    border-radius: var(--fds-control-corner-radius);
+    transition: width 120ms;
+    display: flex;
+    flex-direction: row;
+    color: var(--fds-text-primary);
+    position: relative;
+  }
+  .sidebar-wrapper.navActive {
+    width: 340px;
+  }
+  .sidebar-wrapper.hidden {
+    width: 0px;
+  }
+
+  .sidebar-content {
+    height: 100%;
+    overflow: auto;
+    width: 299px;
+    position: absolute;
+    left: 0px;
+  }
+  .sidebar-content-placeholder {
+    width: 299px;
+  }
+  .sidebar-wrapper.hidden .sidebar-content {
+    display: none;
+  }
+
+  .sidebar-bar {
+    display: inline-flex;
+    align-items: center;
+    margin: 10px 0;
+    width: 1px;
+    background-color: var(--fds-control-strong-fill-disabled);
+    opacity: 0.4;
+  }
+  @media (resolution: 144dpi) {
+    .sidebar-bar {
+      width: 0.67px;
+    }
+  }
+
+  .sidebar-nav {
+    width: 40px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 4px 10px 4px;
+    gap: 4px;
+    box-sizing: border-box;
+  }
+
+  .sidebar-nav :global(.icon-button.active::before) {
+    content: '';
+    background-color: var(--fds-accent-default);
+    height: 16px;
+    width: 2.4px;
+    position: absolute;
+    left: -4px;
+    border-radius: 6px;
+    transition: all 150ms cubic-bezier(0.17, 0.17, 0, 1) 0s;
+  }
+  .sidebar-nav :global(.icon-button.active:hover::before) {
+    height: 100%;
+  }
+
+  :global(.button.disabled svg) {
+    opacity: 0.4;
   }
 </style>

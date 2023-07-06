@@ -3,6 +3,7 @@
   import type { Editor } from '@tiptap/core';
   import { Button, IconButton } from 'fluent-svelte';
   import type { tiptapOptions } from '../../../../config';
+  import { richTextParams } from '../richTextParams';
 
   export let editor: Editor | null;
   export let visible = false;
@@ -60,6 +61,45 @@
       </svg>
     </FluentIcon>
     Preview mode
+  </Button>
+  <Button
+    on:click={() => {
+      if ($richTextParams.isActive('props')) {
+        $richTextParams.set('props', 0);
+      } else {
+        $richTextParams.set('props', 1);
+      }
+    }}
+    class={$richTextParams.isActive('props') ? 'active' : ''}
+  >
+    <FluentIcon name="Database20Regular" mode="ribbonButtonIconLeft" />
+    Document properties
+  </Button>
+  <Button
+    on:click={() => {
+      if ($richTextParams.isActive('comments')) {
+        $richTextParams.set('comments', 0);
+      } else {
+        $richTextParams.set('comments', 1);
+      }
+    }}
+    class={$richTextParams.isActive('comments') ? 'active' : ''}
+  >
+    <FluentIcon mode="ribbonButtonIconLeft">
+      <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+        <path
+          type="path"
+          class="OfficeIconColors_HighContrast"
+          d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+        />
+        <path
+          type="path"
+          class="OfficeIconColors_m233"
+          d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+        />
+      </svg>
+    </FluentIcon>
+    Comments
   </Button>
 </div>
 

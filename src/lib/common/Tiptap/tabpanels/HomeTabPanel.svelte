@@ -70,7 +70,22 @@
         !editor?.can().setFontFamily('Georgia') ||
         (options?.features.fontFamilies || []).length === 0}
       value={fontFamily}
-      on:select={(evt) => editor?.chain().focus().setFontFamily(evt.detail.value).run()}
+      on:select={(evt) => {
+        editor
+          ?.chain()
+          .command(({ commands }) => {
+            // do not re-focus editor unless current focus is on the combobox
+            // so focus is not stolen from other elements if the combobox rerenders
+            // and the select event is fired again (it is fired upon render or when
+            // the selection changes to a different font)
+            const currentFocusOnComboboxItem = document.activeElement?.classList.contains('combo-box-item');
+            const currentFocusOnComboboxTextField = document.activeElement?.getAttribute('role') === 'combobox';
+            if (currentFocusOnComboboxTextField || currentFocusOnComboboxItem) return commands.focus();
+            return true;
+          })
+          .setFontFamily(evt.detail.value)
+          .run();
+      }}
     />
   {/key}
   {#key fontSize}

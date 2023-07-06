@@ -5,12 +5,22 @@
   import YoutubeVideoIdDialog from '$lib/dialogs/YoutubeVideoIdDialog.svelte';
   import type { Editor } from '@tiptap/core';
   import { Button, IconButton, MenuFlyout, MenuFlyoutItem } from 'fluent-svelte';
+  import type { ComponentProps } from 'svelte';
   import type { tiptapOptions } from '../../../../config';
+  import type Tiptap from '../Tiptap.svelte';
+  import { richTextParams } from '../richTextParams';
 
   export let editor: Editor | null;
   export let visible = false;
   export let disabled = false;
   export let options: tiptapOptions | undefined = undefined;
+  export let user: ComponentProps<Tiptap>['user'] | null = null;
+
+  $: coreNewCommentAttrs = {
+    color: user?.color || '',
+    commenter: { name: user?.name || '', photo: user?.photo || '' },
+    sessionId: user?.sessionId || '',
+  };
 
   let widgetsMenuOpen = false;
   let insertYoutubeWidgetDialogOpen = false;
@@ -176,7 +186,13 @@
     </FluentIcon>
     Table
   </Button>
-  <Button disabled={disabled || true}>
+  <Button
+    disabled={disabled || !user || !editor?.can().setComment(coreNewCommentAttrs)}
+    on:click={() => {
+      editor?.chain().focus().setComment(coreNewCommentAttrs).blur().run();
+      $richTextParams.set('comments', 1);
+    }}
+  >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path
@@ -203,7 +219,10 @@
     </FluentIcon>
     Insert comment
   </Button>
-  <IconButton disabled={disabled || true}>
+  <IconButton
+    disabled={disabled || !editor?.can().unsetComment()}
+    on:click={() => editor?.chain().focus().unsetComment().run()}
+  >
     <FluentIcon>
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path

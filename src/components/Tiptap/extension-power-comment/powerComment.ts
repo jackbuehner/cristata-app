@@ -1,7 +1,7 @@
 import { Mark } from '@tiptap/core';
 import type { Editor } from '@tiptap/react';
 import Color from 'color';
-import type { Mark as ProseMirrorMark, MarkType, ResolvedPos, Slice } from 'prosemirror-model';
+import type { MarkType, Mark as ProseMirrorMark, ResolvedPos, Slice } from 'prosemirror-model';
 import { Node as ProseMirrorNode } from 'prosemirror-model';
 import { TextSelection } from 'prosemirror-state';
 import { v4 as uuidv4 } from 'uuid';
@@ -93,12 +93,20 @@ const PowerComment = Mark.create<CommentOptions, CommentStorage>({
         default: '#faf0a2',
         // apply these attributes to the rendered element in the editor
         renderHTML: (attributes) => {
-          return {
-            style: `background-color: ${Color(attributes.color).alpha(attributes.alpha).string()}`,
-          };
+          try {
+            return {
+              style: `background-color: ${Color(attributes.color || '#faf0a2')
+                .alpha(attributes.alpha8 || 0.15)
+                .string()}`,
+            };
+          } catch (error) {
+            console.error(error, 'color: ' + attributes.color, 'alpha: ' + attributes.alpha);
+            return {
+              style: `background-color: ${Color('#faf0a2').alpha(0.15).string()}`,
+            };
+          }
         },
         parseHTML: (element) => {
-          console.log(element.getAttribute('commenter'));
           return element.style.backgroundColor || '#faf0a2';
         },
       },
@@ -182,6 +190,8 @@ const PowerComment = Mark.create<CommentOptions, CommentStorage>({
         (attrs: Partial<CommentAttrs> & Pick<CommentAttrs, 'color'> & Pick<CommentAttrs, 'commenter'>) =>
         ({ state, dispatch, chain }) => {
           try {
+            if (state.selection.empty) return false;
+
             // a slice containing the selected nodes
             const selectionSlice: Slice = state.selection.content();
 
