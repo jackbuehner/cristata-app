@@ -8,6 +8,7 @@
   import type { ComponentProps } from 'svelte';
   import type { tiptapOptions } from '../../../config';
   import type Tiptap from './Tiptap.svelte';
+  import { richTextParams } from './richTextParams';
   import HomeTabPanel from './tabpanels/HomeTabPanel.svelte';
   import InsertTabPanel from './tabpanels/InsertTabPanel.svelte';
   import LayoutTabPanel from './tabpanels/LayoutTabPanel.svelte';
@@ -211,22 +212,18 @@
         {/if}
       </div>
       <div class="focuszone">
-        {#if $page.url.searchParams.get('fs') === '1'}
+        {#if $richTextParams.isActive('fs') && $richTextParams.obj.fs !== 3}
           <IconButton
             on:click={() => {
-              const url = new URL($page.url);
-              url.searchParams.set('fs', '0');
-              goto(url);
+              $richTextParams.set('fs', 0);
             }}
           >
             <FluentIcon name="ArrowMinimize20Regular" />
           </IconButton>
-        {:else if $page.url.searchParams.get('fs') !== 'force'}
+        {:else if $richTextParams.obj.fs !== 3}
           <IconButton
             on:click={() => {
-              const url = new URL($page.url);
-              url.searchParams.set('fs', '1');
-              goto(url);
+              $richTextParams.set('fs', 1);
             }}
           >
             <FluentIcon name="ArrowMaximize20Regular" />

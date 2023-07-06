@@ -471,8 +471,7 @@
   let settingFlyoutOpen = false;
   let toolboxFlyoutOpen = false;
 
-  $: navPaneCompactMode =
-    $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === 'force';
+  $: navPaneCompactMode = $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === '3';
 
   beforeNavigate(() => {
     $collapsedPaneCompact = true;

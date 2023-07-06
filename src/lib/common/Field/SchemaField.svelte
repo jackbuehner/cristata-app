@@ -53,12 +53,15 @@
   });
 
   //
-  $: fullscreen = $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === 'force';
+  $: fullscreen =
+    $page.url.searchParams.get('fs') === '1' ||
+    $page.url.searchParams.get('fs') === '3' ||
+    $page.url.searchParams.get('fs') === 'force';
   afterNavigate(() => {
-    console.log(new URL(window.location.href).searchParams.get('fs') === '1');
     fullscreen =
       new URL(window.location.href).searchParams.get('fs') === '1' ||
-      new URL(window.location.href).searchParams.get('fs') === 'force';
+      new URL(window.location.href).searchParams.get('fs') === '3' ||
+      $page.url.searchParams.get('fs') === 'force';
   });
 </script>
 

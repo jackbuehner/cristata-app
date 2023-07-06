@@ -11,11 +11,14 @@ export const richTextParams = derived([params], ([$params]) => {
   return {
     ...$params,
     obj: $params,
-    activeCount: Object.entries($params).filter(([key, value]) => key !== 'fs' && (value === 1 || value === 2))
-      .length,
-    primaryActive: Object.entries($params).find(([key, value]) => key !== 'fs' && value === 1)?.[0],
+    activeCount: Object.entries($params).filter(
+      ([key, value]) => key !== 'fs' && (value === 1 || value === 2 || value === 3)
+    ).length,
+    primaryActive:
+      Object.entries($params).find(([key, value]) => key !== 'fs' && value === 1)?.[0] ||
+      Object.entries($params).find(([key, value]) => key !== 'fs' && value === 3)?.[0],
     isActive(key: string) {
-      if ($params[key]) return $params[key] === 1 || $params[key] === 2;
+      if ($params[key]) return $params[key] === 1 || $params[key] === 2 || $params[key] === 3;
       return false;
     },
     set(key: string, mode: 0 | 1 | 2) {
@@ -46,7 +49,7 @@ params.subscribe((richTextParams) => {
   if (url) goto(url);
 });
 
-function adjustUpdate(params: Record<string, 0 | 1 | 2>) {
+function adjustUpdate(params: Record<string, 0 | 1 | 2 | 3>) {
   return getFromUrl(convertToUrl(params));
 }
 
@@ -54,13 +57,15 @@ function getFromUrl(url?: URL) {
   if (!url && !browser) return {};
   if (!url && !location) return {};
 
-  let obj: Record<string, 0 | 1 | 2> = {};
+  let obj: Record<string, 0 | 1 | 2 | 3> = {};
   let hasOne = false;
   let hasTwo = false;
+  let hasThree = false;
   let firstTwoKey = '';
+  let firstThreeKey = '';
   if (!url) url = new URL(location.href);
   [...url.searchParams.entries()].forEach(([key, value]) => {
-    const number = parseInt(value);
+    const number = value === 'force' ? 3 : parseInt(value);
 
     if (number === 0) {
       obj[key] = 0;
@@ -84,18 +89,25 @@ function getFromUrl(url?: URL) {
       hasTwo = true;
       firstTwoKey = key;
     }
+
+    if (number === 3) {
+      obj[key] = 3;
+      if (key !== 'fs') {
+        hasThree = true;
+        firstThreeKey = key;
+      }
+    }
   });
 
-  // if there is no one but there are twos, make the first two a one
-  console.log({ hasOne, hasTwo, firstTwoKey });
-  if (hasTwo && !hasOne && firstTwoKey) {
+  // if there is no one or three but there are twos, make the first two a one
+  if (hasTwo && !hasOne && !hasThree && firstTwoKey) {
     obj[firstTwoKey] = 1;
   }
 
   return obj;
 }
 
-function convertToUrl(params: Record<string, 0 | 1 | 2>) {
+function convertToUrl(params: Record<string, 0 | 1 | 2 | 3>) {
   if (!browser) return;
   if (!location) return;
 

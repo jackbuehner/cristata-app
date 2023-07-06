@@ -304,25 +304,27 @@
           <CommentsSidebar {editor} {user} />
         </div>
       {:else}
-        <div
-          class="sidebar-content"
-          in:fly={{ y: 20, duration, easing: expoOut, delay }}
-          out:fade={{ duration: delay }}
-        >
-          <SidebarHeader
-            on:click={() => {
-              if ($richTextParams.primaryActive) {
-                $richTextParams.set($richTextParams.primaryActive, 0);
-              }
-            }}
+        {#key $richTextParams.primaryActive}
+          <div
+            class="sidebar-content"
+            in:fly={{ y: 20, duration, easing: expoOut, delay }}
+            out:fade={{ duration: delay }}
           >
-            Pane
-          </SidebarHeader>
-          <TextBlock style="padding: 0 16px;">
-            Something went wrong while loading this pane. <br /><br />
-            (<code>Pane: {$richTextParams.primaryActive}</code>)
-          </TextBlock>
-        </div>
+            <SidebarHeader
+              on:click={() => {
+                if ($richTextParams.primaryActive) {
+                  $richTextParams.set($richTextParams.primaryActive, 0);
+                }
+              }}
+            >
+              Pane
+            </SidebarHeader>
+            <TextBlock style="padding: 0 16px;">
+              Something went wrong while loading this pane. <br /><br />
+              (<code>Pane: {$richTextParams.primaryActive}</code>)
+            </TextBlock>
+          </div>
+        {/key}
       {/if}
       <div class="sidebar-content-placeholder" />
       {#if $richTextParams.activeCount > 1}
@@ -337,12 +339,14 @@
           }}
         >
           {#each Object.entries($richTextParams.obj) as [key, value]}
-            {#if value === 1 || value === 2}
+            {#if value === 1 || value === 2 || value === 3}
               {#if key === 'comments'}
                 <Tooltip text="Comments" placement="left">
                   <IconButton
                     on:click={() => $richTextParams.set('comments', 1)}
-                    on:auxclick={() => $richTextParams.set('comments', 0)}
+                    on:auxclick={(evt) => {
+                      if (evt.button === 1) $richTextParams.set('comments', 0);
+                    }}
                     class={$richTextParams.primaryActive === 'comments' ? 'active' : ''}
                   >
                     <FluentIcon>
@@ -361,15 +365,28 @@
                     </FluentIcon>
                   </IconButton>
                 </Tooltip>
-              {/if}
-              {#if key === 'props'}
+              {:else if key === 'props'}
                 <Tooltip text="Document properties" placement="left">
                   <IconButton
                     on:click={() => $richTextParams.set('props', 1)}
-                    on:auxclick={() => $richTextParams.set('props', 0)}
+                    on:auxclick={(evt) => {
+                      if (evt.button === 1) $richTextParams.set('props', 0);
+                    }}
                     class={$richTextParams.primaryActive === 'props' ? 'active' : ''}
                   >
                     <FluentIcon name="Database20Regular" />
+                  </IconButton>
+                </Tooltip>
+              {:else if key !== 'fs'}
+                <Tooltip text={key} placement="left">
+                  <IconButton
+                    on:click={() => $richTextParams.set(key, 1)}
+                    on:auxclick={(evt) => {
+                      if (evt.button === 1) $richTextParams.set(key, 0);
+                    }}
+                    class={$richTextParams.primaryActive === key ? 'active' : ''}
+                  >
+                    <FluentIcon name="Question20Regular" />
                   </IconButton>
                 </Tooltip>
               {/if}
