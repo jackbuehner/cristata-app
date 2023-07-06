@@ -266,6 +266,9 @@
     height: 36px;
     position: relative;
     margin-top: 4px;
+    -webkit-app-region: drag;
+    app-region: drag;
+    user-select: none;
   }
 
   .tabpanel {
@@ -428,6 +431,8 @@
     display: flex;
     flex-direction: row;
     height: 30px;
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
   }
 
   .tabs :global(.button.style-standard) {
@@ -462,5 +467,10 @@
     float: left;
     background-color: var(--fds-accent-default);
     border-radius: 6px;
+  }
+
+  .focuszone {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
   }
 </style>
