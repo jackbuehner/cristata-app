@@ -138,7 +138,15 @@
           <!-- field based on thnpme schema definition -->
           <!-- The component should have three modes: editor, publish, and create (to support all three cases) -->
           {#each data.helpers.processSchemaDef() as [key, def]}
-            <SchemaField {key} {def} {ydoc} {disabled} {wsProvider} user={data.yuser} />
+            <SchemaField
+              {key}
+              {def}
+              {ydoc}
+              {disabled}
+              {wsProvider}
+              user={data.yuser}
+              processSchemaDef={data.helpers.processSchemaDef}
+            />
           {/each}
         </div>
       </div>

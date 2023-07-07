@@ -8,14 +8,16 @@
   import type { AwarenessUser, YStore } from '$utils/createYStore';
   import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
   import { FieldWrapper } from '.';
+  import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
 
   export let key: DeconstructedSchemaDefType[0][0];
   export let def: DeconstructedSchemaDefType[0][1];
-  // export let mode: 'editor' | 'publish' | 'create' = 'editor';
+  export let mode: 'editor' | 'publish' | 'create' | 'sidebar' = 'editor';
   export let ydoc: YStore['ydoc'];
   export let wsProvider: YStore['wsProvider'];
   export let disabled = false;
   export let user: AwarenessUser;
+  export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -65,18 +67,31 @@
   });
 </script>
 
-{#if def.type === 'DocArray' || type === 'DocArray'}
-  <p>DocArray: {key}</p>
-{:else if key.includes('#')}
-  <p>Internal: {key}</p>
-{:else if key === 'body' && def.field?.tiptap}
-  {#if !!$ydoc && !!$wsProvider}
+{#if key === 'body' && def.field?.tiptap}
+  {#if mode === 'sidebar'}
+    <!-- hide field so it is not rendered in a sidebar, which would create infinite nesting -->
+  {:else if !!$ydoc && !!$wsProvider}
     <FieldWrapper label={fieldName} {description} forId={key}>
-      <RichTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} options={def.field.tiptap} {fullscreen} />
+      <RichTiptap
+        {disabled}
+        {ydoc}
+        {ydocKey}
+        {wsProvider}
+        {user}
+        options={def.field.tiptap}
+        {fullscreen}
+        {processSchemaDef}
+      />
     </FieldWrapper>
   {:else}
     <p>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
+{:else if fullscreen && mode === 'editor'}
+  <!-- capture loop for all non-body fields when in fullscreen mode so they do not render -->
+{:else if def.type === 'DocArray' || type === 'DocArray'}
+  <p>DocArray: {key}</p>
+{:else if key.includes('#')}
+  <p>Internal: {key}</p>
 {:else if def.field?.reference?.collection || isTypeTuple(def.type)}
   <!-- TODO: add property for adding filter and sort to the query -->
 

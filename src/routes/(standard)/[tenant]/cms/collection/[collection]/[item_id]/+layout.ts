@@ -69,7 +69,7 @@ export const load = (async ({ parent, params, url }) => {
       genAvatar(authUser._id.toHexString()),
   };
 
-  const processSchemaDef = (args?: {
+  const processSchemaDef = ((args?: {
     schemaDef?: DeconstructedSchemaDefType;
     collapsed?: boolean;
     isPublishModal?: boolean;
@@ -117,7 +117,7 @@ export const load = (async ({ parent, params, url }) => {
           return [key, def] as [string, typeof def];
         })
     );
-  };
+  }) satisfies ProcessSchemaDef;
 
   const calcPublishPermissions = (params: CalcPublishPermissionsParams): CalcPublishPermissionsReturn => {
     const canPublish = params.publishActionAccess === true;
@@ -148,7 +148,7 @@ export const load = (async ({ parent, params, url }) => {
     helpers: {
       processSchemaDef,
       calcPublishPermissions,
-      colorHash
+      colorHash,
     },
   };
 }) satisfies LayoutLoad;
@@ -210,3 +210,10 @@ interface CalcPublishPermissionsReturn {
    */
   publishLocked: boolean;
 }
+
+export type ProcessSchemaDef = (args?: {
+  schemaDef?: DeconstructedSchemaDefType;
+  collapsed?: boolean;
+  isPublishModal?: boolean;
+  showHidden?: boolean;
+}) => DeconstructedSchemaDefType;

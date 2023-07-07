@@ -13,11 +13,13 @@
   import { expoOut, linear } from 'svelte/easing';
   import { fade, fly } from 'svelte/transition';
   import type { tiptapOptions } from '../../../config';
+  import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import BubbleMenuParagraph from './BubbleMenuParagraph.svelte';
   import Ribbon from './Ribbon.svelte';
   import Tiptap from './Tiptap.svelte';
   import { richTextParams } from './richTextParams';
   import CommentsSidebar from './sidebars/CommentsSidebar.svelte';
+  import DocPropsSidebar from './sidebars/DocPropsSidebar.svelte';
 
   export let ydoc: ComponentProps<Tiptap>['ydoc'];
   export let ydocKey: ComponentProps<Tiptap>['ydocKey'];
@@ -25,6 +27,7 @@
   export let disabled: ComponentProps<Tiptap>['disabled'];
   export let user: ComponentProps<Tiptap>['user'];
   export let options: tiptapOptions | undefined = undefined;
+  export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
   export let fullscreen = false;
 
   let bubbleMenuParagraph: HTMLDivElement;
@@ -33,7 +36,7 @@
 
   const parsedCss = less.render(
     `
-      div.richtiptap {
+      div.richtiptap-content {
 
         .text-box-container {
           // background-color: white !important;
@@ -302,6 +305,14 @@
           out:fade={{ duration: delay }}
         >
           <CommentsSidebar {editor} {user} />
+        </div>
+      {:else if $richTextParams.primaryActive === 'props'}
+        <div
+          class="sidebar-content"
+          in:fly={{ y: 20, duration, easing: expoOut, delay }}
+          out:fade={{ duration: delay }}
+        >
+          <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} />
         </div>
       {:else}
         {#key $richTextParams.primaryActive}
