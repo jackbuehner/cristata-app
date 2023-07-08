@@ -1,4 +1,5 @@
 import { Mark } from '@tiptap/core';
+import { DateTime } from 'luxon';
 import { v4 as uuidv4 } from 'uuid';
 
 declare module '@tiptap/core' {
@@ -53,7 +54,9 @@ const Addition = Mark.create<AdditionOptions>({
         default: 'Unknown User',
         renderHTML: (attributes) => ({
           'data-user': attributes.user,
-          title: `Change by ${attributes.user} at ${attributes.timestamp}`,
+          title: `Addition by ${attributes.user} on ${DateTime.fromISO(attributes.timestamp).toFormat(
+            `LLL. dd, yyyy 'at' t`
+          )}`,
         }),
         parseHTML: (element) => element.getAttribute('data-user'),
       },

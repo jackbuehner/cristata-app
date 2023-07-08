@@ -39,7 +39,10 @@ const AdditionEventHandler = Extension.create({
                     tr.insertText(text, to, to).addMark(
                       to,
                       to + 1,
-                      getMarkType(Addition.name, state.schema).create()
+                      getMarkType(Addition.name, state.schema).create({
+                        user: state.doc.attrs?.user?.name,
+                        color: state.doc.attrs?.user?.color,
+                      })
                     );
                   }
                 );
@@ -47,9 +50,14 @@ const AdditionEventHandler = Extension.create({
               } else {
                 // typing anywhere with tracked changes turned on should insert text with the addition mark
                 dispatch(
-                  state.tr
-                    .insertText(text, from, to)
-                    .addMark(from, from + 1, getMarkType(Addition.name, state.schema).create())
+                  state.tr.insertText(text, from, to).addMark(
+                    from,
+                    from + 1,
+                    getMarkType(Addition.name, state.schema).create({
+                      user: state.doc.attrs?.user?.name,
+                      color: state.doc.attrs?.user?.color,
+                    })
+                  )
                 );
                 return true;
               }
@@ -69,7 +77,10 @@ const AdditionEventHandler = Extension.create({
               tr.replaceSelection(slice).addMark(
                 range.from,
                 range.from + slice.size,
-                getMarkType(Addition.name, state.schema).create()
+                getMarkType(Addition.name, state.schema).create({
+                  user: state.doc.attrs?.user?.name,
+                  color: state.doc.attrs?.user?.color,
+                })
               );
               dispatch(tr);
 
@@ -92,7 +103,10 @@ const AdditionEventHandler = Extension.create({
                 tr.insertText('¶', range.from, range.from).addMark(
                   range.from,
                   range.from + 1,
-                  getMarkType(Addition.name, state.schema).create()
+                  getMarkType(Addition.name, state.schema).create({
+                    user: state.doc.attrs?.user?.name,
+                    color: state.doc.attrs?.user?.color,
+                  })
                 );
                 dispatch(tr);
                 return true;

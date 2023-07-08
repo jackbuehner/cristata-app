@@ -1,6 +1,7 @@
 import { Mark } from '@tiptap/core';
 import type { Range } from '@tiptap/react';
 import { markInputRule, markPasteRule } from '@tiptap/react';
+import { DateTime } from 'luxon';
 import type { MarkType } from 'prosemirror-model';
 import type { EditorState, Transaction } from 'prosemirror-state';
 import { TextSelection } from 'prosemirror-state';
@@ -79,7 +80,9 @@ const Deletion = Mark.create<DeletionOptions>({
         default: 'Unknown User',
         renderHTML: (attributes) => ({
           'data-user': attributes.user,
-          title: `Change by ${attributes.user} at ${attributes.timestamp}`,
+          title: `Deletion by ${attributes.user} on ${DateTime.fromISO(attributes.timestamp).toFormat(
+            `LLL. dd, yyyy 'at' t`
+          )}`,
         }),
         parseHTML: (element) => element.getAttribute('data-user'),
       },
@@ -225,7 +228,7 @@ function setDeletionFunction(
   tr.addMark(
     range.from,
     newRangeTo,
-    type.create({ name: state.doc.attrs?.user?.name, color: state.doc.attrs?.user?.color })
+    type.create({ user: state.doc.attrs?.user?.name, color: state.doc.attrs?.user?.color })
   );
 
   // set the caret position (1: move to right; 0: move to left)
