@@ -10,7 +10,7 @@
 </script>
 
 <div class="header" bind:clientHeight={headerHeight}>
-  <SidebarHeader on:click={() => $richTextParams.set('props', 0)}>Version history</SidebarHeader>
+  <SidebarHeader on:click={() => $richTextParams.set('versions', 0)}>Version history</SidebarHeader>
 </div>
 
 <div class="wrapper" style="height: calc(100% - {headerHeight}px);">
