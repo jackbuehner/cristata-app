@@ -260,6 +260,8 @@
 
   $: delay = $motionMode === 'reduced' ? 0 : 130;
   $: duration = $motionMode === 'reduced' ? 0 : 270;
+
+  $: console.log(coreSidebarProps);
 </script>
 
 {#await parsedCss then { css }}
@@ -267,7 +269,7 @@
 {/await}
 
 <div class="richtiptap" class:fullscreen bind:clientWidth={tiptapwidth}>
-  <Ribbon {editor} {options} {user} />
+  <Ribbon {editor} {options} {user} awareness={coreSidebarProps?.awareness} />
   <div class="main-middle">
     <div class="richtiptap-content">
       <div

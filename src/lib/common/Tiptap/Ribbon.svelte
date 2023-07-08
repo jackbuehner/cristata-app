@@ -3,9 +3,20 @@
   import { page } from '$app/stores';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
+  import type { AwarenessUser } from '$utils/createYStore';
+  import { openWindow } from '$utils/openWindow';
   import type { Editor } from '@tiptap/core';
-  import { Button, IconButton, MenuFlyout, MenuFlyoutDivider, MenuFlyoutItem } from 'fluent-svelte';
+  import {
+    Button,
+    IconButton,
+    MenuFlyout,
+    MenuFlyoutDivider,
+    MenuFlyoutItem,
+    PersonPicture,
+    Tooltip,
+  } from 'fluent-svelte';
   import type { ComponentProps } from 'svelte';
+  import type { Readable } from 'svelte/store';
   import type { tiptapOptions } from '../../../config';
   import type Tiptap from './Tiptap.svelte';
   import { richTextParams } from './richTextParams';
@@ -22,6 +33,7 @@
   export let editor: Editor | null;
   export let options: tiptapOptions | undefined = undefined;
   export let user: ComponentProps<Tiptap>['user'] | null = null;
+  export let awareness: Readable<AwarenessUser[] | null> | undefined;
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
@@ -212,6 +224,32 @@
         {/if}
       </div>
       <div class="focuszone">
+        <!-- current editors on this document -->
+        <div class="au">
+          {#if $awareness && $richTextParams.isActive('fs')}
+            {#each $awareness as user}
+              <Tooltip text={user.name} delay={0} alignment="center" placement="bottom" offset={0}>
+                <IconButton
+                  href={`/${$page.params.tenant}/profile/${user._id}`}
+                  class="awareness-user"
+                  on:click={(evt) => {
+                    evt.preventDefault();
+                    openWindow(
+                      `/${$page.params.tenant}/profile/${user._id}`,
+                      'tiptap_awareness_user' + user._id,
+                      'location=no',
+                      { width: 500, height: 700 }
+                    );
+                  }}
+                >
+                  <PersonPicture size={26} src={user.photo} alt={user.name} />
+                </IconButton>
+              </Tooltip>
+            {/each}
+          {/if}
+        </div>
+
+        <!-- restore/maximize -->
         {#if $richTextParams.isActive('fs') && $richTextParams.obj.fs !== 3}
           <IconButton
             on:click={() => {
@@ -469,5 +507,27 @@
   .focuszone {
     -webkit-app-region: no-drag;
     app-region: no-drag;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+  }
+
+  .au {
+    display: flex;
+    flex-direction: row;
+  }
+
+  :global(.awareness-user) {
+    padding: 0 !important;
+  }
+
+  .focuszone :global(.tooltip-wrapper) {
+    height: 32px;
+    width: 32px;
+  }
+
+  .focuszone :global(.icon-button) {
+    height: 32px;
+    width: 32px;
   }
 </style>
