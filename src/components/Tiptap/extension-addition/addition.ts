@@ -45,7 +45,7 @@ const Addition = Mark.create<AdditionOptions>({
         // apply these attributes to the rendered element in the editor
         renderHTML: (attributes) => {
           return {
-            style: `color: ${attributes.color}; border-bottom: 1px solid ${attributes.color}`,
+            style: `color: ${attributes.color}; border-bottom: 4px double ${attributes.color};`,
           };
         },
         parseHTML: (element) => element.style.color || '#d0021b',

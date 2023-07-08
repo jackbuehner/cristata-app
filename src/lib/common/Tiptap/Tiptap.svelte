@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
   import type { AwarenessUser } from '$utils/createYStore';
   import type { HocuspocusProvider } from '@hocuspocus/provider';
   import { Editor, type AnyExtension } from '@tiptap/core';
@@ -79,7 +80,11 @@
   // keep disabled stated in sync
   $: editor?.setOptions({ editable: !disabled });
 
+  // update user details in the collaboration extension
   $: editor?.commands.updateUser(user);
+
+  // make user name and color available to tiptap extensions via document attributes
+  $: editor?.state.tr.step(new SetDocAttrStep('user', user));
 
   onDestroy(() => {
     if (editor) {

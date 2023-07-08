@@ -1,6 +1,7 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
   import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
+  import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
   import { SidebarHeader } from '$lib/sidebar';
@@ -177,6 +178,28 @@
   let tiptapwidth = 0;
   let editor: Editor | null;
 
+  // track whether track changes is enabled
+  $: ySettingsMap = $ydoc?.getMap('__settings');
+  let trackChanges: boolean | undefined;
+  $: trackChanges = ySettingsMap.get('trackChanges') ?? undefined;
+  $: {
+    // if another editor changes the track changes setting, update the variable
+    ySettingsMap?.observe(() => {
+      trackChanges = ySettingsMap.get('trackChanges') ?? undefined;
+    });
+  }
+  $: {
+    // when `trackChanges` is changed in the variable, also set it in the document attributes.
+    // the document attributes do not sync, but they are available to tiptap extensions.
+    if (editor) {
+      editor.state.tr.step(new SetDocAttrStep('trackChanges', trackChanges));
+    }
+  }
+
+  function toggleTrackChanges(bool: boolean) {
+    ySettingsMap?.set('trackChanges', bool);
+  }
+
   $: if (fullscreen) {
     titlebarActions.set([
       {
@@ -244,10 +267,9 @@
               ></path>
             </svg>
           `,
-        disabled: false,
-        // active: trackChanges,
-        // action: () => toggleTrackChanges(),
-        action: () => null,
+        disabled: !editor || trackChanges === undefined,
+        active: trackChanges,
+        action: () => toggleTrackChanges(!trackChanges),
       },
     ]);
   } else {
@@ -260,8 +282,6 @@
 
   $: delay = $motionMode === 'reduced' ? 0 : 130;
   $: duration = $motionMode === 'reduced' ? 0 : 270;
-
-  $: console.log(coreSidebarProps);
 </script>
 
 {#await parsedCss then { css }}
@@ -269,7 +289,14 @@
 {/await}
 
 <div class="richtiptap" class:fullscreen bind:clientWidth={tiptapwidth}>
-  <Ribbon {editor} {options} {user} awareness={coreSidebarProps?.awareness} />
+  <Ribbon
+    {editor}
+    {options}
+    {user}
+    awareness={coreSidebarProps?.awareness}
+    {trackChanges}
+    {toggleTrackChanges}
+  />
   <div class="main-middle">
     <div class="richtiptap-content">
       <div
@@ -312,7 +339,7 @@
         >
           {#if $richTextParams.primaryActive === 'comments'}
             <CommentsSidebar {editor} {user} />
-          {:else if $richTextParams.primaryActive === 'props'}
+          {:else if $richTextParams.primaryActive === 'props' && !!coreSidebarProps}
             <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} {coreSidebarProps} />
           {:else if $richTextParams.primaryActive === 'versions'}
             {#if coreSidebarProps}

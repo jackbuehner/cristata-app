@@ -12,6 +12,8 @@
   export let disabled = false;
   export let options: tiptapOptions | undefined = undefined;
   export let user: ComponentProps<Tiptap>['user'] | null = null;
+  export let trackChanges: boolean | undefined;
+  export let toggleTrackChanges: (bool: boolean) => void;
 
   $: coreNewCommentAttrs = {
     color: user?.color || '',
@@ -100,7 +102,13 @@
 
   <Tooltip text="Enable track changes for all editors">
     {#if width > 520}
-      <Button disabled={disabled || true}>
+      <Button
+        disabled={disabled || !toggleTrackChanges}
+        on:click={() => {
+          toggleTrackChanges(!trackChanges);
+        }}
+        class={!!trackChanges ? 'active' : ''}
+      >
         <FluentIcon mode="ribbonButtonIconLeft">
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
             <path
@@ -143,7 +151,13 @@
         Track changes (text only)
       </Button>
     {:else}
-      <IconButton disabled={disabled || true}>
+      <IconButton
+        disabled={disabled || !toggleTrackChanges}
+        on:click={() => {
+          toggleTrackChanges(!trackChanges);
+        }}
+        class={!!trackChanges ? 'active' : ''}
+      >
         <FluentIcon>
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
             <path
@@ -189,7 +203,10 @@
 
   <Tooltip text="Accept change">
     {#if width > 560}
-      <Button disabled={disabled || true}>
+      <Button
+        disabled={disabled || !editor?.can().approveChange()}
+        on:click={() => editor?.chain().focus().approveChange().nextChange().run()}
+      >
         <FluentIcon mode="ribbonButtonIconLeft">
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
             <path
@@ -222,7 +239,10 @@
         Accept
       </Button>
     {:else}
-      <IconButton disabled={disabled || true}>
+      <IconButton
+        disabled={disabled || !editor?.can().approveChange()}
+        on:click={() => editor?.chain().focus().approveChange().nextChange().run()}
+      >
         <FluentIcon>
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
             <path
@@ -258,7 +278,10 @@
 
   <Tooltip text="Reject change">
     {#if width > 620}
-      <Button disabled={disabled || true}>
+      <Button
+        disabled={disabled || !editor?.can().rejectChange()}
+        on:click={() => editor?.chain().focus().rejectChange().nextChange().run()}
+      >
         <FluentIcon mode="ribbonButtonIconLeft">
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
             <path
@@ -291,7 +314,10 @@
         Reject
       </Button>
     {:else}
-      <IconButton disabled={disabled || true}>
+      <IconButton
+        disabled={disabled || !editor?.can().rejectChange()}
+        on:click={() => editor?.chain().focus().rejectChange().nextChange().run()}
+      >
         <FluentIcon>
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
             <path
@@ -325,8 +351,11 @@
     {/if}
   </Tooltip>
 
-  <Tooltip text="Go to previous comment">
-    <IconButton disabled={disabled || true}>
+  <Tooltip text="Go to previous change">
+    <IconButton
+      disabled={disabled || !editor?.can().previousChange()}
+      on:click={() => editor?.chain().focus().previousChange().run()}
+    >
       <FluentIcon>
         <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
           <path
@@ -359,8 +388,11 @@
     </IconButton>
   </Tooltip>
 
-  <Tooltip text="Go to next comment">
-    <IconButton disabled={disabled || true}>
+  <Tooltip text="Go to next change">
+    <IconButton
+      disabled={disabled || !editor?.can().nextChange()}
+      on:click={() => editor?.chain().focus().nextChange().run()}
+    >
       <FluentIcon>
         <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
           <path

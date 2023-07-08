@@ -57,6 +57,12 @@ const ManageChanges = Extension.create({
             evaluatedPosition += nodeSize;
           }
 
+          // return whether change can be accepted (dispatch is undefined when using `editor.can()`)
+          const rangeContainsChange = nodes.some((node) =>
+            node.marks.some((mark) => mark.type.name === 'addition' || mark.type.name === 'deletion')
+          );
+          if (!dispatch) return rangeContainsChange;
+
           // convert pilcrows
           let rangeDisplacement = 0; // keep track of the displacement of nodes after deleting nodes
           nodes.forEach((node) => {
@@ -92,8 +98,7 @@ const ManageChanges = Extension.create({
             }
           });
 
-          dispatch?.(tr);
-
+          dispatch(tr);
           return false;
         },
       rejectChange:
@@ -119,6 +124,12 @@ const ManageChanges = Extension.create({
             }
           });
 
+          // return whether change can be accepted (dispatch is undefined when using `editor.can()`)
+          const rangeContainsChange = textNodes.some(({ node }) =>
+            node.marks.some((mark) => mark.type.name === 'addition' || mark.type.name === 'deletion')
+          );
+          if (!dispatch) return rangeContainsChange;
+
           // convert pilcrows
           const textNodesPilcrows = getTextNodes(range, tr).reverse();
           textNodesPilcrows.forEach((node) => {
@@ -137,7 +148,6 @@ const ManageChanges = Extension.create({
           });
 
           dispatch?.(tr);
-
           return false;
         },
       nextChange:
@@ -168,6 +178,8 @@ const ManageChanges = Extension.create({
             range.to += 10;
           }
 
+          if (!dispatch) return !!nextChangeNode;
+
           // select the node with the additon or deletion mark
           if (nextChangeNode) {
             tr.setSelection(
@@ -175,7 +187,7 @@ const ManageChanges = Extension.create({
             );
           }
 
-          dispatch?.(tr);
+          dispatch(tr);
 
           return false;
         },
@@ -209,6 +221,8 @@ const ManageChanges = Extension.create({
             range.from -= 10;
           }
 
+          if (!dispatch) return !!previousChangeNode;
+
           // select the node with the additon or deletion mark
           if (previousChangeNode) {
             tr.setSelection(
@@ -216,7 +230,7 @@ const ManageChanges = Extension.create({
             );
           }
 
-          dispatch?.(tr);
+          dispatch(tr);
 
           return false;
         },

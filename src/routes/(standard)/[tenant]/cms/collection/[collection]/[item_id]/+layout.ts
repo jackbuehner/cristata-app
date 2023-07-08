@@ -14,7 +14,7 @@ import type { LayoutLoad } from './$types';
 // @ts-expect-error https://github.com/zenozeng/color-hash/issues/42
 const ColorHash: typeof _ColorHash = _ColorHash.default || _ColorHash;
 // @ts-expect-error 'bkdr' is a vlid hash config value
-const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.5, hash: 'bkdr' });
+const colorHash = new ColorHash({ saturation: 0.8, lightness: 0.34, hash: 'bkdr' });
 
 export const load = (async ({ parent, params, url }) => {
   const { authUser, sessionId, collection } = await parent();

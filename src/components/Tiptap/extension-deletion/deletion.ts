@@ -71,7 +71,7 @@ const Deletion = Mark.create<DeletionOptions>({
         // apply these attributes to the rendered element in the editor
         renderHTML: (attributes) => {
           return {
-            style: `color: ${attributes.color}; text-decoration: line-through`,
+            style: `color: ${attributes.color}; text-decoration: line-through; text-decoration-style: double;`,
           };
         },
         parseHTML: (element) => element.style.color || '#d0021b',
