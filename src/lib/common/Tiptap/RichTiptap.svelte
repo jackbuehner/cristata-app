@@ -311,7 +311,7 @@
           {#if $richTextParams.primaryActive === 'comments'}
             <CommentsSidebar {editor} {user} />
           {:else if $richTextParams.primaryActive === 'props'}
-            <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} />
+            <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} {coreSidebarProps} />
           {:else if $richTextParams.primaryActive === 'versions'}
             {#if coreSidebarProps}
               <VersionsSidebar {coreSidebarProps} />

@@ -303,6 +303,7 @@
     padding: 0;
     width: auto;
     height: auto;
+    overflow: unset;
   }
 
   .button-row {

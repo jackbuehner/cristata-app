@@ -5,6 +5,7 @@
   import { TextBlock } from 'fluent-svelte';
   import type { ComponentProps } from 'svelte';
   import type { ProcessSchemaDef } from '../../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
+  import Sidebar from '../../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
   import { richTextParams } from '../richTextParams';
 
   export let disabled = false;
@@ -12,6 +13,7 @@
   export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
   export let ydoc: ComponentProps<Tiptap>['ydoc'];
   export let wsProvider: ComponentProps<Tiptap>['wsProvider'];
+  export let coreSidebarProps: ComponentProps<Sidebar>;
 
   let headerHeight = 100;
 </script>
@@ -22,6 +24,22 @@
 
 <div class="props-wrapper" style="height: calc(100% - {headerHeight}px);">
   {#if $richTextParams.isActive('fs')}
+    <div class="sidebar-wrapper">
+      <Sidebar
+        docInfo={coreSidebarProps.docInfo}
+        disabled={coreSidebarProps.disabled}
+        ydoc={coreSidebarProps.ydoc}
+        stageDef={coreSidebarProps.stageDef}
+        sharedData={coreSidebarProps.sharedData}
+        awareness={coreSidebarProps.awareness}
+        tenant={coreSidebarProps.tenant}
+        permissions={coreSidebarProps.permissions}
+        hideVersions={coreSidebarProps.hideVersions}
+        isEmbedded
+        features={{ docInfo: true, stage: true, preview: true }}
+      />
+    </div>
+
     {#if processSchemaDef && user}
       {#each processSchemaDef() as [key, def]}
         <SchemaField {key} {def} {ydoc} {disabled} {wsProvider} {user} mode="sidebar" />
@@ -37,5 +55,12 @@
     padding: 0 12px 0 12px;
     overflow: auto;
     scroll-behavior: smooth;
+  }
+
+  .sidebar-wrapper {
+    background-color: var(--fds-control-fill-default);
+    padding: 0 12px 18px 12px;
+    margin-bottom: 18px;
+    border-radius: var(--fds-control-corner-radius);
   }
 </style>
