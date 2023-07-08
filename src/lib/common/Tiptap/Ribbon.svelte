@@ -249,6 +249,61 @@
           {/if}
         </div>
 
+        {#if $richTextParams.isActive('fs')}
+          <Button
+            on:click={() => {
+              if ($richTextParams.isActive('comments')) {
+                $richTextParams.set('comments', 0);
+              } else {
+                $richTextParams.set('comments', 1);
+              }
+            }}
+            class={$richTextParams.isActive('comments') ? 'active' : ''}
+          >
+            <FluentIcon mode="ribbonButtonIconLeft">
+              <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                <path
+                  type="path"
+                  class="OfficeIconColors_HighContrast"
+                  d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                />
+                <path
+                  type="path"
+                  class="OfficeIconColors_m233"
+                  d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                />
+              </svg>
+            </FluentIcon>
+            Comments
+          </Button>
+        {/if}
+
+        {#if $richTextParams.isActive('fs')}
+          <Button disabled>
+            <FluentIcon mode="ribbonButtonIconLeft">
+              <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                <path
+                  type="path"
+                  class="OfficeIconColors_HighContrast"
+                  d="M 1879 169 q 39 39 59 88 q 20 50 20 102 q 0 51 -20 100 q -20 50 -59 89 l -1221 1215 l -556 183 l 195 -574 l 1203 -1203 q 38 -38 86 -57 q 48 -19 99 -19 h 4 q 53 0 103 19 q 49 19 87 57 m -1440 1206 q 85 26 147 87 q 61 62 87 147 l 995 -995 l -234 -234 m -1194 1428 l 345 -127 q -6 -43 -24 -80 q -19 -37 -48 -66 q -29 -29 -66 -48 q -37 -18 -80 -24 m 1440 -987 q 24 -24 37 -55 q 12 -30 12 -62 q 0 -33 -13 -63 q -13 -30 -35 -53 q -23 -22 -53 -36 q -31 -13 -66 -13 q -32 0 -63 12 q -31 12 -54 35 l -66 66 l 235 235 z"
+                />
+                <path
+                  type="path"
+                  class="OfficeIconColors_m20"
+                  d="M 1843 205 q 32 32 48 72 q 16 40 16 82 q 0 42 -16 81 q -16 40 -48 72 l -1203 1203 l -486 179 l 179 -486 l 1203 -1203 q 32 -32 72 -48 q 39 -16 81 -16 q 42 0 82 16 q 40 16 72 48 z"
+                />
+                <path
+                  type="path"
+                  class="OfficeIconColors_m22"
+                  d="M 1879 169 q 39 39 59 88 q 20 50 20 102 q 0 51 -20 100 q -20 50 -59 89 l -1221 1215 l -556 183 l 195 -574 l 1203 -1203 q 38 -38 86 -57 q 48 -19 99 -19 h 4 q 53 0 103 19 q 49 19 87 57 m -1440 1206 q 85 26 147 87 q 61 62 87 147 l 995 -995 l -234 -234 m -1194 1428 l 345 -127 q -6 -43 -24 -80 q -19 -37 -48 -66 q -29 -29 -66 -48 q -37 -18 -80 -24 m 1440 -987 q 24 -24 37 -55 q 12 -30 12 -62 q 0 -33 -13 -63 q -13 -30 -35 -53 q -23 -22 -53 -36 q -31 -13 -66 -13 q -32 0 -63 12 q -31 12 -54 35 l -66 66 l 235 235 z"
+                />
+              </svg>
+            </FluentIcon>
+            Editing
+            <FluentIcon name="ChevronDown20Regular" mode="ribbonButtonIconRight" />
+          </Button>
+        {/if}
+
         <!-- restore/maximize -->
         {#if $richTextParams.isActive('fs') && $richTextParams.obj.fs !== 3}
           <IconButton
@@ -381,14 +436,16 @@
     }
   }
 
-  .tabpanel {
+  .tabpanel,
+  .focuszone {
     --mouse-hover: #e1dfdd;
     --mouse-active: #c8c6c4;
     --tool-active: #d2d0ce;
     --tool-active-hover: #979593;
   }
   @media (prefers-color-scheme: dark) {
-    .tabpanel {
+    .tabpanel,
+    .focuszone {
       --mouse-hover: #484644;
       --mouse-active: #797775;
       --tool-active: #605e5c;
@@ -396,6 +453,7 @@
     }
   }
 
+  .focuszone :global(.button.active),
   .tabpanel :global(.panel > .button.active),
   .tabpanel :global(.panel > .icon-button.active),
   .tabpanel :global(.panel > .tooltip-wrapper > .button.active),
@@ -404,6 +462,7 @@
     background-color: var(--mouse-hover) !important;
   }
 
+  .focuszone :global(.button.active):hover:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .button.active):hover:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .icon-button.active):hover:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .tooltip-wrapper > .button.active):hover:not(disabled):not(.disabled),
@@ -411,6 +470,7 @@
     box-shadow: inset 0 0 0 1px var(--tool-active-hover);
   }
 
+  .focuszone :global(.button):hover:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .button):hover:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .icon-button):hover:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .tooltip-wrapper > .button):hover:not(disabled):not(.disabled),
@@ -418,6 +478,7 @@
     background-color: var(--mouse-hover) !important;
   }
 
+  .focuszone :global(.button):active:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .button):active:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .icon-button):active:not(disabled):not(.disabled),
   .tabpanel :global(.panel > .tooltip-wrapper > .button):active:not(disabled):not(.disabled),
@@ -510,6 +571,9 @@
     display: flex;
     flex-direction: row;
     gap: 5px;
+    align-items: center;
+    height: 32px;
+    color: var(--fds-text-primary);
   }
 
   .au {
@@ -524,6 +588,24 @@
   .focuszone :global(.tooltip-wrapper) {
     height: 32px;
     width: 32px;
+  }
+
+  .focuszone :global(.button) {
+    height: 24px;
+    margin-bottom: 2px;
+    font-size: var(--fds-caption-font-size);
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .focuszone :global(.button-icon.ribbon-icon) {
+    margin-right: 4px !important;
+  }
+  .focuszone :global(.button-icon:nth-of-type(2)) {
+    margin-left: 2px !important;
+  }
+  .focuszone :global(.button svg) {
+    width: 16px;
+    height: 16px;
   }
 
   .focuszone :global(.icon-button) {
