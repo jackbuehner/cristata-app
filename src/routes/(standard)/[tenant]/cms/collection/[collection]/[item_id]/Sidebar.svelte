@@ -43,51 +43,81 @@
 
   $: versionsList = $ydoc?.getArray<{ timestamp: string; users: AwarenessUser[] }>('__internal_versionsList');
   let truncateVersionsList = true;
+
+  interface Features {
+    actions?: boolean;
+    docInfo?: boolean;
+    stage?: boolean;
+    current?: boolean;
+    preview?: boolean;
+    download?: boolean;
+    access?: boolean;
+    versions?: boolean;
+  }
+
+  // these props cannot be required
+  export let isEmbedded = false;
+  export let features: Features = {
+    actions: true,
+    docInfo: true,
+    stage: true,
+    current: true,
+    preview: true,
+    download: true,
+    access: true,
+    versions: true,
+  };
+
+  $: onlyOneFeature = Object.values(features).filter((v) => v === true).length === 1;
 </script>
 
-<aside class="wrapper">
-  <div class="button-row">
-    <Button>
-      <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
-      Action 1
-    </Button>
-    <Button>
-      <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
-      Action 2
-    </Button>
-    <Button class="solid-icon-button">
-      <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
-    </Button>
-  </div>
-
-  <div class="section-title">Document information</div>
-  <div class="doc-info-row">
-    <div>ID</div>
-    <div>{docInfo._id.slice(0, 24)}</div>
-  </div>
-  <div class="doc-info-row">
-    <div>Created</div>
-    <div>
-      {#if docInfo.createdAt}
-        {formatISODate(docInfo.createdAt, undefined, undefined, true)}
-      {:else}
-        ⋯
-      {/if}
+<aside class="wrapper" class:isEmbedded>
+  {#if features.actions}
+    <div class="button-row">
+      <Button>
+        <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
+        Action 1
+      </Button>
+      <Button>
+        <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
+        Action 2
+      </Button>
+      <Button class="solid-icon-button">
+        <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
+      </Button>
     </div>
-  </div>
-  <div class="doc-info-row">
-    <div>Last updated</div>
-    <div>
-      {#if docInfo.modifiedAt}
-        {formatISODate(docInfo.modifiedAt, undefined, undefined, true)}
-      {:else}
-        ⋯
-      {/if}
-    </div>
-  </div>
+  {/if}
 
-  {#if stageDef}
-    <div class="section-title">Stage</div>
+  {#if features.docInfo}
+    <div class="section-title" class:hidden={onlyOneFeature}>Document information</div>
+    <div class="doc-info-row">
+      <div>ID</div>
+      <div>{docInfo._id.slice(0, 24)}</div>
+    </div>
+    <div class="doc-info-row">
+      <div>Created</div>
+      <div>
+        {#if docInfo.createdAt}
+          {formatISODate(docInfo.createdAt, undefined, undefined, true)}
+        {:else}
+          ⋯
+        {/if}
+      </div>
+    </div>
+    <div class="doc-info-row">
+      <div>Last updated</div>
+      <div>
+        {#if docInfo.modifiedAt}
+          {formatISODate(docInfo.modifiedAt, undefined, undefined, true)}
+        {:else}
+          ⋯
+        {/if}
+      </div>
+    </div>
+  {/if}
+
+  {#if features.stage && stageDef}
+    <div class="section-title" class:hidden={onlyOneFeature}>Stage</div>
     <SelectOne
       disabled={disabled || $sharedData.stage === 5.2}
       {ydoc}
@@ -104,54 +134,63 @@
     />
   {/if}
 
-  <div class="section-title">Current editors</div>
-  <div style="margin-left: -8px; display: flex; flex-direction: row; flex-wrap: wrap;">
-    {#if $awareness}
-      {#each [...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness] as user, index}
-        {@const left =
-          index === 0 ||
-          index === 1 ||
-          index === 6 ||
-          index === 7 ||
-          index === 12 ||
-          index === 13 ||
-          index === 18 ||
-          index === 19 ||
-          index === 24}
-        {@const right =
-          index === 4 ||
-          index === 5 ||
-          index === 10 ||
-          index === 11 ||
-          index === 16 ||
-          index === 17 ||
-          index === 22 ||
-          index === 23}
-        <Tooltip text={user.name} delay={0} alignment={left ? 'start' : right ? 'end' : 'center'} followCursor>
-          <IconButton
-            href={`/${tenant}/profile/${user._id}`}
-            on:click={(evt) => {
-              evt.preventDefault();
-              openWindow(
-                `/${tenant}/profile/${user._id}`,
-                'sidebar_user' + docInfo._id + user._id,
-                'location=no',
-                { width: 500, height: 700 }
-              );
-            }}
+  {#if features.current}
+    <div class="section-title" class:hidden={onlyOneFeature}>Current editors</div>
+    <div style="margin-left: -8px; display: flex; flex-direction: row; flex-wrap: wrap;">
+      {#if $awareness}
+        {#each [...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness] as user, index}
+          {@const left =
+            index === 0 ||
+            index === 1 ||
+            index === 6 ||
+            index === 7 ||
+            index === 12 ||
+            index === 13 ||
+            index === 18 ||
+            index === 19 ||
+            index === 24}
+          {@const right =
+            index === 4 ||
+            index === 5 ||
+            index === 10 ||
+            index === 11 ||
+            index === 16 ||
+            index === 17 ||
+            index === 22 ||
+            index === 23}
+          <Tooltip
+            text={user.name}
+            delay={0}
+            alignment={left ? 'start' : right ? 'end' : 'center'}
+            followCursor
           >
-            <PersonPicture size={26} src={user.photo} alt={user.name} />
-          </IconButton>
-        </Tooltip>
-      {/each}
-    {/if}
-  </div>
+            <IconButton
+              href={`/${tenant}/profile/${user._id}`}
+              on:click={(evt) => {
+                evt.preventDefault();
+                openWindow(
+                  `/${tenant}/profile/${user._id}`,
+                  'sidebar_user' + docInfo._id + user._id,
+                  'location=no',
+                  { width: 500, height: 700 }
+                );
+              }}
+            >
+              <PersonPicture size={26} src={user.photo} alt={user.name} />
+            </IconButton>
+          </Tooltip>
+        {/each}
+      {/if}
+    </div>
+  {/if}
 
-  <div class="section-title">Preview</div>
-  TODO
+  {#if features.preview}
+    <div class="section-title" class:hidden={onlyOneFeature}>Preview</div>
+    TODO
+  {/if}
 
-  {#if docInfo.collectionName === 'File'}
-    <div class="section-title">Download</div>
+  {#if features.download && docInfo.collectionName === 'File'}
+    <div class="section-title" class:hidden={onlyOneFeature}>Download</div>
     <Button
       onClick={async () => {
         const href = `${import.meta.env.VITE_API_PROTOCOL}//${
@@ -165,8 +204,8 @@
     </Button>
   {/if}
 
-  {#if (permissions.users && permissions.users.length > 0) || (permissions.teams && permissions.teams.length > 0)}
-    <div class="section-title">Access</div>
+  {#if features.access && ((permissions.users && permissions.users.length > 0) || (permissions.teams && permissions.teams.length > 0))}
+    <div class="section-title" class:hidden={onlyOneFeature}>Access</div>
     <div class="access-section">
       {#if permissions.users}
         {#each permissions.users as user}
@@ -191,8 +230,8 @@
     </div>
   {/if}
 
-  {#if versionsList && !hideVersions}
-    <div class="section-title">Versions</div>
+  {#if features.versions && versionsList && !hideVersions}
+    <div class="section-title" class:hidden={onlyOneFeature}>Versions</div>
     <div class="versions-section">
       {#each versionsList
         ?.toArray()
@@ -259,6 +298,13 @@
     }
   }
 
+  aside.isEmbedded {
+    border: none;
+    padding: 0;
+    width: auto;
+    height: auto;
+  }
+
   .button-row {
     display: flex;
     flex-direction: row;
@@ -287,6 +333,9 @@
     margin: 0px;
     letter-spacing: 1px;
     text-transform: uppercase;
+  }
+  .section-title.hidden {
+    display: none;
   }
 
   div.doc-info-row {

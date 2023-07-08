@@ -14,12 +14,14 @@
   import { fade, fly } from 'svelte/transition';
   import type { tiptapOptions } from '../../../config';
   import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
+  import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
   import BubbleMenuParagraph from './BubbleMenuParagraph.svelte';
   import Ribbon from './Ribbon.svelte';
   import Tiptap from './Tiptap.svelte';
   import { richTextParams } from './richTextParams';
   import CommentsSidebar from './sidebars/CommentsSidebar.svelte';
   import DocPropsSidebar from './sidebars/DocPropsSidebar.svelte';
+  import VersionsSidebar from './sidebars/VersionsSidebar.svelte';
 
   export let ydoc: ComponentProps<Tiptap>['ydoc'];
   export let ydocKey: ComponentProps<Tiptap>['ydocKey'];
@@ -29,6 +31,8 @@
   export let options: tiptapOptions | undefined = undefined;
   export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
   export let fullscreen = false;
+  // TODO: hide relevant sidebar parts and buttons if this is undefined
+  export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
 
   let bubbleMenuParagraph: HTMLDivElement;
 
@@ -298,29 +302,21 @@
       class:navActive={$richTextParams.activeCount > 1}
       class:hidden={!$richTextParams.primaryActive}
     >
-      {#if $richTextParams.primaryActive === 'comments'}
+      {#key $richTextParams.primaryActive}
         <div
           class="sidebar-content"
           in:fly={{ y: 20, duration, easing: expoOut, delay }}
           out:fade={{ duration: delay }}
         >
-          <CommentsSidebar {editor} {user} />
-        </div>
-      {:else if $richTextParams.primaryActive === 'props'}
-        <div
-          class="sidebar-content"
-          in:fly={{ y: 20, duration, easing: expoOut, delay }}
-          out:fade={{ duration: delay }}
-        >
-          <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} />
-        </div>
-      {:else}
-        {#key $richTextParams.primaryActive}
-          <div
-            class="sidebar-content"
-            in:fly={{ y: 20, duration, easing: expoOut, delay }}
-            out:fade={{ duration: delay }}
-          >
+          {#if $richTextParams.primaryActive === 'comments'}
+            <CommentsSidebar {editor} {user} />
+          {:else if $richTextParams.primaryActive === 'props'}
+            <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} />
+          {:else if $richTextParams.primaryActive === 'versions'}
+            {#if coreSidebarProps}
+              <VersionsSidebar {coreSidebarProps} />
+            {/if}
+          {:else}
             <SidebarHeader
               on:click={() => {
                 if ($richTextParams.primaryActive) {
@@ -334,9 +330,9 @@
               Something went wrong while loading this pane. <br /><br />
               (<code>Pane: {$richTextParams.primaryActive}</code>)
             </TextBlock>
-          </div>
-        {/key}
-      {/if}
+          {/if}
+        </div>
+      {/key}
       <div class="sidebar-content-placeholder" />
       {#if $richTextParams.activeCount > 1}
         <div class="sidebar-bar" />
@@ -351,45 +347,14 @@
         >
           {#each Object.entries($richTextParams.obj) as [key, value]}
             {#if value === 1 || value === 2 || value === 3}
-              {#if key === 'comments'}
-                <Tooltip text="Comments" placement="left">
-                  <IconButton
-                    on:click={() => $richTextParams.set('comments', 1)}
-                    on:auxclick={(evt) => {
-                      if (evt.button === 1) $richTextParams.set('comments', 0);
-                    }}
-                    class={$richTextParams.primaryActive === 'comments' ? 'active' : ''}
-                  >
-                    <FluentIcon>
-                      <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
-                        <path
-                          type="path"
-                          class="OfficeIconColors_HighContrast"
-                          d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
-                        />
-                        <path
-                          type="path"
-                          class="OfficeIconColors_m233"
-                          d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
-                        />
-                      </svg>
-                    </FluentIcon>
-                  </IconButton>
-                </Tooltip>
-              {:else if key === 'props'}
-                <Tooltip text="Document properties" placement="left">
-                  <IconButton
-                    on:click={() => $richTextParams.set('props', 1)}
-                    on:auxclick={(evt) => {
-                      if (evt.button === 1) $richTextParams.set('props', 0);
-                    }}
-                    class={$richTextParams.primaryActive === 'props' ? 'active' : ''}
-                  >
-                    <FluentIcon name="Database20Regular" />
-                  </IconButton>
-                </Tooltip>
-              {:else if key !== 'fs'}
-                <Tooltip text={key} placement="left">
+              {#if key !== 'fs'}
+                {@const label = (() => {
+                  if (key === 'comments') return 'Comments';
+                  if (key === 'props') return 'Document properties';
+                  if (key === 'versions') return 'Version history';
+                  return key;
+                })()}
+                <Tooltip text={label} placement="left">
                   <IconButton
                     on:click={() => $richTextParams.set(key, 1)}
                     on:auxclick={(evt) => {
@@ -397,7 +362,39 @@
                     }}
                     class={$richTextParams.primaryActive === key ? 'active' : ''}
                   >
-                    <FluentIcon name="Question20Regular" />
+                    {#if key === 'comments'}
+                      <FluentIcon>
+                        <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                          <path
+                            type="path"
+                            class="OfficeIconColors_HighContrast"
+                            d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                          />
+                          <path
+                            type="path"
+                            class="OfficeIconColors_m233"
+                            d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                          />
+                        </svg>
+                      </FluentIcon>
+                    {:else if key === 'props'}
+                      <FluentIcon name="Database20Regular" />
+                    {:else if key === 'versions'}
+                      <FluentIcon>
+                        <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                          <path
+                            type="path"
+                            d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
+                          />
+                          <path
+                            type="path"
+                            d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
+                          />
+                        </svg>
+                      </FluentIcon>
+                    {:else}
+                      <FluentIcon name="Question20Regular" />
+                    {/if}
                   </IconButton>
                 </Tooltip>
               {/if}

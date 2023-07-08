@@ -60,6 +60,44 @@
   }));
 
   $: disabled = isOldVersion || publishLocked || false;
+
+  $: coreSidebarProps = {
+    docInfo: {
+      _id: `${docData?.data?.doc?.[data.collection.config.by?.one || '_id']}`,
+      createdAt: getProperty($sharedData, 'timestamps.created_at'),
+      modifiedAt: getProperty($sharedData, 'timestamps.modified_at'),
+      collectionName: data.collection.schemaName,
+    },
+    disabled,
+    ydoc,
+    stageDef,
+    sharedData,
+    awareness,
+    tenant: data.params.tenant,
+    permissions: {
+      users:
+        getProperty($fullSharedData, 'permissions.users')?.map((user) => ({
+          ...user,
+          _id: user.value,
+          name: user.name || user.label || 'User',
+          color: data.helpers.colorHash.hex(user.value || '0'),
+        })) || [],
+      teams:
+        getProperty($fullSharedData, 'permissions.teams')
+          ?.filter(notEmpty)
+          .map((value) => {
+            if (typeof value === 'string') {
+              return { _id: value, color: data.helpers.colorHash.hex(value || '0') };
+            }
+            return {
+              _id: value.value,
+              label: value.label,
+              color: data.helpers.colorHash.hex(value.value || '0'),
+            };
+          }) || [],
+    },
+    hideVersions: isOldVersion,
+  };
 </script>
 
 <div class="content-wrapper">
@@ -146,6 +184,7 @@
               {wsProvider}
               user={data.yuser}
               processSchemaDef={data.helpers.processSchemaDef}
+              {coreSidebarProps}
             />
           {/each}
         </div>
@@ -153,41 +192,15 @@
     </div>
   </div>
   <Sidebar
-    docInfo={{
-      _id: `${docData?.data?.doc?.[data.collection.config.by?.one || '_id']}`,
-      createdAt: getProperty($sharedData, 'timestamps.created_at'),
-      modifiedAt: getProperty($sharedData, 'timestamps.modified_at'),
-      collectionName: data.collection.schemaName,
-    }}
-    {disabled}
-    {ydoc}
-    {stageDef}
-    {sharedData}
-    {awareness}
-    tenant={data.params.tenant}
-    permissions={{
-      users:
-        getProperty($fullSharedData, 'permissions.users')?.map((user) => ({
-          ...user,
-          _id: user.value,
-          name: user.name || user.label || 'User',
-          color: data.helpers.colorHash.hex(user.value || '0'),
-        })) || [],
-      teams:
-        getProperty($fullSharedData, 'permissions.teams')
-          ?.filter(notEmpty)
-          .map((value) => {
-            if (typeof value === 'string') {
-              return { _id: value, color: data.helpers.colorHash.hex(value || '0') };
-            }
-            return {
-              _id: value.value,
-              label: value.label,
-              color: data.helpers.colorHash.hex(value.value || '0'),
-            };
-          }) || [],
-    }}
-    hideVersions={isOldVersion}
+    docInfo={coreSidebarProps.docInfo}
+    disabled={coreSidebarProps.disabled}
+    ydoc={coreSidebarProps.ydoc}
+    stageDef={coreSidebarProps.stageDef}
+    sharedData={coreSidebarProps.sharedData}
+    awareness={coreSidebarProps.awareness}
+    tenant={coreSidebarProps.tenant}
+    permissions={coreSidebarProps.permissions}
+    hideVersions={coreSidebarProps.hideVersions}
   />
 </div>
 

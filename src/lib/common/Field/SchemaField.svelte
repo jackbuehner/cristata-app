@@ -7,8 +7,10 @@
   import { NumberTiptap, RichTiptap, TextTiptap } from '$lib/common/Tiptap';
   import type { AwarenessUser, YStore } from '$utils/createYStore';
   import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
+  import type { ComponentProps } from 'svelte';
   import { FieldWrapper } from '.';
   import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
+  import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
 
   export let key: DeconstructedSchemaDefType[0][0];
   export let def: DeconstructedSchemaDefType[0][1];
@@ -18,6 +20,7 @@
   export let disabled = false;
   export let user: AwarenessUser;
   export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
+  export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -81,6 +84,7 @@
         options={def.field.tiptap}
         {fullscreen}
         {processSchemaDef}
+        {coreSidebarProps}
       />
     </FieldWrapper>
   {:else}
