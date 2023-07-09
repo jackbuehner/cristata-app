@@ -367,7 +367,10 @@
                 <MenuFlyoutItem
                   style="height: 44px;"
                   disabled={!editor}
-                  on:click={() => toggleTrackChanges(true)}
+                  on:click={() => {
+                    toggleTrackChanges(true);
+                    $richTextParams.set('comments', 1);
+                  }}
                 >
                   <FluentIcon>
                     <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
