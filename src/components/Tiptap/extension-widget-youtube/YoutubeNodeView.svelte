@@ -117,7 +117,7 @@
       id="player"
       src="https://www.youtube-nocookie.com/embed/{node.attrs.videoId}?modestbranding=1&enablejsapi=1"
       frameBorder="0"
-      allow="autoplay; encrypted-media"
+      allow="encrypted-media"
       allowFullScreen
     />
 
