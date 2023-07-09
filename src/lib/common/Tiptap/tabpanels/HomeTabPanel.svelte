@@ -12,6 +12,33 @@
   $: textStyle = editor?.getAttributes('textStyle');
   $: fontFamily = textStyle?.fontFamily || 'Georgia';
   $: fontSize = textStyle?.fontSize || '17px';
+
+  $: textStyleGallery = (() => {
+    if (editor?.isActive('heading', { level: 1 }) && editor.isActive('className', { class: 'title' }))
+      return 'title';
+    if (editor?.isActive('className', { class: 'subtitle' })) return 'subtitle';
+    if (editor?.isActive('heading', { level: 1 })) return 'heading1';
+    if (editor?.isActive('heading', { level: 2 })) return 'heading2';
+    if (editor?.isActive('heading', { level: 3 })) return 'heading3';
+    if (editor?.isActive('blockQuote')) return 'blockQuote';
+    if (editor?.isActive('codeBlock')) return 'codeBlock';
+    if (editor?.isActive('paragraph', { class: 'hanging' })) return 'hangingIndent';
+    if (editor?.isActive('paragraph')) return 'paragraph';
+    return '';
+  })();
+  $: textStyleGalleryLabel = (() => {
+    if (editor?.isActive('heading', { level: 1 }) && editor.isActive('className', { class: 'title' }))
+      return 'Title';
+    if (editor?.isActive('className', { class: 'subtitle' })) return 'Subtitle';
+    if (editor?.isActive('heading', { level: 1 })) return 'Heading 1';
+    if (editor?.isActive('heading', { level: 2 })) return 'Heading 2';
+    if (editor?.isActive('heading', { level: 3 })) return 'Heading 3';
+    if (editor?.isActive('blockQuote')) return 'Block quote';
+    if (editor?.isActive('codeBlock')) return 'Code block';
+    if (editor?.isActive('paragraph', { class: 'hanging' })) return 'Hanging indent';
+    if (editor?.isActive('paragraph')) return 'Paragraph';
+    return '';
+  })();
 </script>
 
 <div class="panel" class:visible>
@@ -96,6 +123,22 @@
       style="width: 84px;"
       disabled={disabled || (options?.features.fontSizes || []).length === 0}
       value={fontSize}
+      on:select={(evt) => {
+        editor
+          ?.chain()
+          .command(({ commands }) => {
+            // do not re-focus editor unless current focus is on the combobox
+            // so focus is not stolen from other elements if the combobox rerenders
+            // and the select event is fired again (it is fired upon render or when
+            // the selection changes to a different font)
+            const currentFocusOnComboboxItem = document.activeElement?.classList.contains('combo-box-item');
+            const currentFocusOnComboboxTextField = document.activeElement?.getAttribute('role') === 'combobox';
+            if (currentFocusOnComboboxTextField || currentFocusOnComboboxItem) return commands.focus();
+            return true;
+          })
+          .setFontSize(evt.detail.value)
+          .run();
+      }}
     />
   {/key}
 
@@ -242,7 +285,101 @@
 
   <span class="bar" />
 
-  <ComboBox editable openOnFocus disabled items={[{ name: 'Title', value: 'title' }]} style="width: 180px;" />
+  <ComboBox
+    editable
+    openOnFocus
+    items={[
+      { name: 'Title', value: 'title' },
+      { name: 'Subtitle', value: 'subtitle' },
+      { name: 'Heading 1', value: 'heading1' },
+      { name: 'Heading 2', value: 'heading2' },
+      { name: 'Heading 3', value: 'heading3' },
+      { name: 'Block quote', value: 'blockQuote' },
+      { name: 'Code block', value: 'codeBlock' },
+      { name: 'Hanging indent', value: 'hangingIndent' },
+      { name: 'Paragraph', value: 'paragraph' },
+    ]}
+    searchValue={textStyleGalleryLabel}
+    value={textStyleGallery}
+    style="width: 180px;"
+    on:select={(evt) => {
+      // do not handle unless current focus is on the combobox
+      // so commands are not run if the combobox rerenders
+      // and the select event is fired again (it is fired upon render or when
+      // the selection changes to a different node)
+      const currentFocusOnComboboxItem = document.activeElement?.classList.contains('combo-box-item');
+      const currentFocusOnComboboxTextField = document.activeElement?.getAttribute('role') === 'combobox';
+
+      if (currentFocusOnComboboxTextField || currentFocusOnComboboxItem)
+        editor
+          ?.chain()
+          .focus()
+          .unsetBlockquote()
+          .command(({ editor, commands }) => {
+            if (editor.isActive('codeBlock')) return commands.toggleCodeBlock();
+            return true;
+          })
+          .selectParentNode()
+          .unsetBold()
+          .unsetItalic()
+          .unsetUnderline()
+          .unsetStrike()
+          .unsetCode()
+          .command(({ chain }) => {
+            if (!evt.detail) return false;
+            if (evt.detail.value === 'title') {
+              return chain()
+                .setFontFamily('Adamant BG')
+                .setBold()
+                .setHeading({ level: 1 })
+                .setClassName('title')
+                .run();
+            }
+            if (evt.detail.value === 'subtitle') {
+              return chain().setFontFamily('Georgia').setItalic().setParagraph().setClassName('subtitle').run();
+            }
+            if (evt.detail.value === 'heading1') {
+              return chain()
+                .setFontFamily('Adamant BG')
+                .setBold()
+                .setHeading({ level: 1 })
+                .setClassName('')
+                .run();
+            }
+            if (evt.detail.value === 'heading2') {
+              return chain()
+                .setFontFamily('Adamant BG')
+                .setBold()
+                .setHeading({ level: 2 })
+                .setClassName('')
+                .run();
+            }
+            if (evt.detail.value === 'heading3') {
+              return chain()
+                .setFontFamily('Adamant BG')
+                .setBold()
+                .setHeading({ level: 3 })
+                .setClassName('')
+                .run();
+            }
+            if (evt.detail.value === 'blockQuote') {
+              return chain().setFontFamily('Georgia').setBlockquote().setClassName('').run();
+            }
+            if (evt.detail.value === 'codeBlock') {
+              return chain().setFontFamily('Georgia').setCodeBlock().setClassName('').run();
+            }
+            if (evt.detail.value === 'hangingIndent') {
+              return chain().setFontFamily('Georgia').setParagraph().setClassName('hanging').run();
+            }
+            if (evt.detail.value === 'paragraph') {
+              return chain().setFontFamily('Georgia').setParagraph().setClassName('').run();
+            }
+            return false;
+          })
+          .selectParentNode()
+          .run();
+    }}
+  />
 </div>
 
 <style>
