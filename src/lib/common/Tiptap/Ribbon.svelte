@@ -19,6 +19,9 @@
   import type { Readable } from 'svelte/store';
   import type { tiptapOptions } from '../../../config';
   import type Tiptap from './Tiptap.svelte';
+  import { downloadEmailHTML } from './downloadEmailHTML';
+  import { downloadHTML } from './downloadHTML';
+  import { downloadJSON } from './downloadJSON';
   import { richTextParams } from './richTextParams';
   import HomeTabPanel from './tabpanels/HomeTabPanel.svelte';
   import InsertTabPanel from './tabpanels/InsertTabPanel.svelte';
@@ -36,6 +39,7 @@
   export let awareness: Readable<AwarenessUser[] | null> | undefined;
   export let trackChanges: boolean | undefined;
   export let toggleTrackChanges: (bool: boolean) => void;
+  export let iframehtmlstring = '';
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
@@ -79,6 +83,24 @@
     else mouseOverActiveTab = false;
   }
 
+  function exportJSON() {
+    if (editor) {
+      downloadJSON(editor);
+    }
+  }
+
+  function exportHTML() {
+    if (editor) {
+      downloadHTML(editor, iframehtmlstring);
+    }
+  }
+
+  function exportEmailHTML() {
+    if (editor) {
+      downloadEmailHTML(editor, iframehtmlstring, options?.css);
+    }
+  }
+
   let width = 1000;
 
   let fileMenuOpen = false;
@@ -105,13 +127,13 @@
               <FluentIcon name="Print20Regular" />
               Print
             </MenuFlyoutItem>
-            <MenuFlyoutItem cascading disabled>
+            <MenuFlyoutItem cascading>
               <FluentIcon name="ArrowExportUp20Regular" />
               Export
               <svelte:fragment slot="flyout">
-                <MenuFlyoutItem>JavaScript Object Notation (.json)</MenuFlyoutItem>
-                <MenuFlyoutItem>Web Page (.html)</MenuFlyoutItem>
-                <MenuFlyoutItem>Email-ready HTML (.html)</MenuFlyoutItem>
+                <MenuFlyoutItem on:click={exportJSON}>JavaScript Object Notation (.json)</MenuFlyoutItem>
+                <MenuFlyoutItem on:click={exportHTML}>Web Page (.html)</MenuFlyoutItem>
+                <MenuFlyoutItem on:click={exportEmailHTML}>Email-ready HTML (.html)</MenuFlyoutItem>
               </svelte:fragment>
             </MenuFlyoutItem>
             <MenuFlyoutItem disabled>

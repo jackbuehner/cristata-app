@@ -304,11 +304,17 @@
     awareness={coreSidebarProps?.awareness}
     {trackChanges}
     {toggleTrackChanges}
+    {iframehtmlstring}
   />
   <div class="main-middle">
     <div class="richtiptap-content">
       {#if options?.metaFrame && $richTextParams.isActive('fs')}
-        <MetaFrame src={options.metaFrame} {tiptapwidth} {fullSharedData} bind:iframehtmlstring />
+        <MetaFrame
+          src={options.metaFrame.replace('https://thepaladin.news', 'http://localhost:4001')}
+          {tiptapwidth}
+          {fullSharedData}
+          bind:iframehtmlstring
+        />
       {/if}
       <div
         style="
