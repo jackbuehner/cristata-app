@@ -11,12 +11,14 @@
   import { IconButton, TextBlock, Tooltip } from 'fluent-svelte';
   import less from 'less';
   import type { ComponentProps } from 'svelte';
-  import { expoOut, linear } from 'svelte/easing';
+  import { expoOut } from 'svelte/easing';
+  import type { Readable } from 'svelte/store';
   import { fade, fly } from 'svelte/transition';
   import type { tiptapOptions } from '../../../config';
   import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
   import BubbleMenuParagraph from './BubbleMenuParagraph.svelte';
+  import MetaFrame from './MetaFrame.svelte';
   import Ribbon from './Ribbon.svelte';
   import Tiptap from './Tiptap.svelte';
   import { richTextParams } from './richTextParams';
@@ -32,6 +34,7 @@
   export let options: tiptapOptions | undefined = undefined;
   export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
   export let fullscreen = false;
+  export let fullSharedData: Readable<Record<string, unknown>>;
   // TODO: hide relevant sidebar parts and buttons if this is undefined
   export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
 
@@ -49,6 +52,9 @@
         }
 
         .ProseMirror {
+          padding-block: 0;
+          padding-inline: 0;
+
           *::selection {
             background-color: #c4dffc;
           }
@@ -282,6 +288,8 @@
 
   $: delay = $motionMode === 'reduced' ? 0 : 130;
   $: duration = $motionMode === 'reduced' ? 0 : 270;
+
+  let iframehtmlstring = '';
 </script>
 
 {#await parsedCss then { css }}
@@ -299,6 +307,9 @@
   />
   <div class="main-middle">
     <div class="richtiptap-content">
+      {#if options?.metaFrame && $richTextParams.isActive('fs')}
+        <MetaFrame src={options.metaFrame} {tiptapwidth} {fullSharedData} bind:iframehtmlstring />
+      {/if}
       <div
         style="
           max-width: {tiptapwidth <= 680 ? `unset` : `768px`};

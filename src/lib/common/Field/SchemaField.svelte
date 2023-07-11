@@ -8,6 +8,7 @@
   import type { AwarenessUser, YStore } from '$utils/createYStore';
   import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
   import type { ComponentProps } from 'svelte';
+  import type { Readable } from 'svelte/store';
   import { FieldWrapper } from '.';
   import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
@@ -21,6 +22,7 @@
   export let user: AwarenessUser;
   export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
   export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
+  export let fullSharedData: Readable<Record<string, unknown>> | undefined = undefined;
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -73,7 +75,7 @@
 {#if key === 'body' && def.field?.tiptap}
   {#if mode === 'sidebar'}
     <!-- hide field so it is not rendered in a sidebar, which would create infinite nesting -->
-  {:else if !!$ydoc && !!$wsProvider}
+  {:else if !!$ydoc && !!$wsProvider && !!fullSharedData}
     <FieldWrapper label={fieldName} {description} forId={key}>
       <RichTiptap
         {disabled}
@@ -85,6 +87,7 @@
         {fullscreen}
         {processSchemaDef}
         {coreSidebarProps}
+        {fullSharedData}
       />
     </FieldWrapper>
   {:else}

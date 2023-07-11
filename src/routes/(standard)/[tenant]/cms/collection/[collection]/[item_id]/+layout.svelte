@@ -185,6 +185,7 @@
               user={data.yuser}
               processSchemaDef={data.helpers.processSchemaDef}
               {coreSidebarProps}
+              {fullSharedData}
             />
           {/each}
         </div>
