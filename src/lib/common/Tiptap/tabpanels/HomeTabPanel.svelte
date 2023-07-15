@@ -39,6 +39,19 @@
     if (editor?.isActive('paragraph')) return 'Paragraph';
     return '';
   })();
+
+  $: fontFamilyItems =
+    options?.features.fontFamilies?.map(({ name, label, disabled }) => ({
+      name: label || name,
+      value: name,
+      disabled,
+    })) || [];
+  $: fontSizeItems =
+    options?.features.fontSizes?.map((size) => ({
+      name: size,
+      value: size,
+      disabled,
+    })) || [];
 </script>
 
 <div class="panel" class:visible>
@@ -87,15 +100,9 @@
     <ComboBox
       editable
       openOnFocus
-      items={options?.features.fontFamilies?.map(({ name, label, disabled }) => ({
-        name: label || name,
-        value: name,
-        disabled,
-      }))}
+      items={fontFamilyItems}
       style="width: 160px;"
-      disabled={disabled ||
-        !editor?.can().setFontFamily('Georgia') ||
-        (options?.features.fontFamilies || []).length === 0}
+      disabled={disabled || !editor?.can().setFontFamily('Georgia') || fontFamilyItems.length === 0}
       value={fontFamily}
       on:select={(evt) => {
         editor
@@ -119,9 +126,9 @@
     <ComboBox
       editable
       openOnFocus
-      items={[{ name: '17px', value: '17px' }]}
+      items={fontSizeItems}
       style="width: 84px;"
-      disabled={disabled || (options?.features.fontSizes || []).length === 0}
+      disabled={disabled || fontSizeItems.length === 0}
       value={fontSize}
       on:select={(evt) => {
         editor
