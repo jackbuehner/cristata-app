@@ -23,6 +23,7 @@
   export let processSchemaDef: ProcessSchemaDef | undefined = undefined;
   export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
   export let fullSharedData: Readable<Record<string, unknown>> | undefined = undefined;
+  export let dynamicPreviewHref = '';
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -88,6 +89,7 @@
         {processSchemaDef}
         {coreSidebarProps}
         {fullSharedData}
+        {dynamicPreviewHref}
       />
     </FieldWrapper>
   {:else}

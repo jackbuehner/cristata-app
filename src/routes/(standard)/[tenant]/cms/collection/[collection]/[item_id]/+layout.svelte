@@ -186,6 +186,7 @@
               processSchemaDef={data.helpers.processSchemaDef}
               {coreSidebarProps}
               {fullSharedData}
+              dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
             />
           {/each}
         </div>

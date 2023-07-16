@@ -9,6 +9,8 @@
   $: snakeName = camelToDashCase(pascalName).replaceAll('-', '_');
   $: iconName = `${snakeName}_${size}_${type}`;
 
+  export let style = '';
+
   type FluentIcon = keyof typeof icons;
   function isFluentIconName(str: string): str is FluentIcon {
     const iconNames = Object.keys(icons);
@@ -22,18 +24,20 @@
     | 'bodyStrongLeft'
     | 'ribbonButtonIconLeft'
     | 'ribbonButtonIconRight' = 'regular';
+
+  const injectStyle = (str: string) => str.replace('<svg ', `<svg style="${style}" `);
 </script>
 
 {#if mode === 'regular'}
   {#if isFluentIconName(iconName)}
-    {@html icons[iconName]}
+    {@html injectStyle(icons[iconName])}
   {:else if $$slots.default}
     <slot />
   {/if}
 {:else if mode === 'ribbonButtonIconLeft'}
   <span style="margin: 1.5px 6px 0 0;" class="button-icon ribbon-icon">
     {#if isFluentIconName(iconName)}
-      {@html icons[iconName]}
+      {@html injectStyle(icons[iconName])}
     {:else if $$slots.default}
       <slot />
     {/if}
@@ -41,7 +45,7 @@
 {:else if mode === 'ribbonButtonIconRight'}
   <span style="margin: 1.5px 0 0 6px;" class="button-icon">
     {#if isFluentIconName(iconName)}
-      {@html icons[iconName]}
+      {@html injectStyle(icons[iconName])}
     {:else if $$slots.default}
       <slot />
     {/if}
@@ -49,7 +53,7 @@
 {:else if mode === 'buttonIconLeft'}
   <span style="margin: 0 12px 0 0;" class="button-icon">
     {#if isFluentIconName(iconName)}
-      {@html icons[iconName]}
+      {@html injectStyle(icons[iconName])}
     {:else if $$slots.default}
       <slot />
     {/if}
@@ -57,7 +61,7 @@
 {:else if mode === 'buttonIconRight'}
   <span style="margin: 0 0 0 12px;" class="button-icon">
     {#if isFluentIconName(iconName)}
-      {@html icons[iconName]}
+      {@html injectStyle(icons[iconName])}
     {:else if $$slots.default}
       <slot />
     {/if}
@@ -65,7 +69,7 @@
 {:else if mode === 'bodyStrongLeft'}
   <span style="margin: 0 6px 0 0;" class="body-text-icon">
     {#if isFluentIconName(iconName)}
-      {@html icons[iconName]}
+      {@html injectStyle(icons[iconName])}
     {:else if $$slots.default}
       <slot />
     {/if}

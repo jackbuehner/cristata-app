@@ -12,11 +12,13 @@ export const richTextParams = derived([params], ([$params]) => {
     ...$params,
     obj: $params,
     activeCount: Object.entries($params).filter(
-      ([key, value]) => key !== 'fs' && (value === 1 || value === 2 || value === 3)
+      ([key, value]) => key !== 'fs' && key !== 'previewMode' && (value === 1 || value === 2 || value === 3)
     ).length,
     primaryActive:
-      Object.entries($params).find(([key, value]) => key !== 'fs' && value === 1)?.[0] ||
-      Object.entries($params).find(([key, value]) => key !== 'fs' && value === 3)?.[0],
+      Object.entries($params).find(
+        ([key, value]) => key !== 'fs' && key !== 'previewMode' && value === 1
+      )?.[0] ||
+      Object.entries($params).find(([key, value]) => key !== 'fs' && key !== 'previewMode' && value === 3)?.[0],
     isActive(key: string) {
       if ($params[key]) return $params[key] === 1 || $params[key] === 2 || $params[key] === 3;
       return false;
@@ -79,20 +81,22 @@ function getFromUrl(url?: URL) {
       } else {
         obj[key] = 1;
       }
-      if (key !== 'fs') {
+      if (key !== 'fs' && key !== 'previewMode') {
         hasOne = true;
       }
     }
 
     if (number === 2) {
       obj[key] = 2;
-      hasTwo = true;
-      firstTwoKey = key;
+      if (key !== 'fs' && key !== 'previewMode') {
+        hasTwo = true;
+        firstTwoKey = key;
+      }
     }
 
     if (number === 3) {
       obj[key] = 3;
-      if (key !== 'fs') {
+      if (key !== 'fs' && key !== 'previewMode') {
         hasThree = true;
         firstThreeKey = key;
       }

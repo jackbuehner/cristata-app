@@ -34,6 +34,7 @@
   import YoutubeTabPanel from './tabpanels/YoutubeTabPanel.svelte';
 
   export let editor: Editor | null;
+  export let disabled = false;
   export let options: tiptapOptions | undefined = undefined;
   export let user: ComponentProps<Tiptap>['user'] | null = null;
   export let awareness: Readable<AwarenessUser[] | null> | undefined;
@@ -306,7 +307,7 @@
         {#if $richTextParams.isActive('fs')}
           <div style="display: flex;">
             <Button
-              disabled={!editor}
+              {disabled}
               on:click={() => (modeMenuOpen = !modeMenuOpen)}
               variant={trackChanges ? 'accent' : 'standard'}
             >
@@ -331,6 +332,32 @@
                   </svg>
                 </FluentIcon>
                 Reviewing
+              {:else if $richTextParams.obj.previewMode > 0}
+                <FluentIcon mode="ribbonButtonIconLeft">
+                  <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                    <path
+                      type="path"
+                      class="OfficeIconColors_HighContrast"
+                      d="M 820 1462 q 0 3 1 19 q 0 16 1 36 q 1 21 3 42 q 2 21 4 34 l -171 170 l -556 183 l 195 -574 l 1203 -1203 q 38 -38 87 -57 q 49 -19 102 -19 q 56 0 105 21 q 49 22 86 58 q 36 37 57 85 q 21 48 21 102 q 0 52 -20 101 q -20 49 -59 88 l -282 281 q -14 -2 -35 -4 q -22 -2 -43 -3 q -21 -1 -37 -2 q -17 0 -20 0 l 207 -206 l -235 -235 l -995 996 q 85 26 147 87 q 61 62 87 147 m 833 -1302 l 235 235 l 66 -66 q 24 -24 37 -55 q 12 -30 12 -62 q 0 -33 -13 -63 q -13 -30 -35 -53 q -23 -22 -53 -36 q -31 -13 -66 -13 q -32 0 -63 12 q -31 12 -54 35 m -987 1440 q -6 -43 -24 -80 q -19 -37 -48 -66 q -29 -29 -66 -48 q -37 -18 -80 -24 l -127 345 m 1245 -886 q 117 0 220 44 q 102 44 179 120 q 76 77 120 179 q 44 103 44 220 q 0 117 -44 219 q -44 103 -120 179 q -77 77 -179 121 q -103 44 -220 44 q -117 0 -219 -44 q -103 -44 -179 -121 q -77 -76 -121 -179 q -44 -102 -44 -219 q 0 -117 44 -220 q 44 -102 121 -179 q 76 -76 179 -120 q 102 -44 219 -44 m -461 563 q 0 95 37 179 q 36 84 99 146 q 62 63 146 99 q 84 37 179 37 q 81 0 154 -28 q 72 -27 132 -75 l -645 -644 q -48 60 -75 132 q -27 72 -27 154 m 819 286 q 48 -60 76 -133 q 27 -72 27 -153 q 0 -95 -36 -179 q -37 -84 -99 -147 q -63 -62 -147 -99 q -84 -36 -179 -36 q -82 0 -154 27 q -72 27 -132 75 z"
+                    />
+                    <path
+                      type="path"
+                      class="OfficeIconColors_m20"
+                      d="M 1485 1997 q -106 0 -199 -41 q -93 -40 -162 -110 q -70 -69 -110 -162 q -41 -93 -41 -199 q 0 -106 41 -199 q 40 -93 110 -163 q 69 -69 162 -110 q 93 -40 199 -40 q 106 0 199 40 q 93 41 163 110 q 69 70 110 163 q 40 93 40 199 q 0 106 -40 199 q -41 93 -110 162 q -70 70 -163 110 q -93 41 -199 41 m -666 -512 q 0 24 3 49 l -182 181 l -486 179 l 179 -486 l 1203 -1203 q 32 -32 72 -48 q 39 -16 81 -16 q 44 0 84 17 q 39 18 69 48 q 30 30 48 69 q 17 40 17 84 q 0 42 -16 81 q -16 40 -48 72 l -309 310 q -26 -3 -49 -3 q -138 0 -259 52 q -121 53 -211 143 q -91 91 -143 212 q -53 121 -53 259 z"
+                    />
+                    <path
+                      type="path"
+                      class="OfficeIconColors_m22"
+                      d="M 820 1462 q 0 3 1 19 q 0 16 1 36 q 1 21 3 42 q 2 21 4 34 l -171 170 l -556 183 l 195 -574 l 1203 -1203 q 38 -38 86 -57 q 48 -19 99 -19 q 57 0 107 21 q 50 21 87 57 q 36 36 58 84 q 21 49 21 104 q 0 52 -20 101 q -20 49 -59 88 l -282 281 q -14 -2 -35 -4 q -22 -2 -43 -3 q -21 -1 -37 -2 q -17 0 -20 0 l 207 -206 l -235 -235 l -995 996 q 85 26 147 87 q 61 62 87 147 m 833 -1302 l 235 235 l 66 -66 q 24 -24 37 -55 q 12 -30 12 -62 q 0 -33 -13 -63 q -13 -30 -35 -53 q -23 -22 -53 -36 q -31 -13 -66 -13 q -32 0 -63 12 q -31 12 -54 35 m -987 1440 q -6 -43 -24 -80 q -19 -37 -48 -66 q -29 -29 -66 -48 q -37 -18 -80 -24 l -127 345 z"
+                    />
+                    <path
+                      type="path"
+                      class="OfficeIconColors_m213"
+                      d="M 1485 922 q 117 0 220 44 q 102 44 179 120 q 76 77 120 179 q 44 103 44 220 q 0 117 -44 219 q -44 103 -120 179 q -77 77 -179 121 q -103 44 -220 44 q -117 0 -219 -44 q -103 -44 -179 -121 q -77 -76 -121 -179 q -44 -102 -44 -219 q 0 -117 44 -220 q 44 -102 121 -179 q 76 -76 179 -120 q 102 -44 219 -44 m -461 563 q 0 95 37 179 q 36 84 99 146 q 62 63 146 99 q 84 37 179 37 q 81 0 154 -28 q 72 -27 132 -75 l -645 -644 q -48 60 -75 132 q -27 72 -27 154 m 819 286 q 48 -60 76 -133 q 27 -72 27 -153 q 0 -95 -36 -179 q -37 -84 -99 -147 q -63 -62 -147 -99 q -84 -36 -179 -36 q -82 0 -154 27 q -72 27 -132 75 z"
+                    />
+                  </svg>
+                </FluentIcon>
+                Viewing
               {:else}
                 <FluentIcon mode="ribbonButtonIconLeft">
                   <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -359,8 +386,12 @@
               <svelte:fragment slot="flyout">
                 <MenuFlyoutItem
                   style="height: 44px;"
-                  disabled={!editor}
-                  on:click={() => toggleTrackChanges(false)}
+                  {disabled}
+                  on:click={() => {
+                    toggleTrackChanges(false);
+                    $richTextParams.set('comments', 0);
+                    $richTextParams.set('previewMode', 0);
+                  }}
                 >
                   <FluentIcon>
                     <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -388,10 +419,11 @@
                 </MenuFlyoutItem>
                 <MenuFlyoutItem
                   style="height: 44px;"
-                  disabled={!editor}
+                  {disabled}
                   on:click={() => {
                     toggleTrackChanges(true);
                     $richTextParams.set('comments', 1);
+                    $richTextParams.set('previewMode', 0);
                   }}
                 >
                   <FluentIcon>
@@ -418,7 +450,15 @@
                     <div style="font-size: 12px; line-height: 16px;">Add comments and suggest changes</div>
                   </div>
                 </MenuFlyoutItem>
-                <MenuFlyoutItem style="height: 44px;" disabled>
+                <MenuFlyoutItem
+                  style="height: 44px;"
+                  {disabled}
+                  on:click={() => {
+                    toggleTrackChanges(false);
+                    $richTextParams.set('comments', 0);
+                    $richTextParams.set('previewMode', 2);
+                  }}
+                >
                   <FluentIcon>
                     <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
                       <path

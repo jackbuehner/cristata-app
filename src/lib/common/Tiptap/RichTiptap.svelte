@@ -19,6 +19,7 @@
   import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
   import BubbleMenuParagraph from './BubbleMenuParagraph.svelte';
   import MetaFrame from './MetaFrame.svelte';
+  import PreviewFrame from './PreviewFrame.svelte';
   import Ribbon from './Ribbon.svelte';
   import Tiptap from './Tiptap.svelte';
   import { richTextParams } from './richTextParams';
@@ -37,6 +38,7 @@
   export let fullSharedData: Readable<Record<string, unknown>>;
   // TODO: hide relevant sidebar parts and buttons if this is undefined
   export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
+  export let dynamicPreviewHref = '';
 
   let bubbleMenuParagraph: HTMLDivElement;
 
@@ -307,7 +309,10 @@
     {iframehtmlstring}
   />
   <div class="main-middle">
-    <div class="richtiptap-content">
+    {#if $richTextParams.obj.previewMode > 0}
+      <PreviewFrame src={dynamicPreviewHref} {fullSharedData} />
+    {/if}
+    <div class="richtiptap-content" class:hidden={dynamicPreviewHref && $richTextParams.obj.previewMode > 0}>
       {#if options?.metaFrame && $richTextParams.isActive('fs')}
         <MetaFrame src={options.metaFrame} {tiptapwidth} {fullSharedData} bind:iframehtmlstring />
       {/if}
@@ -338,6 +343,7 @@
         {/key}
       </div>
     </div>
+
     <div
       class="sidebar-wrapper"
       class:navActive={$richTextParams.activeCount > 1}
@@ -388,7 +394,7 @@
         >
           {#each Object.entries($richTextParams.obj) as [key, value]}
             {#if value === 1 || value === 2 || value === 3}
-              {#if key !== 'fs'}
+              {#if key !== 'fs' && key !== 'previewMode'}
                 {@const label = (() => {
                   if (key === 'comments') return 'Comments';
                   if (key === 'props') return 'Document properties';
@@ -483,6 +489,10 @@
     scroll-behavior: smooth;
   }
 
+  .richtiptap-content.hidden {
+    display: none;
+  }
+
   .richtiptap.fullscreen {
     position: absolute !important;
     top: 0;
@@ -542,6 +552,7 @@
   }
   .sidebar-wrapper.hidden {
     width: 0px;
+    margin: 0;
   }
 
   .sidebar-content {

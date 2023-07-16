@@ -12,7 +12,17 @@
 </script>
 
 <div class="panel" class:visible>
-  <Button disabled={disabled || true}>
+  <Button
+    on:click={() => {
+      if ($richTextParams.obj.previewMode === 0) {
+        $richTextParams.set('previewMode', 2);
+      } else {
+        $richTextParams.set('previewMode', 0);
+      }
+    }}
+    class={$richTextParams.obj.previewMode === 0 ? 'active' : ''}
+    {disabled}
+  >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path
@@ -35,7 +45,17 @@
     </FluentIcon>
     Editing mode
   </Button>
-  <Button disabled={disabled || true}>
+  <Button
+    on:click={() => {
+      if ($richTextParams.obj.previewMode > 0) {
+        $richTextParams.set('previewMode', 0);
+      } else {
+        $richTextParams.set('previewMode', 2);
+      }
+    }}
+    class={$richTextParams.obj.previewMode > 0 ? 'active' : ''}
+    {disabled}
+  >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path
