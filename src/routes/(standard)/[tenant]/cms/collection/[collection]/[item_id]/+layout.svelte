@@ -1,5 +1,6 @@
 <script lang="ts">
   import { SchemaField } from '$lib/common/Field/index.js';
+  import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
   import { createYStore } from '$utils/createYStore.js';
   import { getProperty } from '$utils/objectPath.js';
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
@@ -98,6 +99,43 @@
     },
     hideVersions: isOldVersion,
   };
+
+  let tabsContainerElement: HTMLDivElement;
+  let activeTab = 'compose';
+  let mouseOverActiveTab = false;
+  $: ({ activeTabWidth, activeTabLeft } = (() => {
+    const tabsContainerRect = tabsContainerElement?.getBoundingClientRect();
+    const activeTabRect = tabsContainerElement
+      ?.querySelector(`[data-tab='${activeTab}']`)
+      ?.getBoundingClientRect();
+    return {
+      activeTabWidth: (activeTabRect?.width || 0) - (mouseOverActiveTab ? 0 : 22),
+      activeTabLeft:
+        (activeTabRect?.left || 0) - (tabsContainerRect?.left || 0) + (mouseOverActiveTab ? 0 : 11),
+    };
+  })());
+
+  function handleTabClick(evt: CustomEvent) {
+    const target = evt.target as HTMLElement | undefined;
+    const clickedTabName = target?.getAttribute('data-tab');
+    if (clickedTabName) {
+      activeTab = clickedTabName;
+      mouseOverActiveTab = true;
+    }
+  }
+  function handleTabMouseEnter(evt: CustomEvent) {
+    const target = evt.target as HTMLElement | undefined;
+    const tabName = target?.getAttribute('data-tab');
+    if (tabName === activeTab) mouseOverActiveTab = true;
+    else mouseOverActiveTab = false;
+  }
+
+  function handleTabMouseLeave(evt: CustomEvent) {
+    const target = evt.target as HTMLElement | undefined;
+    const tabName = target?.getAttribute('data-tab');
+    if (tabName === activeTab) mouseOverActiveTab = false;
+    else mouseOverActiveTab = false;
+  }
 </script>
 
 <div class="content-wrapper">
@@ -105,7 +143,29 @@
     <div style="height: 100%; overflow: auto; display: flex; flex-direction: column;">
       <div style="display: block; flex-grow: 1;">
         <div style="max-width: 800px; padding: 40px; margin: 0px auto;">
-          <div class="alerts-wrapper">
+          <div class="tabs-container">
+            <div class="tabs" bind:this={tabsContainerElement}>
+              <Button
+                data-tab={'compose'}
+                on:click={handleTabClick}
+                on:mouseenter={handleTabMouseEnter}
+                on:mouseleave={handleTabMouseLeave}
+              >
+                Compose
+              </Button>
+              <Button
+                data-tab={'preview'}
+                on:click={handleTabClick}
+                on:mouseenter={handleTabMouseEnter}
+                on:mouseleave={handleTabMouseLeave}
+              >
+                Preview
+              </Button>
+              <div class="tabline" style="width: {activeTabWidth}px; left: {activeTabLeft}px;" />
+            </div>
+          </div>
+
+          <div class="alerts-wrapper" class:tabsShown={!!data.collection.config.options.dynamicPreviewHref}>
             {#if isOldVersion}
               <InfoBar
                 title="You are currently viewing an old version of this document."
@@ -172,6 +232,14 @@
             {/if}
           </div>
 
+          {#if activeTab === 'preview'}
+            <PreviewFrame
+              src={data.collection.config.options.dynamicPreviewHref}
+              {fullSharedData}
+              noOuterMargin
+            />
+          {/if}
+
           <!-- TODO: move this logic to a special SchemaDefField component that determines the correct -->
           <!-- field based on thnpme schema definition -->
           <!-- The component should have three modes: editor, publish, and create (to support all three cases) -->
@@ -180,13 +248,14 @@
               {key}
               {def}
               {ydoc}
-              {disabled}
+              disabled={disabled || activeTab === 'preview'}
               {wsProvider}
               user={data.yuser}
               processSchemaDef={data.helpers.processSchemaDef}
               {coreSidebarProps}
               {fullSharedData}
               dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
+              style={activeTab === 'preview' ? 'display: none;' : ''}
             />
           {/each}
         </div>
@@ -245,5 +314,67 @@
 
   .alerts-wrapper {
     margin: 0 0 20px 0;
+  }
+  .alerts-wrapper.tabsShown {
+    margin-top: 20px;
+  }
+
+  .tabs-container {
+    margin-left: -11px;
+    width: calc(100% + 22px);
+    position: sticky;
+    top: 0;
+    padding-top: 40px;
+    margin-top: -40px;
+    background-color: #ffffff;
+    z-index: 9;
+  }
+  @media (prefers-color-scheme: dark) {
+    .tabs-container {
+      background-color: #272727;
+    }
+  }
+
+  .tabs {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    height: 30px;
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+
+  .tabs :global(.button.style-standard) {
+    background-color: transparent;
+    box-shadow: none;
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .tabs :global(.button.style-standard):hover:not(disabled):not(.disabled) {
+    background-color: var(--fds-subtle-fill-secondary);
+  }
+
+  .tabs :global(.button.style-standard):active:not(disabled):not(.disabled) {
+    background-color: var(--fds-subtle-fill-tertiary);
+    color: var(--fds-text-secondary);
+  }
+
+  .tabs :global(.button.style-standard[data-contextual='true']) {
+    color: var(--fds-accent-default);
+  }
+
+  .tabline {
+    margin: 0px;
+    bottom: 0px;
+    left: 11px;
+    width: 58.625px;
+    height: 2.4px;
+    pointer-events: none;
+    position: absolute;
+    transition: all 150ms cubic-bezier(0.17, 0.17, 0, 1) 0s;
+    float: left;
+    background-color: var(--fds-accent-default);
+    border-radius: 6px;
   }
 </style>

@@ -25,7 +25,7 @@
   export let sharedData: Readable<Record<string, unknown>>;
   export let awareness: Readable<AwarenessUser[] | null>;
   export let tenant: string;
-  export let preview: { dynamicPreviewUrl?: string; previewUrl?: string } = {};
+  export let preview: { previewUrl?: string } = {};
   export let permissions: {
     users?: {
       _id: string;

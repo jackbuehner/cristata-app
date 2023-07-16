@@ -10,9 +10,10 @@
   import type { Readable } from 'svelte/store';
   import { fly } from 'svelte/transition';
 
-  export let src: string;
+  export let src = '';
   export let iframehtmlstring = '';
   export let fullSharedData: Readable<Record<string, unknown>>;
+  export let noOuterMargin = false;
   let iframeElem: HTMLIFrameElement | undefined;
   let frameObj: iframeResizer.IFrameComponent['iFrameResizer'] | undefined;
   let connected = false;
@@ -121,13 +122,22 @@
   }
 </script>
 
-<div class="wrapper" class:noScroll={hidden}>
+<div class="wrapper" class:noScroll={hidden} class:noOuterMargin>
   {#if hidden}
     <div
       in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
       style="height: 100%; width: 100%; display: flex; flex-direction: column; gap: 14px; align-items: center; justify-content: center; position: absolute; top: 0;"
     >
-      {#if connectionFailed}
+      {#if !src}
+        <FluentIcon
+          name="DismissCircle24Regular"
+          style="width: 32px; height: 32px; fill: var(--fds-accent-default);"
+        />
+        <TextBlock variant="bodyStrong">Previews are not enabled for this collection</TextBlock>
+        <TextBlock variant="caption" style="margin-top: -10px;">
+          Ask your administrator to enable previews
+        </TextBlock>
+      {:else if connectionFailed}
         <FluentIcon
           name="ErrorCircle24Regular"
           style="width: 32px; height: 32px; fill: var(--fds-accent-default);"
@@ -140,14 +150,16 @@
     </div>
   {/if}
 
-  <iframe
-    {src}
-    bind:this={iframeElem}
-    contenteditable="false"
-    allowtransparency={true}
-    title="preview-frame"
-    class:hidden
-  />
+  {#if src}
+    <iframe
+      {src}
+      bind:this={iframeElem}
+      contenteditable="false"
+      allowtransparency={true}
+      title="preview-frame"
+      class:hidden
+    />
+  {/if}
 </div>
 
 <style>
@@ -160,9 +172,13 @@
     border-radius: var(--fds-control-corner-radius);
     color: var(--fds-text-primary);
     position: relative;
+    min-height: 120px;
   }
   .wrapper.noScroll {
     overflow: hidden;
+  }
+  .wrapper.noOuterMargin {
+    --margin: 0;
   }
 
   iframe {

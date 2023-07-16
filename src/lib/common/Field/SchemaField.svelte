@@ -24,6 +24,7 @@
   export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
   export let fullSharedData: Readable<Record<string, unknown>> | undefined = undefined;
   export let dynamicPreviewHref = '';
+  export let style = '';
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -77,7 +78,7 @@
   {#if mode === 'sidebar'}
     <!-- hide field so it is not rendered in a sidebar, which would create infinite nesting -->
   {:else if !!$ydoc && !!$wsProvider && !!fullSharedData}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <RichTiptap
         {disabled}
         {ydoc}
@@ -93,14 +94,14 @@
       />
     </FieldWrapper>
   {:else}
-    <p>Error: The collaborative document or websocket was not found ({key}).</p>
+    <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if fullscreen && mode === 'editor'}
   <!-- capture loop for all non-body fields when in fullscreen mode so they do not render -->
 {:else if def.type === 'DocArray' || type === 'DocArray'}
-  <p>DocArray: {key}</p>
+  <p {style}>DocArray: {key}</p>
 {:else if key.includes('#')}
-  <p>Internal: {key}</p>
+  <p {style}>Internal: {key}</p>
 {:else if def.field?.reference?.collection || isTypeTuple(def.type)}
   <!-- TODO: add property for adding filter and sort to the query -->
 
@@ -111,72 +112,72 @@
   {@const reference = { ...(def.field?.reference || {}), collection }}
 
   {#if isArrayType}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <SelectMany {disabled} {ydoc} {ydocKey} {reference} />
     </FieldWrapper>
   {:else}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <SelectOne {disabled} {ydoc} {ydocKey} {reference} />
     </FieldWrapper>
   {/if}
 {:else if type === 'String' && def.field?.markdown}
-  <p>Markdown: {key}</p>
+  <p {style}>Markdown: {key}</p>
 {:else if type === 'String'}
   {#if options}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} />
     </FieldWrapper>
   {:else}
-    <p>Error: The collaborative document or websocket was not found ({key}).</p>
+    <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Boolean'}
-  <FieldWrapper label={fieldName} {description} forId={key} mode="checkbox">
+  <FieldWrapper label={fieldName} {description} forId={key} {style} mode="checkbox">
     <StatelessCheckbox {disabled} {ydoc} {ydocKey} id={key} />
   </FieldWrapper>
 {:else if type === 'Number'}
   {#if options}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <NumberTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={false} />
     </FieldWrapper>
   {:else}
-    <p>Error: The collaborative document or websocket was not found ({key}).</p>
+    <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Float'}
   {#if options}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
-    <FieldWrapper label={fieldName} {description} forId={key}>
+    <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <NumberTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={true} />
     </FieldWrapper>
   {:else}
-    <p>Error: The collaborative document or websocket was not found ({key}).</p>
+    <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Date'}
-  <FieldWrapper label={fieldName} {description} forId={key}>
+  <FieldWrapper label={fieldName} {description} forId={key} {style}>
     <DateTime {disabled} {ydoc} {ydocKey} />
   </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'String'}
-  <FieldWrapper label={fieldName} {description} forId={key}>
+  <FieldWrapper label={fieldName} {description} forId={key} {style}>
     <SelectMany {disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'Number'}
-  <FieldWrapper label={fieldName} {description} forId={key}>
+  <FieldWrapper label={fieldName} {description} forId={key} {style}>
     <SelectOne {disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'Float'}
-  <FieldWrapper label={fieldName} {description} forId={key}>
+  <FieldWrapper label={fieldName} {description} forId={key} {style}>
     <SelectOne {disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
 {:else}
-  <p>Unsupported Type ({JSON.stringify(type)}): {key}</p>
+  <p {style}>Unsupported Type ({JSON.stringify(type)}): {key}</p>
 {/if}

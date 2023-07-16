@@ -13,10 +13,12 @@
 
   export let mode: 'default' | 'checkbox' = 'default';
 
+  export let style = '';
+
   $: hasCaption = !!$$slots.caption || !!description;
 </script>
 
-<div class="field" data-for={forId} class:nocaption={!hasCaption} class:checkbox={mode === 'checkbox'}>
+<div class="field" data-for={forId} class:nocaption={!hasCaption} class:checkbox={mode === 'checkbox'} {style}>
   {#if mode === 'checkbox'}
     <slot />
   {/if}
