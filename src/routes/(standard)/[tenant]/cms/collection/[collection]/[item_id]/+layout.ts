@@ -113,7 +113,13 @@ export const load = (async ({ parent, params, url }) => {
             return def.field?.collapsed !== true && labelDef?.field?.collapsed !== true;
           return true;
         })
-        .map(([key, def]) => {
+        .map(([key, def, labelDef]) => {
+          if (labelDef && labelDef.field) {
+            return [key, { ...def, field: { ...(def.field || {}), ...labelDef.field } }] as [
+              string,
+              typeof def
+            ];
+          }
           return [key, def] as [string, typeof def];
         })
     );

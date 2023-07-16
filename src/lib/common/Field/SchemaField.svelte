@@ -12,6 +12,7 @@
   import { FieldWrapper } from '.';
   import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
+  import { DocArray } from '../DocArray';
 
   export let key: DeconstructedSchemaDefType[0][0];
   export let def: DeconstructedSchemaDefType[0][1];
@@ -25,6 +26,7 @@
   export let fullSharedData: Readable<Record<string, unknown>> | undefined = undefined;
   export let dynamicPreviewHref = '';
   export let style = '';
+  export let yjsDocArrayConfig: { __uuid: string; parentKey: string; childKey: string } | undefined = undefined;
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -50,7 +52,12 @@
   // disable the field if the disabled prop is provided OR it is readonly
   $: _disabled = disabled || readOnly;
 
-  $: ydocKey = key;
+  $: ydocKey = yjsDocArrayConfig
+    ? // use this key for yjs shared type key for doc array contents
+      // so there shared type for each field in the array is unique
+      // for the array and array doc
+      `__docArray.‾‾${yjsDocArrayConfig.parentKey}‾‾.${yjsDocArrayConfig.__uuid}.${yjsDocArrayConfig.childKey}`
+    : key;
 
   // process the options to be ready for SelectOne/SelectMany, if available/applicable
   $: options = def.field?.options?.map((opt) => {
@@ -99,7 +106,25 @@
 {:else if fullscreen && mode === 'editor'}
   <!-- capture loop for all non-body fields when in fullscreen mode so they do not render -->
 {:else if def.type === 'DocArray' || type === 'DocArray'}
-  <p {style}>DocArray: {key}</p>
+  <FieldWrapper label={fieldName} {description} forId={key} {style}>
+    <DocArray
+      schemaFieldParams={{
+        key,
+        def,
+        mode,
+        ydoc,
+        wsProvider,
+        disabled,
+        user,
+        processSchemaDef,
+        coreSidebarProps,
+        fullSharedData,
+        dynamicPreviewHref,
+        style,
+      }}
+      {ydocKey}
+    />
+  </FieldWrapper>
 {:else if key.includes('#')}
   <p {style}>Internal: {key}</p>
 {:else if def.field?.reference?.collection || isTypeTuple(def.type)}

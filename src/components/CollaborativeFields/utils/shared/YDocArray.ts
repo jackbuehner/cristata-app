@@ -71,7 +71,9 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
     // populate values
     if (populate) {
       await Promise.all(
-        arr.map(async ({ __uuid, ...rest }, index) => {
+        arr.map(async (current, index) => {
+          const { __uuid } = current;
+
           // determine the key that will be used for storing DocArray
           // subfields in shared types
           const [searchKey, replaceKey] = (() => {
@@ -99,6 +101,17 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
 
           // set the object at this index
           setProperty(arr, index, obj);
+
+          // also inject the field data into the existing array shared type
+          // so that it has updated values
+          const updated = { ...(current || {}), ...(obj || {}) };
+          const isDifferent = JSON.stringify(current) !== JSON.stringify(updated);
+          if (isDifferent) {
+            this.#ydoc.transact(() => {
+              type.delete(index);
+              type.insert(index, [updated]);
+            });
+          }
         })
       );
     }
