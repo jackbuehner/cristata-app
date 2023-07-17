@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { beforeNavigate } from '$app/navigation';
   import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
   import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
@@ -10,7 +9,7 @@
   import type { Editor } from '@tiptap/core';
   import { IconButton, TextBlock, Tooltip } from 'fluent-svelte';
   import less from 'less';
-  import type { ComponentProps } from 'svelte';
+  import { onDestroy, type ComponentProps } from 'svelte';
   import { expoOut } from 'svelte/easing';
   import type { Readable } from 'svelte/store';
   import { fade, fly } from 'svelte/transition';
@@ -284,7 +283,7 @@
     titlebarActions.set([]);
   }
 
-  beforeNavigate(() => {
+  onDestroy(() => {
     titlebarActions.set([]);
   });
 
