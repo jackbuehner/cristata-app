@@ -21,6 +21,7 @@
     fullSharedData,
     dynamicPreviewHref,
     style,
+    collectionName,
   } = schemaFieldParams);
   export let ydocKey: string;
   export let nestedSchemaDef: NestedSchemaDefType;
@@ -49,5 +50,6 @@
     {fullSharedData}
     {dynamicPreviewHref}
     {style}
+    {collectionName}
   />
 {/each}

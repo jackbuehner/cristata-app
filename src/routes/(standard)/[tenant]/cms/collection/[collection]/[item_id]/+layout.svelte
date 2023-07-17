@@ -257,6 +257,7 @@
               {fullSharedData}
               dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
               style={activeTab === 'preview' ? 'display: none;' : ''}
+              collectionName={data.collection.schemaName}
             />
           {/each}
         </div>

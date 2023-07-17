@@ -1,6 +1,8 @@
 <script lang="ts">
   import { afterNavigate } from '$app/navigation';
   import { page } from '$app/stores';
+  import type { FieldDescriptionsQuery, FieldDescriptionsQueryVariables } from '$graphql/graphql';
+  import { getQueryStore } from '$graphql/query';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
   import { Code } from '$lib/common/Code';
   import { DateTime } from '$lib/common/DateTime';
@@ -30,6 +32,7 @@
   export let dynamicPreviewHref = '';
   export let style = '';
   export let yjsDocArrayConfig: { __uuid: string; parentKey: string; childKey: string } | undefined = undefined;
+  export let collectionName = '';
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -50,7 +53,23 @@
     return fieldName;
   })();
 
-  $: description = def.field?.description;
+  $: fieldDescriptions = getQueryStore<FieldDescriptionsQuery, FieldDescriptionsQueryVariables>({
+    queryName: 'FieldDescriptions',
+    variables: {},
+    tenant: $page.params.tenant,
+  });
+  $: photosFieldDescriptions = $fieldDescriptions.data?.configuration?.apps.photos.fieldDescriptions;
+  $: description = (() => {
+    if (collectionName === 'Photo' && photosFieldDescriptions) {
+      if (key === 'name') return photosFieldDescriptions.name;
+      if (key === 'people.photo_created_by') return photosFieldDescriptions.source;
+      if (key === 'tags') return photosFieldDescriptions.tags;
+      if (key === 'require_auth') return photosFieldDescriptions.requireAuth;
+      if (key === 'note') return photosFieldDescriptions.note;
+    }
+
+    return def.field?.description;
+  })();
 
   // disable the field if the disabled prop is provided OR it is readonly
   $: _disabled = disabled || readOnly;
@@ -124,6 +143,7 @@
         fullSharedData,
         dynamicPreviewHref,
         style,
+        collectionName,
       }}
       {ydocKey}
     />
@@ -226,6 +246,7 @@
           fullSharedData,
           dynamicPreviewHref,
           style,
+          collectionName,
         }}
         {nestedSchemaDef}
         {ydocKey}

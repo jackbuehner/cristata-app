@@ -25,6 +25,7 @@
     fullSharedData,
     dynamicPreviewHref,
     style,
+    collectionName,
   } = schemaFieldParams);
   export let ydocKey: string = '';
 
@@ -198,6 +199,7 @@
               parentKey: ydocKey, // the key of the doc array that contains the doc
               childKey: subkey.replace(ydocKey + '.', ''),
             }}
+            {collectionName}
           />
         {/each}
       {/if}
