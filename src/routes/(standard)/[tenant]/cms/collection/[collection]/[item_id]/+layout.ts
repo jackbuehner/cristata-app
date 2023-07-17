@@ -90,9 +90,10 @@ export const load = (async ({ parent, params, url }) => {
           return orderA > orderB ? 1 : -1;
         })
         // hide hidden fields
-        .filter(([, def]) => {
+        .filter(([, def, labelDef]) => {
           if (opts.showHidden) return true;
           if (opts.isPublishModal) return def.field?.hidden === 'publish-only';
+          if (labelDef) return labelDef.field?.hidden !== true && def.field?.hidden !== 'publish-only';
           return def.field?.hidden !== true && def.field?.hidden !== 'publish-only';
         })
         // remove fields that are used in the sidebar
