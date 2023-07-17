@@ -1,12 +1,14 @@
 <script lang="ts">
   import { SchemaField } from '$lib/common/Field/index.js';
   import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
+  import { title } from '$stores/title';
   import { createYStore } from '$utils/createYStore.js';
   import { getProperty } from '$utils/objectPath.js';
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
   import { Button, InfoBar } from 'fluent-svelte';
+  import { onDestroy } from 'svelte';
   import Sidebar from './Sidebar.svelte';
 
   export let data;
@@ -62,6 +64,47 @@
   }));
 
   $: disabled = isOldVersion || publishLocked || false;
+
+  // construct the name field with the field provied
+  $: docName = (() => {
+    let docName = data.collection.config.options.nameField || data.collection.name.singular;
+
+    if (data.collection.config.options.nameField?.includes('%')) {
+      const schemaKeys = data.collection.deconstructedSchema
+        .filter(([, def]) => def.type === 'String' || def.type === 'Number' || def.type === 'Float')
+        .map(([key]) => key);
+
+      for (const key of schemaKeys) {
+        if (docName.includes(`%${key}%`)) {
+          docName = docName.replaceAll(`%${key}%`, getProperty($sharedData, key));
+        }
+      }
+    } else {
+      docName = getProperty($sharedData, data.collection.config.options.nameField || 'name') || docName;
+    }
+
+    if (docName.includes('undefined')) docName = data.collection.name.singular;
+
+    return docName;
+  })();
+
+  // calculate the document title
+  $: pageTitle = (() => {
+    let title = '';
+
+    // show document name in the title
+    title += docName;
+
+    // show written note about unsaved status
+    // if (isLoading) title += ' - Syncing';
+
+    return title;
+  })();
+
+  $: title.set(pageTitle);
+  onDestroy(() => {
+    title.set('');
+  });
 
   $: coreSidebarProps = {
     docInfo: {
