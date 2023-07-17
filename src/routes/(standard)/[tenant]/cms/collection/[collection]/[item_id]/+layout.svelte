@@ -25,6 +25,7 @@
       id: item_id,
       user: data.yuser,
       deconstructedSchema: deconstructedSchema,
+      versionDate: version_date,
     });
 
   // go through the schema and convert JSON types with mutliple fields to individual fields

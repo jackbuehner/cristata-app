@@ -2,6 +2,7 @@
   import { afterNavigate } from '$app/navigation';
   import { page } from '$app/stores';
   import { StatelessCheckbox } from '$lib/common/Checkbox';
+  import { Code } from '$lib/common/Code';
   import { DateTime } from '$lib/common/DateTime';
   import { SelectMany, SelectOne } from '$lib/common/Select';
   import { NumberTiptap, RichTiptap, TextTiptap } from '$lib/common/Tiptap';
@@ -146,7 +147,9 @@
     </FieldWrapper>
   {/if}
 {:else if type === 'String' && def.field?.markdown}
-  <p {style}>Markdown: {key}</p>
+  <FieldWrapper label={fieldName} {description} forId={key} {style}>
+    <Code {disabled} {ydoc} {ydocKey} {wsProvider} key={ydocKey} type="md" />
+  </FieldWrapper>
 {:else if type === 'String'}
   {#if options}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
