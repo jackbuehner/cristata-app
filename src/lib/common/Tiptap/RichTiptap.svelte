@@ -312,7 +312,7 @@
     {#if $richTextParams.obj.previewMode > 0}
       <PreviewFrame src={dynamicPreviewHref} {fullSharedData} />
     {/if}
-    <div class="richtiptap-content" class:hidden={dynamicPreviewHref && $richTextParams.obj.previewMode > 0}>
+    <div class="richtiptap-content" class:hidden={$richTextParams.obj.previewMode > 0}>
       {#if options?.metaFrame && $richTextParams.isActive('fs')}
         <MetaFrame src={options.metaFrame} {tiptapwidth} {fullSharedData} bind:iframehtmlstring />
       {/if}
