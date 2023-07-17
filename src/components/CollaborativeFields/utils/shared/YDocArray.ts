@@ -5,6 +5,7 @@ import type { DeconstructedSchemaDefType } from '../../../../hooks/useCollection
 import type { GetYFieldsOptions } from '../../../../pages/CMS/CollectionItemPage/getYFields';
 import { getYFields } from '../../../../pages/CMS/CollectionItemPage/getYFields';
 import type { EntryY } from '../../../Tiptap/hooks/useY';
+import deepEqual from 'deep-equal';
 
 /**
  * DocArrays are stored in a yjs shared array. The value
@@ -95,6 +96,7 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
 
           // get the field data for the object at this index
           const data = await getYFields(populate.y.ydoc, defs, populate.opts);
+          const fullData = await getYFields(populate.y.ydoc, defs, { retainReferenceObjects: true });
 
           // get the object with data to use for this index
           const obj = getProperty(data, replaceKey);
@@ -104,8 +106,8 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
 
           // also inject the field data into the existing array shared type
           // so that it has updated values
-          const updated = { ...(current || {}), ...(obj || {}) };
-          const isDifferent = JSON.stringify(current) !== JSON.stringify(updated);
+          const updated = { ...(current || {}), ...(getProperty(fullData, replaceKey) || {}) };
+          const isDifferent = !deepEqual(current, updated);
           if (isDifferent) {
             this.#ydoc.transact(() => {
               type.delete(index);
