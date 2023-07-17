@@ -65,6 +65,7 @@
     margin-bottom: 6px;
     opacity: 0.8;
     white-space: break-spaces;
+    white-space: pre-line;
   }
 
   div.field.checkbox {
