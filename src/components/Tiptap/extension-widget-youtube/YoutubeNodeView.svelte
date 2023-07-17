@@ -33,8 +33,9 @@
       height: '390',
       width: '640',
       playerVars: {
-        playsinline: 1,
+        playsinline: 0,
         controls: 0,
+        autoplay: 0,
       },
     });
 
@@ -164,7 +165,7 @@
     width: 100%;
     background-size: cover;
     aspect-ratio: 16/9;
-    background-color: red;
+    background-color: black;
     display: flex;
     align-items: center;
     justify-content: center;
