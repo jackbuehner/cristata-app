@@ -135,7 +135,7 @@
   <div>
     <div bind:clientWidth={dateFieldWidth}>
       <Button
-        class="date-field"
+        class="date-field {dateFieldWidth < 360 ? 'widerYear' : ''}"
         style="padding-left: 0; padding-right: 0;"
         on:click={() => (dateFieldOpen = !dateFieldOpen)}
         {disabled}
@@ -257,6 +257,9 @@
     width: 100%;
     display: grid !important;
     grid-template-columns: 2fr 1fr 1fr;
+  }
+  :global(.date-field.widerYear) {
+    grid-template-columns: 1.8fr 1fr 1.2fr;
   }
 
   :global(.time-field) {

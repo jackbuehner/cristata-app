@@ -242,6 +242,7 @@
   <div
     class="calendar direction-{menuDirection}"
     class:smoothScroll
+    class:widerYear={width < 360}
     style="width: {width + 10}px; --fds-menu-offset: {menuOffset}px;"
     bind:this={calendarElement}
     on:focusout={handleFocusOut}
@@ -416,6 +417,9 @@
     grid-template-areas:
       'month    day     year'
       'actions  actions actions';
+  }
+  .calendar.widerYear {
+    grid-template-columns: 1.8fr 1fr 1.2fr;
   }
 
   .calendar .month,
