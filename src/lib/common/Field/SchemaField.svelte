@@ -14,6 +14,8 @@
   import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
   import { DocArray } from '../DocArray';
+  import Loading from '../Loading.svelte';
+  import NestedSchemaField from './NestedSchemaField.svelte';
 
   export let key: DeconstructedSchemaDefType[0][0];
   export let def: DeconstructedSchemaDefType[0][1];
@@ -206,6 +208,34 @@
   <FieldWrapper label={fieldName} {description} forId={key} {style}>
     <SelectOne {disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
+{:else if type === 'JSON'}
+  {#if $fullSharedData?.name}
+    {@const nestedSchemaDef = def.field?.custom?.find((c) => c.name === `${$fullSharedData?.name}`)?.fields}
+    {#if nestedSchemaDef}
+      <NestedSchemaField
+        schemaFieldParams={{
+          key,
+          def,
+          mode,
+          ydoc,
+          wsProvider,
+          disabled,
+          user,
+          processSchemaDef,
+          coreSidebarProps,
+          fullSharedData,
+          dynamicPreviewHref,
+          style,
+        }}
+        {nestedSchemaDef}
+        {ydocKey}
+      />
+    {:else}
+      <p {style}>Unsupported JSON name ("{$fullSharedData?.name}"): {key}</p>
+    {/if}
+  {:else}
+    <Loading message="Loading branch fields..." style="padding: 10px 0;" />
+  {/if}
 {:else}
   <p {style}>Unsupported Type ({JSON.stringify(type)}): {key}</p>
 {/if}
