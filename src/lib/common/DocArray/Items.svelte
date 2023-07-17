@@ -165,10 +165,15 @@
       {#if collapsed}
         {#each groupFields || [] as [subkey, subdef]}
           {@const data = arr?.[index]}
+          {@const detailData = getProperty(data, subkey.replace(`${ydocKey}.`, ''))}
           <div class="doc-array-item-detail-grid">
             <span style="color: var(--fds-text-secondary);">{subdef.field?.label || subkey}</span>
             <span class="doc-array-item-detail-data">
-              {getProperty(data, subkey.replace(`${ydocKey}.`, ''))}
+              {#if Array.isArray(detailData)}
+                {detailData.length} items
+              {:else}
+                {detailData}
+              {/if}
             </span>
           </div>
         {/each}
