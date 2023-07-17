@@ -150,6 +150,7 @@
     "@tauri-apps/cli": "^1.2.3",
     "@types/color": "^3.0.1",
     "@types/color-hash": "^1.0.0",
+    "@types/deep-equal": "^1.0.1",
     "@types/dompurify": "^2.3.3",
     "@types/iframe-resizer": "^3.5.9",
     "@types/jest": "^27.4.0",
