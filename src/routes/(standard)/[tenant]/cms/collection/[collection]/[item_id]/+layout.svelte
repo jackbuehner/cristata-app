@@ -166,7 +166,7 @@
             </div>
           </div>
 
-          <div class="alerts-wrapper" class:tabsShown={!!data.collection.config.options.dynamicPreviewHref}>
+          <div class="alerts-wrapper" class:tabsShown={true}>
             {#if isOldVersion}
               <InfoBar
                 title="You are currently viewing an old version of this document."
