@@ -52,6 +52,7 @@
     // so that a ydoc transaction can be created that only contains
     // the exact differences
     const diff = arrayDifferences(oldArr, newArr || arr);
+    console.log(diff);
     if (diff.length === 0) return;
 
     // update the ydoc shared type value
@@ -101,14 +102,16 @@
 
         // ensure the initial value matches the shared type value
         if (JSON.stringify(arr) !== JSON.stringify(yarray.toArray())) {
-          arr = yarray
+          const yarrayValue = yarray
             .toArray()
             .filter(notEmpty)
             .map((item): YArrExtended => ({ ...item, _id: item.__uuid }));
-          oldArr = yarray
-            .toArray()
-            .filter(notEmpty)
-            .map((item): YArrExtended => ({ ...item, _id: item.__uuid }));
+
+          const hasDuplicates = new Set(yarrayValue.map((a) => a.__uuid)).size !== yarrayValue.length;
+          if (hasDuplicates) handleDragFinalize(yarrayValue);
+
+          arr = yarrayValue;
+          oldArr = yarrayValue;
         }
 
         yarray.observe(handleYArrayChange);
@@ -127,14 +130,16 @@
       const yarray = $ydoc?.getArray<YArr>(ydocKey);
 
       if (yarray && evt.changes.delta) {
-        arr = yarray
+        const yarrayValue = yarray
           .toArray()
           .filter(notEmpty)
           .map((item): YArrExtended => ({ ...item, _id: item.__uuid }));
-        oldArr = yarray
-          .toArray()
-          .filter(notEmpty)
-          .map((item): YArrExtended => ({ ...item, _id: item.__uuid }));
+
+        const hasDuplicates = new Set(yarrayValue.map((a) => a.__uuid)).size !== yarrayValue.length;
+        if (hasDuplicates) handleDragFinalize(yarrayValue);
+
+        arr = yarrayValue;
+        oldArr = yarrayValue;
       }
     }
   });
