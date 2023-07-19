@@ -4,7 +4,7 @@ import { deepen } from '$utils/deepen';
 import { genAvatar } from '$utils/genAvatar';
 import { getProperty } from '$utils/objectPath';
 import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
-import { uncapitalize } from '@jackbuehner/cristata-utils';
+import { notEmpty, uncapitalize } from '@jackbuehner/cristata-utils';
 import _ColorHash from 'color-hash';
 import gql from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
@@ -147,6 +147,63 @@ export const load = (async ({ parent, params, url }) => {
     return { canPublish, publishStage: lastStage, currentStage, publishLocked };
   };
 
+  interface CalcWatchingReturn {
+    /**
+     * Whether the current user is currently watching this document.
+     */
+    isWatcher: boolean;
+    /**
+     * Whether the current user has opted in to watching this document.
+     */
+    isOptionalWatcher: boolean;
+    /**
+     * Whether the current user is forced to watch this document.
+     */
+    isMandatoryWatcher: boolean;
+    /**
+     * A list of document data keys that contain lists of users
+     * who are mandatory watchers.
+     */
+    mandatoryWatchersKeys: string[];
+  }
+
+  /**
+   * Gets information about the current watchers of this document.
+   * Requires providing the shared document data.
+   */
+  const calcWatching = (sharedData: Record<string, unknown>): CalcWatchingReturn => {
+    // get watchers array of strings and enure type is correct
+    let watchers: string[] = (getProperty(sharedData, 'people.watching') as string[]) || [];
+    if (!Array.isArray(watchers)) watchers = [];
+    else {
+      watchers = watchers
+        .map((watcher) => {
+          if (typeof watcher === 'string') return watcher;
+          return null;
+        })
+        .filter(notEmpty);
+    }
+
+    // get a list of mandatory watchers by retreiving user ids from
+    // the specified keys that contain user ids
+    const mandatoryWatchersKeys = (collection.config.options.mandatoryWatchers || []).filter(notEmpty);
+    const mandatoryWatchers = mandatoryWatchersKeys
+      .map((key) => getProperty(sharedData, key))
+      .filter((watcher): watcher is string => typeof watcher === 'string');
+
+    // check if the currently authenticated user is a watcher or mandatory watcher
+    // by seeing if the user's _id is inside the watchers list
+    const isOptionalWatcher = watchers.includes(authUser._id.toHexString());
+    const isMandatoryWatcher = mandatoryWatchers.includes(authUser._id.toHexString());
+
+    return {
+      isWatcher: isOptionalWatcher || isMandatoryWatcher,
+      isOptionalWatcher,
+      isMandatoryWatcher,
+      mandatoryWatchersKeys,
+    };
+  };
+
   return {
     yuser,
     params,
@@ -156,6 +213,7 @@ export const load = (async ({ parent, params, url }) => {
       processSchemaDef,
       calcPublishPermissions,
       colorHash,
+      calcWatching,
     },
   };
 }) satisfies LayoutLoad;
