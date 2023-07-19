@@ -4,11 +4,13 @@
   import { title } from '$stores/title';
   import { createYStore } from '$utils/createYStore.js';
   import { getProperty } from '$utils/objectPath.js';
+  import { WebSocketStatus } from '@hocuspocus/provider';
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
   import { Button, InfoBar } from 'fluent-svelte';
   import { onDestroy } from 'svelte';
+  import type { Action } from './+layout';
   import Sidebar from './Sidebar.svelte';
 
   export let data;
@@ -58,7 +60,7 @@
   });
 
   $: stageDef = deconstructedSchema.find(([key, def]) => key === 'stage')?.[1];
-  $: ({ canPublish, publishLocked, publishStage } = data.helpers.calcPublishPermissions({
+  $: ({ canPublish, publishLocked, publishStage, currentStage } = data.helpers.calcPublishPermissions({
     itemStateFields: $sharedData,
     publishActionAccess: docData?.data?.actionAccess.publish || false,
   }));
@@ -106,6 +108,119 @@
     title.set('');
   });
 
+  $: watcherData = data.helpers.calcWatching($sharedData);
+
+  $: archived = !!$sharedData.archived;
+  $: locked = !!$sharedData.locked;
+  $: hidden = !!$sharedData.hidden;
+  $: loading = false;
+  $: hasPublishedDoc = !!$sharedData._hasPublishedDoc;
+  $: disconnected = $wsProvider?.status !== WebSocketStatus.Connected;
+
+  $: docHasUnrestrictedAccess =
+    data.collection.config.withPermissions === false ||
+    getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
+    getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
+
+  let actions: Action[] = [];
+  $: actions = [
+    {
+      id: 'watch',
+      label: watcherData.isWatcher ? 'Stop watching' : 'Watch',
+      icon: watcherData.isWatcher ? 'EyeOff20Regular' : 'Eye24Regular',
+      action: () => null,
+      disabled:
+        watcherData.isMandatoryWatcher ||
+        docData?.data?.actionAccess?.watch !== true ||
+        archived ||
+        locked ||
+        hidden ||
+        loading ||
+        disconnected,
+      tooltip: watcherData.isMandatoryWatcher
+        ? `You cannot stop watching this document because you are in one of the following groups: ${watcherData.mandatoryWatchersKeys.join(
+            ', '
+          )}`
+        : undefined,
+    },
+    {
+      id: 'publish',
+      label: currentStage === publishStage ? 'Unpublish' : hasPublishedDoc ? 'Republish' : 'Publish',
+      type: 'button',
+      icon: currentStage === publishStage ? 'CloudDismiss24Regular' : 'CloudArrowUp24Regular',
+      action: () => null,
+      // action: () => (currentStage === publishStage ? unpublishItem() : showPublishModal()),
+      disabled: canPublish !== true || archived || locked || hidden || loading || disconnected,
+      tooltip:
+        canPublish !== true
+          ? `You cannot publish this document because you do not have permission.`
+          : undefined,
+    },
+    {
+      id: 'delete',
+      label: hidden ? 'Restore from deleted items' : 'Delete',
+      type: 'button',
+      icon: hidden ? 'DeleteOff24Regular' : 'Delete24Regular',
+      action: () => null,
+      color: hidden ? 'primary' : 'red',
+      disabled:
+        docData?.data?.actionAccess?.hide !== true || archived || locked || hidden || loading || disconnected,
+    },
+    {
+      id: 'archive',
+      label: archived ? 'Remove from archive' : 'Archive',
+      type: 'button',
+      icon: archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
+      action: () => null,
+      color: archived ? 'primary' : 'yellow',
+      disabled:
+        docData?.data?.actionAccess?.archive !== true ||
+        archived ||
+        locked ||
+        hidden ||
+        loading ||
+        disconnected,
+    },
+    {
+      id: 'duplicate',
+      label: 'Duplicate',
+      type: 'button',
+      icon: 'DocumentCopy24Regular',
+      action: () => null,
+      disabled:
+        docData?.data?.actionAccess?.modify !== true || archived || locked || hidden || loading || disconnected,
+    },
+    docHasUnrestrictedAccess
+      ? null
+      : {
+          id: 'share',
+          label: 'Share',
+          type: 'button',
+          icon: 'Share24Regular',
+          action: () => null,
+          disabled:
+            docData?.data?.actionAccess?.modify !== true ||
+            archived ||
+            locked ||
+            hidden ||
+            loading ||
+            disconnected,
+          tooltip:
+            docData?.data?.actionAccess?.modify !== true
+              ? `You cannot share this document because you do not have permission to modify it.`
+              : undefined,
+        },
+    hasPublishedDoc && currentStage === publishStage
+      ? {
+          id: 'updateSession',
+          label: 'Begin update session',
+          type: 'button',
+          icon: 'DocumentEdit24Regular',
+          action: () => null,
+        }
+      : null,
+  ].filter(notEmpty);
+
   $: coreSidebarProps = {
     docInfo: {
       _id: `${docData?.data?.doc?.[data.collection.config.by?.one || '_id']}`,
@@ -142,6 +257,7 @@
           }) || [],
     },
     hideVersions: isOldVersion,
+    actions,
   };
 
   let tabsContainerElement: HTMLDivElement;
@@ -301,6 +417,7 @@
               dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
               style={activeTab === 'preview' ? 'display: none;' : ''}
               collectionName={data.collection.schemaName}
+              {actions}
             />
           {/each}
         </div>
@@ -317,6 +434,7 @@
     tenant={coreSidebarProps.tenant}
     permissions={coreSidebarProps.permissions}
     hideVersions={coreSidebarProps.hideVersions}
+    actions={coreSidebarProps.actions}
   />
 </div>
 

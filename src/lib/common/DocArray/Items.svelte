@@ -26,6 +26,7 @@
     dynamicPreviewHref,
     style,
     collectionName,
+    actions,
   } = schemaFieldParams);
   export let ydocKey: string = '';
 
@@ -200,6 +201,7 @@
               childKey: subkey.replace(ydocKey + '.', ''),
             }}
             {collectionName}
+            {actions}
           />
         {/each}
       {/if}

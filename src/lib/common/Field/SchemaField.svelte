@@ -13,7 +13,10 @@
   import type { ComponentProps } from 'svelte';
   import type { Readable } from 'svelte/store';
   import { FieldWrapper } from '.';
-  import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
+  import type {
+    Action,
+    ProcessSchemaDef,
+  } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
   import { DocArray } from '../DocArray';
   import Loading from '../Loading.svelte';
@@ -33,6 +36,7 @@
   export let style = '';
   export let yjsDocArrayConfig: { __uuid: string; parentKey: string; childKey: string } | undefined = undefined;
   export let collectionName = '';
+  export let actions: Action[] = [];
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -120,6 +124,7 @@
         {coreSidebarProps}
         {fullSharedData}
         {dynamicPreviewHref}
+        {actions}
       />
     </FieldWrapper>
   {:else}
@@ -144,6 +149,7 @@
         dynamicPreviewHref,
         style,
         collectionName,
+        actions,
       }}
       {ydocKey}
     />
@@ -247,6 +253,7 @@
           dynamicPreviewHref,
           style,
           collectionName,
+          actions,
         }}
         {nestedSchemaDef}
         {ydocKey}

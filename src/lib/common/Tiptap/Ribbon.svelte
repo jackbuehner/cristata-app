@@ -18,6 +18,7 @@
   import type { ComponentProps } from 'svelte';
   import type { Readable } from 'svelte/store';
   import type { tiptapOptions } from '../../../config';
+  import type { Action } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import type Tiptap from './Tiptap.svelte';
   import { downloadEmailHTML } from './downloadEmailHTML';
   import { downloadHTML } from './downloadHTML';
@@ -41,6 +42,7 @@
   export let trackChanges: boolean | undefined;
   export let toggleTrackChanges: (bool: boolean) => void;
   export let iframehtmlstring = '';
+  export let actions: Action[] = [];
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
@@ -107,6 +109,10 @@
   let fileMenuOpen = false;
   let saveDocDialogOpen = false;
   let modeMenuOpen = false;
+
+  $: publishAction = actions.find((action) => action.id === 'publish');
+  $: shareAction = actions.find((action) => action.id === 'share');
+  $: restActions = actions.filter((action) => action.id !== publishAction?.id && action.id !== shareAction?.id);
 </script>
 
 <div class="ribbon" bind:offsetWidth={width}>
@@ -119,10 +125,19 @@
               <FluentIcon name="Save20Regular" />
               Save
             </MenuFlyoutItem>
-            <MenuFlyoutItem hint="Ctrl + Shift + S" disabled>
-              <FluentIcon name="CloudArrowUp20Regular" />
-              Publish
-            </MenuFlyoutItem>
+            {#if publishAction}
+              {@const { action, disabled, onAuxClick, tooltip, icon, label } = publishAction}
+              <MenuFlyoutItem
+                hint="Ctrl + Shift + S"
+                {disabled}
+                on:click={action}
+                on:auxclick={onAuxClick}
+                data-tip={tooltip}
+              >
+                <FluentIcon name={icon} mode="buttonIconLeft" />
+                {label}
+              </MenuFlyoutItem>
+            {/if}
             <MenuFlyoutDivider />
             <MenuFlyoutItem hint="Ctrl + P" disabled>
               <FluentIcon name="Print20Regular" />
@@ -137,27 +152,29 @@
                 <MenuFlyoutItem on:click={exportEmailHTML}>Email-ready HTML (.html)</MenuFlyoutItem>
               </svelte:fragment>
             </MenuFlyoutItem>
-            <MenuFlyoutItem disabled>
+            <MenuFlyoutItem hint="Ctrl + Alt + S" disabled>
               <FluentIcon name="Share20Regular" />
               Share
             </MenuFlyoutItem>
             <MenuFlyoutDivider />
-            <MenuFlyoutItem disabled>
-              <FluentIcon name="Eye20Regular" />
-              Watch
-            </MenuFlyoutItem>
-            <MenuFlyoutItem disabled>
-              <FluentIcon name="Delete20Regular" />
-              Delete
-            </MenuFlyoutItem>
-            <MenuFlyoutItem disabled>
-              <FluentIcon name="Archive20Regular" />
-              Archive
-            </MenuFlyoutItem>
-            <MenuFlyoutItem disabled>
-              <FluentIcon name="DocumentMultiple20Regular" />
-              Duplicate
-            </MenuFlyoutItem>
+            {#each restActions as action}
+              <MenuFlyoutItem
+                disabled={action.disabled}
+                on:click={action.action}
+                on:auxclick={action.onAuxClick}
+                data-tip={action.tooltip}
+                hint={action.id === 'save'
+                  ? 'Ctrl + S'
+                  : action.id === 'publish'
+                  ? 'Ctrl + Shift + S'
+                  : action.id === 'share'
+                  ? 'Ctrl + Alt + S'
+                  : ''}
+              >
+                <FluentIcon name={action.icon} />
+                {action.label}
+              </MenuFlyoutItem>
+            {/each}
           </svelte:fragment>
         </MenuFlyout>
         <Button on:click={() => (fileMenuOpen = !fileMenuOpen)}>File</Button>

@@ -171,7 +171,7 @@ export const load = (async ({ parent, params, url }) => {
    * Gets information about the current watchers of this document.
    * Requires providing the shared document data.
    */
-  const calcWatching = (sharedData: Record<string, unknown>): CalcWatchingReturn => {
+  const calcWatching = (sharedData: Record<string, unknown> = {}): CalcWatchingReturn => {
     // get watchers array of strings and enure type is correct
     let watchers: string[] = (getProperty(sharedData, 'people.watching') as string[]) || [];
     if (!Array.isArray(watchers)) watchers = [];
@@ -282,3 +282,14 @@ export type ProcessSchemaDef = (args?: {
   isPublishModal?: boolean;
   showHidden?: boolean;
 }) => DeconstructedSchemaDefType;
+
+export interface Action {
+  id: string;
+  label: string;
+  icon?: string;
+  action: (evt: MouseEvent | TouchEvent | KeyboardEvent) => void;
+  onAuxClick?: (evt: MouseEvent) => void;
+  disabled?: boolean;
+  tooltip?: string;
+  // showChevron?: boolean;
+}

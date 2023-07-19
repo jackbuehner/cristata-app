@@ -8,9 +8,18 @@
   import { listOxford } from '$utils/listOxford';
   import { openWindow } from '$utils/openWindow';
   import type { DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
-  import { Button, IconButton, PersonPicture, TextBlock, Tooltip } from 'fluent-svelte';
+  import {
+    Button,
+    IconButton,
+    MenuFlyout,
+    MenuFlyoutItem,
+    PersonPicture,
+    TextBlock,
+    Tooltip,
+  } from 'fluent-svelte';
   import type { Readable } from 'svelte/store';
   import type { PageData } from './$types';
+  import type { Action } from './+layout';
   import PersonCard from './PersonCard.svelte';
 
   export let docInfo: {
@@ -19,6 +28,7 @@
     modifiedAt: string | undefined;
     collectionName: string;
   };
+  export let actions: Action[];
   export let disabled = false;
   export let ydoc: YStore['ydoc'];
   export let stageDef: DeconstructedSchemaDefType[0][1] | undefined;
@@ -69,22 +79,77 @@
   };
 
   $: onlyOneFeature = Object.values(features).filter((v) => v === true).length === 1;
+
+  let actionsMenuOpen = false;
+  $: watchAction = actions.find((action) => action.id === 'watch');
+  $: shareAction = actions.find((action) => action.id === 'share');
+  $: restActions = actions.filter((action) => action.id !== watchAction?.id && action.id !== shareAction?.id);
 </script>
 
 <aside class="wrapper" class:isEmbedded>
   {#if features.actions}
-    <div class="button-row">
-      <Button>
-        <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
-        Action 1
-      </Button>
-      <Button>
-        <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
-        Action 2
-      </Button>
-      <Button class="solid-icon-button">
-        <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
-      </Button>
+    <div class="button-row" style={!watchAction && !shareAction ? 'justify-content: end;' : ''}>
+      {#if watchAction}
+        <Button
+          style="flex: 1;"
+          disabled={watchAction.disabled}
+          on:click={watchAction.action}
+          on:auxclick={watchAction.onAuxClick}
+          data-tip={watchAction.tooltip}
+        >
+          <FluentIcon name={watchAction.icon} mode="buttonIconLeft" />
+          <span style="white-space: nowrap;">{watchAction.label}</span>
+        </Button>
+      {/if}
+
+      {#if shareAction}
+        <Button
+          style="flex: 1; overflow: hidden;"
+          disabled={shareAction.disabled}
+          on:click={shareAction.action}
+          on:auxclick={shareAction.onAuxClick}
+          data-tip={shareAction.tooltip}
+        >
+          <FluentIcon name={shareAction.icon} mode="buttonIconLeft" />
+          <span style="white-space: nowrap;">{shareAction.label}</span>
+        </Button>
+      {/if}
+      <div style="display: flex;">
+        <Button
+          class={!watchAction && !shareAction ? '' : 'solid-icon-button'}
+          style="width: 100%; {!watchAction && !shareAction ? 'justify-content: space-between;' : ''}"
+          on:click={() => (actionsMenuOpen = !actionsMenuOpen)}
+        >
+          {#if !watchAction && !shareAction}
+            Actions
+            <FluentIcon name="ChevronDown16Regular" mode="buttonIconRight" />
+          {:else}
+            <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
+          {/if}
+        </Button>
+        <MenuFlyout alignment="end" placement="bottom" offset={0} bind:open={actionsMenuOpen}>
+          <svelte:fragment slot="flyout">
+            {#each restActions as action}
+              <MenuFlyoutItem
+                disabled={action.disabled}
+                on:click={action.action}
+                on:auxclick={action.onAuxClick}
+                data-tip={action.tooltip}
+                hint={action.id === 'save'
+                  ? 'Ctrl + S'
+                  : action.id === 'publish'
+                  ? 'Ctrl + Shift + S'
+                  : action.id === 'share'
+                  ? 'Ctrl + Alt + S'
+                  : ''}
+              >
+                <FluentIcon name={action.icon} />
+                {action.label}
+              </MenuFlyoutItem>
+            {/each}
+          </svelte:fragment>
+        </MenuFlyout>
+      </div>
     </div>
   {/if}
 
@@ -319,6 +384,7 @@
 
   aside :global(.solid-icon-button) {
     padding-inline: 7px;
+    height: 30px;
   }
   aside :global(.solid-icon-button .button-icon) {
     margin: 0 !important;

@@ -22,6 +22,7 @@
     dynamicPreviewHref,
     style,
     collectionName,
+    actions,
   } = schemaFieldParams);
   export let ydocKey: string;
   export let nestedSchemaDef: NestedSchemaDefType;
@@ -51,5 +52,6 @@
     {dynamicPreviewHref}
     {style}
     {collectionName}
+    {actions}
   />
 {/each}

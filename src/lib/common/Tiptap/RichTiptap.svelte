@@ -14,7 +14,10 @@
   import type { Readable } from 'svelte/store';
   import { fade, fly } from 'svelte/transition';
   import type { tiptapOptions } from '../../../config';
-  import type { ProcessSchemaDef } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
+  import type {
+    Action,
+    ProcessSchemaDef,
+  } from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/+layout';
   import type Sidebar from '../../../routes/(standard)/[tenant]/cms/collection/[collection]/[item_id]/Sidebar.svelte';
   import BubbleMenuParagraph from './BubbleMenuParagraph.svelte';
   import MetaFrame from './MetaFrame.svelte';
@@ -38,6 +41,7 @@
   // TODO: hide relevant sidebar parts and buttons if this is undefined
   export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
   export let dynamicPreviewHref = '';
+  export let actions: Action[] = [];
 
   let bubbleMenuParagraph: HTMLDivElement;
 
@@ -306,6 +310,7 @@
     {trackChanges}
     {toggleTrackChanges}
     {iframehtmlstring}
+    {actions}
   />
   <div class="main-middle">
     {#if $richTextParams.obj.previewMode > 0}
