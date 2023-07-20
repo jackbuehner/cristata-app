@@ -119,6 +119,7 @@
       <SelectedOption
         {label}
         {_id}
+        {disabled}
         on:keydown={handleKeyDown}
         on:focus={() => (dragging = true)}
         on:blur={() => (dragging = false)}

@@ -34,7 +34,7 @@
       <IconButton
         tabindex={-1}
         aria-label="drag-handle"
-        style="padding: 0; {disabled || dragging ? 'cursor: grab;' : 'cursor: grabbing;'}"
+        style="padding: 0; {disabled ? 'cursor: default;' : dragging ? 'cursor: grab;' : 'cursor: grabbing;'}"
         {disabled}
       >
         <svg

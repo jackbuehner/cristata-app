@@ -66,8 +66,6 @@
     publishActionAccess: docData?.data?.actionAccess.publish || false,
   }));
 
-  $: disabled = isOldVersion || publishLocked || false;
-
   // construct the name field with the field provied
   $: docName = (() => {
     let docName = data.collection.config.options.nameField || data.collection.name.singular;
@@ -117,6 +115,8 @@
   $: loading = false;
   $: hasPublishedDoc = !!$sharedData._hasPublishedDoc;
   $: disconnected = !$connected.ws;
+  $: disabled =
+    isOldVersion || publishLocked || archived || locked || hidden || loading || disconnected || false;
 
   $: docHasUnrestrictedAccess =
     data.collection.config.withPermissions === false ||
