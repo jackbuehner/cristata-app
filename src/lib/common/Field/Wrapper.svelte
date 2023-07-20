@@ -25,6 +25,9 @@
   <div class="labels">
     <label class="field-label" for={forId}>
       <TextBlock tag="span">{@html dompurify.sanitize(label)}</TextBlock>
+      <TextBlock tag="span" variant="caption" class="field-id">
+        †{forId}
+      </TextBlock>
     </label>
     {#if hasCaption}
       <label class="caption" for={forId}>
@@ -77,5 +80,18 @@
   div.field.checkbox div.labels {
     gap: 3px;
     margin-top: -1px;
+  }
+  .field-label :global(.field-id) {
+    /* display: none; */
+    font-size: 11px;
+    opacity: 0;
+    vertical-align: top;
+    transition: 120ms;
+    transition-delay: 0ms;
+  }
+  .field-label:hover :global(.field-id) {
+    /* display: inline-block; */
+    opacity: 0.5;
+    transition-delay: 500ms;
   }
 </style>
