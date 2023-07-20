@@ -24,6 +24,7 @@ class YProvider {
           wsProvider.shouldConnect = true;
         },
         connect: opts?.noWebsocketConn ? false : true,
+        maxAttempts: 0, // never stop trying to reconnect
       });
       this.#wsProviders[name] = wsProvider;
 

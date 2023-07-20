@@ -81,13 +81,13 @@ export function createYStore({ tenant, collection, id, versionDate, user, decons
             webrtc: false,
           });
         });
-        ydata.wsProvider.webSocket?.addEventListener('open', () => {
+        ydata.wsProvider.on('connect', () => {
           connected.set({
             ...get(connected),
             ws: true,
           });
         });
-        ydata.wsProvider.webSocket?.addEventListener('close', () => {
+        ydata.wsProvider.on('disconnect', () => {
           connected.set({
             ...get(connected),
             ws: false,
