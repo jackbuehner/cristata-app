@@ -5,11 +5,11 @@
   import { title } from '$stores/title';
   import { createYStore } from '$utils/createYStore.js';
   import { getProperty } from '$utils/objectPath.js';
-  import { WebSocketStatus } from '@hocuspocus/provider';
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
   import { Button, InfoBar, ProgressRing } from 'fluent-svelte';
+  import { toast } from 'react-toastify';
   import { onDestroy } from 'svelte';
   import type { Action } from './+layout';
   import Sidebar from './Sidebar.svelte';
@@ -136,7 +136,9 @@
       icon: watcherData.isWatcher ? 'EyeOff20Regular' : 'Eye24Regular',
       action: async () => {
         loadingWatchAction = true;
-        await data.actions.toggleWatchDoc(!watcherData.isWatcher);
+        const error = await data.actions.toggleWatchDoc(!watcherData.isWatcher);
+        console.log(error);
+        if (error) toast.error(error);
         loadingWatchAction = false;
       },
       loading: loadingWatchAction,

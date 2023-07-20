@@ -12,7 +12,7 @@ import gql from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
-import { toast } from 'react-toastify';
+
 import type { LayoutLoad } from './$types';
 
 // @ts-expect-error https://github.com/zenozeng/color-hash/issues/42
@@ -228,14 +228,23 @@ export const load = (async ({ parent, params, url }) => {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: print(HIDE_ITEM) }),
-    }).catch((err) => {
-      console.error(err);
-      if (hide) {
-        toast.error(`Failed to hide document. \n ${err.message}`);
-      } else {
-        toast.error(`Failed to restore document. \n ${err.message}`);
-      }
-    });
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.errors) {
+          throw new Error(json.errors?.[0]?.message || JSON.stringify(json.errors?.[0] || 'Unknown error'));
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        if (hide) {
+          return `Failed to hide document. \n ${err.message}`;
+        } else {
+          return `Failed to restore document. \n ${err.message}`;
+        }
+      });
   };
 
   /**
@@ -255,14 +264,23 @@ export const load = (async ({ parent, params, url }) => {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: print(ARCHIVE_ITEM) }),
-    }).catch((err) => {
-      console.error(err);
-      if (archive) {
-        toast.error(`Failed to archive document. \n ${err.message}`);
-      } else {
-        toast.error(`Failed to unarchive document. \n ${err.message}`);
-      }
-    });
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.errors) {
+          throw new Error(json.errors?.[0]?.message || JSON.stringify(json.errors?.[0] || 'Unknown error'));
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        if (archive) {
+          return `Failed to archive document. \n ${err.message}`;
+        } else {
+          return `Failed to unarchive document. \n ${err.message}`;
+        }
+      });
   };
 
   /**
@@ -281,7 +299,14 @@ export const load = (async ({ parent, params, url }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: print(CLONE_ITEM) }),
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.errors) {
+          throw new Error(json.errors?.[0]?.message || JSON.stringify(json.errors?.[0] || 'Unknown error'));
+        } else {
+          return json;
+        }
+      })
       .then(({ data }) => {
         const _url = new URL(url.href);
         const newDocId = data[`${uncapitalize(collection.schemaName)}Clone`][`${accessorOne || '_id'}`];
@@ -290,10 +315,11 @@ export const load = (async ({ parent, params, url }) => {
         )}/${newDocId}`;
         _url.pathname = newDocPath;
         goto(_url);
+        return null;
       })
       .catch((err) => {
         console.error(err);
-        toast.error(`Failed to clone document. \n ${err.message}`);
+        return `Failed to clone document. \n ${err.message}`;
       });
   };
 
@@ -328,14 +354,23 @@ export const load = (async ({ parent, params, url }) => {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: print(watch === true ? WATCH_ITEM : UNWATCH_ITEM) }),
-    }).catch((err) => {
-      console.error(err);
-      if (watch) {
-        toast.error(`Failed to start watching this document. \n ${err.message}`);
-      } else {
-        toast.error(`Failed to stop watching this document. \n ${err.message}`);
-      }
-    });
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.errors) {
+          throw new Error(json.errors?.[0]?.message || JSON.stringify(json.errors?.[0] || 'Unknown error'));
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        if (watch) {
+          return `Failed to start watching this document. \n ${err.message}`;
+        } else {
+          return `Failed to stop watching this document. \n ${err.message}`;
+        }
+      });
   };
 
   /**
@@ -355,10 +390,19 @@ export const load = (async ({ parent, params, url }) => {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: print(SET_READY_STAGE) }),
-    }).catch((err) => {
-      console.error(err);
-      toast.error(`Failed to begin an update session. \n ${err.message}`);
-    });
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.errors) {
+          throw new Error(json.errors?.[0]?.message || JSON.stringify(json.errors?.[0] || 'Unknown error'));
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        return `Failed to begin an update session. \n ${err.message}`;
+      });
   };
 
   /**
@@ -378,10 +422,19 @@ export const load = (async ({ parent, params, url }) => {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: print(UNPUBLISH_ITEM) }),
-    }).catch((err) => {
-      console.error(err);
-      toast.error(`Failed to unpublish document. \n ${err.message}`);
-    });
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (json.errors) {
+          throw new Error(json.errors?.[0]?.message || JSON.stringify(json.errors?.[0] || 'Unknown error'));
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        return `Failed to unpublish document. \n ${err.message}`;
+      });
   };
 
   return {
