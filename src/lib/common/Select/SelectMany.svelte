@@ -336,7 +336,12 @@ The `on:select` event occurs when the selected values change. It fires upon sele
     {disabled}
   >
     <svelte:fragment slot="buttons">
-      <TextBoxButton>
+      <TextBoxButton
+        on:click={() => {
+          addTextValues(textBoxValue);
+          textBoxValue = '';
+        }}
+      >
         <FluentIcon name="ArrowRight12Regular" />
       </TextBoxButton>
     </svelte:fragment>
