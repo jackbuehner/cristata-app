@@ -1,3 +1,4 @@
+import { goto } from '$app/navigation';
 import { query } from '$graphql/query';
 import { server } from '$utils/constants';
 import { deepen } from '$utils/deepen';
@@ -6,9 +7,12 @@ import { getProperty } from '$utils/objectPath';
 import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
 import { notEmpty, uncapitalize } from '@jackbuehner/cristata-utils';
 import _ColorHash from 'color-hash';
+import { print } from 'graphql';
 import gql from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
+import pluralize from 'pluralize';
+import { toast } from 'react-toastify';
 import type { LayoutLoad } from './$types';
 
 // @ts-expect-error https://github.com/zenozeng/color-hash/issues/42
@@ -204,6 +208,182 @@ export const load = (async ({ parent, params, url }) => {
     };
   };
 
+  /**
+   * Set the item to be hidden.
+   *
+   * This is used to hide the doc from the list of viewable docs in the
+   * collection without completely deleting it. This is useful as a
+   * "soft" deletion that can be undone because the data is not actually
+   * deleted.
+   */
+  const hideDoc = async (hide = true) => {
+    const HIDE_ITEM = gql`mutation {
+      ${uncapitalize(collection.schemaName)}Hide(${accessorOne || '_id'}: "${params.item_id}", hide: ${hide}) {
+        hidden
+      }
+    }`;
+
+    return await fetch(`${server.location}/v3/${params.tenant}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: print(HIDE_ITEM) }),
+    }).catch((err) => {
+      console.error(err);
+      if (hide) {
+        toast.error(`Failed to hide document. \n ${err.message}`);
+      } else {
+        toast.error(`Failed to restore document. \n ${err.message}`);
+      }
+    });
+  };
+
+  /**
+   * Set whether the item is archived.
+   */
+  const archiveDoc = async (archive = true) => {
+    const ARCHIVE_ITEM = gql`mutation {
+      ${uncapitalize(collection.schemaName)}Archive(${accessorOne || '_id'}: "${
+      params.item_id
+    }", archive: ${archive}) {
+        archived
+      }
+    }`;
+
+    return await fetch(`${server.location}/v3/${params.tenant}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: print(ARCHIVE_ITEM) }),
+    }).catch((err) => {
+      console.error(err);
+      if (archive) {
+        toast.error(`Failed to archive document. \n ${err.message}`);
+      } else {
+        toast.error(`Failed to unarchive document. \n ${err.message}`);
+      }
+    });
+  };
+
+  /**
+   * Clones a document.
+   */
+  const cloneDoc = async () => {
+    const CLONE_ITEM = gql`mutation {
+      ${uncapitalize(collection.schemaName)}Clone(${accessorOne || '_id'}: "${params.item_id}") {
+        ${accessorOne || '_id'}
+      }
+    }`;
+
+    return await fetch(`${server.location}/v3/${params.tenant}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: print(CLONE_ITEM) }),
+    })
+      .then((res) => res.json())
+      .then(({ data }) => {
+        const _url = new URL(url.href);
+        const newDocId = data[`${uncapitalize(collection.schemaName)}Clone`][`${accessorOne || '_id'}`];
+        const newDocPath = `${params.tenant}/cms/collection/${pluralize(
+          uncapitalize(collection.schemaName)
+        )}/${newDocId}`;
+        _url.pathname = newDocPath;
+        goto(_url);
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(`Failed to clone document. \n ${err.message}`);
+      });
+  };
+
+  /**
+   * Toggle whether the current user is watching this document.
+   *
+   * This adds or removes the current user from the list of people
+   * who receive notification when this document changes.
+   */
+  const toggleWatchDoc = async (watch: boolean) => {
+    const WATCH_ITEM = gql`mutation {
+      ${uncapitalize(collection.schemaName)}Watch(${accessorOne || '_id'}: "${params.item_id}") {
+        people {
+          watching {
+            _id
+          }
+        }
+      }
+    }`;
+    const UNWATCH_ITEM = gql`mutation {
+      ${uncapitalize(collection.schemaName)}Watch(${accessorOne || '_id'}: "${params.item_id}", watch: false) {
+        people {
+          watching {
+            _id
+          }
+        }
+      }
+    }`;
+
+    return await fetch(`${server.location}/v3/${params.tenant}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: print(watch === true ? WATCH_ITEM : UNWATCH_ITEM) }),
+    }).catch((err) => {
+      console.error(err);
+      if (watch) {
+        toast.error(`Failed to start watching this document. \n ${err.message}`);
+      } else {
+        toast.error(`Failed to stop watching this document. \n ${err.message}`);
+      }
+    });
+  };
+
+  /**
+   * Set the document stage to draft (2.1)
+   */
+  const setDraftStage = async () => {
+    const SET_READY_STAGE = gql`mutation {
+      ${uncapitalize(collection.schemaName)}Modify(${accessorOne || '_id'}: "${
+      params.item_id
+    }", input: { stage: 2.1 }) {
+        stage
+      }
+    }`;
+
+    return await fetch(`${server.location}/v3/${params.tenant}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: print(SET_READY_STAGE) }),
+    }).catch((err) => {
+      console.error(err);
+      toast.error(`Failed to begin an update session. \n ${err.message}`);
+    });
+  };
+
+  /**
+   * Unpublish the document and set the stage to 2.1.
+   */
+  const unpublishDoc = async () => {
+    const UNPUBLISH_ITEM = gql`mutation {
+      ${uncapitalize(collection.schemaName)}Publish(${accessorOne || '_id'}: "${
+      params.item_id
+    }", publish: false) {
+        ${accessorOne || '_id'}
+      }
+    }`;
+
+    return await fetch(`${server.location}/v3/${params.tenant}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: print(UNPUBLISH_ITEM) }),
+    }).catch((err) => {
+      console.error(err);
+      toast.error(`Failed to unpublish document. \n ${err.message}`);
+    });
+  };
+
   return {
     yuser,
     params,
@@ -214,6 +394,14 @@ export const load = (async ({ parent, params, url }) => {
       calcPublishPermissions,
       colorHash,
       calcWatching,
+    },
+    actions: {
+      hideDoc,
+      archiveDoc,
+      cloneDoc,
+      toggleWatchDoc,
+      setDraftStage,
+      unpublishDoc,
     },
   };
 }) satisfies LayoutLoad;
@@ -287,7 +475,8 @@ export interface Action {
   id: string;
   label: string;
   icon?: string;
-  action: (evt: MouseEvent | TouchEvent | KeyboardEvent) => void;
+  action: (evt: MouseEvent | TouchEvent | KeyboardEvent | CustomEvent<any>) => void | Promise<void>;
+  loading?: boolean;
   onAuxClick?: (evt: MouseEvent) => void;
   disabled?: boolean;
   tooltip?: string;

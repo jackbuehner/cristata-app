@@ -1,5 +1,6 @@
 <script lang="ts">
   import { SchemaField } from '$lib/common/Field/index.js';
+  import FluentIcon from '$lib/common/FluentIcon.svelte';
   import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
   import { title } from '$stores/title';
   import { createYStore } from '$utils/createYStore.js';
@@ -8,7 +9,7 @@
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
-  import { Button, InfoBar } from 'fluent-svelte';
+  import { Button, InfoBar, ProgressRing } from 'fluent-svelte';
   import { onDestroy } from 'svelte';
   import type { Action } from './+layout';
   import Sidebar from './Sidebar.svelte';
@@ -115,7 +116,7 @@
   $: hidden = !!$sharedData.hidden;
   $: loading = false;
   $: hasPublishedDoc = !!$sharedData._hasPublishedDoc;
-  $: disconnected = $wsProvider?.status !== WebSocketStatus.Connected;
+  $: disconnected = !$connected.ws;
 
   $: docHasUnrestrictedAccess =
     data.collection.config.withPermissions === false ||
@@ -123,13 +124,24 @@
     getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
 
   let actions: Action[] = [];
+  let loadingWatchAction = false;
+  let loadingHideAction = false;
+  let loadingArchiveAction = false;
+  let loadingCloneAction = false;
+  let loadingUpdateSessionAction = false;
   $: actions = [
     {
       id: 'watch',
       label: watcherData.isWatcher ? 'Stop watching' : 'Watch',
       icon: watcherData.isWatcher ? 'EyeOff20Regular' : 'Eye24Regular',
-      action: () => null,
+      action: async () => {
+        loadingWatchAction = true;
+        await data.actions.toggleWatchDoc(!watcherData.isWatcher);
+        loadingWatchAction = false;
+      },
+      loading: loadingWatchAction,
       disabled:
+        loadingWatchAction ||
         watcherData.isMandatoryWatcher ||
         docData?.data?.actionAccess?.watch !== true ||
         archived ||
@@ -148,7 +160,7 @@
       label: currentStage === publishStage ? 'Unpublish' : hasPublishedDoc ? 'Republish' : 'Publish',
       type: 'button',
       icon: currentStage === publishStage ? 'CloudDismiss24Regular' : 'CloudArrowUp24Regular',
-      action: () => null,
+      action: () => {},
       // action: () => (currentStage === publishStage ? unpublishItem() : showPublishModal()),
       disabled: canPublish !== true || archived || locked || hidden || loading || disconnected,
       tooltip:
@@ -161,21 +173,33 @@
       label: hidden ? 'Restore from deleted items' : 'Delete',
       type: 'button',
       icon: hidden ? 'DeleteOff24Regular' : 'Delete24Regular',
-      action: () => null,
-      color: hidden ? 'primary' : 'red',
+      action: async () => {
+        loadingHideAction = true;
+        await data.actions.hideDoc(!hidden);
+        setTimeout(() => {
+          loadingHideAction = false;
+        }, 1000);
+      },
+      loading: loadingHideAction,
       disabled:
-        docData?.data?.actionAccess?.hide !== true || archived || locked || hidden || loading || disconnected,
+        loadingHideAction || docData?.data?.actionAccess?.hide !== true || locked || loading || disconnected,
     },
     {
       id: 'archive',
       label: archived ? 'Remove from archive' : 'Archive',
       type: 'button',
       icon: archived ? 'FolderArrowUp24Regular' : 'Archive24Regular',
-      action: () => null,
-      color: archived ? 'primary' : 'yellow',
+      action: async () => {
+        loadingArchiveAction = true;
+        await data.actions.archiveDoc(!archived);
+        setTimeout(() => {
+          loadingArchiveAction = false;
+        }, 1000);
+      },
+      loading: loadingArchiveAction,
       disabled:
+        loadingArchiveAction ||
         docData?.data?.actionAccess?.archive !== true ||
-        archived ||
         locked ||
         hidden ||
         loading ||
@@ -186,9 +210,22 @@
       label: 'Duplicate',
       type: 'button',
       icon: 'DocumentCopy24Regular',
-      action: () => null,
+      action: async () => {
+        loadingCloneAction = true;
+        await data.actions.cloneDoc();
+        setTimeout(() => {
+          loadingCloneAction = false;
+        }, 1000);
+      },
+      loading: loadingCloneAction,
       disabled:
-        docData?.data?.actionAccess?.modify !== true || archived || locked || hidden || loading || disconnected,
+        loadingCloneAction ||
+        docData?.data?.actionAccess?.modify !== true ||
+        archived ||
+        locked ||
+        hidden ||
+        loading ||
+        disconnected,
     },
     docHasUnrestrictedAccess
       ? null
@@ -197,7 +234,7 @@
           label: 'Share',
           type: 'button',
           icon: 'Share24Regular',
-          action: () => null,
+          action: () => {},
           disabled:
             docData?.data?.actionAccess?.modify !== true ||
             archived ||
@@ -216,7 +253,22 @@
           label: 'Begin update session',
           type: 'button',
           icon: 'DocumentEdit24Regular',
-          action: () => null,
+          action: async () => {
+            loadingUpdateSessionAction = true;
+            await data.actions.setDraftStage();
+            setTimeout(() => {
+              loadingUpdateSessionAction = false;
+            }, 1000);
+          },
+          loading: loadingUpdateSessionAction,
+          disabled:
+            loadingUpdateSessionAction ||
+            docData?.data?.actionAccess?.modify !== true ||
+            archived ||
+            locked ||
+            hidden ||
+            loading ||
+            disconnected,
         }
       : null,
   ].filter(notEmpty);
@@ -349,32 +401,80 @@
               />
             {/if}
             {#if !!$sharedData.archived && !isOldVersion}
+              {@const action = actions.find((action) => action.id === 'archive')}
               <InfoBar
                 title="This document is opened in read-only mode because it is archived."
                 severity="attention"
                 closable={false}
               >
-                <Button slot="action">Remove from archive</Button>
+                {#if action}
+                  {@const { label, icon, loading, action: onclick, disabled } = action}
+                  <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
+                    {#if loading}
+                      <div class="button-progress"><ProgressRing size={16} /></div>
+                    {/if}
+                    <FluentIcon
+                      name={icon}
+                      mode="buttonIconLeft"
+                      style={loading ? 'visibility: hidden;' : ''}
+                    />
+                    <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">
+                      {label}
+                    </span>
+                  </Button>
+                {/if}
               </InfoBar>
             {/if}
             {#if !!$sharedData.hidden && !isOldVersion}
+              {@const action = actions.find((action) => action.id === 'delete')}
               <InfoBar
                 title="This document is opened in read-only mode because it is deleted."
                 severity="attention"
                 closable={false}
               >
-                <Button slot="action">Remove from deleted items</Button>
+                {#if action}
+                  {@const { label, icon, loading, action: onclick, disabled } = action}
+                  <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
+                    {#if loading}
+                      <div class="button-progress"><ProgressRing size={16} /></div>
+                    {/if}
+                    <FluentIcon
+                      name={icon}
+                      mode="buttonIconLeft"
+                      style={loading ? 'visibility: hidden;' : ''}
+                    />
+                    <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">
+                      {label}
+                    </span>
+                  </Button>
+                {/if}
               </InfoBar>
             {/if}
             {#if !!$sharedData._hasPublishedDoc}
               {#if $sharedData.stage === publishStage}
+                {@const action = actions.find((action) => action.id === 'updateSession')}
                 <InfoBar
                   title="This document is read-only mode because it is published."
                   severity="attention"
                   closable={false}
                 >
                   Begin an update session to make edits.
-                  <Button slot="action">Begin update session</Button>
+                  {#if action}
+                    {@const { label, icon, loading, action: onclick, disabled } = action}
+                    <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
+                      {#if loading}
+                        <div class="button-progress"><ProgressRing size={16} /></div>
+                      {/if}
+                      <FluentIcon
+                        name={icon}
+                        mode="buttonIconLeft"
+                        style={loading ? 'visibility: hidden;' : ''}
+                      />
+                      <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">
+                        {label}
+                      </span>
+                    </Button>
+                  {/if}
                 </InfoBar>
               {:else}
                 <InfoBar
@@ -539,5 +639,15 @@
     float: left;
     background-color: var(--fds-accent-default);
     border-radius: 6px;
+  }
+
+  .button-progress {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
   }
 </style>

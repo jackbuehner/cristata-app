@@ -14,6 +14,7 @@
     MenuFlyout,
     MenuFlyoutItem,
     PersonPicture,
+    ProgressRing,
     TextBlock,
     Tooltip,
   } from 'fluent-svelte';
@@ -28,7 +29,7 @@
     modifiedAt: string | undefined;
     collectionName: string;
   };
-  export let actions: Action[];
+  export let actions: Action[] = [];
   export let disabled = false;
   export let ydoc: YStore['ydoc'];
   export let stageDef: DeconstructedSchemaDefType[0][1] | undefined;
@@ -90,28 +91,36 @@
   {#if features.actions}
     <div class="button-row" style={!watchAction && !shareAction ? 'justify-content: end;' : ''}>
       {#if watchAction}
+        {@const { action, disabled, onAuxClick, tooltip, icon, label, loading } = watchAction}
         <Button
           style="flex: 1;"
-          disabled={watchAction.disabled}
-          on:click={watchAction.action}
-          on:auxclick={watchAction.onAuxClick}
-          data-tip={watchAction.tooltip}
+          disabled={disabled || loading}
+          on:click={disabled ? undefined : action}
+          on:auxclick={disabled ? undefined : onAuxClick}
+          data-tip={tooltip}
         >
-          <FluentIcon name={watchAction.icon} mode="buttonIconLeft" />
-          <span style="white-space: nowrap;">{watchAction.label}</span>
+          {#if loading}
+            <div class="button-progress"><ProgressRing size={16} /></div>
+          {/if}
+          <FluentIcon name={icon} mode="buttonIconLeft" style={loading ? 'visibility: hidden;' : ''} />
+          <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">{label}</span>
         </Button>
       {/if}
 
       {#if shareAction}
+        {@const { action, disabled, onAuxClick, tooltip, icon, label, loading } = shareAction}
         <Button
-          style="flex: 1; overflow: hidden;"
-          disabled={shareAction.disabled}
-          on:click={shareAction.action}
-          on:auxclick={shareAction.onAuxClick}
-          data-tip={shareAction.tooltip}
+          style="flex: 1;"
+          disabled={disabled || loading}
+          on:click={disabled ? undefined : action}
+          on:auxclick={disabled ? undefined : onAuxClick}
+          data-tip={tooltip}
         >
-          <FluentIcon name={shareAction.icon} mode="buttonIconLeft" />
-          <span style="white-space: nowrap;">{shareAction.label}</span>
+          {#if loading}
+            <div class="button-progress"><ProgressRing size={16} /></div>
+          {/if}
+          <FluentIcon name={icon} mode="buttonIconLeft" style={loading ? 'visibility: hidden;' : ''} />
+          <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">{label}</span>
         </Button>
       {/if}
       <div style="display: flex;">
@@ -129,22 +138,26 @@
         </Button>
         <MenuFlyout alignment="end" placement="bottom" offset={0} bind:open={actionsMenuOpen}>
           <svelte:fragment slot="flyout">
-            {#each restActions as action}
+            {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading }}
               <MenuFlyoutItem
-                disabled={action.disabled}
-                on:click={action.action}
-                on:auxclick={action.onAuxClick}
-                data-tip={action.tooltip}
-                hint={action.id === 'save'
+                disabled={disabled || loading}
+                on:click={action}
+                on:auxclick={onAuxClick}
+                data-tip={tooltip}
+                hint={id === 'save'
                   ? 'Ctrl + S'
-                  : action.id === 'publish'
+                  : id === 'publish'
                   ? 'Ctrl + Shift + S'
-                  : action.id === 'share'
+                  : id === 'share'
                   ? 'Ctrl + Alt + S'
                   : ''}
               >
-                <FluentIcon name={action.icon} />
-                {action.label}
+                {#if loading}
+                  <ProgressRing size={16} />
+                {:else}
+                  <FluentIcon name={icon} />
+                {/if}
+                {label}
               </MenuFlyoutItem>
             {/each}
           </svelte:fragment>
@@ -356,6 +369,8 @@
     overflow: hidden auto;
     padding: 20px;
     box-sizing: border-box;
+    flex-grow: 0;
+    flex-shrink: 0;
   }
   @media (prefers-color-scheme: dark) {
     aside.wrapper {
@@ -469,5 +484,15 @@
     gap: 0px;
     user-select: none;
     width: 100%;
+  }
+
+  .button-progress {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
   }
 </style>

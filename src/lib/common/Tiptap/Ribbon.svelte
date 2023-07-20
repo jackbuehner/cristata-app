@@ -13,6 +13,7 @@
     MenuFlyoutDivider,
     MenuFlyoutItem,
     PersonPicture,
+    ProgressRing,
     Tooltip,
   } from 'fluent-svelte';
   import type { ComponentProps } from 'svelte';
@@ -126,15 +127,19 @@
               Save
             </MenuFlyoutItem>
             {#if publishAction}
-              {@const { action, disabled, onAuxClick, tooltip, icon, label } = publishAction}
+              {@const { action, disabled, onAuxClick, tooltip, icon, label, loading } = publishAction}
               <MenuFlyoutItem
                 hint="Ctrl + Shift + S"
-                {disabled}
+                disabled={disabled || loading}
                 on:click={action}
                 on:auxclick={onAuxClick}
                 data-tip={tooltip}
               >
-                <FluentIcon name={icon} mode="buttonIconLeft" />
+                {#if loading}
+                  <ProgressRing size={16} />
+                {:else}
+                  <FluentIcon name={icon} mode="buttonIconLeft" />
+                {/if}
                 {label}
               </MenuFlyoutItem>
             {/if}
@@ -152,27 +157,44 @@
                 <MenuFlyoutItem on:click={exportEmailHTML}>Email-ready HTML (.html)</MenuFlyoutItem>
               </svelte:fragment>
             </MenuFlyoutItem>
-            <MenuFlyoutItem hint="Ctrl + Alt + S" disabled>
-              <FluentIcon name="Share20Regular" />
-              Share
-            </MenuFlyoutItem>
-            <MenuFlyoutDivider />
-            {#each restActions as action}
+            {#if shareAction}
+              {@const { action, disabled, onAuxClick, tooltip, icon, label, loading } = shareAction}
               <MenuFlyoutItem
-                disabled={action.disabled}
-                on:click={action.action}
-                on:auxclick={action.onAuxClick}
-                data-tip={action.tooltip}
-                hint={action.id === 'save'
+                hint="Ctrl + Alt + S"
+                disabled={disabled || loading}
+                on:click={action}
+                on:auxclick={onAuxClick}
+                data-tip={tooltip}
+              >
+                {#if loading}
+                  <ProgressRing size={16} />
+                {:else}
+                  <FluentIcon name={icon} mode="buttonIconLeft" />
+                {/if}
+                {label}
+              </MenuFlyoutItem>
+            {/if}
+            <MenuFlyoutDivider />
+            {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading }}
+              <MenuFlyoutItem
+                disabled={disabled || loading}
+                on:click={action}
+                on:auxclick={onAuxClick}
+                data-tip={tooltip}
+                hint={id === 'save'
                   ? 'Ctrl + S'
-                  : action.id === 'publish'
+                  : id === 'publish'
                   ? 'Ctrl + Shift + S'
-                  : action.id === 'share'
+                  : id === 'share'
                   ? 'Ctrl + Alt + S'
                   : ''}
               >
-                <FluentIcon name={action.icon} />
-                {action.label}
+                {#if loading}
+                  <ProgressRing size={16} />
+                {:else}
+                  <FluentIcon name={icon} />
+                {/if}
+                {label}
               </MenuFlyoutItem>
             {/each}
           </svelte:fragment>
