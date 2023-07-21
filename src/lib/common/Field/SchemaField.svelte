@@ -113,7 +113,7 @@
   {:else if !!$ydoc && !!$wsProvider && !!fullSharedData}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
       <RichTiptap
-        {disabled}
+        disabled={_disabled}
         {ydoc}
         {ydocKey}
         {wsProvider}
@@ -141,7 +141,7 @@
         mode,
         ydoc,
         wsProvider,
-        disabled,
+        disabled: _disabled,
         user,
         processSchemaDef,
         coreSidebarProps,
@@ -167,41 +167,41 @@
 
   {#if isArrayType}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <SelectMany {disabled} {ydoc} {ydocKey} {reference} />
+      <SelectMany disabled={_disabled} {ydoc} {ydocKey} {reference} />
     </FieldWrapper>
   {:else}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <SelectOne {disabled} {ydoc} {ydocKey} {reference} />
+      <SelectOne disabled={_disabled} {ydoc} {ydocKey} {reference} />
     </FieldWrapper>
   {/if}
 {:else if type === 'String' && def.field?.markdown}
   <FieldWrapper label={fieldName} {description} forId={key} {style}>
-    <Code {disabled} {ydoc} {ydocKey} {wsProvider} key={ydocKey} type="md" />
+    <Code disabled={_disabled} {ydoc} {ydocKey} {wsProvider} key={ydocKey} type="md" />
   </FieldWrapper>
 {:else if type === 'String'}
   {#if options}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
+      <SelectOne disabled={_disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <TextTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} />
+      <TextTiptap disabled={_disabled} {ydoc} {ydocKey} {wsProvider} {user} />
     </FieldWrapper>
   {:else}
     <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Boolean'}
   <FieldWrapper label={fieldName} {description} forId={key} {style} mode="checkbox">
-    <StatelessCheckbox {disabled} {ydoc} {ydocKey} id={key} />
+    <StatelessCheckbox disabled={_disabled} {ydoc} {ydocKey} id={key} />
   </FieldWrapper>
 {:else if type === 'Number'}
   {#if options}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
+      <SelectOne disabled={_disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <NumberTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={false} />
+      <NumberTiptap disabled={_disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={false} />
     </FieldWrapper>
   {:else}
     <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>
@@ -209,30 +209,30 @@
 {:else if type === 'Float'}
   {#if options}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <SelectOne {disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
+      <SelectOne disabled={_disabled} {ydoc} {ydocKey} {options} showCurrentSelectionOnDropdown />
     </FieldWrapper>
   {:else if !!$ydoc && !!$wsProvider}
     <FieldWrapper label={fieldName} {description} forId={key} {style}>
-      <NumberTiptap {disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={true} />
+      <NumberTiptap disabled={_disabled} {ydoc} {ydocKey} {wsProvider} {user} allowDecimals={true} />
     </FieldWrapper>
   {:else}
     <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>
   {/if}
 {:else if type === 'Date'}
   <FieldWrapper label={fieldName} {description} forId={key} {style}>
-    <DateTime {disabled} {ydoc} {ydocKey} />
+    <DateTime disabled={_disabled} {ydoc} {ydocKey} />
   </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'String'}
   <FieldWrapper label={fieldName} {description} forId={key} {style}>
-    <SelectMany {disabled} {ydoc} {ydocKey} {options} />
+    <SelectMany disabled={_disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'Number'}
   <FieldWrapper label={fieldName} {description} forId={key} {style}>
-    <SelectOne {disabled} {ydoc} {ydocKey} {options} />
+    <SelectOne disabled={_disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
 {:else if Array.isArray(type) && type[0] === 'Float'}
   <FieldWrapper label={fieldName} {description} forId={key} {style}>
-    <SelectOne {disabled} {ydoc} {ydocKey} {options} />
+    <SelectOne disabled={_disabled} {ydoc} {ydocKey} {options} />
   </FieldWrapper>
 {:else if type === 'JSON'}
   {#if $fullSharedData?.name}
@@ -245,7 +245,7 @@
           mode,
           ydoc,
           wsProvider,
-          disabled,
+          disabled: _disabled,
           user,
           processSchemaDef,
           coreSidebarProps,
