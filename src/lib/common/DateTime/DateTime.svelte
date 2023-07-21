@@ -179,6 +179,7 @@
     />
   </div>
   <Button
+    {disabled}
     on:click={() => {
       month = new Date().getMonth() + 1;
       day = new Date().getDate();
@@ -230,6 +231,7 @@
     />
   </div>
   <Button
+    {disabled}
     on:click={() => {
       const now = new Date();
       const nowTime = (time = toIsoString(now).split('T')[1]);
