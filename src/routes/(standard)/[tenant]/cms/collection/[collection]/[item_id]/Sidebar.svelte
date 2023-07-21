@@ -136,12 +136,23 @@
             <FluentIcon name="MoreHorizontal16Regular" mode="buttonIconLeft" />
           {/if}
         </Button>
-        <MenuFlyout alignment="end" placement="bottom" offset={0} bind:open={actionsMenuOpen}>
+        <MenuFlyout
+          alignment="end"
+          placement="bottom"
+          offset={0}
+          bind:open={actionsMenuOpen}
+          closeOnSelect={false}
+        >
           <svelte:fragment slot="flyout">
             {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading }}
               <MenuFlyoutItem
                 disabled={disabled || loading}
-                on:click={action}
+                on:click={async (evt) => {
+                  await action(evt);
+                  setTimeout(() => {
+                    actionsMenuOpen = false;
+                  }, 1);
+                }}
                 on:auxclick={onAuxClick}
                 data-tip={tooltip}
                 hint={id === 'save'

@@ -131,7 +131,12 @@
               <MenuFlyoutItem
                 hint="Ctrl + Shift + S"
                 disabled={disabled || loading}
-                on:click={action}
+                on:click={async (evt) => {
+                  await action(evt);
+                  setTimeout(() => {
+                    fileMenuOpen = false;
+                  }, 1);
+                }}
                 on:auxclick={onAuxClick}
                 data-tip={tooltip}
               >
@@ -162,7 +167,12 @@
               <MenuFlyoutItem
                 hint="Ctrl + Alt + S"
                 disabled={disabled || loading}
-                on:click={action}
+                on:click={async (evt) => {
+                  await action(evt);
+                  setTimeout(() => {
+                    fileMenuOpen = false;
+                  }, 1);
+                }}
                 on:auxclick={onAuxClick}
                 data-tip={tooltip}
               >
@@ -178,7 +188,12 @@
             {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading }}
               <MenuFlyoutItem
                 disabled={disabled || loading}
-                on:click={action}
+                on:click={async (evt) => {
+                  await action(evt);
+                  setTimeout(() => {
+                    fileMenuOpen = false;
+                  }, 10);
+                }}
                 on:auxclick={onAuxClick}
                 data-tip={tooltip}
                 hint={id === 'save'
