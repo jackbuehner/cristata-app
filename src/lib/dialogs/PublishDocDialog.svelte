@@ -37,8 +37,16 @@
   let loadingSubmit = false;
   let loadingCancel = false;
 
-  $: publishedAt = getProperty($fullSharedData || {}, 'timestamps.published_at');
-  $: updatedAt = getProperty($fullSharedData || {}, 'timestamps.updated_at');
+  $: publishedAt = (() => {
+    const timestamp = getProperty($fullSharedData || {}, 'timestamps.published_at');
+    if (!timestamp || isNaN(new Date(timestamp)?.getFullYear())) return '';
+    return timestamp;
+  })();
+  $: updatedAt = (() => {
+    const timestamp = getProperty($fullSharedData || {}, 'timestamps.updated_at');
+    if (!timestamp || isNaN(new Date(timestamp)?.getFullYear())) return '';
+    return timestamp;
+  })();
   $: shortId = id.itemId.slice(-6);
 
   let confirm = '';
