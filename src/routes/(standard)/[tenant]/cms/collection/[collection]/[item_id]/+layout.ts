@@ -13,6 +13,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
 
+import { error } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 
 // @ts-expect-error https://github.com/zenozeng/color-hash/issues/42

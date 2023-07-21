@@ -3,15 +3,18 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
   import PublishDocDialog from '$lib/dialogs/PublishDocDialog.svelte';
+  import { motionMode } from '$stores/motionMode';
   import { title } from '$stores/title';
   import { createYStore } from '$utils/createYStore.js';
   import { getProperty } from '$utils/objectPath.js';
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
-  import { Button, InfoBar, ProgressRing } from 'fluent-svelte';
+  import { Button, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
   import { toast } from 'react-toastify';
   import { onDestroy } from 'svelte';
+  import { expoOut } from 'svelte/easing';
+  import { fly } from 'svelte/transition';
   import type { Action } from './+layout';
   import Sidebar from './Sidebar.svelte';
 
@@ -66,6 +69,8 @@
     itemStateFields: $sharedData,
     publishActionAccess: docData?.data?.actionAccess.publish || false,
   }));
+
+  $: hasLoadedAtLeastOnce = JSON.stringify($sharedData) !== JSON.stringify({});
 
   // construct the name field with the field provied
   $: docName = (() => {
@@ -379,6 +384,7 @@
                 on:click={handleTabClick}
                 on:mouseenter={handleTabMouseEnter}
                 on:mouseleave={handleTabMouseLeave}
+                disabled={!data.docData || !hasLoadedAtLeastOnce}
               >
                 Compose
               </Button>
@@ -387,6 +393,7 @@
                 on:click={handleTabClick}
                 on:mouseenter={handleTabMouseEnter}
                 on:mouseleave={handleTabMouseLeave}
+                disabled={!data.docData || !hasLoadedAtLeastOnce}
               >
                 Preview
               </Button>
@@ -394,88 +401,61 @@
             </div>
           </div>
 
-          <div class="alerts-wrapper" class:tabsShown={true}>
-            {#if isOldVersion}
-              <InfoBar
-                title="You are currently viewing an old version of this document."
-                severity="attention"
-                closable={false}
-              >
-                You cannot make edits.
-              </InfoBar>
-            {/if}
-            {#if !$connected.ws}
-              <InfoBar title="Currently not connected." severity="critical" closable={false}>
-                If you leave before your connection is restored, you may lose data.
-              </InfoBar>
-            {/if}
-            {#if publishLocked && !isOldVersion}
-              <InfoBar
-                title="This document is opened in read-only mode because it has been published and you do not
-          have publish permissions."
-                severity="attention"
-                closable={false}
+          {#if !data.docData}
+            <div
+              in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+              class="message-box"
+            >
+              <FluentIcon
+                name="ErrorCircle24Regular"
+                style="width: 32px; height: 32px; fill: var(--fds-accent-default);"
               />
-            {/if}
-            {#if !!$sharedData.archived && !isOldVersion}
-              {@const action = actions.find((action) => action.id === 'archive')}
-              <InfoBar
-                title="This document is opened in read-only mode because it is archived."
-                severity="attention"
-                closable={false}
-              >
-                {#if action}
-                  {@const { label, icon, loading, action: onclick, disabled } = action}
-                  <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
-                    {#if loading}
-                      <div class="button-progress"><ProgressRing size={16} /></div>
-                    {/if}
-                    <FluentIcon
-                      name={icon}
-                      mode="buttonIconLeft"
-                      style={loading ? 'visibility: hidden;' : ''}
-                    />
-                    <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">
-                      {label}
-                    </span>
-                  </Button>
-                {/if}
-              </InfoBar>
-            {/if}
-            {#if !!$sharedData.hidden && !isOldVersion}
-              {@const action = actions.find((action) => action.id === 'delete')}
-              <InfoBar
-                title="This document is opened in read-only mode because it is deleted."
-                severity="attention"
-                closable={false}
-              >
-                {#if action}
-                  {@const { label, icon, loading, action: onclick, disabled } = action}
-                  <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
-                    {#if loading}
-                      <div class="button-progress"><ProgressRing size={16} /></div>
-                    {/if}
-                    <FluentIcon
-                      name={icon}
-                      mode="buttonIconLeft"
-                      style={loading ? 'visibility: hidden;' : ''}
-                    />
-                    <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">
-                      {label}
-                    </span>
-                  </Button>
-                {/if}
-              </InfoBar>
-            {/if}
-            {#if !!$sharedData._hasPublishedDoc}
-              {#if $sharedData.stage === publishStage}
-                {@const action = actions.find((action) => action.id === 'updateSession')}
+              <TextBlock variant="bodyStrong">
+                This document does not exist <i>or</i> you do not have access.
+              </TextBlock>
+              <TextBlock style="margin-top: -14px;">
+                If you know this document exists, ask someone with access to grant you access.
+              </TextBlock>
+            </div>
+          {:else if !hasLoadedAtLeastOnce}
+            <div
+              in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
+              class="message-box"
+            >
+              <ProgressRing size={32} />
+              <TextBlock variant="bodyStrong">Connecting to collaboration server</TextBlock>
+            </div>
+          {:else}
+            <div class="alerts-wrapper" class:tabsShown={true}>
+              {#if isOldVersion}
                 <InfoBar
-                  title="This document is read-only mode because it is published."
+                  title="You are currently viewing an old version of this document."
                   severity="attention"
                   closable={false}
                 >
-                  Begin an update session to make edits.
+                  You cannot make edits.
+                </InfoBar>
+              {/if}
+              {#if !$connected.ws}
+                <InfoBar title="Currently not connected." severity="critical" closable={false}>
+                  If you leave before your connection is restored, you may lose data.
+                </InfoBar>
+              {/if}
+              {#if publishLocked && !isOldVersion}
+                <InfoBar
+                  title="This document is opened in read-only mode because it has been published and you do not
+          have publish permissions."
+                  severity="attention"
+                  closable={false}
+                />
+              {/if}
+              {#if !!$sharedData.archived && !isOldVersion}
+                {@const action = actions.find((action) => action.id === 'archive')}
+                <InfoBar
+                  title="This document is opened in read-only mode because it is archived."
+                  severity="attention"
+                  closable={false}
+                >
                   {#if action}
                     {@const { label, icon, loading, action: onclick, disabled } = action}
                     <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
@@ -493,50 +473,103 @@
                     </Button>
                   {/if}
                 </InfoBar>
-              {:else}
+              {/if}
+              {#if !!$sharedData.hidden && !isOldVersion}
+                {@const action = actions.find((action) => action.id === 'delete')}
                 <InfoBar
-                  title="You are in an update session for a currently published document."
-                  severity="information"
+                  title="This document is opened in read-only mode because it is deleted."
+                  severity="attention"
                   closable={false}
                 >
-                  Your changes will not appear to the public until you publish them.
+                  {#if action}
+                    {@const { label, icon, loading, action: onclick, disabled } = action}
+                    <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
+                      {#if loading}
+                        <div class="button-progress"><ProgressRing size={16} /></div>
+                      {/if}
+                      <FluentIcon
+                        name={icon}
+                        mode="buttonIconLeft"
+                        style={loading ? 'visibility: hidden;' : ''}
+                      />
+                      <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">
+                        {label}
+                      </span>
+                    </Button>
+                  {/if}
                 </InfoBar>
               {/if}
-            {:else if $sharedData.stage === publishStage}
-              <InfoBar title="This document is currently published." severity="caution" closable={false}>
-                Changes will be publically reflected immediately.
-              </InfoBar>
+              {#if !!$sharedData._hasPublishedDoc}
+                {#if $sharedData.stage === publishStage}
+                  {@const action = actions.find((action) => action.id === 'updateSession')}
+                  <InfoBar
+                    title="This document is read-only mode because it is published."
+                    severity="attention"
+                    closable={false}
+                  >
+                    Begin an update session to make edits.
+                    {#if action}
+                      {@const { label, icon, loading, action: onclick, disabled } = action}
+                      <Button slot="action" disabled={disabled || loading} on:click={disabled ? null : onclick}>
+                        {#if loading}
+                          <div class="button-progress"><ProgressRing size={16} /></div>
+                        {/if}
+                        <FluentIcon
+                          name={icon}
+                          mode="buttonIconLeft"
+                          style={loading ? 'visibility: hidden;' : ''}
+                        />
+                        <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">
+                          {label}
+                        </span>
+                      </Button>
+                    {/if}
+                  </InfoBar>
+                {:else}
+                  <InfoBar
+                    title="You are in an update session for a currently published document."
+                    severity="information"
+                    closable={false}
+                  >
+                    Your changes will not appear to the public until you publish them.
+                  </InfoBar>
+                {/if}
+              {:else if $sharedData.stage === publishStage}
+                <InfoBar title="This document is currently published." severity="caution" closable={false}>
+                  Changes will be publically reflected immediately.
+                </InfoBar>
+              {/if}
+            </div>
+
+            {#if activeTab === 'preview'}
+              <PreviewFrame
+                src={data.collection.config.options.dynamicPreviewHref}
+                {fullSharedData}
+                noOuterMargin
+              />
             {/if}
-          </div>
 
-          {#if activeTab === 'preview'}
-            <PreviewFrame
-              src={data.collection.config.options.dynamicPreviewHref}
-              {fullSharedData}
-              noOuterMargin
-            />
+            <!-- TODO: move this logic to a special SchemaDefField component that determines the correct -->
+            <!-- field based on thnpme schema definition -->
+            <!-- The component should have three modes: editor, publish, and create (to support all three cases) -->
+            {#each data.helpers.processSchemaDef() as [key, def]}
+              <SchemaField
+                {key}
+                {def}
+                {ydoc}
+                disabled={disabled || activeTab === 'preview'}
+                {wsProvider}
+                user={data.yuser}
+                processSchemaDef={data.helpers.processSchemaDef}
+                {coreSidebarProps}
+                {fullSharedData}
+                dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
+                style={activeTab === 'preview' ? 'display: none;' : ''}
+                collectionName={data.collection.schemaName}
+                {actions}
+              />
+            {/each}
           {/if}
-
-          <!-- TODO: move this logic to a special SchemaDefField component that determines the correct -->
-          <!-- field based on thnpme schema definition -->
-          <!-- The component should have three modes: editor, publish, and create (to support all three cases) -->
-          {#each data.helpers.processSchemaDef() as [key, def]}
-            <SchemaField
-              {key}
-              {def}
-              {ydoc}
-              disabled={disabled || activeTab === 'preview'}
-              {wsProvider}
-              user={data.yuser}
-              processSchemaDef={data.helpers.processSchemaDef}
-              {coreSidebarProps}
-              {fullSharedData}
-              dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
-              style={activeTab === 'preview' ? 'display: none;' : ''}
-              collectionName={data.collection.schemaName}
-              {actions}
-            />
-          {/each}
         </div>
       </div>
     </div>
@@ -638,7 +671,8 @@
     app-region: no-drag;
   }
 
-  .tabs :global(.button.style-standard) {
+  .tabs :global(.button.style-standard),
+  .tabs :global(.button.style-standard.disabled) {
     background-color: transparent;
     box-shadow: none;
     padding-left: 11px;
@@ -680,5 +714,17 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
+  }
+
+  .message-box {
+    width: 100%;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    margin-top: 20px;
   }
 </style>
