@@ -193,7 +193,7 @@
       class="time-field"
       style="padding-left: 0; padding-right: 0;"
       on:click={() => (timeFieldOpen = !timeFieldOpen)}
-      {disabled}
+      disabled={disabled || !datetime}
     >
       <div class="time-field--hour">
         {#if datetime && !isNaN(datetime.getFullYear())}
@@ -231,7 +231,7 @@
     />
   </div>
   <Button
-    {disabled}
+    disabled={disabled || !datetime}
     on:click={() => {
       const now = new Date();
       const nowTime = (time = toIsoString(now).split('T')[1]);
