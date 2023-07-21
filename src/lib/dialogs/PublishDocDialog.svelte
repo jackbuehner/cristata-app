@@ -175,6 +175,7 @@
       {disabled}
       {wsProvider}
       {user}
+      mode="publish"
       {processSchemaDef}
       {fullSharedData}
       {collectionName}
