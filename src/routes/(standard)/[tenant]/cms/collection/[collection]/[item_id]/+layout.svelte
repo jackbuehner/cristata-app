@@ -2,6 +2,7 @@
   import { SchemaField } from '$lib/common/Field/index.js';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
+  import PublishDocDialog from '$lib/dialogs/PublishDocDialog.svelte';
   import { title } from '$stores/title';
   import { createYStore } from '$utils/createYStore.js';
   import { getProperty } from '$utils/objectPath.js';
@@ -123,12 +124,15 @@
     getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
     getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
 
+  let publishDialogOpen = false;
+
   let actions: Action[] = [];
   let loadingWatchAction = false;
   let loadingHideAction = false;
   let loadingArchiveAction = false;
   let loadingCloneAction = false;
   let loadingUpdateSessionAction = false;
+  let loadingPublishAction = false;
   $: actions = [
     {
       id: 'watch',
@@ -162,9 +166,20 @@
       label: currentStage === publishStage ? 'Unpublish' : hasPublishedDoc ? 'Republish' : 'Publish',
       type: 'button',
       icon: currentStage === publishStage ? 'CloudDismiss24Regular' : 'CloudArrowUp24Regular',
-      action: () => {},
-      // action: () => (currentStage === publishStage ? unpublishItem() : showPublishModal()),
-      disabled: canPublish !== true || archived || locked || hidden || loading || disconnected,
+      action: async () => {
+        if (currentStage === publishStage) {
+          loadingPublishAction = true;
+          await data.actions.unpublishDoc();
+          setTimeout(() => {
+            loadingPublishAction = false;
+          }, 1000);
+        } else {
+          publishDialogOpen = !publishDialogOpen;
+        }
+      },
+      loading: loadingPublishAction,
+      disabled:
+        loadingPublishAction || canPublish !== true || archived || locked || hidden || loading || disconnected,
       tooltip:
         canPublish !== true
           ? `You cannot publish this document because you do not have permission.`
@@ -559,6 +574,20 @@
 <pre>
   {JSON.stringify($fullSharedData, null, 2)}
 </pre>
+
+<PublishDocDialog
+  bind:open={publishDialogOpen}
+  {tenant}
+  {ydoc}
+  {wsProvider}
+  {disabled}
+  user={data.yuser}
+  processSchemaDef={data.helpers.processSchemaDef}
+  {fullSharedData}
+  style=""
+  collectionName={data.collection.schemaName}
+  id={{ itemId: item_id, idKey: data.collection.config.by?.one || '_id' }}
+/>
 
 <!-- <react:CollectionItemPage {collection} {item_id} {tenant} {version_date} /> -->
 <style>
