@@ -102,8 +102,10 @@
           {#if loading}
             <div class="button-progress"><ProgressRing size={16} /></div>
           {/if}
-          <FluentIcon name={icon} mode="buttonIconLeft" style={loading ? 'visibility: hidden;' : ''} />
-          <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">{label}</span>
+          {#key loading}
+            <FluentIcon name={icon} mode="buttonIconLeft" style={loading ? 'visibility: hidden;' : ''} />
+            <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">{label}</span>
+          {/key}
         </Button>
       {/if}
 
@@ -119,8 +121,10 @@
           {#if loading}
             <div class="button-progress"><ProgressRing size={16} /></div>
           {/if}
-          <FluentIcon name={icon} mode="buttonIconLeft" style={loading ? 'visibility: hidden;' : ''} />
-          <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">{label}</span>
+          {#key loading}
+            <FluentIcon name={icon} mode="buttonIconLeft" style={loading ? 'visibility: hidden;' : ''} />
+            <span style="white-space: nowrap; {loading ? 'visibility: hidden;' : ''}">{label}</span>
+          {/key}
         </Button>
       {/if}
       <div style="display: flex;">

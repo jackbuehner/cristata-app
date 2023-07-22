@@ -150,7 +150,9 @@
         const error = await data.actions.toggleWatchDoc(!watcherData.isWatcher);
         console.log(error);
         if (error) toast.error(error);
-        loadingWatchAction = false;
+        setTimeout(() => {
+          loadingWatchAction = false;
+        }, 1000);
       },
       loading: loadingWatchAction,
       disabled:
