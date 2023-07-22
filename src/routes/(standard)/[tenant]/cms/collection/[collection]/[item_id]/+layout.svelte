@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SchemaField } from '$lib/common/Field/index.js';
+  import { FieldWrapper, SchemaField } from '$lib/common/Field/index.js';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
   import PublishDocDialog from '$lib/dialogs/PublishDocDialog.svelte';
@@ -11,9 +11,9 @@
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
-  import { Button, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
+  import { Button, Expander, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
   import { toast } from 'react-toastify';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { expoOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
   import type { Action } from './+layout';
@@ -132,6 +132,8 @@
 
   let publishDialogOpen = false;
   let shareDialogOpen = false;
+  let showCollapsedFields = false;
+  let showHiddenFields = false;
 
   let actions: Action[] = [];
   let loadingWatchAction = false;
@@ -339,6 +341,20 @@
     hideVersions: isOldVersion,
     actions,
   };
+
+  // use a keyboard shortcut to trigger whether hidden fields are shown
+  function toggleShowHiddenFields(evt: KeyboardEvent) {
+    // ALT + SHIFT + H
+    if (evt.altKey && evt.shiftKey && evt.key === 'H') {
+      showHiddenFields = !showHiddenFields;
+    }
+  }
+  onMount(() => {
+    document.addEventListener('keyup', toggleShowHiddenFields);
+  });
+  onDestroy(() => {
+    document.removeEventListener('keyup', toggleShowHiddenFields);
+  });
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'compose';
@@ -558,7 +574,7 @@
             <!-- TODO: move this logic to a special SchemaDefField component that determines the correct -->
             <!-- field based on thnpme schema definition -->
             <!-- The component should have three modes: editor, publish, and create (to support all three cases) -->
-            {#each data.helpers.processSchemaDef() as [key, def]}
+            {#each data.helpers.processSchemaDef( { collapsed: false, showHidden: showHiddenFields } ) as [key, def]}
               <SchemaField
                 {key}
                 {def}
@@ -566,7 +582,9 @@
                 disabled={disabled || activeTab === 'preview'}
                 {wsProvider}
                 user={data.yuser}
-                processSchemaDef={data.helpers.processSchemaDef}
+                processSchemaDef={(opts) => {
+                  return data.helpers.processSchemaDef({ showHidden: showHiddenFields, ...opts });
+                }}
                 {coreSidebarProps}
                 {fullSharedData}
                 dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
@@ -575,6 +593,38 @@
                 {actions}
               />
             {/each}
+
+            {#if showCollapsedFields}
+              {#each data.helpers.processSchemaDef( { collapsed: true, showHidden: showHiddenFields } ) as [key, def]}
+                <SchemaField
+                  {key}
+                  {def}
+                  {ydoc}
+                  disabled={disabled || activeTab === 'preview'}
+                  {wsProvider}
+                  user={data.yuser}
+                  processSchemaDef={(opts) => {
+                    return data.helpers.processSchemaDef({ showHidden: showHiddenFields, ...opts });
+                  }}
+                  {coreSidebarProps}
+                  {fullSharedData}
+                  dynamicPreviewHref={data.collection.config.options?.dynamicPreviewHref || undefined}
+                  style={activeTab === 'preview' ? 'display: none;' : ''}
+                  collectionName={data.collection.schemaName}
+                  {actions}
+                />
+              {/each}
+            {:else if activeTab === 'compose'}
+              <FieldWrapper label="Advanced" forId="">
+                <Button
+                  style="height: 40px; width: 100%; justify-content: flex-start;"
+                  on:click={() => (showCollapsedFields = !showCollapsedFields)}
+                >
+                  <FluentIcon name="ChevronDown24Regular" mode="buttonIconLeft" />
+                  Show all fields
+                </Button>
+              </FieldWrapper>
+            {/if}
           {/if}
         </div>
       </div>
