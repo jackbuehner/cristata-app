@@ -3,6 +3,7 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
   import PublishDocDialog from '$lib/dialogs/PublishDocDialog.svelte';
+  import ShareDocDialog from '$lib/dialogs/ShareDocDialog.svelte';
   import { motionMode } from '$stores/motionMode';
   import { title } from '$stores/title';
   import { createYStore } from '$utils/createYStore.js';
@@ -130,6 +131,7 @@
     getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
 
   let publishDialogOpen = false;
+  let shareDialogOpen = false;
 
   let actions: Action[] = [];
   let loadingWatchAction = false;
@@ -256,7 +258,9 @@
           label: 'Share',
           type: 'button',
           icon: 'Share24Regular',
-          action: () => {},
+          action: () => {
+            shareDialogOpen = !shareDialogOpen;
+          },
           disabled:
             docData?.data?.actionAccess?.modify !== true ||
             archived ||
@@ -617,9 +621,19 @@
   user={data.yuser}
   processSchemaDef={data.helpers.processSchemaDef}
   {fullSharedData}
-  style=""
+  fieldStyle=""
   collectionName={data.collection.schemaName}
   id={{ itemId: item_id, idKey: data.collection.config.by?.one || '_id' }}
+/>
+
+<ShareDocDialog
+  bind:open={shareDialogOpen}
+  {ydoc}
+  {wsProvider}
+  {disabled}
+  user={data.yuser}
+  {fullSharedData}
+  fieldStyle=""
 />
 
 <!-- <react:CollectionItemPage {collection} {item_id} {tenant} {version_date} /> -->
