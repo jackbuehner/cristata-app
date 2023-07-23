@@ -210,8 +210,11 @@
   }
 
   function toggleTrackChanges(bool: boolean) {
+    if (!options?.features.trackChanges && !trackChanges) return;
     ySettingsMap?.set('trackChanges', bool);
   }
+
+  $: console.log(options);
 
   let docStatsDialogOpen = false;
 
@@ -277,7 +280,7 @@
               ></path>
             </svg>
           `,
-        disabled: !editor || trackChanges === undefined,
+        disabled: !editor || !options?.features.trackChanges || trackChanges === undefined,
         active: trackChanges,
         action: () => toggleTrackChanges(!trackChanges),
       },
@@ -373,7 +376,7 @@
             out:fade={{ duration: delay }}
           >
             {#if $richTextParams.primaryActive === 'comments'}
-              <CommentsSidebar {editor} {user} />
+              <CommentsSidebar {editor} {user} {options} />
             {:else if $richTextParams.primaryActive === 'props' && !!coreSidebarProps}
               <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} {coreSidebarProps} />
             {:else if $richTextParams.primaryActive === 'versions'}

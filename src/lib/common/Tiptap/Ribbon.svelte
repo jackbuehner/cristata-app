@@ -46,6 +46,8 @@
   export let actions: Action[] = [];
   export let docStatsDialogOpen = false;
 
+  $: console.log(options?.features);
+
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
   let mouseOverActiveTab = false;
@@ -272,7 +274,7 @@
           >
             View
           </Button>
-          {#if editor?.isActive('youtubeWidget')}
+          {#if editor?.isActive('youtubeWidget') && options?.features.widgets?.youtube}
             <Button
               data-tab="youtube"
               data-contextual="true"
@@ -283,7 +285,7 @@
               YouTube
             </Button>
           {/if}
-          {#if editor?.isActive('photoWidget')}
+          {#if editor?.isActive('photoWidget') && options?.features.widgets?.photoWidget}
             <Button
               data-tab="photo"
               data-contextual="true"
@@ -294,7 +296,7 @@
               Photo
             </Button>
           {/if}
-          {#if editor?.isActive('pullQuote')}
+          {#if editor?.isActive('pullQuote') && options?.features.pullQuote}
             <Button
               data-tab="pullQuote"
               data-contextual="true"
@@ -305,7 +307,7 @@
               Pull Quote
             </Button>
           {/if}
-          {#if editor?.can().deleteTable()}
+          {#if editor?.can().deleteTable() && options?.features.tables}
             <Button
               data-tab="table"
               data-contextual="true"
@@ -345,7 +347,7 @@
           {/if}
         </div>
 
-        {#if $richTextParams.isActive('fs')}
+        {#if $richTextParams.isActive('fs') && (options?.features.comment || (editor?.storage?.powerComment?.comments.length || 0) > 0)}
           <Button
             on:click={() => {
               if ($richTextParams.isActive('comments')) {
@@ -489,7 +491,7 @@
                 </MenuFlyoutItem>
                 <MenuFlyoutItem
                   style="height: 44px;"
-                  {disabled}
+                  disabled={disabled || !options?.features.trackChanges}
                   on:click={() => {
                     toggleTrackChanges(true);
                     $richTextParams.set('comments', 1);
@@ -599,10 +601,18 @@
         bind:docStatsDialogOpen
       />
       <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
-      <TableTabPanel visible={activeTab === 'table'} {editor} {options} {setTab} />
-      <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />
-      <PhotoTabPanel visible={activeTab === 'photo'} {editor} {setTab} />
-      <PullQuoteTabPanel visible={activeTab === 'pullQuote'} {editor} {setTab} />
+      {#if options?.features.tables}
+        <TableTabPanel visible={activeTab === 'table'} {editor} {options} {setTab} />
+      {/if}
+      {#if options?.features.widgets?.youtube}
+        <YoutubeTabPanel visible={activeTab === 'youtube'} {editor} {setTab} />
+      {/if}
+      {#if options?.features.widgets?.photoWidget}
+        <PhotoTabPanel visible={activeTab === 'photo'} {editor} {setTab} />
+      {/if}
+      {#if options?.features.pullQuote}
+        <PullQuoteTabPanel visible={activeTab === 'pullQuote'} {editor} {setTab} />
+      {/if}
     </div>
   {/if}
 </div>

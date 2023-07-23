@@ -13,6 +13,7 @@
 
   export let comment: CommentStorage['comments'][0];
   export let disabled = false;
+  export let featureDisabled = false;
   export let key: string;
 
   let menuOpen = false;
@@ -205,7 +206,7 @@
               message = comment.attrs.message;
               menuOpen = false;
             }}
-            disabled={disabled || !user || !editor.isEditable}
+            disabled={disabled || featureDisabled || !user || !editor.isEditable}
           >
             <FluentIcon name="Edit16Regular" slot="icon" />
             Edit comment
@@ -230,7 +231,9 @@
     <TextArea bind:value={message} class="comment-message-box" />
     <div class="button-row">
       <Button
+        disabled={featureDisabled}
         on:click={() => {
+          if (featureDisabled) return;
           isEditMode = false;
           saveCommentMessage();
           message = '';
@@ -284,7 +287,10 @@
 
   {#if !isEditMode && !hideReplyButton}
     <div class="button-row" style="margin-top: 10px;">
-      <Button on:click={() => addNewReply()} disabled={disabled || hideReplyButton}>
+      <Button
+        on:click={disabled || featureDisabled || hideReplyButton ? undefined : () => addNewReply()}
+        disabled={disabled || featureDisabled || hideReplyButton}
+      >
         <FluentIcon name="ArrowReplyDown16Regular" mode="buttonIconLeft" />
         Reply
       </Button>

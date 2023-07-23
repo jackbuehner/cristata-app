@@ -6,11 +6,13 @@
   import type { Editor } from '@tiptap/core';
   import { Button } from 'fluent-svelte';
   import type { ComponentProps } from 'svelte';
+  import type { tiptapOptions } from '../../../../config';
   import { richTextParams } from '../richTextParams';
   import Comment from './Comment.svelte';
 
   export let editor: Editor | null = null;
   export let disabled = false;
+  export let options: tiptapOptions | undefined = undefined;
   export let user: ComponentProps<Tiptap>['user'] | null = null;
   $: coreNewCommentAttrs = {
     color: user?.color || '',
@@ -22,6 +24,9 @@
 
   $: storage = editor?.storage.powerComment as CommentStorage | undefined;
   $: comments = storage?.comments;
+
+  $: commentsDisabled =
+    disabled || !options?.features.comment || !user || !editor?.can().setComment(coreNewCommentAttrs);
 </script>
 
 <div class="header" bind:clientHeight={headerHeight}>
@@ -29,8 +34,10 @@
 
   <div class="button-row">
     <Button
-      disabled={disabled || !user || !editor?.can().setComment(coreNewCommentAttrs)}
-      on:click={() => editor?.chain().focus().setComment(coreNewCommentAttrs).run()}
+      on:click={commentsDisabled
+        ? undefined
+        : () => editor?.chain().focus().setComment(coreNewCommentAttrs).run()}
+      disabled={commentsDisabled}
     >
       <FluentIcon mode="buttonIconLeft">
         <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -65,7 +72,14 @@
   {#if editor}
     {#each comments || [] as comment}
       <div class="comment-card">
-        <Comment {editor} {comment} {disabled} {user} key={comment.attrs.uuid + comment.attrs.message} />
+        <Comment
+          {editor}
+          {comment}
+          {disabled}
+          featureDisabled={commentsDisabled}
+          {user}
+          key={comment.attrs.uuid + comment.attrs.message}
+        />
       </div>
     {/each}
   {/if}

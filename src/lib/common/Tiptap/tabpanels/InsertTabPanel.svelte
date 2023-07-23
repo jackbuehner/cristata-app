@@ -26,12 +26,25 @@
   let insertYoutubeWidgetDialogOpen = false;
   let insertPhotoWidgetDialogOpen = false;
   let insertLinkDialogOpen = false;
+
+  $: hrDisabled = disabled || !options?.features.horizontalRule || !editor?.can().setHorizontalRule();
+  $: photoDisabled =
+    disabled || !options?.features.widgets?.photoWidget || !editor?.can().insertPhotoWidget('');
+  $: ytDisabled = disabled || !options?.features.widgets?.youtube || !editor?.can().insertYoutubeWidget('');
+  $: sweepWidgetDisabled = disabled || true;
+  $: widgetsDisabled = ytDisabled && sweepWidgetDisabled;
+  $: linkDisabled = disabled || !options?.features.link || !editor?.can().setLink({ href: '' });
+  $: pullQuoteDisabled = disabled || !options?.features.pullQuote || !editor?.can().insertPullQuote();
+  $: tablesDisabled = disabled || !options?.features.tables || !editor?.can().insertTable();
+  $: setCommentDisabled =
+    disabled || !options?.features.comment || !user || !editor?.can().setComment(coreNewCommentAttrs);
+  $: unsetCommentDisabled = disabled || !options?.features.comment || !editor?.can().unsetComment();
 </script>
 
 <div class="panel" class:visible>
   <Button
-    on:click={() => editor?.chain().focus().setHorizontalRule().run()}
-    disabled={disabled || !editor?.can().setHorizontalRule()}
+    on:click={hrDisabled ? undefined : () => editor?.chain().focus().setHorizontalRule().run()}
+    disabled={hrDisabled}
   >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg
@@ -51,12 +64,13 @@
   <PhotoWidgetDialog
     bind:open={insertPhotoWidgetDialogOpen}
     handleSumbit={async (photoId) => {
+      if (photoDisabled) return;
       editor?.chain().focus().insertPhotoWidget(photoId).run();
     }}
   />
   <Button
-    disabled={disabled || !editor?.can().insertPhotoWidget('')}
-    on:click={() => (insertPhotoWidgetDialogOpen = !insertPhotoWidgetDialogOpen)}
+    disabled={photoDisabled}
+    on:click={photoDisabled ? undefined : () => (insertPhotoWidgetDialogOpen = !insertPhotoWidgetDialogOpen)}
   >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -98,9 +112,9 @@
 
   <MenuFlyout alignment="start" placement="bottom" offset={0} bind:open={widgetsMenuOpen}>
     <svelte:fragment slot="flyout">
-      <MenuFlyoutItem disabled>SweepWidget giveaway</MenuFlyoutItem>
+      <MenuFlyoutItem disabled={sweepWidgetDisabled}>SweepWidget giveaway</MenuFlyoutItem>
       <MenuFlyoutItem
-        disabled={disabled || !editor?.can().insertYoutubeWidget('')}
+        disabled={ytDisabled}
         on:click={() => (insertYoutubeWidgetDialogOpen = !insertYoutubeWidgetDialogOpen)}
       >
         YouTube video
@@ -111,10 +125,11 @@
     bind:open={insertYoutubeWidgetDialogOpen}
     {editor}
     handleSumbit={async (videoId) => {
+      if (ytDisabled) return;
       editor?.chain().focus().insertYoutubeWidget(videoId).run();
     }}
   />
-  <Button on:click={() => (widgetsMenuOpen = !widgetsMenuOpen)} {disabled}>
+  <Button on:click={() => (widgetsMenuOpen = !widgetsMenuOpen)} disabled={widgetsDisabled}>
     <FluentIcon name="Apps20Regular" mode="ribbonButtonIconLeft" />
     Widgets
     <FluentIcon name="ChevronDown20Regular" mode="ribbonButtonIconRight" />
@@ -124,6 +139,7 @@
     bind:open={insertLinkDialogOpen}
     {editor}
     handleSumbit={async (href) => {
+      if (linkDisabled) return;
       if (href) {
         editor?.chain().focus().setLink({ href }).run();
       } else {
@@ -132,8 +148,8 @@
     }}
   />
   <Button
-    disabled={disabled || !editor?.can().setLink({ href: '' })}
-    on:click={() => (insertLinkDialogOpen = !insertLinkDialogOpen)}
+    on:click={linkDisabled ? undefined : () => (insertLinkDialogOpen = !insertLinkDialogOpen)}
+    disabled={linkDisabled}
     class={editor?.isActive('link') ? 'active' : ''}
   >
     <FluentIcon mode="ribbonButtonIconLeft">
@@ -154,15 +170,18 @@
   </Button>
 
   <Button
-    disabled={disabled || !editor?.can().insertPullQuote()}
-    on:click={() => editor?.chain().focus().insertPullQuote().run()}
+    on:click={pullQuoteDisabled ? undefined : () => editor?.chain().focus().insertPullQuote().run()}
+    disabled={pullQuoteDisabled}
     class={editor?.isActive('pullQuote') ? 'active' : ''}
   >
     <FluentIcon name="TextQuote20Regular" mode="ribbonButtonIconLeft" />
     Pull quote
   </Button>
 
-  <Button {disabled} on:click={() => editor?.chain().focus().insertTable().run()}>
+  <Button
+    on:click={tablesDisabled ? undefined : () => editor?.chain().focus().insertTable().run()}
+    disabled={tablesDisabled}
+  >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
         <path
@@ -187,11 +206,12 @@
     Table
   </Button>
   <Button
-    disabled={disabled || !user || !editor?.can().setComment(coreNewCommentAttrs)}
     on:click={() => {
+      if (setCommentDisabled) return;
       editor?.chain().focus().setComment(coreNewCommentAttrs).blur().run();
       $richTextParams.set('comments', 1);
     }}
+    disabled={setCommentDisabled}
   >
     <FluentIcon mode="ribbonButtonIconLeft">
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -220,8 +240,8 @@
     Insert comment
   </Button>
   <IconButton
-    disabled={disabled || !editor?.can().unsetComment()}
-    on:click={() => editor?.chain().focus().unsetComment().run()}
+    on:click={unsetCommentDisabled ? undefined : () => editor?.chain().focus().unsetComment().run()}
+    disabled={unsetCommentDisabled}
   >
     <FluentIcon>
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">

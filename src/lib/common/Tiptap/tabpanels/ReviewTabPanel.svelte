@@ -23,6 +23,10 @@
   };
 
   let width = 1000;
+
+  $: setCommentDisabled =
+    disabled || !options?.features.comment || !user || !editor?.can().setComment(coreNewCommentAttrs);
+  $: unsetCommentDisabled = disabled || !options?.features.comment || !editor?.can().unsetComment();
 </script>
 
 <div class="panel" class:visible bind:offsetWidth={width}>
@@ -104,7 +108,7 @@
   <Tooltip text="Enable track changes for all editors">
     {#if width > 520}
       <Button
-        disabled={disabled || !toggleTrackChanges}
+        disabled={disabled || !options?.features.trackChanges || !toggleTrackChanges}
         on:click={() => {
           toggleTrackChanges(!trackChanges);
         }}
@@ -153,7 +157,7 @@
       </Button>
     {:else}
       <IconButton
-        disabled={disabled || !toggleTrackChanges}
+        disabled={disabled || !options?.features.trackChanges || !toggleTrackChanges}
         on:click={() => {
           toggleTrackChanges(!trackChanges);
         }}
@@ -205,7 +209,7 @@
   <Tooltip text="Accept change">
     {#if width > 560}
       <Button
-        disabled={disabled || !editor?.can().approveChange()}
+        disabled={disabled || !options?.features.trackChanges || !editor?.can().approveChange()}
         on:click={() => editor?.chain().focus().approveChange().nextChange().run()}
       >
         <FluentIcon mode="ribbonButtonIconLeft">
@@ -241,7 +245,7 @@
       </Button>
     {:else}
       <IconButton
-        disabled={disabled || !editor?.can().approveChange()}
+        disabled={disabled || !options?.features.trackChanges || !editor?.can().approveChange()}
         on:click={() => editor?.chain().focus().approveChange().nextChange().run()}
       >
         <FluentIcon>
@@ -280,7 +284,7 @@
   <Tooltip text="Reject change">
     {#if width > 620}
       <Button
-        disabled={disabled || !editor?.can().rejectChange()}
+        disabled={disabled || !options?.features.trackChanges || !editor?.can().rejectChange()}
         on:click={() => editor?.chain().focus().rejectChange().nextChange().run()}
       >
         <FluentIcon mode="ribbonButtonIconLeft">
@@ -316,7 +320,7 @@
       </Button>
     {:else}
       <IconButton
-        disabled={disabled || !editor?.can().rejectChange()}
+        disabled={disabled || !options?.features.trackChanges || !editor?.can().rejectChange()}
         on:click={() => editor?.chain().focus().rejectChange().nextChange().run()}
       >
         <FluentIcon>
@@ -431,11 +435,12 @@
   <Tooltip text="Insert comment">
     {#if width > 730}
       <Button
-        disabled={disabled || !user || !editor?.can().setComment(coreNewCommentAttrs)}
         on:click={() => {
+          if (setCommentDisabled) return;
           editor?.chain().focus().setComment(coreNewCommentAttrs).run();
           $richTextParams.set('comments', 1);
         }}
+        disabled={setCommentDisabled}
       >
         <FluentIcon mode="ribbonButtonIconLeft">
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -465,11 +470,12 @@
       </Button>
     {:else}
       <IconButton
-        disabled={disabled || !user || !editor?.can().setComment(coreNewCommentAttrs)}
         on:click={() => {
+          if (setCommentDisabled) return;
           editor?.chain().focus().setComment(coreNewCommentAttrs).run();
           $richTextParams.set('comments', 1);
         }}
+        disabled={setCommentDisabled}
       >
         <FluentIcon>
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -501,8 +507,8 @@
 
   <Tooltip text="Delete comment">
     <IconButton
-      disabled={disabled || !editor?.can().unsetComment()}
-      on:click={() => editor?.chain().focus().unsetComment().run()}
+      on:click={unsetCommentDisabled ? undefined : () => editor?.chain().focus().unsetComment().run()}
+      disabled={unsetCommentDisabled}
     >
       <FluentIcon>
         <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">

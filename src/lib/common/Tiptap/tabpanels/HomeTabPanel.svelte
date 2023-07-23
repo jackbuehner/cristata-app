@@ -52,12 +52,29 @@
       value: size,
       disabled,
     })) || [];
+
+  $: undoDisabled = disabled || !editor?.can().undo();
+  $: redoDisabled = disabled || !editor?.can().redo();
+  $: fontFamilyDisabled =
+    disabled ||
+    !options?.features.fontFamilyPicker ||
+    !editor?.can().setFontFamily('Georgia') ||
+    fontFamilyItems.length === 0;
+  $: fontSizeDisabled = disabled || !options?.features.fontSizePicker || fontSizeItems.length === 0;
+  $: boldDisabled = disabled || !options?.features.bold || !editor?.can().toggleBold();
+  $: italicDisabled = disabled || !options?.features.italic || !editor?.can().toggleItalic();
+  $: underlineDisabled = disabled || !options?.features.underline || !editor?.can().toggleUnderline();
+  $: strikeDisabled = disabled || !options?.features.strike || !editor?.can().toggleStrike();
+  $: codeDisabled = disabled || !options?.features.code || !editor?.can().toggleCode();
+  $: bulletListDisabled = disabled || !options?.features.bulletList || !editor?.can().toggleBulletList();
+  $: orderedListDisabled = disabled || !options?.features.orderedList || !editor?.can().toggleOrderedList();
+  $: textStylePickerDisabled = disabled || !options?.features.textStylePicker;
 </script>
 
 <div class="panel" class:visible>
   <IconButton
-    on:click={() => editor?.chain().focus().undo().run()}
-    disabled={disabled || !editor?.can().undo()}
+    on:click={undoDisabled ? undefined : () => editor?.chain().focus().undo().run()}
+    disabled={undoDisabled}
   >
     <FluentIcon>
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -75,8 +92,8 @@
     </FluentIcon>
   </IconButton>
   <IconButton
-    on:click={() => editor?.chain().focus().redo().run()}
-    disabled={disabled || !editor?.can().redo()}
+    on:click={redoDisabled ? undefined : () => editor?.chain().focus().redo().run()}
+    disabled={redoDisabled}
   >
     <FluentIcon>
       <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
@@ -102,23 +119,25 @@
       openOnFocus
       items={fontFamilyItems}
       style="width: 160px;"
-      disabled={disabled || !editor?.can().setFontFamily('Georgia') || fontFamilyItems.length === 0}
+      disabled={fontFamilyDisabled}
       value={fontFamily}
       on:select={(evt) => {
-        editor
-          ?.chain()
-          .command(({ commands }) => {
-            // do not re-focus editor unless current focus is on the combobox
-            // so focus is not stolen from other elements if the combobox rerenders
-            // and the select event is fired again (it is fired upon render or when
-            // the selection changes to a different font)
-            const currentFocusOnComboboxItem = document.activeElement?.classList.contains('combo-box-item');
-            const currentFocusOnComboboxTextField = document.activeElement?.getAttribute('role') === 'combobox';
-            if (currentFocusOnComboboxTextField || currentFocusOnComboboxItem) return commands.focus();
-            return true;
-          })
-          .setFontFamily(evt.detail.value)
-          .run();
+        if (!fontFamilyDisabled)
+          editor
+            ?.chain()
+            .command(({ commands }) => {
+              // do not re-focus editor unless current focus is on the combobox
+              // so focus is not stolen from other elements if the combobox rerenders
+              // and the select event is fired again (it is fired upon render or when
+              // the selection changes to a different font)
+              const currentFocusOnComboboxItem = document.activeElement?.classList.contains('combo-box-item');
+              const currentFocusOnComboboxTextField =
+                document.activeElement?.getAttribute('role') === 'combobox';
+              if (currentFocusOnComboboxTextField || currentFocusOnComboboxItem) return commands.focus();
+              return true;
+            })
+            .setFontFamily(evt.detail.value)
+            .run();
       }}
     />
   {/key}
@@ -128,30 +147,32 @@
       openOnFocus
       items={fontSizeItems}
       style="width: 84px;"
-      disabled={disabled || fontSizeItems.length === 0}
+      disabled={fontSizeDisabled}
       value={fontSize}
       on:select={(evt) => {
-        editor
-          ?.chain()
-          .command(({ commands }) => {
-            // do not re-focus editor unless current focus is on the combobox
-            // so focus is not stolen from other elements if the combobox rerenders
-            // and the select event is fired again (it is fired upon render or when
-            // the selection changes to a different font)
-            const currentFocusOnComboboxItem = document.activeElement?.classList.contains('combo-box-item');
-            const currentFocusOnComboboxTextField = document.activeElement?.getAttribute('role') === 'combobox';
-            if (currentFocusOnComboboxTextField || currentFocusOnComboboxItem) return commands.focus();
-            return true;
-          })
-          .setFontSize(evt.detail.value)
-          .run();
+        if (!fontSizeDisabled)
+          editor
+            ?.chain()
+            .command(({ commands }) => {
+              // do not re-focus editor unless current focus is on the combobox
+              // so focus is not stolen from other elements if the combobox rerenders
+              // and the select event is fired again (it is fired upon render or when
+              // the selection changes to a different font)
+              const currentFocusOnComboboxItem = document.activeElement?.classList.contains('combo-box-item');
+              const currentFocusOnComboboxTextField =
+                document.activeElement?.getAttribute('role') === 'combobox';
+              if (currentFocusOnComboboxTextField || currentFocusOnComboboxItem) return commands.focus();
+              return true;
+            })
+            .setFontSize(evt.detail.value)
+            .run();
       }}
     />
   {/key}
 
   <IconButton
-    on:click={() => editor?.chain().focus().toggleBold().run()}
-    disabled={disabled || !editor?.can().toggleBold()}
+    on:click={boldDisabled ? undefined : () => editor?.chain().focus().toggleBold().run()}
+    disabled={boldDisabled}
     class={editor?.isActive('bold') ? 'active' : ''}
   >
     <FluentIcon>
@@ -170,8 +191,8 @@
     </FluentIcon>
   </IconButton>
   <IconButton
-    on:click={() => editor?.chain().focus().toggleItalic().run()}
-    disabled={disabled || !editor?.can().toggleItalic()}
+    on:click={italicDisabled ? undefined : () => editor?.chain().focus().toggleItalic().run()}
+    disabled={italicDisabled}
     class={editor?.isActive('italic') ? 'active' : ''}
   >
     <FluentIcon>
@@ -190,8 +211,8 @@
     </FluentIcon>
   </IconButton>
   <IconButton
-    on:click={() => editor?.chain().focus().toggleUnderline().run()}
-    disabled={disabled || !editor?.can().toggleUnderline()}
+    on:click={underlineDisabled ? undefined : () => editor?.chain().focus().toggleUnderline().run()}
+    disabled={underlineDisabled}
     class={editor?.isActive('underline') ? 'active' : ''}
   >
     <FluentIcon>
@@ -210,8 +231,8 @@
     </FluentIcon>
   </IconButton>
   <IconButton
-    on:click={() => editor?.chain().focus().toggleStrike().run()}
-    disabled={disabled || !editor?.can().toggleStrike()}
+    on:click={strikeDisabled ? undefined : () => editor?.chain().focus().toggleStrike().run()}
+    disabled={strikeDisabled}
     class={editor?.isActive('strike') ? 'active' : ''}
   >
     <FluentIcon>
@@ -230,8 +251,8 @@
     </FluentIcon>
   </IconButton>
   <IconButton
-    on:click={() => editor?.chain().focus().toggleCode().run()}
-    disabled={disabled || !editor?.can().toggleCode()}
+    on:click={codeDisabled ? undefined : () => editor?.chain().focus().toggleCode().run()}
+    disabled={codeDisabled}
     class={editor?.isActive('code') ? 'active' : ''}
   >
     <FluentIcon name="Code20Regular" />
@@ -240,8 +261,8 @@
   <span class="bar" />
 
   <IconButton
-    on:click={() => editor?.chain().focus().toggleBulletList().run()}
-    disabled={disabled || !editor?.can().toggleBulletList()}
+    on:click={bulletListDisabled ? undefined : () => editor?.chain().focus().toggleBulletList().run()}
+    disabled={bulletListDisabled}
     class={editor?.isActive('bulletList') ? 'active' : ''}
   >
     <FluentIcon>
@@ -265,8 +286,8 @@
     </FluentIcon>
   </IconButton>
   <IconButton
-    on:click={() => editor?.chain().focus().toggleOrderedList().run()}
-    disabled={disabled || !editor?.can().toggleOrderedList()}
+    on:click={orderedListDisabled ? undefined : () => editor?.chain().focus().toggleOrderedList().run()}
+    disabled={orderedListDisabled}
     class={editor?.isActive('orderedList') ? 'active' : ''}
   >
     <FluentIcon>
@@ -295,6 +316,7 @@
   <ComboBox
     editable
     openOnFocus
+    disabled={textStylePickerDisabled}
     items={[
       { name: 'Title', value: 'title' },
       { name: 'Subtitle', value: 'subtitle' },
@@ -310,6 +332,8 @@
     value={textStyleGallery}
     style="width: 180px;"
     on:select={(evt) => {
+      if (textStylePickerDisabled) return;
+
       // do not handle unless current focus is on the combobox
       // so commands are not run if the combobox rerenders
       // and the select event is fired again (it is fired upon render or when
