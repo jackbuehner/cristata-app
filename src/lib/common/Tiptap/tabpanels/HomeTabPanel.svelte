@@ -3,6 +3,7 @@
   import type { Editor } from '@tiptap/core';
   import { ComboBox, IconButton } from 'fluent-svelte';
   import type { tiptapOptions } from '../../../../config';
+  import { richTextParams } from '../richTextParams';
 
   export let editor: Editor | null;
   export let visible = false;
@@ -53,22 +54,28 @@
       disabled,
     })) || [];
 
-  $: undoDisabled = disabled || !editor?.can().undo();
-  $: redoDisabled = disabled || !editor?.can().redo();
+  $: previewMode = $richTextParams.obj.previewMode > 0;
+  $: undoDisabled = disabled || previewMode || !editor?.can().undo();
+  $: redoDisabled = disabled || previewMode || !editor?.can().redo();
   $: fontFamilyDisabled =
     disabled ||
+    previewMode ||
     !options?.features.fontFamilyPicker ||
     !editor?.can().setFontFamily('Georgia') ||
     fontFamilyItems.length === 0;
-  $: fontSizeDisabled = disabled || !options?.features.fontSizePicker || fontSizeItems.length === 0;
-  $: boldDisabled = disabled || !options?.features.bold || !editor?.can().toggleBold();
-  $: italicDisabled = disabled || !options?.features.italic || !editor?.can().toggleItalic();
-  $: underlineDisabled = disabled || !options?.features.underline || !editor?.can().toggleUnderline();
-  $: strikeDisabled = disabled || !options?.features.strike || !editor?.can().toggleStrike();
-  $: codeDisabled = disabled || !options?.features.code || !editor?.can().toggleCode();
-  $: bulletListDisabled = disabled || !options?.features.bulletList || !editor?.can().toggleBulletList();
-  $: orderedListDisabled = disabled || !options?.features.orderedList || !editor?.can().toggleOrderedList();
-  $: textStylePickerDisabled = disabled || !options?.features.textStylePicker;
+  $: fontSizeDisabled =
+    disabled || previewMode || !options?.features.fontSizePicker || fontSizeItems.length === 0;
+  $: boldDisabled = disabled || previewMode || !options?.features.bold || !editor?.can().toggleBold();
+  $: italicDisabled = disabled || previewMode || !options?.features.italic || !editor?.can().toggleItalic();
+  $: underlineDisabled =
+    disabled || previewMode || !options?.features.underline || !editor?.can().toggleUnderline();
+  $: strikeDisabled = disabled || previewMode || !options?.features.strike || !editor?.can().toggleStrike();
+  $: codeDisabled = disabled || previewMode || !options?.features.code || !editor?.can().toggleCode();
+  $: bulletListDisabled =
+    disabled || previewMode || !options?.features.bulletList || !editor?.can().toggleBulletList();
+  $: orderedListDisabled =
+    disabled || previewMode || !options?.features.orderedList || !editor?.can().toggleOrderedList();
+  $: textStylePickerDisabled = disabled || previewMode || !options?.features.textStylePicker;
 </script>
 
 <div class="panel" class:visible>

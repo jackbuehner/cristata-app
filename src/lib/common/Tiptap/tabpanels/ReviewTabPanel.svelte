@@ -24,15 +24,21 @@
 
   let width = 1000;
 
+  $: previewMode = $richTextParams.obj.previewMode > 0;
   $: setCommentDisabled =
-    disabled || !options?.features.comment || !user || !editor?.can().setComment(coreNewCommentAttrs);
-  $: unsetCommentDisabled = disabled || !options?.features.comment || !editor?.can().unsetComment();
+    disabled ||
+    previewMode ||
+    !options?.features.comment ||
+    !user ||
+    !editor?.can().setComment(coreNewCommentAttrs);
+  $: unsetCommentDisabled =
+    disabled || previewMode || !options?.features.comment || !editor?.can().unsetComment();
 </script>
 
 <div class="panel" class:visible bind:offsetWidth={width}>
   <Tooltip text="Learn about Microsoft Editor">
     {#if width > 820}
-      <Button disabled={disabled || true}>
+      <Button disabled={disabled || previewMode || true}>
         <FluentIcon mode="ribbonButtonIconLeft">
           <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
             <path
@@ -108,7 +114,7 @@
   <Tooltip text="Enable track changes for all editors">
     {#if width > 520}
       <Button
-        disabled={disabled || !options?.features.trackChanges || !toggleTrackChanges}
+        disabled={disabled || previewMode || !options?.features.trackChanges || !toggleTrackChanges}
         on:click={() => {
           toggleTrackChanges(!trackChanges);
         }}
@@ -157,7 +163,7 @@
       </Button>
     {:else}
       <IconButton
-        disabled={disabled || !options?.features.trackChanges || !toggleTrackChanges}
+        disabled={disabled || previewMode || !options?.features.trackChanges || !toggleTrackChanges}
         on:click={() => {
           toggleTrackChanges(!trackChanges);
         }}
@@ -209,7 +215,7 @@
   <Tooltip text="Accept change">
     {#if width > 560}
       <Button
-        disabled={disabled || !options?.features.trackChanges || !editor?.can().approveChange()}
+        disabled={disabled || previewMode || !options?.features.trackChanges || !editor?.can().approveChange()}
         on:click={() => editor?.chain().focus().approveChange().nextChange().run()}
       >
         <FluentIcon mode="ribbonButtonIconLeft">
@@ -245,7 +251,7 @@
       </Button>
     {:else}
       <IconButton
-        disabled={disabled || !options?.features.trackChanges || !editor?.can().approveChange()}
+        disabled={disabled || previewMode || !options?.features.trackChanges || !editor?.can().approveChange()}
         on:click={() => editor?.chain().focus().approveChange().nextChange().run()}
       >
         <FluentIcon>
@@ -284,7 +290,7 @@
   <Tooltip text="Reject change">
     {#if width > 620}
       <Button
-        disabled={disabled || !options?.features.trackChanges || !editor?.can().rejectChange()}
+        disabled={disabled || previewMode || !options?.features.trackChanges || !editor?.can().rejectChange()}
         on:click={() => editor?.chain().focus().rejectChange().nextChange().run()}
       >
         <FluentIcon mode="ribbonButtonIconLeft">
@@ -320,7 +326,7 @@
       </Button>
     {:else}
       <IconButton
-        disabled={disabled || !options?.features.trackChanges || !editor?.can().rejectChange()}
+        disabled={disabled || previewMode || !options?.features.trackChanges || !editor?.can().rejectChange()}
         on:click={() => editor?.chain().focus().rejectChange().nextChange().run()}
       >
         <FluentIcon>
@@ -358,7 +364,7 @@
 
   <Tooltip text="Go to previous change">
     <IconButton
-      disabled={disabled || !editor?.can().previousChange()}
+      disabled={disabled || previewMode || !editor?.can().previousChange()}
       on:click={() => editor?.chain().focus().previousChange().run()}
     >
       <FluentIcon>
@@ -395,7 +401,7 @@
 
   <Tooltip text="Go to next change">
     <IconButton
-      disabled={disabled || !editor?.can().nextChange()}
+      disabled={disabled || previewMode || !editor?.can().nextChange()}
       on:click={() => editor?.chain().focus().nextChange().run()}
     >
       <FluentIcon>

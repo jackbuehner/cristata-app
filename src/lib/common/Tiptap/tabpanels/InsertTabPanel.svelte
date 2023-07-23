@@ -29,18 +29,27 @@
 
   let width = 1000;
 
-  $: hrDisabled = disabled || !options?.features.horizontalRule || !editor?.can().setHorizontalRule();
+  $: previewMode = $richTextParams.obj.previewMode > 0;
+  $: hrDisabled =
+    disabled || previewMode || !options?.features.horizontalRule || !editor?.can().setHorizontalRule();
   $: photoDisabled =
-    disabled || !options?.features.widgets?.photoWidget || !editor?.can().insertPhotoWidget('');
-  $: ytDisabled = disabled || !options?.features.widgets?.youtube || !editor?.can().insertYoutubeWidget('');
-  $: sweepWidgetDisabled = disabled || true;
+    disabled || previewMode || !options?.features.widgets?.photoWidget || !editor?.can().insertPhotoWidget('');
+  $: ytDisabled =
+    disabled || previewMode || !options?.features.widgets?.youtube || !editor?.can().insertYoutubeWidget('');
+  $: sweepWidgetDisabled = disabled || previewMode || true;
   $: widgetsDisabled = ytDisabled && sweepWidgetDisabled;
-  $: linkDisabled = disabled || !options?.features.link || !editor?.can().setLink({ href: '' });
-  $: pullQuoteDisabled = disabled || !options?.features.pullQuote || !editor?.can().insertPullQuote();
-  $: tablesDisabled = disabled || !options?.features.tables || !editor?.can().insertTable();
+  $: linkDisabled = disabled || previewMode || !options?.features.link || !editor?.can().setLink({ href: '' });
+  $: pullQuoteDisabled =
+    disabled || previewMode || !options?.features.pullQuote || !editor?.can().insertPullQuote();
+  $: tablesDisabled = disabled || previewMode || !options?.features.tables || !editor?.can().insertTable();
   $: setCommentDisabled =
-    disabled || !options?.features.comment || !user || !editor?.can().setComment(coreNewCommentAttrs);
-  $: unsetCommentDisabled = disabled || !options?.features.comment || !editor?.can().unsetComment();
+    disabled ||
+    previewMode ||
+    !options?.features.comment ||
+    !user ||
+    !editor?.can().setComment(coreNewCommentAttrs);
+  $: unsetCommentDisabled =
+    disabled || previewMode || !options?.features.comment || !editor?.can().unsetComment();
 </script>
 
 <div class="panel" class:visible bind:offsetWidth={width}>
