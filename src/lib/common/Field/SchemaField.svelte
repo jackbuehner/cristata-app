@@ -3,7 +3,7 @@
   import { page } from '$app/stores';
   import type { FieldDescriptionsQuery, FieldDescriptionsQueryVariables } from '$graphql/graphql';
   import { getQueryStore } from '$graphql/query';
-  import { StatelessCheckbox } from '$lib/common/Checkbox';
+  import { CollaborativeCheckbox } from '$lib/common/Checkbox';
   import { Code } from '$lib/common/Code';
   import { DateTime } from '$lib/common/DateTime';
   import { SelectMany, SelectOne } from '$lib/common/Select';
@@ -37,7 +37,7 @@
   export let yjsDocArrayConfig: { __uuid: string; parentKey: string; childKey: string } | undefined = undefined;
   export let collectionName = '';
   export let actions: Action[] = [];
-  export let connected: YStore['connected'] | undefined = undefined
+  export let connected: YStore['connected'] | undefined = undefined;
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -194,7 +194,7 @@
   {/if}
 {:else if type === 'Boolean'}
   <FieldWrapper label={fieldName} {description} forId={key} {style} mode="checkbox">
-    <StatelessCheckbox disabled={_disabled} {ydoc} {ydocKey} id={key} />
+    <CollaborativeCheckbox disabled={_disabled} {ydoc} {ydocKey} id={key} />
   </FieldWrapper>
 {:else if type === 'Number'}
   {#if options}

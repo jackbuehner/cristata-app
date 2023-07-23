@@ -1,7 +1,10 @@
 <script lang="ts">
+  import type { YStore } from '$utils/createYStore';
+  import shared from '$utils/shared';
   import { createEventForwarder } from 'fluent-svelte/internal';
   import { createEventDispatcher } from 'svelte';
   import { get_current_component } from 'svelte/internal';
+  import type { YMapEvent } from 'yjs';
   /** Controls whether the checkbox is checked or not. */
   export let checked = false;
   /** Controls whether the checkbox is in an indeterminate state. */
@@ -21,16 +24,77 @@
   export let size = 20;
   export let labelStyle = '';
 
+  /**
+   * A yjs document that should be updated with the values of this field.
+   */
+  export let ydoc: YStore['ydoc'] | undefined = undefined;
+  export let ydocKey: string = '';
+
+  // this will be updated by a subsriber to ydoc, which is why this is not marked reactive
+  let boolean = $ydoc ? new shared.Boolean($ydoc) : undefined;
+
+  /**
+   * Handle changes to y boolean shared type
+   */
+  function handleYBooleanChange(evt: YMapEvent<Record<string, boolean | null | undefined>>) {
+    const change = evt.changes.keys.get(ydocKey);
+    if (change) {
+      if (change.action === 'delete') checked = false;
+      else checked = boolean?.get(ydocKey) || false;
+    }
+  }
+
+  // listen for changes in the boolean shared type
+  ydoc?.subscribe(
+    ($ydoc) => {
+      if (!$ydoc) return;
+      boolean = new shared.Boolean($ydoc);
+      if (!boolean) return;
+
+      // ensure the initial value matches the shared type value
+      const found = boolean.get(ydocKey);
+      if (found !== null && found !== undefined && checked !== found) {
+        checked = found;
+      }
+
+      boolean.map.observe(handleYBooleanChange);
+
+      // if (!$ydoc) return;
+      // boolean = new YBoolean($ydoc);
+      // if (!boolean) return;
+
+      // // ensure the initial value matches the shared type value
+      // const found = boolean.get(ydocKey);
+      // if (found !== null && found !== undefined && checked !== found) {
+      //   setChecked(found);
+      // }
+
+      // boolean.map.observe(handleYBooleanChange);
+    },
+    () => {
+      // stop listening for changes in the shared type
+      // during cleanup to prevent memory leaks
+      boolean?.map.unobserve(handleYBooleanChange);
+    }
+  );
+
   const dispatch = createEventDispatcher();
+  $: dispatch('change', { checked, value, indeterminate, disabled });
+
   function handleChange(evt: Event) {
     evt.preventDefault();
     evt.stopPropagation();
-    dispatch('change', {
-      checked: (evt.target as HTMLInputElement | null)?.checked || false,
-      value,
-      indeterminate,
-      disabled,
-    });
+
+    checked = (evt.target as HTMLInputElement | null)?.checked || false;
+
+    if ($ydoc && boolean) {
+      // do not update if the value is unchanged so that we do not create infinite loops of updates
+      const found = boolean.get(ydocKey);
+      if (found !== null && found !== undefined && checked !== found) {
+        // store change in ydoc shared type for checkbox fields
+        boolean.set(ydocKey, checked);
+      }
+    }
   }
 </script>
 
