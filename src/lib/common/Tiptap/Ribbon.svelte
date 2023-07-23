@@ -248,14 +248,14 @@
           >
             Insert
           </Button>
-          <Button
+          <!-- <Button
             data-tab={'layout'}
             on:click={handleTabClick}
             on:mouseenter={handleTabMouseEnter}
             on:mouseleave={handleTabMouseLeave}
           >
             Layout
-          </Button>
+          </Button> -->
           <Button
             data-tab={'review'}
             on:click={handleTabClick}
