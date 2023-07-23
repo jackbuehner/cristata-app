@@ -2,7 +2,6 @@
   import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
   import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
-  import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
   import { SidebarHeader } from '$lib/sidebar';
   import { motionMode } from '$stores/motionMode';
   import { titlebarActions } from '$stores/titlebarActions';
@@ -46,8 +45,6 @@
   export let connected: YStore['connected'] | undefined = undefined;
 
   let bubbleMenuParagraph: HTMLDivElement;
-
-  let saveDocDialogOpen = false;
 
   const parsedCss = less.render(
     `
@@ -213,6 +210,7 @@
     ySettingsMap?.set('trackChanges', bool);
   }
 
+  $: saveAction = actions.find((action) => action.id === 'save');
   $: if (fullscreen) {
     titlebarActions.set([
       {
@@ -230,14 +228,8 @@
       {
         label: 'Save',
         icon: 'Save20Regular',
-        action: () => (saveDocDialogOpen = true),
-        // disabled: props.actions?.find((action) => action?.label === 'Save')?.disabled || false,
-        // action: (evt) => {
-        //   const saveAction = props.actions?.find((action) => action?.label === 'Save');
-        //   // @ts-expect-error it doesn't matter
-        //   if (saveAction) saveAction.action(evt);
-        //   else showAutosaveModal();
-        // },
+        action: saveAction ? saveAction.action : () => {},
+        disabled: saveAction?.disabled ?? true,
         size: 20,
       },
       {
@@ -461,7 +453,7 @@
       {/if}
     </div>
   </div>
-  <SaveDocumentDialog bind:open={saveDocDialogOpen} />
+
   <div class="footer-wrapper">
     <div class="footer">
       <div class="footer-textblock">

@@ -152,7 +152,7 @@
           closeOnSelect={false}
         >
           <svelte:fragment slot="flyout">
-            {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading }}
+            {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading, hint }}
               <MenuFlyoutItem
                 disabled={disabled || loading}
                 on:click={async (evt) => {
@@ -163,13 +163,7 @@
                 }}
                 on:auxclick={onAuxClick}
                 data-tip={tooltip}
-                hint={id === 'save'
-                  ? 'Ctrl + S'
-                  : id === 'publish'
-                  ? 'Ctrl + Shift + S'
-                  : id === 'share'
-                  ? 'Ctrl + Alt + S'
-                  : ''}
+                {hint}
               >
                 {#if loading}
                   <ProgressRing size={16} />

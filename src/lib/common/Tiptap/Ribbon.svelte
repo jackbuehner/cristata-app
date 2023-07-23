@@ -113,7 +113,10 @@
 
   $: publishAction = actions.find((action) => action.id === 'publish');
   $: shareAction = actions.find((action) => action.id === 'share');
-  $: restActions = actions.filter((action) => action.id !== publishAction?.id && action.id !== shareAction?.id);
+  $: saveAction = actions.find((action) => action.id === 'save');
+  $: restActions = actions.filter(
+    (action) => action.id !== publishAction?.id && action.id !== shareAction?.id && action.id !== saveAction?.id
+  );
 </script>
 
 <div class="ribbon" bind:offsetWidth={width}>
@@ -122,14 +125,32 @@
       <div class="tabs" bind:this={tabsContainerElement}>
         <MenuFlyout alignment="start" placement="bottom" offset={0} bind:open={fileMenuOpen}>
           <svelte:fragment slot="flyout">
-            <MenuFlyoutItem hint="Ctrl + S" on:click={() => (saveDocDialogOpen = !saveDocDialogOpen)}>
-              <FluentIcon name="Save20Regular" />
-              Save
-            </MenuFlyoutItem>
-            {#if publishAction}
-              {@const { action, disabled, onAuxClick, tooltip, icon, label, loading } = publishAction}
+            {#if saveAction}
+              {@const { action, disabled, onAuxClick, tooltip, icon, label, loading, hint } = saveAction}
               <MenuFlyoutItem
-                hint="Ctrl + Shift + S"
+                {hint}
+                disabled={disabled || loading}
+                on:click={async (evt) => {
+                  await action(evt);
+                  setTimeout(() => {
+                    fileMenuOpen = false;
+                  }, 1);
+                }}
+                on:auxclick={onAuxClick}
+                data-tip={tooltip}
+              >
+                {#if loading}
+                  <ProgressRing size={16} />
+                {:else}
+                  <FluentIcon name={icon} mode="buttonIconLeft" />
+                {/if}
+                {label}
+              </MenuFlyoutItem>
+            {/if}
+            {#if publishAction}
+              {@const { action, disabled, onAuxClick, tooltip, icon, label, loading, hint } = publishAction}
+              <MenuFlyoutItem
+                {hint}
                 disabled={disabled || loading}
                 on:click={async (evt) => {
                   await action(evt);
@@ -163,9 +184,9 @@
               </svelte:fragment>
             </MenuFlyoutItem>
             {#if shareAction}
-              {@const { action, disabled, onAuxClick, tooltip, icon, label, loading } = shareAction}
+              {@const { action, disabled, onAuxClick, tooltip, icon, label, loading, hint } = shareAction}
               <MenuFlyoutItem
-                hint="Ctrl + Alt + S"
+                {hint}
                 disabled={disabled || loading}
                 on:click={async (evt) => {
                   await action(evt);
@@ -185,7 +206,7 @@
               </MenuFlyoutItem>
             {/if}
             <MenuFlyoutDivider />
-            {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading }}
+            {#each restActions as { action, disabled, onAuxClick, tooltip, icon, label, id, loading, hint }}
               <MenuFlyoutItem
                 disabled={disabled || loading}
                 on:click={async (evt) => {
@@ -196,13 +217,7 @@
                 }}
                 on:auxclick={onAuxClick}
                 data-tip={tooltip}
-                hint={id === 'save'
-                  ? 'Ctrl + S'
-                  : id === 'publish'
-                  ? 'Ctrl + Shift + S'
-                  : id === 'share'
-                  ? 'Ctrl + Alt + S'
-                  : ''}
+                {hint}
               >
                 {#if loading}
                   <ProgressRing size={16} />

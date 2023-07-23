@@ -3,6 +3,7 @@
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import PreviewFrame from '$lib/common/Tiptap/PreviewFrame.svelte';
   import PublishDocDialog from '$lib/dialogs/PublishDocDialog.svelte';
+  import SaveDocumentDialog from '$lib/dialogs/SaveDocumentDialog.svelte';
   import ShareDocDialog from '$lib/dialogs/ShareDocDialog.svelte';
   import { motionMode } from '$stores/motionMode';
   import { title } from '$stores/title';
@@ -132,10 +133,23 @@
     getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
     getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
 
+  $: publishDialogDisabled = canPublish !== true || archived || locked || hidden || loading || disconnected;
+  $: shareDialogDisabled =
+    $docData.data?.actionAccess?.modify !== true ||
+    archived ||
+    locked ||
+    hidden ||
+    loading ||
+    disconnected ||
+    docHasUnrestrictedAccess;
+  $: watchActionDisabled =
+    watcherData.isMandatoryWatcher || $docData.data?.actionAccess?.watch !== true || disabled;
+
   let publishDialogOpen = false;
   let shareDialogOpen = false;
   let showCollapsedFields = false;
   let showHiddenFields = false;
+  let saveDocDialogOpen = false;
 
   let actions: Action[] = [];
   let loadingWatchAction = false;
@@ -145,6 +159,16 @@
   let loadingUpdateSessionAction = false;
   let loadingPublishAction = false;
   $: actions = [
+    {
+      id: 'save',
+      label: 'Save',
+      icon: 'Save20Regular',
+      action: async () => {
+        saveDocDialogOpen = !saveDocDialogOpen;
+      },
+      disabled: disabled,
+      hint: 'Ctrl + S',
+    },
     {
       id: 'watch',
       label: watcherData.isWatcher ? 'Stop watching' : 'Watch',
@@ -159,20 +183,13 @@
         }, 1000);
       },
       loading: loadingWatchAction,
-      disabled:
-        loadingWatchAction ||
-        watcherData.isMandatoryWatcher ||
-        $docData.data?.actionAccess?.watch !== true ||
-        archived ||
-        locked ||
-        hidden ||
-        loading ||
-        disconnected,
+      disabled: loadingWatchAction || watchActionDisabled,
       tooltip: watcherData.isMandatoryWatcher
         ? `You cannot stop watching this document because you are in one of the following groups: ${watcherData.mandatoryWatchersKeys.join(
             ', '
           )}`
         : undefined,
+      hint: 'Ctrl + Shift + F',
     },
     {
       id: 'publish',
@@ -191,12 +208,12 @@
         }
       },
       loading: loadingPublishAction,
-      disabled:
-        loadingPublishAction || canPublish !== true || archived || locked || hidden || loading || disconnected,
+      disabled: loadingPublishAction || publishDialogDisabled,
       tooltip:
         canPublish !== true
           ? `You cannot publish this document because you do not have permission.`
           : undefined,
+      hint: 'Ctrl + Shift + P',
     },
     {
       id: 'delete',
@@ -267,17 +284,12 @@
           action: () => {
             shareDialogOpen = !shareDialogOpen;
           },
-          disabled:
-            $docData.data?.actionAccess?.modify !== true ||
-            archived ||
-            locked ||
-            hidden ||
-            loading ||
-            disconnected,
+          disabled: shareDialogDisabled,
           tooltip:
             $docData.data?.actionAccess?.modify !== true
               ? `You cannot share this document because you do not have permission to modify it.`
               : undefined,
+          hint: 'Ctrl + D',
         },
     hasPublishedDoc && currentStage === publishStage
       ? {
@@ -357,18 +369,54 @@
 
   $: collapsedFields = data.helpers.processSchemaDef({ collapsed: true, showHidden: showHiddenFields });
 
-  // use a keyboard shortcut to trigger whether hidden fields are shown
-  function toggleShowHiddenFields(evt: KeyboardEvent) {
+  function keyboardShortcuts(evt: KeyboardEvent) {
+    console.log(evt);
+    // trigger whether hidden fields are shown
     // ALT + SHIFT + H
     if (evt.altKey && evt.shiftKey && evt.key === 'H') {
+      evt.preventDefault();
       showHiddenFields = !showHiddenFields;
+      return;
+    }
+
+    // show the share doc dialog
+    // CTRL + D
+    if (evt.ctrlKey && evt.key === 'd') {
+      evt.preventDefault();
+      if (!shareDialogDisabled) shareDialogOpen = true;
+      return;
+    }
+
+    // toggle watch doc
+    // CTRL + SHIFT + F
+    if (evt.ctrlKey && evt.shiftKey && evt.key === 'F') {
+      evt.preventDefault();
+      const watchAction = actions.find((action) => action.id === 'watch');
+      if (watchAction && !watchAction.disabled) watchAction.action(evt);
+      return;
+    }
+
+    // show the save doc dialog
+    // CTRL + S
+    if (evt.ctrlKey && evt.key === 's') {
+      evt.preventDefault();
+      saveDocDialogOpen = true;
+      return;
+    }
+
+    // show the publish doc dialog
+    // CTRL + SHIFT + P
+    if (evt.ctrlKey && evt.shiftKey && evt.key === 'P') {
+      evt.preventDefault();
+      if (!publishDialogDisabled) publishDialogOpen = true;
+      return;
     }
   }
   onMount(() => {
-    document.addEventListener('keyup', toggleShowHiddenFields);
+    document.addEventListener('keydown', keyboardShortcuts);
   });
   onDestroy(() => {
-    document.removeEventListener('keyup', toggleShowHiddenFields);
+    document.removeEventListener('keydown', keyboardShortcuts);
   });
 
   let tabsContainerElement: HTMLDivElement;
@@ -706,6 +754,8 @@
   {fullSharedData}
   fieldStyle=""
 />
+
+<SaveDocumentDialog bind:open={saveDocDialogOpen} />
 
 <!-- <react:CollectionItemPage {collection} {item_id} {tenant} {version_date} /> -->
 <style>

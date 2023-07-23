@@ -535,5 +535,6 @@ export interface Action {
   onAuxClick?: (evt: MouseEvent) => void;
   disabled?: boolean;
   tooltip?: string;
+  hint?: string;
   // showChevron?: boolean;
 }
