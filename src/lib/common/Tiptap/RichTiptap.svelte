@@ -6,6 +6,7 @@
   import { SidebarHeader } from '$lib/sidebar';
   import { motionMode } from '$stores/motionMode';
   import { titlebarActions } from '$stores/titlebarActions';
+  import type { YStore } from '$utils/createYStore';
   import type { Editor } from '@tiptap/core';
   import { IconButton, TextBlock, Tooltip } from 'fluent-svelte';
   import less from 'less';
@@ -42,6 +43,7 @@
   export let coreSidebarProps: ComponentProps<Sidebar> | undefined = undefined;
   export let dynamicPreviewHref = '';
   export let actions: Action[] = [];
+  export let connected: YStore['connected'] | undefined = undefined;
 
   let bubbleMenuParagraph: HTMLDivElement;
 
@@ -457,7 +459,25 @@
   </div>
   <SaveDocumentDialog bind:open={saveDocDialogOpen} />
   <div class="footer-wrapper">
-    <div class="footer">footer</div>
+    <div class="footer">
+      <div class="footer-textblock">
+        {editor?.storage.characterCount.words()} word{editor?.storage.characterCount.words() !== 1 ? 's' : ''}
+      </div>
+      <div class="footer-textblock">
+        {editor?.storage.characterCount?.characters()} characters
+      </div>
+      <!-- svelte-ignore missing-declaration -->
+      <div class="footer-textblock">
+        <!-- {packageJson.dependencies['@tiptap/react']} -->
+        <!-- {'__'} -->
+        v{__APP_VERSION__}
+      </div>
+      {#if connected !== undefined}
+        <div class="footer-textblock">
+          {$connected?.ws === true ? 'Connected' : 'Connecting...'}
+        </div>
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -536,6 +556,25 @@
     border-radius: var(--fds-control-corner-radius) var(--fds-control-corner-radius) 0 0;
     font-size: 12px;
     line-height: 24px;
+  }
+
+  .footer-textblock {
+    height: 24px;
+    background-color: transparent;
+    color: var(--fds-text-secondary);
+    padding: 0px 4px 2px;
+    border: 1px solid transparent;
+    display: inline-flex;
+    text-decoration: none;
+    border-radius: 0px;
+    min-width: 40px;
+    user-select: none;
+    box-sizing: border-box;
+    font-weight: 400;
+    cursor: default;
+    font-size: 12px;
+    font-family: var(--fds-font-family-small);
+    align-items: center;
   }
 
   .sidebar-wrapper {

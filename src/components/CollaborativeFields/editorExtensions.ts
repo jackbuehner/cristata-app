@@ -1,3 +1,4 @@
+import CharacterCount from '@tiptap/extension-character-count';
 import Document from '@tiptap/extension-document';
 import FontFamily from '@tiptap/extension-font-family';
 import Link from '@tiptap/extension-link';
@@ -131,6 +132,7 @@ const editorExtensions = {
     TableRow,
     TableHeader,
     TableCell,
+    CharacterCount,
   ],
   text: [ParagraphDocument, Paragraph, Text],
   float: [ParagraphDocument, Paragraph, Float],

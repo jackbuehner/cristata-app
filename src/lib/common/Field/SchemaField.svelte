@@ -37,6 +37,7 @@
   export let yjsDocArrayConfig: { __uuid: string; parentKey: string; childKey: string } | undefined = undefined;
   export let collectionName = '';
   export let actions: Action[] = [];
+  export let connected: YStore['connected'] | undefined = undefined
 
   $: type = isTypeTuple(def.type) ? def.type[1] : def.type;
   $: isArrayType =
@@ -125,6 +126,7 @@
         {fullSharedData}
         {dynamicPreviewHref}
         {actions}
+        {connected}
       />
     </FieldWrapper>
   {:else}
