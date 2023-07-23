@@ -44,6 +44,7 @@
   export let toggleTrackChanges: (bool: boolean) => void;
   export let iframehtmlstring = '';
   export let actions: Action[] = [];
+  export let docStatsDialogOpen = false;
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
@@ -595,6 +596,7 @@
         {user}
         {trackChanges}
         {toggleTrackChanges}
+        bind:docStatsDialogOpen
       />
       <ViewTabPanel visible={activeTab === 'view'} {editor} {options} />
       <TableTabPanel visible={activeTab === 'table'} {editor} {options} {setTab} />

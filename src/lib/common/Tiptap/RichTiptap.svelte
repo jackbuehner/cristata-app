@@ -2,6 +2,7 @@
   import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
   import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import WordCountDialog from '$lib/dialogs/WordCountDialog.svelte';
   import { SidebarHeader } from '$lib/sidebar';
   import { motionMode } from '$stores/motionMode';
   import { titlebarActions } from '$stores/titlebarActions';
@@ -210,6 +211,8 @@
     ySettingsMap?.set('trackChanges', bool);
   }
 
+  let docStatsDialogOpen = true;
+
   $: saveAction = actions.find((action) => action.id === 'save');
   $: if (fullscreen) {
     titlebarActions.set([
@@ -309,6 +312,7 @@
     {toggleTrackChanges}
     {iframehtmlstring}
     {actions}
+    bind:docStatsDialogOpen
   />
   <div class="main-middle">
     {#if $richTextParams.obj.previewMode > 0}
@@ -456,12 +460,9 @@
 
   <div class="footer-wrapper">
     <div class="footer">
-      <div class="footer-textblock">
+      <button class="footer-textblock" {disabled} on:click={() => (docStatsDialogOpen = !docStatsDialogOpen)}>
         {editor?.storage.characterCount.words()} word{editor?.storage.characterCount.words() !== 1 ? 's' : ''}
-      </div>
-      <div class="footer-textblock">
-        {editor?.storage.characterCount?.characters()} characters
-      </div>
+      </button>
       <!-- svelte-ignore missing-declaration -->
       <div class="footer-textblock">
         <!-- {packageJson.dependencies['@tiptap/react']} -->
@@ -480,6 +481,8 @@
 <div class="bubble-menu paragraph" bind:this={bubbleMenuParagraph}>
   <BubbleMenuParagraph {editor} {options} {user} />
 </div>
+
+<WordCountDialog {editor} bind:open={docStatsDialogOpen} />
 
 <style>
   .richtiptap {
@@ -571,6 +574,17 @@
     font-size: 12px;
     font-family: var(--fds-font-family-small);
     align-items: center;
+  }
+
+  button.footer-textblock:hover {
+    background-color: var(--fds-subtle-fill-secondary);
+  }
+  button.footer-textblock:active {
+    background-color: var(--fds-subtle-fill-tertiary);
+    color: var(--fds-text-secondary);
+  }
+  button.footer-textblock:focus-visible {
+    box-shadow: var(--fds-focus-stroke);
   }
 
   .sidebar-wrapper {

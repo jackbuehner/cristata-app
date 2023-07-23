@@ -14,6 +14,7 @@
   export let user: ComponentProps<Tiptap>['user'] | null = null;
   export let trackChanges: boolean | undefined;
   export let toggleTrackChanges: (bool: boolean) => void;
+  export let docStatsDialogOpen = false;
 
   $: coreNewCommentAttrs = {
     color: user?.color || '',
@@ -75,7 +76,7 @@
   </Tooltip>
 
   <Tooltip text="View document field word count">
-    <IconButton disabled={disabled || true}>
+    <IconButton {disabled} on:click={() => (docStatsDialogOpen = !docStatsDialogOpen)}>
       <FluentIcon>
         <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
           <path
