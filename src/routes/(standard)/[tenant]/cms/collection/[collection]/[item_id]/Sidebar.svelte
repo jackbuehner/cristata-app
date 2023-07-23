@@ -358,52 +358,58 @@
 
   {#if features.versions && versionsList && !hideVersions}
     <div class="section-title" class:hidden={onlyOneFeature}>Versions</div>
-    <div class="versions-section">
-      {#each versionsList
-        ?.toArray()
-        .reverse()
-        .slice(0, truncateVersionsList ? 3 : undefined) as version}
-        <!-- format the date to only include the time when it is not a timestamp -->
-        <!-- from a day with cosolidated versions -->
-        {@const formattedDate = (() => {
-          // time of day is empty for consolidated versions
-          if (version.timestamp.includes('T00:00:00.000Z')) {
-            return formatISODate(version.timestamp, true, true, false);
-          }
-          return formatISODate(version.timestamp, true, true, true);
-        })()}
+    {#if versionsList.length > 0}
+      <div class="versions-section">
+        {#each versionsList
+          ?.toArray()
+          .reverse()
+          .slice(0, truncateVersionsList ? 3 : undefined) as version}
+          <!-- format the date to only include the time when it is not a timestamp -->
+          <!-- from a day with cosolidated versions -->
+          {@const formattedDate = (() => {
+            // time of day is empty for consolidated versions
+            if (version.timestamp.includes('T00:00:00.000Z')) {
+              return formatISODate(version.timestamp, true, true, false);
+            }
+            return formatISODate(version.timestamp, true, true, true);
+          })()}
 
-        <!-- fall back to Unknown user when there are no users attributed to a version -->
-        {@const users = version.users.length > 0 ? version.users.map((user) => user.name) : ['Unknown']}
+          <!-- fall back to Unknown user when there are no users attributed to a version -->
+          {@const users = version.users.length > 0 ? version.users.map((user) => user.name) : ['Unknown']}
 
-        {@const url = (() => {
-          const url = new URL(window.location.href);
-          url.pathname = url.pathname + '/version/' + version.timestamp;
-          return url;
-        })()}
+          {@const url = (() => {
+            const url = new URL(window.location.href);
+            url.pathname = url.pathname + '/version/' + version.timestamp;
+            return url;
+          })()}
 
-        <Button
-          href={url.href}
-          on:click={(evt) => {
-            evt.preventDefault();
-            openWindow(url, `sidebar_version_open` + docInfo._id + version.timestamp, 'location=no');
-          }}
-        >
-          <div class="version-card">
-            <div>{formattedDate}</div>
-            <div style="color: var(--fds-text-secondary);">{listOxford(users)}</div>
-          </div>
-        </Button>
-      {/each}
-    </div>
-    {#if truncateVersionsList}
-      <Button style="margin-top: 6px;" on:click={() => (truncateVersionsList = false)}>
-        Show more versions
-      </Button>
+          <Button
+            href={url.href}
+            on:click={(evt) => {
+              evt.preventDefault();
+              openWindow(url, `sidebar_version_open` + docInfo._id + version.timestamp, 'location=no');
+            }}
+          >
+            <div class="version-card">
+              <div>{formattedDate}</div>
+              <div style="color: var(--fds-text-secondary);">{listOxford(users)}</div>
+            </div>
+          </Button>
+        {/each}
+      </div>
+      {#if versionsList.length > 3}
+        {#if truncateVersionsList}
+          <Button style="margin-top: 6px;" on:click={() => (truncateVersionsList = false)}>
+            Show more versions
+          </Button>
+        {:else}
+          <Button style="margin-top: 6px;" on:click={() => (truncateVersionsList = true)}>
+            Show fewer versions
+          </Button>
+        {/if}
+      {/if}
     {:else}
-      <Button style="margin-top: 6px;" on:click={() => (truncateVersionsList = true)}>
-        Show fewer versions
-      </Button>
+      <TextBlock>No versions are available for this document.</TextBlock>
     {/if}
   {/if}
 </aside>
