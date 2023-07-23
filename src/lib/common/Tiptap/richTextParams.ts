@@ -40,6 +40,9 @@ export const richTextParams = derived([params], ([$params]) => {
         return adjustUpdate({ ...$params, [key]: mode });
       });
     },
+    forceUpdate() {
+      params.set(getFromUrl());
+    },
   };
 });
 

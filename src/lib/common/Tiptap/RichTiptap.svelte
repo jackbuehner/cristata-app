@@ -10,7 +10,7 @@
   import type { Editor } from '@tiptap/core';
   import { IconButton, TextBlock, Tooltip } from 'fluent-svelte';
   import less from 'less';
-  import { onDestroy, type ComponentProps } from 'svelte';
+  import { onDestroy, onMount, type ComponentProps } from 'svelte';
   import { expoOut } from 'svelte/easing';
   import type { Readable } from 'svelte/store';
   import { fade, fly } from 'svelte/transition';
@@ -291,6 +291,10 @@
 
   onDestroy(() => {
     titlebarActions.set([]);
+  });
+
+  onMount(() => {
+    $richTextParams.forceUpdate();
   });
 
   $: delay = $motionMode === 'reduced' ? 0 : 130;
