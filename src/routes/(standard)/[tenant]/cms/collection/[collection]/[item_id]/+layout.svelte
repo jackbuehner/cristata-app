@@ -133,8 +133,10 @@
     getProperty(data, 'permissions.teams')?.includes('000000000000000000000000') ||
     getProperty(data, 'permissions.users')?.includes('000000000000000000000000');
 
-  $: publishDialogDisabled = canPublish !== true || archived || locked || hidden || loading || disconnected;
+  $: publishDialogDisabled =
+    isOldVersion || canPublish !== true || archived || locked || hidden || loading || disconnected;
   $: shareDialogDisabled =
+    isOldVersion ||
     $docData.data?.actionAccess?.modify !== true ||
     archived ||
     locked ||
@@ -229,7 +231,12 @@
       },
       loading: loadingHideAction,
       disabled:
-        loadingHideAction || $docData.data?.actionAccess?.hide !== true || locked || loading || disconnected,
+        loadingHideAction ||
+        isOldVersion ||
+        $docData.data?.actionAccess?.hide !== true ||
+        locked ||
+        loading ||
+        disconnected,
     },
     {
       id: 'archive',
@@ -246,6 +253,7 @@
       loading: loadingArchiveAction,
       disabled:
         loadingArchiveAction ||
+        isOldVersion ||
         $docData.data?.actionAccess?.archive !== true ||
         locked ||
         hidden ||
@@ -307,6 +315,7 @@
           loading: loadingUpdateSessionAction,
           disabled:
             loadingUpdateSessionAction ||
+            isOldVersion ||
             $docData.data?.actionAccess?.modify !== true ||
             archived ||
             locked ||
