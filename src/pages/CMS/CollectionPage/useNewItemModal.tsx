@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-
+import { deepen } from '$utils/deepen';
 import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
 import { gql } from 'graphql-tag';
@@ -15,7 +14,6 @@ import { useCollectionSchemaConfig } from '../../../hooks/useCollectionSchemaCon
 import { useWindowModal } from '../../../hooks/useWindowModal';
 import { camelToDashCase } from '../../../utils/camelToDashCase';
 import { uncapitalize } from '../../../utils/uncapitalize';
-import { deepen } from '../CollectionItemPage/useFindDoc';
 
 import * as apolloRaw from '@apollo/client';
 const { useApolloClient } = ((apolloRaw as any).default ?? apolloRaw) as typeof apolloRaw;
