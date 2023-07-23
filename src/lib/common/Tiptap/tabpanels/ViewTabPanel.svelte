@@ -1,7 +1,7 @@
 <script lang="ts">
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import type { Editor } from '@tiptap/core';
-  import { Button, IconButton } from 'fluent-svelte';
+  import { Button, IconButton, Tooltip } from 'fluent-svelte';
   import type { tiptapOptions } from '../../../../config';
   import { richTextParams } from '../richTextParams';
 
@@ -9,9 +9,33 @@
   export let visible = false;
   export let disabled = false;
   export let options: tiptapOptions | undefined = undefined;
+
+  let width = 1000;
+
+  function toggleDocumentProperties() {
+    if ($richTextParams.obj.previewMode > 0) {
+      $richTextParams.set('previewMode', 0);
+    } else {
+      $richTextParams.set('previewMode', 2);
+    }
+  }
+  function toggleCommentsSidebar() {
+    if ($richTextParams.isActive('comments')) {
+      $richTextParams.set('comments', 0);
+    } else {
+      $richTextParams.set('comments', 1);
+    }
+  }
+  function toggleVersionsSidebar() {
+    if ($richTextParams.isActive('versions')) {
+      $richTextParams.set('versions', 0);
+    } else {
+      $richTextParams.set('versions', 1);
+    }
+  }
 </script>
 
-<div class="panel" class:visible>
+<div class="panel" class:visible bind:offsetWidth={width}>
   <Button
     on:click={() => {
       if ($richTextParams.obj.previewMode === 0) {
@@ -82,73 +106,102 @@
     </FluentIcon>
     Preview mode
   </Button>
-  <Button
-    on:click={() => {
-      if ($richTextParams.isActive('props')) {
-        $richTextParams.set('props', 0);
-      } else {
-        $richTextParams.set('props', 1);
-      }
-    }}
-    class={$richTextParams.isActive('props') ? 'active' : ''}
-  >
-    <FluentIcon name="Database20Regular" mode="ribbonButtonIconLeft" />
-    Document properties
-  </Button>
+
+  <span class="bar" />
+
+  {#if width > 520}
+    <Button on:click={toggleDocumentProperties} class={$richTextParams.isActive('props') ? 'active' : ''}>
+      <FluentIcon name="Database20Regular" mode="ribbonButtonIconLeft" />
+      Document properties
+    </Button>
+  {:else}
+    <Tooltip text="Document properties">
+      <IconButton on:click={toggleDocumentProperties} class={$richTextParams.isActive('props') ? 'active' : ''}>
+        <FluentIcon name="Database20Regular" />
+      </IconButton>
+    </Tooltip>
+  {/if}
+
   <!-- Comments must be enabled or there must be a comment left over from when comments were enabled -->
   <!-- In order to show the option to view the comments sidebar -->
   {#if options?.features.comment || (editor?.storage?.powerComment?.comments.length || 0) > 0}
-    <Button
-      on:click={() => {
-        if ($richTextParams.isActive('comments')) {
-          $richTextParams.set('comments', 0);
-        } else {
-          $richTextParams.set('comments', 1);
-        }
-      }}
-      class={$richTextParams.isActive('comments') ? 'active' : ''}
-    >
+    {#if width > 580}
+      <Button on:click={toggleCommentsSidebar} class={$richTextParams.isActive('comments') ? 'active' : ''}>
+        <FluentIcon mode="ribbonButtonIconLeft">
+          <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+            <path
+              type="path"
+              class="OfficeIconColors_HighContrast"
+              d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+            />
+            <path
+              type="path"
+              class="OfficeIconColors_m233"
+              d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+            />
+          </svg>
+        </FluentIcon>
+        Comments
+      </Button>
+    {:else}
+      <Tooltip text="Comments sidebar">
+        <IconButton
+          on:click={toggleCommentsSidebar}
+          class={$richTextParams.isActive('comments') ? 'active' : ''}
+        >
+          <FluentIcon>
+            <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+              <path
+                type="path"
+                class="OfficeIconColors_HighContrast"
+                d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+              />
+              <path
+                type="path"
+                class="OfficeIconColors_m233"
+                d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+              />
+            </svg>
+          </FluentIcon>
+        </IconButton>
+      </Tooltip>
+    {/if}
+  {/if}
+
+  {#if width > 680}
+    <Button on:click={toggleVersionsSidebar} class={$richTextParams.isActive('versions') ? 'active' : ''}>
       <FluentIcon mode="ribbonButtonIconLeft">
         <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
           <path
             type="path"
-            class="OfficeIconColors_HighContrast"
-            d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+            d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
           />
           <path
             type="path"
-            class="OfficeIconColors_m233"
-            d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+            d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
           />
         </svg>
       </FluentIcon>
-      Comments
+      Version history
     </Button>
+  {:else}
+    <Tooltip text="Version history">
+      <IconButton on:click={toggleVersionsSidebar} class={$richTextParams.isActive('versions') ? 'active' : ''}>
+        <FluentIcon>
+          <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+            <path
+              type="path"
+              d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
+            />
+            <path
+              type="path"
+              d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
+            />
+          </svg>
+        </FluentIcon>
+      </IconButton>
+    </Tooltip>
   {/if}
-  <Button
-    on:click={() => {
-      if ($richTextParams.isActive('versions')) {
-        $richTextParams.set('versions', 0);
-      } else {
-        $richTextParams.set('versions', 1);
-      }
-    }}
-    class={$richTextParams.isActive('versions') ? 'active' : ''}
-  >
-    <FluentIcon mode="ribbonButtonIconLeft">
-      <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
-        <path
-          type="path"
-          d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
-        />
-        <path
-          type="path"
-          d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
-        />
-      </svg>
-    </FluentIcon>
-    Version history
-  </Button>
 </div>
 
 <style>
