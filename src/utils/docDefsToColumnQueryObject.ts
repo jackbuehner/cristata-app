@@ -1,9 +1,8 @@
 import { deepen } from '$utils/deepen';
-import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
+import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
 import { merge } from 'merge-anything';
-import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
 
-function docDefsToQueryObjectCols(
+export function docDefsToColumnQueryObject(
   input: DeconstructedSchemaDefType[0],
   index: number,
   arr: DeconstructedSchemaDefType
@@ -37,7 +36,7 @@ function docDefsToQueryObjectCols(
     return merge<Record<string, never>, Record<string, never>[]>(
       {},
       ...def.docs.map(([key, def], index, arr) => {
-        return docDefsToQueryObjectCols([key, def], index, arr);
+        return docDefsToColumnQueryObject([key, def], index, arr);
       })
     );
   }
@@ -49,5 +48,3 @@ function docDefsToQueryObjectCols(
 
   return deepen({ _id: true });
 }
-
-export { docDefsToQueryObjectCols };
