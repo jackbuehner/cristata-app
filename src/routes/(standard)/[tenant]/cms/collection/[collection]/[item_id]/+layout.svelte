@@ -379,7 +379,6 @@
   $: collapsedFields = data.helpers.processSchemaDef({ collapsed: true, showHidden: showHiddenFields });
 
   function keyboardShortcuts(evt: KeyboardEvent) {
-    console.log(evt);
     // trigger whether hidden fields are shown
     // ALT + SHIFT + H
     if (evt.altKey && evt.shiftKey && evt.key === 'H') {
@@ -720,26 +719,6 @@
   />
 </div>
 
-<button
-  on:click={() => {
-    console.log($ydoc?.toJSON());
-  }}
->
-  log shared types
-</button>
-
-<button
-  on:click={() => {
-    console.log($docData);
-  }}
->
-  log doc data
-</button>
-
-<pre>
-  {JSON.stringify($advancedSharedData, null, 2)}
-</pre>
-
 <PublishDocDialog
   bind:open={publishDialogOpen}
   {tenant}
@@ -766,7 +745,6 @@
 
 <SaveDocumentDialog bind:open={saveDocDialogOpen} />
 
-<!-- <react:CollectionItemPage {collection} {item_id} {tenant} {version_date} /> -->
 <style>
   .content-wrapper {
     display: flex;
