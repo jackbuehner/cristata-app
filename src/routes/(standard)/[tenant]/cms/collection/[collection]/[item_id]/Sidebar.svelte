@@ -493,12 +493,17 @@
     gap: 6px;
   }
 
+  .access-section :global(.person-photo) {
+    width: 24px;
+    height: 24px;
+  }
+
   article.team {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 14px;
-    padding: 4px;
+    padding: 3px 0;
     width: 100%;
   }
 
@@ -512,8 +517,8 @@
     border-radius: var(--fds-control-corner-radius);
     box-shadow: inset 0 0 0 1.5px black;
     -webkit-user-drag: none;
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
   }
 
   .versions-section {
