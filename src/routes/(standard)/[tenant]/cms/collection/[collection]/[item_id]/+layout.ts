@@ -1,19 +1,17 @@
 import { goto } from '$app/navigation';
-import { query } from '$graphql/query';
+import { queryWithStore } from '$graphql/query';
 import { server } from '$utils/constants';
 import { deepen } from '$utils/deepen';
 import { genAvatar } from '$utils/genAvatar';
 import { getProperty } from '$utils/objectPath';
 import { isTypeTuple, type DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
-import { notEmpty, uncapitalize } from '@jackbuehner/cristata-utils';
+import { notEmpty, slugify, uncapitalize } from '@jackbuehner/cristata-utils';
 import _ColorHash from 'color-hash';
 import { print } from 'graphql';
 import gql from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { merge } from 'merge-anything';
 import pluralize from 'pluralize';
-
-import { error } from '@sveltejs/kit';
 import type { LayoutLoad } from './$types';
 
 // @ts-expect-error https://github.com/zenozeng/color-hash/issues/42
@@ -26,7 +24,7 @@ export const load = (async ({ parent, params, url }) => {
 
   const accessorOne = collection.config.by?.one || '_id';
 
-  const docData = query<{
+  const docData = queryWithStore<{
     doc?: Record<string, unknown>;
     actionAccess: Record<'modify' | 'modify' | 'hide' | 'lock' | 'watch' | 'archive' | 'publish', boolean>;
   }>({
@@ -35,6 +33,7 @@ export const load = (async ({ parent, params, url }) => {
     query: gql(
       jsonToGraphQLQuery({
         query: {
+          __name: `${collection.schemaName}DocData${slugify(params.item_id)}`,
           doc: {
             // we alias to "doc" so the accessor for the data is always the same
             __aliasFor: uncapitalize(collection.schemaName),
@@ -61,6 +60,8 @@ export const load = (async ({ parent, params, url }) => {
       })
     ),
     useCache: false,
+    waitForQuery: true,
+    clearStoreBeforeFetch: false,
   });
 
   // create a user object for the current user (for yjs)

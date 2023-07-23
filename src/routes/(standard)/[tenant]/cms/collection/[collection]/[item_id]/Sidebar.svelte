@@ -1,7 +1,6 @@
 <script lang="ts">
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { SelectOne } from '$lib/common/Select';
-  import { server } from '$utils/constants';
   import type { AwarenessUser, YStore } from '$utils/createYStore';
   import { formatISODate } from '$utils/formatISODate';
   import { genAvatar } from '$utils/genAvatar';
@@ -11,6 +10,7 @@
   import {
     Button,
     IconButton,
+    InfoBar,
     MenuFlyout,
     MenuFlyoutItem,
     PersonPicture,
@@ -18,8 +18,8 @@
     TextBlock,
     Tooltip,
   } from 'fluent-svelte';
+  import JSONCrush from 'jsoncrush';
   import type { Readable } from 'svelte/store';
-  import type { PageData } from './$types';
   import type { Action } from './+layout';
   import PersonCard from './PersonCard.svelte';
 
@@ -34,9 +34,10 @@
   export let ydoc: YStore['ydoc'];
   export let stageDef: DeconstructedSchemaDefType[0][1] | undefined;
   export let sharedData: Readable<Record<string, unknown>>;
+  export let fullSharedData: Readable<Record<string, unknown>>;
   export let awareness: Readable<AwarenessUser[] | null>;
   export let tenant: string;
-  export let preview: { previewUrl?: string } = {};
+  export let preview: { previewUrl?: string; refreshDocData?: () => Promise<void> } = {};
   export let permissions: {
     users?: {
       _id: string;
@@ -54,6 +55,8 @@
 
   $: versionsList = $ydoc?.getArray<{ timestamp: string; users: AwarenessUser[] }>('__internal_versionsList');
   let truncateVersionsList = true;
+
+  let crushPreviewLoading = false;
 
   interface Features {
     actions?: boolean;
@@ -277,15 +280,48 @@
     </div>
   {/if}
 
-  {#if features.preview}
-    <div class="section-title" class:hidden={onlyOneFeature}>Preview</div>
-    TODO
+  {#if features.preview && preview.previewUrl}
+    <!-- legacy preview popop -->
+    <div class="section-title" class:hidden={onlyOneFeature}>Preview popout (legacy)</div>
+
+    <InfoBar severity="caution" title="Resource-intensive action" closable={false} style="margin-bottom: 5px;">
+      It make take a while to open the preview.
+    </InfoBar>
+
+    <Button
+      on:click={async () => {
+        crushPreviewLoading = true;
+        await preview?.refreshDocData?.();
+        const crushed = JSONCrush.crush(JSON.stringify($fullSharedData));
+        window.open(
+          preview.previewUrl + `?data=${encodeURIComponent(crushed)}`,
+          `sidebar_crush_preview` + docInfo._id,
+          'location=no'
+        );
+        crushPreviewLoading = false;
+      }}
+      on:auxclick={async () => {
+        crushPreviewLoading = true;
+        await preview?.refreshDocData?.();
+        console.log(JSONCrush.crush(JSON.stringify($fullSharedData)));
+        console.log($fullSharedData);
+        crushPreviewLoading = false;
+      }}
+      style="width: 140px;"
+    >
+      {#if crushPreviewLoading}
+        <ProgressRing size={16} />
+      {:else}
+        <FluentIcon name="Open24Regular" mode="buttonIconLeft" />
+        Open preview
+      {/if}
+    </Button>
   {/if}
 
   {#if features.download && docInfo.collectionName === 'File'}
     <div class="section-title" class:hidden={onlyOneFeature}>Download</div>
     <Button
-      onClick={async () => {
+      on:click={async () => {
         const href = `${import.meta.env.VITE_API_PROTOCOL}//${
           import.meta.env.VITE_API_BASE_URL
         }/filestore/${tenant}/${docInfo._id}`;

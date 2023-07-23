@@ -12,9 +12,11 @@
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
   import { Button, Expander, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
+  import { merge } from 'merge-anything';
   import { toast } from 'react-toastify';
   import { onDestroy, onMount } from 'svelte';
   import { expoOut } from 'svelte/easing';
+  import { derived } from 'svelte/store';
   import { fly } from 'svelte/transition';
   import type { Action } from './+layout';
   import Sidebar from './Sidebar.svelte';
@@ -68,7 +70,7 @@
   $: stageDef = deconstructedSchema.find(([key, def]) => key === 'stage')?.[1];
   $: ({ canPublish, publishLocked, publishStage, currentStage } = data.helpers.calcPublishPermissions({
     itemStateFields: $sharedData,
-    publishActionAccess: docData?.data?.actionAccess.publish || false,
+    publishActionAccess: $docData.data?.actionAccess.publish || false,
   }));
 
   $: hasLoadedAtLeastOnce = JSON.stringify($sharedData) !== JSON.stringify({});
@@ -160,7 +162,7 @@
       disabled:
         loadingWatchAction ||
         watcherData.isMandatoryWatcher ||
-        docData?.data?.actionAccess?.watch !== true ||
+        $docData.data?.actionAccess?.watch !== true ||
         archived ||
         locked ||
         hidden ||
@@ -210,7 +212,7 @@
       },
       loading: loadingHideAction,
       disabled:
-        loadingHideAction || docData?.data?.actionAccess?.hide !== true || locked || loading || disconnected,
+        loadingHideAction || $docData.data?.actionAccess?.hide !== true || locked || loading || disconnected,
     },
     {
       id: 'archive',
@@ -227,7 +229,7 @@
       loading: loadingArchiveAction,
       disabled:
         loadingArchiveAction ||
-        docData?.data?.actionAccess?.archive !== true ||
+        $docData.data?.actionAccess?.archive !== true ||
         locked ||
         hidden ||
         loading ||
@@ -248,7 +250,7 @@
       loading: loadingCloneAction,
       disabled:
         loadingCloneAction ||
-        docData?.data?.actionAccess?.modify !== true ||
+        $docData.data?.actionAccess?.modify !== true ||
         archived ||
         locked ||
         hidden ||
@@ -266,14 +268,14 @@
             shareDialogOpen = !shareDialogOpen;
           },
           disabled:
-            docData?.data?.actionAccess?.modify !== true ||
+            $docData.data?.actionAccess?.modify !== true ||
             archived ||
             locked ||
             hidden ||
             loading ||
             disconnected,
           tooltip:
-            docData?.data?.actionAccess?.modify !== true
+            $docData.data?.actionAccess?.modify !== true
               ? `You cannot share this document because you do not have permission to modify it.`
               : undefined,
         },
@@ -293,7 +295,7 @@
           loading: loadingUpdateSessionAction,
           disabled:
             loadingUpdateSessionAction ||
-            docData?.data?.actionAccess?.modify !== true ||
+            $docData.data?.actionAccess?.modify !== true ||
             archived ||
             locked ||
             hidden ||
@@ -303,9 +305,13 @@
       : null,
   ].filter(notEmpty);
 
+  const advancedSharedData = derived([fullSharedData], ([$fullSharedData]) => {
+    return merge($docData?.data?.doc || {}, $fullSharedData) as Record<string, unknown>;
+  });
+
   $: coreSidebarProps = {
     docInfo: {
-      _id: `${docData?.data?.doc?.[data.collection.config.by?.one || '_id']}`,
+      _id: `${$docData.data?.doc?.[data.collection.config.by?.one || '_id']}`,
       createdAt: getProperty($sharedData, 'timestamps.created_at'),
       modifiedAt: getProperty($sharedData, 'timestamps.modified_at'),
       collectionName: data.collection.schemaName,
@@ -314,20 +320,27 @@
     ydoc,
     stageDef,
     sharedData,
+    fullSharedData: advancedSharedData,
     awareness,
     tenant: data.params.tenant,
+    preview: {
+      previewUrl: data.collection.config.options?.previewUrl || undefined,
+      refreshDocData: $docData.refetch,
+    },
     permissions: {
       users:
-        getProperty($fullSharedData, 'permissions.users')?.map((user) => ({
-          ...user,
-          _id: user.value,
-          name: user.name || user.label || 'User',
-          color: data.helpers.colorHash.hex(user.value || '0'),
-        })) || [],
+        getProperty($fullSharedData, 'permissions.users')?.map(
+          (user: { value: any; name: any; label: any }) => ({
+            ...user,
+            _id: user.value,
+            name: user.name || user.label || 'User',
+            color: data.helpers.colorHash.hex(user.value || '0'),
+          })
+        ) || [],
       teams:
         getProperty($fullSharedData, 'permissions.teams')
           ?.filter(notEmpty)
-          .map((value) => {
+          .map((value: { value: any; label: any }) => {
             if (typeof value === 'string') {
               return { _id: value, color: data.helpers.colorHash.hex(value || '0') };
             }
@@ -408,7 +421,7 @@
                 on:click={handleTabClick}
                 on:mouseenter={handleTabMouseEnter}
                 on:mouseleave={handleTabMouseLeave}
-                disabled={!data.docData || !hasLoadedAtLeastOnce}
+                disabled={!$docData || !hasLoadedAtLeastOnce}
               >
                 Compose
               </Button>
@@ -417,7 +430,7 @@
                 on:click={handleTabClick}
                 on:mouseenter={handleTabMouseEnter}
                 on:mouseleave={handleTabMouseLeave}
-                disabled={!data.docData || !hasLoadedAtLeastOnce}
+                disabled={!$docData || !hasLoadedAtLeastOnce}
               >
                 Preview
               </Button>
@@ -425,7 +438,7 @@
             </div>
           </div>
 
-          {#if !data.docData}
+          {#if !$docData}
             <div
               in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
               class="message-box"
@@ -567,8 +580,8 @@
 
             {#if activeTab === 'preview'}
               <PreviewFrame
-                src={data.collection.config.options.dynamicPreviewHref}
-                {fullSharedData}
+                src={data.collection.config.options.dynamicPreviewHref || undefined}
+                fullSharedData={advancedSharedData}
                 noOuterMargin
               />
             {/if}
@@ -638,8 +651,10 @@
     ydoc={coreSidebarProps.ydoc}
     stageDef={coreSidebarProps.stageDef}
     sharedData={coreSidebarProps.sharedData}
+    fullSharedData={coreSidebarProps.fullSharedData}
     awareness={coreSidebarProps.awareness}
     tenant={coreSidebarProps.tenant}
+    preview={coreSidebarProps.preview}
     permissions={coreSidebarProps.permissions}
     hideVersions={coreSidebarProps.hideVersions}
     actions={coreSidebarProps.actions}
@@ -656,14 +671,14 @@
 
 <button
   on:click={() => {
-    console.log(docData?.data);
+    console.log($docData);
   }}
 >
   log doc data
 </button>
 
 <pre>
-  {JSON.stringify($fullSharedData, null, 2)}
+  {JSON.stringify($advancedSharedData, null, 2)}
 </pre>
 
 <PublishDocDialog
