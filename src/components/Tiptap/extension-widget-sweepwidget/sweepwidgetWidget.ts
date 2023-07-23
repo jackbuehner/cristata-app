@@ -1,6 +1,6 @@
 import { Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import { Sweepwidget } from './Sweepwidget';
+// import { Sweepwidget } from './Sweepwidget';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -81,9 +81,9 @@ const SweepwidgetWidget = Node.create<SweepwidgetWidgetOptions>({
     };
   },
 
-  addNodeView() {
-    return ReactNodeViewRenderer(Sweepwidget);
-  },
+  // addNodeView() {
+  //   return ReactNodeViewRenderer(Sweepwidget);
+  // },
 });
 
 export { SweepwidgetWidget };

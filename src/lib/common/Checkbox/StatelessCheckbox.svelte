@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { YBoolean } from '$components/CollaborativeFields/utils/shared/YBoolean';
   import type { YStore } from '$utils/createYStore';
+  import { YBoolean } from '$utils/shared/YBoolean';
   import { createEventForwarder } from 'fluent-svelte/internal';
   import { createEventDispatcher } from 'svelte';
   import { get_current_component } from 'svelte/internal';
