@@ -342,6 +342,8 @@
     actions,
   };
 
+  $: collapsedFields = data.helpers.processSchemaDef({ collapsed: true, showHidden: showHiddenFields });
+
   // use a keyboard shortcut to trigger whether hidden fields are shown
   function toggleShowHiddenFields(evt: KeyboardEvent) {
     // ALT + SHIFT + H
@@ -595,7 +597,7 @@
             {/each}
 
             {#if showCollapsedFields}
-              {#each data.helpers.processSchemaDef( { collapsed: true, showHidden: showHiddenFields } ) as [key, def]}
+              {#each collapsedFields as [key, def]}
                 <SchemaField
                   {key}
                   {def}
@@ -614,7 +616,7 @@
                   {actions}
                 />
               {/each}
-            {:else if activeTab === 'compose'}
+            {:else if collapsedFields.length > 0 && activeTab === 'compose'}
               <FieldWrapper label="Advanced" forId="">
                 <Button
                   style="height: 40px; width: 100%; justify-content: flex-start;"
