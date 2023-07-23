@@ -711,6 +711,8 @@
   }
 
   .doc-and-preview {
+    min-width: 0;
+    overflow: auto;
     flex-grow: 1;
     position: unset !important;
   }
