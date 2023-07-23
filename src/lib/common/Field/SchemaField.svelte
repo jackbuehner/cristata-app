@@ -127,7 +127,11 @@
         {dynamicPreviewHref}
         {actions}
         {connected}
-      />
+      >
+        <svelte:fragment slot="alerts">
+          <slot name="alerts" />
+        </svelte:fragment>
+      </RichTiptap>
     </FieldWrapper>
   {:else}
     <p {style}>Error: The collaborative document or websocket was not found ({key}).</p>

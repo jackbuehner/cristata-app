@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from '$app/stores';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import WordCountDialog from '$lib/dialogs/WordCountDialog.svelte';
   import { SidebarHeader } from '$lib/sidebar';
@@ -328,6 +329,9 @@
             severity="information"
             title="Some features are managed by your administrator and may be disabled."
           />
+        {/if}
+        {#if $richTextParams.isActive('fs')}
+          <slot name="alerts" />
         {/if}
       </div>
       {#if options?.metaFrame && $richTextParams.isActive('fs')}
