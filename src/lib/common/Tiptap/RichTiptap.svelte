@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import WordCountDialog from '$lib/dialogs/WordCountDialog.svelte';
   import { SidebarHeader } from '$lib/sidebar';
   import { motionMode } from '$stores/motionMode';
   import { titlebarActions } from '$stores/titlebarActions';
+  import { SetDocAttrStep } from '$utils/SetDocAttrStep';
   import type { YStore } from '$utils/createYStore';
   import type { Editor } from '@tiptap/core';
   import { IconButton, InfoBar, TextBlock, Tooltip } from 'fluent-svelte';

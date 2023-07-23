@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
+  import { SetDocAttrStep } from '$utils/SetDocAttrStep';
   import type { AwarenessUser } from '$utils/createYStore';
   import type { HocuspocusProvider } from '@hocuspocus/provider';
   import { Editor, type AnyExtension } from '@tiptap/core';
@@ -9,6 +9,7 @@
   import { onDestroy, onMount } from 'svelte';
   import type { Readable } from 'svelte/store';
   import type * as Y from 'yjs';
+  import type { tiptapOptions } from '../../../config';
   import { richTextParams } from './richTextParams';
 
   /**
@@ -22,7 +23,7 @@
   export let wsProvider: Readable<HocuspocusProvider>;
   export let disabled = false;
   export let user: AwarenessUser;
-
+  export const options: tiptapOptions | undefined = undefined;
   export let extensions: AnyExtension[];
   export let noTextFormatting = false;
 
