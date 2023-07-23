@@ -5,6 +5,7 @@
   import { isObjectId } from '$utils/isObjectId';
   import type { FieldDef } from '@jackbuehner/cristata-generator-schema';
   import arrayDifferences from 'array-differences';
+  import AwesomeDebouncePromise from 'awesome-debounce-promise';
   import { ComboBox, TextBox, TextBoxButton } from 'fluent-svelte';
   import { createEventDispatcher, tick } from 'svelte';
   import type * as Y from 'yjs';
@@ -32,21 +33,42 @@
   /**
    * The current values that are selected.
    *
-   * If a value is provided without a label and there is a reference definition
-   * provided, the component will attempt to populate the label.
+   * If a value is provided without a label or it is missing fields are
+   * are included in `reference.forceLoadFields` and there is a reference
+   * definition provided, the component will attempt to populate the label
+   * when a drag operation is not in progess.
    */
   export let selectedOptions: Option[] = [];
+  let populating = false;
   $: if (reference) {
     const valuesAreMissingLabels = selectedOptions.some((opt) => !opt.label);
-    if (valuesAreMissingLabels) {
-      populateReferenceValues(
-        $page.params.tenant,
-        selectedOptions,
-        reference.collection,
-        reference.fields
-      ).then((options) => (selectedOptions = options));
+    const valuesAreMissingForcedFields = selectedOptions.some((opt) => {
+      const optFields = Object.entries(opt)
+        .filter(([, value]) => value !== undefined && value !== null)
+        .map(([key]) => key);
+      const forcedFields = reference?.forceLoadFields || [];
+      return !forcedFields.every((field) => optFields.includes(field));
+    });
+    const noShadowItems = selectedOptions.every((opt) => opt.isDndShadowItem !== true);
+    if (!populating && noShadowItems && (valuesAreMissingLabels || valuesAreMissingForcedFields)) {
+      populate($page.params.tenant, selectedOptions, reference);
     }
   }
+
+  const populate = AwesomeDebouncePromise(
+    async (tenant: string, givenOptions: Option[], ref: FieldDef['reference'] & { collection: string }) => {
+      populating = true;
+      populateReferenceValues(tenant, givenOptions, ref.collection, ref.fields, ref.forceLoadFields)
+        .then((options) => {
+          console.log('new', { options, reference });
+          handleDragFinalize(options);
+        })
+        .finally(() => {
+          populating = false;
+        });
+    },
+    500
+  );
 
   /**
    * The reference definition for a referenced collection.
@@ -266,7 +288,7 @@ The `on:select` event occurs when the selected values change. It fires upon sele
       items={$loading || !$searchValue ? [] : [...filteredReferenceItems, ...(filteredOptionsItems || [])]}
       editable
       disableAutoSelectFromSearch
-      {disabled}
+      disabled={disabled || populating}
       noItemsMessage={$loading
         ? 'Loading options...'
         : !!$searchValue
@@ -357,6 +379,7 @@ The `on:select` event occurs when the selected values change. It fires upon sele
   on:dismiss={handleDragFinalize}
   on:dismissall={handleDragFinalize}
   hideIds={!reference}
+  {populating}
 />
 
 <style>
