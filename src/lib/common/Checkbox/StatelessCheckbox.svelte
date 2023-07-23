@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { YBoolean } from '$components/CollaborativeFields/utils/shared/YBoolean';
   import type { YStore } from '$utils/createYStore';
+  import shared from '$utils/shared';
   import { createEventForwarder } from 'fluent-svelte/internal';
   import { createEventDispatcher } from 'svelte';
   import { get_current_component } from 'svelte/internal';
@@ -31,7 +31,7 @@
   export let ydocKey: string = '';
 
   // this will be updated by a subsriber to ydoc, which is why this is not marked reactive
-  let boolean = $ydoc ? new YBoolean($ydoc) : undefined;
+  let boolean = $ydoc ? new shared.Boolean($ydoc) : undefined;
 
   /**
    * Handle changes to y boolean shared type
@@ -48,7 +48,7 @@
   ydoc?.subscribe(
     ($ydoc) => {
       if (!$ydoc) return;
-      boolean = new YBoolean($ydoc);
+      boolean = new shared.Boolean($ydoc);
       if (!boolean) return;
 
       // ensure the initial value matches the shared type value

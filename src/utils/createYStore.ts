@@ -1,4 +1,4 @@
-import { getYFields, type GetYFieldsOptions } from '$react/CMS/CollectionItemPage/getYFields';
+import { getYFields, type GetYFieldsOptions } from '$utils/getYFields';
 import { YProvider } from '$utils/YProvider.js';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 import type { DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';

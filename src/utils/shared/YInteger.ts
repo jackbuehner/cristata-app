@@ -1,20 +1,20 @@
 import type * as Y from 'yjs';
-import { editorExtensions } from '../../../../lib/common/Tiptap/editorExtensions';
+import { editorExtensions } from '../../lib/common/Tiptap/editorExtensions';
 import { setTipTapXMLFragment } from './setTipTapXMLFragment';
 
 type Option<T> = { value: T; label: string; disabled?: boolean };
 
 /**
- * Floats are stored in a shared XML Fragment.
+ * Numbers are stored in a shared XML Fragment.
  * Fields in the UI are powered by TipTap.
  * TipTap will add XML tags as needed, so we just
- * set the fragment value to a stringified float.
+ * set the fragment value to a stringified integer.
  *
- * When floats are in an array, they are stored
+ * When integers are in an array, they are stored
  * in a shared array of objects containing a
  * value, label, and other optional metadata.
  */
-class YFloat<K extends string, V extends number | undefined | null> {
+class YInteger<K extends string, V extends number | undefined | null> {
   #ydoc: Y.Doc;
 
   constructor(ydoc: Y.Doc) {
@@ -47,7 +47,7 @@ class YFloat<K extends string, V extends number | undefined | null> {
       return type.toArray();
     }
 
-    return setTipTapXMLFragment(key, value?.toString(), this.#ydoc, editorExtensions.float);
+    return setTipTapXMLFragment(key, value?.toString(), this.#ydoc, editorExtensions.integer);
   }
 
   has(key: K): boolean {
@@ -59,9 +59,9 @@ class YFloat<K extends string, V extends number | undefined | null> {
   get(key: K, isArray: boolean): number | Option<number>[] {
     if (isArray) {
       return this.#ydoc
-        .getArray<Option<number | string>>(key)
+        .getArray<Option<string | number>>(key)
         .toArray()
-        .map(({ value, ...rest }) => ({ value: parseFloat(`${value}`), ...rest }));
+        .map(({ value, ...rest }) => ({ value: parseInt(`${value}`), ...rest }));
     }
     return parseFloat(this.#ydoc.getXmlFragment(key).toDOM().textContent || '');
   }
@@ -71,4 +71,4 @@ class YFloat<K extends string, V extends number | undefined | null> {
   }
 }
 
-export { YFloat };
+export { YInteger };

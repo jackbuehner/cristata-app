@@ -1,11 +1,10 @@
 import { get as getProperty, set as setProperty } from '$utils/objectPath';
+import deepEqual from 'deep-equal';
 import { v4 as uuidv4 } from 'uuid';
 import type * as Y from 'yjs';
-import type { DeconstructedSchemaDefType } from '../../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import type { GetYFieldsOptions } from '../../../../pages/CMS/CollectionItemPage/getYFields';
-import { getYFields } from '../../../../pages/CMS/CollectionItemPage/getYFields';
-import type { EntryY } from '../../../Tiptap/hooks/useY';
-import deepEqual from 'deep-equal';
+import type { DeconstructedSchemaDefType } from '../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type { GetYFieldsOptions } from '../getYFields';
+import { getYFields } from '../getYFields';
 
 /**
  * DocArrays are stored in a yjs shared array. The value
@@ -63,7 +62,7 @@ class YDocArray<K extends string, V extends Record<string, 'any'>[]> {
 
   async get(
     key: K,
-    populate?: { schema: DeconstructedSchemaDefType; y: { ydoc: EntryY['ydoc'] }; opts?: GetYFieldsOptions },
+    populate?: { schema: DeconstructedSchemaDefType; y: { ydoc: Y.Doc }; opts?: GetYFieldsOptions },
     replace?: { searchKey: string; replaceKey: string; replaceSuffix?: string }
   ): Promise<Record<string, unknown>[]> {
     const type = this.#ydoc.getArray<Record<string, unknown> & { uuid: string }>(key);

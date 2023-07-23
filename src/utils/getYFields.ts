@@ -1,21 +1,17 @@
 import { get as getProperty, set as setProperty } from '$utils/objectPath';
 import type { MongooseSchemaType } from '@jackbuehner/cristata-generator-schema';
 import { isTypeTuple } from '@jackbuehner/cristata-generator-schema';
-import fieldUtils from '../../../components/CollaborativeFields/utils';
-import type { EntryY } from '../../../components/Tiptap/hooks/useY';
-import type { DeconstructedSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
-import { parseSchemaDefType } from '../../../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import type * as Y from 'yjs';
+import type { DeconstructedSchemaDefType } from '../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import { parseSchemaDefType } from '../hooks/useCollectionSchemaConfig/useCollectionSchemaConfig';
+import shared from './shared';
 
 interface GetYFieldsOptions {
   retainReferenceObjects?: boolean;
   keepJsonParsed?: boolean;
 }
 
-async function getYFields(
-  ydoc: EntryY['ydoc'],
-  _schemaDef: DeconstructedSchemaDefType,
-  opts?: GetYFieldsOptions
-) {
+async function getYFields(ydoc: Y.Doc, _schemaDef: DeconstructedSchemaDefType, opts?: GetYFieldsOptions) {
   const schemaDef = JSON.parse(JSON.stringify(_schemaDef)) as DeconstructedSchemaDefType;
   const data: any = {};
 
@@ -43,7 +39,7 @@ async function getYFields(
         // arrays of booleans are not supported in the app
         if (isArray) return;
 
-        const boolean = new fieldUtils.shared.Boolean(ydoc);
+        const boolean = new shared.Boolean(ydoc);
         setProperty(data, key, boolean.get(key));
       }
 
@@ -51,12 +47,12 @@ async function getYFields(
         // arrays of dates are not supported in the app
         if (isArray) return;
 
-        const date = new fieldUtils.shared.Date(ydoc);
+        const date = new shared.Date(ydoc);
         setProperty(data, key, date.get(key));
       }
 
       if (schemaType === 'DocArray') {
-        const array = new fieldUtils.shared.DocArray(ydoc);
+        const array = new shared.DocArray(ydoc);
 
         // construct the object with details on how to replace
         // the identifier in the schema to use a unique id for
@@ -92,7 +88,7 @@ async function getYFields(
       }
 
       if (schemaType === 'Float') {
-        const float = new fieldUtils.shared.Float(ydoc);
+        const float = new shared.Float(ydoc);
         if (isArray || options || reference) {
           const ids = float.get(key, true).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
@@ -110,7 +106,7 @@ async function getYFields(
       }
 
       if (schemaType === 'Number') {
-        const integer = new fieldUtils.shared.Integer(ydoc);
+        const integer = new shared.Integer(ydoc);
         if (isArray || options || reference) {
           const ids = integer.get(key, true).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
@@ -120,7 +116,7 @@ async function getYFields(
       }
 
       if (schemaType === 'ObjectId') {
-        const reference = new fieldUtils.shared.Reference(ydoc);
+        const reference = new shared.Reference(ydoc);
         const values = reference.get(key);
         if (opts?.retainReferenceObjects) {
           setProperty(data, key, isArray ? values : values[0]);
@@ -131,7 +127,7 @@ async function getYFields(
       }
 
       if (schemaType === 'String') {
-        const string = new fieldUtils.shared.String(ydoc);
+        const string = new shared.String(ydoc);
         if (isArray || options || reference) {
           const ids = (await string.get(key, true, false, false)).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
