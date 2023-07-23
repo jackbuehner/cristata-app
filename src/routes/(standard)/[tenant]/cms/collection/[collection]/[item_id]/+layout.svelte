@@ -11,7 +11,7 @@
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
   import { notEmpty } from '@jackbuehner/cristata-utils';
   import { copy } from 'copy-anything';
-  import { Button, Expander, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
+  import { Button, InfoBar, ProgressRing, TextBlock } from 'fluent-svelte';
   import { merge } from 'merge-anything';
   import { toast } from 'react-toastify';
   import { onDestroy, onMount } from 'svelte';

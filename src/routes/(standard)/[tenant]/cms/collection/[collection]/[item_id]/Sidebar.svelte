@@ -234,7 +234,7 @@
     <div class="section-title" class:hidden={onlyOneFeature}>Current editors</div>
     <div style="margin-left: -8px; display: flex; flex-direction: row; flex-wrap: wrap;">
       {#if $awareness}
-        {#each [...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness, ...$awareness] as user, index}
+        {#each $awareness as user, index}
           {@const left =
             index === 0 ||
             index === 1 ||
