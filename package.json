@@ -1,6 +1,6 @@
 {
   "name": "cristata-app",
-  "version": "0.453.3",
+  "version": "0.453.4",
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.4.17",
@@ -41,7 +41,6 @@
     "@tiptap/extension-text-style": "^2.0.3",
     "@tiptap/extension-underline": "^2.0.3",
     "@tiptap/pm": "^2.0.3",
-    "@tiptap/react": "^2.0.3",
     "@tiptap/starter-kit": "^2.0.3",
     "@uwu/monaco-svelte": "^1.1.0",
     "antd": "^4.21.5",
