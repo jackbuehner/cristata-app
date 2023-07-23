@@ -14,6 +14,8 @@
   export let iframehtmlstring = '';
   export let fullSharedData: Readable<Record<string, unknown>>;
   export let noOuterMargin = false;
+  export let style = '';
+  export let hide = false;
   let iframeElem: HTMLIFrameElement | undefined;
   let frameObj: iframeResizer.IFrameComponent['iFrameResizer'] | undefined;
   let connected = false;
@@ -21,7 +23,7 @@
   let dataSent = false;
   let resized = false;
 
-  $: hidden = dataSent === false || resized === false;
+  $: hidden = dataSent === false || resized === false || hide === true;
 
   // fly in when hidden changes to false
   $: if (hidden === false) flyFrame();
@@ -122,11 +124,11 @@
   }
 </script>
 
-<div class="wrapper" class:noScroll={hidden} class:noOuterMargin>
+<div class="wrapper" class:noScroll={hidden} class:noOuterMargin {style} class:hide>
   {#if hidden}
     <div
       in:fly={{ y: 40, duration: $motionMode === 'reduced' ? 0 : 270, easing: expoOut }}
-      style="height: 100%; width: 100%; display: flex; flex-direction: column; gap: 14px; align-items: center; justify-content: center; position: absolute; top: 0;"
+      style="height: 100%; width: 100%; min-height: 120px; display: flex; flex-direction: column; gap: 14px; align-items: center; justify-content: center; position: absolute; top: 0; margin-top: 20px;"
     >
       {#if !src}
         <FluentIcon
@@ -179,6 +181,9 @@
   }
   .wrapper.noOuterMargin {
     --margin: 0;
+  }
+  .wrapper.hide {
+    display: none;
   }
 
   iframe {
