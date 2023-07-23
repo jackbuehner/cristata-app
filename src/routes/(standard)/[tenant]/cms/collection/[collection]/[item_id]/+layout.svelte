@@ -606,6 +606,7 @@
                 style={activeTab === 'preview' ? 'display: none;' : ''}
                 collectionName={data.collection.schemaName}
                 {actions}
+                {connected}
               />
             {/each}
 
@@ -627,6 +628,7 @@
                   style={activeTab === 'preview' ? 'display: none;' : ''}
                   collectionName={data.collection.schemaName}
                   {actions}
+                  {connected}
                 />
               {/each}
             {:else if collapsedFields.length > 0 && activeTab === 'compose'}
