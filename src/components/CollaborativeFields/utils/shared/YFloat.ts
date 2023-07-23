@@ -1,5 +1,5 @@
 import type * as Y from 'yjs';
-import { editorExtensions } from '../../editorExtensions';
+import { editorExtensions } from '../../../../lib/common/Tiptap/editorExtensions';
 import { setTipTapXMLFragment } from './setTipTapXMLFragment';
 
 type Option<T> = { value: T; label: string; disabled?: boolean };

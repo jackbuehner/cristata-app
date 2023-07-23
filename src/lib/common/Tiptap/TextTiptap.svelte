@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
   import type { ComponentProps } from 'svelte';
   import type { tiptapOptions } from '../../../config';
   import Tiptap from './Tiptap.svelte';
+  import { editorExtensions } from './editorExtensions';
 
   export let ydoc: ComponentProps<Tiptap>['ydoc'];
   export let ydocKey: ComponentProps<Tiptap>['ydocKey'];

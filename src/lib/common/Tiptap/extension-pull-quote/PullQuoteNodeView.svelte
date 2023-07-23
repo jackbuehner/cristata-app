@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { NodeViewProps } from '@tiptap/core';
   import { NodeViewWrapper, editable } from 'svelte-tiptap';
-  import WidgetWrapper from '../components/Widget/WidgetWrapper.svelte';
+  import WidgetWrapper from '../WidgetWrapper.svelte';
 
   export let editor: NodeViewProps['editor'];
   export let node: NodeViewProps['node'];

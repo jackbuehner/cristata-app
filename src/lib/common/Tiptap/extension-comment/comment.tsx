@@ -6,7 +6,7 @@ import type { Node as ProsemirrorNode } from 'prosemirror-model';
 import { Slice } from 'prosemirror-model';
 import { TextSelection } from 'prosemirror-state';
 import { v4 as uuidv4 } from 'uuid';
-import { CommentContainer } from './CommentContainer';
+// import { CommentContainer } from './CommentContainer';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -248,9 +248,9 @@ const Comment = Node.create<CommentOptions>({
     };
   },
 
-  addNodeView() {
-    return ReactNodeViewRenderer(CommentContainer);
-  },
+  // addNodeView() {
+  //   return ReactNodeViewRenderer(CommentContainer);
+  // },
 });
 
 /**

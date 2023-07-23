@@ -10,7 +10,7 @@
   import type { NodeViewProps } from '@tiptap/core';
   import { ProgressRing } from 'fluent-svelte';
   import { NodeViewWrapper, draggable, editable } from 'svelte-tiptap';
-  import WidgetWrapper from '../components/Widget/WidgetWrapper.svelte';
+  import WidgetWrapper from '../WidgetWrapper.svelte';
 
   export let node: NodeViewProps['node'];
   export let editor: NodeViewProps['editor'];

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { editorExtensions } from '$components/CollaborativeFields/editorExtensions';
   import { SetDocAttrStep } from '$components/Tiptap/utilities/SetDocAttrStep';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import WordCountDialog from '$lib/dialogs/WordCountDialog.svelte';
@@ -25,6 +24,7 @@
   import PreviewFrame from './PreviewFrame.svelte';
   import Ribbon from './Ribbon.svelte';
   import Tiptap from './Tiptap.svelte';
+  import { editorExtensions } from './editorExtensions';
   import { richTextParams } from './richTextParams';
   import CommentsSidebar from './sidebars/CommentsSidebar.svelte';
   import DocPropsSidebar from './sidebars/DocPropsSidebar.svelte';

@@ -13,15 +13,15 @@ import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
 import { Slice } from 'prosemirror-model';
 import { Plugin, PluginKey } from 'prosemirror-state';
-import { ClassName } from '../Tiptap/extension-class-name';
-import { Comment } from '../Tiptap/extension-comment';
-import { FontSize } from '../Tiptap/extension-font-size';
-import { PhotoWidget } from '../Tiptap/extension-photo';
-import { PowerComment } from '../Tiptap/extension-power-comment';
-import { PullQuote } from '../Tiptap/extension-pull-quote';
-import { TrackChanges } from '../Tiptap/extension-track-changes';
-import { SweepwidgetWidget } from '../Tiptap/extension-widget-sweepwidget';
-import { YoutubeWidget } from '../Tiptap/extension-widget-youtube';
+import { ClassName } from './extension-class-name';
+import { Comment } from './extension-comment';
+import { FontSize } from './extension-font-size';
+import { PhotoWidget } from './extension-photo';
+import { PowerComment } from './extension-power-comment';
+import { PullQuote } from './extension-pull-quote';
+import { TrackChanges } from './extension-track-changes';
+import { SweepwidgetWidget } from './extension-widget-sweepwidget';
+import { YoutubeWidget } from './extension-widget-youtube';
 
 const ParagraphDocument = Document.extend({
   content: 'paragraph',

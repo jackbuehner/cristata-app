@@ -21,6 +21,8 @@ SentrySvelte.init({
 SentrySvelte.setTag('svelteKit', 'browser');
 
 export const handleError = (({ error, event }) => {
+  console.error({ error, event });
+
   SentrySvelte.setUser(getUserForSentry());
 
   const transaction = SentrySvelte.captureException(error, {
