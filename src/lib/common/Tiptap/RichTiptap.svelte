@@ -8,7 +8,7 @@
   import { titlebarActions } from '$stores/titlebarActions';
   import type { YStore } from '$utils/createYStore';
   import type { Editor } from '@tiptap/core';
-  import { IconButton, TextBlock, Tooltip } from 'fluent-svelte';
+  import { IconButton, InfoBar, TextBlock, Tooltip } from 'fluent-svelte';
   import less from 'less';
   import { onDestroy, onMount, type ComponentProps } from 'svelte';
   import { expoOut } from 'svelte/easing';
@@ -44,6 +44,8 @@
   export let dynamicPreviewHref = '';
   export let actions: Action[] = [];
   export let connected: YStore['connected'] | undefined = undefined;
+
+  $: isManaged = options?.features;
 
   let bubbleMenuParagraph: HTMLDivElement;
 
@@ -211,7 +213,7 @@
     ySettingsMap?.set('trackChanges', bool);
   }
 
-  let docStatsDialogOpen = true;
+  let docStatsDialogOpen = false;
 
   $: saveAction = actions.find((action) => action.id === 'save');
   $: if (fullscreen) {
@@ -319,6 +321,14 @@
       <PreviewFrame src={dynamicPreviewHref} {fullSharedData} />
     {/if}
     <div class="richtiptap-content" class:hidden={$richTextParams.obj.previewMode > 0}>
+      <div class="notices">
+        {#if isManaged && tiptapwidth > 400}
+          <InfoBar
+            severity="information"
+            title="Some features are managed by your administrator and may be disabled."
+          />
+        {/if}
+      </div>
       {#if options?.metaFrame && $richTextParams.isActive('fs')}
         <MetaFrame src={options.metaFrame} {tiptapwidth} {fullSharedData} bind:iframehtmlstring />
       {/if}
@@ -350,132 +360,136 @@
       </div>
     </div>
 
-    <div
-      class="sidebar-wrapper"
-      class:navActive={$richTextParams.activeCount > 1}
-      class:hidden={!$richTextParams.primaryActive}
-    >
-      {#key $richTextParams.primaryActive}
-        <div
-          class="sidebar-content"
-          in:fly={{ y: 20, duration, easing: expoOut, delay }}
-          out:fade={{ duration: delay }}
-        >
-          {#if $richTextParams.primaryActive === 'comments'}
-            <CommentsSidebar {editor} {user} />
-          {:else if $richTextParams.primaryActive === 'props' && !!coreSidebarProps}
-            <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} {coreSidebarProps} />
-          {:else if $richTextParams.primaryActive === 'versions'}
-            {#if coreSidebarProps}
-              <VersionsSidebar {coreSidebarProps} />
-            {/if}
-          {:else}
-            <SidebarHeader
-              on:click={() => {
-                if ($richTextParams.primaryActive) {
-                  $richTextParams.set($richTextParams.primaryActive, 0);
-                }
-              }}
-            >
-              Pane
-            </SidebarHeader>
-            <TextBlock style="padding: 0 16px;">
-              Something went wrong while loading this pane. <br /><br />
-              (<code>Pane: {$richTextParams.primaryActive}</code>)
-            </TextBlock>
-          {/if}
-        </div>
-      {/key}
-      <div class="sidebar-content-placeholder" />
-      {#if $richTextParams.activeCount > 1}
-        <div class="sidebar-bar" />
-        <div
-          class="sidebar-nav"
-          on:mousedown={(evt) => {
-            // cancel scroll mode on middle click
-            if (evt.button === 1) {
-              evt.preventDefault();
-            }
-          }}
-        >
-          {#each Object.entries($richTextParams.obj) as [key, value]}
-            {#if value === 1 || value === 2 || value === 3}
-              {#if key !== 'fs' && key !== 'previewMode'}
-                {@const label = (() => {
-                  if (key === 'comments') return 'Comments';
-                  if (key === 'props') return 'Document properties';
-                  if (key === 'versions') return 'Version history';
-                  return key;
-                })()}
-                <Tooltip text={label} placement="left">
-                  <IconButton
-                    on:click={() => $richTextParams.set(key, 1)}
-                    on:auxclick={(evt) => {
-                      if (evt.button === 1) $richTextParams.set(key, 0);
-                    }}
-                    class={$richTextParams.primaryActive === key ? 'active' : ''}
-                  >
-                    {#if key === 'comments'}
-                      <FluentIcon>
-                        <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
-                          <path
-                            type="path"
-                            class="OfficeIconColors_HighContrast"
-                            d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
-                          />
-                          <path
-                            type="path"
-                            class="OfficeIconColors_m233"
-                            d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
-                          />
-                        </svg>
-                      </FluentIcon>
-                    {:else if key === 'props'}
-                      <FluentIcon name="Database20Regular" />
-                    {:else if key === 'versions'}
-                      <FluentIcon>
-                        <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
-                          <path
-                            type="path"
-                            d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
-                          />
-                          <path
-                            type="path"
-                            d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
-                          />
-                        </svg>
-                      </FluentIcon>
-                    {:else}
-                      <FluentIcon name="Question20Regular" />
-                    {/if}
-                  </IconButton>
-                </Tooltip>
+    {#if tiptapwidth > 400}
+      <div
+        class="sidebar-wrapper"
+        class:navActive={$richTextParams.activeCount > 1}
+        class:hidden={!$richTextParams.primaryActive}
+      >
+        {#key $richTextParams.primaryActive}
+          <div
+            class="sidebar-content"
+            in:fly={{ y: 20, duration, easing: expoOut, delay }}
+            out:fade={{ duration: delay }}
+          >
+            {#if $richTextParams.primaryActive === 'comments'}
+              <CommentsSidebar {editor} {user} />
+            {:else if $richTextParams.primaryActive === 'props' && !!coreSidebarProps}
+              <DocPropsSidebar {disabled} {user} {processSchemaDef} {ydoc} {wsProvider} {coreSidebarProps} />
+            {:else if $richTextParams.primaryActive === 'versions'}
+              {#if coreSidebarProps}
+                <VersionsSidebar {coreSidebarProps} />
               {/if}
+            {:else}
+              <SidebarHeader
+                on:click={() => {
+                  if ($richTextParams.primaryActive) {
+                    $richTextParams.set($richTextParams.primaryActive, 0);
+                  }
+                }}
+              >
+                Pane
+              </SidebarHeader>
+              <TextBlock style="padding: 0 16px;">
+                Something went wrong while loading this pane. <br /><br />
+                (<code>Pane: {$richTextParams.primaryActive}</code>)
+              </TextBlock>
             {/if}
-          {/each}
-        </div>
-      {/if}
-    </div>
+          </div>
+        {/key}
+        <div class="sidebar-content-placeholder" />
+        {#if $richTextParams.activeCount > 1}
+          <div class="sidebar-bar" />
+          <div
+            class="sidebar-nav"
+            on:mousedown={(evt) => {
+              // cancel scroll mode on middle click
+              if (evt.button === 1) {
+                evt.preventDefault();
+              }
+            }}
+          >
+            {#each Object.entries($richTextParams.obj) as [key, value]}
+              {#if value === 1 || value === 2 || value === 3}
+                {#if key !== 'fs' && key !== 'previewMode'}
+                  {@const label = (() => {
+                    if (key === 'comments') return 'Comments';
+                    if (key === 'props') return 'Document properties';
+                    if (key === 'versions') return 'Version history';
+                    return key;
+                  })()}
+                  <Tooltip text={label} placement="left">
+                    <IconButton
+                      on:click={() => $richTextParams.set(key, 1)}
+                      on:auxclick={(evt) => {
+                        if (evt.button === 1) $richTextParams.set(key, 0);
+                      }}
+                      class={$richTextParams.primaryActive === key ? 'active' : ''}
+                    >
+                      {#if key === 'comments'}
+                        <FluentIcon>
+                          <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                            <path
+                              type="path"
+                              class="OfficeIconColors_HighContrast"
+                              d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                            />
+                            <path
+                              type="path"
+                              class="OfficeIconColors_m233"
+                              d="M 1920 128 v 1280 h -1024 l -512 512 v -512 h -256 v -1280 m 1664 128 h -1536 v 1024 h 256 v 331 l 331 -331 h 949 z"
+                            />
+                          </svg>
+                        </FluentIcon>
+                      {:else if key === 'props'}
+                        <FluentIcon name="Database20Regular" />
+                      {:else if key === 'versions'}
+                        <FluentIcon>
+                          <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
+                            <path
+                              type="path"
+                              d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
+                            />
+                            <path
+                              type="path"
+                              d="M 1394 1413 l -45 45 l -389 -389 v -621 h 64 v 595 m 0 -915 q 124 0 239 32 q 114 32 214 90 q 99 59 181 140 q 81 82 140 181 q 58 100 90 214 q 32 115 32 239 q 0 124 -32 238 q -32 115 -90 214 q -59 100 -140 181 q -82 82 -181 140 q -100 59 -214 91 q -115 32 -239 32 q -152 0 -290 -48 q -138 -48 -250 -134 q -113 -85 -195 -202 q -82 -117 -123 -256 h 67 q 40 125 117 231 q 77 106 181 182 q 103 77 229 120 q 126 43 264 43 q 115 0 221 -30 q 106 -30 199 -84 q 92 -54 168 -130 q 76 -76 130 -169 q 54 -92 84 -198 q 30 -106 30 -221 q 0 -115 -30 -221 q -30 -106 -84 -199 q -54 -92 -130 -168 q -76 -76 -168 -130 q -93 -54 -199 -84 q -106 -30 -221 -30 q -129 0 -247 38 q -119 38 -219 105 q -100 68 -177 162 q -77 95 -124 207 h 383 v 64 h -512 v -512 h 64 v 437 q 49 -124 133 -228 q 83 -104 191 -179 q 108 -75 237 -117 q 129 -41 271 -41 z"
+                            />
+                          </svg>
+                        </FluentIcon>
+                      {:else}
+                        <FluentIcon name="Question20Regular" />
+                      {/if}
+                    </IconButton>
+                  </Tooltip>
+                {/if}
+              {/if}
+            {/each}
+          </div>
+        {/if}
+      </div>
+    {/if}
   </div>
 
-  <div class="footer-wrapper">
-    <div class="footer">
-      <button class="footer-textblock" {disabled} on:click={() => (docStatsDialogOpen = !docStatsDialogOpen)}>
-        {editor?.storage.characterCount.words()} word{editor?.storage.characterCount.words() !== 1 ? 's' : ''}
-      </button>
-      <!-- svelte-ignore missing-declaration -->
-      <div class="footer-textblock">
-        <!-- {packageJson.dependencies['@tiptap/react']} -->
-        <!-- {'__'} -->
-        v{__APP_VERSION__}
-      </div>
-      {#if connected !== undefined}
+  {#if tiptapwidth > 400}
+    <div class="footer-wrapper">
+      <div class="footer">
+        <button class="footer-textblock" {disabled} on:click={() => (docStatsDialogOpen = !docStatsDialogOpen)}>
+          {editor?.storage.characterCount.words()} word{editor?.storage.characterCount.words() !== 1 ? 's' : ''}
+        </button>
+        <!-- svelte-ignore missing-declaration -->
         <div class="footer-textblock">
-          {$connected?.ws === true ? 'Connected' : 'Connecting...'}
+          <!-- {packageJson.dependencies['@tiptap/react']} -->
+          <!-- {'__'} -->
+          v{__APP_VERSION__}
         </div>
-      {/if}
+        {#if connected !== undefined}
+          <div class="footer-textblock">
+            {$connected?.ws === true ? 'Connected' : 'Connecting...'}
+          </div>
+        {/if}
+      </div>
     </div>
-  </div>
+  {/if}
 </div>
 
 <div class="bubble-menu paragraph" bind:this={bubbleMenuParagraph}>
@@ -665,5 +679,9 @@
 
   :global(.button.disabled svg) {
     opacity: 0.4;
+  }
+
+  .notices {
+    margin: 8px;
   }
 </style>
