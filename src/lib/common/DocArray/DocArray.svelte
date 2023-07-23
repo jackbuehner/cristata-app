@@ -52,7 +52,6 @@
     // so that a ydoc transaction can be created that only contains
     // the exact differences
     const diff = arrayDifferences(oldArr, newArr || arr);
-    console.log(diff);
     if (diff.length === 0) return;
 
     // update the ydoc shared type value

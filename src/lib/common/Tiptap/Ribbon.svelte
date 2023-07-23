@@ -46,7 +46,6 @@
   export let actions: Action[] = [];
   export let docStatsDialogOpen = false;
 
-  $: console.log(options?.features);
 
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';

@@ -33,8 +33,6 @@
     processed = processSchemaDef?.({ schemaDef: deconstructSchema(nestedSchemaDef, ydocKey) }) || [];
     nestedSchemaDefCache = JSON.stringify(nestedSchemaDef);
   }
-
-  $: console.log(processed);
 </script>
 
 {#each processed as [key, def]}

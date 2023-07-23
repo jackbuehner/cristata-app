@@ -171,7 +171,6 @@
       initialYear={datetime?.getFullYear()}
       on:select={(evt) => {
         if (disabled) return;
-        console.log(evt);
         month = evt.detail.month;
         day = evt.detail.day;
         year = evt.detail.year;

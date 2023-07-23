@@ -178,7 +178,6 @@
       action: async () => {
         loadingWatchAction = true;
         const error = await data.actions.toggleWatchDoc(!watcherData.isWatcher);
-        console.log(error);
         if (error) toast.error(error);
         setTimeout(() => {
           loadingWatchAction = false;

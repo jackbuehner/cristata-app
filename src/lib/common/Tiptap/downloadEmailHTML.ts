@@ -27,7 +27,6 @@ async function generateEmailHTML(
   const html = editor.getHTML();
   const constructed = `<div>${iframehtmlstring}${html}</div>`;
 
-  console.log(tiptapOptionsCss);
   const parsedCss = await less.render(`
     ${(() => {
       if (tiptapOptionsCss?.indexOf('.ProseMirror') === 0)
@@ -232,7 +231,6 @@ async function generateEmailHTML(
 
     const parsedElem = parsed.querySelector('table');
     if (parsedElem) elem.replaceWith(parsedElem);
-    console.log(content);
   });
 
   htmlDoc.querySelectorAll('photowidget').forEach((elem: Element) => {

@@ -214,8 +214,6 @@
     ySettingsMap?.set('trackChanges', bool);
   }
 
-  $: console.log(options);
-
   let docStatsDialogOpen = false;
 
   $: saveAction = actions.find((action) => action.id === 'save');
