@@ -56,7 +56,7 @@
       </MenuFlyout>
     </div>
     <article class:compact={$compactMode}>
-      <img src={person.photo || genAvatar(person._id, 36, 'beam')} alt="" class="team-photo" />
+      <img src={person.photo || genAvatar(person._id, 36, 'beam')} alt="" class="person-photo" />
       <div class="person-meta" class:compact={$compactMode}>
         <TextBlock>{person.name}</TextBlock>
 
@@ -130,7 +130,7 @@
     color: var(--fds-text-secondary);
   }
 
-  img.team-photo {
+  img.person-photo {
     border-radius: 50%;
     box-shadow: inset 0 0 0 1.5px black;
     -webkit-user-drag: none;
