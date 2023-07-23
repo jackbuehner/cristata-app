@@ -41,6 +41,7 @@ async function getYFields(ydoc: Y.Doc, _schemaDef: DeconstructedSchemaDefType, o
 
         const boolean = new shared.Boolean(ydoc);
         setProperty(data, key, boolean.get(key));
+        return;
       }
 
       if (schemaType === 'Date') {
@@ -49,6 +50,7 @@ async function getYFields(ydoc: Y.Doc, _schemaDef: DeconstructedSchemaDefType, o
 
         const date = new shared.Date(ydoc);
         setProperty(data, key, date.get(key));
+        return;
       }
 
       if (schemaType === 'DocArray') {
@@ -85,6 +87,7 @@ async function getYFields(ydoc: Y.Doc, _schemaDef: DeconstructedSchemaDefType, o
         // insert the value of this field into the data object that
         // is returned by this function
         setProperty(data, key, arrayValue);
+        return;
       }
 
       if (schemaType === 'Float') {
@@ -92,9 +95,10 @@ async function getYFields(ydoc: Y.Doc, _schemaDef: DeconstructedSchemaDefType, o
         if (isArray || options || reference) {
           const ids = float.get(key, true).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
-        } else {
-          setProperty(data, key, float.get(key, false));
+          return;
         }
+        setProperty(data, key, float.get(key, false));
+        return;
       }
 
       if (schemaType === 'JSON') {
@@ -110,20 +114,22 @@ async function getYFields(ydoc: Y.Doc, _schemaDef: DeconstructedSchemaDefType, o
         if (isArray || options || reference) {
           const ids = integer.get(key, true).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
-        } else {
-          setProperty(data, key, integer.get(key, false));
+          return;
         }
+        setProperty(data, key, integer.get(key, false));
+        return;
       }
 
-      if (schemaType === 'ObjectId') {
+      if (schemaType === 'ObjectId' || key === 'permissions.teams') {
         const reference = new shared.Reference(ydoc);
         const values = reference.get(key);
         if (opts?.retainReferenceObjects) {
           setProperty(data, key, isArray ? values : values[0]);
-        } else {
-          const ids = values.map(({ value }) => value);
-          setProperty(data, key, isArray ? ids : ids[0]);
+          return;
         }
+        const ids = values.map(({ value }) => value);
+        setProperty(data, key, isArray ? ids : ids[0]);
+        return;
       }
 
       if (schemaType === 'String') {
@@ -131,11 +137,14 @@ async function getYFields(ydoc: Y.Doc, _schemaDef: DeconstructedSchemaDefType, o
         if (isArray || options || reference) {
           const ids = (await string.get(key, true, false, false)).map(({ value }) => value);
           setProperty(data, key, isArray ? ids : ids[0]);
-        } else if (def.field?.markdown) {
-          setProperty(data, key, await string.get(key, false, false, true));
-        } else {
-          setProperty(data, key, await string.get(key, false, !!def.field?.tiptap, false));
+          return;
         }
+        if (def.field?.markdown) {
+          setProperty(data, key, await string.get(key, false, false, true));
+          return;
+        }
+        setProperty(data, key, await string.get(key, false, !!def.field?.tiptap, false));
+        return;
       }
     })
   );

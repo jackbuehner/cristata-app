@@ -30,7 +30,9 @@ export function createYStore({ tenant, collection, id, versionDate, user, decons
     if (!deconstructedSchema) {
       throw new Error('Cannot get data from shared types without specifying the collection schema');
     }
-    const res = await getYFields(get(ydoc) || undefined, deconstructedSchema, opts);
+    const $ydoc = get(ydoc);
+    if (!$ydoc) return {};
+    const res = await getYFields($ydoc, deconstructedSchema, opts);
     res._id = id;
     return res;
   }

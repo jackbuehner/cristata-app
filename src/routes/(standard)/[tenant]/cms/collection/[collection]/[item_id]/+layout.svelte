@@ -366,7 +366,7 @@
             }
             return {
               _id: value.value,
-              label: value.label,
+              name: value.label,
               color: data.helpers.colorHash.hex(value.value || '0'),
             };
           }) || [],
