@@ -19,6 +19,7 @@
     Tooltip,
   } from 'fluent-svelte';
   import JSONCrush from 'jsoncrush';
+  import { tick } from 'svelte';
   import type { Readable } from 'svelte/store';
   import type { Action } from './+layout';
   import PersonCard from './PersonCard.svelte';
@@ -292,6 +293,7 @@
       on:click={async () => {
         crushPreviewLoading = true;
         await preview?.refreshDocData?.();
+        await tick();
         const crushed = JSONCrush.crush(JSON.stringify($fullSharedData));
         window.open(
           preview.previewUrl + `?data=${encodeURIComponent(crushed)}`,
@@ -303,6 +305,7 @@
       on:auxclick={async () => {
         crushPreviewLoading = true;
         await preview?.refreshDocData?.();
+        await tick();
         console.log(JSONCrush.crush(JSON.stringify($fullSharedData)));
         console.log($fullSharedData);
         crushPreviewLoading = false;
