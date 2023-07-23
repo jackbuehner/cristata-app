@@ -532,7 +532,7 @@ export interface Action {
   icon?: string;
   action: (evt: MouseEvent | TouchEvent | KeyboardEvent | CustomEvent<any>) => void | Promise<void>;
   loading?: boolean;
-  onAuxClick?: (evt: MouseEvent) => void;
+  onAuxClick?: (evt: MouseEvent | CustomEvent<any>) => void;
   disabled?: boolean;
   tooltip?: string;
   hint?: string;
