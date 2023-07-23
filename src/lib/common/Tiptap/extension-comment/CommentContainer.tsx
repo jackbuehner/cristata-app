@@ -7,7 +7,7 @@
 //   Dismiss16Regular,
 //   Edit16Regular,
 // } from '@fluentui/react-icons';
-// import type { Node, NodeViewProps } from '@tiptap/react';
+// import type { Node, NodeViewProps } from '@tiptap/core';
 // import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
 // import Color from 'color';
 // import { DateTime } from 'luxon';

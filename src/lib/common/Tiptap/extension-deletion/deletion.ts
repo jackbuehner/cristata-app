@@ -1,6 +1,5 @@
-import { Mark } from '@tiptap/core';
-import type { Range } from '@tiptap/react';
-import { markInputRule, markPasteRule } from '@tiptap/react';
+import type { Range } from '@tiptap/core';
+import { Mark, markInputRule, markPasteRule } from '@tiptap/core';
 import { DateTime } from 'luxon';
 import type { MarkType } from 'prosemirror-model';
 import type { EditorState, Transaction } from 'prosemirror-state';

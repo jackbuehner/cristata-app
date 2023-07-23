@@ -1,5 +1,4 @@
-import { Extension } from '@tiptap/core';
-import { getMarkType } from '@tiptap/react';
+import { Extension, getMarkType } from '@tiptap/core';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { Deletion } from '../extension-deletion';
 import { setDeletionFunction } from '../extension-deletion/deletion';

@@ -1,5 +1,5 @@
+import type { Editor } from '@tiptap/core';
 import { Mark } from '@tiptap/core';
-import type { Editor } from '@tiptap/react';
 import Color from 'color';
 import type { MarkType, Mark as ProseMirrorMark, ResolvedPos, Slice } from 'prosemirror-model';
 import { Node as ProseMirrorNode } from 'prosemirror-model';

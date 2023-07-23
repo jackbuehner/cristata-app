@@ -1,6 +1,5 @@
+import type { JSONContent } from '@tiptap/core';
 import { Node } from '@tiptap/core';
-import type { JSONContent } from '@tiptap/react';
-import { ReactNodeViewRenderer } from '@tiptap/react';
 import Color from 'color';
 import type { Node as ProsemirrorNode } from 'prosemirror-model';
 import { Slice } from 'prosemirror-model';

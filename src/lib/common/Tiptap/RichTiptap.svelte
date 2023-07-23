@@ -481,7 +481,7 @@
         </button>
         <!-- svelte-ignore missing-declaration -->
         <div class="footer-textblock">
-          <!-- {packageJson.dependencies['@tiptap/react']} -->
+          <!-- {packageJson.dependencies['@tiptap/core']} -->
           <!-- {'__'} -->
           v{__APP_VERSION__}
         </div>

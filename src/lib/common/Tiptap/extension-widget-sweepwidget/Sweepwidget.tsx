@@ -1,7 +1,7 @@
 // import { openWindow } from '$utils/openWindow';
 // import { useModal } from '@cristata/react-modal-hook';
 // import { Delete16Regular, Edit16Regular, Open16Regular } from '@fluentui/react-icons';
-// import type { Node, NodeViewProps } from '@tiptap/react';
+// import type { Node, NodeViewProps } from '@tiptap/core';
 // import { NodeViewWrapper } from '@tiptap/react';
 // import IframeResizer from 'iframe-resizer-react';
 // import { useRef, useState } from 'react';
