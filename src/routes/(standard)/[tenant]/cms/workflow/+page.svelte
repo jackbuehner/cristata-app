@@ -5,16 +5,16 @@
   import { FilterChip } from '$lib/common/Chip';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
-  import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
+  import CreateNewDocDialog from '$lib/dialogs/CreateNewDocDialog.svelte';
   import { motionMode } from '$stores/motionMode';
   import { themeMode } from '$stores/themeMode';
   import { camelToDashCase } from '$utils/camelToDashCase';
   import { notEmpty } from '$utils/notEmpty';
   import { deconstructSchema } from '@jackbuehner/cristata-generator-schema';
+  import { uncapitalize } from '@jackbuehner/cristata-utils';
   import { Button, MenuFlyout, MenuFlyoutItem, ProgressRing } from 'fluent-svelte';
   import pluralize from 'pluralize';
   import { onMount } from 'svelte';
-  import { hooks } from 'svelte-preprocess-react';
   import { expoOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
   import type { PageData } from './$types';
@@ -56,27 +56,49 @@
     return arr.filter((v) => v !== 'true');
   })();
 
-  // hooks for creating a new item for a collection
-  $: newItemModalHooksStore = hooks(() => {
-    const obj: Record<string, ReturnType<typeof useNewItemModal>> = {};
-
-    data.configuration?.collections?.filter(notEmpty).forEach((col) => {
-      if (col.name === 'Photo') return;
-      if (col.name === 'File') return;
-      if (col.name === 'Activity') return;
-      if (col.pluralLabel === '__hidden') return;
-      if (!col.canCreateAndGet) return;
-      obj[col.name] = useNewItemModal(col.name, (url: string) => goto(url));
-    });
-
-    return obj;
-  });
-
-  let refetching = false;
-  let createDropdownOpen = false;
-
   $: workflow = $workflowComplete.data?.workflow?.filter(notEmpty) || [];
+
+  // variables for the dialog that creates a new doc
+  let createDropdownOpen = false;
+  $: collectionSchemaNames =
+    data.configuration?.collections
+      ?.filter(notEmpty)
+      .filter((col) => col.pluralLabel !== '__hidden' && col.canCreateAndGet)
+      .map((col) => col.name)
+      .filter(
+        (name) =>
+          name !== 'Photo' &&
+          name !== 'File' &&
+          name !== 'Activity' &&
+          name !== 'CristataEvent' &&
+          name !== 'CristataWebhook'
+      ) || [];
+  let createNewDocDialogOpen = false;
+  let createNewDocDialogCounter = 1;
+  let createNewDocDialogSchemaName = collectionSchemaNames?.[0] || '';
+  let createNewDocDialogTitle = '';
 </script>
+
+{#key createNewDocDialogCounter + createNewDocDialogSchemaName}
+  <CreateNewDocDialog
+    tenant={data.authUser.tenant}
+    schemaName={createNewDocDialogSchemaName}
+    title={createNewDocDialogTitle}
+    bind:open={createNewDocDialogOpen}
+    handleAction={async () => {
+      createNewDocDialogCounter++;
+    }}
+    handleSumbit={async (itemId) => {
+      if (typeof itemId === 'string') {
+        goto(
+          `/${data.authUser.tenant}/cms/collection/${uncapitalize(
+            camelToDashCase(createNewDocDialogSchemaName)
+          )}/${itemId}`
+        );
+      }
+    }}
+  />
+{/key}
 
 <div class="wrapper">
   <div>
@@ -86,16 +108,22 @@
       <div style="display: flex;">
         <MenuFlyout alignment="start" placement="bottom" bind:open={createDropdownOpen}>
           <svelte:fragment slot="flyout">
-            {#if $newItemModalHooksStore}
-              {#each Object.entries($newItemModalHooksStore).sort( (a, b) => a[0].localeCompare(b[0]) ) as [collectionName, [_, showModal]]}
-                {@const collectionNameSingular = pluralize.singular(
-                  camelToDashCase(collectionName).replaceAll('-', ' ')
-                )}
-                <MenuFlyoutItem disabled={!showModal} on:click={() => showModal()}>
-                  New {collectionNameSingular}
-                </MenuFlyoutItem>
-              {/each}
-            {/if}
+            {#each collectionSchemaNames as schemaName}
+              {@const collectionNameSingular = pluralize.singular(
+                camelToDashCase(schemaName).replaceAll('-', ' ')
+              )}
+              <MenuFlyoutItem
+                on:click={() => {
+                  createNewDocDialogSchemaName = schemaName;
+                  createNewDocDialogTitle = `Create new ${collectionNameSingular}`;
+                  setTimeout(() => {
+                    createNewDocDialogOpen = !createNewDocDialogOpen;
+                  }, 1);
+                }}
+              >
+                New {collectionNameSingular}
+              </MenuFlyoutItem>
+            {/each}
           </svelte:fragment>
         </MenuFlyout>
         <Button variant="accent" on:click={() => (createDropdownOpen = !createDropdownOpen)}>

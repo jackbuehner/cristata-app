@@ -6,12 +6,13 @@
   import UploadPhoto from '$lib/cms/UploadPhoto.svelte';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { ActionRow, PageTitle } from '$lib/common/PageTitle';
-  import { useNewItemModal } from '$react/CMS/CollectionPage/useNewItemModal';
+  import CreateNewDocDialog from '$lib/dialogs/CreateNewDocDialog.svelte';
   import { motionMode } from '$stores/motionMode';
   import { server } from '$utils/constants';
   import { hasKey } from '$utils/hasKey';
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
+  import { camelToDashCase } from '@jackbuehner/cristata-utils';
   import {
     Button,
     MenuFlyout,
@@ -21,6 +22,7 @@
     TextBox,
     Tooltip,
   } from 'fluent-svelte';
+  import pluralize from 'pluralize';
   import { onMount } from 'svelte';
   import { hooks } from 'svelte-preprocess-react';
   import { expoOut } from 'svelte/easing';
@@ -109,9 +111,6 @@
     goto(url);
   }
 
-  // hook for creating a new item for a collection
-  $: newItemModalHookStore = hooks(() => useNewItemModal(collectionName, (url: string) => goto(url)));
-
   // control whether the dropdown with view options is open or closed
   let viewDropdownOpen = false;
 
@@ -168,7 +167,27 @@
     localStorage.setItem(`${collectionName}:detailsPane`, `${enabled}`);
     detailsPane = enabled;
   }
+
+  let createNewDocDialogOpen = false;
+  let createNewDocDialogCounter = 1;
 </script>
+
+{#key createNewDocDialogCounter + collectionName}
+  <CreateNewDocDialog
+    tenant={data.authUser.tenant}
+    schemaName={collectionName}
+    title="Create new {collectionNameSingular}"
+    bind:open={createNewDocDialogOpen}
+    handleAction={async () => {
+      createNewDocDialogCounter++;
+    }}
+    handleSumbit={async (itemId) => {
+      if (typeof itemId === 'string') {
+        goto(`/${data.authUser.tenant}/cms/collection/${data.params.collection}/${itemId}`);
+      }
+    }}
+  />
+{/key}
 
 <div class="wrapper">
   <div class="header">
@@ -232,9 +251,12 @@
         {:else}
           <Button
             variant="accent"
-            disabled={!$newItemModalHookStore || !canCreate || loading || !collection?.canCreateAndGet}
+            disabled={!canCreate || loading || !collection?.canCreateAndGet}
             on:click={() => {
-              if ($newItemModalHookStore) $newItemModalHookStore[1]();
+              createNewDocDialogCounter++;
+              setTimeout(() => {
+                createNewDocDialogOpen = !createNewDocDialogOpen;
+              }, 1);
             }}
           >
             <FluentIcon name="DocumentAdd16Regular" mode="buttonIconLeft" />
