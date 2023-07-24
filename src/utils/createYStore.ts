@@ -1,5 +1,5 @@
 import { getYFields, type GetYFieldsOptions } from '$utils/getYFields';
-import { YProvider } from '$utils/YProvider.js';
+import { YProvider, type YProviderOptions } from '$utils/YProvider.js';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 import type { DeconstructedSchemaDefType } from '@jackbuehner/cristata-generator-schema';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
@@ -9,7 +9,15 @@ import type * as awarenessProtocol from 'y-protocols/awareness';
 import type { SignalingConn, WebrtcProvider } from 'y-webrtc';
 import type * as Y from 'yjs';
 
-export function createYStore({ tenant, collection, id, versionDate, user, deconstructedSchema }: UseYProps) {
+export function createYStore({
+  tenant,
+  collection,
+  id,
+  versionDate,
+  user,
+  deconstructedSchema,
+  providerOpts,
+}: UseYProps) {
   const y = new YProvider();
 
   const docName = versionDate
@@ -42,7 +50,7 @@ export function createYStore({ tenant, collection, id, versionDate, user, decons
    */
   onMount(() => {
     let mounted = true;
-    y.create(docName, user._id, __APP_VERSION__).then((ydata) => {
+    y.create(docName, user._id, __APP_VERSION__, providerOpts).then((ydata) => {
       if (mounted) {
         ydoc.set(ydata.ydoc);
         webProvider.set(ydata.webProvider);
@@ -172,6 +180,7 @@ interface UseYProps {
   user: AwarenessUser;
   versionDate?: string;
   deconstructedSchema?: DeconstructedSchemaDefType;
+  providerOpts?: YProviderOptions;
 }
 
 export type YStore = ReturnType<typeof createYStore>;

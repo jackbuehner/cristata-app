@@ -7,7 +7,7 @@ class YProvider {
   #webProviders: Record<string, WebrtcProvider> = {};
   #wsProviders: Record<string, HocuspocusProvider> = {};
 
-  async create(name: string, _id: string, appVersion: string, opts?: { noWebsocketConn?: boolean }) {
+  async create(name: string, _id: string, appVersion: string, opts?: YProviderOptions) {
     if (!this.has(name)) {
       // create a new Y document
       const ydoc = new Y.Doc();
@@ -71,4 +71,9 @@ class YProvider {
   }
 }
 
+interface YProviderOptions {
+  noWebsocketConn?: boolean;
+}
+
 export { YProvider };
+export type { YProviderOptions };
