@@ -435,6 +435,9 @@
   $: showPreviewWidth = previewSrc ? 1400 : 99999999999;
   $: tabsShown = currentDocAndPreviewWidth <= showPreviewWidth;
 
+  let currentContentWidth = 1000;
+  $: showSidebarInline = currentContentWidth <= 900;
+
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'compose';
   let mouseOverActiveTab = false;
@@ -474,7 +477,7 @@
   }
 </script>
 
-<div class="content-wrapper">
+<div class="content-wrapper" bind:clientWidth={currentContentWidth}>
   <div
     class="doc-and-preview"
     bind:clientWidth={currentDocAndPreviewWidth}
@@ -482,10 +485,30 @@
   >
     <div class="document-fields">
       <div style="height: 100%; overflow: auto; display: flex; flex-direction: column;">
-        <div style="display: block; flex-grow: 1;">
-          <div style="max-width: 800px; padding: 40px; margin: 0px auto;">
+        <div style="display: block; height: 100%;">
+          <div style="max-width: 800px; padding: {showSidebarInline ? 20 : 40}px; margin: 0px auto;">
             {#if tabsShown}
-              <div class="tabs-container">
+              <div class="tabs-container" class:reduceSpaceAbove={showSidebarInline}>
+                {#if showSidebarInline}
+                  <div style="margin: 0 11px;">
+                    <Sidebar
+                      docInfo={coreSidebarProps.docInfo}
+                      disabled={coreSidebarProps.disabled}
+                      ydoc={coreSidebarProps.ydoc}
+                      stageDef={coreSidebarProps.stageDef}
+                      sharedData={coreSidebarProps.sharedData}
+                      fullSharedData={coreSidebarProps.fullSharedData}
+                      awareness={coreSidebarProps.awareness}
+                      tenant={coreSidebarProps.tenant}
+                      preview={coreSidebarProps.preview}
+                      permissions={coreSidebarProps.permissions}
+                      hideVersions={coreSidebarProps.hideVersions}
+                      actions={coreSidebarProps.actions}
+                      features={{ actions: true }}
+                      isEmbedded
+                    />
+                  </div>
+                {/if}
                 <div class="tabs" bind:this={tabsContainerElement}>
                   <Button
                     data-tab={'compose'}
@@ -565,6 +588,27 @@
                   noOuterMargin
                   hide={activeTab !== 'preview'}
                 />
+              {/if}
+
+              {#if showSidebarInline}
+                <div class="sidebar-embed" style={activeTab === 'preview' ? 'display: none;' : ''}>
+                  <Sidebar
+                    docInfo={coreSidebarProps.docInfo}
+                    disabled={coreSidebarProps.disabled}
+                    ydoc={coreSidebarProps.ydoc}
+                    stageDef={coreSidebarProps.stageDef}
+                    sharedData={coreSidebarProps.sharedData}
+                    fullSharedData={coreSidebarProps.fullSharedData}
+                    awareness={coreSidebarProps.awareness}
+                    tenant={coreSidebarProps.tenant}
+                    preview={coreSidebarProps.preview}
+                    permissions={coreSidebarProps.permissions}
+                    hideVersions={coreSidebarProps.hideVersions}
+                    actions={coreSidebarProps.actions}
+                    features={{ docInfo: true, stage: true, download: true, preview: true }}
+                    isEmbedded
+                  />
+                </div>
               {/if}
 
               <!-- TODO: move this logic to a special SchemaDefField component that determines the correct -->
@@ -647,6 +691,36 @@
                   </Button>
                 </FieldWrapper>
               {/if}
+
+              {#if showSidebarInline}
+                <div class="sidebar-embed" style={activeTab === 'preview' ? 'display: none;' : ''}>
+                  <Sidebar
+                    docInfo={coreSidebarProps.docInfo}
+                    disabled={coreSidebarProps.disabled}
+                    ydoc={coreSidebarProps.ydoc}
+                    stageDef={coreSidebarProps.stageDef}
+                    sharedData={coreSidebarProps.sharedData}
+                    fullSharedData={coreSidebarProps.fullSharedData}
+                    awareness={coreSidebarProps.awareness}
+                    tenant={coreSidebarProps.tenant}
+                    preview={coreSidebarProps.preview}
+                    permissions={coreSidebarProps.permissions}
+                    hideVersions={coreSidebarProps.hideVersions}
+                    actions={coreSidebarProps.actions}
+                    features={{
+                      access: true,
+                      actions: false,
+                      current: true,
+                      docInfo: false,
+                      download: false,
+                      preview: false,
+                      stage: false,
+                      versions: true,
+                    }}
+                    isEmbedded
+                  />
+                </div>
+              {/if}
             {/if}
           </div>
         </div>
@@ -658,20 +732,22 @@
       </div>
     {/if}
   </div>
-  <Sidebar
-    docInfo={coreSidebarProps.docInfo}
-    disabled={coreSidebarProps.disabled}
-    ydoc={coreSidebarProps.ydoc}
-    stageDef={coreSidebarProps.stageDef}
-    sharedData={coreSidebarProps.sharedData}
-    fullSharedData={coreSidebarProps.fullSharedData}
-    awareness={coreSidebarProps.awareness}
-    tenant={coreSidebarProps.tenant}
-    preview={coreSidebarProps.preview}
-    permissions={coreSidebarProps.permissions}
-    hideVersions={coreSidebarProps.hideVersions}
-    actions={coreSidebarProps.actions}
-  />
+  {#if !showSidebarInline}
+    <Sidebar
+      docInfo={coreSidebarProps.docInfo}
+      disabled={coreSidebarProps.disabled}
+      ydoc={coreSidebarProps.ydoc}
+      stageDef={coreSidebarProps.stageDef}
+      sharedData={coreSidebarProps.sharedData}
+      fullSharedData={coreSidebarProps.fullSharedData}
+      awareness={coreSidebarProps.awareness}
+      tenant={coreSidebarProps.tenant}
+      preview={coreSidebarProps.preview}
+      permissions={coreSidebarProps.permissions}
+      hideVersions={coreSidebarProps.hideVersions}
+      actions={coreSidebarProps.actions}
+    />
+  {/if}
 </div>
 
 <PublishDocDialog
@@ -715,6 +791,8 @@
     overflow: auto;
     flex-grow: 1;
     position: unset !important;
+    display: flex;
+    flex-direction: column;
   }
   .doc-and-preview.showPreview {
     display: grid;
@@ -724,7 +802,7 @@
   .document-fields {
     min-width: 0;
     overflow: auto;
-    flex-grow: 1;
+    /* flex-grow: 1; */
   }
 
   .concurrent-preview {
@@ -753,6 +831,13 @@
     margin-top: -40px;
     background-color: #ffffff;
     z-index: 9;
+  }
+  .tabs-container.reduceSpaceAbove {
+    padding-top: 20px;
+    margin-top: -20px;
+  }
+  .tabs-container.reduceSpaceAbove :global(.button-row) {
+    margin-top: 0px;
   }
   @media (prefers-color-scheme: dark) {
     .tabs-container {
@@ -814,5 +899,12 @@
     justify-content: center;
     padding: 8px;
     margin-top: 20px;
+  }
+
+  .sidebar-embed {
+    background-color: var(--fds-control-fill-default);
+    padding: 0 12px 18px 12px;
+    margin-bottom: 18px;
+    border-radius: var(--fds-control-corner-radius);
   }
 </style>
