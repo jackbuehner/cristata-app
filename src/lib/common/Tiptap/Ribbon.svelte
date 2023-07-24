@@ -46,7 +46,6 @@
   export let actions: Action[] = [];
   export let docStatsDialogOpen = false;
 
-
   let tabsContainerElement: HTMLDivElement;
   let activeTab = 'home';
   let mouseOverActiveTab = false;
@@ -339,7 +338,13 @@
                     );
                   }}
                 >
-                  <PersonPicture size={26} src={user.photo} alt={user.name} />
+                  <PersonPicture
+                    size={21.2}
+                    src={user.photo}
+                    alt={user.name}
+                    class="ribbon-person-picture"
+                    style="color: {user.color};"
+                  />
                 </IconButton>
               </Tooltip>
             {/each}
@@ -887,5 +892,11 @@
   .focuszone :global(.icon-button) {
     height: 32px;
     width: 32px;
+  }
+
+  :global(.ribbon-person-picture) {
+    border: none !important;
+    box-shadow: 0 0 0 2.4px currentColor;
+    -webkit-user-drag: none;
   }
 </style>

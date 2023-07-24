@@ -267,7 +267,13 @@
                 );
               }}
             >
-              <PersonPicture size={26} src={user.photo} alt={user.name} />
+              <PersonPicture
+                size={21.2}
+                src={user.photo}
+                alt={user.name}
+                class="sidebar-person-picture"
+                style="color: {user.color};"
+              />
             </IconButton>
           </Tooltip>
         {/each}
@@ -553,5 +559,11 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
+  }
+
+  :global(.sidebar-person-picture) {
+    border: none !important;
+    box-shadow: 0 0 0 2.4px currentColor;
+    -webkit-user-drag: none;
   }
 </style>
