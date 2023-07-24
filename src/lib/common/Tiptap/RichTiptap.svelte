@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import WordCountDialog from '$lib/dialogs/WordCountDialog.svelte';
   import { SidebarHeader } from '$lib/sidebar';
@@ -372,11 +371,7 @@
         class:hidden={!$richTextParams.primaryActive}
       >
         {#key $richTextParams.primaryActive}
-          <div
-            class="sidebar-content"
-            in:fly={{ y: 20, duration, easing: expoOut, delay }}
-            out:fade={{ duration: delay }}
-          >
+          <div class="sidebar-content" in:fly={{ y: 20, duration, easing: expoOut, delay }}>
             {#if $richTextParams.primaryActive === 'comments'}
               <CommentsSidebar {editor} {user} {options} />
             {:else if $richTextParams.primaryActive === 'props' && !!coreSidebarProps}
