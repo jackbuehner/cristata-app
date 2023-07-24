@@ -471,12 +471,16 @@
   let settingFlyoutOpen = false;
   let toolboxFlyoutOpen = false;
 
-  $: navPaneCompactMode = $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === '3';
+  let windowWidth = 1000;
+  $: navPaneCompactMode =
+    $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === '3' || windowWidth < 900;
 
   beforeNavigate(() => {
     $collapsedPaneCompact = true;
   });
 </script>
+
+<svelte:window bind:innerWidth={windowWidth} />
 
 {#if navPaneCompactMode}
   <NavigationView
