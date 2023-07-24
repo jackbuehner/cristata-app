@@ -42,7 +42,7 @@
         {#if $needRefresh}
           <Button on:click={() => updateServiceWorker(true)}>Install update (estimate: 10 seconds)</Button>
         {/if}
-        <Button>Dismiss</Button>
+        <Button on:click={close}>Dismiss</Button>
       </div>
     </svelte:fragment>
   </InfoBar>
