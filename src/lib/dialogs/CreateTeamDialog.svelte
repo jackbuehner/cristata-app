@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { MultiSelect } from '$components/Select';
-  import { CreateTeam, SaveUserDeactivate, SaveUserEdits } from '$graphql/graphql';
+  import { CreateTeam } from '$graphql/graphql';
   import { SelectMany, type Option } from '$lib/common/Select';
-  import { selectProfile } from '$react/teams/selectProfile';
   import { server } from '$utils/constants';
   import { slugify } from '$utils/slugify';
-  import { Button, Checkbox, ContentDialog, InfoBar, ProgressRing, TextBlock, TextBox } from 'fluent-svelte';
+  import { Button, ContentDialog, InfoBar, ProgressRing, TextBlock, TextBox } from 'fluent-svelte';
   import { print } from 'graphql';
 
   export let open = false;

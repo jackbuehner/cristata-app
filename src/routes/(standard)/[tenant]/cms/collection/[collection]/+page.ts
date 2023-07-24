@@ -1,6 +1,6 @@
 import type { mongoFilterType } from '$graphql/client';
 import { queryWithStore } from '$graphql/query';
-import { docDefsToQueryObjectCols } from '$react/CMS/CollectionItemPage/useFindDoc';
+import { docDefsToColumnQueryObject } from '$utils/docDefsToColumnQueryObject';
 import { isJSON, uncapitalize } from '@jackbuehner/cristata-utils';
 import { parse } from 'graphql';
 import { VariableType, jsonToGraphQLQuery } from 'json-to-graphql-query';
@@ -79,7 +79,7 @@ export const load = (async ({ params, parent, url, fetch, depends }) => {
                   },
                 },
                 // fields used in the table columns
-                ...collection.deconstructedSchema.map(docDefsToQueryObjectCols)
+                ...collection.deconstructedSchema.map(docDefsToColumnQueryObject)
               ),
             },
           },

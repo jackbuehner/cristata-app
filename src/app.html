@@ -321,6 +321,14 @@
         :root {
           --fds-accent-dark-1: 253, 54%, 47%;
           --fds-accent-light-2: 253, 49%, 80%;
+
+          --titlebar-bg: #f3f3f3;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --titlebar-bg: #202020;
+          }
         }
 
         /* this is updated by tauri to match the operating system accent color (is applicable) */
@@ -368,7 +376,7 @@
           app-region: drag;
           user-select: none;
           justify-content: space-between;
-          background-color: #f3f3f3;
+          background-color: var(--titlebar-bg);
           background-color: transparent;
           padding: 0 0 0 16px;
           box-sizing: border-box;

@@ -126,11 +126,12 @@ export const load = (async ({ params, url, fetch, parent }) => {
 
   // get the configuration
   let configPending = true;
-  const config = query<GlobalConfigQuery>({
+  const config = queryWithStore<GlobalConfigQuery>({
     fetch,
     tenant,
     query: GlobalConfig,
     useCache: true,
+    waitForQuery: true,
   }).finally(() => {
     configPending = false;
     showStatus();
@@ -207,7 +208,7 @@ export const load = (async ({ params, url, fetch, parent }) => {
   const data: LayoutDataType = {
     authUser: await authUser,
     sessionId,
-    configuration: (await config)?.data?.configuration,
+    configuration: get(await config)?.data?.configuration,
     me: (await me)?.data?.user,
     basicProfiles: await basicProfiles,
     basicTeams: await basicTeams,

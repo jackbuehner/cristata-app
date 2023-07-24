@@ -7,6 +7,7 @@
   import { SOURCES, TRIGGERS, dndzone } from 'svelte-dnd-action';
   import { flip } from 'svelte/animate';
   import type { Option } from '.';
+  import Loading from '../Loading.svelte';
   import SelectedOption from './SelectedOption.svelte';
   import { handleOpenReference } from './handleOpenReference';
 
@@ -15,6 +16,7 @@
   export let reference: (FieldDef['reference'] & { collection: string }) | undefined = undefined;
   export let options: Option[] | undefined = undefined;
   export let hideIds = false;
+  export let populating = false;
 
   $: (() => {
     const unique: Option[] = [];
@@ -83,15 +85,23 @@
   $: if (!isPendingDropLocation) showClearAll = selectedOptions.length > 0;
 </script>
 
-{#if showClearAll}
+{#if showClearAll || populating}
   <div class="selection-actions">
-    <Button
-      on:click={() => {
-        selectedOptions = [];
-        dispatch('dismissall', selectedOptions);
-      }}
-      {disabled}>Clear all</Button
-    >
+    {#if showClearAll}
+      <Button
+        on:click={() => {
+          if (disabled || populating) return;
+          selectedOptions = [];
+          dispatch('dismissall', selectedOptions);
+        }}
+        disabled={disabled || populating}
+      >
+        Clear all
+      </Button>
+    {/if}
+    {#if populating}
+      <Loading message="Populating values..." />
+    {/if}
   </div>
 {/if}
 
@@ -105,11 +115,12 @@
     dropTargetStyle: {},
     dropTargetClasses: ['can-drop-here'],
     type: (() => {
-      if (reference) return slugify(`select-many.reference.${JSON.stringify(reference)}`);
+      if (reference)
+        return slugify(`select-many.reference.${JSON.stringify({ ...reference, forceLoadFields: [] })}`);
       if (options) return slugify(`select-many.options.${JSON.stringify(options)}`);
       return 'select-many.any-text';
     })(),
-    dropFromOthersDisabled: disabled,
+    dropFromOthersDisabled: disabled || populating,
   }}
   on:consider={handleDndConsider}
   on:finalize={handleDndFinalize}
@@ -119,6 +130,7 @@
       <SelectedOption
         {label}
         {_id}
+        disabled={disabled || populating}
         on:keydown={handleKeyDown}
         on:focus={() => (dragging = true)}
         on:blur={() => (dragging = false)}
@@ -148,6 +160,7 @@
     display: flex;
     flex-direction: row;
     padding: 12px 0 0 0;
+    gap: 10px;
   }
 
   .selected-list {

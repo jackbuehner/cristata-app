@@ -34,7 +34,7 @@
       <IconButton
         tabindex={-1}
         aria-label="drag-handle"
-        style="padding: 0; {disabled || dragging ? 'cursor: grab;' : 'cursor: grabbing;'}"
+        style="padding: 0; {disabled ? 'cursor: default;' : dragging ? 'cursor: grab;' : 'cursor: grabbing;'}"
         {disabled}
       >
         <svg
@@ -75,7 +75,7 @@
     align-items: stretch;
     margin-top: 6px;
     background-color: var(--fds-card-background-default);
-    border: 1px solid var(--fds-card-stroke-default);
+    box-shadow: inset 0 0 0 1px var(--fds-control-stroke-default);
     border-radius: var(--fds-control-corner-radius);
   }
 

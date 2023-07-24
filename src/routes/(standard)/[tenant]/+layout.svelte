@@ -243,7 +243,7 @@
     height: 0;
     flex-grow: 1;
     flex-shrink: 1;
-    background-color: #f3f3f3;
+    background-color: var(--titlebar-bg);
   }
 
   div#content-outer {
@@ -270,10 +270,6 @@
     /* will-change: transform; */
   }
   @media (prefers-color-scheme: dark) {
-    div#app {
-      background-color: #202020;
-    }
-
     div#content-outer {
       background-color: #272727;
       color: var(--color-neutral-dark-1400);

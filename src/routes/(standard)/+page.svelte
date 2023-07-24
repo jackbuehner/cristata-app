@@ -28,7 +28,11 @@
         });
 
         authCache.set({ last: new Date(), authUser });
-        goto(`/${authUser.tenant}`);
+
+        // for some reason, the router was not also changing the URL
+        history.replaceState({}, '', new URL(`/${authUser.tenant}`, location.origin));
+        goto(`/${authUser.tenant}`, { replaceState: true });
+        setSplashStatusText('Checking...');
       })
       .catch(async (err) => {
         await gotoSignIn(undefined, $page.url.origin);

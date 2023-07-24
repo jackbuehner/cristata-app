@@ -471,19 +471,22 @@
   let settingFlyoutOpen = false;
   let toolboxFlyoutOpen = false;
 
+  let windowWidth = 1000;
   $: navPaneCompactMode =
-    $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === 'force';
+    $page.url.searchParams.get('fs') === '1' || $page.url.searchParams.get('fs') === '3' || windowWidth < 900;
 
   beforeNavigate(() => {
     $collapsedPaneCompact = true;
   });
 </script>
 
+<svelte:window bind:innerWidth={windowWidth} />
+
 {#if navPaneCompactMode}
   <NavigationView
     variant="leftCompact"
     menuItems={[...menuFooterItems, ...mainMenuItems, ...routeMenuItems]}
-    showBackArrow
+    showBackArrow={false}
     compact={$compactMode}
     bind:collapsedPane={$collapsedPaneCompact}
   />

@@ -27,6 +27,32 @@
     color: var(--windowAccent);
   }
 
+  /* collaboration */
+  :global(.collaboration-cursor__caret) {
+    position: relative;
+    margin-left: -0.5px;
+    margin-right: -0.5px;
+    border-left: 0.5px solid #0d0d0d;
+    border-right: 0.5px solid #0d0d0d;
+    word-break: normal;
+    pointer-events: none;
+  }
+  :global(.collaboration-cursor__label) {
+    position: absolute;
+    top: -1.4em;
+    left: -1px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 680;
+    line-height: normal;
+    user-select: none;
+    color: #111111;
+    font-family: var(--fds-font-family-small);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0;
+    white-space: nowrap;
+  }
+
   /* acrylic menys */
   @supports (backdrop-filter: var(--fds-acrylic-blur-factor)) {
     @keyframes fadein {
@@ -174,5 +200,44 @@
   }
   :global(:root .content-dialog-smoke .content-dialog footer) {
     grid-auto-columns: 1fr;
+  }
+
+  /* use box shadow instead of border so that the pixel size is always correct */
+  /* darker underline */
+  :global(:root .button.style-standard) {
+    border: none !important;
+    --fds-control-stroke-secondary-overlay: hsla(0, 0%, 0%, 10.44%);
+    box-shadow: inset 0 0 0 1px var(--fds-control-stroke-default),
+      inset 0 -1px 0 0 var(--fds-control-stroke-secondary-overlay);
+    /* padding: 5px 12px 6.5px 12px; */
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root .button.style-standard) {
+      --fds-control-stroke-secondary-overlay: hsla(0, 0%, 0%, 2.32%);
+    }
+  }
+  /* uniform underline */
+  :global(:root .button.style-standard):active,
+  :global(:root .text-box-container) {
+    border: none !important;
+    box-shadow: inset 0 0 0 1px var(--fds-control-stroke-default);
+  }
+  :global(:root .checkbox[type='checkbox']:not(:checked)) {
+    border: none !important;
+    box-shadow: inset 0 0 0 1px var(--fds-control-strong-stroke-default);
+  }
+  :global(:root .text-box-underline) {
+    block-size: calc(100% + 0px) !important;
+    inline-size: calc(100% + 0px) !important;
+    inset-block-start: 0px !important;
+    inset-inline-start: 0px !important;
+  }
+  :global(:root .text-box-underline)::after {
+    border: none !important;
+    box-shadow: inset 0 -1px 0 0 var(--fds-control-strong-stroke-default);
+  }
+  :global(:root .text-box-container:focus-within .text-box-underline):after {
+    border: none !important;
+    box-shadow: inset 0 -2px 0 0 var(--fds-accent-default);
   }
 </style>

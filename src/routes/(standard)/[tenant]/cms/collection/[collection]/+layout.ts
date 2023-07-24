@@ -44,6 +44,8 @@ export const load = (async ({ params, fetch }) => {
         ...foundCollectionConfig,
         canPublish: foundCollectionConfig.canPublish || false,
         withPermissions: foundCollectionConfig.canPublish || false,
+        generationOptions: undefined,
+        options: foundCollectionConfig.generationOptions || {},
       },
       deconstructedSchema: (() => {
         const schemaDefJson = foundCollectionConfig.schemaDef;
