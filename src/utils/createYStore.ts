@@ -21,8 +21,8 @@ export function createYStore({
   const y = new YProvider();
 
   const docName = versionDate
-    ? `${tenant}.${collection}.${id}.${versionDate}`
-    : `${tenant}.${collection}.${id}`;
+    ? `${tenant}.${collection}.${id.replaceAll('.', '__‾‾')}.${versionDate}`
+    : `${tenant}.${collection}.${id.replaceAll('.', '__‾‾')}`;
 
   let mounted = false;
   let ydoc = writable<Y.Doc | null>(null);
