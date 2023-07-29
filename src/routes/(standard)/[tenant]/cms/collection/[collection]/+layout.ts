@@ -14,6 +14,7 @@ import pluralize from 'pluralize';
 import type { LayoutLoad } from './$types';
 
 export const load = (async ({ params, fetch }) => {
+  pluralize.addSingularRule('sudokus', 'sudoku');
   const collectionSchemaName = capitalize(pluralize.singular(dashToCamelCase(params.collection)));
 
   const collectionConfigResult = query<CollectionConfigQuery, CollectionConfigQueryVariables>({
