@@ -19,11 +19,12 @@
   // this will be updated by a subscription to ydoc, which is why this is not marked reactive
   let yText = $ydoc?.getText(ydocKey);
 
-  let month: number | undefined = undefined;
-  let day: number | undefined = undefined;
-  let year: number | undefined = undefined;
-  let time: string | undefined = undefined;
+  export let month: number | undefined = undefined;
+  export let day: number | undefined = undefined;
+  export let year: number | undefined = undefined;
+  export let time: string | undefined = undefined;
 
+  export let datetime: Date | undefined = undefined;
   $: datetime =
     year && month && day
       ? time

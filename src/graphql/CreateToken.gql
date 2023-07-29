@@ -1,0 +1,8 @@
+mutation CreateToken(
+  $name: String!
+  $expires: String!
+  $user_id: String!
+  $scope: ConfigurationSecurityTokenScopeInput!
+) {
+  setToken(name: $name, expires: $expires, user_id: $user_id, scope: $scope)
+}

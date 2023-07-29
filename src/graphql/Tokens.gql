@@ -1,0 +1,15 @@
+query Tokens {
+  configuration {
+    security {
+      tokens {
+        expires
+        name
+        scope {
+          admin
+        }
+        _id
+        user_id
+      }
+    }
+  }
+}

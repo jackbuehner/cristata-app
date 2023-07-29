@@ -33,14 +33,6 @@ interface QueryType {
           dashboardPassword: string;
         };
       };
-      tokens: Array<{
-        name: string;
-        token: string;
-        expires: string | 'never'; // ISO date OR 'never'
-        scope: {
-          admin: true;
-        };
-      }>;
     };
   };
 }
@@ -56,14 +48,6 @@ function queryString(): DocumentNode {
               dashboardPassword
               siteId
             }
-          }
-          tokens {
-            expires
-            name
-            scope {
-              admin
-            }
-            token
           }
         }
       }

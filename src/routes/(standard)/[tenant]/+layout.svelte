@@ -101,6 +101,7 @@
     !$page.url.pathname.includes('/configuration/app/profiles') &&
     !$page.url.pathname.includes('/configuration/app/photos') &&
     !$page.url.pathname.includes('/configuration/security/event') &&
+    !$page.url.pathname.includes('/configuration/security/tokens') &&
     !$page.url.pathname.includes('/configuration/security/webhook');
 
   // variables for page transitions

@@ -197,9 +197,14 @@
           type: 'category',
         },
         {
-          label: 'Secrets',
-          href: `/${data.authUser.tenant}/configuration/security/tokens-secrets`,
+          label: 'Tokens',
+          href: `/${data.authUser.tenant}/configuration/security/tokens`,
           icon: 'Key20Regular',
+        },
+        {
+          label: 'Secrets',
+          href: `/${data.authUser.tenant}/configuration/security/secrets`,
+          icon: 'ShieldKeyhole20Regular',
         },
         {
           label: 'Event log',

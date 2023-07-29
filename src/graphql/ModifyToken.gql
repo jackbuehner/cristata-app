@@ -1,0 +1,9 @@
+mutation ModifyToken(
+  $_id: ObjectID!
+  $name: String!
+  $expires: String!
+  $user_id: String!
+  $scope: ConfigurationSecurityTokenScopeInput!
+) {
+  setToken(_id: $_id, name: $name, expires: $expires, user_id: $user_id, scope: $scope)
+}

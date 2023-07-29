@@ -362,15 +362,20 @@ export type ConfigurationSecuritySecretsFathom = {
 
 export type ConfigurationSecurityToken = {
   __typename?: 'ConfigurationSecurityToken';
+  _id: Scalars['ObjectID'];
   expires: Scalars['String'];
   name: Scalars['String'];
   scope: ConfigurationSecurityTokenScope;
-  token: Scalars['String'];
+  user_id?: Maybe<Scalars['String']>;
 };
 
 export type ConfigurationSecurityTokenScope = {
   __typename?: 'ConfigurationSecurityTokenScope';
   admin?: Maybe<Scalars['Boolean']>;
+};
+
+export type ConfigurationSecurityTokenScopeInput = {
+  admin?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type Content = {
@@ -729,6 +734,13 @@ export type Mutation = {
   setProfilesAppFieldDescriptions?: Maybe<Scalars['Void']>;
   setRawConfigurationCollection?: Maybe<Scalars['JSON']>;
   setSecret: Scalars['String'];
+  /**
+   * Is no _id parameter is specified, a new token will be created from the parameters.
+   * Specify the token _id to update an existing token.
+   * Upon creation of a new token, the token will be returned.
+   * With existing token updates, nothing will be returned.
+   */
+  setToken?: Maybe<Scalars['String']>;
   /**
    * Set whether an existing StandaloneEmail document is archived.
    * This mutation sets archived: true by default.
@@ -1185,6 +1197,15 @@ export type MutationSetRawConfigurationCollectionArgs = {
 export type MutationSetSecretArgs = {
   key: Scalars['String'];
   value: Scalars['String'];
+};
+
+
+export type MutationSetTokenArgs = {
+  _id?: InputMaybe<Scalars['ObjectID']>;
+  expires: Scalars['String'];
+  name: Scalars['String'];
+  scope: ConfigurationSecurityTokenScopeInput;
+  user_id: Scalars['String'];
 };
 
 
@@ -3018,6 +3039,11 @@ export const CreateTeam = gql`
   }
 }
     `;
+export const CreateToken = gql`
+    mutation CreateToken($name: String!, $expires: String!, $user_id: String!, $scope: ConfigurationSecurityTokenScopeInput!) {
+  setToken(name: $name, expires: $expires, user_id: $user_id, scope: $scope)
+}
+    `;
 export const CreateUser = gql`
     mutation CreateUser($name: String!, $username: String!, $slug: String!, $email: String!, $phone: Float, $current_title: String!, $retired: Boolean) {
   userCreate(
@@ -3197,6 +3223,17 @@ export const GlobalConfig = gql`
       }
     }
   }
+}
+    `;
+export const ModifyToken = gql`
+    mutation ModifyToken($_id: ObjectID!, $name: String!, $expires: String!, $user_id: String!, $scope: ConfigurationSecurityTokenScopeInput!) {
+  setToken(
+    _id: $_id
+    name: $name
+    expires: $expires
+    user_id: $user_id
+    scope: $scope
+  )
 }
     `;
 export const ModifyWebhook = gql`
@@ -3440,6 +3477,23 @@ export const TeamsList = gql`
   }
 }
     `;
+export const Tokens = gql`
+    query Tokens {
+  configuration {
+    security {
+      tokens {
+        expires
+        name
+        scope {
+          admin
+        }
+        _id
+        user_id
+      }
+    }
+  }
+}
+    `;
 export const UserReferences = gql`
     query UserReferences($_id: ObjectID!, $limit: Int) {
   userReferences(_id: $_id, limit: $limit) {
@@ -3577,6 +3631,16 @@ export type CreateTeamMutationVariables = Exact<{
 
 export type CreateTeamMutation = { __typename?: 'Mutation', teamCreate?: { __typename?: 'Team', _id: any } | null };
 
+export type CreateTokenMutationVariables = Exact<{
+  name: Scalars['String'];
+  expires: Scalars['String'];
+  user_id: Scalars['String'];
+  scope: ConfigurationSecurityTokenScopeInput;
+}>;
+
+
+export type CreateTokenMutation = { __typename?: 'Mutation', setToken?: string | null };
+
 export type CreateUserMutationVariables = Exact<{
   name: Scalars['String'];
   username: Scalars['String'];
@@ -3651,6 +3715,17 @@ export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GlobalConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collections?: Array<{ __typename?: 'ConfigurationCollection', name: string, canCreateAndGet?: boolean | null, hasRichTextBody: boolean, schemaDef: any, pluralLabel: string, by: { __typename?: 'ConfigurationCollectionBy', one: string, many: string } } | null> | null, navigation: { __typename?: 'ConfigurationNavigation', main: Array<{ __typename?: 'ConfigurationNavigationMainItem', icon: string, label: string, to: string } | null>, cmsNav: Array<{ __typename?: 'ConfigurationNavigationSubGroup', label: string, uuid: string, items: Array<{ __typename?: 'ConfigurationNavigationSubGroupItems', icon: string, label: string, to: string, uuid: string } | null> } | null> }, dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, name: string, lastModifiedBy: string, lastModifiedAt: string, photo?: string | null }, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string } } | null> } } | null };
+
+export type ModifyTokenMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+  name: Scalars['String'];
+  expires: Scalars['String'];
+  user_id: Scalars['String'];
+  scope: ConfigurationSecurityTokenScopeInput;
+}>;
+
+
+export type ModifyTokenMutation = { __typename?: 'Mutation', setToken?: string | null };
 
 export type ModifyWebhookMutationVariables = Exact<{
   _id: Scalars['ObjectID'];
@@ -3754,6 +3829,11 @@ export type TeamsListQueryVariables = Exact<{
 
 
 export type TeamsListQuery = { __typename?: 'Query', teams?: { __typename?: 'PagedTeam', docs: Array<{ __typename?: 'Team', _id: any, name: string, members: Array<{ __typename?: 'User', _id: any } | null>, organizers: Array<{ __typename?: 'User', _id: any } | null> } | null> } | null };
+
+export type TokensQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TokensQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', security: { __typename?: 'ConfigurationSecurity', tokens: Array<{ __typename?: 'ConfigurationSecurityToken', expires: string, name: string, _id: any, user_id?: string | null, scope: { __typename?: 'ConfigurationSecurityTokenScope', admin?: boolean | null } } | null> } } | null };
 
 export type UserReferencesQueryVariables = Exact<{
   _id: Scalars['ObjectID'];
