@@ -34,7 +34,10 @@ export const load = (async ({ parent, params, url }) => {
     query: gql(
       jsonToGraphQLQuery({
         query: {
-          __name: `${collection.schemaName}DocData${slugify(params.item_id)}`,
+          __name: `${collection.schemaName}DocData${slugify(
+            params.item_id.replace(/[0-9]/g, ''),
+            'z'
+          ).replaceAll('-', 'z')}`,
           doc: {
             // we alias to "doc" so the accessor for the data is always the same
             __aliasFor: uncapitalize(collection.schemaName),
