@@ -2,4 +2,3 @@ export { CollectionSchemaPage } from './CollectionSchemaPage/CollectionSchemaPag
 export { CollectionSchemaPage as CollectionSchemaPageOld } from './CollectionSchemaPage/CollectionSchemaPageOld';
 export { ContentManagementSystemPage } from './ContentManagementSystemPage/ContentManagementSystemPage';
 export { SystemCollectionPage } from './SystemCollectionPage/SystemCollectionPage';
-export { TokenSecretsPage } from './TokenSecretsPage/TokenSecretsPage';
