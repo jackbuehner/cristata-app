@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   import FluentIcon from '$common/FluentIcon.svelte';
   import { PageSubtitle, PageTitle } from '$common/PageTitle';
@@ -8,11 +9,14 @@
   import { notEmpty } from '$utils/notEmpty';
   import { uncapitalize } from '$utils/uncapitalize';
   import { copy } from 'copy-anything';
-  import { Button, Expander } from 'fluent-svelte';
+  import { Button, Expander, TextBlock } from 'fluent-svelte';
   import type { PageData } from './$types';
 
   export let data: PageData;
   $: ({ recentActivity } = data);
+  $: if (browser) document.title = 'Cristata';
+
+  let showBugFixes = false;
 </script>
 
 <PageTitle>Dashboard</PageTitle>
@@ -49,6 +53,77 @@
 <div class="margin">
   <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
+    What's new to Cristata (August 2023)
+    <svelte:fragment slot="content">
+      <TextBlock tag="span" variant="subtitle" style="font-size: 15px;">Navigation</TextBlock>
+      <ul style="padding-inline-start: 24px; line-height: 1.5; margin-top: 0;">
+        <li>
+          <b>Mobile support:</b> The navigation pane automatically switches to collapsed mode on small screens so
+          it does not block the page.
+        </li>
+        <li>
+          <b>Better connection:</b> Cristata will no longer give up on connecting to the collaboration server when
+          the connection is lost and there are unsaved changes.
+        </li>
+      </ul>
+      <TextBlock tag="span" variant="subtitle" style="font-size: 15px;">Document editor</TextBlock>
+      <ul style="padding-inline-start: 24px; line-height: 1.5; margin-top: 0;">
+        <li>
+          <b>Easy previews:</b> Quickly switch between composing, commenting, and previewing. In rich text editors,
+          use the dropdown in the titlebar to switch modes. In other editors, use the tabs at the top of the page
+          to switch modes.
+        </li>
+        <li>
+          <b>Remove links:</b> You can now remove existing links in rich text editors via the ribbon menu.
+        </li>
+        <li>
+          <b>Improved performance:</b> The document editor has been carefully rewritten to perform better than the
+          previous version.
+        </li>
+        <li>
+          <b>Increased screen size support:</b> The sidebar automatically collapses when the screen is too narrow.
+          Previews show beside the editor on wide screens for side-by-side editing and previewing.
+        </li>
+        <li>
+          <b>Draggable reference selections:</b> Fields that reference documents in other collections (e.g., a reference
+          to the users collection) allow dragging and dropping entries between fields that reference the same collections.
+        </li>
+      </ul>
+      <TextBlock tag="span" variant="subtitle" style="font-size: 15px;">Security and tokens</TextBlock>
+      <ul style="padding-inline-start: 24px; line-height: 1.5; margin-top: 0;">
+        <li>
+          <b>API Tokens:</b> Tokens can now be edited in the Administration app. You no longer need to email Cristata
+          support to set up tokens!
+        </li>
+      </ul>
+      {#if showBugFixes}
+        <TextBlock tag="span" variant="subtitle" style="font-size: 15px;">Bug fixes</TextBlock>
+        <ul style="padding-inline-start: 24px; line-height: 1.5; margin-top: 0;">
+          <li>fix: do not fail to navigate from fullscreen richtext editor</li>
+          <li>fix: always get team label for sidebar</li>
+          <li>fix: improve timing of sidebar action button visiblity</li>
+          <li>fix: require publish timestamps to be valid before publish</li>
+          <li>fix: disable readonly schema fields</li>
+          <li>fix: actually add text value to array on arrow click</li>
+          <li>fix: disable editor fields when proper conditions are met</li>
+          <li>fix: use correct listener for hocuspocus (dis)connect</li>
+          <li>fix: properly redirect to tenant</li>
+          <li>fix: reduce excessive spacing in field descriptions</li>
+          <li>fix: use full reference objects when updating docArray data</li>
+          <li>fix: ensure that doc array never has duplicates</li>
+          <li>fix: do not autoplay youtube widget</li>
+          <li>fix: handle case where font family and size are not specified in rich text options</li>
+          <li>fix: hide hover effects when ribbon button disabled</li>
+          <li>fix: handle zenozeng/color-hash#42</li>
+          <li>fix: optimize photo widget node view</li>
+        </ul>
+      {:else}
+        <Button on:click={() => (showBugFixes = !showBugFixes)}>Show bug fixes</Button>
+      {/if}
+    </svelte:fragment>
+  </Expander>
+  <Expander>
+    <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (April 2023)
     <svelte:fragment slot="content">
       <ul style="padding-inline-start: 24px; line-height: 1.5;">
@@ -68,7 +143,7 @@
       </ul>
     </svelte:fragment>
   </Expander>
-  <Expander>
+  <!-- <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (March 2023)
     <svelte:fragment slot="content">
@@ -97,7 +172,7 @@
         </li>
       </ul>
     </svelte:fragment>
-  </Expander>
+  </Expander> -->
   <!-- <Expander>
     <FluentIcon name="Megaphone24Regular" slot="icon" />
     What's new to Cristata (February 2023)
