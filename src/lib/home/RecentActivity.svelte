@@ -176,6 +176,8 @@
   <div class="activities" class:compact={$compactMode}>
     {#each mergedActivities.sort((a, b) => (new Date(a.at) > new Date(b.at) ? -1 : 1)).slice(0, 10) as doc}
       {@const pathCollectionName = pluralize.plural(camelToDashCase(doc.colName).replaceAll('-', ''))}
+      {@const collection = configuration?.collections?.filter(notEmpty).find((col) => col.name === doc.colName)}
+      {@const collectionHidden = collection?.pluralLabel === '__hidden'}
       {@const users =
         doc.users.length === 0 ? [{ _id: '000000000000000000000000', name: 'Unknown' }] : doc.users}
       {@const collectionHref = (() => {
@@ -263,19 +265,27 @@
               {/each}
             </span>
 
-            <Button
-              variant="hyperlink"
-              style="padding: 0;"
-              href="{collectionHref}/{doc.docId}{itemQueryString}"
-            >
-              {doc.docName || 'a document'}
-            </Button>
+            {#if collectionHidden}
+              <span class="activity-text">{doc.docName || 'a document'}</span>
+            {:else}
+              <Button
+                variant="hyperlink"
+                style="padding: 0;"
+                href="{collectionHref}/{doc.docId}{itemQueryString}"
+              >
+                {doc.docName || 'a document'}
+              </Button>
+            {/if}
 
             <span class="activity-text">in</span>
 
-            <Button variant="hyperlink" style="padding: 0;" href={collectionHref}>
-              {pathCollectionName}
-            </Button>
+            {#if collectionHidden}
+              <span class="activity-text">{pathCollectionName}</span>
+            {:else}
+              <Button variant="hyperlink" style="padding: 0;" href={collectionHref}>
+                {pathCollectionName}
+              </Button>
+            {/if}
           </div>
         </div>
         <span class="time">{DateTime.fromISO(doc.at).toRelative()}</span>
