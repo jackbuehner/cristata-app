@@ -236,6 +236,11 @@
           icon: 'Image20Regular',
         },
         {
+          label: 'Fathom Analytics',
+          href: `/${data.authUser.tenant}/configuration/app/fathom-analytics`,
+          icon: 'DataUsage20Regular',
+        },
+        {
           label: 'System collections',
           type: 'category',
         },

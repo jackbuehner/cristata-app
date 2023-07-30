@@ -100,8 +100,10 @@
     !$page.url.pathname.includes('/configuration/billing/payments') &&
     !$page.url.pathname.includes('/configuration/app/profiles') &&
     !$page.url.pathname.includes('/configuration/app/photos') &&
+    !$page.url.pathname.includes('/configuration/app/fathom') &&
     !$page.url.pathname.includes('/configuration/security/event') &&
     !$page.url.pathname.includes('/configuration/security/tokens') &&
+    !$page.url.pathname.includes('/configuration/security/secrets') &&
     !$page.url.pathname.includes('/configuration/security/webhook');
 
   // variables for page transitions

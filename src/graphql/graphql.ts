@@ -3142,6 +3142,21 @@ export const FathomDashboard = gql`
   fathomDashboard
 }
     `;
+export const FathomSecrets = gql`
+    query FathomSecrets {
+  configuration {
+    security {
+      introspection
+      secrets {
+        fathom {
+          dashboardPassword
+          siteId
+        }
+      }
+    }
+  }
+}
+    `;
 export const FieldDescriptions = gql`
     query FieldDescriptions {
   configuration {
@@ -3705,6 +3720,11 @@ export type FathomDashboardQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type FathomDashboardQuery = { __typename?: 'Query', fathomDashboard?: string | null };
+
+export type FathomSecretsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FathomSecretsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', security: { __typename?: 'ConfigurationSecurity', introspection: boolean, secrets: { __typename?: 'ConfigurationSecuritySecrets', fathom?: { __typename?: 'ConfigurationSecuritySecretsFathom', dashboardPassword: string, siteId: string } | null } } } | null };
 
 export type FieldDescriptionsQueryVariables = Exact<{ [key: string]: never; }>;
 
