@@ -130,7 +130,7 @@
       field: {
         label: 'Choose publish date and time',
         description:
-          'This data can be any time in the past or future. Content will not appear until the date has occured.',
+          'This data can be any time in the past or future. Content will not appear on public queries until the specified date has occured.',
       },
       docs: undefined,
       modifiable: true,
@@ -139,6 +139,7 @@
     {disabled}
     {wsProvider}
     {user}
+    mode="publish"
     {processSchemaDef}
     {fullSharedData}
     {collectionName}
@@ -161,6 +162,7 @@
     {disabled}
     {wsProvider}
     {user}
+    mode="publish"
     {processSchemaDef}
     {fullSharedData}
     {collectionName}
