@@ -122,6 +122,13 @@
   function upload() {
     uploadInput?.click();
   }
+  let uploadFileInput: HTMLInputElement | null = null;
+  let uploadFileProgress = 0; // should be between 0 and 1
+  let uploadFileStatus: string | null = null;
+  let uploadFileLoading = false;
+  function uploadFile() {
+    uploadFileInput?.click();
+  }
 
   // check whether the current user is allowed to create a new document
   $: canCreate = $tableData.data?.actionAccess?.create;
@@ -223,11 +230,15 @@
         {#if collectionName === 'File'}
           <Button
             variant="accent"
-            disabled={!!uploadStatus || uploadLoading || !canCreate || loading || !collection?.canCreateAndGet}
-            on:click={upload}
+            disabled={!!uploadFileStatus ||
+              uploadFileLoading ||
+              !canCreate ||
+              loading ||
+              !collection?.canCreateAndGet}
+            on:click={uploadFile}
             style="width: 130px;"
           >
-            {#if uploadLoading}
+            {#if uploadFileLoading}
               <ProgressRing style="--fds-accent-default: currentColor;" size={16} />
             {:else}
               <FluentIcon name="ArrowUpload16Regular" mode="buttonIconLeft" />
@@ -418,10 +429,10 @@
   </div>
 
   <UploadFile
-    bind:uploadInput
-    bind:uploadProgress
-    bind:uploadStatus
-    bind:loading={uploadLoading}
+    bind:uploadInput={uploadFileInput}
+    bind:uploadProgress={uploadFileProgress}
+    bind:uploadStatus={uploadFileStatus}
+    bind:loading={uploadFileLoading}
     tenant={data.tenant}
     refetchData={async () => {
       refetching = true;
