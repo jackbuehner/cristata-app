@@ -128,7 +128,15 @@
   $: hasPublishedDoc = !!$sharedData._hasPublishedDoc;
   $: disconnected = !$connected.ws;
   $: disabled =
-    isOldVersion || publishLocked || archived || locked || hidden || loading || disconnected || false;
+    isOldVersion ||
+    publishLocked ||
+    archived ||
+    locked ||
+    hidden ||
+    loading ||
+    disconnected ||
+    (hasPublishedDoc && currentStage === publishStage) ||
+    false;
 
   $: docHasUnrestrictedAccess =
     data.collection.config.withPermissions === false ||
