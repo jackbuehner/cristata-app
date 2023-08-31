@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { CommentStorage } from '$components/Tiptap/extension-power-comment/powerComment';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import type Tiptap from '$lib/common/Tiptap/Tiptap.svelte';
   import { SidebarHeader } from '$lib/sidebar';
@@ -7,6 +6,7 @@
   import { Button } from 'fluent-svelte';
   import type { ComponentProps } from 'svelte';
   import type { tiptapOptions } from '../../../../config';
+  import type { CommentStorage } from '../extension-power-comment/powerComment';
   import { richTextParams } from '../richTextParams';
   import Comment from './Comment.svelte';
 
@@ -25,8 +25,8 @@
   $: storage = editor?.storage.powerComment as CommentStorage | undefined;
   $: comments = storage?.comments;
 
-  $: commentsDisabled =
-    disabled || !options?.features.comment || !user || !editor?.can().setComment(coreNewCommentAttrs);
+  $: commentsDisabled = disabled || !options?.features.comment || !user;
+  $: cannotCreateComment = !editor?.can().setComment(coreNewCommentAttrs);
 </script>
 
 <div class="header" bind:clientHeight={headerHeight}>
@@ -37,7 +37,7 @@
       on:click={commentsDisabled
         ? undefined
         : () => editor?.chain().focus().setComment(coreNewCommentAttrs).run()}
-      disabled={commentsDisabled}
+      disabled={commentsDisabled || cannotCreateComment}
     >
       <FluentIcon mode="buttonIconLeft">
         <svg height="100%" width="100%" viewBox="0,0,2048,2048" focusable="false">
