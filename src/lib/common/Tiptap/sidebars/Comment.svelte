@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { CommentStorage } from '$components/Tiptap/extension-power-comment/powerComment';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
   import { TextArea } from '$lib/common/TextArea';
   import type Tiptap from '$lib/common/Tiptap/Tiptap.svelte';
@@ -9,6 +8,7 @@
   import scrollIntoView from 'scroll-into-view-if-needed';
   import type { ComponentProps } from 'svelte';
   import { v4 as uuidv4 } from 'uuid';
+  import type { CommentStorage } from '../extension-power-comment/powerComment';
   import Reply from './Reply.svelte';
 
   export let comment: CommentStorage['comments'][0];
@@ -157,10 +157,16 @@
     if (disabled) return;
     editor
       ?.chain()
-      .command(({ commands }) => {
+      .command(({ commands, tr }) => {
         const deleted = [];
         for (let i = 0; i < comment.nodes.length; i++) {
-          deleted.push(commands.unsetComment(comment.nodes[i].pos + 1));
+          if (comment.nodes[i].nodeSize === 1) {
+            deleted.push(
+              commands.unsetComment(undefined, { from: comment.nodes[i].pos, to: comment.nodes[i].pos + 1 })
+            );
+          } else {
+            deleted.push(commands.unsetComment(comment.nodes[i].pos + 1));
+          }
         }
         return deleted.every((elem) => elem === true);
       })

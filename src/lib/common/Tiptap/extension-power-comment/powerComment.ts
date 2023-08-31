@@ -25,7 +25,7 @@ declare module '@tiptap/core' {
        *
        * This command will expand the selection to include the entiere comment node.
        */
-      unsetComment: (position?: number) => ReturnType;
+      unsetComment: (position?: number, overrideRange?: { from: number; to: number }) => ReturnType;
     };
   }
 }
@@ -221,7 +221,7 @@ const PowerComment = Mark.create<CommentOptions, CommentStorage>({
           }
         },
       unsetComment:
-        (position) =>
+        (position, overrideRange) =>
         ({ chain, state }) => {
           const originalPosition = { from: state.selection.from, to: state.selection.to };
           return chain()
@@ -239,6 +239,14 @@ const PowerComment = Mark.create<CommentOptions, CommentStorage>({
             })
             .command(({ tr, dispatch }) => {
               try {
+                if (overrideRange) {
+                  if (dispatch) {
+                    tr.setSelection(TextSelection.create(tr.doc, overrideRange.from, overrideRange.to));
+                  }
+
+                  return true;
+                }
+
                 const $anchor = tr.selection.$anchor;
 
                 // determine if the selection is contained to a single comment
