@@ -12,6 +12,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   Date: any;
+  EncryptedString: any;
   JSON: any;
   ObjectID: any;
   Void: any;
@@ -398,6 +399,7 @@ export type Content = {
   slug: Scalars['String'];
   stage?: Maybe<Scalars['Float']>;
   timestamps?: Maybe<PublishableCollectionTimestamps>;
+  toc_h3_enabled?: Maybe<Scalars['Boolean']>;
   yState?: Maybe<Scalars['String']>;
 };
 
@@ -413,6 +415,7 @@ export type ContentModifyInput = {
   show_table_of_contents?: InputMaybe<Scalars['Boolean']>;
   slug?: InputMaybe<Scalars['String']>;
   stage?: InputMaybe<Scalars['Float']>;
+  toc_h3_enabled?: InputMaybe<Scalars['Boolean']>;
   yState?: InputMaybe<Scalars['String']>;
 };
 
@@ -489,6 +492,82 @@ export type CristataWebhookModifyInputFilters = {
   condition?: InputMaybe<Scalars['String']>;
   key?: InputMaybe<Scalars['String']>;
   value?: InputMaybe<Scalars['String']>;
+  yState?: InputMaybe<Scalars['String']>;
+};
+
+export type ExternalAccount = {
+  __typename?: 'ExternalAccount';
+  _id: Scalars['ObjectID'];
+  archived: Scalars['Boolean'];
+  hidden: Scalars['Boolean'];
+  history?: Maybe<Array<Maybe<CollectionHistory>>>;
+  locked: Scalars['Boolean'];
+  mfa?: Maybe<Array<Maybe<ExternalAccountMfa>>>;
+  name: Scalars['String'];
+  password: Scalars['EncryptedString'];
+  people?: Maybe<CollectionPeople>;
+  timestamps?: Maybe<CollectionTimestamps>;
+  username: Scalars['String'];
+  website: Scalars['String'];
+  yState?: Maybe<Scalars['String']>;
+};
+
+export type ExternalAccountCollectionActionAccess = {
+  __typename?: 'ExternalAccountCollectionActionAccess';
+  create?: Maybe<ExternalAccountCollectionActionAccessObject>;
+  delete?: Maybe<ExternalAccountCollectionActionAccessObject>;
+  get?: Maybe<ExternalAccountCollectionActionAccessObject>;
+  modify?: Maybe<ExternalAccountCollectionActionAccessObject>;
+};
+
+export type ExternalAccountCollectionActionAccessInput = {
+  create?: InputMaybe<ExternalAccountCollectionActionAccessObjectInput>;
+  delete?: InputMaybe<ExternalAccountCollectionActionAccessObjectInput>;
+  get?: InputMaybe<ExternalAccountCollectionActionAccessObjectInput>;
+  modify?: InputMaybe<ExternalAccountCollectionActionAccessObjectInput>;
+};
+
+export type ExternalAccountCollectionActionAccessObject = {
+  __typename?: 'ExternalAccountCollectionActionAccessObject';
+  teams?: Maybe<Array<Scalars['String']>>;
+  users?: Maybe<Array<Scalars['String']>>;
+};
+
+export type ExternalAccountCollectionActionAccessObjectInput = {
+  teams?: InputMaybe<Array<Scalars['String']>>;
+  users?: InputMaybe<Array<Scalars['String']>>;
+};
+
+export type ExternalAccountMfa = {
+  __typename?: 'ExternalAccountMfa';
+  algorithm: Scalars['String'];
+  counter: Scalars['String'];
+  digits: Scalars['String'];
+  issuer: Scalars['String'];
+  period: Scalars['String'];
+  secret: Scalars['EncryptedString'];
+  type: Scalars['String'];
+  user: Scalars['String'];
+};
+
+export type ExternalAccountModifyInput = {
+  mfa?: InputMaybe<Array<InputMaybe<ExternalAccountModifyInputMfa>>>;
+  name?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars['EncryptedString']>;
+  username?: InputMaybe<Scalars['String']>;
+  website?: InputMaybe<Scalars['String']>;
+  yState?: InputMaybe<Scalars['String']>;
+};
+
+export type ExternalAccountModifyInputMfa = {
+  algorithm?: InputMaybe<Scalars['String']>;
+  counter?: InputMaybe<Scalars['String']>;
+  digits?: InputMaybe<Scalars['String']>;
+  issuer?: InputMaybe<Scalars['String']>;
+  period?: InputMaybe<Scalars['String']>;
+  secret?: InputMaybe<Scalars['EncryptedString']>;
+  type?: InputMaybe<Scalars['String']>;
+  user?: InputMaybe<Scalars['String']>;
   yState?: InputMaybe<Scalars['String']>;
 };
 
@@ -614,6 +693,19 @@ export type Mutation = {
   /** Modify an existing CristataWebhook document. */
   cristataWebhookModify?: Maybe<CristataWebhook>;
   deleteCollection?: Maybe<Scalars['Void']>;
+  /**
+   * Clone an existing ExternalAccount document.
+   * Certain fields are removed from the document (_id, slug, and any that start with __)
+   */
+  externalAccountClone?: Maybe<ExternalAccount>;
+  /** Sets the action access config for the ExternalAccount collection. */
+  externalAccountCollectionSetActionAccess?: Maybe<ExternalAccountCollectionActionAccess>;
+  /** Create a new ExternalAccount document. */
+  externalAccountCreate?: Maybe<ExternalAccount>;
+  /** Deletes a ExternalAccount document. */
+  externalAccountDelete?: Maybe<Scalars['Void']>;
+  /** Modify an existing ExternalAccount document. */
+  externalAccountModify?: Maybe<ExternalAccount>;
   /**
    * Clone an existing File document.
    * Certain fields are removed from the document (_id, slug, and any that start with __)
@@ -822,6 +914,45 @@ export type Mutation = {
    */
   teamWatch?: Maybe<Team>;
   /**
+   * Set whether an existing TempTest document is archived.
+   * This mutation sets archived: true by default.
+   * Archived TempTest documents should not be presented to clients
+   * unless they explicitly request to view archived items.
+   */
+  tempTestArchive?: Maybe<TempTest>;
+  /**
+   * Clone an existing TempTest document.
+   * Certain fields are removed from the document (_id, slug, and any that start with __)
+   */
+  tempTestClone?: Maybe<TempTest>;
+  /** Create a new TempTest document. */
+  tempTestCreate?: Maybe<TempTest>;
+  /** Deletes a TempTest document. */
+  tempTestDelete?: Maybe<Scalars['Void']>;
+  /**
+   * Set whether an existing TempTest document is hidden.
+   * This mutation sets hidden: true by default.
+   * Hidden TempTest documents should not be presented to clients;
+   * this is analogous to moving the document to a deleted items folder
+   */
+  tempTestHide?: Maybe<TempTest>;
+  /**
+   * Set whether an existing TempTest document is locked.
+   * This mutation sets locked: true by default.
+   * Locked TempTest documents should only be editable by the server
+   * and by admins.
+   */
+  tempTestLock?: Maybe<TempTest>;
+  /** Modify an existing TempTest document. */
+  tempTestModify?: Maybe<TempTest>;
+  /**
+   * Add a watcher to a TempTest document.
+   * This mutation adds the watcher by default. If a user _id is
+   * not specified, for the watcher, the currently authenticated user will
+   * be used.
+   */
+  tempTestWatch?: Maybe<TempTest>;
+  /**
    * Clone an existing User document.
    * Certain fields are removed from the document (_id, slug, and any that start with __)
    */
@@ -912,6 +1043,7 @@ export type MutationContentCreateArgs = {
   show_table_of_contents?: InputMaybe<Scalars['Boolean']>;
   slug?: InputMaybe<Scalars['String']>;
   stage?: InputMaybe<Scalars['Float']>;
+  toc_h3_enabled?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -979,6 +1111,35 @@ export type MutationCristataWebhookModifyArgs = {
 
 export type MutationDeleteCollectionArgs = {
   name: Scalars['String'];
+};
+
+
+export type MutationExternalAccountCloneArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type MutationExternalAccountCollectionSetActionAccessArgs = {
+  actionAccess: ExternalAccountCollectionActionAccessInput;
+};
+
+
+export type MutationExternalAccountCreateArgs = {
+  name: Scalars['String'];
+  password: Scalars['EncryptedString'];
+  username: Scalars['String'];
+  website: Scalars['String'];
+};
+
+
+export type MutationExternalAccountDeleteArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type MutationExternalAccountModifyArgs = {
+  _id: Scalars['ObjectID'];
+  input: ExternalAccountModifyInput;
 };
 
 
@@ -1316,6 +1477,53 @@ export type MutationTeamWatchArgs = {
 };
 
 
+export type MutationTempTestArchiveArgs = {
+  _id: Scalars['ObjectID'];
+  archive?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type MutationTempTestCloneArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type MutationTempTestCreateArgs = {
+  body?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+};
+
+
+export type MutationTempTestDeleteArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type MutationTempTestHideArgs = {
+  _id: Scalars['ObjectID'];
+  hide?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type MutationTempTestLockArgs = {
+  _id: Scalars['ObjectID'];
+  lock?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type MutationTempTestModifyArgs = {
+  _id: Scalars['ObjectID'];
+  input: TempTestModifyInput;
+};
+
+
+export type MutationTempTestWatchArgs = {
+  _id: Scalars['ObjectID'];
+  watch?: InputMaybe<Scalars['Boolean']>;
+  watcher?: InputMaybe<Scalars['ObjectID']>;
+};
+
+
 export type MutationUserCloneArgs = {
   _id: Scalars['ObjectID'];
 };
@@ -1560,6 +1768,20 @@ export type PagedCristataWebhook = {
   totalPages?: Maybe<Scalars['Int']>;
 };
 
+export type PagedExternalAccount = {
+  __typename?: 'PagedExternalAccount';
+  docs: Array<Maybe<ExternalAccount>>;
+  hasNextPage?: Maybe<Scalars['Boolean']>;
+  hasPrevPage?: Maybe<Scalars['Boolean']>;
+  limit?: Maybe<Scalars['Int']>;
+  nextPage?: Maybe<Scalars['Int']>;
+  page?: Maybe<Scalars['Int']>;
+  pagingCounter?: Maybe<Scalars['Int']>;
+  prevPage?: Maybe<Scalars['Int']>;
+  totalDocs?: Maybe<Scalars['Int']>;
+  totalPages?: Maybe<Scalars['Int']>;
+};
+
 export type PagedFile = {
   __typename?: 'PagedFile';
   docs: Array<Maybe<File>>;
@@ -1717,6 +1939,20 @@ export type PagedStandaloneEmail = {
 export type PagedTeam = {
   __typename?: 'PagedTeam';
   docs: Array<Maybe<Team>>;
+  hasNextPage?: Maybe<Scalars['Boolean']>;
+  hasPrevPage?: Maybe<Scalars['Boolean']>;
+  limit?: Maybe<Scalars['Int']>;
+  nextPage?: Maybe<Scalars['Int']>;
+  page?: Maybe<Scalars['Int']>;
+  pagingCounter?: Maybe<Scalars['Int']>;
+  prevPage?: Maybe<Scalars['Int']>;
+  totalDocs?: Maybe<Scalars['Int']>;
+  totalPages?: Maybe<Scalars['Int']>;
+};
+
+export type PagedTempTest = {
+  __typename?: 'PagedTempTest';
+  docs: Array<Maybe<TempTest>>;
   hasNextPage?: Maybe<Scalars['Boolean']>;
   hasPrevPage?: Maybe<Scalars['Boolean']>;
   limit?: Maybe<Scalars['Int']>;
@@ -1909,6 +2145,7 @@ export type PrunedContent = {
   show_table_of_contents?: Maybe<Scalars['Boolean']>;
   slug: Scalars['String'];
   timestamps?: Maybe<PrunedContentTimestamps>;
+  toc_h3_enabled?: Maybe<Scalars['Boolean']>;
 };
 
 export type PrunedContentQuick_Links = {
@@ -2115,6 +2352,13 @@ export type Query = {
    * If _id is omitted, the API will return all CristataWebhook documents.
    */
   cristataWebhooks?: Maybe<PagedCristataWebhook>;
+  /** Get a ExternalAccount document by _id. */
+  externalAccount?: Maybe<ExternalAccount>;
+  /**
+   * Get a set of ExternalAccount documents by _id.
+   * If _id is omitted, the API will return all ExternalAccount documents.
+   */
+  externalAccounts?: Maybe<PagedExternalAccount>;
   /**
    * Get an authenticated URL to the fathom analytics dashboard.
    * Only administrators can use this query.
@@ -2223,6 +2467,18 @@ export type Query = {
    * If _id is omitted, the API will return all Team documents.
    */
   teams?: Maybe<PagedTeam>;
+  /** Get a TempTest document by _id. */
+  tempTest?: Maybe<TempTest>;
+  /**
+   * Get the permissions of the currently authenticated user for the
+   * TempTest collection.
+   */
+  tempTestActionAccess?: Maybe<CollectionActionAccess>;
+  /**
+   * Get a set of TempTest documents by _id.
+   * If _id is omitted, the API will return all TempTest documents.
+   */
+  tempTests?: Maybe<PagedTempTest>;
   /** Get some details about the tenant. */
   tenant?: Maybe<TenantDetails>;
   /**
@@ -2375,6 +2631,21 @@ export type QueryCristataWebhookArgs = {
 
 
 export type QueryCristataWebhooksArgs = {
+  _ids?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
+  filter?: InputMaybe<Scalars['JSON']>;
+  limit: Scalars['Int'];
+  offset?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
+export type QueryExternalAccountArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type QueryExternalAccountsArgs = {
   _ids?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
   filter?: InputMaybe<Scalars['JSON']>;
   limit: Scalars['Int'];
@@ -2562,6 +2833,26 @@ export type QueryTeamsArgs = {
 };
 
 
+export type QueryTempTestArgs = {
+  _id: Scalars['ObjectID'];
+};
+
+
+export type QueryTempTestActionAccessArgs = {
+  _id?: InputMaybe<Scalars['ObjectID']>;
+};
+
+
+export type QueryTempTestsArgs = {
+  _ids?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
+  filter?: InputMaybe<Scalars['JSON']>;
+  limit: Scalars['Int'];
+  offset?: InputMaybe<Scalars['Int']>;
+  page?: InputMaybe<Scalars['Int']>;
+  sort?: InputMaybe<Scalars['JSON']>;
+};
+
+
 export type QueryUserArgs = {
   _id?: InputMaybe<Scalars['ObjectID']>;
 };
@@ -2715,6 +3006,26 @@ export type TeamModifyInput = {
   name?: InputMaybe<Scalars['String']>;
   organizers?: InputMaybe<Array<InputMaybe<Scalars['ObjectID']>>>;
   slug?: InputMaybe<Scalars['String']>;
+  yState?: InputMaybe<Scalars['String']>;
+};
+
+export type TempTest = {
+  __typename?: 'TempTest';
+  _id: Scalars['ObjectID'];
+  archived: Scalars['Boolean'];
+  body?: Maybe<Scalars['String']>;
+  hidden: Scalars['Boolean'];
+  history?: Maybe<Array<Maybe<CollectionHistory>>>;
+  locked: Scalars['Boolean'];
+  name: Scalars['String'];
+  people?: Maybe<CollectionPeople>;
+  timestamps?: Maybe<CollectionTimestamps>;
+  yState?: Maybe<Scalars['String']>;
+};
+
+export type TempTestModifyInput = {
+  body?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
   yState?: InputMaybe<Scalars['String']>;
 };
 
@@ -2901,6 +3212,7 @@ export type WebConfigFormsDocumentsPublic = {
   __typename?: 'WebConfigFormsDocumentsPublic';
   documents: Array<Maybe<File>>;
   label: Scalars['String'];
+  urls: Array<Maybe<Scalars['JSON']>>;
 };
 
 export type WebConfigModifyInput = {
@@ -3006,6 +3318,18 @@ export const CollectionConfig = gql`
   }
 }
     `;
+export const CreateExternalAccount = gql`
+    mutation CreateExternalAccount($name: String!, $website: String!, $username: String!, $password: EncryptedString!) {
+  externalAccountCreate(
+    name: $name
+    website: $website
+    username: $username
+    password: $password
+  ) {
+    _id
+  }
+}
+    `;
 export const CreateFile = gql`
     mutation CreateFile($name: String!, $file_type: String!, $size_bytes: Int!, $uuid: String!) {
   fileCreate(
@@ -3100,6 +3424,11 @@ export const DashboardConfig = gql`
   }
 }
     `;
+export const DeleteExternalAccount = gql`
+    mutation DeleteExternalAccount($_id: ObjectID!) {
+  externalAccountDelete(_id: $_id)
+}
+    `;
 export const DeleteTeam = gql`
     mutation DeleteTeam($_id: ObjectID!) {
   teamDelete(_id: $_id)
@@ -3134,6 +3463,28 @@ export const EventsList = gql`
       webhook
     }
     totalDocs
+  }
+}
+    `;
+export const ExternalAccountsAppSettings = gql`
+    query ExternalAccountsAppSettings {
+  configuration {
+    collection(name: "ExternalAccount") {
+      raw
+    }
+  }
+}
+    `;
+export const ExternalAccountsList = gql`
+    query ExternalAccountsList($page: Int, $limit: Int!) {
+  externalAccounts(page: $page, limit: $limit, sort: "{ \\"name\\": 1 }") {
+    docs {
+      _id
+      name
+      website
+      username
+      password
+    }
   }
 }
     `;
@@ -3237,6 +3588,13 @@ export const GlobalConfig = gql`
         }
       }
     }
+  }
+}
+    `;
+export const ModifyExternalAccount = gql`
+    mutation ModifyExternalAccount($_id: ObjectID!, $input: ExternalAccountModifyInput!) {
+  externalAccountModify(_id: $_id, input: $input) {
+    _id
   }
 }
     `;
@@ -3614,6 +3972,16 @@ export type CollectionConfigQueryVariables = Exact<{
 
 export type CollectionConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collection?: { __typename?: 'ConfigurationCollection', name: string, pluralName: string, canPublish?: boolean | null, withPermissions?: boolean | null, schemaDef: any, canCreateAndGet?: boolean | null, generationOptions?: { __typename?: 'ConfigurationCollectionGenerationOptions', mandatoryWatchers?: Array<string | null> | null, previewUrl?: string | null, dynamicPreviewHref?: string | null, nameField?: string | null, disableCreateMutation?: boolean | null, disableHideMutation?: boolean | null, disableArchiveMutation?: boolean | null, disablePublishMutation?: boolean | null, independentPublishedDocCopy?: boolean | null } | null, by: { __typename?: 'ConfigurationCollectionBy', one: string, many: string } } | null } | null };
 
+export type CreateExternalAccountMutationVariables = Exact<{
+  name: Scalars['String'];
+  website: Scalars['String'];
+  username: Scalars['String'];
+  password: Scalars['EncryptedString'];
+}>;
+
+
+export type CreateExternalAccountMutation = { __typename?: 'Mutation', externalAccountCreate?: { __typename?: 'ExternalAccount', _id: any } | null };
+
 export type CreateFileMutationVariables = Exact<{
   name: Scalars['String'];
   file_type: Scalars['String'];
@@ -3685,6 +4053,13 @@ export type DashboardConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type DashboardConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string }, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, lastModifiedAt: string, lastModifiedBy: string, name: string, photo?: string | null } } | null> } } | null };
 
+export type DeleteExternalAccountMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+}>;
+
+
+export type DeleteExternalAccountMutation = { __typename?: 'Mutation', externalAccountDelete?: any | null };
+
 export type DeleteTeamMutationVariables = Exact<{
   _id: Scalars['ObjectID'];
 }>;
@@ -3716,6 +4091,19 @@ export type EventsListQueryVariables = Exact<{
 
 export type EventsListQuery = { __typename?: 'Query', cristataEvents?: { __typename?: 'PagedCristataEvent', totalDocs?: number | null, docs: Array<{ __typename?: 'CristataEvent', _id: any, at: any, name: string, reason: string, document?: any | null, webhook?: any | null } | null> } | null };
 
+export type ExternalAccountsAppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ExternalAccountsAppSettingsQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collection?: { __typename?: 'ConfigurationCollection', raw: any } | null } | null };
+
+export type ExternalAccountsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']>;
+  limit: Scalars['Int'];
+}>;
+
+
+export type ExternalAccountsListQuery = { __typename?: 'Query', externalAccounts?: { __typename?: 'PagedExternalAccount', docs: Array<{ __typename?: 'ExternalAccount', _id: any, name: string, website: string, username: string, password: any } | null> } | null };
+
 export type FathomDashboardQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3735,6 +4123,14 @@ export type GlobalConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GlobalConfigQuery = { __typename?: 'Query', configuration?: { __typename?: 'Configuration', collections?: Array<{ __typename?: 'ConfigurationCollection', name: string, canCreateAndGet?: boolean | null, hasRichTextBody: boolean, schemaDef: any, pluralLabel: string, by: { __typename?: 'ConfigurationCollectionBy', one: string, many: string } } | null> | null, navigation: { __typename?: 'ConfigurationNavigation', main: Array<{ __typename?: 'ConfigurationNavigationMainItem', icon: string, label: string, to: string } | null>, cmsNav: Array<{ __typename?: 'ConfigurationNavigationSubGroup', label: string, uuid: string, items: Array<{ __typename?: 'ConfigurationNavigationSubGroupItems', icon: string, label: string, to: string, uuid: string } | null> } | null> }, dashboard: { __typename?: 'ConfigurationDashboard', collectionRows: Array<{ __typename?: 'ConfigurationDashboardCollectionRow', arrPath: string, query: string, dataKeys: { __typename?: 'ConfigurationDashboardCollectionRowDataKeys', _id: string, description?: string | null, name: string, lastModifiedBy: string, lastModifiedAt: string, photo?: string | null }, header: { __typename?: 'ConfigurationDashboardCollectionRowHeader', icon: string, label: string }, to: { __typename?: 'ConfigurationDashboardCollectionRowTo', idPrefix: string, idSuffix: string } } | null> } } | null };
+
+export type ModifyExternalAccountMutationVariables = Exact<{
+  _id: Scalars['ObjectID'];
+  input: ExternalAccountModifyInput;
+}>;
+
+
+export type ModifyExternalAccountMutation = { __typename?: 'Mutation', externalAccountModify?: { __typename?: 'ExternalAccount', _id: any } | null };
 
 export type ModifyTokenMutationVariables = Exact<{
   _id: Scalars['ObjectID'];

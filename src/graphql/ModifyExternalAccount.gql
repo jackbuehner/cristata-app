@@ -1,0 +1,5 @@
+mutation ModifyExternalAccount($_id: ObjectID!, $input: ExternalAccountModifyInput!) {
+  externalAccountModify(_id: $_id, input: $input) {
+    _id
+  }
+}

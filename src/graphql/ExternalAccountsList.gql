@@ -1,0 +1,11 @@
+query ExternalAccountsList($page: Int, $limit: Int!) {
+  externalAccounts(page: $page, limit: $limit, sort: "{ \"name\": 1 }") {
+    docs {
+      _id
+      name
+      website
+      username
+      password
+    }
+  }
+}

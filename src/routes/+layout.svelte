@@ -192,11 +192,14 @@
     background-color: var(--fds-layer-background-default);
   }
 
-  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > div.error) {
+  /* :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > div.error) {
     position: absolute;
     bottom: 62px;
     z-index: 1;
     width: calc(100% - 48px);
+  } */
+  :global(:root .content-dialog-smoke .content-dialog .content-dialog-body > div.error) {
+    margin-bottom: 10px;
   }
   :global(:root .content-dialog-smoke .content-dialog footer) {
     grid-auto-columns: 1fr;

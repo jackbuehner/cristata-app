@@ -236,6 +236,11 @@
           icon: 'Image20Regular',
         },
         {
+          label: 'External accounts',
+          href: `/${data.authUser.tenant}/configuration/app/external-accounts`,
+          icon: 'PersonAccounts20Regular',
+        },
+        {
           label: 'Fathom Analytics',
           href: `/${data.authUser.tenant}/configuration/app/fathom-analytics`,
           icon: 'DataUsage20Regular',

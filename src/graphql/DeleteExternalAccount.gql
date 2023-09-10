@@ -1,0 +1,3 @@
+mutation DeleteExternalAccount($_id: ObjectID!) {
+  externalAccountDelete(_id: $_id)
+}

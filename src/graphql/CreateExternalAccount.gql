@@ -1,0 +1,10 @@
+mutation CreateExternalAccount(
+  $name: String!
+  $website: String!
+  $username: String!
+  $password: EncryptedString!
+) {
+  externalAccountCreate(name: $name, website: $website, username: $username, password: $password) {
+    _id
+  }
+}
