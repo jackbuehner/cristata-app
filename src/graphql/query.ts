@@ -112,7 +112,7 @@ export async function query<DataType = unknown, VariablesType = unknown>({
     }));
   }
 
-  return fetch(`${server.location}/v3/${opts.tenant}`, {
+  return fetch(`${server.location}/v3/${opts.tenant}${operationName ? `?${operationName}` : ''}`, {
     method: 'POST',
     signal: opts.signal,
     credentials: 'include',
