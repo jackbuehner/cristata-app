@@ -39,6 +39,7 @@
       }
       if (item.label === 'API') item.label = 'Playground';
       if (item.label === 'Configure') item.label = 'Administration';
+      if (item.label === 'External accounts') item.label = 'Accounts';
       return item;
     }) as { icon, label, to }}
     <TileButton href="/{data.tenant}{to}">
