@@ -2,11 +2,13 @@
   import type { ExternalAccountsListQuery } from '$graphql/graphql';
   import { FieldWrapper } from '$lib/common/Field';
   import FluentIcon from '$lib/common/FluentIcon.svelte';
+  import AddTotpToExternalAccountDialog from '$lib/dialogs/AddTotpToExternalAccountDialog.svelte';
   import DeleteExternalAccountDialog from '$lib/dialogs/DeleteExternalAccountDialog.svelte';
   import ModifyExternalAccountDialog from '$lib/dialogs/EditExternalAccountDialog.svelte';
   import { compactMode } from '$stores/compactMode';
   import { isURL } from '$utils/isURL';
-  import { IconButton, TextBox } from 'fluent-svelte';
+  import { jsOTP } from '$utils/jsOTP';
+  import { Button, IconButton, TextBox } from 'fluent-svelte';
 
   export let account: NonNullable<
     NonNullable<NonNullable<ExternalAccountsListQuery['externalAccounts']>['docs']>[0]
@@ -18,6 +20,30 @@
   let modifyExternalAccountRecordDialogOpen = false;
   let counter = 0;
   let deleteExternalAccountRecordDialogOpen = false;
+  let addTotpToExternalAccountRecordDialogOpen = false;
+
+  $: codeDetails = account.mfa?.[0] || undefined;
+  $: totp = codeDetails ? new jsOTP.totp(codeDetails.period ?? 30, codeDetails.digits ?? 6) : undefined;
+
+  let timeCode: string;
+  function updateTotpCode() {
+    if (totp && codeDetails?.secret) {
+      timeCode = totp.getOtp(codeDetails.secret);
+    }
+  }
+
+  let countDown = 0;
+  let countDownPercent = 0;
+  setInterval(() => {
+    if (codeDetails) {
+      const epoch = Math.round(new Date().getTime() / 1000.0);
+      const period = codeDetails?.period || 30;
+      countDown = period - (epoch % period);
+      countDownPercent = (countDown / period) * 100;
+      if (epoch % period == 0) updateTotpCode();
+      if (!timeCode) updateTotpCode();
+    }
+  }, 1000);
 </script>
 
 <article class:compact={$compactMode}>
@@ -26,7 +52,7 @@
     <div class="buttons">
       {#if account.website && isURL(account.website)}
         <IconButton href={account.website} target="_blank" rel="noreferrer noopener">
-          <FluentIcon name="Open24Regular" />
+          <FluentIcon name="Open24Regular" />s
         </IconButton>
       {/if}
       <IconButton
@@ -47,6 +73,22 @@
   <FieldWrapper label="Password" forId="password{index}">
     <TextBox value={account.password} id="password{index}" type="password" readonly />
   </FieldWrapper>
+  {#if account.mfa?.[0]}
+    <FieldWrapper
+      label="TOTP code"
+      forId="2fa{index}"
+      style="--progress: {countDownPercent}%; --progressNum: {countDownPercent / 100};"
+    >
+      <TextBox value={timeCode} id="2fa{index}" class="mfa-box" readonly />
+    </FieldWrapper>
+  {:else}
+    <Button
+      style="margin-top: 10px;"
+      on:click={() => (addTotpToExternalAccountRecordDialogOpen = !addTotpToExternalAccountRecordDialogOpen)}
+    >
+      Add two-factor authentication code
+    </Button>
+  {/if}
 </article>
 {#key counter}
   <ModifyExternalAccountDialog
@@ -57,6 +99,7 @@
     website={account.website}
     username={account.username}
     password={account.password}
+    hasMfa={!!account.mfa?.[0]}
     handleCancel={async () => {
       counter++;
     }}
@@ -67,6 +110,14 @@
 {/key}
 <DeleteExternalAccountDialog
   bind:open={deleteExternalAccountRecordDialogOpen}
+  {tenant}
+  _id={account._id}
+  handleSumbit={async () => {
+    await refetch();
+  }}
+/>
+<AddTotpToExternalAccountDialog
+  bind:open={addTotpToExternalAccountRecordDialogOpen}
   {tenant}
   _id={account._id}
   handleSumbit={async () => {
@@ -121,9 +172,17 @@
   article.compact :global(div.field .field-label) {
     margin-bottom: 0 !important;
     white-space: normal !important;
-    width: 65px;
+    width: 70px;
   }
   article.compact :global(div.field .field-label > *:not(:first-child)) {
     display: none;
+  }
+
+  :global(.mfa-box .text-box-underline)::after {
+    box-shadow: inset 0 -2px 0 0 rgb(calc(255 - var(--progressNum) * 255), calc(var(--progressNum) * 255), calc(var(
+              --progressNum
+            ) * 50));
+    inline-size: var(--progress) !important;
+    transition: inline-size linear 1000ms;
   }
 </style>

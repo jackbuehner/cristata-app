@@ -541,10 +541,10 @@ export type ExternalAccountCollectionActionAccessObjectInput = {
 export type ExternalAccountMfa = {
   __typename?: 'ExternalAccountMfa';
   algorithm: Scalars['String'];
-  counter: Scalars['String'];
-  digits: Scalars['String'];
+  counter: Scalars['Int'];
+  digits: Scalars['Int'];
   issuer: Scalars['String'];
-  period: Scalars['String'];
+  period: Scalars['Int'];
   secret: Scalars['EncryptedString'];
   type: Scalars['String'];
   user: Scalars['String'];
@@ -561,10 +561,10 @@ export type ExternalAccountModifyInput = {
 
 export type ExternalAccountModifyInputMfa = {
   algorithm?: InputMaybe<Scalars['String']>;
-  counter?: InputMaybe<Scalars['String']>;
-  digits?: InputMaybe<Scalars['String']>;
+  counter?: InputMaybe<Scalars['Int']>;
+  digits?: InputMaybe<Scalars['Int']>;
   issuer?: InputMaybe<Scalars['String']>;
-  period?: InputMaybe<Scalars['String']>;
+  period?: InputMaybe<Scalars['Int']>;
   secret?: InputMaybe<Scalars['EncryptedString']>;
   type?: InputMaybe<Scalars['String']>;
   user?: InputMaybe<Scalars['String']>;
@@ -3484,6 +3484,11 @@ export const ExternalAccountsList = gql`
       website
       username
       password
+      mfa {
+        secret
+        digits
+        period
+      }
     }
   }
 }
@@ -4102,7 +4107,7 @@ export type ExternalAccountsListQueryVariables = Exact<{
 }>;
 
 
-export type ExternalAccountsListQuery = { __typename?: 'Query', externalAccounts?: { __typename?: 'PagedExternalAccount', docs: Array<{ __typename?: 'ExternalAccount', _id: any, name: string, website: string, username: string, password: any } | null> } | null };
+export type ExternalAccountsListQuery = { __typename?: 'Query', externalAccounts?: { __typename?: 'PagedExternalAccount', docs: Array<{ __typename?: 'ExternalAccount', _id: any, name: string, website: string, username: string, password: any, mfa?: Array<{ __typename?: 'ExternalAccountMfa', secret: any, digits: number, period: number } | null> | null } | null> } | null };
 
 export type FathomDashboardQueryVariables = Exact<{ [key: string]: never; }>;
 

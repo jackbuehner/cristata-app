@@ -6,6 +6,11 @@ query ExternalAccountsList($page: Int, $limit: Int!) {
       website
       username
       password
+      mfa {
+        secret
+        digits
+        period
+      }
     }
   }
 }

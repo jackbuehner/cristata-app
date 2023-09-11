@@ -5,7 +5,7 @@
   import CreateExternalAccountDialog from '$lib/dialogs/CreateExternalAccountDialog.svelte';
   import { compactMode } from '$stores/compactMode';
   import { notEmpty } from '@jackbuehner/cristata-utils';
-  import { Button, ProgressRing, Tooltip } from 'fluent-svelte';
+  import { Button, ProgressRing, TextBlock, Tooltip } from 'fluent-svelte';
   import AccountCard from './AccountCard.svelte';
 
   export let data;
@@ -73,7 +73,7 @@
   {#each ($externalAccountsList.data?.externalAccounts?.docs || []).filter(notEmpty) as account, index}
     <AccountCard {account} {index} tenant={data.authUser.tenant} refetch={$externalAccountsList.refetch} />
   {:else}
-    There are no external accounts stored in your tenant.
+    <TextBlock>There are no external accounts stored in your tenant.</TextBlock>
   {/each}
 </div>
 

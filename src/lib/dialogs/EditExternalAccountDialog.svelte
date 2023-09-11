@@ -2,7 +2,7 @@
   import { ModifyExternalAccount } from '$graphql/graphql';
   import { FieldWrapper } from '$lib/common/Field';
   import { server } from '$utils/constants';
-  import { Button, ContentDialog, InfoBar, ProgressRing, TextBox } from 'fluent-svelte';
+  import { Button, Checkbox, ContentDialog, InfoBar, ProgressRing, TextBox } from 'fluent-svelte';
   import { print } from 'graphql';
 
   export let open = false;
@@ -14,6 +14,8 @@
   export let website: string;
   export let username: string;
   export let password: string;
+  export let hasMfa = false;
+  let removeMfa = false;
 
   export let handleAction: (() => Promise<void>) | undefined = undefined;
   export let handleSumbit: ((_id: string) => Promise<void>) | undefined = undefined;
@@ -32,7 +34,7 @@
         query: print(ModifyExternalAccount),
         variables: {
           _id,
-          input: { name, website, username, password },
+          input: { name, website, username, password, mfa: removeMfa ? [] : undefined },
         },
       }),
     })
@@ -108,6 +110,14 @@
   >
     <TextBox bind:value={password} id="password" type="password" autocomplete="new-password" />
   </FieldWrapper>
+
+  {#if hasMfa}
+    <FieldWrapper label="TOTP code" forId="totpRemove">
+      <Checkbox bind:checked={removeMfa} id="totpRemove">
+        Remove the time-based authentication code used for two-factor authentication.
+      </Checkbox>
+    </FieldWrapper>
+  {/if}
 
   <svelte:fragment slot="footer">
     <Button
