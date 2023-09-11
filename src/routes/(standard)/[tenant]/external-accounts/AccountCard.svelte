@@ -52,7 +52,7 @@
     <div class="buttons">
       {#if account.website && isURL(account.website)}
         <IconButton href={account.website} target="_blank" rel="noreferrer noopener">
-          <FluentIcon name="Open24Regular" />s
+          <FluentIcon name="Open24Regular" />
         </IconButton>
       {/if}
       <IconButton
