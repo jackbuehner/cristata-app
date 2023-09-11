@@ -56,7 +56,7 @@
         </InfoBar>
       </div>
     {:else if $billingStatus.data?.billing.subscription_active}
-      <PageSubtitle caption="Thank you! Please email billing-change@cristata.app to switch to a different plan."
+      <PageSubtitle caption="Thank you! Please email billing-change@cristata.app to switch to a different plan. For all other support queries (including feature requests and bug reports), email support@cristata.app or submit to https://github.com/jackbuehner/cristata-issues/issues."
         >You are currently subscribed to Cristata</PageSubtitle
       >
       <section>
